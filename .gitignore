@@ -1,4 +1,6 @@
+HELP.md
 target/
+!.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
 
@@ -16,6 +18,9 @@ target/
 *.iws
 *.iml
 *.ipr
+
+### VS Code ###
+.vscode/
 
 # gradle
 .gradle

@@ -1,4 +1,4 @@
-package com.healthy.gym.apigateway;
+package com.healthy.gym.api.gateway;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

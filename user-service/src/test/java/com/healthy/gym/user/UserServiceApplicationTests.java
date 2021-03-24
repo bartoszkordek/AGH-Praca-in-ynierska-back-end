@@ -1,4 +1,4 @@
-package com.healthy.gym.userservice;
+package com.healthy.gym.user;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

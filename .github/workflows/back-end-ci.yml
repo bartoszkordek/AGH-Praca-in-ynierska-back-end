@@ -7,8 +7,8 @@ on:
     branches: [ main ]
 
 jobs:
-  build:
-
+  user-service:
+    name: User service
     runs-on: ubuntu-latest
 
     steps:
@@ -19,12 +19,12 @@ jobs:
         uses: actions/setup-java@v1
         with:
           java-version: 11
-
-      - name: Build and test - discovery service.
-        run: ./mvnw test --file ./discovery/pom.xml
-
-      - name: Build and test - api-gateway service.
-        run: ./mvnw test --file ./api-gateway/pom.xml
-
+      
+      - name: Validate project
+        run: ./mvnw validate --file ./user-service/pom.xml
+        
+      - name: Compile project
+        run: ./mvnw compile --file ./user-service/pom.xml
+          
       - name: Build and test - user service.
         run: ./mvnw test --file ./user-service/pom.xml

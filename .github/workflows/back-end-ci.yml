@@ -1,0 +1,84 @@
+name: Back-end CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  discovery:
+    name: Discovery
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v2
+
+      - name: Set up JDK 11
+        uses: actions/setup-java@v1
+        with:
+          java-version: 11
+      
+      - name: Validate
+        run: mvn validate --file ./discovery/pom.xml
+        
+      - name: Compile
+        run: mvn compile --file ./discovery/pom.xml
+          
+      - name: Build
+        run: mvn spring-boot:build-info --file ./discovery/pom.xml
+        
+      - name: Test
+        run: mvn test --file ./discovery/pom.xml
+        
+  api-gateway:
+    name: API-gateway
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v2
+
+      - name: Set up JDK 11
+        uses: actions/setup-java@v1
+        with:
+          java-version: 11
+      
+      - name: Validate
+        run: mvn validate --file ./api-gateway/pom.xml
+        
+      - name: Compile
+        run: mvn compile --file ./api-gateway/pom.xml
+          
+      - name: Build
+        run: mvn spring-boot:build-info --file ./api-gateway/pom.xml
+      
+      - name: Test
+        run: mvn test --file ./api-gateway/pom.xml
+        
+  user-service:
+    name: User service
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v2
+
+      - name: Set up JDK 11
+        uses: actions/setup-java@v1
+        with:
+          java-version: 11
+      
+      - name: Validate
+        run: mvn validate --file ./user-service/pom.xml
+        
+      - name: Compile
+        run: mvn compile --file ./user-service/pom.xml
+          
+      - name: Build
+        run: mvn spring-boot:build-info --file ./user-service/pom.xml
+      
+      - name: Test
+        run: mvn test --file ./user-service/pom.xml
+

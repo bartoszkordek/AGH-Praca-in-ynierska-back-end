@@ -4,7 +4,6 @@ import com.mongodb.client.*;
 import org.bson.Document;
 import org.bson.types.ObjectId;
 import org.springframework.stereotype.Repository;
-import java.net.UnknownHostException;
 
 @Repository
 public class TestRepository {

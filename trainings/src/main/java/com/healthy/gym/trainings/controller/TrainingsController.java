@@ -5,6 +5,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/trainings")
 public class TrainingsController {
@@ -20,9 +22,13 @@ public class TrainingsController {
         return "OK";
     }
 
-    @GetMapping("/test/documents")
-    public String getTestDocuments(){
+    @GetMapping("/test/document/first")
+    public String getFirstTestDocument(){
         return trainingsService.getFirstTestDocument();
     }
 
+    @GetMapping("/group")
+    public List<String> getGroupTrainings(){
+        return trainingsService.getGroupTrainings();
+    }
 }

@@ -1,7 +1,9 @@
 package com.healthy.gym.trainings.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.healthy.gym.trainings.db.GroupTrainingsRepository;
 import com.healthy.gym.trainings.db.TestRepository;
+import com.healthy.gym.trainings.model.GroupTrainingModel;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -21,7 +23,7 @@ public class TrainingsService {
         return testRepository.getFirstTestDocument();
     }
 
-    public List<String> getGroupTrainings(){
+    public List<GroupTrainingModel> getGroupTrainings() throws JsonProcessingException {
         return groupTrainingsRepository.getGroupTrainings();
     }
 }

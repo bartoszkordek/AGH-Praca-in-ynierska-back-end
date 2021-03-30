@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class GroupTrainingModel {
 
-    private String id;
+    private Object id;
     private String trainingName;
     private String trainerId;
     private String date;
@@ -13,13 +13,13 @@ public class GroupTrainingModel {
     private int hallNo;
     private int limit;
 
-    public GroupTrainingModel(@JsonProperty("_id") String id,
+    public GroupTrainingModel(@JsonProperty("_id") Object id,
                               @JsonProperty("training_name") String trainingName,
                               @JsonProperty("trainerId") String trainerId,
                               @JsonProperty("date") String date,
                               @JsonProperty("start_time") String startTime,
                               @JsonProperty("end_time") String endTime,
-                              @JsonProperty("hallNo") int hallNo,
+                              @JsonProperty("hall_no") int hallNo,
                               @JsonProperty("limit") int limit){
         this.id = id;
         this.trainingName = trainingName;
@@ -29,5 +29,37 @@ public class GroupTrainingModel {
         this.endTime = endTime;
         this.hallNo = hallNo;
         this.limit = limit;
+    }
+
+    public Object getId() {
+        return id;
+    }
+
+    public String getTrainingName() {
+        return trainingName;
+    }
+
+    public String getTrainerId() {
+        return trainerId;
+    }
+
+    public String getDate() {
+        return date;
+    }
+
+    public String getStartTime() {
+        return startTime;
+    }
+
+    public String getEndTime() {
+        return endTime;
+    }
+
+    public int getHallNo() {
+        return hallNo;
+    }
+
+    public int getLimit() {
+        return limit;
     }
 }

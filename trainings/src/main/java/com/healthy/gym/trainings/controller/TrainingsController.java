@@ -1,5 +1,7 @@
 package com.healthy.gym.trainings.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.healthy.gym.trainings.model.GroupTrainingModel;
 import com.healthy.gym.trainings.service.TrainingsService;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -28,7 +30,7 @@ public class TrainingsController {
     }
 
     @GetMapping("/group")
-    public List<String> getGroupTrainings(){
+    public List<GroupTrainingModel> getGroupTrainings() throws JsonProcessingException {
         return trainingsService.getGroupTrainings();
     }
 }

@@ -1,6 +1,11 @@
 package com.healthy.gym.trainings.db;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.healthy.gym.trainings.model.GroupTrainingModel;
 import com.mongodb.client.*;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Repository;
 import org.bson.Document;
 
@@ -10,20 +15,34 @@ import java.util.List;
 @Repository
 public class GroupTrainingsRepository {
 
-    private static MongoClient mongoClient;
-    private static MongoDatabase mdb;
+    @Autowired
+    private Environment environment;
 
-    public static List<String> getGroupTrainings(){
+    private MongoClient mongoClient;
+    private MongoDatabase mdb;
+
+    public List<GroupTrainingModel> getGroupTrainings() throws JsonProcessingException {
         mongoClient = MongoClients.create();
-        mdb = mongoClient.getDatabase("Gym");
-        MongoCollection collection = mdb.getCollection("GroupTrainings");
+        mdb = mongoClient.getDatabase(environment.getProperty("microservice.db.name"));
+        MongoCollection collection = mdb.getCollection(environment.getProperty("microservice.db.collection"));
 
-        List<String> groupTrainingsList = new ArrayList<>();
+        List<GroupTrainingModel> groupTrainingsList = new ArrayList<>();
+        ObjectMapper objectMapper = new ObjectMapper();
         MongoCursor<Document> cursor = collection.find().iterator();
         try {
             while(cursor.hasNext() && cursor!= null) {
-                String trainingName = cursor.next().get("training_name").toString();
-                groupTrainingsList.add(trainingName);
+                GroupTrainingModel groupTrainingFromDb = objectMapper.readValue(cursor.next().toJson(), GroupTrainingModel.class);
+                groupTrainingsList.add(new GroupTrainingModel(
+                        groupTrainingFromDb.getId(),
+                        groupTrainingFromDb.getTrainingName(),
+                        groupTrainingFromDb.getTrainerId(),
+                        groupTrainingFromDb.getDate(),
+                        groupTrainingFromDb.getStartTime(),
+                        groupTrainingFromDb.getEndTime(),
+                        groupTrainingFromDb.getHallNo(),
+                        groupTrainingFromDb.getLimit(),
+                        groupTrainingFromDb.getParticipants()
+                ));
             }
         } finally {
             cursor.close();

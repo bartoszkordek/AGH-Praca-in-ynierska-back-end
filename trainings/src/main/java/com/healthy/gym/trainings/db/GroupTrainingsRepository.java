@@ -40,7 +40,8 @@ public class GroupTrainingsRepository {
                         groupTrainingFromDb.getStartTime(),
                         groupTrainingFromDb.getEndTime(),
                         groupTrainingFromDb.getHallNo(),
-                        groupTrainingFromDb.getLimit()
+                        groupTrainingFromDb.getLimit(),
+                        groupTrainingFromDb.getParticipants()
                 ));
             }
         } finally {

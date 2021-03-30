@@ -5,7 +5,10 @@
 	"start_time" : "18:00",
 	"end_time" : "19:00",
 	"hall_no" : 2,
-	"limit" : 20
+	"limit" : 20,
+	"participants" : [
+		"ASmith", "BJones"
+	]
 }
 
 {
@@ -15,5 +18,8 @@
 	"start_time" : "20:00",
 	"end_time" : "21:00",
 	"hall_no" : 1,
-	"limit" : 25
+	"limit" : 25,
+	"participants" : [
+		"CGordon"
+	]
 }

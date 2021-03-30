@@ -2,6 +2,8 @@ package com.healthy.gym.trainings.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import java.util.List;
+
 public class GroupTrainingModel {
 
     private Object id;
@@ -12,6 +14,7 @@ public class GroupTrainingModel {
     private String endTime;
     private int hallNo;
     private int limit;
+    private List<String> participants;
 
     public GroupTrainingModel(@JsonProperty("_id") Object id,
                               @JsonProperty("training_name") String trainingName,
@@ -20,7 +23,8 @@ public class GroupTrainingModel {
                               @JsonProperty("start_time") String startTime,
                               @JsonProperty("end_time") String endTime,
                               @JsonProperty("hall_no") int hallNo,
-                              @JsonProperty("limit") int limit){
+                              @JsonProperty("limit") int limit,
+                              @JsonProperty("participants") List<String> participants){
         this.id = id;
         this.trainingName = trainingName;
         this.trainerId = trainerId;
@@ -29,6 +33,7 @@ public class GroupTrainingModel {
         this.endTime = endTime;
         this.hallNo = hallNo;
         this.limit = limit;
+        this.participants = participants;
     }
 
     public Object getId() {
@@ -61,5 +66,9 @@ public class GroupTrainingModel {
 
     public int getLimit() {
         return limit;
+    }
+
+    public List<String> getParticipants() {
+        return participants;
     }
 }

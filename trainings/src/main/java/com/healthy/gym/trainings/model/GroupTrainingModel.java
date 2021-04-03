@@ -6,7 +6,6 @@ import java.util.List;
 
 public class GroupTrainingModel {
 
-    private Object id;
     private String trainingName;
     private String trainerId;
     private String date;
@@ -16,8 +15,7 @@ public class GroupTrainingModel {
     private int limit;
     private List<String> participants;
 
-    public GroupTrainingModel(@JsonProperty("_id") Object id,
-                              @JsonProperty("training_name") String trainingName,
+    public GroupTrainingModel(@JsonProperty("training_name") String trainingName,
                               @JsonProperty("trainerId") String trainerId,
                               @JsonProperty("date") String date,
                               @JsonProperty("start_time") String startTime,
@@ -25,7 +23,6 @@ public class GroupTrainingModel {
                               @JsonProperty("hall_no") int hallNo,
                               @JsonProperty("limit") int limit,
                               @JsonProperty("participants") List<String> participants){
-        this.id = id;
         this.trainingName = trainingName;
         this.trainerId = trainerId;
         this.date = date;
@@ -34,10 +31,6 @@ public class GroupTrainingModel {
         this.hallNo = hallNo;
         this.limit = limit;
         this.participants = participants;
-    }
-
-    public Object getId() {
-        return id;
     }
 
     public String getTrainingName() {

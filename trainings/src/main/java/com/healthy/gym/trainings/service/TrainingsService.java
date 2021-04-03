@@ -4,6 +4,7 @@ import com.healthy.gym.trainings.db.GroupTrainingsDbRepository;
 import com.healthy.gym.trainings.db.TestRepository;
 import com.healthy.gym.trainings.entity.GroupTrainings;
 import com.healthy.gym.trainings.exception.TrainingEnrollmentException;
+import com.healthy.gym.trainings.model.GroupTrainingModel;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -29,5 +30,9 @@ public class TrainingsService {
 
     public void enrollToGroupTraining(String trainingId, String clientId) throws TrainingEnrollmentException {
         if(trainingId.length() != 24 || !groupTrainingsDbRepository.isAbilityToGroupTrainingEnrollment(trainingId)) throw new TrainingEnrollmentException("Cannot enroll to this training");
+    }
+
+    public GroupTrainings createGroupTraining(GroupTrainingModel groupTrainingModel){
+        return groupTrainingsDbRepository.createTraining(groupTrainingModel);
     }
 }

@@ -13,18 +13,18 @@ public class GroupTrainings {
     @JsonProperty("_id")
     private String id;
 
-    @JsonProperty("training_name")
-    private String training_name;
+    @JsonProperty("trainingName")
+    private String trainingName;
     @JsonProperty("trainerId")
     private String trainerId;
     @JsonProperty("date")
     private String date;
-    @JsonProperty("start_time")
-    private String start_time;
-    @JsonProperty("end_time")
-    private String end_time;
-    @JsonProperty("hall_no")
-    private int hall_no;
+    @JsonProperty("startTime")
+    private String startTime;
+    @JsonProperty("endTime")
+    private String endTime;
+    @JsonProperty("hallNo")
+    private int hallNo;
     @JsonProperty("limit")
     private int limit;
     @JsonProperty("participants")
@@ -34,14 +34,14 @@ public class GroupTrainings {
 
     }
 
-    public GroupTrainings(String training_name, String trainerId, String date, String start_time, String end_time,
-                          int hall_no, int limit, List<String> participants){
-        this.training_name = training_name;
+    public GroupTrainings(String trainingName, String trainerId, String date, String startTime, String endTime,
+                          int hallNo, int limit, List<String> participants){
+        this.trainingName = trainingName;
         this.trainerId = trainerId;
         this.date = date;
-        this.start_time = start_time;
-        this.end_time = end_time;
-        this.hall_no = hall_no;
+        this.startTime = startTime;
+        this.endTime = endTime;
+        this.hallNo = hallNo;
         this.limit = limit;
         this.participants = participants;
     }
@@ -50,12 +50,12 @@ public class GroupTrainings {
     public String toString() {
         return "GroupTrainings{" +
                 "id='" + id + '\'' +
-                ", training_name='" + training_name + '\'' +
+                ", trainingName='" + trainingName + '\'' +
                 ", trainerId='" + trainerId + '\'' +
                 ", date='" + date + '\'' +
-                ", start_time='" + start_time + '\'' +
-                ", end_time='" + end_time + '\'' +
-                ", hall_no=" + hall_no +
+                ", startTime='" + startTime + '\'' +
+                ", endTime='" + endTime + '\'' +
+                ", hallNo=" + hallNo +
                 ", limit=" + limit +
                 ", participants=" + participants +
                 '}';
@@ -65,8 +65,8 @@ public class GroupTrainings {
         return id;
     }
 
-    public String getTraining_name() {
-        return training_name;
+    public String getTrainingName() {
+        return trainingName;
     }
 
     public String getTrainerId() {
@@ -77,16 +77,16 @@ public class GroupTrainings {
         return date;
     }
 
-    public String getStart_time() {
-        return start_time;
+    public String getStartTime() {
+        return startTime;
     }
 
-    public String getEnd_time() {
-        return end_time;
+    public String getEndTime() {
+        return endTime;
     }
 
-    public int getHall_no() {
-        return hall_no;
+    public int getHallNo() {
+        return hallNo;
     }
 
     public int getLimit() {
@@ -95,5 +95,41 @@ public class GroupTrainings {
 
     public List<String> getParticipants() {
         return participants;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public void setTrainingName(String trainingName) {
+        this.trainingName = trainingName;
+    }
+
+    public void setTrainerId(String trainerId) {
+        this.trainerId = trainerId;
+    }
+
+    public void setDate(String date) {
+        this.date = date;
+    }
+
+    public void setStartTime(String startTime) {
+        this.startTime = startTime;
+    }
+
+    public void setEndTime(String endTime) {
+        this.endTime = endTime;
+    }
+
+    public void setHallNo(int hallNo) {
+        this.hallNo = hallNo;
+    }
+
+    public void setLimit(int limit) {
+        this.limit = limit;
+    }
+
+    public void setParticipants(List<String> participants) {
+        this.participants = participants;
     }
 }

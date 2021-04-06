@@ -39,6 +39,10 @@ public class GroupTrainingsDbRepository {
         return groupTrainingsRepository.findAll();
     }
 
+    public List<String> getTrainingParticipants(String trainingId){
+        return groupTrainingsRepository.getFirstById(trainingId).getParticipants();
+    }
+
     public boolean isGroupTrainingExist(String trainingId){
         return groupTrainingsRepository.existsById(trainingId);
     }

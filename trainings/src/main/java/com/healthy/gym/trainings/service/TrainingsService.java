@@ -3,10 +3,7 @@ package com.healthy.gym.trainings.service;
 import com.healthy.gym.trainings.db.GroupTrainingsDbRepository;
 import com.healthy.gym.trainings.db.TestRepository;
 import com.healthy.gym.trainings.entity.GroupTrainings;
-import com.healthy.gym.trainings.exception.TrainingCreationException;
-import com.healthy.gym.trainings.exception.TrainingEnrollmentException;
-import com.healthy.gym.trainings.exception.TrainingRemovalException;
-import com.healthy.gym.trainings.exception.TrainingUpdateException;
+import com.healthy.gym.trainings.exception.*;
 import com.healthy.gym.trainings.model.GroupTrainingModel;
 import org.springframework.stereotype.Service;
 
@@ -30,6 +27,12 @@ public class TrainingsService {
 
     public List<GroupTrainings> getGroupTrainings() {
         return groupTrainingsDbRepository.getGroupTrainings();
+    }
+
+    public List<String> getTrainingParticipants(String trainingId) throws NotExistingGroupTrainingException {
+        if(!groupTrainingsDbRepository.isGroupTrainingExist(trainingId))
+            throw new NotExistingGroupTrainingException("Training with ID " + trainingId + " does not exist");
+        return groupTrainingsDbRepository.getTrainingParticipants(trainingId);
     }
 
     public void enrollToGroupTraining(String trainingId, String clientId) throws TrainingEnrollmentException {

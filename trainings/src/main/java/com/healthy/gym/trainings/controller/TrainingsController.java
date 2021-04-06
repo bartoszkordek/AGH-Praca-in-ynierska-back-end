@@ -30,7 +30,7 @@ public class TrainingsController {
     }
 
     @GetMapping("/group")
-    public List<GroupTrainings> getGroupTrainings() throws JsonProcessingException {
+    public List<GroupTrainings> getGroupTrainings() {
         return trainingsService.getGroupTrainings();
     }
 }

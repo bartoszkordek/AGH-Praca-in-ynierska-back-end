@@ -15,12 +15,12 @@ public class GroupTrainingModel {
     private int limit;
     private List<String> participants;
 
-    public GroupTrainingModel(@JsonProperty("training_name") String trainingName,
+    public GroupTrainingModel(@JsonProperty("trainingName") String trainingName,
                               @JsonProperty("trainerId") String trainerId,
                               @JsonProperty("date") String date,
-                              @JsonProperty("start_time") String startTime,
-                              @JsonProperty("end_time") String endTime,
-                              @JsonProperty("hall_no") int hallNo,
+                              @JsonProperty("startTime") String startTime,
+                              @JsonProperty("endTime") String endTime,
+                              @JsonProperty("hallNo") int hallNo,
                               @JsonProperty("limit") int limit,
                               @JsonProperty("participants") List<String> participants){
         this.trainingName = trainingName;

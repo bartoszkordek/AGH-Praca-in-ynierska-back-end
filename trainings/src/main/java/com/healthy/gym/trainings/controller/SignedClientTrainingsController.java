@@ -4,10 +4,7 @@ import com.healthy.gym.trainings.exception.RestException;
 import com.healthy.gym.trainings.exception.TrainingEnrollmentException;
 import com.healthy.gym.trainings.service.TrainingsService;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/trainings")
@@ -19,11 +16,9 @@ public class SignedClientTrainingsController {
         this.trainingsService = trainingsService;
     }
 
-    @RequestMapping("/group/enroll/{trainingId}")
+    @PostMapping("/group/enroll/{trainingId}")
     public void enrollToGroupTraining(@PathVariable("trainingId") final String trainingId,
                                       @RequestParam(required = true) final String clientId) throws RestException {
-        System.out.println(clientId);
-        System.out.println(trainingId);
         try{
             trainingsService.enrollToGroupTraining(trainingId, clientId);
         } catch (TrainingEnrollmentException e){

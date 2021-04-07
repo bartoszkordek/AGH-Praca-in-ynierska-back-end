@@ -35,7 +35,7 @@ Serwisy:
     ```
 
 # [EN AGH-Praca-inzynierska-back-end](#en-agh-praca-inzynierska-back-end)
-Praca inżynierska "System do wspomagania zarządzania placówką profilaktyki zdrowotnej" autorstwa Bartosza Kordka i Grzegorza Zacharskiego.
+Engineering thesis "System to support management of a health prevention unit" by Bartosz Kordek & Grzegorz Zacharski.
 
 ## Back-end
 Microservices written in Spring Boot:

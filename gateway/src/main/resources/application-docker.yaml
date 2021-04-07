@@ -1,0 +1,23 @@
+server:
+  port: 8020
+
+spring:
+  devtools:
+    restart:
+      enabled: true
+  application:
+    name: gateway
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://discovery:8010/eureka
+
+ribbon:
+  eureka:
+    enabled: true
+
+zuul:
+  host:
+    connect-timeout-millis: 60000
+    socket-timeout-millis: 60000

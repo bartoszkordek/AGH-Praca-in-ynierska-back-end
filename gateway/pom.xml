@@ -11,9 +11,9 @@
     </parent>
 
     <groupId>com.healthy.gym</groupId>
-    <artifactId>api-gateway</artifactId>
+    <artifactId>gateway</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>api-gateway</name>
+    <name>gateway</name>
     <description>System do wspomagania zarządzania placówką profilaktyki zdrowotnej - gateway service</description>
     <packaging>jar</packaging>
 

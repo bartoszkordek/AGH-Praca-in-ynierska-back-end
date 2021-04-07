@@ -1,9 +1,9 @@
 server:
-  port: 8080
+  port: 8020
 
 spring:
   application:
-    name: api-gateway
+    name: gateway
 
 eureka:
   client:
@@ -13,9 +13,6 @@ eureka:
 ribbon:
   eureka:
     enabled: true
-#    isSecure: false
-#    ReadTimeout: 60000
-#    ConnectTimeout: 60000
 
 zuul:
   host:

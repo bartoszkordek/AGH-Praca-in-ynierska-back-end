@@ -9,7 +9,8 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import static org.junit.Assert.*;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class TrainingsApplicationTests {
@@ -24,7 +25,7 @@ class TrainingsApplicationTests {
     }
 
     @Test
-    public void shouldShowGroupTrainingsWhenValidRequest(){
+    void shouldShowGroupTrainingsWhenValidRequest(){
         // when
         final ResponseEntity<Void> response = restTemplate.exchange(
                 "/trainings/group", HttpMethod.GET,

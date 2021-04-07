@@ -1,6 +1,6 @@
 spring:
   application:
-    name: trainings-service
+    name: trainings
   devtools:
     restart:
       enabled: true

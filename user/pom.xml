@@ -11,10 +11,10 @@
     </parent>
 
     <groupId>com.healthy.gym</groupId>
-    <artifactId>user-service</artifactId>
+    <artifactId>user</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>user-service</name>
-    <description>System do wspomagania zarządzania placówką profilaktyki zdrowotnej - User service</description>
+    <name>user</name>
+    <description>System do wspomagania zarządzania placówką profilaktyki zdrowotnej - serwis user</description>
     <packaging>jar</packaging>
 
     <developers>

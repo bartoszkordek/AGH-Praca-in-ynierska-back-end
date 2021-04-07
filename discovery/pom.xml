@@ -13,8 +13,8 @@
     <groupId>com.healthy.gym</groupId>
     <artifactId>discovery</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>discovery-service</name>
-    <description>System do wspomagania zarządzania placówką profilaktyki zdrowotnej - discovery service</description>
+    <name>discovery</name>
+    <description>System do wspomagania zarządzania placówką profilaktyki zdrowotnej - serwis discovery</description>
     <packaging>jar</packaging>
 
     <developers>

@@ -1,4 +1,4 @@
-package com.healthy.gym.user.ui.controller;
+package com.healthy.gym.user.controller;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;

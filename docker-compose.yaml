@@ -1,0 +1,60 @@
+version: "3.8"
+
+networks:
+  back-end:
+
+services:
+  discovery:
+    container_name: discovery
+    build:
+      context: ./discovery
+    ports:
+      - 8010:8010
+    networks:
+      - back-end
+
+  gateway:
+    container_name: gateway
+    build:
+      context: ./gateway
+    ports:
+      - 8020:8020
+    networks:
+      - back-end
+    depends_on:
+      - discovery
+
+  mongo-db:
+    container_name: mongo-db
+    image: mongo:4.4.4-bionic
+    ports:
+      - 27017:27017
+    environment:
+      - MONGO_INITDB_DATABASE=test
+      - MONGO_INITDB_ROOT_USERNAME=admin
+      - MONGO_INITDB_ROOT_PASSWORD=admin
+    volumes:
+      - ./database/init:/docker-entrypoint-initdb.d
+    networks:
+      - back-end
+
+  user:
+    container_name: user
+    build:
+      context: ./user
+    networks:
+      - back-end
+    depends_on:
+      - discovery
+      - gateway
+
+#  trainings:
+#    container_name: trainings
+#    build:
+#      context: ./trainings
+#    networks:
+#      - back-end
+#    depends_on:
+#      - discovery
+#      - gateway
+#      - mongo-db

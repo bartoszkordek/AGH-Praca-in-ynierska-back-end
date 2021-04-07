@@ -11,10 +11,10 @@
     </parent>
 
     <groupId>com.healthy.gym</groupId>
-    <artifactId>discovery</artifactId>
+    <artifactId>gateway</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>discovery</name>
-    <description>System do wspomagania zarządzania placówką profilaktyki zdrowotnej - serwis discovery</description>
+    <name>gateway</name>
+    <description>System do wspomagania zarządzania placówką profilaktyki zdrowotnej - gateway service</description>
     <packaging>jar</packaging>
 
     <developers>
@@ -53,8 +53,16 @@
 
     <dependencies>
         <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-starter-netflix-eureka-server</artifactId>
+            <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-netflix-zuul</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>

@@ -1,0 +1,16 @@
+spring:
+  application:
+    name: user
+  devtools:
+    restart:
+      enabled: true
+
+server:
+  port: 0
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://discovery:8010/eureka
+  instance:
+    instance-id: ${spring.application.name}:${spring.application.instance_id:${random.value}}

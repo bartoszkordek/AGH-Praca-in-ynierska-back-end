@@ -1,0 +1,21 @@
+spring:
+  application:
+    name: trainings
+  devtools:
+    restart:
+      enabled: true
+
+server:
+  port: 0
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://discovery:8010/eureka
+  instance:
+    instance-id: ${spring.application.name}:${spring.application.instance_id:${random.value}}
+
+microservice:
+  db:
+    name: Gym
+    collection: GroupTrainings

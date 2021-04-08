@@ -1,6 +1,7 @@
 package com.healthy.gym.user.controller;
 
 import com.healthy.gym.user.service.UserService;
+import com.healthy.gym.user.shared.UserDTO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +19,7 @@ import java.net.URI;
 import java.util.Locale;
 
 import static org.hamcrest.Matchers.containsString;
+import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.ResultMatcher.matchAll;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -88,6 +90,10 @@ class UserControllerTest {
                 "\"matchingPassword\": \"test12345\"" +
                 "}";
 
+        UserDTO responseUserDTO = new UserDTO();
+        responseUserDTO.setUserId("test");
+        when(userService.createUser(any())).thenReturn(responseUserDTO);
+
         RequestBuilder request = MockMvcRequestBuilders
                 .post(uri)
                 .content(requestBody)
@@ -111,6 +117,7 @@ class UserControllerTest {
         );
     }
 
+
     @Test
     void shouldAcceptUserRegistrationWhenRequestHasEveryFieldValidWithoutPhoneNumber() throws Exception {
         URI uri = new URI("/users");
@@ -121,6 +128,10 @@ class UserControllerTest {
                 "\"password\": \"test12345\",\n" +
                 "\"matchingPassword\": \"test12345\"" +
                 "}";
+
+        UserDTO responseUserDTO = new UserDTO();
+        responseUserDTO.setUserId("test");
+        when(userService.createUser(any())).thenReturn(responseUserDTO);
 
         RequestBuilder request = MockMvcRequestBuilders
                 .post(uri)

@@ -4,7 +4,6 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static org.assertj.core.api.Assertions.as;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class UserDTOTest {
@@ -68,7 +67,7 @@ class UserDTOTest {
     }
 
     @Test
-    void userDTOcomparedWithNullShouldNotBeEqual(){
+    void userDTOcomparedWithNullShouldNotBeEqual() {
         assertThat(userDTO1).isNotEqualTo(null);
         assertThat(userDTO2).isNotEqualTo(null);
     }

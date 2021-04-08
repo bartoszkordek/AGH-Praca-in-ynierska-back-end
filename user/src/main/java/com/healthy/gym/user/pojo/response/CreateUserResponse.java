@@ -1,11 +1,13 @@
 package com.healthy.gym.user.pojo.response;
 
+import java.time.LocalDateTime;
 import java.util.Map;
 
 public class CreateUserResponse {
     private boolean success;
     private String message;
     private Map<String, String> errors;
+    private String timestamp;
 
     public CreateUserResponse() {
     }
@@ -14,6 +16,7 @@ public class CreateUserResponse {
         this.success = success;
         this.message = message;
         this.errors = errors;
+        this.timestamp = LocalDateTime.now().toString();
     }
 
     public boolean isSuccess() {
@@ -38,5 +41,9 @@ public class CreateUserResponse {
 
     public void setErrors(Map<String, String> errors) {
         this.errors = errors;
+    }
+
+    public String getTimestamp() {
+        return timestamp;
     }
 }

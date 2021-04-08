@@ -13,7 +13,7 @@ import javax.validation.constraints.Size;
         @FieldsValueMatch(
                 field = "password",
                 fieldToMatch = "matchingPassword",
-                message = "{password.matching.failure}"
+                message = "{field.password.match.failure}"
         )
 })
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -40,7 +40,7 @@ public class CreateUserRequest {
     private String password;
 
     @NotNull(message = "{field.required}")
-    @Size(min = 8, max = 24, message = "{field.password.match.failure}")
+    @Size(min = 8, max = 24, message = "{field.password.failure}")
     private String matchingPassword;
 
     public String getName() {

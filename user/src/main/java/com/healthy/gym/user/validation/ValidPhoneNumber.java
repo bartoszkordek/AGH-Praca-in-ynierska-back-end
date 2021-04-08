@@ -6,10 +6,9 @@ import java.lang.annotation.*;
 
 @Constraint(validatedBy =PhoneNumberValidator.class )
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.TYPE, ElementType.FIELD, ElementType.ANNOTATION_TYPE})
-@Documented
+@Target({ElementType.FIELD, ElementType.METHOD})
 public @interface ValidPhoneNumber {
-    String message() default "Numer telefonu powininien być 9 cyfrowy.";
+    String message() default "";
     Class<?>[] groups() default {};
     Class<? extends Payload>[] payload() default {};
 }

@@ -4,6 +4,7 @@ import com.healthy.gym.user.pojo.request.CreateUserRequest;
 import com.healthy.gym.user.pojo.response.CreateUserResponse;
 import com.healthy.gym.user.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 @RestController
@@ -20,10 +22,12 @@ import java.util.Map;
 public class UserController {
 
     private UserService userService;
+    private MessageSource messageSource;
 
     @Autowired
-    public UserController(UserService userService) {
+    public UserController(UserService userService, MessageSource messageSource) {
         this.userService = userService;
+        this.messageSource = messageSource;
     }
 
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -41,8 +45,10 @@ public class UserController {
 
     private CreateUserResponse handleInvalidRegistration(BindingResult bindingResult) {
         Map<String, String> errors = new HashMap<>();
+        String singUpFailureMessage =
+                messageSource.getMessage("user.sing-up.failure", null, Locale.getDefault());
         CreateUserResponse response =
-                new CreateUserResponse(false, "Rejestracja zakończona niepowodzeniem.", errors);
+                new CreateUserResponse(false, singUpFailureMessage, errors);
 
         bindingResult.getAllErrors().forEach(error -> {
             if (error instanceof FieldError) {
@@ -60,7 +66,9 @@ public class UserController {
     }
 
     private CreateUserResponse handleValidRegistration(CreateUserRequest createUserRequest) {
-        return new CreateUserResponse(true, "Użytkownik został zarejestrowany.", new HashMap<>());
+        String singUpSuccessMessage =
+                messageSource.getMessage("user.sing-up.success", null, Locale.getDefault());
+        return new CreateUserResponse(true, singUpSuccessMessage, new HashMap<>());
     }
 
     @GetMapping("/status")

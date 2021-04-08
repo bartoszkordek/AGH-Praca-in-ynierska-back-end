@@ -13,34 +13,34 @@ import javax.validation.constraints.Size;
         @FieldsValueMatch(
                 field = "password",
                 fieldToMatch = "matchingPassword",
-                message = "Podane hasła się nie zgadzają"
+                message = "{password.matching.failure}"
         )
 })
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class CreateUserRequest {
 
-    @NotNull(message = "Pole imię jest wymagane.")
-    @Size(min = 2, max = 60, message = "Pole imię powinno mieć od 2 do 60 znaków.")
+    @NotNull(message = "{field.required}")
+    @Size(min = 2, max = 60, message = "{field.name.failure}")
     private String name;
 
-    @NotNull(message = "Pole nazwisko jest wymagane.")
-    @Size(min = 2, max = 60, message = "Pole nazwisko powinno mieć od 2 do 60 znaków.")
+    @NotNull(message = "{field.required}")
+    @Size(min = 2, max = 60, message = "{field.surname.failure}")
     private String surname;
 
-    @NotNull(message = "Pole email jest wymagane.")
-    @Email(message = "Proszę podać poprawny adres email.")
+    @NotNull(message = "{field.required}")
+    @Email(message = "{field.email.failure}")
     private String email;
 
-    @ValidPhoneNumber(message = "Podany numer telefonu ma niepoprawny format")
+    @ValidPhoneNumber(message = "{field.phone.number.failure}")
     @JsonProperty("phone")
     private String phoneNumber;
 
-    @NotNull(message = "Pole hasło jest wymagane.")
-    @Size(min = 8, max = 24, message = "Pole hasło powinno mieć od 8 do 24 znaków.")
+    @NotNull(message = "{field.required}")
+    @Size(min = 8, max = 24, message = "{field.password.failure}")
     private String password;
 
-    @NotNull(message = "Pole powtórz hasło jest wymagane.")
-    @Size(min = 8, max = 24, message = "Pole powtórz hasło powinno mieć od 8 do 24 znaków.")
+    @NotNull(message = "{field.required}")
+    @Size(min = 8, max = 24, message = "{field.password.match.failure}")
     private String matchingPassword;
 
     public String getName() {

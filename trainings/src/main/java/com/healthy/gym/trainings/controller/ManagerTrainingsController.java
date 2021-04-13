@@ -32,7 +32,7 @@ public class ManagerTrainingsController {
         }
     }
 
-    @DeleteMapping("/group/remove/{trainingId}")
+    @DeleteMapping("/group/{trainingId}/remove")
     public GroupTrainings removeGroupTraining(@PathVariable("trainingId") final String trainingId) throws RestException {
         try{
             return trainingsService.removeGroupTraining(trainingId);
@@ -41,7 +41,7 @@ public class ManagerTrainingsController {
         }
     }
 
-    @PutMapping("/group/update/{trainingId}")
+    @PutMapping("/group/{trainingId}/update")
     public GroupTrainings updateGroupTraining(@PathVariable("trainingId") final String trainingId,
                                               @Valid @RequestBody GroupTrainingModel groupTrainingModelRequest) throws RestException {
         try{

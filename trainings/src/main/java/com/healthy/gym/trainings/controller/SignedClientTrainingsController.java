@@ -16,7 +16,7 @@ public class SignedClientTrainingsController {
         this.trainingsService = trainingsService;
     }
 
-    @PostMapping("/group/enroll/{trainingId}")
+    @PostMapping("/group/{trainingId}/enroll")
     public void enrollToGroupTraining(@PathVariable("trainingId") final String trainingId,
                                       @RequestParam(required = true) final String clientId) throws RestException {
         try{

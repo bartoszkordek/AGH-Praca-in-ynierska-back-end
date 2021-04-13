@@ -23,7 +23,7 @@ public class TrainerTrainingsController {
         this.trainingsService = trainingsService;
     }
 
-    @GetMapping("/group/participants/{trainingId}")
+    @GetMapping("/group/{trainingId}/participants")
     public List<String> getTrainingParticipants(@PathVariable("trainingId") final String trainingId) throws RestException {
         try{
             return trainingsService.getTrainingParticipants(trainingId);

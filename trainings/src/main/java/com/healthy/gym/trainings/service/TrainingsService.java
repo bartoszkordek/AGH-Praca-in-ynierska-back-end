@@ -29,6 +29,12 @@ public class TrainingsService {
         return groupTrainingsDbRepository.getGroupTrainings();
     }
 
+    public GroupTrainings getGroupTrainingById(String trainingId) throws NotExistingGroupTrainingException {
+        if(!groupTrainingsDbRepository.isGroupTrainingExist(trainingId))
+            throw new NotExistingGroupTrainingException("Training with ID " + trainingId + " does not exist");
+        return groupTrainingsDbRepository.getGroupTrainingById(trainingId);
+    }
+
     public List<String> getTrainingParticipants(String trainingId) throws NotExistingGroupTrainingException {
         if(!groupTrainingsDbRepository.isGroupTrainingExist(trainingId))
             throw new NotExistingGroupTrainingException("Training with ID " + trainingId + " does not exist");

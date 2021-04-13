@@ -39,6 +39,10 @@ public class GroupTrainingsDbRepository {
         return groupTrainingsRepository.findAll();
     }
 
+    public GroupTrainings getGroupTrainingById(String trainingId){
+        return groupTrainingsRepository.findFirstById(trainingId);
+    }
+
     public List<String> getTrainingParticipants(String trainingId){
         return groupTrainingsRepository.getFirstById(trainingId).getParticipants();
     }

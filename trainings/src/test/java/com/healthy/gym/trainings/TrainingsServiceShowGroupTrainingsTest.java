@@ -47,9 +47,10 @@ public class TrainingsServiceShowGroupTrainingsTest {
     public void setUp() throws NotExistingGroupTrainingException, TrainingEnrollmentException {
         List<GroupTrainings> trainingsList = new ArrayList<>();
         List<String> participantsTraining1 = new ArrayList<>();
+        List<String> reserveListTraining1 = new ArrayList<>();
         participantsTraining1.add("ASmith");
         GroupTrainings training1 = new GroupTrainings("Zumba", "99999", "01-06-2025", "18:00", "19:00",
-                    2, 20, participantsTraining1);
+                    2, 20, participantsTraining1, reserveListTraining1);
         training1.setId(validTrainingId);
         trainingsList.add(training1);
 

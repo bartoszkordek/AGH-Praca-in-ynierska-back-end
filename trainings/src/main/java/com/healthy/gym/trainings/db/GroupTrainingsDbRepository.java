@@ -153,7 +153,8 @@ public class GroupTrainingsDbRepository {
                 groupTrainingModel.getEndTime(),
                 groupTrainingModel.getHallNo(),
                 groupTrainingModel.getLimit(),
-                groupTrainingModel.getParticipants()
+                groupTrainingModel.getParticipants(),
+                groupTrainingModel.getReserveList()
         ));
         return response;
     }

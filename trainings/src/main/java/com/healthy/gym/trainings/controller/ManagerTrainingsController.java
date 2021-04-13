@@ -14,7 +14,6 @@ import javax.validation.Valid;
 import java.text.ParseException;
 
 @RestController
-@RequestMapping("/trainings")
 public class ManagerTrainingsController {
 
     TrainingsService trainingsService;

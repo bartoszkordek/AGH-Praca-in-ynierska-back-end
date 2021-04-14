@@ -73,6 +73,9 @@ public class TrainingsServiceShowGroupTrainingsTest {
 
         when(groupTrainingsDbRepository.isClientAlreadyEnrolledToGroupTraining(validTrainingId, validClientId))
                 .thenReturn(false);
+
+        when(groupTrainingsDbRepository.isClientAlreadyExistInReserveList(validTrainingId, validClientId))
+                .thenReturn(false);
         }
 
     @Test
@@ -127,6 +130,52 @@ public class TrainingsServiceShowGroupTrainingsTest {
                 .when(trainingsService)
                 .enrollToGroupTraining(invalidTrainingId,validClientId);
         trainingsService.enrollToGroupTraining(invalidTrainingId,validClientId);
+    }
+
+    @Test
+    public void shouldNotAddToReserveList_whenValidRequest() throws NotExistingGroupTrainingException, TrainingEnrollmentException {
+        //when
+        when(groupTrainingsDbRepository.isClientAlreadyEnrolledToGroupTraining(validTrainingId, validClientId))
+                .thenReturn(false);
+        when(groupTrainingsDbRepository.isClientAlreadyExistInReserveList(validTrainingId, validClientId))
+                .thenReturn(false);
+        //then
+        trainingsService.addToReserveList(validTrainingId,validClientId);
+    }
+
+    @Test(expected = NotExistingGroupTrainingException.class)
+    public void shouldNotAddToReserveList_whenInvalidTraining() throws NotExistingGroupTrainingException, TrainingEnrollmentException {
+        TrainingsService trainingsService = mock(TrainingsService.class);
+        doThrow(NotExistingGroupTrainingException.class)
+                .when(trainingsService)
+                .addToReserveList(invalidTrainingId,validClientId);
+        trainingsService.addToReserveList(invalidTrainingId,validClientId);
+    }
+
+    @Test
+    public void shouldRemoveEnrollment_whenValidRequestAndClientExistsInParticipantsList() throws NotExistingGroupTrainingException, TrainingEnrollmentException {
+        //when
+        when(groupTrainingsDbRepository.isClientAlreadyEnrolledToGroupTraining(validTrainingId, validClientId))
+                .thenReturn(true);
+        when(groupTrainingsDbRepository.isClientAlreadyExistInReserveList(validTrainingId, validClientId))
+                .thenReturn(false);
+        //then
+        trainingsService.removeGroupTrainingEnrollment(validTrainingId,validClientId);
+    }
+
+    @Test(expected = TrainingEnrollmentException.class)
+    public void shouldNotRemoveEnrollment_whenClientDoesntExistInParticipantsOrReserveList() throws NotExistingGroupTrainingException, TrainingEnrollmentException {
+        //when
+        when(groupTrainingsDbRepository.isClientAlreadyEnrolledToGroupTraining(validTrainingId, validClientId))
+                .thenReturn(false);
+        when(groupTrainingsDbRepository.isClientAlreadyExistInReserveList(validTrainingId, validClientId))
+                .thenReturn(false);
+        //then
+        TrainingsService trainingsService = mock(TrainingsService.class);
+        doThrow(TrainingEnrollmentException.class)
+                .when(trainingsService)
+                .removeGroupTrainingEnrollment(invalidTrainingId,validClientId);
+        trainingsService.removeGroupTrainingEnrollment(invalidTrainingId,validClientId);
     }
 
 }

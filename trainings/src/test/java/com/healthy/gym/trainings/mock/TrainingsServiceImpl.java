@@ -46,4 +46,31 @@ public class TrainingsServiceImpl extends TrainingsService {
             throw new TrainingEnrollmentException("Client is already enrolled to this training");
         groupTrainingsDbRepository.enrollToGroupTraining(trainingId, clientId);
     }
+
+    @Override
+    public void addToReserveList(String trainingId, String clientId) throws NotExistingGroupTrainingException, TrainingEnrollmentException {
+        if(!groupTrainingsDbRepository.isGroupTrainingExist(trainingId))
+            throw new NotExistingGroupTrainingException("Training with ID " + trainingId + " does not exist");
+        if(groupTrainingsDbRepository.isClientAlreadyEnrolledToGroupTraining(trainingId, clientId))
+            throw new TrainingEnrollmentException("Client is already enrolled to this training");
+        if(groupTrainingsDbRepository.isClientAlreadyExistInReserveList(trainingId, clientId))
+            throw new TrainingEnrollmentException("Client already exists in reserve list");
+
+        groupTrainingsDbRepository.addToReserveList(trainingId, clientId);
+    }
+
+    @Override
+    public void removeGroupTrainingEnrollment(String trainingId, String clientId) throws NotExistingGroupTrainingException, TrainingEnrollmentException {
+        if(!groupTrainingsDbRepository.isGroupTrainingExist(trainingId))
+            throw new NotExistingGroupTrainingException("Training with ID " + trainingId + " does not exist");
+        if(!groupTrainingsDbRepository.isClientAlreadyEnrolledToGroupTraining(trainingId, clientId)
+                && !groupTrainingsDbRepository.isClientAlreadyExistInReserveList(trainingId, clientId))
+            throw new TrainingEnrollmentException("Client is not enrolled to this training");
+        if(groupTrainingsDbRepository.isClientAlreadyEnrolledToGroupTraining(trainingId, clientId)){
+            groupTrainingsDbRepository.removeFromParticipants(trainingId, clientId);
+        }
+        if(groupTrainingsDbRepository.isClientAlreadyExistInReserveList(trainingId, clientId)){
+            groupTrainingsDbRepository.removeFromReserveList(trainingId, clientId);
+        }
+    }
 }

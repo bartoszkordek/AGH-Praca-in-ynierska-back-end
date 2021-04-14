@@ -29,6 +29,12 @@ public class TrainingsService {
         return groupTrainingsDbRepository.getGroupTrainings();
     }
 
+    public GroupTrainings getGroupTrainingById(String trainingId) throws NotExistingGroupTrainingException {
+        if(!groupTrainingsDbRepository.isGroupTrainingExist(trainingId))
+            throw new NotExistingGroupTrainingException("Training with ID " + trainingId + " does not exist");
+        return groupTrainingsDbRepository.getGroupTrainingById(trainingId);
+    }
+
     public List<String> getTrainingParticipants(String trainingId) throws NotExistingGroupTrainingException {
         if(!groupTrainingsDbRepository.isGroupTrainingExist(trainingId))
             throw new NotExistingGroupTrainingException("Training with ID " + trainingId + " does not exist");
@@ -40,7 +46,36 @@ public class TrainingsService {
             throw new TrainingEnrollmentException("Cannot enroll to this training");
         if(groupTrainingsDbRepository.isClientAlreadyEnrolledToGroupTraining(trainingId, clientId))
             throw new TrainingEnrollmentException("Client is already enrolled to this training");
+
         groupTrainingsDbRepository.enrollToGroupTraining(trainingId, clientId);
+
+        if(groupTrainingsDbRepository.isClientAlreadyExistInReserveList(trainingId, clientId))
+            groupTrainingsDbRepository.removeFromReserveList(trainingId, clientId);
+    }
+
+    public void addToReserveList(String trainingId, String clientId) throws NotExistingGroupTrainingException, TrainingEnrollmentException {
+        if(!groupTrainingsDbRepository.isGroupTrainingExist(trainingId))
+            throw new NotExistingGroupTrainingException("Training with ID " + trainingId + " does not exist");
+        if(groupTrainingsDbRepository.isClientAlreadyEnrolledToGroupTraining(trainingId, clientId))
+            throw new TrainingEnrollmentException("Client is already enrolled to this training");
+        if(groupTrainingsDbRepository.isClientAlreadyExistInReserveList(trainingId, clientId))
+            throw new TrainingEnrollmentException("Client already exists in reserve list");
+
+        groupTrainingsDbRepository.addToReserveList(trainingId, clientId);
+    }
+
+    public void removeGroupTrainingEnrollment(String trainingId, String clientId) throws NotExistingGroupTrainingException, TrainingEnrollmentException {
+        if(!groupTrainingsDbRepository.isGroupTrainingExist(trainingId))
+            throw new NotExistingGroupTrainingException("Training with ID " + trainingId + " does not exist");
+        if(!groupTrainingsDbRepository.isClientAlreadyEnrolledToGroupTraining(trainingId, clientId)
+           && !groupTrainingsDbRepository.isClientAlreadyExistInReserveList(trainingId, clientId))
+            throw new TrainingEnrollmentException("Client is not enrolled to this training");
+        if(groupTrainingsDbRepository.isClientAlreadyEnrolledToGroupTraining(trainingId, clientId)){
+            groupTrainingsDbRepository.removeFromParticipants(trainingId, clientId);
+        }
+        if(groupTrainingsDbRepository.isClientAlreadyExistInReserveList(trainingId, clientId)){
+            groupTrainingsDbRepository.removeFromReserveList(trainingId, clientId);
+        }
     }
 
     public GroupTrainings createGroupTraining(GroupTrainingModel groupTrainingModel) throws TrainingCreationException, ParseException {

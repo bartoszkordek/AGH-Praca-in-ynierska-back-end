@@ -29,13 +29,15 @@ public class GroupTrainings {
     private int limit;
     @JsonProperty("participants")
     private List<String> participants;
+    @JsonProperty("reserveList")
+    private List<String> reserveList;
 
     public GroupTrainings(){
 
     }
 
     public GroupTrainings(String trainingName, String trainerId, String date, String startTime, String endTime,
-                          int hallNo, int limit, List<String> participants){
+                          int hallNo, int limit, List<String> participants, List<String> reserveList){
         this.trainingName = trainingName;
         this.trainerId = trainerId;
         this.date = date;
@@ -44,6 +46,7 @@ public class GroupTrainings {
         this.hallNo = hallNo;
         this.limit = limit;
         this.participants = participants;
+        this.reserveList = reserveList;
     }
 
     @Override
@@ -58,6 +61,7 @@ public class GroupTrainings {
                 ", hallNo=" + hallNo +
                 ", limit=" + limit +
                 ", participants=" + participants +
+                ", reserveList=" + reserveList +
                 '}';
     }
 
@@ -97,6 +101,10 @@ public class GroupTrainings {
         return participants;
     }
 
+    public List<String> getReserveList() {
+        return reserveList;
+    }
+
     public void setId(String id) {
         this.id = id;
     }
@@ -131,5 +139,9 @@ public class GroupTrainings {
 
     public void setParticipants(List<String> participants) {
         this.participants = participants;
+    }
+
+    public void setReserveList(List<String> reserveList) {
+        this.reserveList = reserveList;
     }
 }

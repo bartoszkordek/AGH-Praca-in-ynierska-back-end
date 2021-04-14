@@ -14,6 +14,7 @@ public class GroupTrainingModel {
     private int hallNo;
     private int limit;
     private List<String> participants;
+    private List<String> reserveList;
 
     public GroupTrainingModel(@JsonProperty("trainingName") String trainingName,
                               @JsonProperty("trainerId") String trainerId,
@@ -22,7 +23,8 @@ public class GroupTrainingModel {
                               @JsonProperty("endTime") String endTime,
                               @JsonProperty("hallNo") int hallNo,
                               @JsonProperty("limit") int limit,
-                              @JsonProperty("participants") List<String> participants){
+                              @JsonProperty("participants") List<String> participants,
+                              @JsonProperty("reserveList") List<String> reserveList){
         this.trainingName = trainingName;
         this.trainerId = trainerId;
         this.date = date;
@@ -31,6 +33,7 @@ public class GroupTrainingModel {
         this.hallNo = hallNo;
         this.limit = limit;
         this.participants = participants;
+        this.reserveList = reserveList;
     }
 
     public String getTrainingName() {
@@ -63,5 +66,9 @@ public class GroupTrainingModel {
 
     public List<String> getParticipants() {
         return participants;
+    }
+
+    public List<String> getReserveList() {
+        return reserveList;
     }
 }

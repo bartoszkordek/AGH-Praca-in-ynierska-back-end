@@ -74,11 +74,39 @@ public class GroupTrainingsDbRepository {
         return groupTrainingsRepository.getFirstById(trainingId).getParticipants().contains(clientId);
     }
 
+    public boolean isClientAlreadyExistInReserveList(String trainingId, String clientId){
+        return groupTrainingsRepository.getFirstById(trainingId).getReserveList().contains(clientId);
+    }
+
     public void enrollToGroupTraining(String trainingId, String participantId){
         GroupTrainings groupTrainings = groupTrainingsRepository.findFirstById(trainingId);
         List<String> participants = groupTrainings.getParticipants();
         participants.add(participantId);
         groupTrainings.setParticipants(participants);
+        groupTrainingsRepository.save(groupTrainings);
+    }
+
+    public void addToReserveList(String trainingId, String clientId){
+        GroupTrainings groupTrainings = groupTrainingsRepository.findFirstById(trainingId);
+        List<String> reserveList = groupTrainings.getReserveList();
+        reserveList.add(clientId);
+        groupTrainings.setReserveList(reserveList);
+        groupTrainingsRepository.save(groupTrainings);
+    }
+
+    public void removeFromParticipants(String trainingId, String participantId){
+        GroupTrainings groupTrainings = groupTrainingsRepository.findFirstById(trainingId);
+        List<String> participants = groupTrainings.getParticipants();
+        participants.remove(participantId);
+        groupTrainings.setParticipants(participants);
+        groupTrainingsRepository.save(groupTrainings);
+    }
+
+    public void removeFromReserveList(String trainingId, String clientId){
+        GroupTrainings groupTrainings = groupTrainingsRepository.findFirstById(trainingId);
+        List<String> reserveList = groupTrainings.getReserveList();
+        reserveList.remove(clientId);
+        groupTrainings.setReserveList(reserveList);
         groupTrainingsRepository.save(groupTrainings);
     }
 

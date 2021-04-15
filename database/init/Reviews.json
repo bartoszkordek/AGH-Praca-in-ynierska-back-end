@@ -1,0 +1,23 @@
+{
+  "trainingId" : "TRX",
+  "clientId" : "ASmith",
+  "date" : "10-10-2021",
+  "stars" : 5,
+  "text" : "Very good training!"
+}
+
+{
+  "trainingId" : "Zumba",
+  "clientId" : ""BJones"",
+  "date" : "11-10-2021",
+  "stars" : 4,
+  "text" : "Rather good training!"
+}
+
+{
+  "trainingId" : "Zumba",
+  "clientId" : "ASmith",
+  "date" : "11-10-2021",
+  "stars" : 3,
+  "text" : "Medium..."
+}

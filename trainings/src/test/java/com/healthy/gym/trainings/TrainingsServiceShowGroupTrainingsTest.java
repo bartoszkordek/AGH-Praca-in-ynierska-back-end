@@ -33,7 +33,7 @@ public class TrainingsServiceShowGroupTrainingsTest {
 
         @Bean
         public TrainingsService employeeService() {
-            return new TrainingsServiceImpl(null, null);
+            return new TrainingsServiceImpl(null, null, null);
         }
     }
 

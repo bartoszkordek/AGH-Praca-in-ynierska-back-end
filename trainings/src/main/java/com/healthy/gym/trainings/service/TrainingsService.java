@@ -1,8 +1,11 @@
 package com.healthy.gym.trainings.service;
 
+import com.healthy.gym.trainings.db.GroupTrainingReviews;
+import com.healthy.gym.trainings.db.GroupTrainingReviewsDbRepository;
 import com.healthy.gym.trainings.db.GroupTrainingsDbRepository;
 import com.healthy.gym.trainings.db.TestRepository;
 import com.healthy.gym.trainings.entity.GroupTrainings;
+import com.healthy.gym.trainings.entity.GroupTrainingsReviews;
 import com.healthy.gym.trainings.exception.*;
 import com.healthy.gym.trainings.model.GroupTrainingModel;
 import org.springframework.stereotype.Service;
@@ -14,11 +17,14 @@ import java.util.List;
 public class TrainingsService {
     TestRepository testRepository;
     GroupTrainingsDbRepository groupTrainingsDbRepository;
+    GroupTrainingReviewsDbRepository groupTrainingReviewsDbRepository;
 
     public TrainingsService(TestRepository testRepository,
-                            GroupTrainingsDbRepository groupTrainingsDbRepository){
+                            GroupTrainingsDbRepository groupTrainingsDbRepository,
+                            GroupTrainingReviewsDbRepository groupTrainingReviewsDbRepository){
         this.testRepository = testRepository;
         this.groupTrainingsDbRepository = groupTrainingsDbRepository;
+        this.groupTrainingReviewsDbRepository = groupTrainingReviewsDbRepository;
     }
 
     public String getFirstTestDocument(){
@@ -95,5 +101,9 @@ public class TrainingsService {
         if (!groupTrainingsDbRepository.isGroupTrainingExist(trainingId))
             throw new TrainingUpdateException("Training with ID: "+ trainingId + " doesn't exist");
         return groupTrainingsDbRepository.updateTraining(trainingId, groupTrainingModelRequest);
+    }
+
+    public List<GroupTrainingsReviews> getGroupTrainingReviews(){
+        return groupTrainingReviewsDbRepository.getGroupTrainingReviews();
     }
 }

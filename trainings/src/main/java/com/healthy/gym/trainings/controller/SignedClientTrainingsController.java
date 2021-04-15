@@ -1,11 +1,14 @@
 package com.healthy.gym.trainings.controller;
 
+import com.healthy.gym.trainings.entity.GroupTrainingsReviews;
 import com.healthy.gym.trainings.exception.NotExistingGroupTrainingException;
 import com.healthy.gym.trainings.exception.RestException;
 import com.healthy.gym.trainings.exception.TrainingEnrollmentException;
 import com.healthy.gym.trainings.service.TrainingsService;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 public class SignedClientTrainingsController {
@@ -46,4 +49,10 @@ public class SignedClientTrainingsController {
             throw new RestException(e.getMessage(), HttpStatus.BAD_REQUEST, e);
         }
     }
+
+    @GetMapping("/group/reviews")
+    public List<GroupTrainingsReviews> getGroupTrainingReviews(){
+        return trainingsService.getGroupTrainingReviews();
+    }
+
 }

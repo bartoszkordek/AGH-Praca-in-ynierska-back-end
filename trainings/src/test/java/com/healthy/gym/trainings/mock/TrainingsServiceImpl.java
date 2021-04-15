@@ -1,5 +1,6 @@
 package com.healthy.gym.trainings.mock;
 
+import com.healthy.gym.trainings.db.GroupTrainingReviewsDbRepository;
 import com.healthy.gym.trainings.db.GroupTrainingsDbRepository;
 import com.healthy.gym.trainings.db.TestRepository;
 import com.healthy.gym.trainings.entity.GroupTrainings;
@@ -12,8 +13,11 @@ import java.util.List;
 
 public class TrainingsServiceImpl extends TrainingsService {
 
-    public TrainingsServiceImpl(TestRepository testRepository, GroupTrainingsDbRepository groupTrainingsDbRepository) {
-        super(testRepository, groupTrainingsDbRepository);
+    public TrainingsServiceImpl(
+            TestRepository testRepository,
+            GroupTrainingsDbRepository groupTrainingsDbRepository,
+            GroupTrainingReviewsDbRepository groupTrainingReviewsDbRepository) {
+        super(testRepository, groupTrainingsDbRepository,groupTrainingReviewsDbRepository);
     }
 
     @Autowired

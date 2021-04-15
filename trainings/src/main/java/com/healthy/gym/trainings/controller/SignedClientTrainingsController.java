@@ -55,4 +55,13 @@ public class SignedClientTrainingsController {
         return trainingsService.getGroupTrainingReviews();
     }
 
+    @GetMapping("/group/reviews/{reviewId}")
+    public GroupTrainingsReviews getGroupTrainingReviewById(@PathVariable("reviewId") final String reviewId) throws RestException {
+        try{
+            return trainingsService.getGroupTrainingReviewById(reviewId);
+        } catch (NotExistingGroupTrainingException e){
+            throw new RestException(e.getMessage(), HttpStatus.BAD_REQUEST, e);
+        }
+    }
+
 }

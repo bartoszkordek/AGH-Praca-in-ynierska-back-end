@@ -14,9 +14,17 @@ public class GroupTrainingReviewsDbRepository {
     private Environment environment;
 
     @Autowired
-    private GroupTrainingReviews groupTrainingReviews;
+    private GroupTrainingReviewsRepository groupTrainingReviewsRepository;
 
-    public List<GroupTrainingsReviews> getGroupTrainingReviews(){
-        return groupTrainingReviews.findAll();
+    public List<GroupTrainingsReviews> getGroupTrainingReviewsRepository(){
+        return groupTrainingReviewsRepository.findAll();
+    }
+
+    public GroupTrainingsReviews getGroupTrainingsReviewById(String reviewId){
+        return groupTrainingReviewsRepository.findFirstBy(reviewId);
+    }
+
+    public boolean isGroupTrainingsReviewExist(String reviewId){
+        return groupTrainingReviewsRepository.existsById(reviewId);
     }
 }

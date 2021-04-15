@@ -1,6 +1,5 @@
 package com.healthy.gym.trainings.service;
 
-import com.healthy.gym.trainings.db.GroupTrainingReviews;
 import com.healthy.gym.trainings.db.GroupTrainingReviewsDbRepository;
 import com.healthy.gym.trainings.db.GroupTrainingsDbRepository;
 import com.healthy.gym.trainings.db.TestRepository;
@@ -104,6 +103,14 @@ public class TrainingsService {
     }
 
     public List<GroupTrainingsReviews> getGroupTrainingReviews(){
-        return groupTrainingReviewsDbRepository.getGroupTrainingReviews();
+        return groupTrainingReviewsDbRepository.getGroupTrainingReviewsRepository();
     }
+
+    public GroupTrainingsReviews getGroupTrainingReviewById(String reviewId) throws NotExistingGroupTrainingException {
+        if(groupTrainingReviewsDbRepository.isGroupTrainingsReviewExist(reviewId)){
+            throw new NotExistingGroupTrainingException("Review with ID: "+ reviewId + " doesn't exist");
+        }
+        return groupTrainingReviewsDbRepository.getGroupTrainingsReviewById(reviewId);
+    }
+
 }

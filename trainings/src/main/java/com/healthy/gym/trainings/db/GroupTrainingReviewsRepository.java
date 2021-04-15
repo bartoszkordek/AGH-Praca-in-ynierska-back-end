@@ -6,7 +6,11 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 
 import java.util.List;
 
-public interface GroupTrainingReviews extends MongoRepository<GroupTrainingsReviews, String> {
+public interface GroupTrainingReviewsRepository extends MongoRepository<GroupTrainingsReviews, String> {
 
     public List<GroupTrainingsReviews> findAll();
+
+    public boolean existsById(String id);
+
+    public GroupTrainingsReviews findFirstBy(String id);
 }

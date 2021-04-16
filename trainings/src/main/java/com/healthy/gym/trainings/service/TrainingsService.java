@@ -110,17 +110,27 @@ public class TrainingsService {
     }
 
     public GroupTrainingsReviews getGroupTrainingReviewById(String reviewId) throws NotExistingGroupTrainingException {
-        if(groupTrainingReviewsDbRepository.isGroupTrainingsReviewExist(reviewId)){
+        if(!groupTrainingReviewsDbRepository.isGroupTrainingsReviewExist(reviewId)){
             throw new NotExistingGroupTrainingException("Review with ID: "+ reviewId + " doesn't exist");
         }
         return groupTrainingReviewsDbRepository.getGroupTrainingsReviewById(reviewId);
     }
 
-    public GroupTrainingsReviews createGroupTrainingReview(GroupTrainingsReviewsModel groupTrainingsReviewsModel){
+    public GroupTrainingsReviews createGroupTrainingReview(GroupTrainingsReviewsModel groupTrainingsReviewsModel,
+                                                           String clientId){
         SimpleDateFormat sdfDate = new SimpleDateFormat("yyyy-MM-dd");
         Date now = new Date();
         String todayDateFormatted = sdfDate.format(now);
-        return groupTrainingReviewsDbRepository.createGroupTrainingReview(groupTrainingsReviewsModel, todayDateFormatted);
+        return groupTrainingReviewsDbRepository.createGroupTrainingReview(groupTrainingsReviewsModel,
+                todayDateFormatted,
+                clientId);
+    }
+
+    public GroupTrainingsReviews removeGroupTrainingReview(String reviewId) throws NotExistingGroupTrainingException {
+        if(!groupTrainingReviewsDbRepository.isGroupTrainingsReviewExist(reviewId)){
+            throw new NotExistingGroupTrainingException("Review with ID: "+ reviewId + " doesn't exist");
+        }
+        return groupTrainingReviewsDbRepository.removeGroupTrainingsReview(reviewId);
     }
 
 }

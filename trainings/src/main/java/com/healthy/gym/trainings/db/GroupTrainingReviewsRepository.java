@@ -13,4 +13,6 @@ public interface GroupTrainingReviewsRepository extends MongoRepository<GroupTra
     public boolean existsById(String id);
 
     public GroupTrainingsReviews findFirstBy(String id);
+
+    public void removeById(String id);
 }

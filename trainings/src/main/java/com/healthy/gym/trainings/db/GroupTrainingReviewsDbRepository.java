@@ -30,15 +30,22 @@ public class GroupTrainingReviewsDbRepository {
     }
 
     public GroupTrainingsReviews createGroupTrainingReview(GroupTrainingsReviewsModel groupTrainingsReviewsModel,
-                                                           String date){
+                                                           String date,
+                                                           String clientId){
 
         GroupTrainingsReviews response = groupTrainingReviewsRepository.insert(new GroupTrainingsReviews(
                 groupTrainingsReviewsModel.getTrainingName(),
-                groupTrainingsReviewsModel.getClientId(),
+                clientId,
                 date,
                 groupTrainingsReviewsModel.getStars(),
                 groupTrainingsReviewsModel.getText()
         ));
         return response;
+    }
+
+    public GroupTrainingsReviews removeGroupTrainingsReview(String reviewId){
+        GroupTrainingsReviews groupTrainingsReviews = groupTrainingReviewsRepository.findFirstBy(reviewId);
+        groupTrainingReviewsRepository.removeById(reviewId);
+        return groupTrainingsReviews;
     }
 }

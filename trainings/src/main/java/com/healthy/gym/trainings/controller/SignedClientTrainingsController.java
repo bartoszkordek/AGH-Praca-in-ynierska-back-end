@@ -68,9 +68,19 @@ public class SignedClientTrainingsController {
     }
 
     @PostMapping("/group/review")
-    public GroupTrainingsReviews createGroupTrainingReview(@Valid @RequestBody GroupTrainingsReviewsModel groupTrainingsReviews){
-        return trainingsService.createGroupTrainingReview(groupTrainingsReviews);
+    public GroupTrainingsReviews createGroupTrainingReview(@Valid @RequestBody GroupTrainingsReviewsModel groupTrainingsReviews,
+                                                           @RequestParam(required = true) final String clientId){
+        return trainingsService.createGroupTrainingReview(groupTrainingsReviews, clientId);
     }
 
+    @DeleteMapping("/group/review/{reviewId}")
+    public GroupTrainingsReviews removeGroupTrainingReview(@PathVariable("reviewId") final String reviewId) throws RestException {
+
+        try{
+            return trainingsService.removeGroupTrainingReview(reviewId);
+        } catch (NotExistingGroupTrainingException e){
+            throw new RestException(e.getMessage(), HttpStatus.BAD_REQUEST, e);
+        }
+    }
 
 }

@@ -8,6 +8,7 @@ import com.healthy.gym.trainings.entity.GroupTrainingsReviews;
 import com.healthy.gym.trainings.exception.*;
 import com.healthy.gym.trainings.model.GroupTrainingModel;
 import com.healthy.gym.trainings.model.GroupTrainingsReviewsModel;
+import com.healthy.gym.trainings.model.GroupTrainingsReviewsUpdateModel;
 import org.springframework.stereotype.Service;
 
 import java.text.ParseException;
@@ -126,11 +127,27 @@ public class TrainingsService {
                 clientId);
     }
 
-    public GroupTrainingsReviews removeGroupTrainingReview(String reviewId) throws NotExistingGroupTrainingException {
+    public GroupTrainingsReviews removeGroupTrainingReview(String reviewId, String clientId) throws NotExistingGroupTrainingException, NotAuthorizedClientException {
         if(!groupTrainingReviewsDbRepository.isGroupTrainingsReviewExist(reviewId)){
             throw new NotExistingGroupTrainingException("Review with ID: "+ reviewId + " doesn't exist");
         }
+        if(!groupTrainingReviewsDbRepository.isClientReviewOwner(reviewId, clientId)){
+            throw new NotAuthorizedClientException("Client is not authorized to remove this review");
+        }
         return groupTrainingReviewsDbRepository.removeGroupTrainingsReview(reviewId);
+    }
+
+    public GroupTrainingsReviews updateGroupTrainingReview(GroupTrainingsReviewsUpdateModel groupTrainingsReviewsUpdateModel,
+                                                           String reviewId,
+                                                           String clientId) throws NotExistingGroupTrainingException, NotAuthorizedClientException {
+        if(!groupTrainingReviewsDbRepository.isGroupTrainingsReviewExist(reviewId)){
+            throw new NotExistingGroupTrainingException("Review with ID: "+ reviewId + " doesn't exist");
+        }
+        if(!groupTrainingReviewsDbRepository.isClientReviewOwner(reviewId, clientId)){
+            throw new NotAuthorizedClientException("Client is not authorized to remove this review");
+        }
+        System.out.println(reviewId);
+        return groupTrainingReviewsDbRepository.updateGroupTrainingsReview(groupTrainingsReviewsUpdateModel,reviewId);
     }
 
 }

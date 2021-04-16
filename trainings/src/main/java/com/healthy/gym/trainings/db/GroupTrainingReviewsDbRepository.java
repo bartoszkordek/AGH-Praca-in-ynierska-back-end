@@ -1,7 +1,9 @@
 package com.healthy.gym.trainings.db;
 
+import com.healthy.gym.trainings.entity.GroupTrainings;
 import com.healthy.gym.trainings.entity.GroupTrainingsReviews;
 import com.healthy.gym.trainings.model.GroupTrainingsReviewsModel;
+import com.healthy.gym.trainings.model.GroupTrainingsReviewsUpdateModel;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Repository;
@@ -29,6 +31,10 @@ public class GroupTrainingReviewsDbRepository {
         return groupTrainingReviewsRepository.existsById(reviewId);
     }
 
+    public boolean isClientReviewOwner(String reviewId, String clientId){
+        return groupTrainingReviewsRepository.existsByIdAndAndClientId(reviewId, clientId);
+    }
+
     public GroupTrainingsReviews createGroupTrainingReview(GroupTrainingsReviewsModel groupTrainingsReviewsModel,
                                                            String date,
                                                            String clientId){
@@ -44,8 +50,25 @@ public class GroupTrainingReviewsDbRepository {
     }
 
     public GroupTrainingsReviews removeGroupTrainingsReview(String reviewId){
-        GroupTrainingsReviews groupTrainingsReviews = groupTrainingReviewsRepository.findFirstBy(reviewId);
+        GroupTrainingsReviews groupTrainingsReviews = groupTrainingReviewsRepository.findGroupTrainingsReviewsById(reviewId);
         groupTrainingReviewsRepository.removeById(reviewId);
         return groupTrainingsReviews;
+    }
+
+    public GroupTrainingsReviews updateGroupTrainingsReview(GroupTrainingsReviewsUpdateModel groupTrainingsReviewsUpdateModel,
+                                                            String reviewId){
+        System.out.println("DB: " + reviewId);
+        GroupTrainingsReviews groupTrainingsReview = groupTrainingReviewsRepository.findGroupTrainingsReviewsById(reviewId);
+        System.out.println(groupTrainingsReview);
+        int stars = groupTrainingsReviewsUpdateModel.getStars();
+        String text = groupTrainingsReviewsUpdateModel.getText();
+        if(stars >= 1 && stars <=5){
+            groupTrainingsReview.setStars(groupTrainingsReviewsUpdateModel.getStars());
+        }
+        if(!text.isEmpty()){
+            groupTrainingsReview.setText(groupTrainingsReviewsUpdateModel.getText());
+        }
+        GroupTrainingsReviews response = groupTrainingReviewsRepository.save(groupTrainingsReview);
+        return response;
     }
 }

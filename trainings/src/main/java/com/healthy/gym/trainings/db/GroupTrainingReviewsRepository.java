@@ -11,8 +11,11 @@ public interface GroupTrainingReviewsRepository extends MongoRepository<GroupTra
     public List<GroupTrainingsReviews> findAll();
 
     public boolean existsById(String id);
+    public boolean existsByIdAndAndClientId(String reviewId, String clientId);
 
     public GroupTrainingsReviews findFirstBy(String id);
+    public GroupTrainingsReviews getFirstBy(String id);
+    public GroupTrainingsReviews findGroupTrainingsReviewsById(String id);
 
     public void removeById(String id);
 }

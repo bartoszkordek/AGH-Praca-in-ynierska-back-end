@@ -4,10 +4,13 @@ import com.healthy.gym.trainings.entity.GroupTrainingsReviews;
 import com.healthy.gym.trainings.exception.NotExistingGroupTrainingException;
 import com.healthy.gym.trainings.exception.RestException;
 import com.healthy.gym.trainings.exception.TrainingEnrollmentException;
+import com.healthy.gym.trainings.model.GroupTrainingModel;
+import com.healthy.gym.trainings.model.GroupTrainingsReviewsModel;
 import com.healthy.gym.trainings.service.TrainingsService;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.List;
 
 @RestController
@@ -63,5 +66,11 @@ public class SignedClientTrainingsController {
             throw new RestException(e.getMessage(), HttpStatus.BAD_REQUEST, e);
         }
     }
+
+    @PostMapping("/group/review")
+    public GroupTrainingsReviews createGroupTrainingReview(@Valid @RequestBody GroupTrainingsReviewsModel groupTrainingsReviews){
+        return trainingsService.createGroupTrainingReview(groupTrainingsReviews);
+    }
+
 
 }

@@ -7,9 +7,12 @@ import com.healthy.gym.trainings.entity.GroupTrainings;
 import com.healthy.gym.trainings.entity.GroupTrainingsReviews;
 import com.healthy.gym.trainings.exception.*;
 import com.healthy.gym.trainings.model.GroupTrainingModel;
+import com.healthy.gym.trainings.model.GroupTrainingsReviewsModel;
 import org.springframework.stereotype.Service;
 
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 @Service
@@ -111,6 +114,13 @@ public class TrainingsService {
             throw new NotExistingGroupTrainingException("Review with ID: "+ reviewId + " doesn't exist");
         }
         return groupTrainingReviewsDbRepository.getGroupTrainingsReviewById(reviewId);
+    }
+
+    public GroupTrainingsReviews createGroupTrainingReview(GroupTrainingsReviewsModel groupTrainingsReviewsModel){
+        SimpleDateFormat sdfDate = new SimpleDateFormat("yyyy-MM-dd");
+        Date now = new Date();
+        String todayDateFormatted = sdfDate.format(now);
+        return groupTrainingReviewsDbRepository.createGroupTrainingReview(groupTrainingsReviewsModel, todayDateFormatted);
     }
 
 }

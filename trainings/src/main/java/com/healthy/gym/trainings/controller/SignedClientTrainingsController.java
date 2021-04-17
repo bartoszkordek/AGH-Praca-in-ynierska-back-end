@@ -61,7 +61,7 @@ public class SignedClientTrainingsController {
     public GroupTrainingsReviews getGroupTrainingReviewById(@PathVariable("reviewId") final String reviewId) throws RestException {
         try{
             return trainingsService.getGroupTrainingReviewById(reviewId);
-        } catch (NotExistingGroupTrainingException e){
+        } catch (NotExistingGroupTrainingReviewException e){
             throw new RestException(e.getMessage(), HttpStatus.BAD_REQUEST, e);
         }
     }
@@ -81,7 +81,7 @@ public class SignedClientTrainingsController {
                                                            @RequestParam(required = true) final String clientId) throws RestException {
         try{
             return trainingsService.removeGroupTrainingReview(reviewId, clientId);
-        } catch (NotExistingGroupTrainingException e){
+        } catch (NotExistingGroupTrainingReviewException e){
             throw new RestException(e.getMessage(), HttpStatus.BAD_REQUEST, e);
         } catch (NotAuthorizedClientException e){
             throw new RestException(e.getMessage(), HttpStatus.FORBIDDEN, e);
@@ -94,11 +94,10 @@ public class SignedClientTrainingsController {
                                                            @RequestParam(required = true) final String clientId) throws RestException {
         try{
             return trainingsService.updateGroupTrainingReview(groupTrainingsReviewsUpdateModel, reviewId, clientId);
-        } catch (NotExistingGroupTrainingException | StarsOutOfRangeException e){
+        } catch (NotExistingGroupTrainingReviewException | StarsOutOfRangeException e){
             throw new RestException(e.getMessage(), HttpStatus.BAD_REQUEST, e);
         } catch (NotAuthorizedClientException e){
             throw new RestException(e.getMessage(), HttpStatus.FORBIDDEN, e);
         }
     }
-
 }

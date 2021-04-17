@@ -110,9 +110,9 @@ public class TrainingsService {
         return groupTrainingReviewsDbRepository.getGroupTrainingReviews();
     }
 
-    public GroupTrainingsReviews getGroupTrainingReviewById(String reviewId) throws NotExistingGroupTrainingException {
+    public GroupTrainingsReviews getGroupTrainingReviewById(String reviewId) throws NotExistingGroupTrainingReviewException {
         if(!groupTrainingReviewsDbRepository.isGroupTrainingsReviewExist(reviewId)){
-            throw new NotExistingGroupTrainingException("Review with ID: "+ reviewId + " doesn't exist");
+            throw new NotExistingGroupTrainingReviewException("Review with ID: "+ reviewId + " doesn't exist");
         }
         return groupTrainingReviewsDbRepository.getGroupTrainingsReviewById(reviewId);
     }
@@ -130,9 +130,9 @@ public class TrainingsService {
                 clientId);
     }
 
-    public GroupTrainingsReviews removeGroupTrainingReview(String reviewId, String clientId) throws NotExistingGroupTrainingException, NotAuthorizedClientException {
+    public GroupTrainingsReviews removeGroupTrainingReview(String reviewId, String clientId) throws NotAuthorizedClientException, NotExistingGroupTrainingReviewException {
         if(!groupTrainingReviewsDbRepository.isGroupTrainingsReviewExist(reviewId)){
-            throw new NotExistingGroupTrainingException("Review with ID: "+ reviewId + " doesn't exist");
+            throw new NotExistingGroupTrainingReviewException("Review with ID: "+ reviewId + " doesn't exist");
         }
         if(!groupTrainingReviewsDbRepository.isClientReviewOwner(reviewId, clientId)){
             throw new NotAuthorizedClientException("Client is not authorized to remove this review");
@@ -142,9 +142,9 @@ public class TrainingsService {
 
     public GroupTrainingsReviews updateGroupTrainingReview(GroupTrainingsReviewsUpdateModel groupTrainingsReviewsUpdateModel,
                                                            String reviewId,
-                                                           String clientId) throws NotExistingGroupTrainingException, NotAuthorizedClientException, StarsOutOfRangeException {
+                                                           String clientId) throws NotAuthorizedClientException, StarsOutOfRangeException, NotExistingGroupTrainingReviewException {
         if(!groupTrainingReviewsDbRepository.isGroupTrainingsReviewExist(reviewId)){
-            throw new NotExistingGroupTrainingException("Review with ID: "+ reviewId + " doesn't exist");
+            throw new NotExistingGroupTrainingReviewException("Review with ID: "+ reviewId + " doesn't exist");
         }
         if(!groupTrainingReviewsDbRepository.isClientReviewOwner(reviewId, clientId)){
             throw new NotAuthorizedClientException("Client is not authorized to remove this review");

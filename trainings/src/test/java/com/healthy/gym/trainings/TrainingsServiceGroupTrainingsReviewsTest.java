@@ -3,7 +3,7 @@ package com.healthy.gym.trainings;
 import com.healthy.gym.trainings.db.GroupTrainingReviewsDbRepository;
 import com.healthy.gym.trainings.entity.GroupTrainingsReviews;
 import com.healthy.gym.trainings.exception.NotAuthorizedClientException;
-import com.healthy.gym.trainings.exception.NotExistingGroupTrainingException;
+import com.healthy.gym.trainings.exception.NotExistingGroupTrainingReviewException;
 import com.healthy.gym.trainings.exception.StarsOutOfRangeException;
 import com.healthy.gym.trainings.mock.TrainingsServiceGroupTrainingsReviewsImpl;
 import com.healthy.gym.trainings.model.GroupTrainingsReviewsModel;
@@ -30,6 +30,7 @@ public class TrainingsServiceGroupTrainingsReviewsTest {
     private final String validReviewId = "111111111111111111111111";
     private final String invalidReviewId = "999999999999999999999999";
     private final String validClientId = "Client123";
+    private final String invalidClientId = "InvalidClient";
     private final String sampleTrainingName = "Zumba";
     private final String sampleDate = "2020-01-01";
     private final int sampleStars = 5;
@@ -115,24 +116,23 @@ public class TrainingsServiceGroupTrainingsReviewsTest {
     }
 
     @Test
-    public void shouldReturnValidReviewTrainingName_whenValidReviewId() throws NotExistingGroupTrainingException {
+    public void shouldReturnValidReviewTrainingName_whenValidReviewId() throws NotExistingGroupTrainingReviewException {
         assertThat(trainingsService.getGroupTrainingReviewById(validReviewId).getTrainingName())
                 .isEqualTo("Zumba");
     }
 
-    @Test(expected = NotExistingGroupTrainingException.class)
-    public void shouldReturnNotExistingGroupTrainingException_whenInvalidReviewId() throws NotExistingGroupTrainingException {
+    @Test(expected = NotExistingGroupTrainingReviewException.class)
+    public void shouldReturnNotExistingGroupTrainingException_whenInvalidReviewId() throws NotExistingGroupTrainingReviewException {
         TrainingsService trainingsService = mock(TrainingsService.class);
-        doThrow(NotExistingGroupTrainingException.class)
+        doThrow(NotExistingGroupTrainingReviewException.class)
                 .when(trainingsService)
                 .getGroupTrainingReviewById(invalidReviewId);
         trainingsService.getGroupTrainingReviewById(invalidReviewId);
     }
 
     @Test
-    public void shouldUpdateReview_whenValidRequest() throws NotExistingGroupTrainingException, StarsOutOfRangeException, NotAuthorizedClientException {
-        GroupTrainingsReviewsModel groupTrainingsReviewsModel = new GroupTrainingsReviewsModel(sampleTrainingNameToUpdate,
-                sampleStarsToUpdate, sampleTextToUpdate);
+    public void shouldUpdateReview_whenValidRequest() throws StarsOutOfRangeException, NotAuthorizedClientException, NotExistingGroupTrainingReviewException {
+        //when
         int starsToUpdate = 5;
         String textToUpdate = "Good";
         GroupTrainingsReviews groupTrainingsReviewsSampleAfterUpdate = new GroupTrainingsReviews(sampleTrainingNameToUpdate,
@@ -142,9 +142,78 @@ public class TrainingsServiceGroupTrainingsReviewsTest {
                 textToUpdate);
         groupTrainingsReviewsSampleAfterUpdate.setId(validReviewIdToUpdate);
 
+        //then
+        assertThat(trainingsService.updateGroupTrainingReview(groupTrainingsReviewsUpdateModel,validReviewIdToUpdate,validClientId).getId())
+                .isEqualTo(groupTrainingsReviewsSampleAfterUpdate.getId());
+        assertThat(trainingsService.updateGroupTrainingReview(groupTrainingsReviewsUpdateModel,validReviewIdToUpdate,validClientId).getTrainingName())
+                .isEqualTo(groupTrainingsReviewsSampleAfterUpdate.getTrainingName());
+        assertThat(trainingsService.updateGroupTrainingReview(groupTrainingsReviewsUpdateModel,validReviewIdToUpdate,validClientId).getClientId())
+                .isEqualTo(groupTrainingsReviewsSampleAfterUpdate.getClientId());
+        assertThat(trainingsService.updateGroupTrainingReview(groupTrainingsReviewsUpdateModel,validReviewIdToUpdate,validClientId).getDate())
+                .isEqualTo(groupTrainingsReviewsSampleAfterUpdate.getDate());
         assertThat(trainingsService.updateGroupTrainingReview(groupTrainingsReviewsUpdateModel,validReviewIdToUpdate,validClientId).getStars())
                 .isEqualTo(groupTrainingsReviewsSampleAfterUpdate.getStars());
+        assertThat(trainingsService.updateGroupTrainingReview(groupTrainingsReviewsUpdateModel,validReviewIdToUpdate,validClientId).getText())
+                .isEqualTo(groupTrainingsReviewsSampleAfterUpdate.getText());
+    }
 
+    @Test(expected = NotAuthorizedClientException.class)
+    public void shouldNotUpdateReview_whenInvalidClientId() throws StarsOutOfRangeException, NotAuthorizedClientException, NotExistingGroupTrainingReviewException {
+        //when
+        int starsToUpdate = 5;
+        String textToUpdate = "Good";
+        GroupTrainingsReviews groupTrainingsReviewsSampleAfterUpdate = new GroupTrainingsReviews(sampleTrainingNameToUpdate,
+                invalidClientId,
+                sampleDateToUpdate,
+                starsToUpdate,
+                textToUpdate);
+        groupTrainingsReviewsSampleAfterUpdate.setId(validReviewIdToUpdate);
 
+        //then
+        TrainingsService trainingsService = mock(TrainingsService.class);
+        doThrow(NotAuthorizedClientException.class)
+                .when(trainingsService)
+                .updateGroupTrainingReview(groupTrainingsReviewsUpdateModel,validReviewIdToUpdate,validClientId);
+        trainingsService.updateGroupTrainingReview(groupTrainingsReviewsUpdateModel,validReviewIdToUpdate,validClientId);
+    }
+
+    @Test(expected = NotExistingGroupTrainingReviewException.class)
+    public void shouldNotUpdateReview_whenInvalidReviewId() throws StarsOutOfRangeException, NotAuthorizedClientException, NotExistingGroupTrainingReviewException {
+        //when
+        int starsToUpdate = 5;
+        String textToUpdate = "Good";
+        GroupTrainingsReviews groupTrainingsReviewsSampleAfterUpdate = new GroupTrainingsReviews(invalidReviewId,
+                validClientId,
+                sampleDateToUpdate,
+                starsToUpdate,
+                textToUpdate);
+        groupTrainingsReviewsSampleAfterUpdate.setId(validReviewIdToUpdate);
+
+        //then
+        TrainingsService trainingsService = mock(TrainingsService.class);
+        doThrow(NotExistingGroupTrainingReviewException.class)
+                .when(trainingsService)
+                .updateGroupTrainingReview(groupTrainingsReviewsUpdateModel,invalidReviewId,validClientId);
+        trainingsService.updateGroupTrainingReview(groupTrainingsReviewsUpdateModel,invalidReviewId,validClientId);
+    }
+
+    @Test(expected = StarsOutOfRangeException.class)
+    public void shouldNotUpdateReview_whenInvalidStars() throws StarsOutOfRangeException, NotAuthorizedClientException, NotExistingGroupTrainingReviewException {
+        //when
+        int starsToUpdate = 50;
+        String textToUpdate = "Good";
+        GroupTrainingsReviews groupTrainingsReviewsSampleAfterUpdate = new GroupTrainingsReviews(sampleTrainingNameToUpdate,
+                validClientId,
+                sampleDateToUpdate,
+                starsToUpdate,
+                textToUpdate);
+        groupTrainingsReviewsSampleAfterUpdate.setId(validReviewIdToUpdate);
+
+        //then
+        TrainingsService trainingsService = mock(TrainingsService.class);
+        doThrow(StarsOutOfRangeException.class)
+                .when(trainingsService)
+                .updateGroupTrainingReview(groupTrainingsReviewsUpdateModel,validReviewIdToUpdate,validClientId);
+        trainingsService.updateGroupTrainingReview(groupTrainingsReviewsUpdateModel,validReviewIdToUpdate,validClientId);
     }
 }

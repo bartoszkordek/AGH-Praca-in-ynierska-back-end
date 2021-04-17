@@ -1,5 +1,6 @@
 package com.healthy.gym.trainings.mock;
 
+import com.healthy.gym.trainings.db.GroupTrainingReviewsDbRepository;
 import com.healthy.gym.trainings.db.GroupTrainingsDbRepository;
 import com.healthy.gym.trainings.db.TestRepository;
 import com.healthy.gym.trainings.entity.GroupTrainings;
@@ -10,10 +11,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
 
-public class TrainingsServiceImpl extends TrainingsService {
+public class TrainingsServiceGroupTrainingsImpl extends TrainingsService {
 
-    public TrainingsServiceImpl(TestRepository testRepository, GroupTrainingsDbRepository groupTrainingsDbRepository) {
-        super(testRepository, groupTrainingsDbRepository);
+    public TrainingsServiceGroupTrainingsImpl(
+            TestRepository testRepository,
+            GroupTrainingsDbRepository groupTrainingsDbRepository,
+            GroupTrainingReviewsDbRepository groupTrainingReviewsDbRepository) {
+        super(testRepository, groupTrainingsDbRepository,groupTrainingReviewsDbRepository);
     }
 
     @Autowired
@@ -73,4 +77,6 @@ public class TrainingsServiceImpl extends TrainingsService {
             groupTrainingsDbRepository.removeFromReserveList(trainingId, clientId);
         }
     }
+
+
 }

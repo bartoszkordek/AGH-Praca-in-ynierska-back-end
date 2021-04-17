@@ -1,24 +1,33 @@
 package com.healthy.gym.trainings.service;
 
+import com.healthy.gym.trainings.db.GroupTrainingReviewsDbRepository;
 import com.healthy.gym.trainings.db.GroupTrainingsDbRepository;
 import com.healthy.gym.trainings.db.TestRepository;
 import com.healthy.gym.trainings.entity.GroupTrainings;
+import com.healthy.gym.trainings.entity.GroupTrainingsReviews;
 import com.healthy.gym.trainings.exception.*;
 import com.healthy.gym.trainings.model.GroupTrainingModel;
+import com.healthy.gym.trainings.model.GroupTrainingsReviewsModel;
+import com.healthy.gym.trainings.model.GroupTrainingsReviewsUpdateModel;
 import org.springframework.stereotype.Service;
 
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 @Service
 public class TrainingsService {
     TestRepository testRepository;
     GroupTrainingsDbRepository groupTrainingsDbRepository;
+    GroupTrainingReviewsDbRepository groupTrainingReviewsDbRepository;
 
     public TrainingsService(TestRepository testRepository,
-                            GroupTrainingsDbRepository groupTrainingsDbRepository){
+                            GroupTrainingsDbRepository groupTrainingsDbRepository,
+                            GroupTrainingReviewsDbRepository groupTrainingReviewsDbRepository){
         this.testRepository = testRepository;
         this.groupTrainingsDbRepository = groupTrainingsDbRepository;
+        this.groupTrainingReviewsDbRepository = groupTrainingReviewsDbRepository;
     }
 
     public String getFirstTestDocument(){
@@ -96,4 +105,54 @@ public class TrainingsService {
             throw new TrainingUpdateException("Training with ID: "+ trainingId + " doesn't exist");
         return groupTrainingsDbRepository.updateTraining(trainingId, groupTrainingModelRequest);
     }
+
+    public List<GroupTrainingsReviews> getGroupTrainingReviews(){
+        return groupTrainingReviewsDbRepository.getGroupTrainingReviews();
+    }
+
+    public GroupTrainingsReviews getGroupTrainingReviewById(String reviewId) throws NotExistingGroupTrainingException {
+        if(!groupTrainingReviewsDbRepository.isGroupTrainingsReviewExist(reviewId)){
+            throw new NotExistingGroupTrainingException("Review with ID: "+ reviewId + " doesn't exist");
+        }
+        return groupTrainingReviewsDbRepository.getGroupTrainingsReviewById(reviewId);
+    }
+
+    public GroupTrainingsReviews createGroupTrainingReview(GroupTrainingsReviewsModel groupTrainingsReviewsModel,
+                                                           String clientId) throws StarsOutOfRangeException {
+        if(groupTrainingsReviewsModel.getStars()<1 || groupTrainingsReviewsModel.getStars() >5){
+            throw new StarsOutOfRangeException("Stars must be in range: 1-5");
+        }
+        SimpleDateFormat sdfDate = new SimpleDateFormat("yyyy-MM-dd");
+        Date now = new Date();
+        String todayDateFormatted = sdfDate.format(now);
+        return groupTrainingReviewsDbRepository.createGroupTrainingReview(groupTrainingsReviewsModel,
+                todayDateFormatted,
+                clientId);
+    }
+
+    public GroupTrainingsReviews removeGroupTrainingReview(String reviewId, String clientId) throws NotExistingGroupTrainingException, NotAuthorizedClientException {
+        if(!groupTrainingReviewsDbRepository.isGroupTrainingsReviewExist(reviewId)){
+            throw new NotExistingGroupTrainingException("Review with ID: "+ reviewId + " doesn't exist");
+        }
+        if(!groupTrainingReviewsDbRepository.isClientReviewOwner(reviewId, clientId)){
+            throw new NotAuthorizedClientException("Client is not authorized to remove this review");
+        }
+        return groupTrainingReviewsDbRepository.removeGroupTrainingsReview(reviewId);
+    }
+
+    public GroupTrainingsReviews updateGroupTrainingReview(GroupTrainingsReviewsUpdateModel groupTrainingsReviewsUpdateModel,
+                                                           String reviewId,
+                                                           String clientId) throws NotExistingGroupTrainingException, NotAuthorizedClientException, StarsOutOfRangeException {
+        if(!groupTrainingReviewsDbRepository.isGroupTrainingsReviewExist(reviewId)){
+            throw new NotExistingGroupTrainingException("Review with ID: "+ reviewId + " doesn't exist");
+        }
+        if(!groupTrainingReviewsDbRepository.isClientReviewOwner(reviewId, clientId)){
+            throw new NotAuthorizedClientException("Client is not authorized to remove this review");
+        }
+        if(groupTrainingsReviewsUpdateModel.getStars()<1 || groupTrainingsReviewsUpdateModel.getStars() >5){
+            throw new StarsOutOfRangeException("Stars must be in range: 1-5");
+        }
+        return groupTrainingReviewsDbRepository.updateGroupTrainingsReview(groupTrainingsReviewsUpdateModel,reviewId);
+    }
+
 }

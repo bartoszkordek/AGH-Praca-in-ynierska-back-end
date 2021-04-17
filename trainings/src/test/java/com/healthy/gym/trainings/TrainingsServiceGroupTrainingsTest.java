@@ -1,10 +1,11 @@
 package com.healthy.gym.trainings;
 
+import com.healthy.gym.trainings.db.GroupTrainingReviewsDbRepository;
 import com.healthy.gym.trainings.db.GroupTrainingsDbRepository;
 import com.healthy.gym.trainings.entity.GroupTrainings;
 import com.healthy.gym.trainings.exception.NotExistingGroupTrainingException;
 import com.healthy.gym.trainings.exception.TrainingEnrollmentException;
-import com.healthy.gym.trainings.mock.TrainingsServiceImpl;
+import com.healthy.gym.trainings.mock.TrainingsServiceGroupTrainingsImpl;
 import com.healthy.gym.trainings.service.TrainingsService;
 import org.junit.Before;
 import org.junit.Test;
@@ -22,18 +23,18 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
 @RunWith(SpringRunner.class)
-public class TrainingsServiceShowGroupTrainingsTest {
+public class TrainingsServiceGroupTrainingsTest {
 
     private final String validTrainingId = "111111111111111111111111";
     private final String invalidTrainingId = "999999999999999999999999";
     private final String validClientId = "Client123";
 
     @TestConfiguration
-    static class EmployeeServiceImplTestContextConfiguration {
+    static class TrainingsServiceImplTestContextConfiguration {
 
         @Bean
-        public TrainingsService employeeService() {
-            return new TrainingsServiceImpl(null, null);
+        public TrainingsService trainingsService() {
+            return new TrainingsServiceGroupTrainingsImpl(null, null, null);
         }
     }
 

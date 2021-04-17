@@ -24,7 +24,7 @@ public class GroupTrainingReviewsDbRepository {
     }
 
     public GroupTrainingsReviews getGroupTrainingsReviewById(String reviewId){
-        return groupTrainingReviewsRepository.findFirstBy(reviewId);
+        return groupTrainingReviewsRepository.findGroupTrainingsReviewsById(reviewId);
     }
 
     public boolean isGroupTrainingsReviewExist(String reviewId){

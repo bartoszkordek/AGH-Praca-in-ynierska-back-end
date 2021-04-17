@@ -52,7 +52,7 @@ public class SignedClientTrainingsController {
         }
     }
 
-    @GetMapping("/group/reviews")
+    @GetMapping("/group/reviews/all")
     public List<GroupTrainingsReviews> getGroupTrainingReviews(){
         return trainingsService.getGroupTrainingReviews();
     }

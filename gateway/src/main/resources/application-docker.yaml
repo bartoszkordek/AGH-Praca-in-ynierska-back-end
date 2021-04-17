@@ -21,3 +21,13 @@ zuul:
   host:
     connect-timeout-millis: 60000
     socket-timeout-millis: 60000
+
+#custom settings
+token:
+  secret: randomlyGeneratedSecretTokenToSecureApplication
+
+authorization:
+  token:
+    header:
+      name: Authorization
+      prefix: Bearer

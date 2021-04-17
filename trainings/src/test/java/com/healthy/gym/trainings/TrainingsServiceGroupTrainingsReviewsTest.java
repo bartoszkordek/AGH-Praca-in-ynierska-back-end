@@ -2,8 +2,12 @@ package com.healthy.gym.trainings;
 
 import com.healthy.gym.trainings.db.GroupTrainingReviewsDbRepository;
 import com.healthy.gym.trainings.entity.GroupTrainingsReviews;
-import com.healthy.gym.trainings.mock.TrainingsServiceGroupTrainingsImpl;
+import com.healthy.gym.trainings.exception.NotAuthorizedClientException;
+import com.healthy.gym.trainings.exception.NotExistingGroupTrainingException;
+import com.healthy.gym.trainings.exception.StarsOutOfRangeException;
 import com.healthy.gym.trainings.mock.TrainingsServiceGroupTrainingsReviewsImpl;
+import com.healthy.gym.trainings.model.GroupTrainingsReviewsModel;
+import com.healthy.gym.trainings.model.GroupTrainingsReviewsUpdateModel;
 import com.healthy.gym.trainings.service.TrainingsService;
 import org.junit.Before;
 import org.junit.Test;
@@ -18,7 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @RunWith(SpringRunner.class)
 public class TrainingsServiceGroupTrainingsReviewsTest {
@@ -30,6 +34,14 @@ public class TrainingsServiceGroupTrainingsReviewsTest {
     private final String sampleDate = "2020-01-01";
     private final int sampleStars = 5;
     private final String sampleText = "good";
+
+    private final String validReviewIdToUpdate = "222222222222222222222222";
+    private String sampleTrainingNameToUpdate = "Spinning";
+    private int sampleStarsToUpdate = 4;
+    private String sampleTextToUpdate = "OK";
+    private String sampleDateToUpdate = "2021-11-03";
+
+    private GroupTrainingsReviewsUpdateModel groupTrainingsReviewsUpdateModel;
 
     @TestConfiguration
     static class TrainingsReviewServiceImplTestContextConfiguration {
@@ -57,13 +69,82 @@ public class TrainingsServiceGroupTrainingsReviewsTest {
         groupTrainingsReviews.setId(validReviewId);
         groupTrainingsReviewsList.add(groupTrainingsReviews);
 
+        GroupTrainingsReviews groupTrainingsReviewsToUpdate = new GroupTrainingsReviews(sampleTrainingNameToUpdate,
+                validClientId,
+                sampleDateToUpdate,
+                sampleStarsToUpdate,
+                sampleTextToUpdate);
+        groupTrainingsReviewsToUpdate.setId(validReviewIdToUpdate);
+        groupTrainingsReviewsList.add(groupTrainingsReviewsToUpdate);
+
         when(groupTrainingReviewsDbRepository.getGroupTrainingReviews())
                 .thenReturn(groupTrainingsReviewsList);
+        when(groupTrainingReviewsDbRepository.isGroupTrainingsReviewExist(validReviewId))
+                .thenReturn(true);
+        when(groupTrainingReviewsDbRepository.getGroupTrainingsReviewById(validReviewId))
+                .thenReturn(groupTrainingsReviews);
+
+        GroupTrainingsReviewsModel groupTrainingsReviewsModel = new GroupTrainingsReviewsModel(sampleTrainingNameToUpdate,
+                sampleStarsToUpdate, sampleTextToUpdate);
+
+
+        int starsToUpdate = 5;
+        String textToUpdate = "Good";
+
+        GroupTrainingsReviews groupTrainingsReviewsSampleAfterUpdate = new GroupTrainingsReviews(sampleTrainingNameToUpdate,
+                validClientId,
+                sampleDateToUpdate,
+                starsToUpdate,
+                textToUpdate);
+        groupTrainingsReviewsSampleAfterUpdate.setId(validReviewIdToUpdate);
+
+        groupTrainingsReviewsUpdateModel = new GroupTrainingsReviewsUpdateModel(starsToUpdate, textToUpdate);
+        when(groupTrainingReviewsDbRepository.updateGroupTrainingsReview(groupTrainingsReviewsUpdateModel, validReviewIdToUpdate))
+                .thenReturn(groupTrainingsReviewsSampleAfterUpdate);
+
+        when(groupTrainingReviewsDbRepository.isGroupTrainingsReviewExist(validReviewIdToUpdate))
+                .thenReturn(true);
+        when(groupTrainingReviewsDbRepository.isClientReviewOwner(validReviewIdToUpdate, validClientId))
+                .thenReturn(true);
     }
 
     @Test
     public void shouldReturnFirstReviewTrainingName_whenValidRequest() {
         assertThat(trainingsService.getGroupTrainingReviews().get(0).getTrainingName())
                 .isEqualTo("Zumba");
+    }
+
+    @Test
+    public void shouldReturnValidReviewTrainingName_whenValidReviewId() throws NotExistingGroupTrainingException {
+        assertThat(trainingsService.getGroupTrainingReviewById(validReviewId).getTrainingName())
+                .isEqualTo("Zumba");
+    }
+
+    @Test(expected = NotExistingGroupTrainingException.class)
+    public void shouldReturnNotExistingGroupTrainingException_whenInvalidReviewId() throws NotExistingGroupTrainingException {
+        TrainingsService trainingsService = mock(TrainingsService.class);
+        doThrow(NotExistingGroupTrainingException.class)
+                .when(trainingsService)
+                .getGroupTrainingReviewById(invalidReviewId);
+        trainingsService.getGroupTrainingReviewById(invalidReviewId);
+    }
+
+    @Test
+    public void shouldUpdateReview_whenValidRequest() throws NotExistingGroupTrainingException, StarsOutOfRangeException, NotAuthorizedClientException {
+        GroupTrainingsReviewsModel groupTrainingsReviewsModel = new GroupTrainingsReviewsModel(sampleTrainingNameToUpdate,
+                sampleStarsToUpdate, sampleTextToUpdate);
+        int starsToUpdate = 5;
+        String textToUpdate = "Good";
+        GroupTrainingsReviews groupTrainingsReviewsSampleAfterUpdate = new GroupTrainingsReviews(sampleTrainingNameToUpdate,
+                validClientId,
+                sampleDateToUpdate,
+                starsToUpdate,
+                textToUpdate);
+        groupTrainingsReviewsSampleAfterUpdate.setId(validReviewIdToUpdate);
+
+        assertThat(trainingsService.updateGroupTrainingReview(groupTrainingsReviewsUpdateModel,validReviewIdToUpdate,validClientId).getStars())
+                .isEqualTo(groupTrainingsReviewsSampleAfterUpdate.getStars());
+
+
     }
 }

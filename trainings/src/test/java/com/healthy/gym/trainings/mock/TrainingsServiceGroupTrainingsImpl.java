@@ -11,9 +11,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
 
-public class TrainingsServiceImpl extends TrainingsService {
+public class TrainingsServiceGroupTrainingsImpl extends TrainingsService {
 
-    public TrainingsServiceImpl(
+    public TrainingsServiceGroupTrainingsImpl(
             TestRepository testRepository,
             GroupTrainingsDbRepository groupTrainingsDbRepository,
             GroupTrainingReviewsDbRepository groupTrainingReviewsDbRepository) {
@@ -77,4 +77,6 @@ public class TrainingsServiceImpl extends TrainingsService {
             groupTrainingsDbRepository.removeFromReserveList(trainingId, clientId);
         }
     }
+
+
 }

@@ -107,7 +107,7 @@ public class TrainingsService {
     }
 
     public List<GroupTrainingsReviews> getGroupTrainingReviews(){
-        return groupTrainingReviewsDbRepository.getGroupTrainingReviewsRepository();
+        return groupTrainingReviewsDbRepository.getGroupTrainingReviews();
     }
 
     public GroupTrainingsReviews getGroupTrainingReviewById(String reviewId) throws NotExistingGroupTrainingException {
@@ -118,7 +118,10 @@ public class TrainingsService {
     }
 
     public GroupTrainingsReviews createGroupTrainingReview(GroupTrainingsReviewsModel groupTrainingsReviewsModel,
-                                                           String clientId){
+                                                           String clientId) throws StarsOutOfRangeException {
+        if(groupTrainingsReviewsModel.getStars()<1 || groupTrainingsReviewsModel.getStars() >5){
+            throw new StarsOutOfRangeException("Stars must be in range: 1-5");
+        }
         SimpleDateFormat sdfDate = new SimpleDateFormat("yyyy-MM-dd");
         Date now = new Date();
         String todayDateFormatted = sdfDate.format(now);
@@ -139,14 +142,16 @@ public class TrainingsService {
 
     public GroupTrainingsReviews updateGroupTrainingReview(GroupTrainingsReviewsUpdateModel groupTrainingsReviewsUpdateModel,
                                                            String reviewId,
-                                                           String clientId) throws NotExistingGroupTrainingException, NotAuthorizedClientException {
+                                                           String clientId) throws NotExistingGroupTrainingException, NotAuthorizedClientException, StarsOutOfRangeException {
         if(!groupTrainingReviewsDbRepository.isGroupTrainingsReviewExist(reviewId)){
             throw new NotExistingGroupTrainingException("Review with ID: "+ reviewId + " doesn't exist");
         }
         if(!groupTrainingReviewsDbRepository.isClientReviewOwner(reviewId, clientId)){
             throw new NotAuthorizedClientException("Client is not authorized to remove this review");
         }
-        System.out.println(reviewId);
+        if(groupTrainingsReviewsUpdateModel.getStars()<1 || groupTrainingsReviewsUpdateModel.getStars() >5){
+            throw new StarsOutOfRangeException("Stars must be in range: 1-5");
+        }
         return groupTrainingReviewsDbRepository.updateGroupTrainingsReview(groupTrainingsReviewsUpdateModel,reviewId);
     }
 

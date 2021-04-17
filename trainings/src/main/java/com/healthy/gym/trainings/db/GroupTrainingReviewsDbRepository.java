@@ -19,7 +19,7 @@ public class GroupTrainingReviewsDbRepository {
     @Autowired
     private GroupTrainingReviewsRepository groupTrainingReviewsRepository;
 
-    public List<GroupTrainingsReviews> getGroupTrainingReviewsRepository(){
+    public List<GroupTrainingsReviews> getGroupTrainingReviews(){
         return groupTrainingReviewsRepository.findAll();
     }
 
@@ -57,9 +57,7 @@ public class GroupTrainingReviewsDbRepository {
 
     public GroupTrainingsReviews updateGroupTrainingsReview(GroupTrainingsReviewsUpdateModel groupTrainingsReviewsUpdateModel,
                                                             String reviewId){
-        System.out.println("DB: " + reviewId);
         GroupTrainingsReviews groupTrainingsReview = groupTrainingReviewsRepository.findGroupTrainingsReviewsById(reviewId);
-        System.out.println(groupTrainingsReview);
         int stars = groupTrainingsReviewsUpdateModel.getStars();
         String text = groupTrainingsReviewsUpdateModel.getText();
         if(stars >= 1 && stars <=5){

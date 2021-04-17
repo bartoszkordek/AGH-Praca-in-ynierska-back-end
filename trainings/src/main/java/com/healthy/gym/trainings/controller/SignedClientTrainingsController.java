@@ -1,10 +1,7 @@
 package com.healthy.gym.trainings.controller;
 
 import com.healthy.gym.trainings.entity.GroupTrainingsReviews;
-import com.healthy.gym.trainings.exception.NotAuthorizedClientException;
-import com.healthy.gym.trainings.exception.NotExistingGroupTrainingException;
-import com.healthy.gym.trainings.exception.RestException;
-import com.healthy.gym.trainings.exception.TrainingEnrollmentException;
+import com.healthy.gym.trainings.exception.*;
 import com.healthy.gym.trainings.model.GroupTrainingModel;
 import com.healthy.gym.trainings.model.GroupTrainingsReviewsModel;
 import com.healthy.gym.trainings.model.GroupTrainingsReviewsUpdateModel;
@@ -71,8 +68,12 @@ public class SignedClientTrainingsController {
 
     @PostMapping("/group/review")
     public GroupTrainingsReviews createGroupTrainingReview(@Valid @RequestBody GroupTrainingsReviewsModel groupTrainingsReviews,
-                                                           @RequestParam(required = true) final String clientId){
-        return trainingsService.createGroupTrainingReview(groupTrainingsReviews, clientId);
+                                                           @RequestParam(required = true) final String clientId) throws RestException {
+        try{
+            return trainingsService.createGroupTrainingReview(groupTrainingsReviews, clientId);
+        } catch(StarsOutOfRangeException e){
+            throw new RestException(e.getMessage(), HttpStatus.BAD_REQUEST, e);
+        }
     }
 
     @DeleteMapping("/group/review/{reviewId}")
@@ -93,7 +94,7 @@ public class SignedClientTrainingsController {
                                                            @RequestParam(required = true) final String clientId) throws RestException {
         try{
             return trainingsService.updateGroupTrainingReview(groupTrainingsReviewsUpdateModel, reviewId, clientId);
-        } catch (NotExistingGroupTrainingException e){
+        } catch (NotExistingGroupTrainingException | StarsOutOfRangeException e){
             throw new RestException(e.getMessage(), HttpStatus.BAD_REQUEST, e);
         } catch (NotAuthorizedClientException e){
             throw new RestException(e.getMessage(), HttpStatus.FORBIDDEN, e);

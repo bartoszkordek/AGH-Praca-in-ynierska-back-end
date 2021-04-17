@@ -11,8 +11,8 @@ public class GroupTrainingsReviews {
     @JsonProperty("_id")
     private String id;
 
-    @JsonProperty("trainingId")
-    private String trainingId;
+    @JsonProperty("trainingName")
+    private String trainingName;
     @JsonProperty("clientId")
     private String clientId;
     @JsonProperty("date")
@@ -26,8 +26,8 @@ public class GroupTrainingsReviews {
 
     }
 
-    public GroupTrainingsReviews(String trainingId, String clientId, String date, int stars, String text){
-        this.trainingId = trainingId;
+    public GroupTrainingsReviews(String trainingName, String clientId, String date, int stars, String text){
+        this.trainingName = trainingName;
         this.clientId = clientId;
         this.date = date;
         this.stars = stars;
@@ -38,8 +38,8 @@ public class GroupTrainingsReviews {
         return id;
     }
 
-    public String getTrainingId() {
-        return trainingId;
+    public String getTrainingName() {
+        return trainingName;
     }
 
     public String getClientId() {
@@ -63,7 +63,7 @@ public class GroupTrainingsReviews {
     }
 
     public void setTrainingId(String trainingId) {
-        this.trainingId = trainingId;
+        this.trainingName = trainingId;
     }
 
     public void setClientId(String clientId) {

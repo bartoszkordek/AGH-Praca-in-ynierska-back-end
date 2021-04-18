@@ -6,6 +6,7 @@ import com.healthy.gym.trainings.db.TestRepository;
 import com.healthy.gym.trainings.entity.GroupTrainingsReviews;
 import com.healthy.gym.trainings.exception.NotAuthorizedClientException;
 import com.healthy.gym.trainings.exception.NotExistingGroupTrainingException;
+import com.healthy.gym.trainings.exception.NotExistingGroupTrainingReviewException;
 import com.healthy.gym.trainings.exception.StarsOutOfRangeException;
 import com.healthy.gym.trainings.model.GroupTrainingsReviewsUpdateModel;
 import com.healthy.gym.trainings.service.TrainingsService;
@@ -29,9 +30,9 @@ public class TrainingsServiceGroupTrainingsReviewsImpl extends TrainingsService 
     }
 
     @Override
-    public GroupTrainingsReviews getGroupTrainingReviewById(String reviewId) throws NotExistingGroupTrainingException {
+    public GroupTrainingsReviews getGroupTrainingReviewById(String reviewId) throws NotExistingGroupTrainingReviewException {
         if(!groupTrainingReviewsDbRepository.isGroupTrainingsReviewExist(reviewId)){
-            throw new NotExistingGroupTrainingException("Review with ID: "+ reviewId + " doesn't exist");
+            throw new NotExistingGroupTrainingReviewException("Review with ID: "+ reviewId + " doesn't exist");
         }
         return groupTrainingReviewsDbRepository.getGroupTrainingsReviewById(reviewId);
     }
@@ -39,9 +40,9 @@ public class TrainingsServiceGroupTrainingsReviewsImpl extends TrainingsService 
     @Override
     public GroupTrainingsReviews updateGroupTrainingReview(GroupTrainingsReviewsUpdateModel groupTrainingsReviewsUpdateModel,
                                                            String reviewId,
-                                                           String clientId) throws NotExistingGroupTrainingException, NotAuthorizedClientException, StarsOutOfRangeException {
+                                                           String clientId) throws NotAuthorizedClientException, StarsOutOfRangeException, NotExistingGroupTrainingReviewException {
         if(!groupTrainingReviewsDbRepository.isGroupTrainingsReviewExist(reviewId)){
-            throw new NotExistingGroupTrainingException("Review with ID: "+ reviewId + " doesn't exist");
+            throw new NotExistingGroupTrainingReviewException("Review with ID: "+ reviewId + " doesn't exist");
         }
         if(!groupTrainingReviewsDbRepository.isClientReviewOwner(reviewId, clientId)){
             throw new NotAuthorizedClientException("Client is not authorized to remove this review");

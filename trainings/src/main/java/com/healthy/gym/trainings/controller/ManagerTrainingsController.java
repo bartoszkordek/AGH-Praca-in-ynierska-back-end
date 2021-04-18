@@ -56,8 +56,13 @@ public class ManagerTrainingsController {
         }
     }
 
-    @GetMapping("/individual/all")
+    @GetMapping("/individual")
     public List<IndividualTrainings> getAllIndividualTrainingRequests(){
-        return individualTrainingsService.getIndividualTrainings();
+        return individualTrainingsService.getAllIndividualTrainings();
+    }
+
+    @GetMapping("/individual/all/accepted")
+    public List<IndividualTrainings> getAllAcceptedIndividualTrainingRequests(){
+        return individualTrainingsService.getAllAcceptedIndividualTrainings();
     }
 }

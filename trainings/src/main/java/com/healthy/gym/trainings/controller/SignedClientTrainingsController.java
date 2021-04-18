@@ -1,7 +1,7 @@
 package com.healthy.gym.trainings.controller;
 
 import com.healthy.gym.trainings.entity.GroupTrainingsReviews;
-import com.healthy.gym.trainings.entity.IndividualTrainingsRequest;
+import com.healthy.gym.trainings.entity.IndividualTrainings;
 import com.healthy.gym.trainings.exception.*;
 import com.healthy.gym.trainings.model.GroupTrainingsReviewsModel;
 import com.healthy.gym.trainings.model.GroupTrainingsReviewsUpdateModel;
@@ -93,7 +93,7 @@ public class SignedClientTrainingsController {
     }
 
     @PutMapping("/group/review/{reviewId}")
-    public GroupTrainingsReviews updateGroupTrainingReview(@Valid @RequestBody GroupTrainingsReviewsUpdateModel groupTrainingsReviewsUpdateModel,
+    public GroupTrainingsReviews updateGroupTrainingReview(@Valid @RequestBody final GroupTrainingsReviewsUpdateModel groupTrainingsReviewsUpdateModel,
                                                            @PathVariable("reviewId") final String reviewId,
                                                            @RequestParam(required = true) final String clientId) throws RestException {
         try{
@@ -103,5 +103,11 @@ public class SignedClientTrainingsController {
         } catch (NotAuthorizedClientException e){
             throw new RestException(e.getMessage(), HttpStatus.FORBIDDEN, e);
         }
+    }
+
+    @PostMapping("/individual/request")
+    public IndividualTrainings createIndividualTrainingRequest(@Valid @RequestBody final IndividualTrainingsRequestModel individualTrainingsRequestModel,
+                                                               @RequestParam(required = true) final String clientId){
+        return individualTrainingsService.createIndividualTrainingRequest(individualTrainingsRequestModel, clientId);
     }
 }

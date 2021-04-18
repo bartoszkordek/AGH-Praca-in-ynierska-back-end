@@ -3,6 +3,7 @@ package com.healthy.gym.trainings.service;
 import com.healthy.gym.trainings.db.IndividualTrainingsDbRepository;
 import com.healthy.gym.trainings.entity.IndividualTrainings;
 import com.healthy.gym.trainings.exception.AlreadyAcceptedIndividualTrainingException;
+import com.healthy.gym.trainings.exception.AlreadyDeclinedIndividualTrainingException;
 import com.healthy.gym.trainings.exception.HallNoOutOfRangeException;
 import com.healthy.gym.trainings.exception.NotExistingIndividualTrainingException;
 import com.healthy.gym.trainings.model.IndividualTrainingsAcceptModel;
@@ -52,5 +53,15 @@ public class IndividualTrainingsService {
             throw new HallNoOutOfRangeException("Hall no: " + individualTrainingsAcceptModel.getHallNo() + " does not exist");
         }
         return individualTrainingsDbRepository.acceptIndividualTrainingRequest(trainingId, individualTrainingsAcceptModel);
+    }
+
+    public IndividualTrainings declineIndividualTraining(String trainingId) throws NotExistingIndividualTrainingException, AlreadyDeclinedIndividualTrainingException {
+        if(!individualTrainingsDbRepository.isIndividualTrainingExist(trainingId)){
+            throw new NotExistingIndividualTrainingException("Training with ID: "+ trainingId + " doesn't exist");
+        }
+        if(individualTrainingsDbRepository.isIndividualTrainingExistAndDeclined(trainingId)){
+            throw new AlreadyDeclinedIndividualTrainingException("Training with ID: "+ trainingId + " has been already declined");
+        }
+        return individualTrainingsDbRepository.declineIndividualTrainingRequest(trainingId);
     }
 }

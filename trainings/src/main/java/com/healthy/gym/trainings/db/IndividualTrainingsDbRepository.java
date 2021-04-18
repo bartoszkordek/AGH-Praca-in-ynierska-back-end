@@ -19,11 +19,15 @@ public class IndividualTrainingsDbRepository {
     private IndividualTrainingsRepository individualTrainingsRepository;
 
     public boolean isIndividualTrainingExist(String trainingId){
-        return individualTrainingsRepository.existsIndividualTrainingsBy(trainingId);
+        return individualTrainingsRepository.existsIndividualTrainingsById(trainingId);
     }
 
     public boolean isIndividualTrainingExistAndAccepted(String trainingId){
-        return individualTrainingsRepository.existsIndividualTrainingsByAcceptedEquals(trainingId, true);
+        return individualTrainingsRepository.existsIndividualTrainingsByIdAndAcceptedEquals(trainingId, true);
+    }
+
+    public boolean isIndividualTrainingExistAndDeclined(String trainingId){
+        return individualTrainingsRepository.existsIndividualTrainingsByIdAndDeclinedEquals(trainingId, true);
     }
 
     public List<IndividualTrainings> getIndividualTrainings(){
@@ -31,7 +35,7 @@ public class IndividualTrainingsDbRepository {
     }
 
     public IndividualTrainings getIndividualTrainingById(String trainingId){
-        return individualTrainingsRepository.findIndividualTrainingsBy(trainingId);
+        return individualTrainingsRepository.findIndividualTrainingsById(trainingId);
     }
 
     public List<IndividualTrainings> getAcceptedIndividualTrainings(){
@@ -48,6 +52,7 @@ public class IndividualTrainingsDbRepository {
                 individualTrainingsRequestModel.getEndTime(),
                 -1,
                 individualTrainingsRequestModel.getRemarks(),
+                false,
                 false
         ));
         return response;
@@ -56,9 +61,16 @@ public class IndividualTrainingsDbRepository {
     public IndividualTrainings acceptIndividualTrainingRequest(String trainingId,
                                                                IndividualTrainingsAcceptModel individualTrainingsAcceptModel){
 
-        IndividualTrainings individualTrainings = individualTrainingsRepository.findIndividualTrainingsBy(trainingId);
+        IndividualTrainings individualTrainings = individualTrainingsRepository.findIndividualTrainingsById(trainingId);
         individualTrainings.setAccepted(true);
         individualTrainings.setHallNo(individualTrainingsAcceptModel.getHallNo());
+        IndividualTrainings response = individualTrainingsRepository.save(individualTrainings);
+        return response;
+    }
+
+    public IndividualTrainings declineIndividualTrainingRequest(String trainingId){
+        IndividualTrainings individualTrainings = individualTrainingsRepository.findIndividualTrainingsById(trainingId);
+        individualTrainings.setDeclined(true);
         IndividualTrainings response = individualTrainingsRepository.save(individualTrainings);
         return response;
     }

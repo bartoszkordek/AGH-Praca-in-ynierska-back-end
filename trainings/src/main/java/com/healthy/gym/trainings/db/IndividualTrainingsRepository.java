@@ -11,8 +11,9 @@ public interface IndividualTrainingsRepository extends MongoRepository<Individua
 
     public List<IndividualTrainings> findAllByAccepted(boolean accepted);
 
-    public IndividualTrainings findIndividualTrainingsBy(String trainingId);
+    public IndividualTrainings findIndividualTrainingsById(String trainingId);
 
-    public boolean existsIndividualTrainingsBy(String trainingId);
-    public boolean existsIndividualTrainingsByAcceptedEquals(String trainingId, boolean accepted);
+    public boolean existsIndividualTrainingsById(String trainingId);
+    public boolean existsIndividualTrainingsByIdAndAcceptedEquals(String trainingId, boolean accepted);
+    public boolean existsIndividualTrainingsByIdAndDeclinedEquals(String trainingId, boolean declined);
 }

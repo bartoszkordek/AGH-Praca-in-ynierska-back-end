@@ -49,4 +49,13 @@ public class TrainerTrainingsController {
             throw new RestException(e.getMessage(), HttpStatus.BAD_REQUEST, e);
         }
     }
+
+    @PutMapping("/individual/{trainingId}/decline")
+    public IndividualTrainings acceptIndividualTraining(@PathVariable("trainingId") final String trainingId) throws RestException {
+        try {
+            return individualTrainingsService.declineIndividualTraining(trainingId);
+        } catch (NotExistingIndividualTrainingException | AlreadyDeclinedIndividualTrainingException e){
+            throw new RestException(e.getMessage(), HttpStatus.BAD_REQUEST, e);
+        }
+    }
 }

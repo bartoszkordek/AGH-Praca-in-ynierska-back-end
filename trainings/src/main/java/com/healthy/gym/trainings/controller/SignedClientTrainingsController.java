@@ -1,10 +1,12 @@
 package com.healthy.gym.trainings.controller;
 
 import com.healthy.gym.trainings.entity.GroupTrainingsReviews;
+import com.healthy.gym.trainings.entity.IndividualTrainingsRequest;
 import com.healthy.gym.trainings.exception.*;
-import com.healthy.gym.trainings.model.GroupTrainingModel;
 import com.healthy.gym.trainings.model.GroupTrainingsReviewsModel;
 import com.healthy.gym.trainings.model.GroupTrainingsReviewsUpdateModel;
+import com.healthy.gym.trainings.model.IndividualTrainingsRequestModel;
+import com.healthy.gym.trainings.service.IndividualTrainingsService;
 import com.healthy.gym.trainings.service.TrainingsService;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -16,9 +18,11 @@ import java.util.List;
 public class SignedClientTrainingsController {
 
     TrainingsService trainingsService;
+    IndividualTrainingsService individualTrainingsService;
 
-    public SignedClientTrainingsController(TrainingsService trainingsService){
+    public SignedClientTrainingsController(TrainingsService trainingsService, IndividualTrainingsService individualTrainingsService){
         this.trainingsService = trainingsService;
+        this.individualTrainingsService = individualTrainingsService;
     }
 
     @PostMapping("/group/{trainingId}/enroll")

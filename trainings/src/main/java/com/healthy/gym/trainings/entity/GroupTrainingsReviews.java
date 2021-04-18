@@ -34,6 +34,18 @@ public class GroupTrainingsReviews {
         this.text = text;
     }
 
+    @Override
+    public String toString() {
+        return "GroupTrainingsReviews{" +
+                "id='" + id + '\'' +
+                ", trainingName='" + trainingName + '\'' +
+                ", clientId='" + clientId + '\'' +
+                ", date='" + date + '\'' +
+                ", stars=" + stars +
+                ", text='" + text + '\'' +
+                '}';
+    }
+
     public String getId() {
         return id;
     }

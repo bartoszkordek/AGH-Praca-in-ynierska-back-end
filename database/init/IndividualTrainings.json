@@ -1,0 +1,11 @@
+{
+  "clientId": "SJohnson",
+  "trainerId": "Spejson123",
+  "date": "2021-10-01",
+  "startTime": "13:00",
+  "endTime": "14:00",
+  "hallNo": 1,
+  "remarks": "I need a good training.",
+  "accepted": true,
+  "declined": false
+}

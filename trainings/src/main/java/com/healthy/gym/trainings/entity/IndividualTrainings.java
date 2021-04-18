@@ -23,14 +23,18 @@ public class IndividualTrainings {
     private int hallNo;
     @JsonProperty("remarks")
     private String remarks;
+    @JsonProperty("accepted")
+    private boolean accepted;
+    @JsonProperty("declined")
+    private boolean declined;
 
     public IndividualTrainings(){
 
     }
 
-    public IndividualTrainings(String id, String clientId, String trainerId, String date,
-                               String startTime, String endTime, int hallNo, String remarks){
-        this.id = id;
+    public IndividualTrainings(String clientId, String trainerId, String date,
+                               String startTime, String endTime, int hallNo, String remarks,
+                               boolean accepted, boolean declined){
         this.clientId = clientId;
         this.trainerId = trainerId;
         this.date = date;
@@ -38,6 +42,8 @@ public class IndividualTrainings {
         this.endTime = endTime;
         this.hallNo = hallNo;
         this.remarks = remarks;
+        this.accepted = accepted;
+        this.declined = declined;
     }
 
     @Override
@@ -51,6 +57,8 @@ public class IndividualTrainings {
                 ", endTime='" + endTime + '\'' +
                 ", hallNo=" + hallNo +
                 ", remarks='" + remarks + '\'' +
+                ", accepted=" + accepted +
+                ", declined=" + declined +
                 '}';
     }
 
@@ -86,6 +94,12 @@ public class IndividualTrainings {
         return remarks;
     }
 
+    public boolean isAccepted() {
+        return accepted;
+    }
+
+    public boolean isDeclined(){ return declined; }
+
     public void setId(String id) {
         this.id = id;
     }
@@ -117,4 +131,10 @@ public class IndividualTrainings {
     public void setRemarks(String remarks) {
         this.remarks = remarks;
     }
+
+    public void setAccepted(boolean accepted) {
+        this.accepted = accepted;
+    }
+
+    public void setDeclined(boolean declined) { this.declined = declined; }
 }

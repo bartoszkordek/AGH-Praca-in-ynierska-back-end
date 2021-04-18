@@ -11,6 +11,7 @@ import org.springframework.context.MessageSource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
@@ -42,6 +43,11 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(invalidCreateUserResponse);
         }
 
+        if (hasUserAlreadyExist(createUserRequest)) {
+            CreateUserResponse userExistsResponse = handleUserExistsResponse(createUserRequest);
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(userExistsResponse);
+        }
+
         CreateUserResponse response = handleValidRegistration(createUserRequest);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
@@ -51,7 +57,7 @@ public class UserController {
         String singUpFailureMessage =
                 messageSource.getMessage("user.sing-up.failure", null, Locale.getDefault());
         CreateUserResponse response =
-                new CreateUserResponse(false, singUpFailureMessage, errors,null);
+                new CreateUserResponse(false, singUpFailureMessage, errors, null);
 
         bindingResult.getAllErrors().forEach(error -> {
             if (error instanceof FieldError) {
@@ -68,12 +74,34 @@ public class UserController {
         return response;
     }
 
-    private CreateUserResponse handleValidRegistration(CreateUserRequest createUserRequest) {
-        ModelMapper modelMapper=new ModelMapper();
+    private boolean hasUserAlreadyExist(CreateUserRequest request) {
+        ModelMapper modelMapper = new ModelMapper();
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
 
-        UserDTO userDTO=modelMapper.map(createUserRequest,UserDTO.class);
-        UserDTO responseUserDTO=userService.createUser(userDTO);
+        UserDTO userDTO = modelMapper.map(request, UserDTO.class);
+
+        try {
+            userService.loadUserByUsername(userDTO.getEmail());
+        } catch (UsernameNotFoundException e) {
+            return false;
+        }
+        return true;
+    }
+
+    private CreateUserResponse handleUserExistsResponse(CreateUserRequest request) {
+        String userExistsMessage =
+                messageSource.getMessage("user.sing-up.email.exists", null, Locale.getDefault());
+
+        return new CreateUserResponse(false, userExistsMessage, new HashMap<>(), null);
+    }
+
+
+    private CreateUserResponse handleValidRegistration(CreateUserRequest createUserRequest) {
+        ModelMapper modelMapper = new ModelMapper();
+        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+
+        UserDTO userDTO = modelMapper.map(createUserRequest, UserDTO.class);
+        UserDTO responseUserDTO = userService.createUser(userDTO);
 
         String singUpSuccessMessage =
                 messageSource.getMessage("user.sing-up.success", null, Locale.getDefault());

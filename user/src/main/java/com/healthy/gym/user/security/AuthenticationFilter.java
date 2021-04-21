@@ -13,9 +13,9 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.yaml.snakeyaml.error.MissingEnvironmentVariableException;
 
 import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -62,7 +62,7 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
             HttpServletResponse response,
             FilterChain chain,
             Authentication authResult
-    ) throws IOException, ServletException {
+    ) {
         String userEmail = ((User) authResult.getPrincipal()).getUsername();
         UserDTO userDetails = userService.getUserDetailsByEmail(userEmail);
 
@@ -75,12 +75,13 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
                 .compact();
 
         response.addHeader("token", "Bearer " + token);
-        response.addHeader("userId", userDetails.getUserId());
+        response.addHeader("UserId", userDetails.getUserId());
     }
 
     private Date setTokenExpirationTime() {
         long currentTime = System.currentTimeMillis();
         String expirationTimeStr = environment.getProperty("token.expiration-time");
+        if (expirationTimeStr == null) throw new MissingEnvironmentVariableException("Missing token.expiration-time");
         long expirationTime = Long.parseLong(expirationTimeStr);
 
         return new Date(currentTime + expirationTime);

@@ -12,7 +12,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @Profile("test")
 @Configuration
 @EnableWebSecurity
-public class WebSecurityTest extends WebSecurityConfigurerAdapter {
+public class WebSecurityTests extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {

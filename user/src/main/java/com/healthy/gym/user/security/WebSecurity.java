@@ -9,6 +9,7 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 @Profile("production")
@@ -33,16 +34,17 @@ public class WebSecurity extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        http.cors()
-                .and()
-                .csrf().disable()
-                .headers().frameOptions().disable()
-                .and()
-                .authorizeRequests().antMatchers("/users/status").authenticated()
+
+        http.csrf().disable();
+        http.headers().frameOptions().disable();
+
+        http.authorizeRequests().antMatchers("/users/status").authenticated()
                 .and()
                 .authorizeRequests().antMatchers("/**").permitAll()
                 .and()
                 .addFilter(getAuthenticationFilter());
+
+        http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
     }
 
     private AuthenticationFilter getAuthenticationFilter() throws Exception {

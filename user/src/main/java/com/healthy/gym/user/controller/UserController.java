@@ -25,8 +25,8 @@ import java.util.Map;
 @RequestMapping("/users")
 public class UserController {
 
-    private UserService userService;
-    private MessageSource messageSource;
+    private final UserService userService;
+    private final MessageSource messageSource;
 
     @Autowired
     public UserController(UserService userService, MessageSource messageSource) {
@@ -44,7 +44,7 @@ public class UserController {
         }
 
         if (hasUserAlreadyExist(createUserRequest)) {
-            CreateUserResponse userExistsResponse = handleUserExistsResponse(createUserRequest);
+            CreateUserResponse userExistsResponse = handleUserExistsResponse();
             return ResponseEntity.status(HttpStatus.CONFLICT).body(userExistsResponse);
         }
 
@@ -88,7 +88,7 @@ public class UserController {
         return true;
     }
 
-    private CreateUserResponse handleUserExistsResponse(CreateUserRequest request) {
+    private CreateUserResponse handleUserExistsResponse() {
         String userExistsMessage =
                 messageSource.getMessage("user.sing-up.email.exists", null, Locale.getDefault());
 

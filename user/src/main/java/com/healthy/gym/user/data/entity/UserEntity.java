@@ -1,6 +1,7 @@
 package com.healthy.gym.user.data.entity;
 
 import javax.persistence.*;
+import java.util.Objects;
 
 @Entity
 @Table(name = "users")
@@ -29,6 +30,7 @@ public class UserEntity {
     private String userId;
 
     public UserEntity() {
+        //empty constructor required by JPA
     }
 
     public Long getId() {
@@ -98,5 +100,24 @@ public class UserEntity {
                 ", encryptedPassword='" + encryptedPassword + '\'' +
                 ", userId='" + userId + '\'' +
                 '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        UserEntity that = (UserEntity) o;
+        return Objects.equals(id, that.id)
+                && Objects.equals(name, that.name)
+                && Objects.equals(surname, that.surname)
+                && Objects.equals(email, that.email)
+                && Objects.equals(phoneNumber, that.phoneNumber)
+                && Objects.equals(encryptedPassword, that.encryptedPassword)
+                && Objects.equals(userId, that.userId);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, name, surname, email, phoneNumber, encryptedPassword, userId);
     }
 }

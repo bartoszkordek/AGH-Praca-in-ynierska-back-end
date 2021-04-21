@@ -1,6 +1,5 @@
 package com.healthy.gym.user.shared;
 
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -17,26 +16,17 @@ class UserDTOTest {
         userDTO2 = new UserDTO();
     }
 
-    @AfterEach
-    void tearDown() {
-        userDTO1 = null;
-        userDTO2 = null;
+    @Test
+    void twoEmptyUserDTOShouldBeEqual() {
+        assertThat(userDTO1)
+                .isEqualTo(userDTO2)
+                .hasSameHashCodeAs(userDTO2);
     }
 
     @Test
-    void twoEmptyUserDTOshouldBeEqual() {
-        assertThat(userDTO1).isEqualTo(userDTO2);
-    }
-
-    @Test
-    void userDTOhasAllNullField() {
+    void userDTOHasAllNullField() {
         assertThat(userDTO1).hasAllNullFieldsOrProperties();
         assertThat(userDTO2).hasAllNullFieldsOrProperties();
-    }
-
-    @Test
-    void twoEmptyUserDTOshouldHaveSameHashCode() {
-        assertThat(userDTO1).hasSameHashCodeAs(userDTO2);
     }
 
     @Test
@@ -45,16 +35,9 @@ class UserDTOTest {
         userDTO1.setName("John");
         userDTO2.setUserId("randomID");
         userDTO2.setName("John");
-        assertThat(userDTO1).isEqualTo(userDTO2);
-    }
-
-    @Test
-    void twoUserDTOWithSameFieldValuesShouldHaveSameHashCode() {
-        userDTO1.setUserId("randomID");
-        userDTO1.setName("John");
-        userDTO2.setUserId("randomID");
-        userDTO2.setName("John");
-        assertThat(userDTO1).hasSameHashCodeAs(userDTO2);
+        assertThat(userDTO1)
+                .isEqualTo(userDTO2)
+                .hasSameHashCodeAs(userDTO2);
     }
 
     @Test
@@ -63,12 +46,8 @@ class UserDTOTest {
         userDTO1.setName("John");
         userDTO2.setUserId("randomID");
         userDTO2.setName("Johny");
-        assertThat(userDTO1.hashCode()).isNotEqualTo(userDTO2.hashCode());
-    }
 
-    @Test
-    void userDTOcomparedWithNullShouldNotBeEqual() {
-        assertThat(userDTO1).isNotEqualTo(null);
-        assertThat(userDTO2).isNotEqualTo(null);
+        assertThat(userDTO1).isNotEqualTo(userDTO2);
+        assertThat(userDTO1.hashCode()).isNotEqualTo(userDTO2.hashCode());
     }
 }

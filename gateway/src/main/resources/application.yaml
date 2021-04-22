@@ -21,3 +21,17 @@ zuul:
   host:
     connect-timeout-millis: 60000
     socket-timeout-millis: 60000
+  sensitive-headers:
+
+#custom settings
+token:
+  secret: randomlyGeneratedSecretTokenToSecureApplication
+
+authorization:
+  token:
+    header:
+      name: Authorization
+      prefix: Bearer
+
+front-end:
+  url: http://localhost:3000

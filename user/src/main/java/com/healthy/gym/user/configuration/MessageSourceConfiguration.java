@@ -1,54 +1,50 @@
 package com.healthy.gym.user.configuration;
 
+import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.support.ReloadableResourceBundleMessageSource;
 import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
-import org.springframework.web.servlet.LocaleResolver;
-import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
-import org.springframework.web.servlet.i18n.LocaleChangeInterceptor;
-import org.springframework.web.servlet.i18n.SessionLocaleResolver;
+import org.springframework.web.servlet.i18n.AcceptHeaderLocaleResolver;
 
+import javax.servlet.http.HttpServletRequest;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Locale;
 
 @Configuration
-public class MessageSourceConfiguration implements WebMvcConfigurer {
+@ComponentScan({"com.healthy.gym.user"})
+public class MessageSourceConfiguration extends AcceptHeaderLocaleResolver implements WebMvcConfigurer {
+
+    private final Locale poland = new Locale("pl", "PL");
+    private final List<Locale> locales = Arrays.asList(poland, Locale.ENGLISH);
 
     @Bean
-    public ReloadableResourceBundleMessageSource messageSource(){
+    public MessageSource messageSource() {
         ReloadableResourceBundleMessageSource messageSource
-                =new ReloadableResourceBundleMessageSource();
+                = new ReloadableResourceBundleMessageSource();
 
         messageSource.setBasename("classpath:i18n/messages");
         messageSource.setDefaultEncoding("UTF-8");
+        messageSource.setCacheSeconds(10);
         return messageSource;
     }
 
     @Bean
-    public LocalValidatorFactoryBean getValidator(){
-        LocalValidatorFactoryBean bean=new LocalValidatorFactoryBean();
+    @Override
+    public LocalValidatorFactoryBean getValidator() {
+        LocalValidatorFactoryBean bean = new LocalValidatorFactoryBean();
         bean.setValidationMessageSource(messageSource());
         return bean;
     }
 
-    @Bean
-    public LocaleResolver localeResolver(){
-        SessionLocaleResolver sessionLocaleResolver=new SessionLocaleResolver();
-        sessionLocaleResolver.setDefaultLocale(new Locale("pl","PL"));
-        return sessionLocaleResolver;
-    }
-
-    @Bean
-    public LocaleChangeInterceptor localeChangeInterceptor() {
-        LocaleChangeInterceptor lci = new LocaleChangeInterceptor();
-        lci.setParamName("lang");
-        return lci;
-    }
-
     @Override
-    public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(localeChangeInterceptor());
+    public Locale resolveLocale(HttpServletRequest request) {
+        String headerLang = request.getHeader("Accept-Language");
+        if (headerLang == null || headerLang.isEmpty()) return Locale.getDefault();
+        return Locale.lookup(Locale.LanguageRange.parse(headerLang), locales);
     }
 
 

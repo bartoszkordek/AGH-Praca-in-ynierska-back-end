@@ -78,7 +78,7 @@ public class UserServiceImpl implements UserService {
         return new User(
                 userEntity.getEmail(),
                 userEntity.getEncryptedPassword(),
-                false,
+                true, // TODO set false and send activation link
                 true,
                 true,
                 true,

@@ -2,21 +2,25 @@ package com.healthy.gym.user.data.entity;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 class UserEntityTest {
-    private UserEntity userEntity1;
-    private UserEntity userEntity2;
+    private BCryptPasswordEncoder bCryptPasswordEncoder;
 
     @BeforeEach
     void setUp() {
-        userEntity1 = new UserEntity();
-        userEntity2 = new UserEntity();
+        bCryptPasswordEncoder = new BCryptPasswordEncoder();
     }
 
     @Test
     void twoObjectsOfEmptyUserEntityShouldBeEqual() {
+        UserEntity userEntity1 = new UserEntity();
+        UserEntity userEntity2 = new UserEntity();
+
         assertThat(userEntity1)
                 .isEqualTo(userEntity2)
                 .hasSameHashCodeAs(userEntity2);
@@ -24,38 +28,53 @@ class UserEntityTest {
 
     @Test
     void twoDifferentObjectsOfUserEntityShouldNotBeEqual() {
-        userEntity1.setId(1L);
-        userEntity1.setName("Jan");
-        userEntity1.setSurname("Kowalski");
-        userEntity1.setEmail("jan.kowalski@test.com");
-        userEntity1.setPhoneNumber("666 777 888");
+        UserEntity janKowalskiEntity = new UserEntity(
+                "Jan",
+                "Kowalski",
+                "jan.kowalski@test.com",
+                bCryptPasswordEncoder.encode("password1234"),
+                "666 777 888",
+                UUID.randomUUID().toString()
+        );
 
-        userEntity2.setId(2L);
-        userEntity2.setName("Janina");
-        userEntity2.setSurname("Kowalska");
-        userEntity2.setEmail("janina.kowalska@test.com");
-        userEntity2.setPhoneNumber("666 777 888");
+        UserEntity mariaNowakEntity = new UserEntity(
+                "Maria",
+                "Nowak",
+                "maria.nowak@test.com",
+                bCryptPasswordEncoder.encode("password3456"),
+                "686 777 888",
+                UUID.randomUUID().toString()
+        );
 
-        assertThat(userEntity1).isNotEqualTo(userEntity2);
-        assertThat(userEntity1.hashCode()).isNotEqualTo(userEntity2.hashCode());
+        assertThat(janKowalskiEntity).isNotEqualTo(mariaNowakEntity);
+        assertThat(janKowalskiEntity.hashCode()).isNotEqualTo(mariaNowakEntity.hashCode());
     }
 
     @Test
     void twoObjectsOfUserEntityWithSameFieldValuesShouldBeEqual() {
-        userEntity1.setId(1L);
-        userEntity1.setName("Jan");
-        userEntity1.setSurname("Kowalski");
-        userEntity1.setEmail("jan.kowalski@test.com");
-        userEntity1.setPhoneNumber("666 777 888");
+        String userID = UUID.randomUUID().toString();
+        String password = bCryptPasswordEncoder.encode("password1234");
 
-        userEntity2.setId(1L);
-        userEntity2.setName("Jan");
-        userEntity2.setSurname("Kowalski");
-        userEntity2.setEmail("jan.kowalski@test.com");
-        userEntity2.setPhoneNumber("666 777 888");
+        UserEntity janKowalskiEntity1 = new UserEntity(
+                "Jan",
+                "Kowalski",
+                "jan.kowalski@test.com",
+                "666 777 888",
+                password,
+                userID
+        );
 
-        assertThat(userEntity1)
-                .isEqualTo(userEntity2)
-                .hasSameHashCodeAs(userEntity2);
+        UserEntity janKowalskiEntity2 = new UserEntity(
+                "Jan",
+                "Kowalski",
+                "jan.kowalski@test.com",
+                "666 777 888",
+                password,
+                userID
+        );
+
+        assertThat(janKowalskiEntity1)
+                .isEqualTo(janKowalskiEntity2)
+                .hasSameHashCodeAs(janKowalskiEntity2);
     }
 }

@@ -18,13 +18,17 @@ import java.util.UUID;
 
 @Service
 public class UserServiceImpl implements UserService {
+
     private final UserDAO userDAO;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
+    private final ModelMapper modelMapper;
 
     @Autowired
     public UserServiceImpl(UserDAO userDAO, BCryptPasswordEncoder bCryptPasswordEncoder) {
         this.userDAO = userDAO;
         this.bCryptPasswordEncoder = bCryptPasswordEncoder;
+        modelMapper = new ModelMapper();
+        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
     }
 
     @Override
@@ -38,14 +42,11 @@ public class UserServiceImpl implements UserService {
         encryptRawPassword(userDetails);
         assignRandomPublicUserId(userDetails);
 
-        ModelMapper modelMapper = new ModelMapper();
-        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
-
         UserEntity userEntity = modelMapper.map(userDetails, UserEntity.class);
 
-        userDAO.save(userEntity);
+        UserEntity userEntitySaved=userDAO.save(userEntity);
 
-        return modelMapper.map(userEntity, UserDTO.class);
+        return modelMapper.map(userEntitySaved, UserDTO.class);
     }
 
     private void encryptRawPassword(UserDTO userDetails) {
@@ -65,7 +66,7 @@ public class UserServiceImpl implements UserService {
 
         if (userEntity == null) throw new UsernameNotFoundException(email);
 
-        return new ModelMapper().map(userEntity, UserDTO.class);
+        return modelMapper.map(userEntity, UserDTO.class);
     }
 
     @Override
@@ -77,7 +78,7 @@ public class UserServiceImpl implements UserService {
         return new User(
                 userEntity.getEmail(),
                 userEntity.getEncryptedPassword(),
-                true,
+                false,
                 true,
                 true,
                 true,

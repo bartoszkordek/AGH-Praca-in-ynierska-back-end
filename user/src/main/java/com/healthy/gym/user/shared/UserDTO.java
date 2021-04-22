@@ -11,6 +11,28 @@ public class UserDTO {
     private String password;
     private String encryptedPassword;
 
+    public UserDTO() {
+        // default constructor for object mapper
+    }
+
+    public UserDTO(
+            String userId,
+            String name,
+            String surname,
+            String email,
+            String phoneNumber,
+            String password,
+            String encryptedPassword
+    ) {
+        this.userId = userId;
+        this.name = name;
+        this.surname = surname;
+        this.email = email;
+        this.phoneNumber = phoneNumber;
+        this.password = password;
+        this.encryptedPassword = encryptedPassword;
+    }
+
     public String getUserId() {
         return userId;
     }

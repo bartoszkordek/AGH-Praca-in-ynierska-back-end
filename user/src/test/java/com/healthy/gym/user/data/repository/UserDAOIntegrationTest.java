@@ -30,8 +30,8 @@ class UserDAOIntegrationTest {
                 "Jan",
                 "Kowalski",
                 "jan.kowalski@test.com",
-                bCryptPasswordEncoder.encode("password1234"),
                 "666 777 888",
+                bCryptPasswordEncoder.encode("password1234"),
                 UUID.randomUUID().toString()
         );
 
@@ -39,8 +39,8 @@ class UserDAOIntegrationTest {
                 "Maria",
                 "Nowak",
                 "maria.nowak@test.com",
-                bCryptPasswordEncoder.encode("password3456"),
                 "686 777 888",
+                bCryptPasswordEncoder.encode("password3456"),
                 UUID.randomUUID().toString()
         );
 
@@ -48,8 +48,8 @@ class UserDAOIntegrationTest {
                 "Andrzej",
                 "Nowak",
                 "andrzej.nowak@test.com",
-                bCryptPasswordEncoder.encode("password4576"),
                 "676 777 888",
+                bCryptPasswordEncoder.encode("password4576"),
                 UUID.randomUUID().toString()
         );
 

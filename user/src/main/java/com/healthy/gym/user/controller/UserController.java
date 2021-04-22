@@ -1,5 +1,6 @@
 package com.healthy.gym.user.controller;
 
+import com.healthy.gym.user.component.Translator;
 import com.healthy.gym.user.pojo.request.CreateUserRequest;
 import com.healthy.gym.user.pojo.response.CreateUserResponse;
 import com.healthy.gym.user.service.UserService;
@@ -7,7 +8,6 @@ import com.healthy.gym.user.shared.UserDTO;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.MessageSource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -18,7 +18,6 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.HashMap;
-import java.util.Locale;
 import java.util.Map;
 
 @RestController
@@ -26,17 +25,21 @@ import java.util.Map;
 public class UserController {
 
     private final UserService userService;
-    private final MessageSource messageSource;
+    private final Translator translator;
 
     @Autowired
-    public UserController(UserService userService, MessageSource messageSource) {
+    public UserController(
+            UserService userService,
+            Translator translator
+    ) {
         this.userService = userService;
-        this.messageSource = messageSource;
+        this.translator = translator;
     }
 
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<CreateUserResponse> createUser(
-            @Valid @RequestBody CreateUserRequest createUserRequest, BindingResult bindingResult
+            @Valid @RequestBody CreateUserRequest createUserRequest,
+            BindingResult bindingResult
     ) {
         if (bindingResult.hasFieldErrors()) {
             CreateUserResponse invalidCreateUserResponse = handleInvalidRegistration(bindingResult);
@@ -53,9 +56,9 @@ public class UserController {
     }
 
     private CreateUserResponse handleInvalidRegistration(BindingResult bindingResult) {
+
         Map<String, String> errors = new HashMap<>();
-        String singUpFailureMessage =
-                messageSource.getMessage("user.sing-up.failure", null, Locale.getDefault());
+        String singUpFailureMessage = translator.toLocale("user.sing-up.failure");
         CreateUserResponse response =
                 new CreateUserResponse(false, singUpFailureMessage, errors, null);
 
@@ -89,9 +92,7 @@ public class UserController {
     }
 
     private CreateUserResponse handleUserExistsResponse() {
-        String userExistsMessage =
-                messageSource.getMessage("user.sing-up.email.exists", null, Locale.getDefault());
-
+        String userExistsMessage = translator.toLocale("user.sing-up.email.exists");
         return new CreateUserResponse(false, userExistsMessage, new HashMap<>(), null);
     }
 
@@ -103,8 +104,7 @@ public class UserController {
         UserDTO userDTO = modelMapper.map(createUserRequest, UserDTO.class);
         UserDTO responseUserDTO = userService.createUser(userDTO);
 
-        String singUpSuccessMessage =
-                messageSource.getMessage("user.sing-up.success", null, Locale.getDefault());
+        String singUpSuccessMessage = translator.toLocale("user.sing-up.success");
 
         return new CreateUserResponse(
                 true,

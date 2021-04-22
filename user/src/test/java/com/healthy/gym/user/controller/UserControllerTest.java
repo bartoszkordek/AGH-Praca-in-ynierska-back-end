@@ -9,6 +9,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.MessageSource;
 import org.springframework.http.MediaType;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
@@ -92,6 +93,7 @@ class UserControllerTest {
 
         UserDTO responseUserDTO = new UserDTO();
         responseUserDTO.setUserId("test");
+        when(userService.loadUserByUsername(any())).thenThrow(UsernameNotFoundException.class);
         when(userService.createUser(any())).thenReturn(responseUserDTO);
 
         RequestBuilder request = MockMvcRequestBuilders
@@ -123,13 +125,14 @@ class UserControllerTest {
         String requestBody = "{" +
                 "\"name\": \"Jan\",\n" +
                 "\"surname\": \"Kowalski\",\n" +
-                "\"email\": \"jan.kowalski@wp.pl\",\n" +
+                "\"email\": \"jan.kowalski3@wp.pl\",\n" +
                 "\"password\": \"test12345\",\n" +
                 "\"matchingPassword\": \"test12345\"" +
                 "}";
 
         UserDTO responseUserDTO = new UserDTO();
         responseUserDTO.setUserId("test");
+        when(userService.loadUserByUsername(any())).thenThrow(UsernameNotFoundException.class);
         when(userService.createUser(any())).thenReturn(responseUserDTO);
 
         RequestBuilder request = MockMvcRequestBuilders

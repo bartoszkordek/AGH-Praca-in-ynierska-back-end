@@ -16,6 +16,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.yaml.snakeyaml.error.MissingEnvironmentVariableException;
 
 import javax.servlet.FilterChain;
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -62,7 +63,7 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
             HttpServletResponse response,
             FilterChain chain,
             Authentication authResult
-    ) {
+    ) throws IOException, ServletException {
         String userEmail = ((User) authResult.getPrincipal()).getUsername();
         UserDTO userDetails = userService.getUserDetailsByEmail(userEmail);
 

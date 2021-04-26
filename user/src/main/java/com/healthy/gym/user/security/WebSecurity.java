@@ -1,5 +1,6 @@
 package com.healthy.gym.user.security;
 
+import com.healthy.gym.user.component.Translator;
 import com.healthy.gym.user.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
@@ -20,16 +21,19 @@ public class WebSecurity extends WebSecurityConfigurerAdapter {
     private final UserService userService;
     private final Environment environment;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
+    private final Translator translator;
 
     @Autowired
     public WebSecurity(
             UserService userService,
             Environment environment,
-            BCryptPasswordEncoder bCryptPasswordEncoder
+            BCryptPasswordEncoder bCryptPasswordEncoder,
+            Translator translator
     ) {
         this.userService = userService;
         this.environment = environment;
         this.bCryptPasswordEncoder = bCryptPasswordEncoder;
+        this.translator = translator;
     }
 
     @Override
@@ -49,7 +53,7 @@ public class WebSecurity extends WebSecurityConfigurerAdapter {
 
     private AuthenticationFilter getAuthenticationFilter() throws Exception {
         AuthenticationFilter authenticationFilter =
-                new AuthenticationFilter(userService, environment);
+                new AuthenticationFilter(userService, environment,translator);
         authenticationFilter.setAuthenticationManager(authenticationManager());
 
         return authenticationFilter;

@@ -16,7 +16,7 @@ public class Messages {
                 {"field.phone.number.failure", "Niepoprawny format numeru telefonu."},
                 {"field.password.failure", "Hasło powinno mieć od 8 do 24 znaków."},
                 {"field.password.match.failure", "Podane hasła powinny być identyczne."},
-                {"user.sing-up.email.exists", "Podany adres email jest już zajęty."},
+                {"user.sign-up.email.exists", "Podany adres email jest już zajęty."},
                 {"user.log-in.fail", "Nieprawidłowy email lub hasło."}
         }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
     }
@@ -32,7 +32,7 @@ public class Messages {
                 {"field.phone.number.failure", "Invalid phone number format."},
                 {"field.password.failure", "Password should have from 8 to 24 characters."},
                 {"field.password.match.failure", "Provided passwords should match."},
-                {"user.sing-up.email.exists", "Provided email already exists."},
+                {"user.sign-up.email.exists", "Provided email already exists."},
                 {"user.log-in.fail", "Invalid email or password."}
         }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
     }

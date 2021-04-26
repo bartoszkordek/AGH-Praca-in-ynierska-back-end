@@ -92,7 +92,7 @@ public class UserController {
     }
 
     private CreateUserResponse handleUserExistsResponse() {
-        String userExistsMessage = translator.toLocale("user.sing-up.email.exists");
+        String userExistsMessage = translator.toLocale("user.sign-up.email.exists");
         return new CreateUserResponse(false, userExistsMessage, new HashMap<>(), null);
     }
 

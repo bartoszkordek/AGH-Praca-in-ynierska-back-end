@@ -278,7 +278,7 @@ class UserControllerTest {
                         status().isConflict(),
                         content().contentType(MediaType.APPLICATION_JSON),
                         jsonPath("$.success").value(false),
-                        jsonPath("$.message").value(messages.get("user.sing-up.email.exists")),
+                        jsonPath("$.message").value(messages.get("user.sign-up.email.exists")),
                         jsonPath("$.errors").isMap(),
                         jsonPath("$.id").isEmpty()
                 )

@@ -246,6 +246,45 @@ class UserControllerTest {
         );
     }
 
+    @ParameterizedTest
+    @EnumSource(TestCountry.class)
+    void shouldRejectUserRegistrationWhenProvidedUserAlreadyExists(TestCountry country) throws Exception {
+        Map<String, String> messages = getMessagesAccordingToLocale(country);
+        Locale testedLocale = convertEnumToLocale(country);
+
+        URI uri = new URI("/users");
+        String requestBody = "{" +
+                "\"name\": \"Jan\",\n" +
+                "\"surname\": \"Kowalski\",\n" +
+                "\"email\": \"jan.kowalski@wp.pl\",\n" +
+                "\"phone\": \"+48 685 263 683\",\n" +
+                "\"password\": \"test12345\",\n" +
+                "\"matchingPassword\": \"test12345\"" +
+                "}";
+
+        UserDTO responseUserDTO = new UserDTO();
+        responseUserDTO.setUserId("test");
+        when(userService.loadUserByUsername(any())).thenReturn(any());
+
+        RequestBuilder request = MockMvcRequestBuilders
+                .post(uri)
+                .header("Accept-Language", testedLocale.toString())
+                .content(requestBody)
+                .contentType(MediaType.APPLICATION_JSON);
+
+        mockMvc.perform(request).andExpect(
+                matchAll(
+                        status().isConflict(),
+                        content().contentType(MediaType.APPLICATION_JSON),
+                        jsonPath("$.success").value(false),
+                        jsonPath("$.message").value(messages.get("user.sing-up.email.exists")),
+                        jsonPath("$.errors").isMap(),
+                        jsonPath("$.id").isEmpty()
+                )
+        );
+
+    }
+
     private Map<String, String> getMessagesAccordingToLocale(TestCountry country) {
         if (country == TestCountry.POLAND) return getMessagesPL();
         return getMessagesEN();
@@ -262,7 +301,7 @@ class UserControllerTest {
                 {"field.phone.number.failure", "Niepoprawny format numeru telefonu."},
                 {"field.password.failure", "Hasło powinno mieć od 8 do 24 znaków."},
                 {"field.password.match.failure", "Podane hasła powinny być identyczne."},
-                {"user.sing - up.email.exists", "Podany adres email jest już zajęty."},
+                {"user.sing-up.email.exists", "Podany adres email jest już zajęty."},
         }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
     }
 
@@ -277,7 +316,7 @@ class UserControllerTest {
                 {"field.phone.number.failure", "Invalid phone number format."},
                 {"field.password.failure", "Password should have from 8 to 24 characters."},
                 {"field.password.match.failure", "Provided passwords should match."},
-                {"user.sing - up.email.exists", "Provided email already exists."},
+                {"user.sing-up.email.exists", "Provided email already exists."},
         }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
     }
 

@@ -46,6 +46,7 @@ public class WebSecurity extends WebSecurityConfigurerAdapter {
                 .and()
                 .authorizeRequests().antMatchers("/**").permitAll()
                 .and()
+                .addFilter(new JWTAuthenticationFilter(authenticationManager(), environment))
                 .addFilter(getAuthenticationFilter());
 
         http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
@@ -53,7 +54,7 @@ public class WebSecurity extends WebSecurityConfigurerAdapter {
 
     private AuthenticationFilter getAuthenticationFilter() throws Exception {
         AuthenticationFilter authenticationFilter =
-                new AuthenticationFilter(userService, environment,translator);
+                new AuthenticationFilter(userService, environment, translator);
         authenticationFilter.setAuthenticationManager(authenticationManager());
 
         return authenticationFilter;

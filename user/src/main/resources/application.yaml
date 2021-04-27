@@ -33,3 +33,9 @@ eureka:
 token:
   secret: r@ndomlyGener@ted2ecretKey22ecureApplic@tionAndNeed2BeCh@nge1nTheFuture
   expiration-time: 3600000
+
+authorization:
+  token:
+    header:
+      name: Authorization
+      prefix: Bearer

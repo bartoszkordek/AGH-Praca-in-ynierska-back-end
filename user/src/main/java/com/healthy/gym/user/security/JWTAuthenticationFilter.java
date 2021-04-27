@@ -1,4 +1,4 @@
-package com.healthy.gym.gateway.security;
+package com.healthy.gym.user.security;
 
 import io.jsonwebtoken.Jwts;
 import org.springframework.core.env.Environment;
@@ -14,11 +14,11 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.ArrayList;
 
-public class AuthenticationFilter extends BasicAuthenticationFilter {
+public class JWTAuthenticationFilter extends BasicAuthenticationFilter {
 
     private final Environment environment;
 
-    public AuthenticationFilter(
+    public JWTAuthenticationFilter(
             AuthenticationManager authenticationManager,
             Environment environment
     ) {
@@ -47,7 +47,6 @@ public class AuthenticationFilter extends BasicAuthenticationFilter {
 
         UsernamePasswordAuthenticationToken authenticationToken =
                 getAuthentication(authorizationHeader, headerPrefix);
-
         SecurityContextHolder.getContext().setAuthentication(authenticationToken);
         chain.doFilter(request, response);
     }

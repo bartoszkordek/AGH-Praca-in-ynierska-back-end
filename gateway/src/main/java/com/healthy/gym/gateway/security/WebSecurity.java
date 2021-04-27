@@ -34,8 +34,8 @@ public class WebSecurity extends WebSecurityConfigurerAdapter {
         http.headers().frameOptions().disable();
 
         http.authorizeRequests()
-                .antMatchers("/user-service/users/status").authenticated()
-                .antMatchers("/user-service/**").permitAll()
+                .antMatchers("/user/users/status").authenticated()
+                .antMatchers("/user/**").permitAll()
                 .and()
                 .addFilter(new AuthenticationFilter(authenticationManager(), environment));
 

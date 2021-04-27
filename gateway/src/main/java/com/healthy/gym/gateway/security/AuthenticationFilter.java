@@ -32,6 +32,7 @@ public class AuthenticationFilter extends BasicAuthenticationFilter {
         String headerPropName=environment.getProperty("authorization.token.header.name");
         String authorizationHeader=request.getHeader(headerPropName);
         String headerPropPrefix=environment.getProperty("authorization.token.header.prefix");
+        if(headerPropPrefix==null) return;
 
         if(authorizationHeader==null || !authorizationHeader.startsWith(headerPropPrefix)){
             chain.doFilter(request,response);
@@ -52,7 +53,9 @@ public class AuthenticationFilter extends BasicAuthenticationFilter {
         String headerPropPrefix=environment.getProperty("authorization.token.header.prefix");
         if(headerPropPrefix==null) return null;
 
-        String token=authorizationHeader.replace(headerPropPrefix,"");
+        String token=authorizationHeader
+                .replace(headerPropPrefix,"")
+                .trim();
 
         String secretToken=environment.getProperty("token.secret");
 

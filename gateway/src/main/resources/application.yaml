@@ -25,7 +25,7 @@ zuul:
 
 #custom settings
 token:
-  secret: randomlyGeneratedSecretTokenToSecureApplication
+  secret: r@ndomlyGener@ted2ecretKey22ecureApplic@tionAndNeed2BeCh@nge1nTheFuture
 
 authorization:
   token:

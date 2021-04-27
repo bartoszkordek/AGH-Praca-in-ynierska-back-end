@@ -18,7 +18,10 @@ public class AuthenticationFilter extends BasicAuthenticationFilter {
 
     private final Environment environment;
 
-    public AuthenticationFilter(AuthenticationManager authenticationManager, Environment environment) {
+    public AuthenticationFilter(
+            AuthenticationManager authenticationManager,
+            Environment environment
+    ) {
         super(authenticationManager);
         this.environment = environment;
     }
@@ -29,44 +32,45 @@ public class AuthenticationFilter extends BasicAuthenticationFilter {
             HttpServletResponse response,
             FilterChain chain
     ) throws IOException, ServletException {
-        String headerPropName=environment.getProperty("authorization.token.header.name");
-        String authorizationHeader=request.getHeader(headerPropName);
-        String headerPropPrefix=environment.getProperty("authorization.token.header.prefix");
-        if(headerPropPrefix==null) return;
+        String headerName = environment.getProperty("authorization.token.header.name");
+        if (headerName == null) return;
 
-        if(authorizationHeader==null || !authorizationHeader.startsWith(headerPropPrefix)){
-            chain.doFilter(request,response);
+        String authorizationHeader = request.getHeader(headerName);
+
+        String headerPrefix = environment.getProperty("authorization.token.header.prefix");
+        if (headerPrefix == null) return;
+
+        if (authorizationHeader == null || !authorizationHeader.startsWith(headerPrefix)) {
+            chain.doFilter(request, response);
             return;
         }
 
-        UsernamePasswordAuthenticationToken authenticationToken=getAuthentication(request);
+        UsernamePasswordAuthenticationToken authenticationToken =
+                getAuthentication(authorizationHeader, headerPrefix);
 
         SecurityContextHolder.getContext().setAuthentication(authenticationToken);
-        chain.doFilter(request,response);
+        chain.doFilter(request, response);
     }
 
-    private UsernamePasswordAuthenticationToken getAuthentication(HttpServletRequest request){
-        String headerPropName=environment.getProperty("authorization.token.header.name");
-        String authorizationHeader=request.getHeader(headerPropName);
-        if(authorizationHeader==null) return null;
-
-        String headerPropPrefix=environment.getProperty("authorization.token.header.prefix");
-        if(headerPropPrefix==null) return null;
-
-        String token=authorizationHeader
-                .replace(headerPropPrefix,"")
+    private UsernamePasswordAuthenticationToken getAuthentication(
+            String authorizationHeader,
+            String headerPrefix
+    ) {
+        String token = authorizationHeader
+                .replace(headerPrefix, "")
                 .trim();
 
-        String secretToken=environment.getProperty("token.secret");
+        String secretToken = environment.getProperty("token.secret");
+        if (secretToken == null) return null;
 
-        String userId= Jwts.parser()
+        String userId = Jwts.parser()
                 .setSigningKey(secretToken)
                 .parseClaimsJws(token)
                 .getBody()
                 .getSubject();
 
-        if(userId==null) return null;
+        if (userId == null) return null;
 
-        return new UsernamePasswordAuthenticationToken(userId,null,new ArrayList<>());
+        return new UsernamePasswordAuthenticationToken(userId, null, new ArrayList<>());
     }
 }

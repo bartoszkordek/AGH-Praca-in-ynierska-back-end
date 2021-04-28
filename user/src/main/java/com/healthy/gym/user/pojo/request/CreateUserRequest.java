@@ -6,6 +6,7 @@ import com.healthy.gym.user.validation.FieldsValueMatch;
 import com.healthy.gym.user.validation.ValidPhoneNumber;
 
 import javax.validation.constraints.Email;
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
@@ -28,7 +29,8 @@ public class CreateUserRequest {
     private String surname;
 
     @NotNull(message = "{field.required}")
-    @Email(message = "{field.email.failure}")
+    @NotBlank(message = "{field.required}")
+    @Email(message = "{field.email.failure}", regexp = ".+")
     private String email;
 
     @ValidPhoneNumber(message = "{field.phone.number.failure}")

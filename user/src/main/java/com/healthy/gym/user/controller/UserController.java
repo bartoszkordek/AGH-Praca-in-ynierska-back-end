@@ -5,6 +5,9 @@ import com.healthy.gym.user.pojo.request.CreateUserRequest;
 import com.healthy.gym.user.pojo.response.CreateUserResponse;
 import com.healthy.gym.user.service.UserService;
 import com.healthy.gym.user.shared.UserDTO;
+import io.lettuce.core.RedisClient;
+import io.lettuce.core.api.StatefulRedisConnection;
+import io.lettuce.core.api.sync.RedisCommands;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +20,7 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -118,5 +122,24 @@ public class UserController {
     public @ResponseBody
     String status() {
         return userService.status();
+    }
+
+    @GetMapping("/redis")
+    public String createKeyValueTest() {
+        RedisClient redisClient = RedisClient.create("redis://localhost:6379/0");
+
+        StatefulRedisConnection<String, String> connection = redisClient.connect();
+        connection.setTimeout(Duration.ofSeconds(60));
+
+        System.out.println("Connected to Redis");
+        RedisCommands<String, String> syncCommand = connection.sync();
+
+        syncCommand.set("Hello", "Hello World");
+
+        connection.close();
+
+        redisClient.shutdown();
+
+        return "Ok";
     }
 }

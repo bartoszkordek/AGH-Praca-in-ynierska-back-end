@@ -7,23 +7,27 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-@ExtendWith(SpringExtension.class)
+@SpringBootTest
 class UserServiceIntegrationTest {
 
     private UserEntity janKowalskiEntity;
+
+    @Autowired
     private UserService userService;
+
+    @Autowired
     private BCryptPasswordEncoder bCryptPasswordEncoder;
 
     @MockBean
@@ -31,9 +35,6 @@ class UserServiceIntegrationTest {
 
     @BeforeEach
     void setUp() {
-        bCryptPasswordEncoder = new BCryptPasswordEncoder();
-        userService = new UserServiceImpl(userDAO, bCryptPasswordEncoder);
-
         janKowalskiEntity = new UserEntity(
                 "Jan",
                 "Kowalski",

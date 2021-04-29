@@ -90,6 +90,19 @@ class TokenValidatorTest {
                     .isEqualTo(usernamePasswordAuthenticationToken);
         }
 
+        @Test
+        void shouldPurifyToken() {
+            assertThat(tokenValidator.purifyToken(prefixedToken, testPrefix))
+                    .isEqualTo(token);
+        }
+
+        @Test
+        void shouldPurifyTokenWhenPrefixTokenIsNull() {
+            String testTokenToTrim = " " + token + " ";
+            assertThat(tokenValidator.purifyToken(testTokenToTrim, null))
+                    .isEqualTo(token);
+        }
+
         @Nested
         class shouldThrowAuthenticationServiceExceptionWithProperMessage {
 
@@ -206,6 +219,20 @@ class TokenValidatorTest {
             void whenGettingTokenExpirationTimeWithTokenPrefix() {
                 assertThatThrownBy(
                         () -> tokenValidator.getTokenExpirationTime(null, testPrefix, testSigningKey)
+                ).isInstanceOf(IllegalArgumentException.class).hasMessage(exceptionMessage);
+            }
+
+            @Test
+            void whenPurifyingToken() {
+                assertThatThrownBy(
+                        () -> tokenValidator.purifyToken(null, testPrefix)
+                ).isInstanceOf(IllegalArgumentException.class).hasMessage(exceptionMessage);
+            }
+
+            @Test
+            void whenPurifyingTokenWithNullPrefixToken() {
+                assertThatThrownBy(
+                        () -> tokenValidator.purifyToken(null, null)
                 ).isInstanceOf(IllegalArgumentException.class).hasMessage(exceptionMessage);
             }
         }

@@ -21,7 +21,7 @@ public class TokenValidatorImpl implements TokenValidator {
     @Override
     public Date getTokenExpirationTime(String token, String tokenPrefix, String signingKey) {
         validateArguments(token, signingKey);
-        String pureToken = purifyToken(token, tokenPrefix);
+        String pureToken = purifyTokenInternal(token, tokenPrefix);
 
         Date expiration;
 
@@ -48,7 +48,7 @@ public class TokenValidatorImpl implements TokenValidator {
     @Override
     public UsernamePasswordAuthenticationToken getAuthentication(String token, String tokenPrefix, String signingKey) {
         validateArguments(token, signingKey);
-        String pureToken = purifyToken(token, tokenPrefix);
+        String pureToken = purifyTokenInternal(token, tokenPrefix);
 
         String userId;
 
@@ -67,7 +67,13 @@ public class TokenValidatorImpl implements TokenValidator {
         return new UsernamePasswordAuthenticationToken(userId, null, new ArrayList<>());
     }
 
-    private String purifyToken(String token, String prefix) {
+    @Override
+    public String purifyToken(String token, String tokenPrefix) {
+        isTokenNull(token);
+        return purifyTokenInternal(token, tokenPrefix);
+    }
+
+    private String purifyTokenInternal(String token, String prefix) {
         if (prefix == null) return token.trim();
         return token.replace(prefix, "").trim();
     }

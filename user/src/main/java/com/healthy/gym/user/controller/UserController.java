@@ -123,23 +123,4 @@ public class UserController {
     String status() {
         return userService.status();
     }
-
-    @GetMapping("/redis")
-    public String createKeyValueTest() {
-        RedisClient redisClient = RedisClient.create("redis://localhost:6379/0");
-
-        StatefulRedisConnection<String, String> connection = redisClient.connect();
-        connection.setTimeout(Duration.ofSeconds(60));
-
-        System.out.println("Connected to Redis");
-        RedisCommands<String, String> syncCommand = connection.sync();
-
-        syncCommand.set("Hello", "Hello World");
-
-        connection.close();
-
-        redisClient.shutdown();
-
-        return "Ok";
-    }
 }

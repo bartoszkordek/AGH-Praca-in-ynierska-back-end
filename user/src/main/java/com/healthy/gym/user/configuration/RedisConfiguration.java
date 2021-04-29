@@ -10,11 +10,11 @@ import org.springframework.data.redis.core.RedisTemplate;
 @Configuration
 @EnableConfigurationProperties(RedisProperties.class)
 public class RedisConfiguration {
-
-	@Bean
-	public RedisTemplate<String, String> redisTemplate(RedisConnectionFactory connectionFactory) {
-		RedisTemplate<String, String> template = new RedisTemplate<>();
-		template.setConnectionFactory(connectionFactory);
-		return template;
-	}
+//
+//	@Bean
+//	public RedisTemplate<String, String> redisTemplate(RedisConnectionFactory connectionFactory) {
+//		RedisTemplate<String, String> template = new RedisTemplate<>();
+//		template.setConnectionFactory(connectionFactory);
+//		return template;
+//	}
 }

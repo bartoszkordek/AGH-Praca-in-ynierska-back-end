@@ -24,7 +24,7 @@ public class WebSecurity extends WebSecurityConfigurerAdapter {
     private final Environment environment;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final Translator translator;
-    private final RedisTemplate<String, String> redisTemplate;
+//    private final RedisTemplate<String, String> redisTemplate;
     private final TokenValidator tokenValidator;
 
     @Autowired
@@ -33,14 +33,14 @@ public class WebSecurity extends WebSecurityConfigurerAdapter {
             Environment environment,
             BCryptPasswordEncoder bCryptPasswordEncoder,
             Translator translator,
-            RedisTemplate<String, String> redisTemplate,
+//            RedisTemplate<String, String> redisTemplate,
             TokenValidator tokenValidator
     ) {
         this.userService = userService;
         this.environment = environment;
         this.bCryptPasswordEncoder = bCryptPasswordEncoder;
         this.translator = translator;
-        this.redisTemplate = redisTemplate;
+//        this.redisTemplate = redisTemplate;
         this.tokenValidator = tokenValidator;
     }
 
@@ -57,8 +57,8 @@ public class WebSecurity extends WebSecurityConfigurerAdapter {
                 .addFilter(new JWTAuthenticationFilter(authenticationManager(), environment))
                 .addFilter(getAuthenticationFilter())
                 .logout()
-                .logoutUrl("auth/logout")
-                .addLogoutHandler(redisLogoutHandler());
+                .logoutUrl("auth/logout");
+//                .addLogoutHandler(redisLogoutHandler());
 
         http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
     }
@@ -71,9 +71,9 @@ public class WebSecurity extends WebSecurityConfigurerAdapter {
         return authenticationFilter;
     }
 
-    private RedisLogoutHandler redisLogoutHandler() {
-        return new RedisLogoutHandler(redisTemplate, environment, tokenValidator);
-    }
+//    private RedisLogoutHandler redisLogoutHandler() {
+//        return new RedisLogoutHandler(redisTemplate, environment, tokenValidator);
+//    }
 
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {

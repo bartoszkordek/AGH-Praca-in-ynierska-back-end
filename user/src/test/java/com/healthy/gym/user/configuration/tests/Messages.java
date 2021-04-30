@@ -17,7 +17,9 @@ public class Messages {
                 {"field.password.failure", "Hasło powinno mieć od 8 do 24 znaków."},
                 {"field.password.match.failure", "Podane hasła powinny być identyczne."},
                 {"user.sign-up.email.exists", "Podany adres email jest już zajęty."},
-                {"user.log-in.fail", "Nieprawidłowy email lub hasło."}
+                {"user.log-in.fail", "Nieprawidłowy email lub hasło."},
+                {"user.logout.fail", "Wystąpił błąd podczas wylogowywania."},
+                {"user.logout.success", "Zostałeś pomyślnie wylogowany."}
         }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
     }
 
@@ -33,7 +35,9 @@ public class Messages {
                 {"field.password.failure", "Password should have from 8 to 24 characters."},
                 {"field.password.match.failure", "Provided passwords should match."},
                 {"user.sign-up.email.exists", "Provided email already exists."},
-                {"user.log-in.fail", "Invalid email or password."}
+                {"user.log-in.fail", "Invalid email or password."},
+                {"user.logout.fail", "Error occurred while logout."},
+                {"user.logout.success", "You were successfully logged out."}
         }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
     }
 

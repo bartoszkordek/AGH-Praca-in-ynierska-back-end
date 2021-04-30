@@ -2,7 +2,7 @@ package com.healthy.gym.user.security;
 
 import com.healthy.gym.user.component.HttpHeaderParser;
 import com.healthy.gym.user.component.TokenValidator;
-import org.springframework.core.env.Environment;
+import com.healthy.gym.user.component.token.TokenManager;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -16,20 +16,20 @@ import java.io.IOException;
 
 public class JWTAuthenticationFilter extends BasicAuthenticationFilter {
 
-    private final Environment environment;
     private final TokenValidator tokenValidator;
     private final HttpHeaderParser httpHeaderParser;
+    private final TokenManager tokenManager;
 
     public JWTAuthenticationFilter(
             AuthenticationManager authenticationManager,
-            Environment environment,
             TokenValidator tokenValidator,
-            HttpHeaderParser httpHeaderParser
+            HttpHeaderParser httpHeaderParser,
+            TokenManager tokenManager
     ) {
         super(authenticationManager);
-        this.environment = environment;
         this.tokenValidator = tokenValidator;
         this.httpHeaderParser = httpHeaderParser;
+        this.tokenManager = tokenManager;
     }
 
     @Override
@@ -46,8 +46,11 @@ public class JWTAuthenticationFilter extends BasicAuthenticationFilter {
         }
 
         try {
+            String tokenPrefix = tokenManager.getTokenPrefix();
+            String signingKey = tokenManager.getSigningKey();
+
             UsernamePasswordAuthenticationToken authenticationToken =
-                    tokenValidator.getAuthentication(token, getTokenPrefix(), getSigningKey());
+                    tokenValidator.getAuthentication(token, tokenPrefix, signingKey);
 
             SecurityContextHolder.getContext().setAuthentication(authenticationToken);
         } catch (Exception exception) {
@@ -56,13 +59,4 @@ public class JWTAuthenticationFilter extends BasicAuthenticationFilter {
             chain.doFilter(request, response);
         }
     }
-
-    private String getTokenPrefix() {
-        return environment.getRequiredProperty("authorization.token.header.prefix");
-    }
-
-    private String getSigningKey() {
-        return environment.getRequiredProperty("token.secret");
-    }
-
 }

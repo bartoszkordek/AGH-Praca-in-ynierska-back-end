@@ -2,6 +2,7 @@ package com.healthy.gym.user.security;
 
 import com.healthy.gym.user.component.HttpHeaderParser;
 import com.healthy.gym.user.component.TokenValidator;
+import com.healthy.gym.user.component.token.TokenManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -23,8 +24,6 @@ import static org.mockito.Mockito.*;
 
 class JWTAuthenticationFilterTest {
 
-    private AuthenticationManager authenticationManager;
-    private Environment environment;
     private TokenValidator tokenValidator;
     private HttpHeaderParser httpHeaderParser;
     private HttpServletRequest request;
@@ -34,19 +33,19 @@ class JWTAuthenticationFilterTest {
 
     @BeforeEach
     void setUp() {
-        authenticationManager = mock(AuthenticationManager.class);
-        environment = mock(Environment.class);
+        AuthenticationManager authenticationManager = mock(AuthenticationManager.class);
         tokenValidator = mock(TokenValidator.class);
         httpHeaderParser = mock(HttpHeaderParser.class);
         request = mock(HttpServletRequest.class);
         response = mock(HttpServletResponse.class);
         chain = mock(FilterChain.class);
+        TokenManager tokenManager = mock(TokenManager.class);
 
         jwtFilter = new JWTAuthenticationFilter(
                 authenticationManager,
-                environment,
                 tokenValidator,
-                httpHeaderParser
+                httpHeaderParser,
+                tokenManager
         );
     }
 

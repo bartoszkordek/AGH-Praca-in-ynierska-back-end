@@ -1,5 +1,7 @@
 package com.healthy.gym.user.component.token;
 
+import io.jsonwebtoken.SignatureAlgorithm;
+
 public interface TokenManager {
     String getSigningKey();
 
@@ -8,4 +10,6 @@ public interface TokenManager {
     String getHttpHeaderName();
 
     String getTokenPrefix();
+
+    SignatureAlgorithm getSignatureAlgorithm();
 }

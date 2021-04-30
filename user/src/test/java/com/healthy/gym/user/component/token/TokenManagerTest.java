@@ -1,5 +1,6 @@
 package com.healthy.gym.user.component.token;
 
+import io.jsonwebtoken.SignatureAlgorithm;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -40,6 +41,11 @@ class TokenManagerTest {
     @Test
     void shouldReturnProperExpirationTime() {
         assertThat(tokenManager.getExpirationTimeInMillis()).isEqualTo(360001);
+    }
+
+    @Test
+    void shouldReturnProperSignatureAlgorithm(){
+        assertThat(tokenManager.getSignatureAlgorithm()).isEqualTo(SignatureAlgorithm.HS256);
     }
 
 }

@@ -1,5 +1,6 @@
 package com.healthy.gym.user.component.token;
 
+import io.jsonwebtoken.SignatureAlgorithm;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
@@ -33,5 +34,10 @@ public class TokenManagerImpl implements TokenManager {
     @Override
     public String getTokenPrefix() {
         return environment.getRequiredProperty("authorization.token.header.prefix");
+    }
+
+    @Override
+    public SignatureAlgorithm getSignatureAlgorithm() {
+        return SignatureAlgorithm.HS256;
     }
 }

@@ -11,7 +11,8 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.web.authentication.logout.LogoutHandler;
+import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
+import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -21,7 +22,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-public class RedisLogoutHandler implements LogoutHandler {
+@Service
+public class RedisLogoutHandler implements LogoutSuccessHandler {
 
     private final RedisTemplate<String, String> redisTemplate;
     private final Environment environment;
@@ -41,7 +43,7 @@ public class RedisLogoutHandler implements LogoutHandler {
     }
 
     @Override
-    public void logout(
+    public void onLogoutSuccess(
             HttpServletRequest request,
             HttpServletResponse response,
             Authentication authentication
@@ -118,4 +120,6 @@ public class RedisLogoutHandler implements LogoutHandler {
         response.setLocale(LocaleContextHolder.getLocale());
         response.getWriter().println(body);
     }
+
+
 }

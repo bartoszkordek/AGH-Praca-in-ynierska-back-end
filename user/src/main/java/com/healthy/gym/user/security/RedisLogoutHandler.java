@@ -3,10 +3,10 @@ package com.healthy.gym.user.security;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.healthy.gym.user.component.TokenValidator;
 import com.healthy.gym.user.component.Translator;
+import com.healthy.gym.user.component.token.TokenManager;
 import com.healthy.gym.user.pojo.response.LogoutResponse;
 import io.jsonwebtoken.Jwts;
 import org.springframework.context.i18n.LocaleContextHolder;
-import org.springframework.core.env.Environment;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -26,20 +26,20 @@ import java.util.Map;
 public class RedisLogoutHandler implements LogoutSuccessHandler {
 
     private final RedisTemplate<String, String> redisTemplate;
-    private final Environment environment;
     private final TokenValidator tokenValidator;
     private final Translator translator;
+    private final TokenManager tokenManager;
 
     public RedisLogoutHandler(
             RedisTemplate<String, String> redisTemplate,
-            Environment environment,
             TokenValidator tokenValidator,
-            Translator translator
+            Translator translator,
+            TokenManager tokenManager
     ) {
         this.redisTemplate = redisTemplate;
-        this.environment = environment;
         this.tokenValidator = tokenValidator;
         this.translator = translator;
+        this.tokenManager = tokenManager;
     }
 
     @Override
@@ -47,59 +47,81 @@ public class RedisLogoutHandler implements LogoutSuccessHandler {
             HttpServletRequest request,
             HttpServletResponse response,
             Authentication authentication
-    ) {
-        String headerName;
-        String headerPrefix;
-        String signingKey;
+    ) throws IOException {
+        String headerName = tokenManager.getHttpHeaderName();
+        String headerPrefix = tokenManager.getTokenPrefix();
 
-        try {
-            headerName = environment.getRequiredProperty("authorization.token.header.name");
-            headerPrefix = environment.getRequiredProperty("authorization.token.header.prefix");
-            signingKey = environment.getRequiredProperty("token.secret");
-        } catch (IllegalStateException e) {
-            e.printStackTrace();
-            return;
-        }
 
         String token = request.getHeader(headerName);
-        if (token == null || !token.startsWith(headerPrefix)) return;
+        if (token == null || !token.startsWith(headerPrefix)) handleUnsuccessfulLogout(response);
 
-        try {
-            invalidateToken(response, headerPrefix, signingKey, token);
-            handleSuccessfulLogout(response);
-        } catch (IOException ioException) {
-            ioException.printStackTrace();
-        }
-    }
-
-    private void invalidateToken(
-            HttpServletResponse response,
-            String headerPrefix,
-            String signingKey,
-            String token
-    ) throws IOException {
-        try {
-            Date expirationTime = tokenValidator.getTokenExpirationTime(token, headerPrefix, signingKey);
-            var duration = Duration.ofMillis(expirationTime.getTime() - System.currentTimeMillis());
-            token = tokenValidator.purifyToken(token, headerPrefix);
-            String userId = Jwts.parser().setSigningKey(signingKey).parseClaimsJws(token).getBody().getSubject();
-            redisTemplate.opsForValue().set(token, userId, duration);
-        } catch (Exception e) {
-            e.printStackTrace();
-            handleUnsuccessfulLogout(response);
-        }
+        invalidateToken(response, headerPrefix, token);
     }
 
     private void handleUnsuccessfulLogout(HttpServletResponse response) throws IOException {
         String message = translator.toLocale("user.logout.fail");
         Map<String, String> errors = new HashMap<>();
-        errors.put("Token", "Invalid token");
+        errors.put("token", translator.toLocale("user.logout.invalid.token"));
 
         var objectMapper = new ObjectMapper();
         var bodyAsString = objectMapper
                 .writeValueAsString(new LogoutResponse(message, errors, false));
 
         handleResponse(response, HttpStatus.UNAUTHORIZED, bodyAsString);
+    }
+
+    private void handleResponse(HttpServletResponse response, HttpStatus status, String body) throws IOException {
+        response.setStatus(status.value());
+        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+        response.setCharacterEncoding("UTF-8");
+        response.setLocale(LocaleContextHolder.getLocale());
+        response.getWriter().println(body);
+    }
+
+    private void invalidateToken(HttpServletResponse response, String headerPrefix, String token) throws IOException {
+
+        try {
+            String signingKey = tokenManager.getSigningKey();
+            Date expirationTime = tokenValidator.getTokenExpirationTime(token, headerPrefix, signingKey);
+
+            Duration durationToExpireToken = getTokenDurationToBeExpired(expirationTime);
+            if (durationToExpireToken.isNegative()) handleTokenExpiredLogout(response);
+
+            token = tokenValidator.purifyToken(token, headerPrefix);
+
+            redisTemplate.opsForValue().set(
+                    token,
+                    getUserId(token, signingKey),
+                    durationToExpireToken
+            );
+
+            handleSuccessfulLogout(response);
+        } catch (Exception e) {
+            handleUnsuccessfulLogout(response);
+        }
+    }
+
+    private void handleTokenExpiredLogout(HttpServletResponse response) throws IOException {
+        String message = translator.toLocale("user.logout.token.expired");
+        Map<String, String> errors = new HashMap<>();
+
+        var objectMapper = new ObjectMapper();
+        var bodyAsString = objectMapper
+                .writeValueAsString(new LogoutResponse(message, errors, true));
+
+        handleResponse(response, HttpStatus.OK, bodyAsString);
+    }
+
+    private String getUserId(String token, String signingKey) {
+        return Jwts.parser()
+                .setSigningKey(signingKey)
+                .parseClaimsJws(token)
+                .getBody()
+                .getSubject();
+    }
+
+    private Duration getTokenDurationToBeExpired(Date tokenExpirationTime) {
+        return Duration.ofMillis(tokenExpirationTime.getTime() - System.currentTimeMillis());
     }
 
     private void handleSuccessfulLogout(HttpServletResponse response) throws IOException {
@@ -111,14 +133,6 @@ public class RedisLogoutHandler implements LogoutSuccessHandler {
                 .writeValueAsString(new LogoutResponse(message, errors, true));
 
         handleResponse(response, HttpStatus.OK, bodyAsString);
-    }
-
-    private void handleResponse(HttpServletResponse response, HttpStatus status, String body) throws IOException {
-        response.setStatus(status.value());
-        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-        response.setCharacterEncoding("UTF-8");
-        response.setLocale(LocaleContextHolder.getLocale());
-        response.getWriter().println(body);
     }
 
 

@@ -1,11 +1,13 @@
 package com.healthy.gym.user.security;
 
+import com.healthy.gym.user.component.HttpHeaderParser;
+import com.healthy.gym.user.component.TokenValidator;
 import com.healthy.gym.user.component.Translator;
+import com.healthy.gym.user.component.token.TokenManager;
 import com.healthy.gym.user.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
-import org.springframework.core.env.Environment;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -19,24 +21,30 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 public class WebSecurity extends WebSecurityConfigurerAdapter {
 
     private final UserService userService;
-    private final Environment environment;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final Translator translator;
     private final RedisLogoutHandler redisLogoutHandler;
+    private final TokenValidator tokenValidator;
+    private final HttpHeaderParser headerParser;
+    private final TokenManager tokenManager;
 
     @Autowired
     public WebSecurity(
             UserService userService,
-            Environment environment,
             BCryptPasswordEncoder bCryptPasswordEncoder,
             Translator translator,
-            RedisLogoutHandler redisLogoutHandler
+            RedisLogoutHandler redisLogoutHandler,
+            TokenValidator tokenValidator,
+            HttpHeaderParser headerParser,
+            TokenManager tokenManager
     ) {
         this.userService = userService;
-        this.environment = environment;
         this.bCryptPasswordEncoder = bCryptPasswordEncoder;
         this.translator = translator;
         this.redisLogoutHandler = redisLogoutHandler;
+        this.tokenValidator = tokenValidator;
+        this.headerParser = headerParser;
+        this.tokenManager = tokenManager;
     }
 
     @Override
@@ -49,7 +57,7 @@ public class WebSecurity extends WebSecurityConfigurerAdapter {
                 .and()
                 .authorizeRequests().antMatchers("/**").permitAll()
                 .and()
-                .addFilter(new JWTAuthenticationFilter(authenticationManager(), environment))
+                .addFilter(getJWTAuthenticationFilter())
                 .addFilter(getAuthenticationFilter())
                 .logout()
                 .logoutSuccessHandler(redisLogoutHandler)
@@ -60,10 +68,14 @@ public class WebSecurity extends WebSecurityConfigurerAdapter {
 
     private AuthenticationFilter getAuthenticationFilter() throws Exception {
         var authenticationFilter =
-                new AuthenticationFilter(userService, environment, translator);
+                new AuthenticationFilter(userService, translator, tokenManager);
         authenticationFilter.setAuthenticationManager(authenticationManager());
 
         return authenticationFilter;
+    }
+
+    private JWTAuthenticationFilter getJWTAuthenticationFilter() throws Exception {
+        return new JWTAuthenticationFilter(authenticationManager(), tokenValidator, headerParser, tokenManager);
     }
 
     @Override

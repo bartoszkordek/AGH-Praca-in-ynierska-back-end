@@ -53,7 +53,10 @@ public class RedisLogoutHandler implements LogoutSuccessHandler {
 
 
         String token = request.getHeader(headerName);
-        if (token == null || !token.startsWith(headerPrefix)) handleUnsuccessfulLogout(response);
+        if (token == null || !token.startsWith(headerPrefix)) {
+            handleUnsuccessfulLogout(response);
+            return;
+        }
 
         invalidateToken(response, headerPrefix, token);
     }
@@ -97,6 +100,7 @@ public class RedisLogoutHandler implements LogoutSuccessHandler {
 
             handleSuccessfulLogout(response);
         } catch (Exception e) {
+            e.printStackTrace();
             handleUnsuccessfulLogout(response);
         }
     }

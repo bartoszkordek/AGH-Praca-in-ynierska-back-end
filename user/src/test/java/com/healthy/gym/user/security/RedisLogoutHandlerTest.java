@@ -2,21 +2,21 @@ package com.healthy.gym.user.security;
 
 import com.healthy.gym.user.component.token.TokenManager;
 import com.healthy.gym.user.configuration.tests.TestCountry;
-import com.healthy.gym.user.pojo.response.LogoutResponse;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.web.client.TestRestTemplate;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.RequestEntity;
-import org.springframework.http.ResponseEntity;
+import org.springframework.core.env.Environment;
+import org.springframework.http.MediaType;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.RequestBuilder;
 
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.Date;
 import java.util.Locale;
 import java.util.Map;
@@ -25,66 +25,91 @@ import java.util.UUID;
 import static com.healthy.gym.user.configuration.tests.LocaleConverter.convertEnumToLocale;
 import static com.healthy.gym.user.configuration.tests.Messages.getMessagesAccordingToLocale;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.Matchers.aMapWithSize;
+import static org.hamcrest.Matchers.hasKey;
+import static org.springframework.test.web.servlet.ResultMatcher.matchAll;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest
+@AutoConfigureMockMvc
 class RedisLogoutHandlerTest {
 
     @Autowired
-    private TestRestTemplate restTemplate;
+    private MockMvc mockMvc;
 
     @Autowired
     private TokenManager tokenManager;
 
+    @Autowired
+    private Environment environment;
+
     @ParameterizedTest
     @EnumSource(TestCountry.class)
-    void shouldFailLogoutUserWhenNoTokenProvided(TestCountry country) throws URISyntaxException {
+    void shouldFailLogoutUserWhenNoTokenProvided(TestCountry country) throws Exception {
         Map<String, String> messages = getMessagesAccordingToLocale(country);
         Locale testedLocale = convertEnumToLocale(country);
 
         URI logout = new URI("/logout");
 
-        RequestEntity<Void> logoutRequest = RequestEntity
-                .get(logout)
-                .header("Accept-Language", testedLocale.toString())
-                .build();
+        RequestBuilder logoutRequest = get(logout).locale(testedLocale);
 
-        ResponseEntity<LogoutResponse> logoutResponse = restTemplate.exchange(logoutRequest, LogoutResponse.class);
-
-        assertThat(logoutResponse.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
-        assertThat(logoutResponse.getBody().isSuccess()).isFalse();
-        assertThat(logoutResponse.getBody().getMessage()).isEqualTo(messages.get("user.logout.fail"));
-        assertThat(logoutResponse.getBody().getErrors()).hasSize(1);
-        assertThat(logoutResponse.getBody().getErrors())
-                .containsEntry("token", messages.get("user.logout.invalid.token"));
+        mockMvc.perform(logoutRequest)
+                .andDo(print())
+                .andExpect(
+                        matchAll(
+                                status().isUnauthorized(),
+                                content().contentType(MediaType.APPLICATION_JSON),
+                                content().encoding("UTF-8"),
+                                header().exists("Content-Language"),
+                                header().string("Content-Language", testedLocale.getLanguage()),
+                                jsonPath("$.success").value(false),
+                                jsonPath("$.message").value(messages.get("user.logout.fail")),
+                                jsonPath("$.errors").isMap(),
+                                jsonPath("$.errors", aMapWithSize(1)),
+                                jsonPath("$.errors", hasKey("token")),
+                                jsonPath("$.errors.token").value(messages.get("user.logout.invalid.token"))
+                        )
+                );
     }
 
+
     @ParameterizedTest
     @EnumSource(TestCountry.class)
-    void shouldFailLogoutUserWhenInvalidTokenProvided(TestCountry country) throws URISyntaxException {
+    void shouldFailLogoutUserWhenInvalidTokenProvided(TestCountry country) throws Exception {
         Map<String, String> messages = getMessagesAccordingToLocale(country);
         Locale testedLocale = convertEnumToLocale(country);
 
         URI logout = new URI("/logout");
 
-        RequestEntity<Void> logoutRequest = RequestEntity
-                .get(logout)
-                .header("Accept-Language", testedLocale.toString())
-                .build();
+        RequestBuilder logoutRequest = get(logout)
+                .header(tokenManager.getHttpHeaderName(), "invalidTestToken")
+                .locale(testedLocale);
 
-        ResponseEntity<LogoutResponse> logoutResponse = restTemplate.exchange(logoutRequest, LogoutResponse.class);
-
-        assertThat(logoutResponse.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
-        assertThat(logoutResponse.getBody().isSuccess()).isFalse();
-        assertThat(logoutResponse.getBody().getMessage()).isEqualTo(messages.get("user.logout.fail"));
-        assertThat(logoutResponse.getBody().getErrors()).hasSize(1);
-        assertThat(logoutResponse.getBody().getErrors())
-                .containsEntry("token", messages.get("user.logout.invalid.token"));
+        mockMvc.perform(logoutRequest)
+                .andDo(print())
+                .andExpect(
+                        matchAll(
+                                status().isUnauthorized(),
+                                content().contentType(MediaType.APPLICATION_JSON),
+                                content().encoding("UTF-8"),
+                                header().exists("Content-Language"),
+                                header().string("Content-Language", testedLocale.getLanguage()),
+                                jsonPath("$.success").value(false),
+                                jsonPath("$.message").value(messages.get("user.logout.fail")),
+                                jsonPath("$.errors").isMap(),
+                                jsonPath("$.errors", aMapWithSize(1)),
+                                jsonPath("$.errors", hasKey("token")),
+                                jsonPath("$.errors.token").value(messages.get("user.logout.invalid.token"))
+                        )
+                );
     }
 
     @Disabled
     @ParameterizedTest
     @EnumSource(TestCountry.class)
-    void shouldSendProperMessageWhenTokenHasAlreadyExpired(TestCountry country) throws URISyntaxException {
+    void shouldSendProperMessageWhenTokenHasAlreadyExpired(TestCountry country) throws Exception {
         Map<String, String> messages = getMessagesAccordingToLocale(country);
         Locale testedLocale = convertEnumToLocale(country);
 
@@ -92,27 +117,47 @@ class RedisLogoutHandlerTest {
 
     }
 
-    @ParameterizedTest
-    @EnumSource(TestCountry.class)
-    void shouldSuccessfullyLogoutUserWhenValidTokenProvided(TestCountry country) throws URISyntaxException {
-        Map<String, String> messages = getMessagesAccordingToLocale(country);
-        Locale testedLocale = convertEnumToLocale(country);
 
-        URI logout = new URI("/logout");
+//    @ParameterizedTest
+//    @EnumSource(TestCountry.class)
+//    void shouldSuccessfullyLogoutUserWhenValidTokenProvided(TestCountry country) throws Exception {
+//        Map<String, String> messages = getMessagesAccordingToLocale(country);
+//        Locale testedLocale = convertEnumToLocale(country);
+//
+//        URI logout = new URI("/logout");
+//
+//        String token = getToken();
+//
+//        RequestBuilder logoutRequest = get(logout)
+//                .header(tokenManager.getHttpHeaderName(), token)
+//                .locale(testedLocale);
+//
+////        doNothing()
+////                .when(redisTemplate)
+////                .opsForValue()
+////                .set(isA(String.class), isA(String.class), isA(Duration.class));
+//
+//
+//        mockMvc.perform(logoutRequest)
+//                .andDo(print())
+//                .andExpect(
+//                        matchAll(
+//                                status().isOk(),
+//                                content().contentType(MediaType.APPLICATION_JSON),
+//                                content().encoding("UTF-8"),
+//                                header().exists("Content-Language"),
+//                                header().string("Content-Language", testedLocale.getLanguage()),
+//                                jsonPath("$.success").value(true),
+//                                jsonPath("$.message").value(messages.get("user.logout.success")),
+//                                jsonPath("$.errors").isMap(),
+//                                jsonPath("$.errors", aMapWithSize(0))
+//                        )
+//                );
+//    }
 
-        RequestEntity<Void> logoutRequest = RequestEntity
-                .get(logout)
-                .header("Accept-Language", testedLocale.toString())
-                .header(tokenManager.getHttpHeaderName(), getToken())
-                .build();
-
-        ResponseEntity<LogoutResponse> logoutResponse = restTemplate.exchange(logoutRequest, LogoutResponse.class);
-
-        assertThat(logoutResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
-        assertThat(logoutResponse.getBody().isSuccess()).isTrue();
-        assertThat(logoutResponse.getBody().getMessage()).isEqualTo(messages.get("user.logout.success"));
-        assertThat(logoutResponse.getBody().getErrors()).isEmpty();
-
+    @Test
+    void name() {
+        assertThat(environment.getProperty("spring.redis.test.port")).isEqualTo("6370");
     }
 
     private String getToken() {

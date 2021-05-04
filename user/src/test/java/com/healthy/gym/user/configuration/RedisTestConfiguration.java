@@ -35,7 +35,7 @@ public class RedisTestConfiguration {
     }
 
     private int getRedisTestPort() {
-        String port = environment.getRequiredProperty("spring.redis.port");
+        String port = environment.getRequiredProperty("spring.redis.test.port");
         return Integer.parseInt(port);
     }
 

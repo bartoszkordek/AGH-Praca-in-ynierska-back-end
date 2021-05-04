@@ -1,12 +1,11 @@
 package com.healthy.gym.user.security;
 
 import com.healthy.gym.user.component.token.TokenManager;
+import com.healthy.gym.user.configuration.EmbeddedRedisServer;
 import com.healthy.gym.user.configuration.RedisTestConfiguration;
 import com.healthy.gym.user.configuration.tests.TestCountry;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
@@ -17,7 +16,6 @@ import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.RequestBuilder;
-import redis.embedded.RedisServer;
 
 import java.net.URI;
 import java.util.Date;
@@ -39,29 +37,14 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 class RedisLogoutHandlerTest {
 
-    public static RedisServer redisServer;
     @Autowired
     private MockMvc mockMvc;
     @Autowired
     private TokenManager tokenManager;
 
-    @BeforeAll
-    static void beforeAll() {
-        int testRedisPort = 6380;
-        String password = " thisP@sswordNeed2BeChange";
-
-        redisServer = RedisServer.builder()
-                .port(testRedisPort)
-                .bind("127.0.0.1")
-                .setting("requirepass " + password)
-                .build();
-        redisServer.start();
-    }
-
-    @AfterAll
-    static void afterAll() {
-        redisServer.stop();
-    }
+    @Autowired
+    @SuppressWarnings("Embedded redis  server is needed to conduct a tests.")
+    private EmbeddedRedisServer embeddedRedisServer; // Do not remove this.
 
     @ParameterizedTest
     @EnumSource(TestCountry.class)

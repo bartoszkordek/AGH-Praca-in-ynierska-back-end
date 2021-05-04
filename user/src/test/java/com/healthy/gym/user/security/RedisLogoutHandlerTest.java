@@ -6,7 +6,6 @@ import com.healthy.gym.user.configuration.RedisTestConfiguration;
 import com.healthy.gym.user.configuration.tests.TestCountry;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -107,7 +106,6 @@ class RedisLogoutHandlerTest {
                 );
     }
 
-    @Disabled
     @ParameterizedTest
     @EnumSource(TestCountry.class)
     void shouldSendProperMessageWhenTokenHasAlreadyExpired(TestCountry country) throws Exception {
@@ -116,6 +114,28 @@ class RedisLogoutHandlerTest {
 
         URI logout = new URI("/logout");
 
+        Date fixedExpiredTokenTime = new Date(System.currentTimeMillis() - 1);
+        String token = getToken(fixedExpiredTokenTime);
+
+        RequestBuilder logoutRequest = get(logout)
+                .header(tokenManager.getHttpHeaderName(), token)
+                .locale(testedLocale);
+
+        mockMvc.perform(logoutRequest)
+                .andDo(print())
+                .andExpect(
+                        matchAll(
+                                status().isOk(),
+                                content().contentType(MediaType.APPLICATION_JSON),
+                                content().encoding("UTF-8"),
+                                header().exists("Content-Language"),
+                                header().string("Content-Language", testedLocale.getLanguage()),
+                                jsonPath("$.success").value(true),
+                                jsonPath("$.message").value(messages.get("user.logout.token.expired")),
+                                jsonPath("$.errors").isMap(),
+                                jsonPath("$.errors", aMapWithSize(0))
+                        )
+                );
     }
 
 
@@ -151,16 +171,24 @@ class RedisLogoutHandlerTest {
     }
 
     private String getToken() {
-        String signingKey = tokenManager.getSigningKey();
-        SignatureAlgorithm signatureAlgorithm = tokenManager.getSignatureAlgorithm();
+        String rawToken = getRawToken(setTokenExpirationTime());
+        return tokenManager.getTokenPrefix() + " " + rawToken;
+    }
 
-        String rawToken = Jwts.builder()
+    private String getToken(Date expirationTime) {
+        String rawToken = getRawToken(expirationTime);
+        return tokenManager.getTokenPrefix() + " " + rawToken;
+    }
+
+    private String getRawToken(Date expirationTime) {
+        SignatureAlgorithm signatureAlgorithm = tokenManager.getSignatureAlgorithm();
+        String signingKey = tokenManager.getSigningKey();
+
+        return Jwts.builder()
                 .setSubject(UUID.randomUUID().toString())
-                .setExpiration(setTokenExpirationTime())
+                .setExpiration(expirationTime)
                 .signWith(signatureAlgorithm, signingKey)
                 .compact();
-
-        return tokenManager.getTokenPrefix() + " " + rawToken;
     }
 
     private Date setTokenExpirationTime() {

@@ -5,6 +5,7 @@ import com.healthy.gym.user.component.TokenValidator;
 import com.healthy.gym.user.component.Translator;
 import com.healthy.gym.user.component.token.TokenManager;
 import com.healthy.gym.user.pojo.response.LogoutResponse;
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -88,7 +89,6 @@ public class RedisLogoutHandler implements LogoutSuccessHandler {
             Date expirationTime = tokenValidator.getTokenExpirationTime(token, headerPrefix, signingKey);
 
             Duration durationToExpireToken = getTokenDurationToBeExpired(expirationTime);
-            if (durationToExpireToken.isNegative()) handleTokenExpiredLogout(response);
 
             token = tokenValidator.purifyToken(token, headerPrefix);
 
@@ -99,8 +99,9 @@ public class RedisLogoutHandler implements LogoutSuccessHandler {
             );
 
             handleSuccessfulLogout(response);
+        } catch (ExpiredJwtException exception) {
+            handleTokenExpiredLogout(response);
         } catch (Exception e) {
-            e.printStackTrace();
             handleUnsuccessfulLogout(response);
         }
     }

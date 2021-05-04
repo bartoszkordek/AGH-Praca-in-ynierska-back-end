@@ -1,5 +1,6 @@
 package com.healthy.gym.user.component;
 
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -31,6 +32,8 @@ public class TokenValidatorImpl implements TokenValidator {
                     .parseClaimsJws(pureToken)
                     .getBody()
                     .getExpiration();
+        } catch (ExpiredJwtException exception) {
+            throw new ExpiredJwtException(null, null, exception.getMessage());
         } catch (Exception exception) {
             throw new AuthenticationServiceException(INVALID_TOKEN);
         }

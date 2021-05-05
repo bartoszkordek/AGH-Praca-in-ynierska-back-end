@@ -1,6 +1,7 @@
 package com.healthy.gym.user.security;
 
 import com.healthy.gym.user.component.token.TokenManager;
+import com.healthy.gym.user.component.token.TokenValidator;
 import com.healthy.gym.user.configuration.EmbeddedRedisServer;
 import com.healthy.gym.user.configuration.tests.TestCountry;
 import io.jsonwebtoken.Jwts;
@@ -15,11 +16,13 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.core.env.Environment;
 import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.RequestBuilder;
 
 import java.net.URI;
+import java.time.Duration;
 import java.util.Date;
 import java.util.Locale;
 import java.util.Map;
@@ -27,6 +30,7 @@ import java.util.UUID;
 
 import static com.healthy.gym.user.configuration.tests.LocaleConverter.convertEnumToLocale;
 import static com.healthy.gym.user.configuration.tests.Messages.getMessagesAccordingToLocale;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.aMapWithSize;
 import static org.hamcrest.Matchers.hasKey;
 import static org.springframework.test.web.servlet.ResultMatcher.matchAll;
@@ -42,10 +46,15 @@ class RedisLogoutHandlerTest {
     private MockMvc mockMvc;
     @Autowired
     private TokenManager tokenManager;
+    @Autowired
+    private TokenValidator tokenValidator;
 
     @Autowired
     @SuppressWarnings("Embedded redis  server is needed to conduct a tests.")
     private EmbeddedRedisServer embeddedRedisServer; // Do not remove this.
+
+    @Autowired
+    private RedisTemplate<String, String> redisTemplate;
 
     @ParameterizedTest
     @EnumSource(TestCountry.class)
@@ -197,6 +206,52 @@ class RedisLogoutHandlerTest {
         return new Date(currentTime + expirationTime);
     }
 
+    @ParameterizedTest
+    @EnumSource(TestCountry.class)
+    void shouldSendProperMessageThatSessionExpired(TestCountry country) throws Exception {
+        final long expirationTime = 5_000;
+        final Date expirationDate = new Date(System.currentTimeMillis() + expirationTime);
+        final String USER_ID = "TestUserID";
+        final String token = getToken(expirationDate);
+        final String pureToken = tokenValidator.purifyToken(token, tokenManager.getTokenPrefix());
+
+        redisTemplate.opsForValue().set(pureToken, USER_ID, Duration.ofMillis(expirationTime));
+
+        assertThat(redisTemplate.opsForValue().get(pureToken))
+                .isNotNull()
+                .isEqualTo(USER_ID);
+
+        Map<String, String> messages = getMessagesAccordingToLocale(country);
+        Locale testedLocale = convertEnumToLocale(country);
+
+        URI logout = new URI("/users/status");
+
+        RequestBuilder logoutRequest = get(logout)
+                .header(tokenManager.getHttpHeaderName(), token)
+                .locale(testedLocale);
+
+        mockMvc.perform(logoutRequest)
+                .andDo(print())
+                .andExpect(
+                        matchAll(
+                                status().isOk(),
+                                content().contentType(MediaType.APPLICATION_JSON),
+                                content().encoding("UTF-8"),
+                                header().exists("Content-Language"),
+                                header().string("Content-Language", testedLocale.getLanguage()),
+                                jsonPath("$.success").value(true),
+                                jsonPath("$.message").value(messages.get("user.logout.token.expired")),
+                                jsonPath("$.errors").isMap(),
+                                jsonPath("$.errors", aMapWithSize(0))
+                        )
+                );
+
+        Thread.sleep(expirationTime);
+
+        String value = redisTemplate.opsForValue().get(pureToken);
+        assertThat(value).isNull();
+    }
+
     @TestConfiguration
     static class RedisTestConfiguration {
         private final Environment environment;
@@ -223,4 +278,6 @@ class RedisLogoutHandlerTest {
             return environment.getRequiredProperty("spring.redis.password");
         }
     }
+
+
 }

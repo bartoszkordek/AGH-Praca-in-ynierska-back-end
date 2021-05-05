@@ -66,6 +66,11 @@ public class RedisLogoutHandler implements LogoutSuccessHandler {
 
             token = tokenValidator.purifyToken(token, headerPrefix);
 
+            if (redisTemplate.opsForValue().get(token) != null) {
+                responseManager.handleTokenExpiredLogout(response);
+                return;
+            }
+
             redisTemplate.opsForValue().set(
                     token,
                     getUserId(token, signingKey),

@@ -27,6 +27,8 @@ spring:
       port: 6380
     password: thisP@sswordNeed2BeChange
     timeout: 60000
+  main:
+    allow-bean-definition-overriding: true
 server:
   port: 0
 

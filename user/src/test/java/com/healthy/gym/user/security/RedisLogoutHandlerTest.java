@@ -2,7 +2,6 @@ package com.healthy.gym.user.security;
 
 import com.healthy.gym.user.component.token.TokenManager;
 import com.healthy.gym.user.configuration.EmbeddedRedisServer;
-import com.healthy.gym.user.configuration.RedisTestConfiguration;
 import com.healthy.gym.user.configuration.tests.TestCountry;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -11,7 +10,11 @@ import org.junit.jupiter.params.provider.EnumSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.Import;
+import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.context.annotation.Bean;
+import org.springframework.core.env.Environment;
+import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
+import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.RequestBuilder;
@@ -31,8 +34,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@SpringBootTest(properties = {"spring.main.allow-bean-definition-overriding=true"})
-@Import(RedisTestConfiguration.class)
+@SpringBootTest
 @AutoConfigureMockMvc
 class RedisLogoutHandlerTest {
 
@@ -73,7 +75,6 @@ class RedisLogoutHandlerTest {
                         )
                 );
     }
-
 
     @ParameterizedTest
     @EnumSource(TestCountry.class)
@@ -138,7 +139,6 @@ class RedisLogoutHandlerTest {
                 );
     }
 
-
     @ParameterizedTest
     @EnumSource(TestCountry.class)
     void shouldSuccessfullyLogoutUserWhenValidTokenProvided(TestCountry country) throws Exception {
@@ -195,5 +195,32 @@ class RedisLogoutHandlerTest {
         long currentTime = System.currentTimeMillis();
         long expirationTime = tokenManager.getExpirationTimeInMillis();
         return new Date(currentTime + expirationTime);
+    }
+
+    @TestConfiguration
+    static class RedisTestConfiguration {
+        private final Environment environment;
+
+        @Autowired
+        public RedisTestConfiguration(Environment environment) {
+            this.environment = environment;
+        }
+
+        @Bean
+        public LettuceConnectionFactory connectionFactory(RedisStandaloneConfiguration configuration) {
+            configuration.setPort(getRedisTestPort());
+            configuration.setPassword(getRedisPassword());
+
+            return new LettuceConnectionFactory(configuration);
+        }
+
+        private int getRedisTestPort() {
+            String port = environment.getRequiredProperty("spring.redis.test.port");
+            return Integer.parseInt(port);
+        }
+
+        private String getRedisPassword() {
+            return environment.getRequiredProperty("spring.redis.password");
+        }
     }
 }

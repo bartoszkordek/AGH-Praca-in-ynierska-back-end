@@ -27,6 +27,7 @@ public class WebSecurity extends WebSecurityConfigurerAdapter {
     private final TokenValidator tokenValidator;
     private final HttpHeaderParser headerParser;
     private final TokenManager tokenManager;
+    private final RedisFilter redisFilter;
 
     @Autowired
     public WebSecurity(
@@ -36,7 +37,8 @@ public class WebSecurity extends WebSecurityConfigurerAdapter {
             RedisLogoutHandler redisLogoutHandler,
             TokenValidator tokenValidator,
             HttpHeaderParser headerParser,
-            TokenManager tokenManager
+            TokenManager tokenManager,
+            RedisFilter redisFilter
     ) {
         this.userService = userService;
         this.bCryptPasswordEncoder = bCryptPasswordEncoder;
@@ -45,6 +47,7 @@ public class WebSecurity extends WebSecurityConfigurerAdapter {
         this.tokenValidator = tokenValidator;
         this.headerParser = headerParser;
         this.tokenManager = tokenManager;
+        this.redisFilter = redisFilter;
     }
 
     @Override
@@ -57,8 +60,9 @@ public class WebSecurity extends WebSecurityConfigurerAdapter {
                 .and()
                 .authorizeRequests().antMatchers("/**").permitAll()
                 .and()
-                .addFilter(getJWTAuthenticationFilter())
                 .addFilter(getAuthenticationFilter())
+                .addFilterBefore(redisFilter, JWTAuthenticationFilter.class)
+                .addFilter(getJWTAuthenticationFilter())
                 .logout()
                 .logoutSuccessHandler(redisLogoutHandler)
                 .permitAll();

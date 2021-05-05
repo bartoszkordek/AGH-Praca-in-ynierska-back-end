@@ -1,12 +1,13 @@
 package com.healthy.gym.user.security;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.healthy.gym.user.component.TokenValidator;
+import com.healthy.gym.user.component.token.TokenValidator;
 import com.healthy.gym.user.component.Translator;
 import com.healthy.gym.user.component.token.TokenManager;
 import com.healthy.gym.user.pojo.response.LogoutResponse;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpStatus;
@@ -31,6 +32,7 @@ public class RedisLogoutHandler implements LogoutSuccessHandler {
     private final Translator translator;
     private final TokenManager tokenManager;
 
+    @Autowired
     public RedisLogoutHandler(
             RedisTemplate<String, String> redisTemplate,
             TokenValidator tokenValidator,

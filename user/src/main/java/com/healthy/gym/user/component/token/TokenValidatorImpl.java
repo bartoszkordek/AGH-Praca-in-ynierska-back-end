@@ -1,4 +1,4 @@
-package com.healthy.gym.user.component;
+package com.healthy.gym.user.component.token;
 
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;

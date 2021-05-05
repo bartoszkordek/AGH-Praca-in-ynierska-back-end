@@ -1,5 +1,6 @@
 package com.healthy.gym.user.component;
 
+import com.healthy.gym.user.component.token.TokenValidator;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import org.junit.jupiter.api.BeforeEach;

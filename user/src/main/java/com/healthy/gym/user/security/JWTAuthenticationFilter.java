@@ -1,7 +1,7 @@
 package com.healthy.gym.user.security;
 
 import com.healthy.gym.user.component.HttpHeaderParser;
-import com.healthy.gym.user.component.TokenValidator;
+import com.healthy.gym.user.component.token.TokenValidator;
 import com.healthy.gym.user.component.token.TokenManager;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;

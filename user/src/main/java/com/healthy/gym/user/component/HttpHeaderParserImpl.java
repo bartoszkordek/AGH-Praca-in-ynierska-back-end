@@ -1,5 +1,6 @@
 package com.healthy.gym.user.component;
 
+import com.healthy.gym.user.component.token.TokenValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;

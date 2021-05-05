@@ -1,4 +1,4 @@
-package com.healthy.gym.user.component;
+package com.healthy.gym.user.component.token;
 
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 

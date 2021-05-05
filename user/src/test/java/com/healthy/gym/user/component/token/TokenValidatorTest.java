@@ -1,4 +1,4 @@
-package com.healthy.gym.user.component;
+package com.healthy.gym.user.component.token;
 
 import com.healthy.gym.user.component.token.TokenValidator;
 import io.jsonwebtoken.Jwts;

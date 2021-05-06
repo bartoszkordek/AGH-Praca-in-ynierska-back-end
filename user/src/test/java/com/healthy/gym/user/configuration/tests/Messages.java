@@ -21,7 +21,9 @@ public class Messages {
                 {"user.logout.fail", "Wystąpił błąd podczas wylogowywania."},
                 {"user.logout.success", "Zostałeś pomyślnie wylogowany."},
                 {"user.logout.token.expired", "Twoja sesja wygasła i nastąpiło automaczne wylogowanie użytkownika."},
-                {"user.logout.invalid.token", "Niepoprawny token uwierzytelniający."}
+                {"user.logout.invalid.token", "Niepoprawny token uwierzytelniający."},
+                {"mail.registration.confirmation.subject", "Potwierdzenie rerjestracji nowego użytkownika."},
+                {"mail.registration.confirmation.message", "Aby potwierdzić rejestrację w serwisie kliknij w poniższy link:"}
         }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
     }
 
@@ -41,7 +43,9 @@ public class Messages {
                 {"user.logout.fail", "Error occurred while logout."},
                 {"user.logout.success", "You were successfully logged out."},
                 {"user.logout.token.expired", "Your session has expired and the user has been logged out automatically."},
-                {"user.logout.invalid.token", "Invalid token."}
+                {"user.logout.invalid.token", "Invalid token."},
+                {"mail.registration.confirmation.subject", "Confirmation of registration a new user."},
+                {"mail.registration.confirmation.message", "To confirm registration in service click the following link:"}
         }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
     }
 

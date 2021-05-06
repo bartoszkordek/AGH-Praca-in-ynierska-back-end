@@ -1,10 +1,12 @@
 package com.healthy.gym.trainings.model;
 
+import java.util.List;
+
 public class EmailSendModel {
 
     private String fromEmail;
     private String personal;
-    private String toEmail;
+    private List<String> toEmails;
     private String password;
     private String subject;
     private String body;
@@ -12,7 +14,7 @@ public class EmailSendModel {
 
     public EmailSendModel(String fromEmail,
                           String personal,
-                          String toEmail,
+                          List<String> toEmails,
                           String password,
                           String subject,
                           String body,
@@ -20,7 +22,7 @@ public class EmailSendModel {
 
         this.fromEmail = fromEmail;
         this.personal = personal;
-        this.toEmail = toEmail;
+        this.toEmails = toEmails;
         this.password = password;
         this.subject = subject;
         this.body = body;
@@ -35,8 +37,8 @@ public class EmailSendModel {
         return personal;
     }
 
-    public String getToEmail() {
-        return toEmail;
+    public List<String> getToEmails() {
+        return toEmails;
     }
 
     public String getPassword() {
@@ -63,8 +65,8 @@ public class EmailSendModel {
         this.personal = personal;
     }
 
-    public void setToEmail(String toEmail) {
-        this.toEmail = toEmail;
+    public void setToEmails(List<String> toEmails) {
+        this.toEmails = toEmails;
     }
 
     public void setPassword(String password) {

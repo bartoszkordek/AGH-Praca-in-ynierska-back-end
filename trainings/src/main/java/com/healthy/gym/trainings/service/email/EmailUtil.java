@@ -10,10 +10,23 @@ import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 import java.io.UnsupportedEncodingException;
 import java.util.Date;
+import java.util.List;
 
 public class EmailUtil {
 
-    public static void sendEmail(Session session, String fromEmail, String personal, String toEmail,
+    private static String toEmailsParser(List<String> toEmails){
+        StringBuilder toEmailsParsed = new StringBuilder();
+        String delim = "";
+        for (String i : toEmails) {
+            toEmailsParsed.append(delim).append(i);
+            delim = ",";
+        }
+        String result = toEmailsParsed.toString();
+        System.out.println(result);
+        return toEmailsParsed.toString();
+    }
+
+    public static void sendEmail(Session session, String fromEmail, String personal, List<String> toEmails,
                                  String subject, String body, String filePath){
         try {
             MimeMessage msg = new MimeMessage(session);
@@ -27,7 +40,8 @@ public class EmailUtil {
             msg.setText(body, "UTF-8");
             msg.setSentDate(new Date());
 
-            msg.setRecipients(Message.RecipientType.TO, InternetAddress.parse(toEmail, false));
+
+            msg.setRecipients(Message.RecipientType.BCC, InternetAddress.parse(toEmailsParser(toEmails), false));
 
             BodyPart messageBodyPart = new MimeBodyPart();
 

@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -109,13 +110,13 @@ public class TrainingsService {
         GroupTrainings result = groupTrainingsDbRepository.removeTraining(trainingId);
         String fromEmail = emailConfig.getEmailName();
         String personal = emailConfig.getEmailPersonal();
-        String toEmail = "vir00z_91@vp.pl";
+        List<String> toEmails = result.getParticipants();
         String password = emailConfig.getEmailPassword();
         String subject = "Training has been canceled";
         String body = "Training " + result.getTrainingName() + " on " + result.getDate() + " at "+result.getStartTime()+
                 " with "+result.getTrainerId() + " has been canceled.";
         String filePath = null;
-        EmailSendModel emailSendModel = new EmailSendModel(fromEmail, personal, toEmail, password, subject, body, filePath);
+        EmailSendModel emailSendModel = new EmailSendModel(fromEmail, personal, toEmails, password, subject, body, filePath);
         EmailService emailService = new EmailService();
         emailService.sendEmailTLS(emailSendModel);
         return result;

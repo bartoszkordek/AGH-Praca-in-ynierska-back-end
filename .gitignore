@@ -31,3 +31,6 @@ out
 
 #logs
 logs
+
+#Email Settings
+email.properties

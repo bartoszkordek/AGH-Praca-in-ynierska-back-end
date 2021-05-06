@@ -5,3 +5,4 @@ Dockerfile
 Dockerfile.prod
 HELP.md
 user.iml
+email.properties

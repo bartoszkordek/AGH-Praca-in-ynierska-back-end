@@ -6,9 +6,11 @@ import com.healthy.gym.trainings.db.TestRepository;
 import com.healthy.gym.trainings.entity.GroupTrainings;
 import com.healthy.gym.trainings.entity.GroupTrainingsReviews;
 import com.healthy.gym.trainings.exception.*;
+import com.healthy.gym.trainings.model.EmailSendModel;
 import com.healthy.gym.trainings.model.GroupTrainingModel;
 import com.healthy.gym.trainings.model.GroupTrainingsReviewsModel;
 import com.healthy.gym.trainings.model.GroupTrainingsReviewsUpdateModel;
+import com.healthy.gym.trainings.service.email.EmailService;
 import org.springframework.stereotype.Service;
 
 import java.text.ParseException;
@@ -97,6 +99,17 @@ public class TrainingsService {
     public GroupTrainings removeGroupTraining(String trainingId) throws TrainingRemovalException {
         if (!groupTrainingsDbRepository.isGroupTrainingExist(trainingId))
             throw new TrainingRemovalException("Training with ID: "+ trainingId + " doesn't exist");
+
+        String fromEmail = "silownia_herkules@vp.pl";
+        String personal = "Siłownia Herkules";
+        String toEmail = "test_client@vp.pl";
+        String password = "test_password123";
+        String subject = "Test Message";
+        String body = "This is test message";
+        String filePath = null;
+        EmailSendModel emailSendModel = new EmailSendModel(fromEmail, personal, toEmail, password, subject, body, filePath);
+        EmailService emailService = new EmailService();
+        emailService.sendEmailTLS(emailSendModel);
         return groupTrainingsDbRepository.removeTraining(trainingId);
     }
 

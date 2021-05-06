@@ -1,5 +1,6 @@
 package com.healthy.gym.trainings.service;
 
+import com.healthy.gym.trainings.config.EmailConfig;
 import com.healthy.gym.trainings.db.GroupTrainingReviewsDbRepository;
 import com.healthy.gym.trainings.db.GroupTrainingsDbRepository;
 import com.healthy.gym.trainings.db.TestRepository;
@@ -11,6 +12,7 @@ import com.healthy.gym.trainings.model.GroupTrainingModel;
 import com.healthy.gym.trainings.model.GroupTrainingsReviewsModel;
 import com.healthy.gym.trainings.model.GroupTrainingsReviewsUpdateModel;
 import com.healthy.gym.trainings.service.email.EmailService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.text.ParseException;
@@ -20,6 +22,10 @@ import java.util.List;
 
 @Service
 public class TrainingsService {
+
+    @Autowired
+    EmailConfig emailConfig;
+
     TestRepository testRepository;
     GroupTrainingsDbRepository groupTrainingsDbRepository;
     GroupTrainingReviewsDbRepository groupTrainingReviewsDbRepository;
@@ -100,17 +106,19 @@ public class TrainingsService {
         if (!groupTrainingsDbRepository.isGroupTrainingExist(trainingId))
             throw new TrainingRemovalException("Training with ID: "+ trainingId + " doesn't exist");
 
-        String fromEmail = "silownia_herkules@vp.pl";
-        String personal = "Siłownia Herkules";
-        String toEmail = "test_client@vp.pl";
-        String password = "test_password123";
-        String subject = "Test Message";
-        String body = "This is test message";
+        GroupTrainings result = groupTrainingsDbRepository.removeTraining(trainingId);
+        String fromEmail = emailConfig.getEmailName();
+        String personal = emailConfig.getEmailPersonal();
+        String toEmail = "vir00z_91@vp.pl";
+        String password = emailConfig.getEmailPassword();
+        String subject = "Training has been canceled";
+        String body = "Training " + result.getTrainingName() + " on " + result.getDate() + " at "+result.getStartTime()+
+                " with "+result.getTrainerId() + " has been canceled.";
         String filePath = null;
         EmailSendModel emailSendModel = new EmailSendModel(fromEmail, personal, toEmail, password, subject, body, filePath);
         EmailService emailService = new EmailService();
         emailService.sendEmailTLS(emailSendModel);
-        return groupTrainingsDbRepository.removeTraining(trainingId);
+        return result;
     }
 
     public GroupTrainings updateGroupTraining(String trainingId, GroupTrainingModel groupTrainingModelRequest) throws TrainingUpdateException {

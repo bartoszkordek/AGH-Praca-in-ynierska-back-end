@@ -49,3 +49,10 @@ authorization:
     header:
       name: Authorization
       prefix: Bearer
+
+front-end:
+  protocol: http
+  host: localhost
+  port: 3000
+  homepage: AGH-Praca-inzynierska-front-end
+

@@ -8,7 +8,7 @@ public class Messages {
     private static Map<String, String> getMessagesPL() {
         return Stream.of(new String[][]{
                 {"user.sing-up.failure", "Rejestracja zakończona niepowodzeniem."},
-                {"user.sing-up.success", "Użytkownik został zarejestrowany."},
+                {"user.sing-up.success", "Użytkownik został zarejestrowany. Link aktywacyjny został wysłany na podany adres email."},
                 {"field.required", "Pole jest wymagane."},
                 {"field.name.failure", "Imię powinno mieć od 2 do 60 znaków."},
                 {"field.surname.failure", "Nazwisko powinno mieć od 2 do 60 znaków."},
@@ -37,7 +37,7 @@ public class Messages {
     private static Map<String, String> getMessagesEN() {
         return Stream.of(new String[][]{
                 {"user.sing-up.failure", "Registration failed."},
-                {"user.sing-up.success", "Registration successful."},
+                {"user.sing-up.success", "Registration successful. The activation link has been sent to the provided e-mail address."},
                 {"field.required", "Field is required."},
                 {"field.name.failure", "Name should have from 2 to 60 characters."},
                 {"field.surname.failure", "Surname should have from 2 to 60 characters."},

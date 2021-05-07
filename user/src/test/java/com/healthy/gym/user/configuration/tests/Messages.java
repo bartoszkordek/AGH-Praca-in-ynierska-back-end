@@ -27,6 +27,7 @@ public class Messages {
                 {"registration.confirmation.token.expired", "Wygasł token potwierdzający rejestrację. Zarejestruj się jeszcze raz."},
                 {"registration.confirmation.token.invalid", "Wystąpił błąd. Nieprawidłowy token potwierdzający rejestrację."},
                 {"registration.confirmation.token.valid", "Poprawnie potwierdzono rejestrację. Możesz się zalogować."},
+                {"mail.registration.confirmation.expiration", "Link wygasa:"}
         }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
     }
 
@@ -51,7 +52,8 @@ public class Messages {
                 {"mail.registration.confirmation.message", "To confirm registration in service click the following link:"},
                 {"registration.confirmation.token.expired", "The token confirming the registration has expired. Register again."},
                 {"registration.confirmation.token.invalid", "Error occurred. Invalid token confirming registration."},
-                {"registration.confirmation.token.valid", "Registration successfully confirmed. You can log in."}
+                {"registration.confirmation.token.valid", "Registration successfully confirmed. You can log in."},
+                {"mail.registration.confirmation.expiration", "Link expires:"}
         }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
     }
 

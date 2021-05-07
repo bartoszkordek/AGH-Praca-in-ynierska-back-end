@@ -1,7 +1,11 @@
 package com.healthy.gym.user.service;
 
+import com.healthy.gym.user.data.entity.RegistrationToken;
 import com.healthy.gym.user.data.entity.UserEntity;
+import com.healthy.gym.user.data.repository.RegistrationTokenDAO;
 import com.healthy.gym.user.data.repository.UserDAO;
+import com.healthy.gym.user.exceptions.token.ExpiredTokenException;
+import com.healthy.gym.user.exceptions.token.InvalidTokenException;
 import com.healthy.gym.user.shared.UserDTO;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
@@ -12,9 +16,9 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.UUID;
-
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -22,11 +26,17 @@ public class UserServiceImpl implements UserService {
     private final UserDAO userDAO;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final ModelMapper modelMapper;
+    private final RegistrationTokenDAO registrationTokenDAO;
 
     @Autowired
-    public UserServiceImpl(UserDAO userDAO, BCryptPasswordEncoder bCryptPasswordEncoder) {
+    public UserServiceImpl(
+            UserDAO userDAO,
+            BCryptPasswordEncoder bCryptPasswordEncoder,
+            RegistrationTokenDAO registrationTokenDAO
+    ) {
         this.userDAO = userDAO;
         this.bCryptPasswordEncoder = bCryptPasswordEncoder;
+        this.registrationTokenDAO = registrationTokenDAO;
         modelMapper = new ModelMapper();
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
     }
@@ -44,7 +54,7 @@ public class UserServiceImpl implements UserService {
 
         UserEntity userEntity = modelMapper.map(userDetails, UserEntity.class);
 
-        UserEntity userEntitySaved=userDAO.save(userEntity);
+        UserEntity userEntitySaved = userDAO.save(userEntity);
 
         return modelMapper.map(userEntitySaved, UserDTO.class);
     }
@@ -70,6 +80,31 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public RegistrationToken createRegistrationToken(UserDTO user, String token) {
+        UserEntity userEntity = userDAO.findByEmail(user.getEmail());
+        RegistrationToken verificationToken = new RegistrationToken(token, userEntity);
+        return registrationTokenDAO.save(verificationToken);
+    }
+
+    @Override
+    public void verifyRegistrationToken(String token) throws InvalidTokenException, ExpiredTokenException {
+        RegistrationToken registrationToken = registrationTokenDAO.findByToken(token);
+
+        if (registrationToken == null) throw new InvalidTokenException();
+        if (tokenExpired(registrationToken)) throw new ExpiredTokenException();
+
+        UserEntity userEntity = registrationToken.getUserEntity();
+        if (userEntity == null) throw new IllegalStateException();
+        userEntity.setEnabled(true);
+
+        userDAO.save(userEntity);
+    }
+
+    private boolean tokenExpired(RegistrationToken registrationToken) {
+        return registrationToken.getExpiryDate().isBefore(LocalDateTime.now());
+    }
+
+    @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         UserEntity userEntity = userDAO.findByEmail(email);
 
@@ -78,7 +113,7 @@ public class UserServiceImpl implements UserService {
         return new User(
                 userEntity.getEmail(),
                 userEntity.getEncryptedPassword(),
-                true, // TODO set false and send activation link
+                userEntity.isEnabled(),
                 true,
                 true,
                 true,

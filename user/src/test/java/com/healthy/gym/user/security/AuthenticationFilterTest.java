@@ -50,7 +50,8 @@ class AuthenticationFilterTest {
                 "jan.kowalski@wp.pl",
                 "666 777 888",
                 bCryptPasswordEncoder.encode("test12345"),
-                UUID.randomUUID().toString()
+                UUID.randomUUID().toString(),
+                true
         );
 
         when(userDAO.findByEmail(any())).thenReturn(userEntity);

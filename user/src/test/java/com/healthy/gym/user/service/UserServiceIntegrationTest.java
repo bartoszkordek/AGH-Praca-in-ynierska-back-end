@@ -41,7 +41,8 @@ class UserServiceIntegrationTest {
                 "jan.kowalski@test.com",
                 "666 777 888",
                 bCryptPasswordEncoder.encode("password1234"),
-                UUID.randomUUID().toString()
+                UUID.randomUUID().toString(),
+                true
         );
 
         UserEntity andrzejNowakEntity = new UserEntity(
@@ -50,7 +51,8 @@ class UserServiceIntegrationTest {
                 "andrzej.nowak@test.com",
                 "676 777 888",
                 bCryptPasswordEncoder.encode("password4576"),
-                UUID.randomUUID().toString()
+                UUID.randomUUID().toString(),
+                true
         );
 
         Mockito.when(userDAO.findByEmail(janKowalskiEntity.getEmail()))

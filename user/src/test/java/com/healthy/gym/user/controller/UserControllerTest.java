@@ -1,8 +1,13 @@
 package com.healthy.gym.user.controller;
 
 import com.healthy.gym.user.configuration.tests.TestCountry;
+import com.healthy.gym.user.exceptions.token.ExpiredTokenException;
+import com.healthy.gym.user.exceptions.token.InvalidTokenException;
+import com.healthy.gym.user.listener.RegistrationListener;
 import com.healthy.gym.user.service.UserService;
 import com.healthy.gym.user.shared.UserDTO;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
@@ -18,14 +23,18 @@ import org.springframework.test.web.servlet.RequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Locale;
 import java.util.Map;
+import java.util.UUID;
 
 import static com.healthy.gym.user.configuration.tests.LocaleConverter.convertEnumToLocale;
 import static com.healthy.gym.user.configuration.tests.Messages.getMessagesAccordingToLocale;
-import static org.hamcrest.Matchers.containsString;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.Matchers.*;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.ResultMatcher.matchAll;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -39,6 +48,14 @@ class UserControllerTest {
 
     @MockBean
     private UserService userService;
+
+    @MockBean
+    private RegistrationListener registrationListener;
+
+    @BeforeEach
+    void setUp() {
+        doNothing().when(registrationListener).sendEmailToConfirmRegistration(any());
+    }
 
     @Test
     @WithMockUser
@@ -63,7 +80,7 @@ class UserControllerTest {
         String requestBody = "{" +
                 "\"name\": \"Jan\",\n" +
                 "\"surname\": \"Kowalski\",\n" +
-                "\"email\": \"jan.kowalski@wp.pl\",\n" +
+                "\"email\": \"xmr09697@zwoho.com\",\n" +
                 "\"phone\": \"+48 685 263 683\",\n" +
                 "\"password\": \"test12345\",\n" +
                 "\"matchingPassword\": \"test12345\"" +
@@ -107,7 +124,7 @@ class UserControllerTest {
         String requestBody = "{" +
                 "\"name\": \"Jan\",\n" +
                 "\"surname\": \"Kowalski\",\n" +
-                "\"email\": \"jan.kowalski3@wp.pl\",\n" +
+                "\"email\": \"xmr09697@zwoho.com\",\n" +
                 "\"password\": \"test12345\",\n" +
                 "\"matchingPassword\": \"test12345\"" +
                 "}";
@@ -187,7 +204,7 @@ class UserControllerTest {
 
         URI uri = new URI("/users");
         String requestBody = "{" +
-                "\"email\": \"jan.kowalski@wp.pl\",\n" +
+                "\"email\": \"xmr09697@zwoho.com\",\n" +
                 "\"password\": \"test12345\",\n" +
                 "\"matchingPassword\": \"test12345\"" +
                 "}";
@@ -257,7 +274,7 @@ class UserControllerTest {
         String requestBody = "{" +
                 "\"name\": \"Jan\",\n" +
                 "\"surname\": \"Kowalski\",\n" +
-                "\"email\": \"jan.kowalski@wp.pl\",\n" +
+                "\"email\": \"xmr09697@zwoho.com\",\n" +
                 "\"phone\": \"+48 685 263 683\",\n" +
                 "\"password\": \"test12345\",\n" +
                 "\"matchingPassword\": \"test12345\"" +
@@ -284,5 +301,113 @@ class UserControllerTest {
                 )
         );
 
+    }
+
+    @Nested
+    class WhileConfirmRegistrationIsCalled {
+
+        private URI uri;
+        private String token;
+
+        @BeforeEach
+        void setUp() throws URISyntaxException {
+            uri = new URI("/users/confirmRegistration");
+            token = UUID.randomUUID().toString();
+        }
+
+        @ParameterizedTest
+        @EnumSource(TestCountry.class)
+        void shouldRejectConfirmationWhenProvidedTokenAlreadyExpired(TestCountry country) throws Exception {
+            Map<String, String> messages = getMessagesAccordingToLocale(country);
+            Locale testedLocale = convertEnumToLocale(country);
+
+            RequestBuilder request = MockMvcRequestBuilders
+                    .get(uri)
+                    .param("token", token)
+                    .header("Accept-Language", testedLocale.toString());
+
+            doThrow(ExpiredTokenException.class).when(userService).verifyRegistrationToken(anyString());
+            String expectedMessage = messages.get("registration.confirmation.token.expired");
+
+            mockMvc.perform(request)
+                    .andDo(print())
+                    .andExpect(status().isUnauthorized())
+                    .andExpect(status().reason(is(expectedMessage)))
+                    .andExpect(result ->
+                            assertThat(result.getResolvedException().getCause())
+                                    .isInstanceOf(ExpiredTokenException.class)
+                    );
+        }
+
+        @ParameterizedTest
+        @EnumSource(TestCountry.class)
+        void shouldRejectConfirmationWhenProvidedTokenIsInvalid(TestCountry country) throws Exception {
+            Map<String, String> messages = getMessagesAccordingToLocale(country);
+            Locale testedLocale = convertEnumToLocale(country);
+
+            RequestBuilder request = MockMvcRequestBuilders
+                    .get(uri)
+                    .param("token", token)
+                    .header("Accept-Language", testedLocale.toString());
+
+            doThrow(InvalidTokenException.class).when(userService).verifyRegistrationToken(anyString());
+            String expectedMessage = messages.get("registration.confirmation.token.invalid");
+
+            mockMvc.perform(request)
+                    .andDo(print())
+                    .andExpect(status().isNotFound())
+                    .andExpect(status().reason(is(expectedMessage)))
+                    .andExpect(result ->
+                            assertThat(result.getResolvedException().getCause())
+                                    .isInstanceOf(InvalidTokenException.class)
+                    );
+        }
+
+        @ParameterizedTest
+        @EnumSource(TestCountry.class)
+        void shouldRejectConfirmationWhenAnErrorOccurred(TestCountry country) throws Exception {
+            Map<String, String> messages = getMessagesAccordingToLocale(country);
+            Locale testedLocale = convertEnumToLocale(country);
+
+            RequestBuilder request = MockMvcRequestBuilders
+                    .get(uri)
+                    .param("token", token)
+                    .header("Accept-Language", testedLocale.toString());
+
+            doThrow(IllegalStateException.class).when(userService).verifyRegistrationToken(anyString());
+            String expectedMessage = messages.get("registration.confirmation.token.error");
+
+            mockMvc.perform(request)
+                    .andDo(print())
+                    .andExpect(status().isInternalServerError())
+                    .andExpect(status().reason(is(expectedMessage)))
+                    .andExpect(result ->
+                            assertThat(result.getResolvedException().getCause())
+                                    .isInstanceOf(IllegalStateException.class)
+                    );
+        }
+
+        @ParameterizedTest
+        @EnumSource(TestCountry.class)
+        void shouldAcceptConfirmationWhenProvidedTokenIsValid(TestCountry country) throws Exception {
+            Map<String, String> messages = getMessagesAccordingToLocale(country);
+            Locale testedLocale = convertEnumToLocale(country);
+
+            RequestBuilder request = MockMvcRequestBuilders
+                    .get(uri)
+                    .param("token", token)
+                    .header("Accept-Language", testedLocale.toString());
+
+            doNothing().when(userService).verifyRegistrationToken(anyString());
+            String expectedMessage = messages.get("registration.confirmation.token.valid");
+
+            mockMvc.perform(request)
+                    .andDo(print())
+                    .andExpect(status().isOk())
+                    .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(jsonPath("$.success").value(is(true)))
+                    .andExpect(jsonPath("$.message").value(is(expectedMessage)))
+                    .andExpect(jsonPath("$.errors", is(anEmptyMap())));
+        }
     }
 }

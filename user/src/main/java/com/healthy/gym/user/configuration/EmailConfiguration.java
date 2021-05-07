@@ -10,19 +10,19 @@ import org.springframework.mail.javamail.JavaMailSenderImpl;
 import java.util.Properties;
 
 @Configuration
-@PropertySource("classpath:email.properties")
+@PropertySource(value = "classpath:email.properties", ignoreResourceNotFound = true)
 public class EmailConfiguration {
 
-    @Value("${spring.mail.host}")
+    @Value("${spring.mail.host:smtp.gmail.com}")
     private String mailHost;
 
-    @Value("${spring.mail.port}")
+    @Value("${spring.mail.port:587}")
     private String mailPort;
 
-    @Value("${spring.mail.username}")
+    @Value("${spring.mail.username:email}")
     private String mailUsername;
 
-    @Value("${spring.mail.password}")
+    @Value("${spring.mail.password:password}")
     private String mailPassword;
 
     @Bean

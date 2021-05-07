@@ -1,14 +1,18 @@
 package com.healthy.gym.trainings.service;
 
+import com.healthy.gym.trainings.config.EmailConfig;
 import com.healthy.gym.trainings.db.GroupTrainingReviewsDbRepository;
 import com.healthy.gym.trainings.db.GroupTrainingsDbRepository;
 import com.healthy.gym.trainings.db.TestRepository;
 import com.healthy.gym.trainings.entity.GroupTrainings;
 import com.healthy.gym.trainings.entity.GroupTrainingsReviews;
 import com.healthy.gym.trainings.exception.*;
+import com.healthy.gym.trainings.model.EmailSendModel;
 import com.healthy.gym.trainings.model.GroupTrainingModel;
 import com.healthy.gym.trainings.model.GroupTrainingsReviewsModel;
 import com.healthy.gym.trainings.model.GroupTrainingsReviewsUpdateModel;
+import com.healthy.gym.trainings.service.email.EmailService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.text.ParseException;
@@ -18,6 +22,10 @@ import java.util.List;
 
 @Service
 public class TrainingsService {
+
+    @Autowired
+    EmailConfig emailConfig;
+
     TestRepository testRepository;
     GroupTrainingsDbRepository groupTrainingsDbRepository;
     GroupTrainingReviewsDbRepository groupTrainingReviewsDbRepository;
@@ -28,6 +36,19 @@ public class TrainingsService {
         this.testRepository = testRepository;
         this.groupTrainingsDbRepository = groupTrainingsDbRepository;
         this.groupTrainingReviewsDbRepository = groupTrainingReviewsDbRepository;
+    }
+
+    private void sendEmailWithoutAttachment(List<String> recipients, String subject, String body){
+        String fromEmail = emailConfig.getEmailName();
+        String personal = emailConfig.getEmailPersonal();
+        String password = emailConfig.getEmailPassword();
+        String filePath = null;
+        EmailSendModel emailSendModel = new EmailSendModel(fromEmail, personal, recipients, password, subject, body, filePath);
+        EmailService emailService = new EmailService();
+        String host = emailConfig.getSmtpHost();
+        String port = emailConfig.getSmtpPort();
+        emailService.overrideDefaultSmptCredentials(host, port);
+        emailService.sendEmailTLS(emailSendModel);
     }
 
     public String getFirstTestDocument(){
@@ -94,16 +115,43 @@ public class TrainingsService {
         return groupTrainingsDbRepository.createTraining(groupTrainingModel);
     }
 
-    public GroupTrainings removeGroupTraining(String trainingId) throws TrainingRemovalException {
+    public GroupTrainings removeGroupTraining(String trainingId) throws TrainingRemovalException, EmailSendingException {
         if (!groupTrainingsDbRepository.isGroupTrainingExist(trainingId))
             throw new TrainingRemovalException("Training with ID: "+ trainingId + " doesn't exist");
-        return groupTrainingsDbRepository.removeTraining(trainingId);
+
+        GroupTrainings result = groupTrainingsDbRepository.removeTraining(trainingId);
+
+        List<String> toEmails = result.getParticipants();
+        String subject = "Training has been deleted";
+        String body = "Training " + result.getTrainingName() + " on " + result.getDate() + " at "+result.getStartTime()+
+                " with "+result.getTrainerId() + " has been deleted.";
+        try{
+            sendEmailWithoutAttachment(toEmails, subject, body);
+        } catch (Exception e){
+            throw new EmailSendingException("Cannot send email");
+        }
+
+
+        return result;
     }
 
-    public GroupTrainings updateGroupTraining(String trainingId, GroupTrainingModel groupTrainingModelRequest) throws TrainingUpdateException {
+    public GroupTrainings updateGroupTraining(String trainingId, GroupTrainingModel groupTrainingModelRequest) throws TrainingUpdateException, EmailSendingException {
         if (!groupTrainingsDbRepository.isGroupTrainingExist(trainingId))
             throw new TrainingUpdateException("Training with ID: "+ trainingId + " doesn't exist");
-        return groupTrainingsDbRepository.updateTraining(trainingId, groupTrainingModelRequest);
+
+        GroupTrainings result = groupTrainingsDbRepository.updateTraining(trainingId, groupTrainingModelRequest);
+
+        List<String> toEmails = result.getParticipants();
+        String subject = "Training has been updated";
+        String body = "Training " + result.getTrainingName() + " on " + result.getDate() + " at "+result.getStartTime()+
+                " with "+result.getTrainerId() + " has been updated.";
+        try{
+            sendEmailWithoutAttachment(toEmails, subject, body);
+        } catch (Exception e){
+            throw new EmailSendingException("Cannot send email");
+        }
+
+        return result;
     }
 
     public List<GroupTrainingsReviews> getGroupTrainingReviews(){

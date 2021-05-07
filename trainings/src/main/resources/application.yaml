@@ -19,3 +19,10 @@ microservice:
   db:
     name: Gym
     collection: GroupTrainings
+  email:
+    name: silownia_herkules@vp.pl
+    password: sample_password1234
+    personal: Siłownia Herkules
+  smtp:
+    host: smtp.poczta.onet.pl
+    port: 587

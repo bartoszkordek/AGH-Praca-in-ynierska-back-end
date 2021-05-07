@@ -21,8 +21,6 @@ public class EmailUtil {
             toEmailsParsed.append(delim).append(i);
             delim = ",";
         }
-        String result = toEmailsParsed.toString();
-        System.out.println(result);
         return toEmailsParsed.toString();
     }
 
@@ -30,7 +28,7 @@ public class EmailUtil {
                                  String subject, String body, String filePath){
         try {
             MimeMessage msg = new MimeMessage(session);
-            //set message headers
+
             msg.addHeader("Content-type", "text/HTML; charset=UTF-8");
             msg.addHeader("format", "flowed");
             msg.addHeader("Content-Transfer-Encoding", "8bit");
@@ -60,10 +58,8 @@ public class EmailUtil {
                 msg.setContent(multipart);
             }
 
-            System.out.println("Message is ready");
             Transport.send(msg);
 
-            System.out.println("Email Sent Successfully!!");
         } catch (MessagingException e){
             e.printStackTrace();
         } catch (UnsupportedEncodingException e){

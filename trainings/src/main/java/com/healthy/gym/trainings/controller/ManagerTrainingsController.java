@@ -2,10 +2,7 @@ package com.healthy.gym.trainings.controller;
 
 import com.healthy.gym.trainings.entity.GroupTrainings;
 import com.healthy.gym.trainings.entity.IndividualTrainings;
-import com.healthy.gym.trainings.exception.RestException;
-import com.healthy.gym.trainings.exception.TrainingCreationException;
-import com.healthy.gym.trainings.exception.TrainingRemovalException;
-import com.healthy.gym.trainings.exception.TrainingUpdateException;
+import com.healthy.gym.trainings.exception.*;
 import com.healthy.gym.trainings.model.GroupTrainingModel;
 import com.healthy.gym.trainings.model.IndividualTrainingsRequestModel;
 import com.healthy.gym.trainings.service.IndividualTrainingsService;
@@ -41,7 +38,7 @@ public class ManagerTrainingsController {
     public GroupTrainings removeGroupTraining(@PathVariable("trainingId") final String trainingId) throws RestException {
         try{
             return trainingsService.removeGroupTraining(trainingId);
-        } catch (TrainingRemovalException e){
+        } catch (TrainingRemovalException | EmailSendingException e){
             throw new RestException(e.getMessage(), HttpStatus.BAD_REQUEST, e);
         }
     }
@@ -51,7 +48,7 @@ public class ManagerTrainingsController {
                                               @Valid @RequestBody GroupTrainingModel groupTrainingModelRequest) throws RestException {
         try{
             return trainingsService.updateGroupTraining(trainingId, groupTrainingModelRequest);
-        } catch (TrainingUpdateException e){
+        } catch (TrainingUpdateException | EmailSendingException e){
             throw new RestException(e.getMessage(), HttpStatus.BAD_REQUEST, e);
         }
     }

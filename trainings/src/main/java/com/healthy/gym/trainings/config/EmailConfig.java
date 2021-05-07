@@ -21,4 +21,12 @@ public class EmailConfig {
     public String getEmailPersonal(){
         return environment.getProperty("microservice.email.personal");
     }
+
+    public String getSmtpHost(){
+        return environment.getProperty("microservice.smtp.host");
+    }
+
+    public String getSmtpPort(){
+        return environment.getProperty("microservice.smtp.port");
+    }
 }

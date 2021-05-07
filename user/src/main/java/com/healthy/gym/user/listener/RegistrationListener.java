@@ -1,6 +1,7 @@
 package com.healthy.gym.user.listener;
 
 import com.healthy.gym.user.component.Translator;
+import com.healthy.gym.user.data.entity.RegistrationToken;
 import com.healthy.gym.user.events.OnRegistrationCompleteEvent;
 import com.healthy.gym.user.service.UserService;
 import com.healthy.gym.user.shared.UserDTO;
@@ -43,7 +44,7 @@ public class RegistrationListener {
         UserDTO user = event.getUserDTO();
         String token = UUID.randomUUID().toString();
 
-        userService.createVerificationToken(user, token);
+        RegistrationToken registrationToken = userService.createRegistrationToken(user, token);
 
         String recipientAddress = user.getEmail();
         String subject = translator.toLocale("mail.registration.confirmation.subject");
@@ -53,7 +54,7 @@ public class RegistrationListener {
         SimpleMailMessage confirmationEmail = new SimpleMailMessage();
         confirmationEmail.setTo(recipientAddress);
         confirmationEmail.setSubject(subject);
-        confirmationEmail.setText(getTextMessage(message, confirmationUrl));
+        confirmationEmail.setText(getTextMessage(message, confirmationUrl, registrationToken));
 
         javaMailSender.send(confirmationEmail);
     }
@@ -67,7 +68,10 @@ public class RegistrationListener {
         return protocol + "://" + host + ":" + port + "/" + homepage + "/confirmRegistration?token=" + token;
     }
 
-    private String getTextMessage(String message, String confirmationUrl) {
-        return message + " " + confirmationUrl;
+    private String getTextMessage(String message, String confirmationUrl, RegistrationToken registrationToken) {
+        String linkExpiresAt = translator.toLocale("mail.registration.confirmation.expiration");
+        return message + "\n" + confirmationUrl + " \n" + linkExpiresAt + " "
+                + registrationToken.getExpiryDate().toLocalDate() + " " +
+                registrationToken.getExpiryDate().toLocalTime();
     }
 }

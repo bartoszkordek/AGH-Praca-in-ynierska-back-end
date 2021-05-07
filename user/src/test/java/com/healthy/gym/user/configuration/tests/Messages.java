@@ -29,7 +29,8 @@ public class Messages {
                 {"registration.confirmation.token.valid", "Poprawnie potwierdzono rejestrację. Możesz się zalogować."},
                 {"mail.registration.confirmation.expiration", "Link wygasa:"},
                 {"mail.registration.confirmation.log-in.exception",
-                        "To konto nie zostało jeszcze aktywowane. Skorzystaj z linku aktywacyjnego przesłanego e-mailem."}
+                        "To konto nie zostało jeszcze aktywowane. Skorzystaj z linku aktywacyjnego przesłanego e-mailem."},
+                {"registration.confirmation.token.error", "Wystąpił błąd podczas rejestracji. Skontaktuj się z administratorem."}
         }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
     }
 
@@ -57,7 +58,8 @@ public class Messages {
                 {"registration.confirmation.token.valid", "Registration successfully confirmed. You can log in."},
                 {"mail.registration.confirmation.expiration", "Link expires:"},
                 {"mail.registration.confirmation.log-in.exception",
-                        "This account has not been activated yet. Please follow the activation link sent to you by e-mail."}
+                        "This account has not been activated yet. Please follow the activation link sent to you by e-mail."},
+                {"registration.confirmation.token.error", "An error occurred while registering. Please contact the administrator."}
         }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
     }
 

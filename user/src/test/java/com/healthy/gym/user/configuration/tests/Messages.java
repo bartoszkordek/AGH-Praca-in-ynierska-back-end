@@ -23,7 +23,10 @@ public class Messages {
                 {"user.logout.token.expired", "Twoja sesja wygasła i nastąpiło automaczne wylogowanie użytkownika."},
                 {"user.logout.invalid.token", "Niepoprawny token uwierzytelniający."},
                 {"mail.registration.confirmation.subject", "Potwierdzenie rerjestracji nowego użytkownika."},
-                {"mail.registration.confirmation.message", "Aby potwierdzić rejestrację w serwisie kliknij w poniższy link:"}
+                {"mail.registration.confirmation.message", "Aby potwierdzić rejestrację w serwisie kliknij w poniższy link:"},
+                {"registration.confirmation.token.expired", "Wygasł token potwierdzający rejestrację. Zarejestruj się jeszcze raz."},
+                {"registration.confirmation.token.invalid", "Wystąpił błąd. Nieprawidłowy token potwierdzający rejestrację."},
+                {"registration.confirmation.token.valid", "Poprawnie potwierdzono rejestrację. Możesz się zalogować."},
         }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
     }
 
@@ -45,7 +48,10 @@ public class Messages {
                 {"user.logout.token.expired", "Your session has expired and the user has been logged out automatically."},
                 {"user.logout.invalid.token", "Invalid token."},
                 {"mail.registration.confirmation.subject", "Confirmation of registration a new user."},
-                {"mail.registration.confirmation.message", "To confirm registration in service click the following link:"}
+                {"mail.registration.confirmation.message", "To confirm registration in service click the following link:"},
+                {"registration.confirmation.token.expired", "The token confirming the registration has expired. Register again."},
+                {"registration.confirmation.token.invalid", "Error occurred. Invalid token confirming registration."},
+                {"registration.confirmation.token.valid", "Registration successfully confirmed. You can log in."}
         }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
     }
 

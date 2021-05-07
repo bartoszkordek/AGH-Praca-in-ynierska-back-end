@@ -59,7 +59,7 @@ jobs:
 
   user:
     name: User service
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repo

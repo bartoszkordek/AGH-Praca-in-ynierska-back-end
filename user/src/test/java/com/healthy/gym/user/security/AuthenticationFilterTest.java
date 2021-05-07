@@ -2,6 +2,7 @@ package com.healthy.gym.user.security;
 
 import com.healthy.gym.user.configuration.tests.TestCountry;
 import com.healthy.gym.user.data.entity.UserEntity;
+import com.healthy.gym.user.data.repository.RegistrationTokenDAO;
 import com.healthy.gym.user.data.repository.UserDAO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -38,6 +39,9 @@ class AuthenticationFilterTest {
 
     @MockBean
     private UserDAO userDAO;
+
+    @MockBean
+    private RegistrationTokenDAO registrationTokenDAO;
 
     @Autowired
     private BCryptPasswordEncoder bCryptPasswordEncoder;

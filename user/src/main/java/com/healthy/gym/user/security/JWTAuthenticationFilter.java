@@ -1,7 +1,8 @@
 package com.healthy.gym.user.security;
 
-import io.jsonwebtoken.Jwts;
-import org.springframework.core.env.Environment;
+import com.healthy.gym.user.component.HttpHeaderParser;
+import com.healthy.gym.user.component.token.TokenValidator;
+import com.healthy.gym.user.component.token.TokenManager;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -12,18 +13,23 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.ArrayList;
 
 public class JWTAuthenticationFilter extends BasicAuthenticationFilter {
 
-    private final Environment environment;
+    private final TokenValidator tokenValidator;
+    private final HttpHeaderParser httpHeaderParser;
+    private final TokenManager tokenManager;
 
     public JWTAuthenticationFilter(
             AuthenticationManager authenticationManager,
-            Environment environment
+            TokenValidator tokenValidator,
+            HttpHeaderParser httpHeaderParser,
+            TokenManager tokenManager
     ) {
         super(authenticationManager);
-        this.environment = environment;
+        this.tokenValidator = tokenValidator;
+        this.httpHeaderParser = httpHeaderParser;
+        this.tokenManager = tokenManager;
     }
 
     @Override
@@ -32,44 +38,25 @@ public class JWTAuthenticationFilter extends BasicAuthenticationFilter {
             HttpServletResponse response,
             FilterChain chain
     ) throws IOException, ServletException {
-        String headerName = environment.getProperty("authorization.token.header.name");
-        if (headerName == null) return;
 
-        String authorizationHeader = request.getHeader(headerName);
-
-        String headerPrefix = environment.getProperty("authorization.token.header.prefix");
-        if (headerPrefix == null) return;
-
-        if (authorizationHeader == null || !authorizationHeader.startsWith(headerPrefix)) {
+        String token = httpHeaderParser.getAuthenticationToken(request);
+        if (token == null) {
             chain.doFilter(request, response);
             return;
         }
 
-        UsernamePasswordAuthenticationToken authenticationToken =
-                getAuthentication(authorizationHeader, headerPrefix);
-        SecurityContextHolder.getContext().setAuthentication(authenticationToken);
-        chain.doFilter(request, response);
-    }
+        try {
+            String tokenPrefix = tokenManager.getTokenPrefix();
+            String signingKey = tokenManager.getSigningKey();
 
-    private UsernamePasswordAuthenticationToken getAuthentication(
-            String authorizationHeader,
-            String headerPrefix
-    ) {
-        String token = authorizationHeader
-                .replace(headerPrefix, "")
-                .trim();
+            UsernamePasswordAuthenticationToken authenticationToken =
+                    tokenValidator.getAuthentication(token, tokenPrefix, signingKey);
 
-        String secretToken = environment.getProperty("token.secret");
-        if (secretToken == null) return null;
-
-        String userId = Jwts.parser()
-                .setSigningKey(secretToken)
-                .parseClaimsJws(token)
-                .getBody()
-                .getSubject();
-
-        if (userId == null) return null;
-
-        return new UsernamePasswordAuthenticationToken(userId, null, new ArrayList<>());
+            SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+        } catch (Exception exception) {
+            exception.printStackTrace();
+        } finally {
+            chain.doFilter(request, response);
+        }
     }
 }

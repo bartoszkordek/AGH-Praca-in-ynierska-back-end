@@ -29,6 +29,9 @@ public class UserEntity {
     @Column(nullable = false, name = "userID", unique = true, updatable = false)
     private String userId;
 
+    @Column(nullable = false)
+    private boolean isEnabled;
+
     public UserEntity() {
         //empty constructor required by JPA
     }
@@ -39,7 +42,8 @@ public class UserEntity {
             String email,
             String phoneNumber,
             String encryptedPassword,
-            String userId
+            String userId,
+            Boolean isEnabled
     ) {
         this.name = name;
         this.surname = surname;
@@ -47,6 +51,7 @@ public class UserEntity {
         this.phoneNumber = phoneNumber;
         this.encryptedPassword = encryptedPassword;
         this.userId = userId;
+        this.isEnabled = isEnabled;
     }
 
     public Long getId() {
@@ -105,6 +110,14 @@ public class UserEntity {
         this.userId = userId;
     }
 
+    public boolean isEnabled() {
+        return isEnabled;
+    }
+
+    public void setEnabled(boolean enabled) {
+        isEnabled = enabled;
+    }
+
     @Override
     public String toString() {
         return "UserEntity{" +
@@ -115,6 +128,7 @@ public class UserEntity {
                 ", phoneNumber='" + phoneNumber + '\'' +
                 ", encryptedPassword='" + encryptedPassword + '\'' +
                 ", userId='" + userId + '\'' +
+                ", isEnabled=" + isEnabled +
                 '}';
     }
 
@@ -123,7 +137,8 @@ public class UserEntity {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         UserEntity that = (UserEntity) o;
-        return Objects.equals(id, that.id)
+        return isEnabled == that.isEnabled
+                && Objects.equals(id, that.id)
                 && Objects.equals(name, that.name)
                 && Objects.equals(surname, that.surname)
                 && Objects.equals(email, that.email)
@@ -134,6 +149,6 @@ public class UserEntity {
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, name, surname, email, phoneNumber, encryptedPassword, userId);
+        return Objects.hash(id, name, surname, email, phoneNumber, encryptedPassword, userId, isEnabled);
     }
 }

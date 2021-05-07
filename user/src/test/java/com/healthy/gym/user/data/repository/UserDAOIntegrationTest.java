@@ -32,7 +32,8 @@ class UserDAOIntegrationTest {
                 "jan.kowalski@test.com",
                 "666 777 888",
                 bCryptPasswordEncoder.encode("password1234"),
-                UUID.randomUUID().toString()
+                UUID.randomUUID().toString(),
+                true
         );
 
         mariaNowakEntity = new UserEntity(
@@ -41,7 +42,8 @@ class UserDAOIntegrationTest {
                 "maria.nowak@test.com",
                 "686 777 888",
                 bCryptPasswordEncoder.encode("password3456"),
-                UUID.randomUUID().toString()
+                UUID.randomUUID().toString(),
+                true
         );
 
         andrzejNowakEntity = new UserEntity(
@@ -50,7 +52,8 @@ class UserDAOIntegrationTest {
                 "andrzej.nowak@test.com",
                 "676 777 888",
                 bCryptPasswordEncoder.encode("password4576"),
-                UUID.randomUUID().toString()
+                UUID.randomUUID().toString(),
+                true
         );
 
         testEntityManager.persist(janKowalskiEntity);

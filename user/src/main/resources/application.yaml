@@ -19,8 +19,22 @@ spring:
       database-platform: org.hibernate.dialect.H2Dialect
   profiles:
     active: production
+  redis:
+    database: 0
+    host: localhost
+    port: 6379
+    test:
+      port: 6380
+    password: thisP@sswordNeed2BeChange
+    timeout: 60000
+  main:
+    allow-bean-definition-overriding: true
 server:
   port: 0
+  error:
+    include-message: always
+    include-stacktrace: never
+    include-exception: false
 
 eureka:
   client:
@@ -39,3 +53,9 @@ authorization:
     header:
       name: Authorization
       prefix: Bearer
+
+front-end:
+  protocol: http
+  host: localhost
+  port: 3000
+  homepage: AGH-Praca-inzynierska-front-end

@@ -34,7 +34,8 @@ class UserEntityTest {
                 "jan.kowalski@test.com",
                 bCryptPasswordEncoder.encode("password1234"),
                 "666 777 888",
-                UUID.randomUUID().toString()
+                UUID.randomUUID().toString(),
+                false
         );
 
         UserEntity mariaNowakEntity = new UserEntity(
@@ -43,7 +44,8 @@ class UserEntityTest {
                 "maria.nowak@test.com",
                 bCryptPasswordEncoder.encode("password3456"),
                 "686 777 888",
-                UUID.randomUUID().toString()
+                UUID.randomUUID().toString(),
+                false
         );
 
         assertThat(janKowalskiEntity).isNotEqualTo(mariaNowakEntity);
@@ -61,7 +63,8 @@ class UserEntityTest {
                 "jan.kowalski@test.com",
                 "666 777 888",
                 password,
-                userID
+                userID,
+                true
         );
 
         UserEntity janKowalskiEntity2 = new UserEntity(
@@ -70,7 +73,8 @@ class UserEntityTest {
                 "jan.kowalski@test.com",
                 "666 777 888",
                 password,
-                userID
+                userID,
+                true
         );
 
         assertThat(janKowalskiEntity1)

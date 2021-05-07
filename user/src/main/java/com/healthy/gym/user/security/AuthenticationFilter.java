@@ -1,5 +1,6 @@
 package com.healthy.gym.user.security;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.healthy.gym.user.component.Translator;
 import com.healthy.gym.user.component.token.TokenManager;
@@ -11,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
@@ -25,9 +27,8 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
@@ -104,28 +105,37 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
         return new Date(currentTime + expirationTime);
     }
 
-
     @Override
     protected void unsuccessfulAuthentication(
             HttpServletRequest request,
             HttpServletResponse response,
             AuthenticationException failed
     ) throws IOException, ServletException {
-        Map<String, String> body = Stream.of(new String[][]{
-                {"timestamp", LocalDateTime.now().toString()},
-                {"status", String.valueOf(response.getStatus())},
-                {"error", "Unauthorized"},
-                {"message", translator.toLocale("user.log-in.fail")},
-                {"path", "/login"}
-        }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
 
-        ObjectMapper objectMapper = new ObjectMapper();
-        String bodyAsString = objectMapper.writeValueAsString(body);
+        String message = translator.toLocale("user.log-in.fail");
+
+        if (failed instanceof DisabledException) {
+            message = translator.toLocale("mail.registration.confirmation.log-in.exception");
+        }
+
+        String body = getResponseBody(message);
 
         response.setStatus(HttpStatus.UNAUTHORIZED.value());
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.setCharacterEncoding("UTF-8");
         response.setLocale(LocaleContextHolder.getLocale());
-        response.getWriter().println(bodyAsString);
+        response.getWriter().println(body);
+    }
+
+    private String getResponseBody(String message) throws JsonProcessingException {
+        Map<String, String> body = new HashMap<>();
+        body.put("timestamp", LocalDateTime.now().toString());
+        body.put("status", String.valueOf(HttpStatus.UNAUTHORIZED.value()));
+        body.put("error", HttpStatus.UNAUTHORIZED.getReasonPhrase());
+        body.put("message", message);
+        body.put("path", "/login");
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        return objectMapper.writeValueAsString(body);
     }
 }

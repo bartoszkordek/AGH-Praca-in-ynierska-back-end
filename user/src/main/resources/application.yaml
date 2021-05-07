@@ -31,6 +31,10 @@ spring:
     allow-bean-definition-overriding: true
 server:
   port: 0
+  error:
+    include-message: always
+    include-stacktrace: never
+    include-exception: false
 
 eureka:
   client:
@@ -55,4 +59,3 @@ front-end:
   host: localhost
   port: 3000
   homepage: AGH-Praca-inzynierska-front-end
-

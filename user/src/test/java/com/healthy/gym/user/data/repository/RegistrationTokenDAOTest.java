@@ -11,6 +11,7 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
+import java.util.List;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -152,6 +153,21 @@ class RegistrationTokenDAOTest {
             void shouldReturnRegistrationTokenEntityWithProperExpiryDate() {
                 assertThat(foundToken.getExpiryDate()).isEqualTo(registrationToken.getExpiryDate());
             }
+        }
+    }
+
+    @Nested
+    @DataJpaTest
+    class WhenSaveIsCalled {
+
+        @Test
+        void shouldSaveRegisterTokenInDB() {
+            RegistrationToken token = new RegistrationToken(testToken, andrzejNowakEntity);
+            registrationTokenDAO.save(token);
+
+            List<RegistrationToken> allTokens = registrationTokenDAO.findAll();
+
+            assertThat(allTokens.contains(token)).isTrue();
         }
     }
 }

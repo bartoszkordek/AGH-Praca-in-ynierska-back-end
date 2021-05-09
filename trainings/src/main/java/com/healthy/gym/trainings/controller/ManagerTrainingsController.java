@@ -29,7 +29,7 @@ public class ManagerTrainingsController {
     public GroupTrainings createGroupTraining(@Valid @RequestBody GroupTrainingModel groupTrainingModel) throws RestException {
         try{
             return trainingsService.createGroupTraining(groupTrainingModel);
-        } catch (TrainingCreationException | ParseException e){
+        } catch (TrainingCreationException | InvalidHourException |ParseException e){
             throw new RestException(e.getMessage(), HttpStatus.BAD_REQUEST, e);
         }
     }
@@ -48,7 +48,7 @@ public class ManagerTrainingsController {
                                               @Valid @RequestBody GroupTrainingModel groupTrainingModelRequest) throws RestException {
         try{
             return trainingsService.updateGroupTraining(trainingId, groupTrainingModelRequest);
-        } catch (TrainingUpdateException | EmailSendingException e){
+        } catch (TrainingUpdateException | InvalidHourException | EmailSendingException e){
             throw new RestException(e.getMessage(), HttpStatus.BAD_REQUEST, e);
         }
     }

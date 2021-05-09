@@ -2,6 +2,7 @@ package com.healthy.gym.trainings.db;
 
 import com.healthy.gym.trainings.config.MongoConfig;
 import com.healthy.gym.trainings.entity.GroupTrainings;
+import com.healthy.gym.trainings.exception.InvalidHourException;
 import com.healthy.gym.trainings.model.GroupTrainingModel;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
@@ -172,7 +173,7 @@ public class GroupTrainingsDbRepository {
         return !collection.aggregate(pipeline).cursor().hasNext();
     }
 
-    public GroupTrainings createTraining(GroupTrainingModel groupTrainingModel){
+    public GroupTrainings createTraining(GroupTrainingModel groupTrainingModel) throws InvalidHourException {
         GroupTrainings response = groupTrainingsRepository.insert(new GroupTrainings(
                 groupTrainingModel.getTrainingName(),
                 groupTrainingModel.getTrainerId(),
@@ -193,7 +194,7 @@ public class GroupTrainingsDbRepository {
         return groupTrainings;
     }
 
-    public GroupTrainings updateTraining(String trainingId, GroupTrainingModel groupTrainingModelRequest){
+    public GroupTrainings updateTraining(String trainingId, GroupTrainingModel groupTrainingModelRequest) throws InvalidHourException {
         boolean ifExistGroupTraining = groupTrainingsRepository.existsById(trainingId);
 
         GroupTrainings groupTrainings = null;

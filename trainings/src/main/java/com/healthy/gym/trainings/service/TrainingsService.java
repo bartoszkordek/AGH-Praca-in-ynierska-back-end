@@ -108,7 +108,7 @@ public class TrainingsService {
         }
     }
 
-    public GroupTrainings createGroupTraining(GroupTrainingModel groupTrainingModel) throws TrainingCreationException, ParseException {
+    public GroupTrainings createGroupTraining(GroupTrainingModel groupTrainingModel) throws TrainingCreationException, ParseException, InvalidHourException {
         if(!groupTrainingsDbRepository.isAbilityToCreateTraining(groupTrainingModel))
             throw new TrainingCreationException("Cannot create new group training");
 
@@ -135,7 +135,7 @@ public class TrainingsService {
         return result;
     }
 
-    public GroupTrainings updateGroupTraining(String trainingId, GroupTrainingModel groupTrainingModelRequest) throws TrainingUpdateException, EmailSendingException {
+    public GroupTrainings updateGroupTraining(String trainingId, GroupTrainingModel groupTrainingModelRequest) throws TrainingUpdateException, EmailSendingException, InvalidHourException {
         if (!groupTrainingsDbRepository.isGroupTrainingExist(trainingId))
             throw new TrainingUpdateException("Training with ID: "+ trainingId + " doesn't exist");
 

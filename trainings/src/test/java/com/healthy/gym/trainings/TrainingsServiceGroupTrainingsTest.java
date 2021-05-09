@@ -1,11 +1,12 @@
 package com.healthy.gym.trainings;
 
-import com.healthy.gym.trainings.db.GroupTrainingReviewsDbRepository;
 import com.healthy.gym.trainings.db.GroupTrainingsDbRepository;
 import com.healthy.gym.trainings.entity.GroupTrainings;
+import com.healthy.gym.trainings.exception.InvalidHourException;
 import com.healthy.gym.trainings.exception.NotExistingGroupTrainingException;
 import com.healthy.gym.trainings.exception.TrainingEnrollmentException;
 import com.healthy.gym.trainings.mock.TrainingsServiceGroupTrainingsImpl;
+import com.healthy.gym.trainings.model.GroupTrainingModel;
 import com.healthy.gym.trainings.service.TrainingsService;
 import org.junit.Before;
 import org.junit.Test;
@@ -45,7 +46,7 @@ public class TrainingsServiceGroupTrainingsTest {
     private GroupTrainingsDbRepository groupTrainingsDbRepository;
 
     @Before
-    public void setUp() throws NotExistingGroupTrainingException, TrainingEnrollmentException {
+    public void setUp() throws InvalidHourException {
         List<GroupTrainings> trainingsList = new ArrayList<>();
         List<String> participantsTraining1 = new ArrayList<>();
         List<String> reserveListTraining1 = new ArrayList<>();
@@ -178,5 +179,4 @@ public class TrainingsServiceGroupTrainingsTest {
                 .removeGroupTrainingEnrollment(invalidTrainingId,validClientId);
         trainingsService.removeGroupTrainingEnrollment(invalidTrainingId,validClientId);
     }
-
 }

@@ -5,19 +5,18 @@ import com.healthy.gym.trainings.db.GroupTrainingsDbRepository;
 import com.healthy.gym.trainings.db.TestRepository;
 import com.healthy.gym.trainings.entity.GroupTrainingsReviews;
 import com.healthy.gym.trainings.exception.NotAuthorizedClientException;
-import com.healthy.gym.trainings.exception.NotExistingGroupTrainingException;
 import com.healthy.gym.trainings.exception.NotExistingGroupTrainingReviewException;
 import com.healthy.gym.trainings.exception.StarsOutOfRangeException;
 import com.healthy.gym.trainings.model.GroupTrainingsReviewsUpdateModel;
-import com.healthy.gym.trainings.service.TrainingsService;
+import com.healthy.gym.trainings.service.GroupTrainingsService;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
 
-public class TrainingsServiceGroupTrainingsReviewsImpl extends TrainingsService {
-    public TrainingsServiceGroupTrainingsReviewsImpl(TestRepository testRepository,
-                                                     GroupTrainingsDbRepository groupTrainingsDbRepository,
-                                                     GroupTrainingReviewsDbRepository groupTrainingReviewsDbRepository) {
+public class TrainingsServiceGroupGroupTrainingsReviewsImpl extends GroupTrainingsService {
+    public TrainingsServiceGroupGroupTrainingsReviewsImpl(TestRepository testRepository,
+                                                          GroupTrainingsDbRepository groupTrainingsDbRepository,
+                                                          GroupTrainingReviewsDbRepository groupTrainingReviewsDbRepository) {
         super(testRepository, groupTrainingsDbRepository, groupTrainingReviewsDbRepository);
     }
 

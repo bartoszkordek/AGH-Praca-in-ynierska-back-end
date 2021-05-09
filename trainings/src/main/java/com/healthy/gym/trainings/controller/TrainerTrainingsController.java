@@ -4,7 +4,7 @@ import com.healthy.gym.trainings.entity.IndividualTrainings;
 import com.healthy.gym.trainings.exception.*;
 import com.healthy.gym.trainings.model.IndividualTrainingsAcceptModel;
 import com.healthy.gym.trainings.service.IndividualTrainingsService;
-import com.healthy.gym.trainings.service.TrainingsService;
+import com.healthy.gym.trainings.service.GroupTrainingsService;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -14,18 +14,18 @@ import java.util.List;
 @RestController
 public class TrainerTrainingsController {
 
-    TrainingsService trainingsService;
+    GroupTrainingsService groupTrainingsService;
     IndividualTrainingsService individualTrainingsService;
 
-    public TrainerTrainingsController(TrainingsService trainingsService, IndividualTrainingsService individualTrainingsService){
-        this.trainingsService = trainingsService;
+    public TrainerTrainingsController(GroupTrainingsService groupTrainingsService, IndividualTrainingsService individualTrainingsService){
+        this.groupTrainingsService = groupTrainingsService;
         this.individualTrainingsService = individualTrainingsService;
     }
 
     @GetMapping("/group/{trainingId}/participants")
     public List<String> getTrainingParticipants(@PathVariable("trainingId") final String trainingId) throws RestException {
         try{
-            return trainingsService.getTrainingParticipants(trainingId);
+            return groupTrainingsService.getTrainingParticipants(trainingId);
         } catch (NotExistingGroupTrainingException e){
             throw new RestException(e.getMessage(), HttpStatus.BAD_REQUEST, e);
         }

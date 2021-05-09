@@ -1,14 +1,15 @@
 package com.healthy.gym.trainings;
 
+import com.healthy.gym.trainings.config.EmailConfig;
 import com.healthy.gym.trainings.db.GroupTrainingReviewsDbRepository;
 import com.healthy.gym.trainings.entity.GroupTrainingsReviews;
 import com.healthy.gym.trainings.exception.NotAuthorizedClientException;
 import com.healthy.gym.trainings.exception.NotExistingGroupTrainingReviewException;
 import com.healthy.gym.trainings.exception.StarsOutOfRangeException;
-import com.healthy.gym.trainings.mock.TrainingsServiceGroupTrainingsReviewsImpl;
+import com.healthy.gym.trainings.mock.TrainingsServiceGroupGroupTrainingsReviewsImpl;
 import com.healthy.gym.trainings.model.GroupTrainingsReviewsModel;
 import com.healthy.gym.trainings.model.GroupTrainingsReviewsUpdateModel;
-import com.healthy.gym.trainings.service.TrainingsService;
+import com.healthy.gym.trainings.service.GroupTrainingsService;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -25,7 +26,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
 @RunWith(SpringRunner.class)
-public class TrainingsServiceGroupTrainingsReviewsTest {
+public class TrainingsServiceGroupGroupTrainingsReviewsTest {
 
     private final String validReviewId = "111111111111111111111111";
     private final String invalidReviewId = "999999999999999999999999";
@@ -48,13 +49,17 @@ public class TrainingsServiceGroupTrainingsReviewsTest {
     static class TrainingsReviewServiceImplTestContextConfiguration {
 
         @Bean
-        public TrainingsService trainingsReviewsService() {
-            return new TrainingsServiceGroupTrainingsReviewsImpl(null, null, null);
+        public GroupTrainingsService trainingsReviewsService() {
+            return new TrainingsServiceGroupGroupTrainingsReviewsImpl(null, null, null);
+        }
+        @Bean
+        EmailConfig emailConfig(){
+            return new EmailConfig();
         }
     }
 
     @Autowired
-    TrainingsService trainingsService;
+    GroupTrainingsService groupTrainingsService;
 
     @MockBean
     private GroupTrainingReviewsDbRepository groupTrainingReviewsDbRepository;
@@ -111,23 +116,23 @@ public class TrainingsServiceGroupTrainingsReviewsTest {
 
     @Test
     public void shouldReturnFirstReviewTrainingName_whenValidRequest() {
-        assertThat(trainingsService.getGroupTrainingReviews().get(0).getTrainingName())
+        assertThat(groupTrainingsService.getGroupTrainingReviews().get(0).getTrainingName())
                 .isEqualTo("Zumba");
     }
 
     @Test
     public void shouldReturnValidReviewTrainingName_whenValidReviewId() throws NotExistingGroupTrainingReviewException {
-        assertThat(trainingsService.getGroupTrainingReviewById(validReviewId).getTrainingName())
+        assertThat(groupTrainingsService.getGroupTrainingReviewById(validReviewId).getTrainingName())
                 .isEqualTo("Zumba");
     }
 
     @Test(expected = NotExistingGroupTrainingReviewException.class)
     public void shouldReturnNotExistingGroupTrainingException_whenInvalidReviewId() throws NotExistingGroupTrainingReviewException {
-        TrainingsService trainingsService = mock(TrainingsService.class);
+        GroupTrainingsService groupTrainingsService = mock(GroupTrainingsService.class);
         doThrow(NotExistingGroupTrainingReviewException.class)
-                .when(trainingsService)
+                .when(groupTrainingsService)
                 .getGroupTrainingReviewById(invalidReviewId);
-        trainingsService.getGroupTrainingReviewById(invalidReviewId);
+        groupTrainingsService.getGroupTrainingReviewById(invalidReviewId);
     }
 
     @Test
@@ -143,17 +148,17 @@ public class TrainingsServiceGroupTrainingsReviewsTest {
         groupTrainingsReviewsSampleAfterUpdate.setId(validReviewIdToUpdate);
 
         //then
-        assertThat(trainingsService.updateGroupTrainingReview(groupTrainingsReviewsUpdateModel,validReviewIdToUpdate,validClientId).getId())
+        assertThat(groupTrainingsService.updateGroupTrainingReview(groupTrainingsReviewsUpdateModel,validReviewIdToUpdate,validClientId).getId())
                 .isEqualTo(groupTrainingsReviewsSampleAfterUpdate.getId());
-        assertThat(trainingsService.updateGroupTrainingReview(groupTrainingsReviewsUpdateModel,validReviewIdToUpdate,validClientId).getTrainingName())
+        assertThat(groupTrainingsService.updateGroupTrainingReview(groupTrainingsReviewsUpdateModel,validReviewIdToUpdate,validClientId).getTrainingName())
                 .isEqualTo(groupTrainingsReviewsSampleAfterUpdate.getTrainingName());
-        assertThat(trainingsService.updateGroupTrainingReview(groupTrainingsReviewsUpdateModel,validReviewIdToUpdate,validClientId).getClientId())
+        assertThat(groupTrainingsService.updateGroupTrainingReview(groupTrainingsReviewsUpdateModel,validReviewIdToUpdate,validClientId).getClientId())
                 .isEqualTo(groupTrainingsReviewsSampleAfterUpdate.getClientId());
-        assertThat(trainingsService.updateGroupTrainingReview(groupTrainingsReviewsUpdateModel,validReviewIdToUpdate,validClientId).getDate())
+        assertThat(groupTrainingsService.updateGroupTrainingReview(groupTrainingsReviewsUpdateModel,validReviewIdToUpdate,validClientId).getDate())
                 .isEqualTo(groupTrainingsReviewsSampleAfterUpdate.getDate());
-        assertThat(trainingsService.updateGroupTrainingReview(groupTrainingsReviewsUpdateModel,validReviewIdToUpdate,validClientId).getStars())
+        assertThat(groupTrainingsService.updateGroupTrainingReview(groupTrainingsReviewsUpdateModel,validReviewIdToUpdate,validClientId).getStars())
                 .isEqualTo(groupTrainingsReviewsSampleAfterUpdate.getStars());
-        assertThat(trainingsService.updateGroupTrainingReview(groupTrainingsReviewsUpdateModel,validReviewIdToUpdate,validClientId).getText())
+        assertThat(groupTrainingsService.updateGroupTrainingReview(groupTrainingsReviewsUpdateModel,validReviewIdToUpdate,validClientId).getText())
                 .isEqualTo(groupTrainingsReviewsSampleAfterUpdate.getText());
     }
 
@@ -170,11 +175,11 @@ public class TrainingsServiceGroupTrainingsReviewsTest {
         groupTrainingsReviewsSampleAfterUpdate.setId(validReviewIdToUpdate);
 
         //then
-        TrainingsService trainingsService = mock(TrainingsService.class);
+        GroupTrainingsService groupTrainingsService = mock(GroupTrainingsService.class);
         doThrow(NotAuthorizedClientException.class)
-                .when(trainingsService)
+                .when(groupTrainingsService)
                 .updateGroupTrainingReview(groupTrainingsReviewsUpdateModel,validReviewIdToUpdate,validClientId);
-        trainingsService.updateGroupTrainingReview(groupTrainingsReviewsUpdateModel,validReviewIdToUpdate,validClientId);
+        groupTrainingsService.updateGroupTrainingReview(groupTrainingsReviewsUpdateModel,validReviewIdToUpdate,validClientId);
     }
 
     @Test(expected = NotExistingGroupTrainingReviewException.class)
@@ -190,11 +195,11 @@ public class TrainingsServiceGroupTrainingsReviewsTest {
         groupTrainingsReviewsSampleAfterUpdate.setId(validReviewIdToUpdate);
 
         //then
-        TrainingsService trainingsService = mock(TrainingsService.class);
+        GroupTrainingsService groupTrainingsService = mock(GroupTrainingsService.class);
         doThrow(NotExistingGroupTrainingReviewException.class)
-                .when(trainingsService)
+                .when(groupTrainingsService)
                 .updateGroupTrainingReview(groupTrainingsReviewsUpdateModel,invalidReviewId,validClientId);
-        trainingsService.updateGroupTrainingReview(groupTrainingsReviewsUpdateModel,invalidReviewId,validClientId);
+        groupTrainingsService.updateGroupTrainingReview(groupTrainingsReviewsUpdateModel,invalidReviewId,validClientId);
     }
 
     @Test(expected = StarsOutOfRangeException.class)
@@ -210,10 +215,10 @@ public class TrainingsServiceGroupTrainingsReviewsTest {
         groupTrainingsReviewsSampleAfterUpdate.setId(validReviewIdToUpdate);
 
         //then
-        TrainingsService trainingsService = mock(TrainingsService.class);
+        GroupTrainingsService groupTrainingsService = mock(GroupTrainingsService.class);
         doThrow(StarsOutOfRangeException.class)
-                .when(trainingsService)
+                .when(groupTrainingsService)
                 .updateGroupTrainingReview(groupTrainingsReviewsUpdateModel,validReviewIdToUpdate,validClientId);
-        trainingsService.updateGroupTrainingReview(groupTrainingsReviewsUpdateModel,validReviewIdToUpdate,validClientId);
+        groupTrainingsService.updateGroupTrainingReview(groupTrainingsReviewsUpdateModel,validReviewIdToUpdate,validClientId);
     }
 }

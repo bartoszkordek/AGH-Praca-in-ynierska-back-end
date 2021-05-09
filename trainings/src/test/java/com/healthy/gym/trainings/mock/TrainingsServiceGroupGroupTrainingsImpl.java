@@ -1,19 +1,20 @@
 package com.healthy.gym.trainings.mock;
 
+import com.healthy.gym.trainings.config.EmailConfig;
 import com.healthy.gym.trainings.db.GroupTrainingReviewsDbRepository;
 import com.healthy.gym.trainings.db.GroupTrainingsDbRepository;
 import com.healthy.gym.trainings.db.TestRepository;
 import com.healthy.gym.trainings.entity.GroupTrainings;
 import com.healthy.gym.trainings.exception.NotExistingGroupTrainingException;
 import com.healthy.gym.trainings.exception.TrainingEnrollmentException;
-import com.healthy.gym.trainings.service.TrainingsService;
+import com.healthy.gym.trainings.service.GroupTrainingsService;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
 
-public class TrainingsServiceGroupTrainingsImpl extends TrainingsService {
+public class TrainingsServiceGroupGroupTrainingsImpl extends GroupTrainingsService {
 
-    public TrainingsServiceGroupTrainingsImpl(
+    public TrainingsServiceGroupGroupTrainingsImpl(
             TestRepository testRepository,
             GroupTrainingsDbRepository groupTrainingsDbRepository,
             GroupTrainingReviewsDbRepository groupTrainingReviewsDbRepository) {

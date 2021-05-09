@@ -7,7 +7,7 @@ import com.healthy.gym.trainings.model.GroupTrainingsReviewsModel;
 import com.healthy.gym.trainings.model.GroupTrainingsReviewsUpdateModel;
 import com.healthy.gym.trainings.model.IndividualTrainingsRequestModel;
 import com.healthy.gym.trainings.service.IndividualTrainingsService;
-import com.healthy.gym.trainings.service.TrainingsService;
+import com.healthy.gym.trainings.service.GroupTrainingsService;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,11 +17,11 @@ import java.util.List;
 @RestController
 public class SignedClientTrainingsController {
 
-    TrainingsService trainingsService;
+    GroupTrainingsService groupTrainingsService;
     IndividualTrainingsService individualTrainingsService;
 
-    public SignedClientTrainingsController(TrainingsService trainingsService, IndividualTrainingsService individualTrainingsService){
-        this.trainingsService = trainingsService;
+    public SignedClientTrainingsController(GroupTrainingsService groupTrainingsService, IndividualTrainingsService individualTrainingsService){
+        this.groupTrainingsService = groupTrainingsService;
         this.individualTrainingsService = individualTrainingsService;
     }
 
@@ -29,7 +29,7 @@ public class SignedClientTrainingsController {
     public void enrollToGroupTraining(@PathVariable("trainingId") final String trainingId,
                                       @RequestParam(required = true) final String clientId) throws RestException {
         try{
-            trainingsService.enrollToGroupTraining(trainingId, clientId);
+            groupTrainingsService.enrollToGroupTraining(trainingId, clientId);
         } catch (TrainingEnrollmentException e){
             throw new RestException(e.getMessage(), HttpStatus.BAD_REQUEST, e);
         }
@@ -40,7 +40,7 @@ public class SignedClientTrainingsController {
     public void addToReserveList(@PathVariable("trainingId") final String trainingId,
                                  @RequestParam(required = true) final String clientId) throws RestException {
         try{
-            trainingsService.addToReserveList(trainingId, clientId);
+            groupTrainingsService.addToReserveList(trainingId, clientId);
         } catch (NotExistingGroupTrainingException | TrainingEnrollmentException e){
             throw new RestException(e.getMessage(), HttpStatus.BAD_REQUEST, e);
         }
@@ -50,7 +50,7 @@ public class SignedClientTrainingsController {
     public void removeGroupTrainingEnrollment(@PathVariable("trainingId") final String trainingId,
                                               @RequestParam(required = true) final String clientId) throws RestException {
         try{
-            trainingsService.removeGroupTrainingEnrollment(trainingId, clientId);
+            groupTrainingsService.removeGroupTrainingEnrollment(trainingId, clientId);
         } catch (NotExistingGroupTrainingException | TrainingEnrollmentException e){
             throw new RestException(e.getMessage(), HttpStatus.BAD_REQUEST, e);
         }
@@ -58,13 +58,13 @@ public class SignedClientTrainingsController {
 
     @GetMapping("/group/reviews/all")
     public List<GroupTrainingsReviews> getGroupTrainingReviews(){
-        return trainingsService.getGroupTrainingReviews();
+        return groupTrainingsService.getGroupTrainingReviews();
     }
 
     @GetMapping("/group/reviews/{reviewId}")
     public GroupTrainingsReviews getGroupTrainingReviewById(@PathVariable("reviewId") final String reviewId) throws RestException {
         try{
-            return trainingsService.getGroupTrainingReviewById(reviewId);
+            return groupTrainingsService.getGroupTrainingReviewById(reviewId);
         } catch (NotExistingGroupTrainingReviewException e){
             throw new RestException(e.getMessage(), HttpStatus.BAD_REQUEST, e);
         }
@@ -74,7 +74,7 @@ public class SignedClientTrainingsController {
     public GroupTrainingsReviews createGroupTrainingReview(@Valid @RequestBody GroupTrainingsReviewsModel groupTrainingsReviews,
                                                            @RequestParam(required = true) final String clientId) throws RestException {
         try{
-            return trainingsService.createGroupTrainingReview(groupTrainingsReviews, clientId);
+            return groupTrainingsService.createGroupTrainingReview(groupTrainingsReviews, clientId);
         } catch(StarsOutOfRangeException e){
             throw new RestException(e.getMessage(), HttpStatus.BAD_REQUEST, e);
         }
@@ -84,7 +84,7 @@ public class SignedClientTrainingsController {
     public GroupTrainingsReviews removeGroupTrainingReview(@PathVariable("reviewId") final String reviewId,
                                                            @RequestParam(required = true) final String clientId) throws RestException {
         try{
-            return trainingsService.removeGroupTrainingReview(reviewId, clientId);
+            return groupTrainingsService.removeGroupTrainingReview(reviewId, clientId);
         } catch (NotExistingGroupTrainingReviewException e){
             throw new RestException(e.getMessage(), HttpStatus.BAD_REQUEST, e);
         } catch (NotAuthorizedClientException e){
@@ -97,7 +97,7 @@ public class SignedClientTrainingsController {
                                                            @PathVariable("reviewId") final String reviewId,
                                                            @RequestParam(required = true) final String clientId) throws RestException {
         try{
-            return trainingsService.updateGroupTrainingReview(groupTrainingsReviewsUpdateModel, reviewId, clientId);
+            return groupTrainingsService.updateGroupTrainingReview(groupTrainingsReviewsUpdateModel, reviewId, clientId);
         } catch (NotExistingGroupTrainingReviewException | StarsOutOfRangeException e){
             throw new RestException(e.getMessage(), HttpStatus.BAD_REQUEST, e);
         } catch (NotAuthorizedClientException e){

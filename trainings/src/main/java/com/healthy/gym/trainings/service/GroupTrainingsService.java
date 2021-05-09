@@ -7,10 +7,7 @@ import com.healthy.gym.trainings.db.TestRepository;
 import com.healthy.gym.trainings.entity.GroupTrainings;
 import com.healthy.gym.trainings.entity.GroupTrainingsReviews;
 import com.healthy.gym.trainings.exception.*;
-import com.healthy.gym.trainings.model.EmailSendModel;
-import com.healthy.gym.trainings.model.GroupTrainingModel;
-import com.healthy.gym.trainings.model.GroupTrainingsReviewsModel;
-import com.healthy.gym.trainings.model.GroupTrainingsReviewsUpdateModel;
+import com.healthy.gym.trainings.model.*;
 import com.healthy.gym.trainings.service.email.EmailService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -21,18 +18,17 @@ import java.util.Date;
 import java.util.List;
 
 @Service
-public class TrainingsService {
+public class GroupTrainingsService {
 
     @Autowired
     EmailConfig emailConfig;
-
     TestRepository testRepository;
     GroupTrainingsDbRepository groupTrainingsDbRepository;
     GroupTrainingReviewsDbRepository groupTrainingReviewsDbRepository;
 
-    public TrainingsService(TestRepository testRepository,
-                            GroupTrainingsDbRepository groupTrainingsDbRepository,
-                            GroupTrainingReviewsDbRepository groupTrainingReviewsDbRepository){
+    public GroupTrainingsService(TestRepository testRepository,
+                                 GroupTrainingsDbRepository groupTrainingsDbRepository,
+                                 GroupTrainingReviewsDbRepository groupTrainingReviewsDbRepository){
         this.testRepository = testRepository;
         this.groupTrainingsDbRepository = groupTrainingsDbRepository;
         this.groupTrainingReviewsDbRepository = groupTrainingReviewsDbRepository;

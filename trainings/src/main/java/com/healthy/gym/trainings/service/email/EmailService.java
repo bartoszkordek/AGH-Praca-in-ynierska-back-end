@@ -6,7 +6,6 @@ import org.springframework.stereotype.Service;
 @Service
 public class EmailService {
 
-
     private String defaultSmptHost = "smtp.poczta.onet.pl";
     private String defaultSmptPort = "587";
 

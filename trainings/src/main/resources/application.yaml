@@ -20,8 +20,8 @@ microservice:
     name: Gym
     collection: GroupTrainings
   email:
-    name: silownia_herkules@vp.pl
-    password: sample_password1234
+    name: vir00z_91@vp.pl
+    password: bk0106
     personal: Siłownia Herkules
   smtp:
     host: smtp.poczta.onet.pl

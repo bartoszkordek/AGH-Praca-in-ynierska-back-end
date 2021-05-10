@@ -4,6 +4,7 @@ import com.healthy.gym.user.configuration.tests.TestCountry;
 import com.healthy.gym.user.exceptions.token.ExpiredTokenException;
 import com.healthy.gym.user.exceptions.token.InvalidTokenException;
 import com.healthy.gym.user.listener.RegistrationListener;
+import com.healthy.gym.user.service.TokenService;
 import com.healthy.gym.user.service.UserService;
 import com.healthy.gym.user.shared.UserDTO;
 import org.junit.jupiter.api.BeforeEach;
@@ -48,6 +49,9 @@ class UserControllerTest {
 
     @MockBean
     private UserService userService;
+
+    @MockBean
+    private TokenService tokenService;
 
     @MockBean
     private RegistrationListener registrationListener;
@@ -326,7 +330,7 @@ class UserControllerTest {
                     .param("token", token)
                     .header("Accept-Language", testedLocale.toString());
 
-            doThrow(ExpiredTokenException.class).when(userService).verifyRegistrationToken(anyString());
+            doThrow(ExpiredTokenException.class).when(tokenService).verifyRegistrationToken(anyString());
             String expectedMessage = messages.get("registration.confirmation.token.expired");
 
             mockMvc.perform(request)
@@ -350,7 +354,7 @@ class UserControllerTest {
                     .param("token", token)
                     .header("Accept-Language", testedLocale.toString());
 
-            doThrow(InvalidTokenException.class).when(userService).verifyRegistrationToken(anyString());
+            doThrow(InvalidTokenException.class).when(tokenService).verifyRegistrationToken(anyString());
             String expectedMessage = messages.get("registration.confirmation.token.invalid");
 
             mockMvc.perform(request)
@@ -374,7 +378,7 @@ class UserControllerTest {
                     .param("token", token)
                     .header("Accept-Language", testedLocale.toString());
 
-            doThrow(IllegalStateException.class).when(userService).verifyRegistrationToken(anyString());
+            doThrow(IllegalStateException.class).when(tokenService).verifyRegistrationToken(anyString());
             String expectedMessage = messages.get("registration.confirmation.token.error");
 
             mockMvc.perform(request)
@@ -398,7 +402,7 @@ class UserControllerTest {
                     .param("token", token)
                     .header("Accept-Language", testedLocale.toString());
 
-            doNothing().when(userService).verifyRegistrationToken(anyString());
+            doNothing().when(tokenService).verifyRegistrationToken(anyString());
             String expectedMessage = messages.get("registration.confirmation.token.valid");
 
             mockMvc.perform(request)

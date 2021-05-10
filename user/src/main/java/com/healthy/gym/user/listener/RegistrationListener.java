@@ -1,15 +1,13 @@
 package com.healthy.gym.user.listener;
 
-import com.healthy.gym.user.component.Translator;
+import com.healthy.gym.user.component.MailMessageManager;
 import com.healthy.gym.user.data.entity.RegistrationToken;
 import com.healthy.gym.user.events.OnRegistrationCompleteEvent;
 import com.healthy.gym.user.service.TokenService;
 import com.healthy.gym.user.shared.UserDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.context.MessageSource;
 import org.springframework.context.event.EventListener;
-import org.springframework.core.env.Environment;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.scheduling.annotation.Async;
@@ -20,22 +18,18 @@ import java.util.UUID;
 @Component
 public class RegistrationListener {
     private final TokenService tokenService;
-    private final Translator translator;
     private final JavaMailSender javaMailSender;
-    private final Environment environment;
+    private final MailMessageManager mailMessageManager;
 
     @Autowired
     public RegistrationListener(
             TokenService tokenService,
-            MessageSource messageSource,
-            Translator translator,
             @Qualifier("getJavaMailSender") JavaMailSender javaMailSender,
-            Environment environment
+            MailMessageManager mailMessageManager
     ) {
         this.tokenService = tokenService;
-        this.translator = translator;
         this.javaMailSender = javaMailSender;
-        this.environment = environment;
+        this.mailMessageManager = mailMessageManager;
     }
 
     @Async
@@ -46,32 +40,22 @@ public class RegistrationListener {
 
         RegistrationToken registrationToken = tokenService.createRegistrationToken(user, token);
 
-        String recipientAddress = user.getEmail();
-        String subject = translator.toLocale("mail.registration.confirmation.subject");
-        String confirmationUrl = getConfirmationUrl(token);
-        String message = translator.toLocale("mail.registration.confirmation.message");
-
-        SimpleMailMessage confirmationEmail = new SimpleMailMessage();
-        confirmationEmail.setTo(recipientAddress);
-        confirmationEmail.setSubject(subject);
-        confirmationEmail.setText(getTextMessage(message, confirmationUrl, registrationToken));
+        SimpleMailMessage confirmationEmail = getConfirmRegistrationMail(user, registrationToken);
 
         javaMailSender.send(confirmationEmail);
     }
 
-    private String getConfirmationUrl(String token) {
-        String protocol = environment.getRequiredProperty("front-end.protocol");
-        String host = environment.getRequiredProperty("front-end.host");
-        String port = environment.getRequiredProperty("front-end.port");
-        String homepage = environment.getRequiredProperty("front-end.homepage");
+    private SimpleMailMessage getConfirmRegistrationMail(UserDTO user, RegistrationToken registrationToken) {
+        String recipientAddress = user.getEmail();
 
-        return protocol + "://" + host + ":" + port + "/" + homepage + "/confirmRegistration?token=" + token;
-    }
+        String subject = mailMessageManager.getConfirmRegistrationMessageSubject();
+        String text = mailMessageManager.getConfirmRegistrationMessageText(registrationToken);
 
-    private String getTextMessage(String message, String confirmationUrl, RegistrationToken registrationToken) {
-        String linkExpiresAt = translator.toLocale("mail.registration.confirmation.expiration");
-        return message + "\n" + confirmationUrl + " \n" + linkExpiresAt + " "
-                + registrationToken.getExpiryDate().toLocalDate() + " " +
-                registrationToken.getExpiryDate().toLocalTime();
+        SimpleMailMessage confirmationEmail = new SimpleMailMessage();
+        confirmationEmail.setTo(recipientAddress);
+        confirmationEmail.setSubject(subject);
+        confirmationEmail.setText(text);
+
+        return confirmationEmail;
     }
 }

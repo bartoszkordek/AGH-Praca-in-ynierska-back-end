@@ -5,6 +5,7 @@ import com.healthy.gym.user.data.entity.ResetPasswordToken;
 import com.healthy.gym.user.data.entity.UserEntity;
 import com.healthy.gym.user.data.repository.ResetPasswordTokenDAO;
 import com.healthy.gym.user.events.OnResetPasswordEvent;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.event.EventListener;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -19,7 +20,7 @@ public class ResetPasswordListener {
     private final MailMessageManager mailMessageManager;
 
     public ResetPasswordListener(
-            JavaMailSender javaMailSender,
+            @Qualifier("getJavaMailSender") JavaMailSender javaMailSender,
             ResetPasswordTokenDAO resetPasswordTokenDAO,
             MailMessageManager mailMessageManager
     ) {
@@ -37,9 +38,13 @@ public class ResetPasswordListener {
         UserEntity user = resetPasswordToken.getUserEntity();
         String token = resetPasswordToken.getToken();
 
-        if (user == null || token == null)
-            throw new IllegalStateException();
+        if (user == null || token == null) throw new IllegalStateException();
 
+        SimpleMailMessage resetPasswordMail = getResetPasswordMail(user, resetPasswordToken);
+        javaMailSender.send(resetPasswordMail);
+    }
+
+    private SimpleMailMessage getResetPasswordMail(UserEntity user, ResetPasswordToken resetPasswordToken) {
         String recipientAddress = user.getEmail();
         String subject = mailMessageManager.getResetPasswordMessageSubject();
         String text = mailMessageManager.getResetPasswordMessageText(resetPasswordToken);
@@ -49,6 +54,6 @@ public class ResetPasswordListener {
         confirmationEmail.setSubject(subject);
         confirmationEmail.setText(text);
 
-        javaMailSender.send(confirmationEmail);
+        return confirmationEmail;
     }
 }

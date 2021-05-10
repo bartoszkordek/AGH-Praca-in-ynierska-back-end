@@ -116,29 +116,10 @@ public class GroupTrainingsDbRepository {
         mdb = mongoClient.getDatabase(environment.getProperty("microservice.db.name"));
         MongoCollection collection = mdb.getCollection(environment.getProperty("microservice.db.collection"));
 
-        String trainingName = groupTrainingModel.getTrainingName();
-        String trainerId = groupTrainingModel.getTrainerId();
         String date = groupTrainingModel.getDate();
         String startTime = groupTrainingModel.getStartTime();
         String endTime = groupTrainingModel.getEndTime();
         int hallNo = groupTrainingModel.getHallNo();
-        int limit = groupTrainingModel.getLimit();
-
-        if(trainingName.isEmpty() || trainerId.isEmpty() || date.isEmpty() || startTime.isEmpty() || endTime.isEmpty()
-                || hallNo <= 0 || limit <=0) return false;
-
-        SimpleDateFormat sdfDate = new SimpleDateFormat("yyyy-MM-dd");
-        Date requestDateParsed = sdfDate.parse(date);
-        Date now = new Date();
-        String todayDateFormatted = sdfDate.format(now);
-        Date todayDateParsed = sdfDate.parse(todayDateFormatted);
-        if(requestDateParsed.before(todayDateParsed)) return false;
-
-        LocalTime start = LocalTime.parse( startTime);
-        LocalTime stop = LocalTime.parse( endTime );
-        Duration duration = Duration.between( start, stop );
-
-        if(duration.toMinutes()<=0) return false;
 
         Document eqDate = new Document("date", date);
 

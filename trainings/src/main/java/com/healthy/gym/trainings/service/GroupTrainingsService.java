@@ -14,6 +14,8 @@ import org.springframework.stereotype.Service;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.Duration;
+import java.time.LocalTime;
 import java.util.Date;
 import java.util.List;
 
@@ -45,6 +47,54 @@ public class GroupTrainingsService {
         String port = emailConfig.getSmtpPort();
         emailService.overrideDefaultSmptCredentials(host, port);
         emailService.sendEmailTLS(emailSendModel);
+    }
+
+    private boolean isExistRequiredDataForGroupTraining(GroupTrainingModel groupTrainingModel){
+        String trainingName = groupTrainingModel.getTrainingName();
+        String trainerId = groupTrainingModel.getTrainerId();
+        String date = groupTrainingModel.getDate();
+        String startTime = groupTrainingModel.getStartTime();
+        String endTime = groupTrainingModel.getEndTime();
+
+        if(trainingName.isEmpty() || trainerId.isEmpty() || date.isEmpty() || startTime.isEmpty() || endTime.isEmpty())
+            return false;
+
+        return true;
+    }
+
+    private boolean isValidHallNo(int hallNo){
+        if(hallNo <= 0)
+            return false;
+        return true;
+    }
+
+    private boolean isValidLimit(int limit){
+        if(limit <= 0)
+            return false;
+        return true;
+    }
+
+    private boolean isTrainingRetroDateAndTime(String date) throws ParseException {
+        SimpleDateFormat sdfDate = new SimpleDateFormat("yyyy-MM-dd");
+        Date requestDateParsed = sdfDate.parse(date);
+        Date now = new Date();
+        String todayDateFormatted = sdfDate.format(now);
+        Date todayDateParsed = sdfDate.parse(todayDateFormatted);
+
+        if(requestDateParsed.before(todayDateParsed)) return true;
+
+        return false;
+    }
+
+    private boolean isStartTimeAfterEndTime(String  startTime, String endTime){
+
+        LocalTime start = LocalTime.parse( startTime);
+        LocalTime stop = LocalTime.parse( endTime );
+        Duration duration = Duration.between( start, stop );
+
+        if(duration.toMinutes()<=0) return true;
+
+        return false;
     }
 
     public String getFirstTestDocument(){
@@ -105,6 +155,23 @@ public class GroupTrainingsService {
     }
 
     public GroupTrainings createGroupTraining(GroupTrainingModel groupTrainingModel) throws TrainingCreationException, ParseException, InvalidHourException {
+        if(!isExistRequiredDataForGroupTraining(groupTrainingModel))
+            throw new TrainingCreationException("Cannot create new group training. Missing required data.");
+
+        String date = groupTrainingModel.getDate();
+        String startTime = groupTrainingModel.getStartTime();
+        String endTime = groupTrainingModel.getEndTime();
+        int hallNo = groupTrainingModel.getHallNo();
+        int limit = groupTrainingModel.getLimit();
+
+        if(isTrainingRetroDateAndTime(date))
+            throw new TrainingCreationException("Cannot create new group training. Training retro date.");
+        if(isStartTimeAfterEndTime(startTime, endTime))
+            throw new TrainingCreationException("Cannot create new group training. Start time after end time.");
+        if(!isValidHallNo(hallNo))
+            throw new TrainingCreationException("Cannot create new group training. Invalid hall no.");
+        if(!isValidLimit(limit))
+            throw new TrainingCreationException("Cannot create new group training. Invalid limit.");
         if(!groupTrainingsDbRepository.isAbilityToCreateTraining(groupTrainingModel))
             throw new TrainingCreationException("Cannot create new group training");
 
@@ -126,7 +193,6 @@ public class GroupTrainingsService {
         } catch (Exception e){
             throw new EmailSendingException("Cannot send email");
         }
-
 
         return result;
     }

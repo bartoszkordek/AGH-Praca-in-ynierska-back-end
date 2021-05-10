@@ -30,7 +30,9 @@ public class Messages {
                 {"mail.registration.confirmation.expiration", "Link wygasa:"},
                 {"mail.registration.confirmation.log-in.exception",
                         "To konto nie zostało jeszcze aktywowane. Skorzystaj z linku aktywacyjnego przesłanego e-mailem."},
-                {"registration.confirmation.token.error", "Wystąpił błąd podczas rejestracji. Skontaktuj się z administratorem."}
+                {"registration.confirmation.token.error", "Wystąpił błąd podczas rejestracji. Skontaktuj się z administratorem."},
+                {"reset.password.error", "Wystąpił błąd resetowania hasła. Skontaktuj się z administratorem."},
+                {"reset.password", "Link do zmiany hasła został wysłany na podany adres email."}
         }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
     }
 
@@ -59,7 +61,9 @@ public class Messages {
                 {"mail.registration.confirmation.expiration", "Link expires:"},
                 {"mail.registration.confirmation.log-in.exception",
                         "This account has not been activated yet. Please follow the activation link sent to you by e-mail."},
-                {"registration.confirmation.token.error", "An error occurred while registering. Please contact the administrator."}
+                {"registration.confirmation.token.error", "An error occurred while registering. Please contact the administrator."},
+                {"reset.password.error", "An error occurred while resetting password. Please contact the administrator."},
+                {"reset.password", "A link to change the password has been sent to the e-mail address provided."}
         }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
     }
 

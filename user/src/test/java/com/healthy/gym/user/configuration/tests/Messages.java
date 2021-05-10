@@ -32,7 +32,9 @@ public class Messages {
                         "To konto nie zostało jeszcze aktywowane. Skorzystaj z linku aktywacyjnego przesłanego e-mailem."},
                 {"registration.confirmation.token.error", "Wystąpił błąd podczas rejestracji. Skontaktuj się z administratorem."},
                 {"reset.password.error", "Wystąpił błąd resetowania hasła. Skontaktuj się z administratorem."},
-                {"reset.password", "Link do zmiany hasła został wysłany na podany adres email."}
+                {"reset.password", "Link do zmiany hasła został wysłany na podany adres email."},
+                {"reset.password.account.status.exception",
+                        "Nie możesz resetować hasła. Twoje konto nie zostało jeszcze aktywowane lub jest zablokowane."}
         }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
     }
 
@@ -63,7 +65,9 @@ public class Messages {
                         "This account has not been activated yet. Please follow the activation link sent to you by e-mail."},
                 {"registration.confirmation.token.error", "An error occurred while registering. Please contact the administrator."},
                 {"reset.password.error", "An error occurred while resetting password. Please contact the administrator."},
-                {"reset.password", "A link to change the password has been sent to the e-mail address provided."}
+                {"reset.password", "A link to change the password has been sent to the e-mail address provided."},
+                {"reset.password.account.status.exception",
+                        "You cannot reset your password. Your account has not been activated yet or is blocked."}
         }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
     }
 

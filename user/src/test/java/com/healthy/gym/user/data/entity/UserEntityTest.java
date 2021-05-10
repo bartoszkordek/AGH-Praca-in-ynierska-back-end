@@ -81,4 +81,11 @@ class UserEntityTest {
                 .isEqualTo(janKowalskiEntity2)
                 .hasSameHashCodeAs(janKowalskiEntity2);
     }
+
+    @Test
+    void whenCreatedHaveAllFieldNullExceptBooleanLong() {
+        assertThat(new UserEntity()).hasAllNullFieldsOrPropertiesExcept(
+                "id", "enabled", "accountNonExpired", "credentialsNonExpired", "accountNonLocked"
+        );
+    }
 }

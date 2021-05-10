@@ -29,7 +29,24 @@ class MailMessageManagerTest {
     private MailMessageManager mailMessageManager;
 
     @Nested
-    class WhenGetConfirmRegistrationTextMessageIsCalled {
+    class WhenGetConfirmRegistrationMessageSubjectIsCalled {
+
+        @ParameterizedTest
+        @EnumSource(TestCountry.class)
+        void shouldContainsConfirmationMessage(TestCountry country) {
+            Map<String, String> messages = getMessagesAccordingToLocale(country);
+            Locale testedLocale = convertEnumToLocale(country);
+            LocaleContextHolder.setLocale(testedLocale);
+
+            String messageSubject = messages.get("mail.registration.confirmation.subject");
+
+            String actualSubject = mailMessageManager.getConfirmRegistrationMessageSubject();
+            assertThat(actualSubject).contains(messageSubject);
+        }
+    }
+
+    @Nested
+    class WhenGetConfirmRegistrationMessageTextIsCalled {
 
         private String token;
         private RegistrationToken registrationToken;
@@ -49,7 +66,7 @@ class MailMessageManagerTest {
 
             String confirmationMessage = messages.get("mail.registration.confirmation.message");
 
-            String actualMessage = mailMessageManager.getConfirmRegistrationTextMessage(registrationToken);
+            String actualMessage = mailMessageManager.getConfirmRegistrationMessageText(registrationToken);
             assertThat(actualMessage).contains(confirmationMessage);
         }
 
@@ -62,7 +79,7 @@ class MailMessageManagerTest {
 
             String linkExpiresAt = messages.get("mail.registration.confirmation.expiration");
 
-            String actualMessage = mailMessageManager.getConfirmRegistrationTextMessage(registrationToken);
+            String actualMessage = mailMessageManager.getConfirmRegistrationMessageText(registrationToken);
             assertThat(actualMessage).contains(linkExpiresAt);
         }
 
@@ -72,20 +89,37 @@ class MailMessageManagerTest {
             String confirmationUrl = "/confirmRegistration?token=";
             String expectedUrl = baseUrl + confirmationUrl + token;
 
-            String actualMessage = mailMessageManager.getConfirmRegistrationTextMessage(registrationToken);
+            String actualMessage = mailMessageManager.getConfirmRegistrationMessageText(registrationToken);
             assertThat(actualMessage).contains(expectedUrl);
         }
 
         @Test
         void shouldThrowExceptionWhenInvalidRegistrationTokenProvided() {
             assertThatThrownBy(
-                    () -> mailMessageManager.getConfirmRegistrationTextMessage(new RegistrationToken())
+                    () -> mailMessageManager.getConfirmRegistrationMessageText(new RegistrationToken())
             ).isInstanceOf(IllegalStateException.class);
         }
     }
 
     @Nested
-    class WhenGetResetPasswordTextMessageIsCalled {
+    class WhenGetResetPasswordMessageSubjectIsCalled {
+
+        @ParameterizedTest
+        @EnumSource(TestCountry.class)
+        void shouldContainsConfirmationMessage(TestCountry country) {
+            Map<String, String> messages = getMessagesAccordingToLocale(country);
+            Locale testedLocale = convertEnumToLocale(country);
+            LocaleContextHolder.setLocale(testedLocale);
+
+            String messageSubject = messages.get("mail.reset.password.subject");
+
+            String actualSubject = mailMessageManager.getResetPasswordMessageSubject();
+            assertThat(actualSubject).contains(messageSubject);
+        }
+    }
+
+    @Nested
+    class WhenGetResetPasswordMessageTextIsCalled {
 
         private String token;
         private ResetPasswordToken resetPasswordToken;
@@ -105,7 +139,7 @@ class MailMessageManagerTest {
 
             String confirmationMessage = messages.get("mail.reset.password.message");
 
-            String actualMessage = mailMessageManager.getResetPasswordTextMessage(resetPasswordToken);
+            String actualMessage = mailMessageManager.getResetPasswordMessageText(resetPasswordToken);
             assertThat(actualMessage).contains(confirmationMessage);
         }
 
@@ -118,7 +152,7 @@ class MailMessageManagerTest {
 
             String linkExpiresAt = messages.get("mail.reset.password.expiration");
 
-            String actualMessage = mailMessageManager.getResetPasswordTextMessage(resetPasswordToken);
+            String actualMessage = mailMessageManager.getResetPasswordMessageText(resetPasswordToken);
             assertThat(actualMessage).contains(linkExpiresAt);
         }
 
@@ -128,7 +162,7 @@ class MailMessageManagerTest {
             String confirmationUrl = "/resetPassword?token=";
             String expectedUrl = baseUrl + confirmationUrl + token;
 
-            String actualMessage = mailMessageManager.getResetPasswordTextMessage(resetPasswordToken);
+            String actualMessage = mailMessageManager.getResetPasswordMessageText(resetPasswordToken);
             assertThat(actualMessage).contains(expectedUrl);
         }
 
@@ -136,7 +170,7 @@ class MailMessageManagerTest {
         @Test
         void shouldThrowExceptionWhenInvalidResetPasswordTokenProvided() {
             assertThatThrownBy(
-                    () -> mailMessageManager.getResetPasswordTextMessage(new ResetPasswordToken())
+                    () -> mailMessageManager.getResetPasswordMessageText(new ResetPasswordToken())
             ).isInstanceOf(IllegalStateException.class);
         }
     }

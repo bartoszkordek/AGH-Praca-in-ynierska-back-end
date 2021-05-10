@@ -21,7 +21,12 @@ public class MailMessageManagerImpl implements MailMessageManager {
     }
 
     @Override
-    public String getConfirmRegistrationTextMessage(RegistrationToken registrationToken) {
+    public String getConfirmRegistrationMessageSubject() {
+        return translator.toLocale("mail.registration.confirmation.subject");
+    }
+
+    @Override
+    public String getConfirmRegistrationMessageText(RegistrationToken registrationToken) {
         String token = registrationToken.getToken();
         LocalDateTime expiryDate = registrationToken.getExpiryDate();
 
@@ -35,7 +40,12 @@ public class MailMessageManagerImpl implements MailMessageManager {
     }
 
     @Override
-    public String getResetPasswordTextMessage(ResetPasswordToken resetPasswordToken) {
+    public String getResetPasswordMessageSubject() {
+        return translator.toLocale("mail.reset.password.subject");
+    }
+
+    @Override
+    public String getResetPasswordMessageText(ResetPasswordToken resetPasswordToken) {
         String token = resetPasswordToken.getToken();
         LocalDateTime expiryDate = resetPasswordToken.getExpiryDate();
 

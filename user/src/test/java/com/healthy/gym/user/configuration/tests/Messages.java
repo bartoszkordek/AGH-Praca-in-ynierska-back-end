@@ -36,7 +36,9 @@ public class Messages {
                 {"reset.password.exception.account.disabled", "Nie możesz resetować hasła. Twoje konto nie zostało jeszcze aktywowane."},
                 {"reset.password.exception.account.expired", "Nie możesz resetować hasła. Twoje konto jest nieaktywne."},
                 {"reset.password.exception.account.locked", "Nie możesz resetować hasła. Twoje konto zostało zablokowane."},
-                {"reset.password.exception.credentials.expired", "Nie możesz resetować hasła. Twoje dane uwierzytelniające straciły ważność."}
+                {"reset.password.exception.credentials.expired", "Nie możesz resetować hasła. Twoje dane uwierzytelniające straciły ważność."},
+                {"mail.reset.password.message", "Aby zresetować haslo kliknj poniższy link:"},
+                {"mail.reset.password.expiration", "Link wygasa:"}
         }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
     }
 
@@ -71,7 +73,9 @@ public class Messages {
                 {"reset.password.exception.account.disabled", "You cannot reset your password. Your account has not been activated yet."},
                 {"reset.password.exception.account.expired", "You cannot reset your password. Your account has expired."},
                 {"reset.password.exception.account.locked", "You cannot reset your password. Your account has been blocked."},
-                {"reset.password.exception.credentials.expired", "You cannot reset your password. Your credentials has expired."}
+                {"reset.password.exception.credentials.expired", "You cannot reset your password. Your credentials has expired."},
+                {"mail.reset.password.message", "To reset password click the following link:"},
+                {"mail.reset.password.expiration", "Link expires:"}
         }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
     }
 

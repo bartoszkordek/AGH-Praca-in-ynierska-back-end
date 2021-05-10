@@ -3,7 +3,7 @@ package com.healthy.gym.user.listener;
 import com.healthy.gym.user.component.Translator;
 import com.healthy.gym.user.data.entity.RegistrationToken;
 import com.healthy.gym.user.events.OnRegistrationCompleteEvent;
-import com.healthy.gym.user.service.UserService;
+import com.healthy.gym.user.service.TokenService;
 import com.healthy.gym.user.shared.UserDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -19,20 +19,20 @@ import java.util.UUID;
 
 @Component
 public class RegistrationListener {
-    private final UserService userService;
+    private final TokenService tokenService;
     private final Translator translator;
     private final JavaMailSender javaMailSender;
     private final Environment environment;
 
     @Autowired
     public RegistrationListener(
-            UserService userService,
+            TokenService tokenService,
             MessageSource messageSource,
             Translator translator,
             @Qualifier("getJavaMailSender") JavaMailSender javaMailSender,
             Environment environment
     ) {
-        this.userService = userService;
+        this.tokenService = tokenService;
         this.translator = translator;
         this.javaMailSender = javaMailSender;
         this.environment = environment;
@@ -44,7 +44,7 @@ public class RegistrationListener {
         UserDTO user = event.getUserDTO();
         String token = UUID.randomUUID().toString();
 
-        RegistrationToken registrationToken = userService.createRegistrationToken(user, token);
+        RegistrationToken registrationToken = tokenService.createRegistrationToken(user, token);
 
         String recipientAddress = user.getEmail();
         String subject = translator.toLocale("mail.registration.confirmation.subject");

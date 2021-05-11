@@ -1,6 +1,7 @@
 package com.healthy.gym.trainings.db;
 
 import com.healthy.gym.trainings.entity.IndividualTrainings;
+import com.healthy.gym.trainings.exception.InvalidHourException;
 import com.healthy.gym.trainings.model.IndividualTrainingsAcceptModel;
 import com.healthy.gym.trainings.model.IndividualTrainingsRequestModel;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,6 +31,10 @@ public class IndividualTrainingsDbRepository {
         return individualTrainingsRepository.existsIndividualTrainingsByIdAndDeclinedEquals(trainingId, true);
     }
 
+    public boolean isIndividualTrainingExistAndRequestedByClient(String trainingId, String clientId){
+        return individualTrainingsRepository.existsIndividualTrainingsByIdAAndClientIdEquals(trainingId, clientId);
+    }
+
     public List<IndividualTrainings> getIndividualTrainings(){
         return individualTrainingsRepository.findAll();
     }
@@ -43,7 +48,7 @@ public class IndividualTrainingsDbRepository {
     }
 
     public IndividualTrainings createIndividualTrainingRequest(IndividualTrainingsRequestModel individualTrainingsRequestModel,
-                                                               String clientId){
+                                                               String clientId) throws InvalidHourException {
         IndividualTrainings response = individualTrainingsRepository.insert(new IndividualTrainings(
                 clientId,
                 individualTrainingsRequestModel.getTrainerId(),
@@ -73,6 +78,12 @@ public class IndividualTrainingsDbRepository {
         individualTrainings.setDeclined(true);
         IndividualTrainings response = individualTrainingsRepository.save(individualTrainings);
         return response;
+    }
+
+    public IndividualTrainings cancelIndividualTrainingRequest(String trainingId){
+        IndividualTrainings individualTrainings = individualTrainingsRepository.findIndividualTrainingsById(trainingId);
+        individualTrainingsRepository.deleteIndividualTrainingsById(trainingId);
+        return individualTrainings;
     }
 
 }

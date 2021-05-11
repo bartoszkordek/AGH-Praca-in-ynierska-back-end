@@ -159,10 +159,6 @@ public class TrainingsServiceGroupGroupTrainingsReviewsTest {
     @Test(expected = StarsOutOfRangeException.class)
     public void shouldCreateReview_whenInvalidStarsMoreThan5() throws StarsOutOfRangeException {
         //when
-        SimpleDateFormat sdfDate = new SimpleDateFormat("yyyy-MM-dd");
-        Date now = new Date();
-        String todayDateFormatted = sdfDate.format(now);
-
         int stars = 6;
         String text = "above scale";
         GroupTrainingsReviewsModel groupTrainingsReviewToCreate = new GroupTrainingsReviewsModel(sampleTrainingName,
@@ -174,10 +170,6 @@ public class TrainingsServiceGroupGroupTrainingsReviewsTest {
     @Test(expected = StarsOutOfRangeException.class)
     public void shouldCreateReview_whenInvalidStarsLessThan1() throws StarsOutOfRangeException {
         //when
-        SimpleDateFormat sdfDate = new SimpleDateFormat("yyyy-MM-dd");
-        Date now = new Date();
-        String todayDateFormatted = sdfDate.format(now);
-
         int stars = 0;
         String text = "below scale";
         GroupTrainingsReviewsModel groupTrainingsReviewToCreate = new GroupTrainingsReviewsModel(sampleTrainingName,

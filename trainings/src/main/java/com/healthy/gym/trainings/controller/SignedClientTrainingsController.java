@@ -107,7 +107,20 @@ public class SignedClientTrainingsController {
 
     @PostMapping("/individual/request")
     public IndividualTrainings createIndividualTrainingRequest(@Valid @RequestBody final IndividualTrainingsRequestModel individualTrainingsRequestModel,
-                                                               @RequestParam(required = true) final String clientId){
+                                                               @RequestParam(required = true) final String clientId) throws InvalidHourException {
         return individualTrainingsService.createIndividualTrainingRequest(individualTrainingsRequestModel, clientId);
     }
+
+    @DeleteMapping("/individual/request/{trainingId}")
+    public IndividualTrainings cancelIndividualTrainingRequest(@PathVariable("trainingId") final String trainingId,
+                                                @RequestParam(required = true) final String clientId) throws RestException {
+        try{
+            return individualTrainingsService.cancelIndividualTrainingRequest(trainingId, clientId);
+        } catch (NotExistingIndividualTrainingException e){
+            throw new RestException(e.getMessage(), HttpStatus.BAD_REQUEST, e);
+        } catch (NotAuthorizedClientException e){
+            throw new RestException(e.getMessage(), HttpStatus.FORBIDDEN, e);
+        }
+    }
+
 }

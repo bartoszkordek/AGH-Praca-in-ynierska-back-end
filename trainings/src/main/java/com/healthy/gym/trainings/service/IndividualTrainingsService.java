@@ -2,10 +2,7 @@ package com.healthy.gym.trainings.service;
 
 import com.healthy.gym.trainings.db.IndividualTrainingsDbRepository;
 import com.healthy.gym.trainings.entity.IndividualTrainings;
-import com.healthy.gym.trainings.exception.AlreadyAcceptedIndividualTrainingException;
-import com.healthy.gym.trainings.exception.AlreadyDeclinedIndividualTrainingException;
-import com.healthy.gym.trainings.exception.HallNoOutOfRangeException;
-import com.healthy.gym.trainings.exception.NotExistingIndividualTrainingException;
+import com.healthy.gym.trainings.exception.*;
 import com.healthy.gym.trainings.model.IndividualTrainingsAcceptModel;
 import com.healthy.gym.trainings.model.IndividualTrainingsRequestModel;
 import org.springframework.stereotype.Service;
@@ -37,7 +34,7 @@ public class IndividualTrainingsService {
     }
 
     public IndividualTrainings createIndividualTrainingRequest(IndividualTrainingsRequestModel individualTrainingsRequestModel,
-                                                               String clientId){
+                                                               String clientId) throws InvalidHourException {
         return individualTrainingsDbRepository.createIndividualTrainingRequest(individualTrainingsRequestModel, clientId);
 
     }
@@ -63,5 +60,15 @@ public class IndividualTrainingsService {
             throw new AlreadyDeclinedIndividualTrainingException("Training with ID: "+ trainingId + " has been already declined");
         }
         return individualTrainingsDbRepository.declineIndividualTrainingRequest(trainingId);
+    }
+
+    public IndividualTrainings cancelIndividualTrainingRequest(String trainingId, String clientId) throws NotExistingIndividualTrainingException, NotAuthorizedClientException {
+        if (!individualTrainingsDbRepository.isIndividualTrainingExist(trainingId)) {
+            throw new NotExistingIndividualTrainingException("Training with ID: " + trainingId + " doesn't exist");
+        }
+        if (!individualTrainingsDbRepository.isIndividualTrainingExistAndRequestedByClient(trainingId, clientId)) {
+            throw new NotAuthorizedClientException("Training is not authorized by client");
+        }
+        return individualTrainingsDbRepository.cancelIndividualTrainingRequest(trainingId);
     }
 }

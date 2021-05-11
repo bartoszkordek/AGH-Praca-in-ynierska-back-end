@@ -16,4 +16,7 @@ public interface IndividualTrainingsRepository extends MongoRepository<Individua
     public boolean existsIndividualTrainingsById(String trainingId);
     public boolean existsIndividualTrainingsByIdAndAcceptedEquals(String trainingId, boolean accepted);
     public boolean existsIndividualTrainingsByIdAndDeclinedEquals(String trainingId, boolean declined);
+    public boolean existsIndividualTrainingsByIdAAndClientIdEquals(String trainingId, String clientId);
+
+    public void deleteIndividualTrainingsById(String trainingId);
 }

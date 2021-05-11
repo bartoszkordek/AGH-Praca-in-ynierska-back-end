@@ -20,6 +20,7 @@ import org.springframework.test.web.servlet.RequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
@@ -107,60 +108,26 @@ class AuthenticationFilterTest {
 
     @Nested
     class WhileUnsuccessfulAuthenticationIsCalled {
-        @ParameterizedTest
-        @EnumSource(TestCountry.class)
-        void shouldRejectUserLoginWhenProvidedInvalidCredentials(TestCountry country) throws Exception {
-            Map<String, String> messages = getMessagesAccordingToLocale(country);
-            Locale testedLocale = convertEnumToLocale(country);
+        private String requestBody;
 
-            URI uri = new URI("/login");
-            String requestBody = "{" +
+        @BeforeEach
+        void setUp() {
+            requestBody = "{" +
                     "\"email\": \"jan.kowalski@wp.pl\",\n" +
-                    "\"password\": \"test123451\"\n" +
+                    "\"password\": \"test12345\"\n" +
                     "}";
-
-            RequestBuilder request = MockMvcRequestBuilders
-                    .post(uri)
-                    .header("Accept-Language", testedLocale.toString())
-                    .content(requestBody)
-                    .contentType(MediaType.APPLICATION_JSON);
-
-            mockMvc.perform(request)
-                    .andDo(print())
-                    .andExpect(
-                            matchAll(
-                                    status().isUnauthorized(),
-                                    header().doesNotExist("userId"),
-                                    header().doesNotExist("token"),
-                                    jsonPath("$.path").exists(),
-                                    jsonPath("$.error").exists(),
-                                    jsonPath("$.timestamp").exists(),
-                                    jsonPath("$.status").exists(),
-                                    jsonPath("$.message").value(is(messages.get("user.log-in.fail")))
-                            )
-                    );
         }
 
-        @ParameterizedTest
-        @EnumSource(TestCountry.class)
-        void shouldRejectUserLoginWhenUserAccountIsNotEnabled(TestCountry country) throws Exception {
-            Map<String, String> messages = getMessagesAccordingToLocale(country);
-            Locale testedLocale = convertEnumToLocale(country);
-
-            userEntity.setEnabled(false);
-
+        private RequestBuilder buildRequest(Locale testedLocale, String requestBody) throws URISyntaxException {
             URI uri = new URI("/login");
-            String requestBody = "{" +
-                    "\"email\": \"jan.kowalski@wp.pl\",\n" +
-                    "\"password\": \"test123451\"\n" +
-                    "}";
-
-            RequestBuilder request = MockMvcRequestBuilders
+            return MockMvcRequestBuilders
                     .post(uri)
                     .header("Accept-Language", testedLocale.toString())
                     .content(requestBody)
                     .contentType(MediaType.APPLICATION_JSON);
+        }
 
+        private void performPrintAndTestRequest(RequestBuilder request, String expectedMessage) throws Exception {
             mockMvc.perform(request)
                     .andDo(print())
                     .andExpect(
@@ -173,9 +140,78 @@ class AuthenticationFilterTest {
                                     jsonPath("$.timestamp").exists(),
                                     jsonPath("$.status").exists(),
                                     jsonPath("$.message")
-                                            .value(is(messages.get("mail.registration.confirmation.log-in.exception")))
+                                            .value(is(expectedMessage))
                             )
                     );
+        }
+
+        @ParameterizedTest
+        @EnumSource(TestCountry.class)
+        void shouldRejectUserLoginWhenProvidedInvalidCredentials(TestCountry country) throws Exception {
+            Map<String, String> messages = getMessagesAccordingToLocale(country);
+            Locale testedLocale = convertEnumToLocale(country);
+
+            String requestBody = "{" +
+                    "\"email\": \"jan.kowalski@wp.pl\",\n" +
+                    "\"password\": \"test123451\"\n" +
+                    "}";
+
+            RequestBuilder request = buildRequest(testedLocale, requestBody);
+
+            String expectedMessage = messages.get("user.log-in.fail");
+            performPrintAndTestRequest(request, expectedMessage);
+        }
+
+        @ParameterizedTest
+        @EnumSource(TestCountry.class)
+        void shouldRejectUserLoginWhenUserAccountIsNotEnabled(TestCountry country) throws Exception {
+            Map<String, String> messages = getMessagesAccordingToLocale(country);
+            Locale testedLocale = convertEnumToLocale(country);
+
+            userEntity.setEnabled(false);
+            RequestBuilder request = buildRequest(testedLocale, requestBody);
+            String expectedMessage = messages.get("mail.registration.confirmation.log-in.exception");
+
+            performPrintAndTestRequest(request, expectedMessage);
+        }
+
+        @ParameterizedTest
+        @EnumSource(TestCountry.class)
+        void shouldRejectUserLoginWhenUserAccountIsExpired(TestCountry country) throws Exception {
+            Map<String, String> messages = getMessagesAccordingToLocale(country);
+            Locale testedLocale = convertEnumToLocale(country);
+
+            userEntity.setAccountNonExpired(false);
+            RequestBuilder request = buildRequest(testedLocale, requestBody);
+            String expectedMessage = messages.get("user.log-in.fail.account.expired");
+
+            performPrintAndTestRequest(request, expectedMessage);
+        }
+
+        @ParameterizedTest
+        @EnumSource(TestCountry.class)
+        void shouldRejectUserLoginWhenUserAccountIsLocked(TestCountry country) throws Exception {
+            Map<String, String> messages = getMessagesAccordingToLocale(country);
+            Locale testedLocale = convertEnumToLocale(country);
+
+            userEntity.setAccountNonLocked(false);
+            RequestBuilder request = buildRequest(testedLocale, requestBody);
+            String expectedMessage = messages.get("user.log-in.fail.account.locked");
+
+            performPrintAndTestRequest(request, expectedMessage);
+        }
+
+        @ParameterizedTest
+        @EnumSource(TestCountry.class)
+        void shouldRejectUserLoginWhenUserCredentialsAreExpired(TestCountry country) throws Exception {
+            Map<String, String> messages = getMessagesAccordingToLocale(country);
+            Locale testedLocale = convertEnumToLocale(country);
+
+            userEntity.setCredentialsNonExpired(false);
+            RequestBuilder request = buildRequest(testedLocale, requestBody);
+            String expectedMessage = messages.get("user.log-in.fail.credentials.expired");
+
+            performPrintAndTestRequest(request, expectedMessage);
         }
     }
 }

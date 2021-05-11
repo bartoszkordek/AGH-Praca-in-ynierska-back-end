@@ -11,8 +11,7 @@ import io.jsonwebtoken.Jwts;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.security.authentication.DisabledException;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.authentication.*;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.User;
@@ -112,8 +111,14 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
         String message = translator.toLocale("user.log-in.fail");
 
-        if (failed instanceof DisabledException) {
+        if (failed instanceof AccountExpiredException) {
+            message = translator.toLocale("user.log-in.fail.account.expired");
+        } else if (failed instanceof CredentialsExpiredException) {
+            message = translator.toLocale("user.log-in.fail.credentials.expired");
+        } else if (failed instanceof DisabledException) {
             message = translator.toLocale("mail.registration.confirmation.log-in.exception");
+        } else if (failed instanceof LockedException) {
+            message = translator.toLocale("user.log-in.fail.account.locked");
         }
 
         String body = getResponseBody(message);

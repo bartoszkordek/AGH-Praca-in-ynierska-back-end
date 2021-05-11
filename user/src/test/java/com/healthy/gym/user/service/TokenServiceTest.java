@@ -1,8 +1,10 @@
 package com.healthy.gym.user.service;
 
 import com.healthy.gym.user.data.entity.RegistrationToken;
+import com.healthy.gym.user.data.entity.ResetPasswordToken;
 import com.healthy.gym.user.data.entity.UserEntity;
 import com.healthy.gym.user.data.repository.RegistrationTokenDAO;
+import com.healthy.gym.user.data.repository.ResetPasswordTokenDAO;
 import com.healthy.gym.user.exceptions.token.ExpiredTokenException;
 import com.healthy.gym.user.exceptions.token.InvalidTokenException;
 import com.healthy.gym.user.shared.UserDTO;
@@ -37,47 +39,73 @@ class TokenServiceTest {
     @MockBean
     private RegistrationTokenDAO registrationTokenDAO;
 
+    @MockBean
+    private ResetPasswordTokenDAO resetPasswordTokenDAO;
+
+    private String token;
+    private UserEntity janKowalskiEntity;
+    private UserDTO userDTO;
+
+    @BeforeEach
+    void setUp() {
+        janKowalskiEntity = new UserEntity(
+                "Jan",
+                "Kowalski",
+                "jan.kowalski@test.com",
+                "666 777 888",
+                bCryptPasswordEncoder.encode("password1234"),
+                UUID.randomUUID().toString(),
+                true
+        );
+
+        userDTO = new UserDTO(
+                janKowalskiEntity.getUserId(),
+                janKowalskiEntity.getName(),
+                janKowalskiEntity.getSurname(),
+                janKowalskiEntity.getEmail(),
+                janKowalskiEntity.getPhoneNumber(),
+                "password1234",
+                janKowalskiEntity.getEncryptedPassword()
+        );
+
+        token = UUID.randomUUID().toString();
+    }
+
     @Nested
     class WhenCreateResetPasswordTokenIsCalled {
 
         @Test
-        void name() {
-            assertTrue(true);
+        void shouldThrowExceptionWhenNullEntityProvided() {
+            assertThatThrownBy(
+                    () -> tokenService.createResetPasswordToken(null)
+            ).isInstanceOf(IllegalStateException.class);
+        }
+
+        @Test
+        void shouldThrowExceptionWhenInvalidEntityProvided() {
+            assertThatThrownBy(
+                    () -> tokenService.createResetPasswordToken(new UserEntity())
+            ).isInstanceOf(IllegalStateException.class);
+        }
+
+        @Test
+        void shouldRestPasswordTokenWhenValidEntityProvided() {
+            janKowalskiEntity.setId(1L);
+            when(resetPasswordTokenDAO.save(any())).thenReturn(new ResetPasswordToken(token, janKowalskiEntity));
+
+            ResetPasswordToken resetPasswordToken = tokenService.createResetPasswordToken(janKowalskiEntity);
+
+            assertThat(resetPasswordToken.getToken()).isEqualTo(token);
+            assertThat(resetPasswordToken.getUserEntity()).isEqualTo(janKowalskiEntity);
         }
     }
 
     @Nested
     class WhenCreateRegistrationTokenIsCalled {
-
-        private String token;
         private RegistrationToken registrationToken;
-        private UserEntity janKowalskiEntity;
 
         @BeforeEach
         void setUp() {
-            UserDTO userDTO;
-            janKowalskiEntity = new UserEntity(
-                    "Jan",
-                    "Kowalski",
-                    "jan.kowalski@test.com",
-                    "666 777 888",
-                    bCryptPasswordEncoder.encode("password1234"),
-                    UUID.randomUUID().toString(),
-                    true
-            );
-
-            userDTO = new UserDTO(
-                    janKowalskiEntity.getUserId(),
-                    janKowalskiEntity.getName(),
-                    janKowalskiEntity.getSurname(),
-                    janKowalskiEntity.getEmail(),
-                    janKowalskiEntity.getPhoneNumber(),
-                    "password1234",
-                    janKowalskiEntity.getEncryptedPassword()
-            );
-
-            token = UUID.randomUUID().toString();
-
             when(registrationTokenDAO.save(any(RegistrationToken.class)))
                     .thenReturn(new RegistrationToken(token, janKowalskiEntity));
 

@@ -7,32 +7,30 @@ import com.healthy.gym.trainings.db.TestRepository;
 import com.healthy.gym.trainings.entity.GroupTrainings;
 import com.healthy.gym.trainings.entity.GroupTrainingsReviews;
 import com.healthy.gym.trainings.exception.*;
-import com.healthy.gym.trainings.model.EmailSendModel;
-import com.healthy.gym.trainings.model.GroupTrainingModel;
-import com.healthy.gym.trainings.model.GroupTrainingsReviewsModel;
-import com.healthy.gym.trainings.model.GroupTrainingsReviewsUpdateModel;
+import com.healthy.gym.trainings.model.*;
 import com.healthy.gym.trainings.service.email.EmailService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.Duration;
+import java.time.LocalTime;
 import java.util.Date;
 import java.util.List;
 
 @Service
-public class TrainingsService {
+public class GroupTrainingsService {
 
     @Autowired
     EmailConfig emailConfig;
-
     TestRepository testRepository;
     GroupTrainingsDbRepository groupTrainingsDbRepository;
     GroupTrainingReviewsDbRepository groupTrainingReviewsDbRepository;
 
-    public TrainingsService(TestRepository testRepository,
-                            GroupTrainingsDbRepository groupTrainingsDbRepository,
-                            GroupTrainingReviewsDbRepository groupTrainingReviewsDbRepository){
+    public GroupTrainingsService(TestRepository testRepository,
+                                 GroupTrainingsDbRepository groupTrainingsDbRepository,
+                                 GroupTrainingReviewsDbRepository groupTrainingReviewsDbRepository){
         this.testRepository = testRepository;
         this.groupTrainingsDbRepository = groupTrainingsDbRepository;
         this.groupTrainingReviewsDbRepository = groupTrainingReviewsDbRepository;
@@ -49,6 +47,54 @@ public class TrainingsService {
         String port = emailConfig.getSmtpPort();
         emailService.overrideDefaultSmptCredentials(host, port);
         emailService.sendEmailTLS(emailSendModel);
+    }
+
+    private boolean isExistRequiredDataForGroupTraining(GroupTrainingModel groupTrainingModel){
+        String trainingName = groupTrainingModel.getTrainingName();
+        String trainerId = groupTrainingModel.getTrainerId();
+        String date = groupTrainingModel.getDate();
+        String startTime = groupTrainingModel.getStartTime();
+        String endTime = groupTrainingModel.getEndTime();
+
+        if(trainingName.isEmpty() || trainerId.isEmpty() || date.isEmpty() || startTime.isEmpty() || endTime.isEmpty())
+            return false;
+
+        return true;
+    }
+
+    private boolean isValidHallNo(int hallNo){
+        if(hallNo <= 0)
+            return false;
+        return true;
+    }
+
+    private boolean isValidLimit(int limit){
+        if(limit <= 0)
+            return false;
+        return true;
+    }
+
+    private boolean isTrainingRetroDate(String date) throws ParseException {
+        SimpleDateFormat sdfDate = new SimpleDateFormat("yyyy-MM-dd");
+        Date requestDateParsed = sdfDate.parse(date);
+        Date now = new Date();
+        String todayDateFormatted = sdfDate.format(now);
+        Date todayDateParsed = sdfDate.parse(todayDateFormatted);
+
+        if(requestDateParsed.before(todayDateParsed)) return true;
+
+        return false;
+    }
+
+    private boolean isStartTimeAfterEndTime(String  startTime, String endTime){
+
+        LocalTime start = LocalTime.parse( startTime);
+        LocalTime stop = LocalTime.parse( endTime );
+        Duration duration = Duration.between( start, stop );
+
+        if(duration.toMinutes()<=0) return true;
+
+        return false;
     }
 
     public String getFirstTestDocument(){
@@ -108,7 +154,24 @@ public class TrainingsService {
         }
     }
 
-    public GroupTrainings createGroupTraining(GroupTrainingModel groupTrainingModel) throws TrainingCreationException, ParseException {
+    public GroupTrainings createGroupTraining(GroupTrainingModel groupTrainingModel) throws TrainingCreationException, ParseException, InvalidHourException {
+        if(!isExistRequiredDataForGroupTraining(groupTrainingModel))
+            throw new TrainingCreationException("Cannot create new group training. Missing required data.");
+
+        String date = groupTrainingModel.getDate();
+        String startTime = groupTrainingModel.getStartTime();
+        String endTime = groupTrainingModel.getEndTime();
+        int hallNo = groupTrainingModel.getHallNo();
+        int limit = groupTrainingModel.getLimit();
+
+        if(isTrainingRetroDate(date))
+            throw new TrainingCreationException("Cannot create new group training. Training retro date.");
+        if(isStartTimeAfterEndTime(startTime, endTime))
+            throw new TrainingCreationException("Cannot create new group training. Start time after end time.");
+        if(!isValidHallNo(hallNo))
+            throw new TrainingCreationException("Cannot create new group training. Invalid hall no.");
+        if(!isValidLimit(limit))
+            throw new TrainingCreationException("Cannot create new group training. Invalid limit.");
         if(!groupTrainingsDbRepository.isAbilityToCreateTraining(groupTrainingModel))
             throw new TrainingCreationException("Cannot create new group training");
 
@@ -131,11 +194,10 @@ public class TrainingsService {
             throw new EmailSendingException("Cannot send email");
         }
 
-
         return result;
     }
 
-    public GroupTrainings updateGroupTraining(String trainingId, GroupTrainingModel groupTrainingModelRequest) throws TrainingUpdateException, EmailSendingException {
+    public GroupTrainings updateGroupTraining(String trainingId, GroupTrainingModel groupTrainingModelRequest) throws TrainingUpdateException, EmailSendingException, InvalidHourException {
         if (!groupTrainingsDbRepository.isGroupTrainingExist(trainingId))
             throw new TrainingUpdateException("Training with ID: "+ trainingId + " doesn't exist");
 

@@ -4,9 +4,8 @@ import com.healthy.gym.trainings.entity.GroupTrainings;
 import com.healthy.gym.trainings.entity.IndividualTrainings;
 import com.healthy.gym.trainings.exception.*;
 import com.healthy.gym.trainings.model.GroupTrainingModel;
-import com.healthy.gym.trainings.model.IndividualTrainingsRequestModel;
 import com.healthy.gym.trainings.service.IndividualTrainingsService;
-import com.healthy.gym.trainings.service.TrainingsService;
+import com.healthy.gym.trainings.service.GroupTrainingsService;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,19 +16,19 @@ import java.util.List;
 @RestController
 public class ManagerTrainingsController {
 
-    TrainingsService trainingsService;
+    GroupTrainingsService groupTrainingsService;
     IndividualTrainingsService individualTrainingsService;
 
-    public ManagerTrainingsController(TrainingsService trainingsService, IndividualTrainingsService individualTrainingsService){
-        this.trainingsService = trainingsService;
+    public ManagerTrainingsController(GroupTrainingsService groupTrainingsService, IndividualTrainingsService individualTrainingsService){
+        this.groupTrainingsService = groupTrainingsService;
         this.individualTrainingsService = individualTrainingsService;
     }
 
     @PostMapping("/group/create")
     public GroupTrainings createGroupTraining(@Valid @RequestBody GroupTrainingModel groupTrainingModel) throws RestException {
         try{
-            return trainingsService.createGroupTraining(groupTrainingModel);
-        } catch (TrainingCreationException | ParseException e){
+            return groupTrainingsService.createGroupTraining(groupTrainingModel);
+        } catch (TrainingCreationException | InvalidHourException |ParseException e){
             throw new RestException(e.getMessage(), HttpStatus.BAD_REQUEST, e);
         }
     }
@@ -37,7 +36,7 @@ public class ManagerTrainingsController {
     @DeleteMapping("/group/{trainingId}/remove")
     public GroupTrainings removeGroupTraining(@PathVariable("trainingId") final String trainingId) throws RestException {
         try{
-            return trainingsService.removeGroupTraining(trainingId);
+            return groupTrainingsService.removeGroupTraining(trainingId);
         } catch (TrainingRemovalException | EmailSendingException e){
             throw new RestException(e.getMessage(), HttpStatus.BAD_REQUEST, e);
         }
@@ -47,8 +46,8 @@ public class ManagerTrainingsController {
     public GroupTrainings updateGroupTraining(@PathVariable("trainingId") final String trainingId,
                                               @Valid @RequestBody GroupTrainingModel groupTrainingModelRequest) throws RestException {
         try{
-            return trainingsService.updateGroupTraining(trainingId, groupTrainingModelRequest);
-        } catch (TrainingUpdateException | EmailSendingException e){
+            return groupTrainingsService.updateGroupTraining(trainingId, groupTrainingModelRequest);
+        } catch (TrainingUpdateException | InvalidHourException | EmailSendingException e){
             throw new RestException(e.getMessage(), HttpStatus.BAD_REQUEST, e);
         }
     }

@@ -1,6 +1,8 @@
 package com.healthy.gym.trainings.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.healthy.gym.trainings.exception.InvalidHourException;
+import com.healthy.gym.trainings.validator.Time24HoursValidator;
 
 import java.util.List;
 
@@ -24,12 +26,21 @@ public class GroupTrainingModel {
                               @JsonProperty("hallNo") int hallNo,
                               @JsonProperty("limit") int limit,
                               @JsonProperty("participants") List<String> participants,
-                              @JsonProperty("reserveList") List<String> reserveList){
+                              @JsonProperty("reserveList") List<String> reserveList) throws InvalidHourException {
+        Time24HoursValidator time24HoursValidator = new Time24HoursValidator();
         this.trainingName = trainingName;
         this.trainerId = trainerId;
         this.date = date;
-        this.startTime = startTime;
-        this.endTime = endTime;
+        if(time24HoursValidator.validate(startTime)){
+            this.startTime = startTime;
+        } else {
+            throw new InvalidHourException("Wrong start time");
+        }
+        if(time24HoursValidator.validate(endTime)){
+            this.endTime = endTime;
+        } else {
+            throw new InvalidHourException("Wrong end time");
+        }
         this.hallNo = hallNo;
         this.limit = limit;
         this.participants = participants;

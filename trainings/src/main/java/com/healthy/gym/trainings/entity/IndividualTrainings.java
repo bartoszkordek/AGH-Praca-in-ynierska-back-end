@@ -1,6 +1,8 @@
 package com.healthy.gym.trainings.entity;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.healthy.gym.trainings.exception.InvalidHourException;
+import com.healthy.gym.trainings.validator.Time24HoursValidator;
 import org.springframework.data.annotation.Id;
 
 public class IndividualTrainings {
@@ -34,12 +36,26 @@ public class IndividualTrainings {
 
     public IndividualTrainings(String clientId, String trainerId, String date,
                                String startTime, String endTime, int hallNo, String remarks,
-                               boolean accepted, boolean declined){
+                               boolean accepted, boolean declined) throws InvalidHourException {
+
+        Time24HoursValidator time24HoursValidator = new Time24HoursValidator();
+
         this.clientId = clientId;
         this.trainerId = trainerId;
         this.date = date;
         this.startTime = startTime;
         this.endTime = endTime;
+        if(time24HoursValidator.validate(startTime)){
+            this.startTime = startTime;
+        } else {
+            throw new InvalidHourException("Wrong start time");
+        }
+        if(time24HoursValidator.validate(endTime)){
+            this.endTime = endTime;
+        } else {
+            throw new InvalidHourException("Wrong end time");
+        }
+
         this.hallNo = hallNo;
         this.remarks = remarks;
         this.accepted = accepted;
@@ -116,12 +132,23 @@ public class IndividualTrainings {
         this.date = date;
     }
 
-    public void setStartTime(String startTime) {
-        this.startTime = startTime;
+    public void setStartTime(String startTime) throws InvalidHourException {
+        Time24HoursValidator time24HoursValidator = new Time24HoursValidator();
+        if(time24HoursValidator.validate(startTime)){
+            this.startTime = startTime;
+        } else {
+            throw new InvalidHourException("Wrong start time");
+        }
     }
 
-    public void setEndTime(String endTime) {
-        this.endTime = endTime;
+    public void setEndTime(String endTime) throws InvalidHourException {
+
+        Time24HoursValidator time24HoursValidator = new Time24HoursValidator();
+        if(time24HoursValidator.validate(endTime)){
+            this.endTime = endTime;
+        } else {
+            throw new InvalidHourException("Wrong end time");
+        }
     }
 
     public void setHallNo(int hallNo) {

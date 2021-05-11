@@ -4,16 +4,24 @@ import com.healthy.gym.trainings.db.GroupTrainingReviewsDbRepository;
 import com.healthy.gym.trainings.db.GroupTrainingsDbRepository;
 import com.healthy.gym.trainings.db.TestRepository;
 import com.healthy.gym.trainings.entity.GroupTrainings;
+import com.healthy.gym.trainings.exception.InvalidHourException;
 import com.healthy.gym.trainings.exception.NotExistingGroupTrainingException;
+import com.healthy.gym.trainings.exception.TrainingCreationException;
 import com.healthy.gym.trainings.exception.TrainingEnrollmentException;
-import com.healthy.gym.trainings.service.TrainingsService;
+import com.healthy.gym.trainings.model.GroupTrainingModel;
+import com.healthy.gym.trainings.service.GroupTrainingsService;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.Duration;
+import java.time.LocalTime;
+import java.util.Date;
 import java.util.List;
 
-public class TrainingsServiceGroupTrainingsImpl extends TrainingsService {
+public class TrainingsServiceGroupGroupTrainingsImpl extends GroupTrainingsService {
 
-    public TrainingsServiceGroupTrainingsImpl(
+    public TrainingsServiceGroupGroupTrainingsImpl(
             TestRepository testRepository,
             GroupTrainingsDbRepository groupTrainingsDbRepository,
             GroupTrainingReviewsDbRepository groupTrainingReviewsDbRepository) {
@@ -22,6 +30,54 @@ public class TrainingsServiceGroupTrainingsImpl extends TrainingsService {
 
     @Autowired
     GroupTrainingsDbRepository groupTrainingsDbRepository;
+
+    private boolean isExistRequiredDataForGroupTraining(GroupTrainingModel groupTrainingModel){
+        String trainingName = groupTrainingModel.getTrainingName();
+        String trainerId = groupTrainingModel.getTrainerId();
+        String date = groupTrainingModel.getDate();
+        String startTime = groupTrainingModel.getStartTime();
+        String endTime = groupTrainingModel.getEndTime();
+
+        if(trainingName.isEmpty() || trainerId.isEmpty() || date.isEmpty() || startTime.isEmpty() || endTime.isEmpty())
+            return false;
+
+        return true;
+    }
+
+    private boolean isValidHallNo(int hallNo){
+        if(hallNo <= 0)
+            return false;
+        return true;
+    }
+
+    private boolean isValidLimit(int limit){
+        if(limit <= 0)
+            return false;
+        return true;
+    }
+
+    private boolean isTrainingRetroDateAndTime(String date) throws ParseException {
+        SimpleDateFormat sdfDate = new SimpleDateFormat("yyyy-MM-dd");
+        Date requestDateParsed = sdfDate.parse(date);
+        Date now = new Date();
+        String todayDateFormatted = sdfDate.format(now);
+        Date todayDateParsed = sdfDate.parse(todayDateFormatted);
+
+        if(requestDateParsed.before(todayDateParsed)) return true;
+
+        return false;
+    }
+
+    private boolean isStartTimeAfterEndTime(String  startTime, String endTime){
+
+        LocalTime start = LocalTime.parse( startTime);
+        LocalTime stop = LocalTime.parse( endTime );
+        Duration duration = Duration.between( start, stop );
+
+        if(duration.toMinutes()<=0) return true;
+
+        return false;
+    }
 
     @Override
     public List<GroupTrainings> getGroupTrainings() {
@@ -76,6 +132,31 @@ public class TrainingsServiceGroupTrainingsImpl extends TrainingsService {
         if(groupTrainingsDbRepository.isClientAlreadyExistInReserveList(trainingId, clientId)){
             groupTrainingsDbRepository.removeFromReserveList(trainingId, clientId);
         }
+    }
+
+    @Override
+    public GroupTrainings createGroupTraining(GroupTrainingModel groupTrainingModel) throws TrainingCreationException, ParseException, InvalidHourException {
+        if(!isExistRequiredDataForGroupTraining(groupTrainingModel))
+            throw new TrainingCreationException("Cannot create new group training. Missing required data.");
+
+        String date = groupTrainingModel.getDate();
+        String startTime = groupTrainingModel.getStartTime();
+        String endTime = groupTrainingModel.getEndTime();
+        int hallNo = groupTrainingModel.getHallNo();
+        int limit = groupTrainingModel.getLimit();
+
+        if(isTrainingRetroDateAndTime(date))
+            throw new TrainingCreationException("Cannot create new group training. Training retro date.");
+        if(isStartTimeAfterEndTime(startTime, endTime))
+            throw new TrainingCreationException("Cannot create new group training. Start time after end time.");
+        if(!isValidHallNo(hallNo))
+            throw new TrainingCreationException("Cannot create new group training. Invalid hall no.");
+        if(!isValidLimit(limit))
+            throw new TrainingCreationException("Cannot create new group training. Invalid limit.");
+        if(!groupTrainingsDbRepository.isAbilityToCreateTraining(groupTrainingModel))
+            throw new TrainingCreationException("Cannot create new group training");
+
+        return groupTrainingsDbRepository.createTraining(groupTrainingModel);
     }
 
 

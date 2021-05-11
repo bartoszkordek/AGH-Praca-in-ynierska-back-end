@@ -17,7 +17,7 @@ class RegistrationTokenTest {
         @Test
         void shouldHaveAllFieldNullOrEqual0() {
             RegistrationToken verificationToken = new RegistrationToken();
-            assertThat(verificationToken).hasAllNullFieldsOrPropertiesExcept("id");
+            assertThat(verificationToken).hasAllNullFieldsOrPropertiesExcept("id","wasUsed");
             assertThat(verificationToken.getId()).isZero();
         }
 

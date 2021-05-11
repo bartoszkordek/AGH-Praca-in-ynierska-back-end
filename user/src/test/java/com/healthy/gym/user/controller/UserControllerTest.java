@@ -7,6 +7,7 @@ import com.healthy.gym.user.listener.RegistrationListener;
 import com.healthy.gym.user.service.TokenService;
 import com.healthy.gym.user.service.UserService;
 import com.healthy.gym.user.shared.UserDTO;
+import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -183,7 +184,7 @@ class UserControllerTest {
                 .content(requestBody)
                 .contentType(MediaType.APPLICATION_JSON);
 
-        mockMvc.perform(request).andExpect(
+        mockMvc.perform(request).andDo(print()).andExpect(
                 matchAll(
                         status().isBadRequest(),
                         content().contentType(MediaType.APPLICATION_JSON),
@@ -194,8 +195,11 @@ class UserControllerTest {
                         jsonPath("$.errors.surname").value(messages.get("field.surname.failure")),
                         jsonPath("$.errors.email").value(messages.get("field.email.failure")),
                         jsonPath("$.errors.phoneNumber").value(messages.get("field.phone.number.failure")),
-                        jsonPath("$.errors.password").value(messages.get("field.password.failure")),
-                        jsonPath("$.errors.matchingPassword").value(messages.get("field.password.match.failure"))
+                        jsonPath("$.errors.password")
+                                .value(Matchers.anyOf(
+                                        is(messages.get("field.password.failure")),
+                                        is(messages.get("field.password.match.failure"))
+                                ))
                 )
         );
     }
@@ -402,7 +406,7 @@ class UserControllerTest {
                     .param("token", token)
                     .header("Accept-Language", testedLocale.toString());
 
-            doNothing().when(tokenService).verifyRegistrationToken(anyString());
+            doReturn(new UserDTO()).when(tokenService).verifyRegistrationToken(anyString());
             String expectedMessage = messages.get("registration.confirmation.token.valid");
 
             mockMvc.perform(request)

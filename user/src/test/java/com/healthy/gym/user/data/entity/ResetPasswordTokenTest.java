@@ -17,7 +17,7 @@ class ResetPasswordTokenTest {
         @Test
         void shouldHaveAllFieldNullOrEqual0() {
             ResetPasswordToken token = new ResetPasswordToken();
-            assertThat(token).hasAllNullFieldsOrPropertiesExcept("id");
+            assertThat(token).hasAllNullFieldsOrPropertiesExcept("id","wasUsed");
             assertThat(token.getId()).isZero();
         }
 

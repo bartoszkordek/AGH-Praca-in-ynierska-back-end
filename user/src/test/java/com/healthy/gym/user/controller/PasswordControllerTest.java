@@ -6,6 +6,7 @@ import com.healthy.gym.user.exceptions.token.ExpiredTokenException;
 import com.healthy.gym.user.exceptions.token.InvalidTokenException;
 import com.healthy.gym.user.service.TokenService;
 import com.healthy.gym.user.service.UserService;
+import com.healthy.gym.user.shared.UserDTO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -34,7 +35,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.anEmptyMap;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -380,7 +381,7 @@ class PasswordControllerTest {
                     .header("Accept-Language", testedLocale.toString())
                     .contentType(MediaType.APPLICATION_JSON_VALUE);
 
-            doNothing().when(tokenService).verifyTokenAndResetPassword(anyString(),anyString());
+            doReturn(new UserDTO()).when(tokenService).verifyTokenAndResetPassword(anyString(), anyString());
             String expectedMessage = messages.get("reset.password.confirmation.token.valid");
 
             mockMvc.perform(request)
@@ -411,7 +412,7 @@ class PasswordControllerTest {
                         .contentType(MediaType.APPLICATION_JSON);
 
                 doThrow(ExpiredTokenException.class).when(tokenService)
-                        .verifyTokenAndResetPassword(anyString(),anyString());
+                        .verifyTokenAndResetPassword(anyString(), anyString());
                 String expectedMessage = messages.get("reset.password.confirmation.token.expired");
 
                 mockMvc.perform(request)
@@ -439,7 +440,7 @@ class PasswordControllerTest {
                         .contentType(MediaType.APPLICATION_JSON);
 
                 doThrow(InvalidTokenException.class).when(tokenService)
-                        .verifyTokenAndResetPassword(anyString(),anyString());
+                        .verifyTokenAndResetPassword(anyString(), anyString());
                 String expectedMessage = messages.get("reset.password.confirmation.token.invalid");
 
                 mockMvc.perform(request)
@@ -467,7 +468,7 @@ class PasswordControllerTest {
                         .contentType(MediaType.APPLICATION_JSON);
 
                 doThrow(IllegalStateException.class).when(tokenService)
-                        .verifyTokenAndResetPassword(anyString(),anyString());
+                        .verifyTokenAndResetPassword(anyString(), anyString());
                 String expectedMessage = messages.get("reset.password.error");
 
                 mockMvc.perform(request)
@@ -488,7 +489,7 @@ class PasswordControllerTest {
 
                 @BeforeEach
                 void setUp() {
-                    fieldErrors=new HashMap<>();
+                    fieldErrors = new HashMap<>();
                     objectMapper = new ObjectMapper();
                 }
 
@@ -511,10 +512,10 @@ class PasswordControllerTest {
                             .header("Accept-Language", testedLocale.toString())
                             .contentType(MediaType.APPLICATION_JSON);
 
-                    fieldErrors.put("password",messages.get("field.password.failure"));
-                    fieldErrors.put("matchingPassword",messages.get("field.password.failure"));
+                    fieldErrors.put("password", messages.get("field.password.failure"));
+                    fieldErrors.put("matchingPassword", messages.get("field.password.failure"));
 
-                    String expectedMessage=objectMapper.writeValueAsString(fieldErrors);
+                    String expectedMessage = objectMapper.writeValueAsString(fieldErrors);
 
                     mockMvc.perform(request)
                             .andDo(print())
@@ -541,10 +542,10 @@ class PasswordControllerTest {
                             .header("Accept-Language", testedLocale.toString())
                             .contentType(MediaType.APPLICATION_JSON);
 
-                    fieldErrors.put("password",messages.get("field.password.failure"));
-                    fieldErrors.put("matchingPassword",messages.get("field.password.failure"));
+                    fieldErrors.put("password", messages.get("field.password.failure"));
+                    fieldErrors.put("matchingPassword", messages.get("field.password.failure"));
 
-                    String expectedMessage=objectMapper.writeValueAsString(fieldErrors);
+                    String expectedMessage = objectMapper.writeValueAsString(fieldErrors);
 
                     mockMvc.perform(request)
                             .andDo(print())
@@ -572,9 +573,9 @@ class PasswordControllerTest {
                             .header("Accept-Language", testedLocale.toString())
                             .contentType(MediaType.APPLICATION_JSON);
 
-                    fieldErrors.put("password",messages.get("field.password.match.failure"));
+                    fieldErrors.put("password", messages.get("field.password.match.failure"));
 
-                    String expectedMessage=objectMapper.writeValueAsString(fieldErrors);
+                    String expectedMessage = objectMapper.writeValueAsString(fieldErrors);
 
                     mockMvc.perform(request)
                             .andDo(print())

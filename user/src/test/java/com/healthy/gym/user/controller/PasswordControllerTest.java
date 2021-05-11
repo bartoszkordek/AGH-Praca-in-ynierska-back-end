@@ -1,5 +1,6 @@
 package com.healthy.gym.user.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.healthy.gym.user.configuration.tests.TestCountry;
 import com.healthy.gym.user.exceptions.token.ExpiredTokenException;
 import com.healthy.gym.user.exceptions.token.InvalidTokenException;
@@ -22,6 +23,7 @@ import org.springframework.validation.BindException;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
@@ -353,11 +355,16 @@ class PasswordControllerTest {
     class WhileConfirmResettingPasswordIsCalled {
         private URI uri;
         private String token;
+        private String requestBody;
 
         @BeforeEach
         void setUp() throws URISyntaxException {
             uri = new URI("/confirmNewPassword");
             token = UUID.randomUUID().toString();
+            requestBody = "{" +
+                    "\"password\": \"test1234\",\n" +
+                    "\"matchingPassword\": \"test1234\"" +
+                    "}";
         }
 
         @ParameterizedTest
@@ -367,13 +374,14 @@ class PasswordControllerTest {
             Locale testedLocale = convertEnumToLocale(country);
 
             RequestBuilder request = MockMvcRequestBuilders
-                    .get(uri)
+                    .post(uri)
                     .param("token", token)
+                    .content(requestBody)
                     .header("Accept-Language", testedLocale.toString())
                     .contentType(MediaType.APPLICATION_JSON_VALUE);
 
-            doNothing().when(tokenService).verifyRegistrationToken(anyString());
-            String expectedMessage = messages.get("registration.confirmation.token.valid");
+            doNothing().when(tokenService).verifyTokenAndResetPassword(anyString(),anyString());
+            String expectedMessage = messages.get("reset.password.confirmation.token.valid");
 
             mockMvc.perform(request)
                     .andDo(print())
@@ -395,13 +403,16 @@ class PasswordControllerTest {
                 Locale testedLocale = convertEnumToLocale(country);
 
                 RequestBuilder request = MockMvcRequestBuilders
-                        .get(uri)
+                        .post(uri)
+                        .param("token", token)
+                        .content(requestBody)
                         .param("token", token)
                         .header("Accept-Language", testedLocale.toString())
                         .contentType(MediaType.APPLICATION_JSON);
 
-                doThrow(ExpiredTokenException.class).when(tokenService).verifyResetPasswordToken(anyString());
-                String expectedMessage = messages.get("registration.confirmation.token.expired");
+                doThrow(ExpiredTokenException.class).when(tokenService)
+                        .verifyTokenAndResetPassword(anyString(),anyString());
+                String expectedMessage = messages.get("reset.password.confirmation.token.expired");
 
                 mockMvc.perform(request)
                         .andDo(print())
@@ -421,13 +432,15 @@ class PasswordControllerTest {
                 Locale testedLocale = convertEnumToLocale(country);
 
                 RequestBuilder request = MockMvcRequestBuilders
-                        .get(uri)
+                        .post(uri)
                         .param("token", token)
+                        .content(requestBody)
                         .header("Accept-Language", testedLocale.toString())
                         .contentType(MediaType.APPLICATION_JSON);
 
-                doThrow(InvalidTokenException.class).when(tokenService).verifyResetPasswordToken(anyString());
-                String expectedMessage = messages.get("registration.confirmation.token.invalid");
+                doThrow(InvalidTokenException.class).when(tokenService)
+                        .verifyTokenAndResetPassword(anyString(),anyString());
+                String expectedMessage = messages.get("reset.password.confirmation.token.invalid");
 
                 mockMvc.perform(request)
                         .andDo(print())
@@ -439,7 +452,6 @@ class PasswordControllerTest {
                         );
             }
 
-
             @ParameterizedTest
             @EnumSource(TestCountry.class)
             void genericExceptionWhenInternalServerErrorHappened(TestCountry country)
@@ -448,13 +460,15 @@ class PasswordControllerTest {
                 Locale testedLocale = convertEnumToLocale(country);
 
                 RequestBuilder request = MockMvcRequestBuilders
-                        .get(uri)
+                        .post(uri)
                         .param("token", token)
+                        .content(requestBody)
                         .header("Accept-Language", testedLocale.toString())
                         .contentType(MediaType.APPLICATION_JSON);
 
-                doThrow(IllegalStateException.class).when(tokenService).verifyResetPasswordToken(anyString());
-                String expectedMessage = messages.get("registration.confirmation.token.error");
+                doThrow(IllegalStateException.class).when(tokenService)
+                        .verifyTokenAndResetPassword(anyString(),anyString());
+                String expectedMessage = messages.get("reset.password.error");
 
                 mockMvc.perform(request)
                         .andDo(print())
@@ -464,6 +478,110 @@ class PasswordControllerTest {
                                 assertThat(result.getResolvedException().getCause())
                                         .isInstanceOf(IllegalStateException.class)
                         );
+            }
+
+            @Nested
+            class BindExceptionWhenInvalidPasswordProvided {
+
+                private Map<String, String> fieldErrors;
+                private ObjectMapper objectMapper;
+
+                @BeforeEach
+                void setUp() {
+                    fieldErrors=new HashMap<>();
+                    objectMapper = new ObjectMapper();
+                }
+
+                @ParameterizedTest
+                @EnumSource(TestCountry.class)
+                void WhenPasswordsLengthIsTooSmall(TestCountry country)
+                        throws Exception {
+                    Map<String, String> messages = getMessagesAccordingToLocale(country);
+                    Locale testedLocale = convertEnumToLocale(country);
+
+                    String requestBody = "{" +
+                            "\"password\": \"test123\",\n" +
+                            "\"matchingPassword\": \"test123\"" +
+                            "}";
+
+                    RequestBuilder request = MockMvcRequestBuilders
+                            .post(uri)
+                            .content(requestBody)
+                            .param("token", token)
+                            .header("Accept-Language", testedLocale.toString())
+                            .contentType(MediaType.APPLICATION_JSON);
+
+                    fieldErrors.put("password",messages.get("field.password.failure"));
+                    fieldErrors.put("matchingPassword",messages.get("field.password.failure"));
+
+                    String expectedMessage=objectMapper.writeValueAsString(fieldErrors);
+
+                    mockMvc.perform(request)
+                            .andDo(print())
+                            .andExpect(status().isBadRequest())
+                            .andExpect(status().reason(is(expectedMessage)));
+                }
+
+                @ParameterizedTest
+                @EnumSource(TestCountry.class)
+                void WhenPasswordsLengthIsTooBig(TestCountry country)
+                        throws Exception {
+                    Map<String, String> messages = getMessagesAccordingToLocale(country);
+                    Locale testedLocale = convertEnumToLocale(country);
+
+                    String requestBody = "{" +
+                            "\"password\": \"test1234test1234test1234test12345\",\n" +
+                            "\"matchingPassword\": \"test1234test1234test1234test12345\"" +
+                            "}";
+
+                    RequestBuilder request = MockMvcRequestBuilders
+                            .post(uri)
+                            .content(requestBody)
+                            .param("token", token)
+                            .header("Accept-Language", testedLocale.toString())
+                            .contentType(MediaType.APPLICATION_JSON);
+
+                    fieldErrors.put("password",messages.get("field.password.failure"));
+                    fieldErrors.put("matchingPassword",messages.get("field.password.failure"));
+
+                    String expectedMessage=objectMapper.writeValueAsString(fieldErrors);
+
+                    mockMvc.perform(request)
+                            .andDo(print())
+                            .andExpect(status().isBadRequest())
+                            .andExpect(status().reason(is(expectedMessage)));
+                }
+
+
+                @ParameterizedTest
+                @EnumSource(TestCountry.class)
+                void WhenPasswordsDoNotMatch(TestCountry country)
+                        throws Exception {
+                    Map<String, String> messages = getMessagesAccordingToLocale(country);
+                    Locale testedLocale = convertEnumToLocale(country);
+
+                    String requestBody = "{" +
+                            "\"password\": \"test1234\",\n" +
+                            "\"matchingPassword\": \"test12345\"" +
+                            "}";
+
+                    RequestBuilder request = MockMvcRequestBuilders
+                            .post(uri)
+                            .content(requestBody)
+                            .param("token", token)
+                            .header("Accept-Language", testedLocale.toString())
+                            .contentType(MediaType.APPLICATION_JSON);
+
+                    fieldErrors.put("password",messages.get("field.password.match.failure"));
+
+                    String expectedMessage=objectMapper.writeValueAsString(fieldErrors);
+
+                    mockMvc.perform(request)
+                            .andDo(print())
+                            .andExpect(status().isBadRequest())
+                            .andExpect(status().reason(is(expectedMessage)));
+
+                }
             }
         }
     }

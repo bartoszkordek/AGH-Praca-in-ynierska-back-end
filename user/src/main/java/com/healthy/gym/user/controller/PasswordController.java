@@ -1,8 +1,11 @@
 package com.healthy.gym.user.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.healthy.gym.user.component.Translator;
 import com.healthy.gym.user.exceptions.token.ExpiredTokenException;
 import com.healthy.gym.user.exceptions.token.InvalidTokenException;
+import com.healthy.gym.user.pojo.request.ConfirmResetPasswordRequest;
 import com.healthy.gym.user.pojo.request.ResetPasswordRequest;
 import com.healthy.gym.user.pojo.response.ConfirmationResponse;
 import com.healthy.gym.user.service.TokenService;
@@ -15,11 +18,17 @@ import org.springframework.security.authentication.*;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.validation.BindException;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
 import javax.validation.Valid;
 import java.util.HashMap;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @RestController
 public class PasswordController {
@@ -86,32 +95,50 @@ public class PasswordController {
         }
     }
 
-    @GetMapping(
+    @PostMapping(
             value = "/confirmNewPassword",
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    public ResponseEntity<ConfirmationResponse> confirmResettingPassword(@RequestParam("token") String token) {
-
+    public ResponseEntity<ConfirmationResponse> confirmResettingPassword(
+            @RequestParam("token") String token,
+            @Valid @RequestBody ConfirmResetPasswordRequest request,
+            BindingResult bindingResult
+    ) throws JsonProcessingException {
         try {
-            tokenService.verifyResetPasswordToken(token);
-            String message = translator.toLocale("registration.confirmation.token.valid");
+            if (bindingResult.hasErrors()) throw new BindException(bindingResult);
+
+            tokenService.verifyTokenAndResetPassword(token, request.getPassword());
+            String message = translator.toLocale("reset.password.confirmation.token.valid");
             return ResponseEntity
                     .status(HttpStatus.OK)
                     .body(new ConfirmationResponse(message, new HashMap<>(), true));
 
         } catch (ExpiredTokenException exception) {
-            String reason = translator.toLocale("registration.confirmation.token.expired");
+            String reason = translator.toLocale("reset.password.confirmation.token.expired");
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, reason, exception);
 
         } catch (InvalidTokenException exception) {
-            String reason = translator.toLocale("registration.confirmation.token.invalid");
+            String reason = translator.toLocale("reset.password.confirmation.token.invalid");
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, reason, exception);
 
+        } catch (BindException exception) {
+            String reason = getBindExceptionErrorMessages(exception);
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, exception);
+
         } catch (Exception exception) {
-            String reason = translator.toLocale("registration.confirmation.token.error");
+            String reason = translator.toLocale("reset.password.error");
             exception.printStackTrace();
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, reason, exception);
         }
+    }
+
+    private String getBindExceptionErrorMessages(BindException exception) throws JsonProcessingException {
+        ObjectMapper objectMapper = new ObjectMapper();
+        Map<String, String> errorMessages = exception.getFieldErrors()
+                .stream()
+                .collect(Collectors.toMap(FieldError::getField, FieldError::getDefaultMessage));
+
+        return objectMapper.writeValueAsString(errorMessages);
     }
 }

@@ -7,6 +7,9 @@ import com.healthy.gym.trainings.model.IndividualTrainingsAcceptModel;
 import com.healthy.gym.trainings.model.IndividualTrainingsRequestModel;
 import org.springframework.stereotype.Service;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 @Service
@@ -16,6 +19,18 @@ public class IndividualTrainingsService {
 
     public IndividualTrainingsService(IndividualTrainingsDbRepository individualTrainingsDbRepository){
         this.individualTrainingsDbRepository = individualTrainingsDbRepository;
+    }
+
+    private boolean isTrainingRetroDateAndTime(String date, String startDate) throws ParseException {
+        String startDateAndTime = date.concat("-").concat(startDate);
+        SimpleDateFormat sdfDateAndTime = new SimpleDateFormat("yyyy-MM-dd-HH:mm");
+        Date requestDateParsed = sdfDateAndTime.parse(startDateAndTime);
+
+        Date now = new Date();
+
+        if(requestDateParsed.before(now)) return true;
+
+        return false;
     }
 
     public List<IndividualTrainings> getAllIndividualTrainings(){
@@ -62,12 +77,18 @@ public class IndividualTrainingsService {
         return individualTrainingsDbRepository.declineIndividualTrainingRequest(trainingId);
     }
 
-    public IndividualTrainings cancelIndividualTrainingRequest(String trainingId, String clientId) throws NotExistingIndividualTrainingException, NotAuthorizedClientException {
+    public IndividualTrainings cancelIndividualTrainingRequest(String trainingId, String clientId) throws NotExistingIndividualTrainingException, NotAuthorizedClientException, ParseException, RetroIndividualTrainingException {
         if (!individualTrainingsDbRepository.isIndividualTrainingExist(trainingId)) {
             throw new NotExistingIndividualTrainingException("Training with ID: " + trainingId + " doesn't exist");
         }
         if (!individualTrainingsDbRepository.isIndividualTrainingExistAndRequestedByClient(trainingId, clientId)) {
             throw new NotAuthorizedClientException("Training is not authorized by client");
+        }
+        IndividualTrainings individualTraining = individualTrainingsDbRepository.getIndividualTrainingById(trainingId);
+        String individualTrainingDate = individualTraining.getDate();
+        String individualTrainingStartTime = individualTraining.getStartTime();
+        if(isTrainingRetroDateAndTime(individualTrainingDate ,individualTrainingStartTime)){
+            throw new RetroIndividualTrainingException("Retro date");
         }
         return individualTrainingsDbRepository.cancelIndividualTrainingRequest(trainingId);
     }

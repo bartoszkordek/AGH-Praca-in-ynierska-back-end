@@ -12,6 +12,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.text.ParseException;
 import java.util.List;
 
 @RestController
@@ -107,8 +108,12 @@ public class SignedClientTrainingsController {
 
     @PostMapping("/individual/request")
     public IndividualTrainings createIndividualTrainingRequest(@Valid @RequestBody final IndividualTrainingsRequestModel individualTrainingsRequestModel,
-                                                               @RequestParam(required = true) final String clientId) throws InvalidHourException {
-        return individualTrainingsService.createIndividualTrainingRequest(individualTrainingsRequestModel, clientId);
+                                                               @RequestParam(required = true) final String clientId) throws RestException {
+        try{
+            return individualTrainingsService.createIndividualTrainingRequest(individualTrainingsRequestModel, clientId);
+        } catch (InvalidHourException e){
+            throw new RestException(e.getMessage(), HttpStatus.BAD_REQUEST, e);
+        }
     }
 
     @DeleteMapping("/individual/request/{trainingId}")
@@ -116,7 +121,7 @@ public class SignedClientTrainingsController {
                                                 @RequestParam(required = true) final String clientId) throws RestException {
         try{
             return individualTrainingsService.cancelIndividualTrainingRequest(trainingId, clientId);
-        } catch (NotExistingIndividualTrainingException e){
+        } catch (NotExistingIndividualTrainingException | ParseException | RetroIndividualTrainingException e){
             throw new RestException(e.getMessage(), HttpStatus.BAD_REQUEST, e);
         } catch (NotAuthorizedClientException e){
             throw new RestException(e.getMessage(), HttpStatus.FORBIDDEN, e);

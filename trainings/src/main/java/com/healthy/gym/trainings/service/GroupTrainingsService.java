@@ -74,7 +74,7 @@ public class GroupTrainingsService {
         return true;
     }
 
-    private boolean isTrainingRetroDateAndTime(String date) throws ParseException {
+    private boolean isTrainingRetroDate(String date) throws ParseException {
         SimpleDateFormat sdfDate = new SimpleDateFormat("yyyy-MM-dd");
         Date requestDateParsed = sdfDate.parse(date);
         Date now = new Date();
@@ -164,7 +164,7 @@ public class GroupTrainingsService {
         int hallNo = groupTrainingModel.getHallNo();
         int limit = groupTrainingModel.getLimit();
 
-        if(isTrainingRetroDateAndTime(date))
+        if(isTrainingRetroDate(date))
             throw new TrainingCreationException("Cannot create new group training. Training retro date.");
         if(isStartTimeAfterEndTime(startTime, endTime))
             throw new TrainingCreationException("Cannot create new group training. Start time after end time.");

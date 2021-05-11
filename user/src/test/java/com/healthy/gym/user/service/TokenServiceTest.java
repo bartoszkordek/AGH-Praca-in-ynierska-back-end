@@ -138,6 +138,17 @@ class TokenServiceTest {
         }
 
         @Test
+        void shouldThrowInvalidTokenExceptionWhenTheTokenWasUsed() {
+            ResetPasswordToken resetPasswordToken = new ResetPasswordToken();
+            resetPasswordToken.setWasUsed(true);
+
+            when(resetPasswordTokenDAO.findByToken("testToken")).thenReturn(resetPasswordToken);
+            assertThatThrownBy(
+                    () -> tokenService.verifyTokenAndResetPassword("testToken", anyString())
+            ).isInstanceOf(InvalidTokenException.class);
+        }
+
+        @Test
         void shouldThrowExpiredTokenExceptionWhenProvidedExpiredToken() {
             ResetPasswordToken expiredToken = new ResetPasswordToken();
             expiredToken.setExpiryDate(LocalDateTime.now().minusMinutes(1));
@@ -162,6 +173,38 @@ class TokenServiceTest {
         }
 
         @Test
+        void shouldThrowIllegalStateExceptionWhenResetPasswordTokenHaveNotBeenUpdatedProperly() throws ExpiredTokenException, InvalidTokenException {
+            ResetPasswordToken resetPasswordToken = new ResetPasswordToken();
+            resetPasswordToken.setExpiryDate(LocalDateTime.now().plusHours(2));
+            resetPasswordToken.setUserEntity(janKowalskiEntity);
+
+            String newPassword = "newTestPassword";
+            when(resetPasswordTokenDAO.findByToken("testToken")).thenReturn(resetPasswordToken);
+            when(userDAO.save(janKowalskiEntity)).thenReturn(
+                    new UserEntity(
+                            janKowalskiEntity.getName(),
+                            janKowalskiEntity.getSurname(),
+                            janKowalskiEntity.getEmail(),
+                            janKowalskiEntity.getPhoneNumber(),
+                            bCryptPasswordEncoder.encode(newPassword),
+                            janKowalskiEntity.getUserId(),
+                            janKowalskiEntity.isEnabled(),
+                            janKowalskiEntity.isAccountNonExpired(),
+                            janKowalskiEntity.isCredentialsNonExpired(),
+                            janKowalskiEntity.isAccountNonLocked()
+                    )
+            );
+
+            ResetPasswordToken savedResetPasswordToken = new ResetPasswordToken();
+            savedResetPasswordToken.setWasUsed(false);
+            when(resetPasswordTokenDAO.save(resetPasswordToken)).thenReturn(savedResetPasswordToken);
+
+            assertThatThrownBy(
+                    () -> tokenService.verifyTokenAndResetPassword("testToken", anyString())
+            ).isInstanceOf(IllegalStateException.class);
+        }
+
+        @Test
         void shouldReturnUserDTOWithNewEncryptedPassword() throws ExpiredTokenException, InvalidTokenException {
             ResetPasswordToken resetPasswordToken = new ResetPasswordToken();
             resetPasswordToken.setExpiryDate(LocalDateTime.now().plusHours(2));
@@ -175,7 +218,7 @@ class TokenServiceTest {
                             janKowalskiEntity.getSurname(),
                             janKowalskiEntity.getEmail(),
                             janKowalskiEntity.getPhoneNumber(),
-                            bCryptPasswordEncoder.encode("newTestPassword"),
+                            bCryptPasswordEncoder.encode(newPassword),
                             janKowalskiEntity.getUserId(),
                             janKowalskiEntity.isEnabled(),
                             janKowalskiEntity.isAccountNonExpired(),
@@ -183,6 +226,10 @@ class TokenServiceTest {
                             janKowalskiEntity.isAccountNonLocked()
                     )
             );
+
+            ResetPasswordToken savedResetPasswordToken = new ResetPasswordToken();
+            savedResetPasswordToken.setWasUsed(true);
+            when(resetPasswordTokenDAO.save(resetPasswordToken)).thenReturn(savedResetPasswordToken);
 
             UserDTO userDTO = tokenService.verifyTokenAndResetPassword("testToken", newPassword);
 
@@ -196,6 +243,17 @@ class TokenServiceTest {
         @Test
         void shouldThrowInvalidTokenExceptionWhenProvidedInvalidToken() {
             when(registrationTokenDAO.findByToken(anyString())).thenReturn(null);
+            assertThatThrownBy(
+                    () -> tokenService.verifyRegistrationToken(anyString())
+            ).isInstanceOf(InvalidTokenException.class);
+        }
+
+        @Test
+        void shouldThrowInvalidTokenExceptionWhenTheTokenWasUsed() {
+            RegistrationToken registrationToken = new RegistrationToken();
+            registrationToken.setWasUsed(true);
+
+            when(registrationTokenDAO.findByToken(anyString())).thenReturn(registrationToken);
             assertThatThrownBy(
                     () -> tokenService.verifyRegistrationToken(anyString())
             ).isInstanceOf(InvalidTokenException.class);
@@ -226,6 +284,41 @@ class TokenServiceTest {
         }
 
         @Test
+        void shouldThrowIllegalStateExceptionWhenRegistrationTokenHaveNotBeenUpdatedProperly() throws ExpiredTokenException, InvalidTokenException {
+            janKowalskiEntity.setEnabled(false);
+
+            RegistrationToken registrationToken = spy(RegistrationToken.class);
+            registrationToken.setExpiryDate(LocalDateTime.now().plusHours(2));
+            registrationToken.setUserEntity(janKowalskiEntity);
+
+            when(registrationTokenDAO.findByToken("testToken")).thenReturn(registrationToken);
+            when(userDAO.save(janKowalskiEntity)).thenReturn(
+                    new UserEntity(
+                            janKowalskiEntity.getName(),
+                            janKowalskiEntity.getSurname(),
+                            janKowalskiEntity.getEmail(),
+                            janKowalskiEntity.getPhoneNumber(),
+                            janKowalskiEntity.getEncryptedPassword(),
+                            janKowalskiEntity.getUserId(),
+                            !janKowalskiEntity.isEnabled(),
+                            janKowalskiEntity.isAccountNonExpired(),
+                            janKowalskiEntity.isCredentialsNonExpired(),
+                            janKowalskiEntity.isAccountNonLocked()
+                    )
+            );
+
+            RegistrationToken savedRegistrationToken = new RegistrationToken();
+            savedRegistrationToken.setWasUsed(false);
+            when(registrationTokenDAO.save(registrationToken)).thenReturn(savedRegistrationToken);
+
+            assertThat(registrationToken.getUserEntity().isEnabled()).isFalse();
+
+            assertThatThrownBy(
+                    () -> tokenService.verifyRegistrationToken("testToken")
+            ).isInstanceOf(IllegalStateException.class);
+        }
+
+        @Test
         void shouldReturnUserDTOWithAccountEnabled() throws ExpiredTokenException, InvalidTokenException {
             janKowalskiEntity.setEnabled(false);
 
@@ -248,6 +341,10 @@ class TokenServiceTest {
                             janKowalskiEntity.isAccountNonLocked()
                     )
             );
+
+            RegistrationToken savedRegistrationToken = new RegistrationToken();
+            savedRegistrationToken.setWasUsed(true);
+            when(registrationTokenDAO.save(registrationToken)).thenReturn(savedRegistrationToken);
 
             assertThat(registrationToken.getUserEntity().isEnabled()).isFalse();
 

@@ -71,7 +71,7 @@ public class AbstractTokenEntity {
         this.expiryDate = expiryDate;
     }
 
-    public boolean isWasUsed() {
+    public boolean wasUsed() {
         return wasUsed;
     }
 

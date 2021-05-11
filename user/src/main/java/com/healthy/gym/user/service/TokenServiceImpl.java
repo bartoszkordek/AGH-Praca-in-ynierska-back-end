@@ -64,7 +64,7 @@ public class TokenServiceImpl implements TokenService {
     public UserDTO verifyRegistrationToken(String token) throws InvalidTokenException, ExpiredTokenException {
         RegistrationToken registrationToken = registrationTokenDAO.findByToken(token);
 
-        if (registrationToken == null) throw new InvalidTokenException();
+        if (registrationToken == null || registrationToken.wasUsed()) throw new InvalidTokenException();
         if (tokenExpired(registrationToken)) throw new ExpiredTokenException();
 
         UserEntity userEntity = registrationToken.getUserEntity();
@@ -72,6 +72,10 @@ public class TokenServiceImpl implements TokenService {
         userEntity.setEnabled(true);
 
         UserEntity savedUserEntity = userDAO.save(userEntity);
+        registrationToken.setWasUsed(true);
+        RegistrationToken savedRegistrationToken = registrationTokenDAO.save(registrationToken);
+        if (!savedRegistrationToken.wasUsed()) throw new IllegalStateException();
+
         return modelMapper.map(savedUserEntity, UserDTO.class);
     }
 
@@ -84,7 +88,7 @@ public class TokenServiceImpl implements TokenService {
 
         ResetPasswordToken resetPasswordToken = resetPasswordTokenDAO.findByToken(token);
 
-        if (resetPasswordToken == null) throw new InvalidTokenException();
+        if (resetPasswordToken == null || resetPasswordToken.wasUsed()) throw new InvalidTokenException();
         if (tokenExpired(resetPasswordToken)) throw new ExpiredTokenException();
 
         UserEntity userEntity = resetPasswordToken.getUserEntity();
@@ -94,6 +98,9 @@ public class TokenServiceImpl implements TokenService {
         userEntity.setEncryptedPassword(newEncryptedPassword);
 
         UserEntity savedUserEntity = userDAO.save(userEntity);
+        resetPasswordToken.setWasUsed(true);
+        ResetPasswordToken savedResetPasswordToken = resetPasswordTokenDAO.save(resetPasswordToken);
+        if (!savedResetPasswordToken.wasUsed()) throw new IllegalStateException();
 
         return modelMapper.map(savedUserEntity, UserDTO.class);
     }

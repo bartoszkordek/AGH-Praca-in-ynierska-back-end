@@ -3,6 +3,7 @@ package com.healthy.gym.user.security;
 import com.healthy.gym.user.configuration.tests.TestCountry;
 import com.healthy.gym.user.data.entity.UserEntity;
 import com.healthy.gym.user.data.repository.RegistrationTokenDAO;
+import com.healthy.gym.user.data.repository.ResetPasswordTokenDAO;
 import com.healthy.gym.user.data.repository.UserDAO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -27,7 +28,6 @@ import java.util.regex.Pattern;
 import static com.healthy.gym.user.configuration.tests.LocaleConverter.convertEnumToLocale;
 import static com.healthy.gym.user.configuration.tests.Messages.getMessagesAccordingToLocale;
 import static org.hamcrest.Matchers.*;
-import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.ResultMatcher.matchAll;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -42,8 +42,11 @@ class AuthenticationFilterTest {
     @MockBean
     private UserDAO userDAO;
 
-    @MockBean
+    @MockBean // DO NOT REMOVE
     private RegistrationTokenDAO registrationTokenDAO;
+
+    @MockBean // DO NOT REMOVE
+    private ResetPasswordTokenDAO resetPasswordTokenDAO;
 
     @Autowired
     private BCryptPasswordEncoder bCryptPasswordEncoder;
@@ -59,10 +62,13 @@ class AuthenticationFilterTest {
                 "666 777 888",
                 bCryptPasswordEncoder.encode("test12345"),
                 UUID.randomUUID().toString(),
+                true,
+                true,
+                true,
                 true
         );
 
-        when(userDAO.findByEmail(any())).thenReturn(userEntity);
+        when(userDAO.findByEmail("jan.kowalski@wp.pl")).thenReturn(userEntity);
     }
 
     @Nested

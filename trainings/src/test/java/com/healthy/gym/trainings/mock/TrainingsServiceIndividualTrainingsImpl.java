@@ -2,10 +2,7 @@ package com.healthy.gym.trainings.mock;
 
 import com.healthy.gym.trainings.db.IndividualTrainingsDbRepository;
 import com.healthy.gym.trainings.entity.IndividualTrainings;
-import com.healthy.gym.trainings.exception.AlreadyAcceptedIndividualTrainingException;
-import com.healthy.gym.trainings.exception.HallNoOutOfRangeException;
-import com.healthy.gym.trainings.exception.InvalidHourException;
-import com.healthy.gym.trainings.exception.NotExistingIndividualTrainingException;
+import com.healthy.gym.trainings.exception.*;
 import com.healthy.gym.trainings.model.IndividualTrainingsAcceptModel;
 import com.healthy.gym.trainings.model.IndividualTrainingsRequestModel;
 import com.healthy.gym.trainings.service.IndividualTrainingsService;
@@ -47,5 +44,16 @@ public class TrainingsServiceIndividualTrainingsImpl extends IndividualTrainings
             throw new HallNoOutOfRangeException("Hall no: " + individualTrainingsAcceptModel.getHallNo() + " does not exist");
         }
         return individualTrainingsDbRepository.acceptIndividualTrainingRequest(trainingId, individualTrainingsAcceptModel);
+    }
+
+    @Override
+    public IndividualTrainings declineIndividualTraining(String trainingId) throws NotExistingIndividualTrainingException, AlreadyDeclinedIndividualTrainingException {
+        if(!individualTrainingsDbRepository.isIndividualTrainingExist(trainingId)){
+            throw new NotExistingIndividualTrainingException("Training with ID: "+ trainingId + " doesn't exist");
+        }
+        if(individualTrainingsDbRepository.isIndividualTrainingExistAndDeclined(trainingId)){
+            throw new AlreadyDeclinedIndividualTrainingException("Training with ID: "+ trainingId + " has been already declined");
+        }
+        return individualTrainingsDbRepository.declineIndividualTrainingRequest(trainingId);
     }
 }

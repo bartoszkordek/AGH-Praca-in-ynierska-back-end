@@ -42,6 +42,9 @@ public class Messages {
                 {"reset.password.exception.account.expired", "Nie możesz resetować hasła. Twoje konto jest nieaktywne."},
                 {"reset.password.exception.account.locked", "Nie możesz resetować hasła. Twoje konto zostało zablokowane."},
                 {"reset.password.exception.credentials.expired", "Nie możesz resetować hasła. Twoje dane uwierzytelniające straciły ważność."},
+                {"reset.password.confirmation.token.expired", "Wygasł token resetujący hasło."},
+                {"reset.password.confirmation.token.invalid", "Nieprawidłowy token resetujący hasło."},
+                {"reset.password.confirmation.token.valid", "Poprawnie zresetowano hasło. Możesz się zalogować."},
                 {"mail.reset.password.message", "Aby zresetować haslo kliknj poniższy link:"},
                 {"mail.reset.password.expiration", "Link wygasa:"},
                 {"mail.reset.password.subject", "Resetowanie hasła."}
@@ -85,6 +88,9 @@ public class Messages {
                 {"reset.password.exception.account.expired", "You cannot reset your password. Your account has expired."},
                 {"reset.password.exception.account.locked", "You cannot reset your password. Your account has been blocked."},
                 {"reset.password.exception.credentials.expired", "You cannot reset your password. Your credentials has expired."},
+                {"reset.password.confirmation.token.expired", "The token resetting password has expired."},
+                {"reset.password.confirmation.token.invalid", "Invalid token resetting password."},
+                {"reset.password.confirmation.token.valid", "Resetting password successfully confirmed. You can log in."},
                 {"mail.reset.password.message", "To reset password click the following link:"},
                 {"mail.reset.password.expiration", "Link expires:"},
                 {"mail.reset.password.subject", "Reset password."}

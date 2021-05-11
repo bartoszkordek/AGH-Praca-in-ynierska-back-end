@@ -8,7 +8,6 @@ import com.healthy.gym.user.pojo.request.LogInUserRequest;
 import com.healthy.gym.user.service.UserService;
 import com.healthy.gym.user.shared.UserDTO;
 import io.jsonwebtoken.Jwts;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -36,7 +35,6 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
     private final Translator translator;
     private final TokenManager tokenManager;
 
-    @Autowired
     public AuthenticationFilter(
             UserService userService,
             Translator translator,

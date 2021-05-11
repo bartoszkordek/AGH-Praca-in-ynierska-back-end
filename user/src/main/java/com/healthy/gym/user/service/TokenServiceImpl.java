@@ -1,5 +1,6 @@
 package com.healthy.gym.user.service;
 
+import com.healthy.gym.user.data.entity.AbstractTokenEntity;
 import com.healthy.gym.user.data.entity.RegistrationToken;
 import com.healthy.gym.user.data.entity.ResetPasswordToken;
 import com.healthy.gym.user.data.entity.UserEntity;
@@ -9,7 +10,10 @@ import com.healthy.gym.user.data.repository.UserDAO;
 import com.healthy.gym.user.exceptions.token.ExpiredTokenException;
 import com.healthy.gym.user.exceptions.token.InvalidTokenException;
 import com.healthy.gym.user.shared.UserDTO;
+import org.modelmapper.ModelMapper;
+import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -20,16 +24,22 @@ public class TokenServiceImpl implements TokenService {
     private final UserDAO userDAO;
     private final RegistrationTokenDAO registrationTokenDAO;
     private final ResetPasswordTokenDAO resetPasswordTokenDAO;
+    private final BCryptPasswordEncoder bCryptPasswordEncoder;
+    private final ModelMapper modelMapper;
 
     @Autowired
     public TokenServiceImpl(
             UserDAO userDAO,
             RegistrationTokenDAO registrationTokenDAO,
-            ResetPasswordTokenDAO resetPasswordTokenDAO
+            ResetPasswordTokenDAO resetPasswordTokenDAO,
+            BCryptPasswordEncoder bCryptPasswordEncoder
     ) {
         this.userDAO = userDAO;
         this.registrationTokenDAO = registrationTokenDAO;
         this.resetPasswordTokenDAO = resetPasswordTokenDAO;
+        this.bCryptPasswordEncoder = bCryptPasswordEncoder;
+        modelMapper = new ModelMapper();
+        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
     }
 
     @Override
@@ -51,7 +61,7 @@ public class TokenServiceImpl implements TokenService {
     }
 
     @Override
-    public void verifyRegistrationToken(String token) throws InvalidTokenException, ExpiredTokenException {
+    public UserDTO verifyRegistrationToken(String token) throws InvalidTokenException, ExpiredTokenException {
         RegistrationToken registrationToken = registrationTokenDAO.findByToken(token);
 
         if (registrationToken == null) throw new InvalidTokenException();
@@ -61,15 +71,30 @@ public class TokenServiceImpl implements TokenService {
         if (userEntity == null) throw new IllegalStateException();
         userEntity.setEnabled(true);
 
-        userDAO.save(userEntity);
+        UserEntity savedUserEntity = userDAO.save(userEntity);
+        return modelMapper.map(savedUserEntity, UserDTO.class);
     }
 
-    private boolean tokenExpired(RegistrationToken registrationToken) {
-        return registrationToken.getExpiryDate().isBefore(LocalDateTime.now());
+    private boolean tokenExpired(AbstractTokenEntity tokenEntity) {
+        return tokenEntity.getExpiryDate().isBefore(LocalDateTime.now());
     }
 
     @Override
-    public void verifyResetPasswordToken(String token) throws InvalidTokenException, ExpiredTokenException {
+    public UserDTO verifyTokenAndResetPassword(String token, String newPassword) throws InvalidTokenException, ExpiredTokenException {
 
+        ResetPasswordToken resetPasswordToken = resetPasswordTokenDAO.findByToken(token);
+
+        if (resetPasswordToken == null) throw new InvalidTokenException();
+        if (tokenExpired(resetPasswordToken)) throw new ExpiredTokenException();
+
+        UserEntity userEntity = resetPasswordToken.getUserEntity();
+        if (userEntity == null) throw new IllegalStateException();
+
+        String newEncryptedPassword = bCryptPasswordEncoder.encode(newPassword);
+        userEntity.setEncryptedPassword(newEncryptedPassword);
+
+        UserEntity savedUserEntity = userDAO.save(userEntity);
+
+        return modelMapper.map(savedUserEntity, UserDTO.class);
     }
 }

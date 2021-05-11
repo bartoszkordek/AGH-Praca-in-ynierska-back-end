@@ -5,6 +5,7 @@ import com.healthy.gym.user.data.entity.ResetPasswordToken;
 import com.healthy.gym.user.data.entity.UserEntity;
 import com.healthy.gym.user.data.repository.RegistrationTokenDAO;
 import com.healthy.gym.user.data.repository.ResetPasswordTokenDAO;
+import com.healthy.gym.user.data.repository.UserDAO;
 import com.healthy.gym.user.exceptions.token.ExpiredTokenException;
 import com.healthy.gym.user.exceptions.token.InvalidTokenException;
 import com.healthy.gym.user.shared.UserDTO;
@@ -21,7 +22,6 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.spy;
@@ -41,6 +41,9 @@ class TokenServiceTest {
 
     @MockBean
     private ResetPasswordTokenDAO resetPasswordTokenDAO;
+
+    @MockBean
+    private UserDAO userDAO;
 
     private String token;
     private UserEntity janKowalskiEntity;
@@ -124,11 +127,66 @@ class TokenServiceTest {
     }
 
     @Nested
-    class WhenVerifyResetPasswordTokenIsCalled {
+    class WhenVerifyTokenAndResetPasswordIsCalled {
 
         @Test
-        void name() {
-            assertTrue(true);
+        void shouldThrowInvalidTokenExceptionWhenProvidedInvalidToken() {
+            when(resetPasswordTokenDAO.findByToken("testToken")).thenReturn(null);
+            assertThatThrownBy(
+                    () -> tokenService.verifyTokenAndResetPassword("testToken", anyString())
+            ).isInstanceOf(InvalidTokenException.class);
+        }
+
+        @Test
+        void shouldThrowExpiredTokenExceptionWhenProvidedExpiredToken() {
+            ResetPasswordToken expiredToken = new ResetPasswordToken();
+            expiredToken.setExpiryDate(LocalDateTime.now().minusMinutes(1));
+
+            when(resetPasswordTokenDAO.findByToken("testToken")).thenReturn(expiredToken);
+            assertThatThrownBy(
+                    () -> tokenService.verifyTokenAndResetPassword("testToken", anyString())
+            ).isInstanceOf(ExpiredTokenException.class);
+        }
+
+        @Test
+        void shouldThrowIllegalStateExceptionWhenNoUserIsAssociatedWithResetPasswordToken() {
+            ResetPasswordToken resetPasswordToken = new ResetPasswordToken();
+            resetPasswordToken.setExpiryDate(LocalDateTime.now().plusHours(2));
+            resetPasswordToken.setUserEntity(null);
+
+            when(resetPasswordTokenDAO.findByToken("testToken")).thenReturn(resetPasswordToken);
+
+            assertThatThrownBy(
+                    () -> tokenService.verifyTokenAndResetPassword("testToken", anyString())
+            ).isInstanceOf(IllegalStateException.class);
+        }
+
+        @Test
+        void shouldReturnUserDTOWithNewEncryptedPassword() throws ExpiredTokenException, InvalidTokenException {
+            ResetPasswordToken resetPasswordToken = new ResetPasswordToken();
+            resetPasswordToken.setExpiryDate(LocalDateTime.now().plusHours(2));
+            resetPasswordToken.setUserEntity(janKowalskiEntity);
+
+            String newPassword = "newTestPassword";
+            when(resetPasswordTokenDAO.findByToken("testToken")).thenReturn(resetPasswordToken);
+            when(userDAO.save(janKowalskiEntity)).thenReturn(
+                    new UserEntity(
+                            janKowalskiEntity.getName(),
+                            janKowalskiEntity.getSurname(),
+                            janKowalskiEntity.getEmail(),
+                            janKowalskiEntity.getPhoneNumber(),
+                            bCryptPasswordEncoder.encode("newTestPassword"),
+                            janKowalskiEntity.getUserId(),
+                            janKowalskiEntity.isEnabled(),
+                            janKowalskiEntity.isAccountNonExpired(),
+                            janKowalskiEntity.isCredentialsNonExpired(),
+                            janKowalskiEntity.isAccountNonLocked()
+                    )
+            );
+
+            UserDTO userDTO = tokenService.verifyTokenAndResetPassword("testToken", newPassword);
+
+            assertThat(bCryptPasswordEncoder.matches(newPassword, userDTO.getEncryptedPassword())).isTrue();
         }
     }
 
@@ -165,6 +223,37 @@ class TokenServiceTest {
             assertThatThrownBy(
                     () -> tokenService.verifyRegistrationToken(anyString())
             ).isInstanceOf(IllegalStateException.class);
+        }
+
+        @Test
+        void shouldReturnUserDTOWithAccountEnabled() throws ExpiredTokenException, InvalidTokenException {
+            janKowalskiEntity.setEnabled(false);
+
+            RegistrationToken registrationToken = spy(RegistrationToken.class);
+            registrationToken.setExpiryDate(LocalDateTime.now().plusHours(2));
+            registrationToken.setUserEntity(janKowalskiEntity);
+
+            when(registrationTokenDAO.findByToken("testToken")).thenReturn(registrationToken);
+            when(userDAO.save(janKowalskiEntity)).thenReturn(
+                    new UserEntity(
+                            janKowalskiEntity.getName(),
+                            janKowalskiEntity.getSurname(),
+                            janKowalskiEntity.getEmail(),
+                            janKowalskiEntity.getPhoneNumber(),
+                            janKowalskiEntity.getEncryptedPassword(),
+                            janKowalskiEntity.getUserId(),
+                            !janKowalskiEntity.isEnabled(),
+                            janKowalskiEntity.isAccountNonExpired(),
+                            janKowalskiEntity.isCredentialsNonExpired(),
+                            janKowalskiEntity.isAccountNonLocked()
+                    )
+            );
+
+            assertThat(registrationToken.getUserEntity().isEnabled()).isFalse();
+
+            UserDTO userDTO = tokenService.verifyRegistrationToken("testToken");
+
+            assertThat(userDTO.isEnabled()).isTrue();
         }
     }
 

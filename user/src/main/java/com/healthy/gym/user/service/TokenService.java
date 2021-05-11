@@ -13,7 +13,7 @@ public interface TokenService {
 
     RegistrationToken createRegistrationToken(UserDTO user, String token);
 
-    void verifyRegistrationToken(String token) throws InvalidTokenException, ExpiredTokenException;
+    UserDTO verifyRegistrationToken(String token) throws InvalidTokenException, ExpiredTokenException;
 
-    void verifyResetPasswordToken(String token) throws InvalidTokenException, ExpiredTokenException;
+    UserDTO verifyTokenAndResetPassword(String token, String newPassword) throws InvalidTokenException, ExpiredTokenException;
 }

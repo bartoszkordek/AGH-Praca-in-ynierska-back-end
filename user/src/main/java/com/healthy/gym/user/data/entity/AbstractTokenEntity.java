@@ -18,8 +18,10 @@ public class AbstractTokenEntity {
     @JoinColumn(nullable = false)
     private UserEntity userEntity;
 
+    @Column(nullable = false)
     private LocalDateTime expiryDate;
 
+    private boolean wasUsed;
 
     public AbstractTokenEntity() {
         //empty constructor required by JPA
@@ -69,17 +71,25 @@ public class AbstractTokenEntity {
         this.expiryDate = expiryDate;
     }
 
+    public boolean isWasUsed() {
+        return wasUsed;
+    }
+
+    public void setWasUsed(boolean wasUsed) {
+        this.wasUsed = wasUsed;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         AbstractTokenEntity that = (AbstractTokenEntity) o;
-        return id == that.id && Objects.equals(token, that.token) && Objects.equals(userEntity, that.userEntity) && Objects.equals(expiryDate, that.expiryDate);
+        return id == that.id && wasUsed == that.wasUsed && Objects.equals(token, that.token) && Objects.equals(userEntity, that.userEntity) && Objects.equals(expiryDate, that.expiryDate);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, token, userEntity, expiryDate);
+        return Objects.hash(id, token, userEntity, expiryDate, wasUsed);
     }
 
     @Override
@@ -89,6 +99,7 @@ public class AbstractTokenEntity {
                 ", token='" + token + '\'' +
                 ", userEntity=" + userEntity +
                 ", expiryDate=" + expiryDate +
+                ", wasUsed=" + wasUsed +
                 '}';
     }
 }

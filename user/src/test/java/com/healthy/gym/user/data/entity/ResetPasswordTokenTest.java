@@ -10,22 +10,22 @@ import java.util.UUID;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
-class RegistrationTokenTest {
+class ResetPasswordTokenTest {
 
     @Nested
     class WhenCreated {
         @Test
         void shouldHaveAllFieldNullOrEqual0() {
-            RegistrationToken verificationToken = new RegistrationToken();
-            assertThat(verificationToken).hasAllNullFieldsOrPropertiesExcept("id","wasUsed");
-            assertThat(verificationToken.getId()).isZero();
+            ResetPasswordToken token = new ResetPasswordToken();
+            assertThat(token).hasAllNullFieldsOrPropertiesExcept("id","wasUsed");
+            assertThat(token.getId()).isZero();
         }
 
         @Test
         void shouldHaveAllFieldNullOrEqual0ExceptToken() {
             UserEntity userEntity = mock(UserEntity.class);
             String token = UUID.randomUUID().toString();
-            RegistrationToken verificationToken = new RegistrationToken(token, userEntity);
+            ResetPasswordToken verificationToken = new ResetPasswordToken(token, userEntity);
             assertThat(verificationToken).hasNoNullFieldsOrProperties();
         }
     }
@@ -33,15 +33,15 @@ class RegistrationTokenTest {
     @Nested
     class ExpirationTime {
 
-        private RegistrationToken verificationToken;
+        private ResetPasswordToken verificationToken;
         private LocalDateTime expirationTime;
 
         @BeforeEach
         void setUp() {
             UserEntity userEntity = mock(UserEntity.class);
             String token = UUID.randomUUID().toString();
-            verificationToken = new RegistrationToken(token, userEntity);
-            expirationTime = LocalDateTime.now().plusDays(1);
+            verificationToken = new ResetPasswordToken(token, userEntity);
+            expirationTime = LocalDateTime.now().plusHours(2);
         }
 
         @Test
@@ -72,4 +72,6 @@ class RegistrationTokenTest {
             assertThat(actualExpirationSecond).isEqualTo(expectedExpirationSecond);
         }
     }
+
+
 }

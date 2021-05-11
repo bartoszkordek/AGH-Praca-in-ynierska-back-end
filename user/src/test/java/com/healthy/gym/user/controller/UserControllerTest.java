@@ -4,8 +4,10 @@ import com.healthy.gym.user.configuration.tests.TestCountry;
 import com.healthy.gym.user.exceptions.token.ExpiredTokenException;
 import com.healthy.gym.user.exceptions.token.InvalidTokenException;
 import com.healthy.gym.user.listener.RegistrationListener;
+import com.healthy.gym.user.service.TokenService;
 import com.healthy.gym.user.service.UserService;
 import com.healthy.gym.user.shared.UserDTO;
+import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -48,6 +50,9 @@ class UserControllerTest {
 
     @MockBean
     private UserService userService;
+
+    @MockBean
+    private TokenService tokenService;
 
     @MockBean
     private RegistrationListener registrationListener;
@@ -179,7 +184,7 @@ class UserControllerTest {
                 .content(requestBody)
                 .contentType(MediaType.APPLICATION_JSON);
 
-        mockMvc.perform(request).andExpect(
+        mockMvc.perform(request).andDo(print()).andExpect(
                 matchAll(
                         status().isBadRequest(),
                         content().contentType(MediaType.APPLICATION_JSON),
@@ -190,8 +195,11 @@ class UserControllerTest {
                         jsonPath("$.errors.surname").value(messages.get("field.surname.failure")),
                         jsonPath("$.errors.email").value(messages.get("field.email.failure")),
                         jsonPath("$.errors.phoneNumber").value(messages.get("field.phone.number.failure")),
-                        jsonPath("$.errors.password").value(messages.get("field.password.failure")),
-                        jsonPath("$.errors.matchingPassword").value(messages.get("field.password.match.failure"))
+                        jsonPath("$.errors.password")
+                                .value(Matchers.anyOf(
+                                        is(messages.get("field.password.failure")),
+                                        is(messages.get("field.password.match.failure"))
+                                ))
                 )
         );
     }
@@ -326,7 +334,7 @@ class UserControllerTest {
                     .param("token", token)
                     .header("Accept-Language", testedLocale.toString());
 
-            doThrow(ExpiredTokenException.class).when(userService).verifyRegistrationToken(anyString());
+            doThrow(ExpiredTokenException.class).when(tokenService).verifyRegistrationToken(anyString());
             String expectedMessage = messages.get("registration.confirmation.token.expired");
 
             mockMvc.perform(request)
@@ -350,7 +358,7 @@ class UserControllerTest {
                     .param("token", token)
                     .header("Accept-Language", testedLocale.toString());
 
-            doThrow(InvalidTokenException.class).when(userService).verifyRegistrationToken(anyString());
+            doThrow(InvalidTokenException.class).when(tokenService).verifyRegistrationToken(anyString());
             String expectedMessage = messages.get("registration.confirmation.token.invalid");
 
             mockMvc.perform(request)
@@ -374,7 +382,7 @@ class UserControllerTest {
                     .param("token", token)
                     .header("Accept-Language", testedLocale.toString());
 
-            doThrow(IllegalStateException.class).when(userService).verifyRegistrationToken(anyString());
+            doThrow(IllegalStateException.class).when(tokenService).verifyRegistrationToken(anyString());
             String expectedMessage = messages.get("registration.confirmation.token.error");
 
             mockMvc.perform(request)
@@ -398,7 +406,7 @@ class UserControllerTest {
                     .param("token", token)
                     .header("Accept-Language", testedLocale.toString());
 
-            doNothing().when(userService).verifyRegistrationToken(anyString());
+            doReturn(new UserDTO()).when(tokenService).verifyRegistrationToken(anyString());
             String expectedMessage = messages.get("registration.confirmation.token.valid");
 
             mockMvc.perform(request)

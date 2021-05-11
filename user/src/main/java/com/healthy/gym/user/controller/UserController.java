@@ -7,6 +7,7 @@ import com.healthy.gym.user.exceptions.token.InvalidTokenException;
 import com.healthy.gym.user.pojo.request.CreateUserRequest;
 import com.healthy.gym.user.pojo.response.ConfirmationResponse;
 import com.healthy.gym.user.pojo.response.CreateUserResponse;
+import com.healthy.gym.user.service.TokenService;
 import com.healthy.gym.user.service.UserService;
 import com.healthy.gym.user.shared.UserDTO;
 import org.modelmapper.ModelMapper;
@@ -33,16 +34,19 @@ public class UserController {
     private final UserService userService;
     private final Translator translator;
     private final ApplicationEventPublisher applicationEventPublisher;
+    private final TokenService tokenService;
 
     @Autowired
     public UserController(
             UserService userService,
             Translator translator,
-            ApplicationEventPublisher applicationEventPublisher
+            ApplicationEventPublisher applicationEventPublisher,
+            TokenService tokenService
     ) {
         this.userService = userService;
         this.translator = translator;
         this.applicationEventPublisher = applicationEventPublisher;
+        this.tokenService = tokenService;
     }
 
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -135,7 +139,7 @@ public class UserController {
     public ResponseEntity<ConfirmationResponse> confirmRegistration(@RequestParam("token") String token) {
 
         try {
-            userService.verifyRegistrationToken(token);
+            tokenService.verifyRegistrationToken(token);
             String message = translator.toLocale("registration.confirmation.token.valid");
             return ResponseEntity
                     .status(HttpStatus.OK)

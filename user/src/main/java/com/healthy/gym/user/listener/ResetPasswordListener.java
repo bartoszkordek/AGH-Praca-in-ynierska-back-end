@@ -1,10 +1,9 @@
 package com.healthy.gym.user.listener;
 
 import com.healthy.gym.user.component.MailMessageManager;
-import com.healthy.gym.user.data.entity.RegistrationToken;
-import com.healthy.gym.user.events.OnRegistrationCompleteEvent;
-import com.healthy.gym.user.service.TokenService;
-import com.healthy.gym.user.shared.UserDTO;
+import com.healthy.gym.user.data.entity.ResetPasswordToken;
+import com.healthy.gym.user.data.entity.UserEntity;
+import com.healthy.gym.user.events.OnResetPasswordEvent;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.event.EventListener;
@@ -13,43 +12,40 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
-import java.util.UUID;
-
 @Component
-public class RegistrationListener {
-    private final TokenService tokenService;
+public class ResetPasswordListener {
+
     private final JavaMailSender javaMailSender;
     private final MailMessageManager mailMessageManager;
 
     @Autowired
-    public RegistrationListener(
-            TokenService tokenService,
+    public ResetPasswordListener(
             @Qualifier("getJavaMailSender") JavaMailSender javaMailSender,
             MailMessageManager mailMessageManager
     ) {
-        this.tokenService = tokenService;
         this.javaMailSender = javaMailSender;
         this.mailMessageManager = mailMessageManager;
     }
 
     @Async
     @EventListener
-    public void sendEmailToConfirmRegistration(OnRegistrationCompleteEvent event) {
-        UserDTO user = event.getUserDTO();
-        String token = UUID.randomUUID().toString();
+    public void sendEmailToResetPassword(OnResetPasswordEvent event) {
 
-        RegistrationToken registrationToken = tokenService.createRegistrationToken(user, token);
+        ResetPasswordToken resetPasswordToken = event.getResetPasswordToken();
 
-        SimpleMailMessage confirmationEmail = getConfirmRegistrationMail(user, registrationToken);
+        UserEntity user = resetPasswordToken.getUserEntity();
+        String token = resetPasswordToken.getToken();
 
-        javaMailSender.send(confirmationEmail);
+        if (user == null || token == null) throw new IllegalStateException();
+
+        SimpleMailMessage resetPasswordMail = getResetPasswordMail(user, resetPasswordToken);
+        javaMailSender.send(resetPasswordMail);
     }
 
-    private SimpleMailMessage getConfirmRegistrationMail(UserDTO user, RegistrationToken registrationToken) {
+    private SimpleMailMessage getResetPasswordMail(UserEntity user, ResetPasswordToken resetPasswordToken) {
         String recipientAddress = user.getEmail();
-
-        String subject = mailMessageManager.getConfirmRegistrationMessageSubject();
-        String text = mailMessageManager.getConfirmRegistrationMessageText(registrationToken);
+        String subject = mailMessageManager.getResetPasswordMessageSubject();
+        String text = mailMessageManager.getResetPasswordMessageText(resetPasswordToken);
 
         SimpleMailMessage confirmationEmail = new SimpleMailMessage();
         confirmationEmail.setTo(recipientAddress);

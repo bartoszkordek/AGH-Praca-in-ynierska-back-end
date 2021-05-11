@@ -11,26 +11,35 @@ public class UserEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, length = 60, name = "name")
+    @Column(nullable = false, length = 60)
     private String name;
 
-    @Column(nullable = false, length = 60, name = "surname")
+    @Column(nullable = false, length = 60)
     private String surname;
 
-    @Column(nullable = false, length = 120, name = "email", unique = true)
+    @Column(nullable = false, length = 120, unique = true)
     private String email;
 
-    @Column(nullable = false, length = 60, name = "phone_number")
+    @Column(nullable = false, length = 60)
     private String phoneNumber;
 
-    @Column(nullable = false, name = "password")
+    @Column(nullable = false)
     private String encryptedPassword;
 
-    @Column(nullable = false, name = "userID", unique = true, updatable = false)
+    @Column(nullable = false, unique = true, updatable = false)
     private String userId;
 
     @Column(nullable = false)
-    private boolean isEnabled;
+    private boolean enabled;
+
+    @Column(nullable = false)
+    private boolean accountNonExpired;
+
+    @Column(nullable = false)
+    private boolean credentialsNonExpired;
+
+    @Column(nullable = false)
+    private boolean accountNonLocked;
 
     public UserEntity() {
         //empty constructor required by JPA
@@ -51,7 +60,31 @@ public class UserEntity {
         this.phoneNumber = phoneNumber;
         this.encryptedPassword = encryptedPassword;
         this.userId = userId;
-        this.isEnabled = isEnabled;
+        this.enabled = isEnabled;
+    }
+
+    public UserEntity(
+            String name,
+            String surname,
+            String email,
+            String phoneNumber,
+            String encryptedPassword,
+            String userId,
+            boolean isEnabled,
+            boolean accountNonExpired,
+            boolean credentialsNonExpired,
+            boolean accountNonLocked
+    ) {
+        this.name = name;
+        this.surname = surname;
+        this.email = email;
+        this.phoneNumber = phoneNumber;
+        this.encryptedPassword = encryptedPassword;
+        this.userId = userId;
+        this.enabled = isEnabled;
+        this.accountNonExpired = accountNonExpired;
+        this.credentialsNonExpired = credentialsNonExpired;
+        this.accountNonLocked = accountNonLocked;
     }
 
     public Long getId() {
@@ -111,11 +144,35 @@ public class UserEntity {
     }
 
     public boolean isEnabled() {
-        return isEnabled;
+        return enabled;
     }
 
     public void setEnabled(boolean enabled) {
-        isEnabled = enabled;
+        this.enabled = enabled;
+    }
+
+    public boolean isAccountNonExpired() {
+        return accountNonExpired;
+    }
+
+    public void setAccountNonExpired(boolean accountNonExpired) {
+        this.accountNonExpired = accountNonExpired;
+    }
+
+    public boolean isCredentialsNonExpired() {
+        return credentialsNonExpired;
+    }
+
+    public void setCredentialsNonExpired(boolean credentialsNonExpired) {
+        this.credentialsNonExpired = credentialsNonExpired;
+    }
+
+    public boolean isAccountNonLocked() {
+        return accountNonLocked;
+    }
+
+    public void setAccountNonLocked(boolean accountNonLocked) {
+        this.accountNonLocked = accountNonLocked;
     }
 
     @Override
@@ -128,7 +185,10 @@ public class UserEntity {
                 ", phoneNumber='" + phoneNumber + '\'' +
                 ", encryptedPassword='" + encryptedPassword + '\'' +
                 ", userId='" + userId + '\'' +
-                ", isEnabled=" + isEnabled +
+                ", isEnabled=" + enabled +
+                ", accountNonExpired=" + accountNonExpired +
+                ", credentialsNonExpired=" + credentialsNonExpired +
+                ", accountNonLocked=" + accountNonLocked +
                 '}';
     }
 
@@ -137,7 +197,10 @@ public class UserEntity {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         UserEntity that = (UserEntity) o;
-        return isEnabled == that.isEnabled
+        return enabled == that.enabled
+                && accountNonExpired == that.accountNonExpired
+                && credentialsNonExpired == that.credentialsNonExpired
+                && accountNonLocked == that.accountNonLocked
                 && Objects.equals(id, that.id)
                 && Objects.equals(name, that.name)
                 && Objects.equals(surname, that.surname)
@@ -149,6 +212,18 @@ public class UserEntity {
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, name, surname, email, phoneNumber, encryptedPassword, userId, isEnabled);
+        return Objects.hash(
+                id,
+                name,
+                surname,
+                email,
+                phoneNumber,
+                encryptedPassword,
+                userId,
+                enabled,
+                accountNonExpired,
+                credentialsNonExpired,
+                accountNonLocked
+        );
     }
 }

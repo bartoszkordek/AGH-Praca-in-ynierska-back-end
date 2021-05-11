@@ -10,6 +10,10 @@ public class UserDTO {
     private String phoneNumber;
     private String password;
     private String encryptedPassword;
+    private boolean enabled;
+    private boolean accountNonExpired;
+    private boolean credentialsNonExpired;
+    private boolean accountNonLocked;
 
     public UserDTO() {
         // default constructor for object mapper
@@ -31,6 +35,32 @@ public class UserDTO {
         this.phoneNumber = phoneNumber;
         this.password = password;
         this.encryptedPassword = encryptedPassword;
+    }
+
+    public UserDTO(
+            String userId,
+            String name,
+            String surname,
+            String email,
+            String phoneNumber,
+            String password,
+            String encryptedPassword,
+            boolean enabled,
+            boolean accountNonExpired,
+            boolean credentialsNonExpired,
+            boolean accountNonLocked
+    ) {
+        this.userId = userId;
+        this.name = name;
+        this.surname = surname;
+        this.email = email;
+        this.phoneNumber = phoneNumber;
+        this.password = password;
+        this.encryptedPassword = encryptedPassword;
+        this.enabled = enabled;
+        this.accountNonExpired = accountNonExpired;
+        this.credentialsNonExpired = credentialsNonExpired;
+        this.accountNonLocked = accountNonLocked;
     }
 
     public String getUserId() {
@@ -94,7 +124,11 @@ public class UserDTO {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         UserDTO userDTO = (UserDTO) o;
-        return Objects.equals(userId, userDTO.userId)
+        return enabled == userDTO.enabled
+                && accountNonExpired == userDTO.accountNonExpired
+                && credentialsNonExpired == userDTO.credentialsNonExpired
+                && accountNonLocked == userDTO.accountNonLocked
+                && Objects.equals(userId, userDTO.userId)
                 && Objects.equals(name, userDTO.name)
                 && Objects.equals(surname, userDTO.surname)
                 && Objects.equals(email, userDTO.email)
@@ -105,6 +139,18 @@ public class UserDTO {
 
     @Override
     public int hashCode() {
-        return Objects.hash(userId, name, surname, email, phoneNumber, password, encryptedPassword);
+        return Objects.hash(
+                userId,
+                name,
+                surname,
+                email,
+                phoneNumber,
+                password,
+                encryptedPassword,
+                enabled,
+                accountNonExpired,
+                credentialsNonExpired,
+                accountNonLocked
+        );
     }
 }

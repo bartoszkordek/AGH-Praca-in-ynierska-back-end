@@ -24,9 +24,20 @@ class UserDTOTest {
     }
 
     @Test
-    void userDTOHasAllNullField() {
-        assertThat(userDTO1).hasAllNullFieldsOrProperties();
-        assertThat(userDTO2).hasAllNullFieldsOrProperties();
+    void userDTOHasAllNullFieldExceptBooleans() {
+        assertThat(userDTO1).hasAllNullFieldsOrPropertiesExcept(
+                "enabled",
+                "accountNonExpired",
+                "credentialsNonExpired",
+                "accountNonLocked"
+        );
+
+        assertThat(userDTO2).hasAllNullFieldsOrPropertiesExcept(
+                "enabled",
+                "accountNonExpired",
+                "credentialsNonExpired",
+                "accountNonLocked"
+        );
     }
 
     @Test

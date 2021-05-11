@@ -4,6 +4,7 @@ import com.healthy.gym.user.data.entity.ResetPasswordToken;
 import com.healthy.gym.user.data.entity.UserEntity;
 import com.healthy.gym.user.data.repository.UserDAO;
 import com.healthy.gym.user.listener.ResetPasswordListener;
+import com.healthy.gym.user.service.TokenService;
 import com.healthy.gym.user.service.UserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -32,6 +33,7 @@ class UserServiceWhenResetPasswordIsCalledTest {
 
     private ResetPasswordToken resetPasswordToken;
     private UserEntity janKowalskiEntity;
+    private String token;
 
     @Autowired
     private UserService userService;
@@ -44,6 +46,9 @@ class UserServiceWhenResetPasswordIsCalledTest {
 
     @MockBean
     private ResetPasswordListener resetPasswordListener;
+
+    @MockBean
+    private TokenService tokenService;
 
     @BeforeEach
     void setUp() {
@@ -60,6 +65,9 @@ class UserServiceWhenResetPasswordIsCalledTest {
                 true
         );
         doNothing().when(resetPasswordListener).sendEmailToResetPassword(any());
+        token = UUID.randomUUID().toString();
+        when(tokenService.createResetPasswordToken(any()))
+                .thenReturn(new ResetPasswordToken(token, janKowalskiEntity));
     }
 
     @Test
@@ -120,6 +128,7 @@ class UserServiceWhenResetPasswordIsCalledTest {
         Pattern uuidPattern = Pattern.compile("([a-f0-9]{8}(-[a-f0-9]{4}){4}[a-f0-9]{8})");
         assertThat(resetPasswordToken.getToken()).isNotNull();
         assertThat(resetPasswordToken.getToken()).matches(uuidPattern);
+        assertThat(resetPasswordToken.getToken()).isEqualTo(token);
     }
 
 }

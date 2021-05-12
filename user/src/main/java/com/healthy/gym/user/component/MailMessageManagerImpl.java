@@ -63,7 +63,7 @@ public class MailMessageManagerImpl implements MailMessageManager {
     }
 
     private String getResetPasswordUrl(String token) {
-        return getBaseUrl() + "/resetPassword?token=" + token;
+        return getBaseUrl() + "/confirmNewPassword?token=" + token;
     }
 
     private String getBaseUrl() {

@@ -111,7 +111,7 @@ public class SignedClientTrainingsController {
                                                                @RequestParam(required = true) final String clientId) throws RestException {
         try{
             return individualTrainingsService.createIndividualTrainingRequest(individualTrainingsRequestModel, clientId);
-        } catch (InvalidHourException e){
+        } catch (InvalidHourException | RetroIndividualTrainingException | ParseException e){
             throw new RestException(e.getMessage(), HttpStatus.BAD_REQUEST, e);
         }
     }

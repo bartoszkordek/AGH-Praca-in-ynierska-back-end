@@ -30,6 +30,7 @@ import static org.mockito.Mockito.*;
 public class TrainingsServiceGroupGroupTrainingsTest {
 
     private final String validTrainingId = "111111111111111111111111";
+    private final String validTrainingIdWithValidClientAsParticipant = "222222222222222222222222";
     private final String invalidTrainingId = "999999999999999999999999";
     private final String validClientId = "Client123";
 
@@ -54,6 +55,12 @@ public class TrainingsServiceGroupGroupTrainingsTest {
 
     private final GroupTrainings validGroupTrainings = new GroupTrainings(validTestTrainingName, validTestTrainerId, validTestDate,
             validTestStartTime, validTestEndTime, validTestHallNo, validTestLimit, emptyParticipants, emptyReserveList);
+
+    List<String> participantsWithValidClientId = new ArrayList<>();
+    private final GroupTrainingModel validGroupTrainingsModelWithValidClientAsParticipant = new GroupTrainingModel(validTestTrainingName, validTestTrainerId, validTestDate,
+            validTestStartTime, validTestEndTime, validTestHallNo, validTestLimit, participantsWithValidClientId, emptyReserveList);
+    private final GroupTrainings validGroupTrainingsWithValidClientAsParticipant = new GroupTrainings(validTestTrainingName, validTestTrainerId, validTestDate,
+            validTestStartTime, validTestEndTime, validTestHallNo, validTestLimit, participantsWithValidClientId, emptyReserveList);
 
     public TrainingsServiceGroupGroupTrainingsTest() throws InvalidHourException {
     }
@@ -91,12 +98,17 @@ public class TrainingsServiceGroupGroupTrainingsTest {
         training1.setId(validTrainingId);
         trainingsList.add(training1);
 
+        participantsWithValidClientId.add(validClientId);
+        validGroupTrainingsWithValidClientAsParticipant.setId(validTrainingIdWithValidClientAsParticipant);
+
         when(groupTrainingsDbRepository.getGroupTrainings())
                 .thenReturn(trainingsList);
         when(groupTrainingsDbRepository.getGroupTrainingById(validTrainingId))
                 .thenReturn(training1);
 
         when(groupTrainingsDbRepository.isGroupTrainingExist(validTrainingId))
+                .thenReturn(true);
+        when(groupTrainingsDbRepository.isGroupTrainingExist(validTrainingIdWithValidClientAsParticipant))
                 .thenReturn(true);
         when(groupTrainingsDbRepository.isGroupTrainingExist(invalidTrainingId))
                 .thenReturn(false);
@@ -163,6 +175,15 @@ public class TrainingsServiceGroupGroupTrainingsTest {
     @Test(expected = TrainingEnrollmentException.class)
     public void shouldNotEnrollToGroupTraining_whenInvalidTraining() throws TrainingEnrollmentException {
         groupTrainingsService.enrollToGroupTraining(invalidTrainingId,validClientId);
+    }
+
+    @Test(expected = TrainingEnrollmentException.class)
+    public void shouldNotEnrollToGroupTraining_whenAlreadyEnrolled() throws TrainingEnrollmentException {
+        //when
+        when(groupTrainingsDbRepository.isClientAlreadyEnrolledToGroupTraining(validTrainingIdWithValidClientAsParticipant, validClientId))
+                .thenReturn(true);
+        //then
+        groupTrainingsService.enrollToGroupTraining(validTrainingIdWithValidClientAsParticipant, validClientId);
     }
 
     @Test

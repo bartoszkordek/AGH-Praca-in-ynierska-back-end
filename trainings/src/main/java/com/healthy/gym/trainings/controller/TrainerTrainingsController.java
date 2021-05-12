@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.text.ParseException;
 import java.util.List;
 
 @RestController
@@ -45,7 +46,7 @@ public class TrainerTrainingsController {
                                                         @Valid @RequestBody final IndividualTrainingsAcceptModel individualTrainingsAcceptModel) throws RestException {
         try{
             return individualTrainingsService.acceptIndividualTraining(trainingId, individualTrainingsAcceptModel);
-        } catch (NotExistingIndividualTrainingException | AlreadyAcceptedIndividualTrainingException | HallNoOutOfRangeException e){
+        } catch (NotExistingIndividualTrainingException | AlreadyAcceptedIndividualTrainingException | RetroIndividualTrainingException | HallNoOutOfRangeException | ParseException e){
             throw new RestException(e.getMessage(), HttpStatus.BAD_REQUEST, e);
         }
     }

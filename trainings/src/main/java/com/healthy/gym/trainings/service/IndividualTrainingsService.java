@@ -49,17 +49,27 @@ public class IndividualTrainingsService {
     }
 
     public IndividualTrainings createIndividualTrainingRequest(IndividualTrainingsRequestModel individualTrainingsRequestModel,
-                                                               String clientId) throws InvalidHourException {
+                                                               String clientId) throws InvalidHourException, ParseException, RetroIndividualTrainingException {
+        String individualTrainingDate = individualTrainingsRequestModel.getDate();
+        String individualTrainingStartTime = individualTrainingsRequestModel.getStartTime();
+        if(isTrainingRetroDateAndTime(individualTrainingDate ,individualTrainingStartTime)){
+            throw new RetroIndividualTrainingException("Retro date");
+        }
         return individualTrainingsDbRepository.createIndividualTrainingRequest(individualTrainingsRequestModel, clientId);
-
     }
 
-    public IndividualTrainings acceptIndividualTraining(String trainingId, IndividualTrainingsAcceptModel individualTrainingsAcceptModel) throws NotExistingIndividualTrainingException, AlreadyAcceptedIndividualTrainingException, HallNoOutOfRangeException {
+    public IndividualTrainings acceptIndividualTraining(String trainingId, IndividualTrainingsAcceptModel individualTrainingsAcceptModel) throws NotExistingIndividualTrainingException, AlreadyAcceptedIndividualTrainingException, HallNoOutOfRangeException, ParseException, RetroIndividualTrainingException {
         if(!individualTrainingsDbRepository.isIndividualTrainingExist(trainingId)){
             throw new NotExistingIndividualTrainingException("Training with ID: "+ trainingId + " doesn't exist");
         }
         if(individualTrainingsDbRepository.isIndividualTrainingExistAndAccepted(trainingId)){
             throw new AlreadyAcceptedIndividualTrainingException("Training with ID: "+ trainingId + " has been already accepted");
+        }
+        IndividualTrainings individualTraining = individualTrainingsDbRepository.getIndividualTrainingById(trainingId);
+        String individualTrainingDate = individualTraining.getDate();
+        String individualTrainingStartTime = individualTraining.getStartTime();
+        if(isTrainingRetroDateAndTime(individualTrainingDate ,individualTrainingStartTime)){
+            throw new RetroIndividualTrainingException("Retro date");
         }
         if(individualTrainingsAcceptModel.getHallNo() < 0){
             throw new HallNoOutOfRangeException("Hall no: " + individualTrainingsAcceptModel.getHallNo() + " does not exist");

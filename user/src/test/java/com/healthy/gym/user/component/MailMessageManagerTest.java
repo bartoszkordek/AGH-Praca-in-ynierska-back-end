@@ -159,7 +159,7 @@ class MailMessageManagerTest {
         @Test
         void shouldContainsResetPasswordUrlWithToken() {
             String baseUrl = "http://localhost:3000/AGH-Praca-inzynierska-front-end";
-            String confirmationUrl = "/resetPassword?token=";
+            String confirmationUrl = "/confirmNewPassword?token=";
             String expectedUrl = baseUrl + confirmationUrl + token;
 
             String actualMessage = mailMessageManager.getResetPasswordMessageText(resetPasswordToken);

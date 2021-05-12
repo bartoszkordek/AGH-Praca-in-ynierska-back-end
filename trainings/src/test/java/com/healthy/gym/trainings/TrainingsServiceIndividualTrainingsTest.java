@@ -43,6 +43,7 @@ public class TrainingsServiceIndividualTrainingsTest {
     private final boolean isDeclined = false;
 
     private IndividualTrainingsRequestModel validIndividualTrainingsRequestModel;
+    private IndividualTrainingsRequestModel terminatedIndividualTrainingsRequestModelRetroDate;
     private IndividualTrainings validIndividualTraining;
 
     private IndividualTrainingsAcceptModel individualTrainingsAcceptModel;
@@ -78,6 +79,8 @@ public class TrainingsServiceIndividualTrainingsTest {
     @Before
     public void setUp() throws InvalidHourException {
         validIndividualTrainingsRequestModel = new IndividualTrainingsRequestModel(validTrainerId, validDate,
+                validStartTime, validEndTime, validRemarks);
+        terminatedIndividualTrainingsRequestModelRetroDate = new IndividualTrainingsRequestModel(validTrainerId, retroDate,
                 validStartTime, validEndTime, validRemarks);
         validIndividualTraining = new  IndividualTrainings(validClientId, validTrainerId,
                 validDate, validStartTime, validEndTime, validHallNo, validRemarks, isAccepted, isDeclined);
@@ -120,6 +123,8 @@ public class TrainingsServiceIndividualTrainingsTest {
 
         when(individualTrainingsDbRepository.createIndividualTrainingRequest(validIndividualTrainingsRequestModel, validClientId))
                 .thenReturn(validIndividualTraining);
+        when(individualTrainingsDbRepository.createIndividualTrainingRequest(terminatedIndividualTrainingsRequestModelRetroDate, validClientId))
+                .thenReturn(validIndividualTraining);
         when(individualTrainingsDbRepository.isIndividualTrainingExistAndAccepted(validNotAcceptedTrainingId))
                 .thenReturn(false);
         when(individualTrainingsDbRepository.isIndividualTrainingExistAndAccepted(validAcceptedTrainingId))
@@ -157,29 +162,39 @@ public class TrainingsServiceIndividualTrainingsTest {
     }
 
     @Test
-    public void shouldCreateIndividualTraining_whenValidRequestModelAndClientId() throws InvalidHourException {
+    public void shouldCreateIndividualTraining_whenValidRequestModelAndClientId() throws InvalidHourException, ParseException, RetroIndividualTrainingException {
         assertThat(individualTrainingsService.createIndividualTrainingRequest(validIndividualTrainingsRequestModel, validClientId))
                 .isEqualTo(validIndividualTraining);
     }
 
+    @Test (expected = RetroIndividualTrainingException.class)
+    public void shouldNotCreateIndividualTraining_whenTerminatedRequest() throws InvalidHourException, ParseException, RetroIndividualTrainingException {
+        individualTrainingsService.createIndividualTrainingRequest(terminatedIndividualTrainingsRequestModelRetroDate, validClientId);
+    }
+
     @Test
-    public void shouldAcceptIndividualTraining_whenValidAcceptModelAndTrainingId() throws HallNoOutOfRangeException, NotExistingIndividualTrainingException, AlreadyAcceptedIndividualTrainingException {
+    public void shouldAcceptIndividualTraining_whenValidAcceptModelAndTrainingId() throws HallNoOutOfRangeException, NotExistingIndividualTrainingException, AlreadyAcceptedIndividualTrainingException, ParseException, RetroIndividualTrainingException {
         assertThat(individualTrainingsService.acceptIndividualTraining(validNotAcceptedTrainingId, individualTrainingsAcceptModel))
                 .isEqualTo(validAcceptedIndividualTraining);
     }
 
+    @Test (expected = RetroIndividualTrainingException.class)
+    public void shouldNotAcceptIndividualTraining_whenTerminatedRequest() throws HallNoOutOfRangeException, NotExistingIndividualTrainingException, AlreadyAcceptedIndividualTrainingException, ParseException, RetroIndividualTrainingException {
+        individualTrainingsService.acceptIndividualTraining(retroTrainingId, individualTrainingsAcceptModel);
+    }
+
     @Test(expected = NotExistingIndividualTrainingException.class)
-    public void shouldNotAcceptIndividualTraining_whenValidAcceptModelButTrainingIdDoesNotExist() throws NotExistingIndividualTrainingException, AlreadyAcceptedIndividualTrainingException, HallNoOutOfRangeException {
+    public void shouldNotAcceptIndividualTraining_whenValidAcceptModelButTrainingIdDoesNotExist() throws NotExistingIndividualTrainingException, AlreadyAcceptedIndividualTrainingException, HallNoOutOfRangeException, ParseException, RetroIndividualTrainingException {
         assertThat(individualTrainingsService.acceptIndividualTraining(invalidTrainingId, individualTrainingsAcceptModel));
     }
 
     @Test(expected = AlreadyAcceptedIndividualTrainingException.class)
-    public void shouldNotAcceptIndividualTraining_whenValidModelTrainingExistButAccepted() throws NotExistingIndividualTrainingException, AlreadyAcceptedIndividualTrainingException, HallNoOutOfRangeException {
+    public void shouldNotAcceptIndividualTraining_whenValidModelTrainingExistButAccepted() throws NotExistingIndividualTrainingException, AlreadyAcceptedIndividualTrainingException, HallNoOutOfRangeException, ParseException, RetroIndividualTrainingException {
         individualTrainingsService.acceptIndividualTraining(validAcceptedTrainingId, individualTrainingsAcceptModel);
     }
 
     @Test(expected = HallNoOutOfRangeException.class)
-    public void shouldNotAcceptIndividualTraining_whenInvalidHallNo() throws NotExistingIndividualTrainingException, AlreadyAcceptedIndividualTrainingException, HallNoOutOfRangeException {
+    public void shouldNotAcceptIndividualTraining_whenInvalidHallNo() throws NotExistingIndividualTrainingException, AlreadyAcceptedIndividualTrainingException, HallNoOutOfRangeException, ParseException, RetroIndividualTrainingException {
         individualTrainingsService.acceptIndividualTraining(validNotAcceptedTrainingId, invalidIndividualTrainingsAcceptModelWrongHallNo);
     }
 

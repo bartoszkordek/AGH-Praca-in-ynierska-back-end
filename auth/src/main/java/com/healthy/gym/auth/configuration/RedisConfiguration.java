@@ -33,10 +33,27 @@ public class RedisConfiguration {
     @Bean
     public LettuceConnectionFactory connectionFactory(RedisStandaloneConfiguration configuration) {
         configuration.setPassword(getRedisPassword());
+        configuration.setHostName(getHostName());
+        configuration.setPort(getPort());
+        configuration.setDatabase(getDatabase());
         return new LettuceConnectionFactory(configuration);
     }
 
     private String getRedisPassword() {
         return environment.getRequiredProperty("spring.redis.password");
+    }
+
+    private String getHostName() {
+        return environment.getRequiredProperty("spring.redis.host");
+    }
+
+    private int getPort() {
+        String port = environment.getRequiredProperty("spring.redis.port");
+        return Integer.parseInt(port);
+    }
+
+    private int getDatabase() {
+        String database = environment.getRequiredProperty("spring.redis.database");
+        return Integer.parseInt(database);
     }
 }

@@ -1,0 +1,259 @@
+{
+	"info": {
+		"_postman_id": "c93e452e-35a5-4214-a971-9903269a8fea",
+		"name": "Praca_inzynierska",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Sign up",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Accept-Language",
+						"value": "pl",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"name\": \"Grzegorz\",\r\n    \"surname\": \"Zacharski\",\r\n    \"email\": \"one73579@zwoho.com\",\r\n    \"phone\": \"666 721 232\",\r\n    \"password\": \"testtest123\",\r\n    \"matchingPassword\": \"testtest123\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8020/auth/users",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8020",
+					"path": [
+						"auth",
+						"users"
+					]
+				},
+				"description": "Provide real email address for example from https://10minutemail.net/"
+			},
+			"response": []
+		},
+		{
+			"name": "Confirm creating account",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Accept-Language",
+						"value": "en",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "http://localhost:8020/auth/users/confirmRegistration?token=157c593e-2364-4f33-960e-a8a2f7902994",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8020",
+					"path": [
+						"auth",
+						"users",
+						"confirmRegistration"
+					],
+					"query": [
+						{
+							"key": "token",
+							"value": "157c593e-2364-4f33-960e-a8a2f7902994"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Log in",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Accept-Language",
+						"value": "pl",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"email\": \"one73579@zwoho.com\",\r\n    \"password\": \"testtest1234\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8020/auth/login",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8020",
+					"path": [
+						"auth",
+						"login"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Check status",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI2Njk1ZjA4OS1iZjA0LTQxNmUtOTczYi1mOGEyOGZiN2ViMmEiLCJleHAiOjE2MjEyNTcxNjh9.AY5mgRTaRXsU-CSMl94LmxtRRllD2ICafKEyeZklqlE",
+						"type": "text"
+					},
+					{
+						"key": "Accept-Language",
+						"value": "pl",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "http://localhost:8020/auth/users/status",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8020",
+					"path": [
+						"auth",
+						"users",
+						"status"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Log out",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI2Njk1ZjA4OS1iZjA0LTQxNmUtOTczYi1mOGEyOGZiN2ViMmEiLCJleHAiOjE2MjEyNTczMzd9.4b6fKFmJXgWgP1oEzypJfpCNS0dTl3iJXtsk4IAEZmM",
+						"type": "text"
+					},
+					{
+						"key": "Accept-Language",
+						"value": "pl",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "http://localhost:8020/auth/logout",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8020",
+					"path": [
+						"auth",
+						"logout"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Reset password",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Accept-Language",
+						"value": "pl",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"email\": \"one73579@zwoho.com\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8020/auth/resetPassword",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8020",
+					"path": [
+						"auth",
+						"resetPassword"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Provide new password",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Accept-Language",
+						"value": "pl",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"password\": \"testtest1234\",\r\n    \"matchingPassword\": \"testtest1234\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8020/auth/confirmNewPassword?token=6ea9a814-5235-430b-9178-de6d4ce524ad",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8020",
+					"path": [
+						"auth",
+						"confirmNewPassword"
+					],
+					"query": [
+						{
+							"key": "token",
+							"value": "6ea9a814-5235-430b-9178-de6d4ce524ad"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

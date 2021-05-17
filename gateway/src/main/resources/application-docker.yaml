@@ -13,7 +13,17 @@ eureka:
     service-url:
       defaultZone: http://discovery:8010/eureka
 
+hystrix:
+  command:
+    default:
+      execution:
+        isolation:
+          thread:
+            timeoutInMilliseconds: 250000
+
 ribbon:
+  ReadTimeout: 60000
+  ConnectTimeout: 60000
   eureka:
     enabled: true
 

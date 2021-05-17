@@ -57,8 +57,8 @@ jobs:
       - name: Test
         run: mvn test --file ./gateway/pom.xml
 
-  user:
-    name: User service
+  auth:
+    name: Auth service
     runs-on: ubuntu-latest
 
     steps:
@@ -71,16 +71,16 @@ jobs:
           java-version: 11
       
       - name: Validate
-        run: mvn validate --file ./user/pom.xml
+        run: mvn validate --file ./auth/pom.xml
         
       - name: Compile
-        run: mvn compile --file ./user/pom.xml
+        run: mvn compile --file ./auth/pom.xml
           
       - name: Build
-        run: mvn spring-boot:build-info --file ./user/pom.xml
+        run: mvn spring-boot:build-info --file ./auth/pom.xml
       
       - name: Test
-        run: mvn test --file ./user/pom.xml
+        run: mvn test --file ./auth/pom.xml
 
   trainings:
     name: Trainings service

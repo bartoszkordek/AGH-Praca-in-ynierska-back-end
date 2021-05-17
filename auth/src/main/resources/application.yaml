@@ -1,6 +1,6 @@
 spring:
   application:
-    name: user
+    name: auth
   devtools:
     restart:
       enabled: true

@@ -4,5 +4,5 @@ target
 Dockerfile
 Dockerfile.prod
 HELP.md
-user.iml
+auth.iml
 email.properties

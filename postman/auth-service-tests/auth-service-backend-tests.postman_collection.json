@@ -1,13 +1,13 @@
 {
 	"info": {
-		"_postman_id": "3db11c94-b2b5-4a2f-afc7-0c860f105b21",
+		"_postman_id": "f7e0734d-371a-4106-8b26-ceb06e2fee09",
 		"name": "Praca-Inzynierska-backend",
 		"description": "Backend test cases",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
 	"item": [
 		{
-			"name": "Authorization",
+			"name": "auth",
 			"item": [
 				{
 					"name": "Correct Sign In",
@@ -59,7 +59,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"name\": \"TestFirstName1\",\r\n    \"surname\": \"TestLastName1\",\r\n    \"email\": \"test_1@test.com\",\r\n    \"phone\": \"655221559\",\r\n    \"password\": \"Test1234!\",\r\n    \"matchingPassword\": \"Test1234!\"\r\n}",
+							"raw": "{\r\n    \"name\": \"TestFirstName1\",\r\n    \"surname\": \"TestLastName1\",\r\n    \"email\": \"byd67696@eoopy.com\",\r\n    \"phone\": \"655221559\",\r\n    \"password\": \"Test1234!\",\r\n    \"matchingPassword\": \"Test1234!\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -67,14 +67,14 @@
 							}
 						},
 						"url": {
-							"raw": "http://localhost:8020/user/users",
+							"raw": "http://localhost:8020/auth/users",
 							"protocol": "http",
 							"host": [
 								"localhost"
 							],
 							"port": "8020",
 							"path": [
-								"user",
+								"auth",
 								"users"
 							]
 						}
@@ -139,14 +139,14 @@
 							}
 						},
 						"url": {
-							"raw": "http://localhost:8020/user/users",
+							"raw": "http://localhost:8020/auth/users",
 							"protocol": "http",
 							"host": [
 								"localhost"
 							],
 							"port": "8020",
 							"path": [
-								"user",
+								"auth",
 								"users"
 							]
 						}
@@ -211,14 +211,14 @@
 							}
 						},
 						"url": {
-							"raw": "http://localhost:8020/user/users",
+							"raw": "http://localhost:8020/auth/users",
 							"protocol": "http",
 							"host": [
 								"localhost"
 							],
 							"port": "8020",
 							"path": [
-								"user",
+								"auth",
 								"users"
 							]
 						}
@@ -283,14 +283,14 @@
 							}
 						},
 						"url": {
-							"raw": "http://localhost:8020/user/users",
+							"raw": "http://localhost:8020/auth/users",
 							"protocol": "http",
 							"host": [
 								"localhost"
 							],
 							"port": "8020",
 							"path": [
-								"user",
+								"auth",
 								"users"
 							]
 						}
@@ -355,14 +355,14 @@
 							}
 						},
 						"url": {
-							"raw": "http://localhost:8020/user/users",
+							"raw": "http://localhost:8020/auth/users",
 							"protocol": "http",
 							"host": [
 								"localhost"
 							],
 							"port": "8020",
 							"path": [
-								"user",
+								"auth",
 								"users"
 							]
 						}
@@ -427,14 +427,14 @@
 							}
 						},
 						"url": {
-							"raw": "http://localhost:8020/user/users",
+							"raw": "http://localhost:8020/auth/users",
 							"protocol": "http",
 							"host": [
 								"localhost"
 							],
 							"port": "8020",
 							"path": [
-								"user",
+								"auth",
 								"users"
 							]
 						}
@@ -499,14 +499,14 @@
 							}
 						},
 						"url": {
-							"raw": "http://localhost:8020/user/users",
+							"raw": "http://localhost:8020/auth/users",
 							"protocol": "http",
 							"host": [
 								"localhost"
 							],
 							"port": "8020",
 							"path": [
-								"user",
+								"auth",
 								"users"
 							]
 						}
@@ -571,14 +571,14 @@
 							}
 						},
 						"url": {
-							"raw": "http://localhost:8020/user/users",
+							"raw": "http://localhost:8020/auth/users",
 							"protocol": "http",
 							"host": [
 								"localhost"
 							],
 							"port": "8020",
 							"path": [
-								"user",
+								"auth",
 								"users"
 							]
 						}
@@ -652,14 +652,14 @@
 							}
 						},
 						"url": {
-							"raw": "http://localhost:8020/user/users",
+							"raw": "http://localhost:8020/auth/users",
 							"protocol": "http",
 							"host": [
 								"localhost"
 							],
 							"port": "8020",
 							"path": [
-								"user",
+								"auth",
 								"users"
 							]
 						}
@@ -724,14 +724,14 @@
 							}
 						},
 						"url": {
-							"raw": "http://localhost:8020/user/users",
+							"raw": "http://localhost:8020/auth/users",
 							"protocol": "http",
 							"host": [
 								"localhost"
 							],
 							"port": "8020",
 							"path": [
-								"user",
+								"auth",
 								"users"
 							]
 						}
@@ -796,14 +796,14 @@
 							}
 						},
 						"url": {
-							"raw": "http://localhost:8020/user/users",
+							"raw": "http://localhost:8020/auth/users",
 							"protocol": "http",
 							"host": [
 								"localhost"
 							],
 							"port": "8020",
 							"path": [
-								"user",
+								"auth",
 								"users"
 							]
 						}
@@ -868,14 +868,14 @@
 							}
 						},
 						"url": {
-							"raw": "http://localhost:8020/user/users",
+							"raw": "http://localhost:8020/auth/users",
 							"protocol": "http",
 							"host": [
 								"localhost"
 							],
 							"port": "8020",
 							"path": [
-								"user",
+								"auth",
 								"users"
 							]
 						}
@@ -940,14 +940,14 @@
 							}
 						},
 						"url": {
-							"raw": "http://localhost:8020/user/users",
+							"raw": "http://localhost:8020/auth/users",
 							"protocol": "http",
 							"host": [
 								"localhost"
 							],
 							"port": "8020",
 							"path": [
-								"user",
+								"auth",
 								"users"
 							]
 						}
@@ -1012,14 +1012,14 @@
 							}
 						},
 						"url": {
-							"raw": "http://localhost:8020/user/users",
+							"raw": "http://localhost:8020/auth/users",
 							"protocol": "http",
 							"host": [
 								"localhost"
 							],
 							"port": "8020",
 							"path": [
-								"user",
+								"auth",
 								"users"
 							]
 						}
@@ -1084,14 +1084,14 @@
 							}
 						},
 						"url": {
-							"raw": "http://localhost:8020/user/users",
+							"raw": "http://localhost:8020/auth/users",
 							"protocol": "http",
 							"host": [
 								"localhost"
 							],
 							"port": "8020",
 							"path": [
-								"user",
+								"auth",
 								"users"
 							]
 						}
@@ -1156,14 +1156,14 @@
 							}
 						},
 						"url": {
-							"raw": "http://localhost:8020/user/users",
+							"raw": "http://localhost:8020/auth/users",
 							"protocol": "http",
 							"host": [
 								"localhost"
 							],
 							"port": "8020",
 							"path": [
-								"user",
+								"auth",
 								"users"
 							]
 						}
@@ -1228,14 +1228,14 @@
 							}
 						},
 						"url": {
-							"raw": "http://localhost:8020/user/users",
+							"raw": "http://localhost:8020/auth/users",
 							"protocol": "http",
 							"host": [
 								"localhost"
 							],
 							"port": "8020",
 							"path": [
-								"user",
+								"auth",
 								"users"
 							]
 						}
@@ -1300,14 +1300,14 @@
 							}
 						},
 						"url": {
-							"raw": "http://localhost:8020/user/users",
+							"raw": "http://localhost:8020/auth/users",
 							"protocol": "http",
 							"host": [
 								"localhost"
 							],
 							"port": "8020",
 							"path": [
-								"user",
+								"auth",
 								"users"
 							]
 						}
@@ -1372,14 +1372,14 @@
 							}
 						},
 						"url": {
-							"raw": "http://localhost:8020/user/users",
+							"raw": "http://localhost:8020/auth/users",
 							"protocol": "http",
 							"host": [
 								"localhost"
 							],
 							"port": "8020",
 							"path": [
-								"user",
+								"auth",
 								"users"
 							]
 						}
@@ -1444,14 +1444,14 @@
 							}
 						},
 						"url": {
-							"raw": "http://localhost:8020/user/users",
+							"raw": "http://localhost:8020/auth/users",
 							"protocol": "http",
 							"host": [
 								"localhost"
 							],
 							"port": "8020",
 							"path": [
-								"user",
+								"auth",
 								"users"
 							]
 						}
@@ -1516,14 +1516,14 @@
 							}
 						},
 						"url": {
-							"raw": "http://localhost:8020/user/users",
+							"raw": "http://localhost:8020/auth/users",
 							"protocol": "http",
 							"host": [
 								"localhost"
 							],
 							"port": "8020",
 							"path": [
-								"user",
+								"auth",
 								"users"
 							]
 						}
@@ -1588,14 +1588,14 @@
 							}
 						},
 						"url": {
-							"raw": "http://localhost:8020/user/users",
+							"raw": "http://localhost:8020/auth/users",
 							"protocol": "http",
 							"host": [
 								"localhost"
 							],
 							"port": "8020",
 							"path": [
-								"user",
+								"auth",
 								"users"
 							]
 						}
@@ -1660,14 +1660,14 @@
 							}
 						},
 						"url": {
-							"raw": "http://localhost:8020/user/users",
+							"raw": "http://localhost:8020/auth/users",
 							"protocol": "http",
 							"host": [
 								"localhost"
 							],
 							"port": "8020",
 							"path": [
-								"user",
+								"auth",
 								"users"
 							]
 						}
@@ -1732,14 +1732,14 @@
 							}
 						},
 						"url": {
-							"raw": "http://localhost:8020/user/users",
+							"raw": "http://localhost:8020/auth/users",
 							"protocol": "http",
 							"host": [
 								"localhost"
 							],
 							"port": "8020",
 							"path": [
-								"user",
+								"auth",
 								"users"
 							]
 						}
@@ -1804,14 +1804,14 @@
 							}
 						},
 						"url": {
-							"raw": "http://localhost:8020/user/users",
+							"raw": "http://localhost:8020/auth/users",
 							"protocol": "http",
 							"host": [
 								"localhost"
 							],
 							"port": "8020",
 							"path": [
-								"user",
+								"auth",
 								"users"
 							]
 						}
@@ -1876,14 +1876,14 @@
 							}
 						},
 						"url": {
-							"raw": "http://localhost:8020/user/users",
+							"raw": "http://localhost:8020/auth/users",
 							"protocol": "http",
 							"host": [
 								"localhost"
 							],
 							"port": "8020",
 							"path": [
-								"user",
+								"auth",
 								"users"
 							]
 						}
@@ -1948,14 +1948,14 @@
 							}
 						},
 						"url": {
-							"raw": "http://localhost:8020/user/users",
+							"raw": "http://localhost:8020/auth/users",
 							"protocol": "http",
 							"host": [
 								"localhost"
 							],
 							"port": "8020",
 							"path": [
-								"user",
+								"auth",
 								"users"
 							]
 						}
@@ -2020,14 +2020,14 @@
 							}
 						},
 						"url": {
-							"raw": "http://localhost:8020/user/users",
+							"raw": "http://localhost:8020/auth/users",
 							"protocol": "http",
 							"host": [
 								"localhost"
 							],
 							"port": "8020",
 							"path": [
-								"user",
+								"auth",
 								"users"
 							]
 						}
@@ -2092,14 +2092,14 @@
 							}
 						},
 						"url": {
-							"raw": "http://localhost:8020/user/users",
+							"raw": "http://localhost:8020/auth/users",
 							"protocol": "http",
 							"host": [
 								"localhost"
 							],
 							"port": "8020",
 							"path": [
-								"user",
+								"auth",
 								"users"
 							]
 						}
@@ -2126,14 +2126,14 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "http://localhost:8020/user/users/status",
+							"raw": "http://localhost:8020/auth/users/status",
 							"protocol": "http",
 							"host": [
 								"localhost"
 							],
 							"port": "8020",
 							"path": [
-								"user",
+								"auth",
 								"users",
 								"status"
 							]

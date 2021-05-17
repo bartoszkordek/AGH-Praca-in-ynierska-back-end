@@ -1,0 +1,61 @@
+spring:
+  application:
+    name: user
+  devtools:
+    restart:
+      enabled: true
+  datasource:
+    username: admin
+    password: admin
+    url: jdbc:h2:mem:testdb
+    driver-class-name: org.h2.Driver
+  h2:
+    console:
+      enabled: true
+      path: /h2-db-console
+      settings:
+        web-allow-others: true
+    jpa:
+      database-platform: org.hibernate.dialect.H2Dialect
+  profiles:
+    active: production
+  redis:
+    database: 0
+    host: localhost
+    port: 6379
+    test:
+      port: 6380
+    password: thisP@sswordNeed2BeChange
+    timeout: 60000
+  main:
+    allow-bean-definition-overriding: true
+server:
+  port: 0
+  error:
+    include-message: always
+    include-stacktrace: never
+    include-exception: false
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8010/eureka
+  instance:
+    instance-id: ${spring.application.name}:${spring.application.instance_id:${random.value}}
+
+#custom settings
+token:
+  secret: r@ndomlyGener@ted2ecretKey22ecureApplic@tionAndNeed2BeCh@nge1nTheFuture
+  expiration-time: 3600000
+
+authorization:
+  token:
+    header:
+      name: Authorization
+      prefix: Bearer
+
+front-end:
+  protocol: http
+  host: localhost
+  port: 3000
+  homepage: AGH-Praca-inzynierska-front-end

@@ -19,7 +19,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @ActiveProfiles("test")
 @SpringBootTest
-class UserApplicationTests {
+class AuthApplicationTests {
 
     @Autowired
     private ApplicationContext applicationContext;

@@ -1,8 +1,0 @@
-.idea
-target
-.dockerignore
-Dockerfile
-Dockerfile.prod
-HELP.md
-user.iml
-email.properties

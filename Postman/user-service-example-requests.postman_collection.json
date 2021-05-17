@@ -18,7 +18,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n    \"name\": \"Grzegorz\",\r\n    \"surname\": \"Zacharski\",\r\n    \"email\": \"tbn13376@zwoho.com\",\r\n    \"phone\": \"666 721 232\",\r\n    \"password\": \"testtest123\",\r\n    \"matchingPassword\": \"testtest123\"\r\n}",
+					"raw": "{\r\n    \"name\": \"Grzegorz\",\r\n    \"surname\": \"Zacharski\",\r\n    \"email\": \"one73579@zwoho.com\",\r\n    \"phone\": \"666 721 232\",\r\n    \"password\": \"testtest123\",\r\n    \"matchingPassword\": \"testtest123\"\r\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -26,14 +26,14 @@
 					}
 				},
 				"url": {
-					"raw": "http://localhost:8020/user/users",
+					"raw": "http://localhost:8020/auth/users",
 					"protocol": "http",
 					"host": [
 						"localhost"
 					],
 					"port": "8020",
 					"path": [
-						"user",
+						"auth",
 						"users"
 					]
 				},
@@ -53,21 +53,21 @@
 					}
 				],
 				"url": {
-					"raw": "http://localhost:8020/user/users/confirmRegistration?token=8f4f6547-dbbb-4886-b8b3-a79497ce7f27",
+					"raw": "http://localhost:8020/auth/users/confirmRegistration?token=157c593e-2364-4f33-960e-a8a2f7902994",
 					"protocol": "http",
 					"host": [
 						"localhost"
 					],
 					"port": "8020",
 					"path": [
-						"user",
+						"auth",
 						"users",
 						"confirmRegistration"
 					],
 					"query": [
 						{
 							"key": "token",
-							"value": "8f4f6547-dbbb-4886-b8b3-a79497ce7f27"
+							"value": "157c593e-2364-4f33-960e-a8a2f7902994"
 						}
 					]
 				}
@@ -87,7 +87,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n    \"email\": \"tbn13376@zwoho.com\",\r\n    \"password\": \"testtest1234\"\r\n}",
+					"raw": "{\r\n    \"email\": \"one73579@zwoho.com\",\r\n    \"password\": \"testtest1234\"\r\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -95,14 +95,14 @@
 					}
 				},
 				"url": {
-					"raw": "http://localhost:8020/user/login",
+					"raw": "http://localhost:8020/auth/login",
 					"protocol": "http",
 					"host": [
 						"localhost"
 					],
 					"port": "8020",
 					"path": [
-						"user",
+						"auth",
 						"login"
 					]
 				}
@@ -116,7 +116,7 @@
 				"header": [
 					{
 						"key": "Authorization",
-						"value": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJkYWZjOGVlNi02OWYyLTQ2MzMtYjY4Ny1kODk0YjQ0ODRhY2YiLCJleHAiOjE2MjA3NTUzNTd9.aLRxFJC28SSjPWEYcDSz2Kbr2OX3JIQXKLYoNidBfGM",
+						"value": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI2Njk1ZjA4OS1iZjA0LTQxNmUtOTczYi1mOGEyOGZiN2ViMmEiLCJleHAiOjE2MjEyNTcxNjh9.AY5mgRTaRXsU-CSMl94LmxtRRllD2ICafKEyeZklqlE",
 						"type": "text"
 					},
 					{
@@ -126,14 +126,14 @@
 					}
 				],
 				"url": {
-					"raw": "http://localhost:8020/user/users/status",
+					"raw": "http://localhost:8020/auth/users/status",
 					"protocol": "http",
 					"host": [
 						"localhost"
 					],
 					"port": "8020",
 					"path": [
-						"user",
+						"auth",
 						"users",
 						"status"
 					]
@@ -151,7 +151,7 @@
 				"header": [
 					{
 						"key": "Authorization",
-						"value": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJkYWZjOGVlNi02OWYyLTQ2MzMtYjY4Ny1kODk0YjQ0ODRhY2YiLCJleHAiOjE2MjA3NTUyMTl9.8Xjp3c4ul9XGeqyPVTC1UNLjl7D2WWYEmfnCgkYqrTI",
+						"value": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI2Njk1ZjA4OS1iZjA0LTQxNmUtOTczYi1mOGEyOGZiN2ViMmEiLCJleHAiOjE2MjEyNTczMzd9.4b6fKFmJXgWgP1oEzypJfpCNS0dTl3iJXtsk4IAEZmM",
 						"type": "text"
 					},
 					{
@@ -165,14 +165,14 @@
 					"raw": ""
 				},
 				"url": {
-					"raw": "http://localhost:8020/user/logout",
+					"raw": "http://localhost:8020/auth/logout",
 					"protocol": "http",
 					"host": [
 						"localhost"
 					],
 					"port": "8020",
 					"path": [
-						"user",
+						"auth",
 						"logout"
 					]
 				}
@@ -192,7 +192,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n    \"email\": \"tbn13376@zwoho.com\"\r\n}",
+					"raw": "{\r\n    \"email\": \"one73579@zwoho.com\"\r\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -200,14 +200,14 @@
 					}
 				},
 				"url": {
-					"raw": "http://localhost:8020/user/resetPassword",
+					"raw": "http://localhost:8020/auth/resetPassword",
 					"protocol": "http",
 					"host": [
 						"localhost"
 					],
 					"port": "8020",
 					"path": [
-						"user",
+						"auth",
 						"resetPassword"
 					]
 				}
@@ -235,20 +235,20 @@
 					}
 				},
 				"url": {
-					"raw": "http://localhost:8020/user/confirmNewPassword?token=52e49c09-8644-4a54-aca8-f957333f05f2",
+					"raw": "http://localhost:8020/auth/confirmNewPassword?token=6ea9a814-5235-430b-9178-de6d4ce524ad",
 					"protocol": "http",
 					"host": [
 						"localhost"
 					],
 					"port": "8020",
 					"path": [
-						"user",
+						"auth",
 						"confirmNewPassword"
 					],
 					"query": [
 						{
 							"key": "token",
-							"value": "52e49c09-8644-4a54-aca8-f957333f05f2"
+							"value": "6ea9a814-5235-430b-9178-de6d4ce524ad"
 						}
 					]
 				}

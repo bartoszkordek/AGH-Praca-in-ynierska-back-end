@@ -44,7 +44,17 @@ services:
     networks:
       - back-end
     depends_on:
-      - discovery
+      - mongo-db
+      - gateway
+
+  account:
+    container_name: account
+    build:
+      context: ./account
+    networks:
+      - back-end
+    depends_on:
+      - mongo-db
       - gateway
 
   redis:

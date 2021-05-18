@@ -1,22 +1,42 @@
 package com.healthy.gym.trainings.service;
 
+import com.healthy.gym.trainings.config.EmailConfig;
 import com.healthy.gym.trainings.db.IndividualTrainingsDbRepository;
 import com.healthy.gym.trainings.entity.GroupTrainings;
 import com.healthy.gym.trainings.entity.IndividualTrainings;
 import com.healthy.gym.trainings.exception.*;
+import com.healthy.gym.trainings.model.EmailSendModel;
 import com.healthy.gym.trainings.model.IndividualTrainingsAcceptModel;
 import com.healthy.gym.trainings.model.IndividualTrainingsRequestModel;
+import com.healthy.gym.trainings.service.email.EmailService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 @Service
 public class IndividualTrainingsService {
 
+    @Autowired
+    EmailConfig emailConfig;
     IndividualTrainingsDbRepository individualTrainingsDbRepository;
+
+    private void sendEmailWithoutAttachment(List<String> recipients, String subject, String body){
+        String fromEmail = emailConfig.getEmailName();
+        String personal = emailConfig.getEmailPersonal();
+        String password = emailConfig.getEmailPassword();
+        String filePath = null;
+        EmailSendModel emailSendModel = new EmailSendModel(fromEmail, personal, recipients, password, subject, body, filePath);
+        EmailService emailService = new EmailService();
+        String host = emailConfig.getSmtpHost();
+        String port = emailConfig.getSmtpPort();
+        emailService.overrideDefaultSmptCredentials(host, port);
+        emailService.sendEmailTLS(emailSendModel);
+    }
 
     public IndividualTrainingsService(IndividualTrainingsDbRepository individualTrainingsDbRepository){
         this.individualTrainingsDbRepository = individualTrainingsDbRepository;
@@ -64,7 +84,7 @@ public class IndividualTrainingsService {
         return individualTrainingsDbRepository.createIndividualTrainingRequest(individualTrainingsRequestModel, clientId);
     }
 
-    public IndividualTrainings acceptIndividualTraining(String trainingId, IndividualTrainingsAcceptModel individualTrainingsAcceptModel) throws NotExistingIndividualTrainingException, AlreadyAcceptedIndividualTrainingException, HallNoOutOfRangeException, ParseException, RetroIndividualTrainingException {
+    public IndividualTrainings acceptIndividualTraining(String trainingId, IndividualTrainingsAcceptModel individualTrainingsAcceptModel) throws NotExistingIndividualTrainingException, AlreadyAcceptedIndividualTrainingException, HallNoOutOfRangeException, ParseException, RetroIndividualTrainingException, EmailSendingException {
         if(!individualTrainingsDbRepository.isIndividualTrainingExist(trainingId)){
             throw new NotExistingIndividualTrainingException("Training with ID: "+ trainingId + " doesn't exist");
         }
@@ -80,17 +100,42 @@ public class IndividualTrainingsService {
         if(individualTrainingsAcceptModel.getHallNo() < 0){
             throw new HallNoOutOfRangeException("Hall no: " + individualTrainingsAcceptModel.getHallNo() + " does not exist");
         }
-        return individualTrainingsDbRepository.acceptIndividualTrainingRequest(trainingId, individualTrainingsAcceptModel);
+        IndividualTrainings response = individualTrainingsDbRepository.acceptIndividualTrainingRequest(trainingId, individualTrainingsAcceptModel);
+        String clientId = response.getClientId();
+        List<String> recipients = new ArrayList<>();
+        recipients.add(clientId);
+        String subject = "Training has been accepted";
+        String body = "Training with" + response.getTrainerId() + " on " + response.getDate() + " at " + response.getStartTime()+
+                " has been accepted.";
+        try{
+            sendEmailWithoutAttachment(recipients, subject, body);
+        } catch (Exception e){
+            throw new EmailSendingException("Cannot send email");
+        }
+        return response;
     }
 
-    public IndividualTrainings declineIndividualTraining(String trainingId) throws NotExistingIndividualTrainingException, AlreadyDeclinedIndividualTrainingException {
+    public IndividualTrainings declineIndividualTraining(String trainingId) throws NotExistingIndividualTrainingException, AlreadyDeclinedIndividualTrainingException, EmailSendingException {
         if(!individualTrainingsDbRepository.isIndividualTrainingExist(trainingId)){
             throw new NotExistingIndividualTrainingException("Training with ID: "+ trainingId + " doesn't exist");
         }
         if(individualTrainingsDbRepository.isIndividualTrainingExistAndDeclined(trainingId)){
             throw new AlreadyDeclinedIndividualTrainingException("Training with ID: "+ trainingId + " has been already declined");
         }
-        return individualTrainingsDbRepository.declineIndividualTrainingRequest(trainingId);
+        IndividualTrainings response =  individualTrainingsDbRepository.declineIndividualTrainingRequest(trainingId);
+
+        String clientId = response.getClientId();
+        List<String> recipients = new ArrayList<>();
+        recipients.add(clientId);
+        String subject = "Training has been declined";
+        String body = "Training with" + response.getTrainerId() + " on " + response.getDate() + " at " + response.getStartTime()+
+                " has been declined.";
+        try{
+            sendEmailWithoutAttachment(recipients, subject, body);
+        } catch (Exception e){
+            throw new EmailSendingException("Cannot send email");
+        }
+        return response;
     }
 
     public IndividualTrainings cancelIndividualTrainingRequest(String trainingId, String clientId) throws NotExistingIndividualTrainingException, NotAuthorizedClientException, ParseException, RetroIndividualTrainingException {

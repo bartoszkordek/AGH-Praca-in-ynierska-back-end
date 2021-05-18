@@ -1,5 +1,6 @@
 package com.healthy.gym.trainings;
 
+import com.healthy.gym.trainings.config.EmailConfig;
 import com.healthy.gym.trainings.db.IndividualTrainingsDbRepository;
 import com.healthy.gym.trainings.entity.IndividualTrainings;
 import com.healthy.gym.trainings.exception.*;
@@ -67,6 +68,11 @@ public class TrainingsServiceIndividualTrainingsTest {
         @Bean
         public IndividualTrainingsService individualTrainingsService() {
             return new TrainingsServiceIndividualTrainingsImpl(null);
+        }
+
+        @Bean
+        EmailConfig emailConfig() {
+            return new EmailConfig();
         }
     }
 
@@ -173,44 +179,44 @@ public class TrainingsServiceIndividualTrainingsTest {
     }
 
     @Test
-    public void shouldAcceptIndividualTraining_whenValidAcceptModelAndTrainingId() throws HallNoOutOfRangeException, NotExistingIndividualTrainingException, AlreadyAcceptedIndividualTrainingException, ParseException, RetroIndividualTrainingException {
+    public void shouldAcceptIndividualTraining_whenValidAcceptModelAndTrainingId() throws HallNoOutOfRangeException, NotExistingIndividualTrainingException, AlreadyAcceptedIndividualTrainingException, ParseException, RetroIndividualTrainingException, EmailSendingException {
         assertThat(individualTrainingsService.acceptIndividualTraining(validNotAcceptedTrainingId, individualTrainingsAcceptModel))
                 .isEqualTo(validAcceptedIndividualTraining);
     }
 
     @Test (expected = RetroIndividualTrainingException.class)
-    public void shouldNotAcceptIndividualTraining_whenTerminatedRequest() throws HallNoOutOfRangeException, NotExistingIndividualTrainingException, AlreadyAcceptedIndividualTrainingException, ParseException, RetroIndividualTrainingException {
+    public void shouldNotAcceptIndividualTraining_whenTerminatedRequest() throws HallNoOutOfRangeException, NotExistingIndividualTrainingException, AlreadyAcceptedIndividualTrainingException, ParseException, RetroIndividualTrainingException, EmailSendingException {
         individualTrainingsService.acceptIndividualTraining(retroTrainingId, individualTrainingsAcceptModel);
     }
 
     @Test(expected = NotExistingIndividualTrainingException.class)
-    public void shouldNotAcceptIndividualTraining_whenValidAcceptModelButTrainingIdDoesNotExist() throws NotExistingIndividualTrainingException, AlreadyAcceptedIndividualTrainingException, HallNoOutOfRangeException, ParseException, RetroIndividualTrainingException {
+    public void shouldNotAcceptIndividualTraining_whenValidAcceptModelButTrainingIdDoesNotExist() throws NotExistingIndividualTrainingException, AlreadyAcceptedIndividualTrainingException, HallNoOutOfRangeException, ParseException, RetroIndividualTrainingException, EmailSendingException {
         assertThat(individualTrainingsService.acceptIndividualTraining(invalidTrainingId, individualTrainingsAcceptModel));
     }
 
     @Test(expected = AlreadyAcceptedIndividualTrainingException.class)
-    public void shouldNotAcceptIndividualTraining_whenValidModelTrainingExistButAccepted() throws NotExistingIndividualTrainingException, AlreadyAcceptedIndividualTrainingException, HallNoOutOfRangeException, ParseException, RetroIndividualTrainingException {
+    public void shouldNotAcceptIndividualTraining_whenValidModelTrainingExistButAccepted() throws NotExistingIndividualTrainingException, AlreadyAcceptedIndividualTrainingException, HallNoOutOfRangeException, ParseException, RetroIndividualTrainingException, EmailSendingException {
         individualTrainingsService.acceptIndividualTraining(validAcceptedTrainingId, individualTrainingsAcceptModel);
     }
 
     @Test(expected = HallNoOutOfRangeException.class)
-    public void shouldNotAcceptIndividualTraining_whenInvalidHallNo() throws NotExistingIndividualTrainingException, AlreadyAcceptedIndividualTrainingException, HallNoOutOfRangeException, ParseException, RetroIndividualTrainingException {
+    public void shouldNotAcceptIndividualTraining_whenInvalidHallNo() throws NotExistingIndividualTrainingException, AlreadyAcceptedIndividualTrainingException, HallNoOutOfRangeException, ParseException, RetroIndividualTrainingException, EmailSendingException {
         individualTrainingsService.acceptIndividualTraining(validNotAcceptedTrainingId, invalidIndividualTrainingsAcceptModelWrongHallNo);
     }
 
     @Test
-    public void shouldDeclineIndividualTraining_whenValidAndNotDeclinedTrainingId() throws NotExistingIndividualTrainingException, AlreadyDeclinedIndividualTrainingException {
+    public void shouldDeclineIndividualTraining_whenValidAndNotDeclinedTrainingId() throws NotExistingIndividualTrainingException, AlreadyDeclinedIndividualTrainingException, EmailSendingException {
         assertThat(individualTrainingsService.declineIndividualTraining(validNotAcceptedTrainingId))
                 .isEqualTo(validIndividualTraining);
     }
 
     @Test(expected = NotExistingIndividualTrainingException.class)
-    public void shouldNotDeclineIndividualTraining_whenInvalidTrainingId() throws NotExistingIndividualTrainingException, AlreadyDeclinedIndividualTrainingException {
+    public void shouldNotDeclineIndividualTraining_whenInvalidTrainingId() throws NotExistingIndividualTrainingException, AlreadyDeclinedIndividualTrainingException, EmailSendingException {
         individualTrainingsService.declineIndividualTraining(invalidTrainingId);
     }
 
     @Test(expected = AlreadyDeclinedIndividualTrainingException.class)
-    public void shouldNotDeclineIndividualTraining_whenValidButDeclinedTrainingId() throws NotExistingIndividualTrainingException, AlreadyDeclinedIndividualTrainingException {
+    public void shouldNotDeclineIndividualTraining_whenValidButDeclinedTrainingId() throws NotExistingIndividualTrainingException, AlreadyDeclinedIndividualTrainingException, EmailSendingException {
         individualTrainingsService.declineIndividualTraining(declinedTrainingId);
     }
 

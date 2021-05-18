@@ -96,7 +96,7 @@ jobs:
 
 
   trainings:
-    name: Trainings service
+    name: trainings
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repo

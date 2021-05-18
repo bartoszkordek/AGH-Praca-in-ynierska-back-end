@@ -32,7 +32,7 @@ public class IndividualTrainingsDbRepository {
     }
 
     public boolean isIndividualTrainingExistAndRequestedByClient(String trainingId, String clientId){
-        return individualTrainingsRepository.existsIndividualTrainingsByIdAAndClientIdEquals(trainingId, clientId);
+        return individualTrainingsRepository.existsIndividualTrainingsByIdAndClientIdEquals(trainingId, clientId);
     }
 
     public List<IndividualTrainings> getIndividualTrainings(){

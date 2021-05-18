@@ -43,8 +43,6 @@ public class IndividualTrainings {
         this.clientId = clientId;
         this.trainerId = trainerId;
         this.date = date;
-        this.startTime = startTime;
-        this.endTime = endTime;
         if(time24HoursValidator.validate(startTime)){
             this.startTime = startTime;
         } else {

@@ -1,108 +1,108 @@
-name: Back-end CI
+name: CI
 
 on:
-  push:
-    branches: [ main ]
   pull_request:
     branches: [ main ]
 
 jobs:
   discovery:
-    name: Discovery service
+    name: discovery
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout repo
         uses: actions/checkout@v2
-
       - name: Set up JDK 11
         uses: actions/setup-java@v1
         with:
           java-version: 11
-      
       - name: Validate
         run: mvn validate --file ./discovery/pom.xml
-        
       - name: Compile
         run: mvn compile --file ./discovery/pom.xml
-          
-      - name: Build
-        run: mvn spring-boot:build-info --file ./discovery/pom.xml
-        
       - name: Test
         run: mvn test --file ./discovery/pom.xml
+      - name: Build
+        run: mvn spring-boot:build-info --file ./discovery/pom.xml
+     
 
   gateway:
-    name: Gateway service
+    name: gateway
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout repo
         uses: actions/checkout@v2
-
       - name: Set up JDK 11
         uses: actions/setup-java@v1
         with:
           java-version: 11
-      
       - name: Validate
         run: mvn validate --file ./gateway/pom.xml
-        
       - name: Compile
         run: mvn compile --file ./gateway/pom.xml
-          
+      - name: Test
+        run: mvn test --file ./gateway/pom.xml
       - name: Build
         run: mvn spring-boot:build-info --file ./gateway/pom.xml
       
-      - name: Test
-        run: mvn test --file ./gateway/pom.xml
+
 
   auth:
-    name: Auth service
+    name: auth
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout repo
         uses: actions/checkout@v2
-
       - name: Set up JDK 11
         uses: actions/setup-java@v1
         with:
           java-version: 11
-      
       - name: Validate
         run: mvn validate --file ./auth/pom.xml
-        
       - name: Compile
         run: mvn compile --file ./auth/pom.xml
-          
-      - name: Build
-        run: mvn spring-boot:build-info --file ./auth/pom.xml
-      
       - name: Test
         run: mvn test --file ./auth/pom.xml
+      - name: Build
+        run: mvn spring-boot:build-info --file ./auth/pom.xml
+
+
 
   trainings:
     name: Trainings service
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout repo
         uses: actions/checkout@v2
-
       - name: Set up JDK 11
         uses: actions/setup-java@v1
         with:
           java-version: 11
-
       - name: Validate
         run: mvn validate --file ./trainings/pom.xml
-
       - name: Compile
         run: mvn compile --file ./trainings/pom.xml
-
+      - name: Test
+        run: mvn test --file ./trainings/pom.xml
       - name: Build
         run: mvn spring-boot:build-info --file ./trainings/pom.xml
 
-      - name: Test
-        run: mvn test --file ./trainings/pom.xml
+
+
+  account:
+      name: account
+      runs-on: ubuntu-latest
+      steps:
+        - name: Checkout repo
+          uses: actions/checkout@v2
+        - name: Set up JDK 11
+          uses: actions/setup-java@v1
+          with:
+            java-version: 11
+        - name: Validate
+          run: mvn validate --file ./account/pom.xml
+        - name: Compile
+          run: mvn compile --file ./account/pom.xml
+        - name: Test
+          run: mvn test --file ./account/pom.xml
+        - name: Build
+          run: mvn spring-boot:build-info --file ./account/pom.xml

@@ -1,0 +1,37 @@
+spring:
+  application:
+    name: account
+  devtools:
+    restart:
+      enabled: true
+
+server:
+  port: 0
+  error:
+    include-message: always
+    include-stacktrace: never
+    include-exception: false
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://discovery:8010/eureka
+  instance:
+    instance-id: ${spring.application.name}:${spring.application.instance_id:${random.value}}
+
+#custom settings
+token:
+  secret: r@ndomlyGener@ted2ecretKey22ecureApplic@tionAndNeed2BeCh@nge1nTheFuture
+  expiration-time: 3600000
+
+authorization:
+  token:
+    header:
+      name: Authorization
+      prefix: Bearer
+
+front-end:
+  protocol: http
+  host: localhost
+  port: 3000
+  homepage: AGH-Praca-inzynierska-front-end

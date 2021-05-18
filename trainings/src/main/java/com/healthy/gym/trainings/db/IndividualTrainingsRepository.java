@@ -8,6 +8,7 @@ import java.util.List;
 public interface IndividualTrainingsRepository extends MongoRepository<IndividualTrainings, String> {
 
     public List<IndividualTrainings> findAll();
+    public List<IndividualTrainings> findIndividualTrainingsByClientIdEquals(String clientId);
 
     public List<IndividualTrainings> findAllByAccepted(boolean accepted);
 

@@ -46,7 +46,7 @@ public class TrainerTrainingsController {
                                                         @Valid @RequestBody final IndividualTrainingsAcceptModel individualTrainingsAcceptModel) throws RestException {
         try{
             return individualTrainingsService.acceptIndividualTraining(trainingId, individualTrainingsAcceptModel);
-        } catch (NotExistingIndividualTrainingException | AlreadyAcceptedIndividualTrainingException | RetroIndividualTrainingException | HallNoOutOfRangeException | ParseException e){
+        } catch (NotExistingIndividualTrainingException | AlreadyAcceptedIndividualTrainingException | RetroIndividualTrainingException | HallNoOutOfRangeException | ParseException | EmailSendingException e){
             throw new RestException(e.getMessage(), HttpStatus.BAD_REQUEST, e);
         }
     }
@@ -55,7 +55,7 @@ public class TrainerTrainingsController {
     public IndividualTrainings acceptIndividualTraining(@PathVariable("trainingId") final String trainingId) throws RestException {
         try {
             return individualTrainingsService.declineIndividualTraining(trainingId);
-        } catch (NotExistingIndividualTrainingException | AlreadyDeclinedIndividualTrainingException e){
+        } catch (NotExistingIndividualTrainingException | AlreadyDeclinedIndividualTrainingException | EmailSendingException e){
             throw new RestException(e.getMessage(), HttpStatus.BAD_REQUEST, e);
         }
     }

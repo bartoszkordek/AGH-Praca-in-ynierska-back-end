@@ -1,5 +1,6 @@
 package com.healthy.gym.trainings.controller;
 
+import com.healthy.gym.trainings.entity.GroupTrainings;
 import com.healthy.gym.trainings.entity.GroupTrainingsReviews;
 import com.healthy.gym.trainings.entity.IndividualTrainings;
 import com.healthy.gym.trainings.exception.*;
@@ -24,6 +25,11 @@ public class SignedClientTrainingsController {
     public SignedClientTrainingsController(GroupTrainingsService groupTrainingsService, IndividualTrainingsService individualTrainingsService){
         this.groupTrainingsService = groupTrainingsService;
         this.individualTrainingsService = individualTrainingsService;
+    }
+
+    @GetMapping("/group/all/mytrainings/all")
+    public List<GroupTrainings> getMyAllGroupTrainings(@RequestParam(required = true) final String clientId){
+        return groupTrainingsService.getMyAllTrainings(clientId);
     }
 
     @PostMapping("/group/{trainingId}/enroll")
@@ -104,6 +110,11 @@ public class SignedClientTrainingsController {
         } catch (NotAuthorizedClientException e){
             throw new RestException(e.getMessage(), HttpStatus.FORBIDDEN, e);
         }
+    }
+
+    @GetMapping("/individual/all/mytrainings/all")
+    public List<IndividualTrainings> getMyAllIndividualTrainings(@RequestParam(required = true) final String clientId){
+        return individualTrainingsService.getMyAllTrainings(clientId);
     }
 
     @PostMapping("/individual/request")

@@ -48,7 +48,8 @@
     <properties>
         <java.version>11</java.version>
         <spring-cloud.version>Hoxton.SR10</spring-cloud.version>
-        <spring-boot.build-image.imageName>$DOCKER_USER_NAME$/${project.parent.artifactId}-${project.artifactId}</spring-boot.build-image.imageName>
+        <docker-hub-repo>gza73/agh-praca-inzynierska</docker-hub-repo>
+        <spring-boot.build-image.imageName>${docker-hub-repo}-${project.artifactId}:latest</spring-boot.build-image.imageName>
     </properties>
 
     <dependencies>

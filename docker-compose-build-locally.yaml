@@ -6,19 +6,16 @@ networks:
 services:
   discovery:
     container_name: discovery
-    image: gza73/agh-praca-inzynierska-discovery:latest
-    environment:
-      - "SPRING_PROFILES_ACTIVE=docker"
+    build:
+      context: ./discovery
     ports:
       - 8010:8010
     networks:
       - back-end
 
   gateway:
-    container_name: gateway
-    image: gza73/agh-praca-inzynierska-gateway:latest
-    environment:
-      - "SPRING_PROFILES_ACTIVE=docker"
+    build:
+      context: ./gateway
     ports:
       - 8020:8020
     networks:
@@ -42,9 +39,8 @@ services:
 
   auth:
     container_name: auth
-    image: gza73/agh-praca-inzynierska-auth:latest
-    environment:
-      - "SPRING_PROFILES_ACTIVE=docker,production"
+    build:
+      context: ./auth
     networks:
       - back-end
     depends_on:
@@ -53,9 +49,8 @@ services:
 
   account:
     container_name: account
-    image: gza73/agh-praca-inzynierska-account:latest
-    environment:
-      - "SPRING_PROFILES_ACTIVE=docker"
+    build:
+      context: ./account
     networks:
       - back-end
     depends_on:
@@ -75,9 +70,8 @@ services:
 
 #  trainings:
 #    container_name: trainings
-#    image: gza73/agh-praca-inzynierska-trainings:latest
-#    environment:
-#      - "SPRING_PROFILES_ACTIVE=docker"
+#    build:
+#      context: ./trainings
 #    networks:
 #      - back-end
 #    depends_on:

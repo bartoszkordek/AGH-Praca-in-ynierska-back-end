@@ -8,6 +8,7 @@ import java.util.List;
 public interface GroupTrainingsRepository extends MongoRepository<GroupTrainings, String> {
 
     public List<GroupTrainings> findAll();
+    public List<GroupTrainings> findGroupTrainingsByParticipantsContains(String clientId);
     public boolean existsById(String id);
     public boolean existsByDateAfter(String date);
     public boolean existsByIdAndDateAfter(String id, String date);

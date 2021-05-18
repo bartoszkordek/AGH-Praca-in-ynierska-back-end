@@ -111,6 +111,11 @@ public class GroupTrainingsService {
         return groupTrainingsDbRepository.getGroupTrainingById(trainingId);
     }
 
+    public List<GroupTrainings> getMyAllTrainings(String clientId){
+        //add if Client Exists validation
+        return groupTrainingsDbRepository.getMyAllGroupTrainings(clientId);
+    }
+
     public List<String> getTrainingParticipants(String trainingId) throws NotExistingGroupTrainingException {
         if(!groupTrainingsDbRepository.isGroupTrainingExist(trainingId))
             throw new NotExistingGroupTrainingException("Training with ID " + trainingId + " does not exist");

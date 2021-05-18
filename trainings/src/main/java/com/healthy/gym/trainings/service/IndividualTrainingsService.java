@@ -1,6 +1,7 @@
 package com.healthy.gym.trainings.service;
 
 import com.healthy.gym.trainings.db.IndividualTrainingsDbRepository;
+import com.healthy.gym.trainings.entity.GroupTrainings;
 import com.healthy.gym.trainings.entity.IndividualTrainings;
 import com.healthy.gym.trainings.exception.*;
 import com.healthy.gym.trainings.model.IndividualTrainingsAcceptModel;
@@ -42,6 +43,11 @@ public class IndividualTrainingsService {
             throw new NotExistingIndividualTrainingException("Training with ID: "+ trainingId + " doesn't exist");
         }
         return individualTrainingsDbRepository.getIndividualTrainingById(trainingId);
+    }
+
+    public List<IndividualTrainings> getMyAllTrainings(String clientId){
+        //add if Client Exists validation
+        return individualTrainingsDbRepository.getMyAllIndividualTrainings(clientId);
     }
 
     public List<IndividualTrainings> getAllAcceptedIndividualTrainings(){

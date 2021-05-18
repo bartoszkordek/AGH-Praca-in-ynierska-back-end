@@ -15,8 +15,6 @@ import org.springframework.stereotype.Repository;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.Duration;
-import java.time.LocalTime;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -42,6 +40,10 @@ public class GroupTrainingsDbRepository {
 
     public GroupTrainings getGroupTrainingById(String trainingId){
         return groupTrainingsRepository.findFirstById(trainingId);
+    }
+
+    public List<GroupTrainings> getMyAllGroupTrainings(String clientId){
+        return groupTrainingsRepository.findGroupTrainingsByParticipantsContains(clientId);
     }
 
     public List<String> getTrainingParticipants(String trainingId){

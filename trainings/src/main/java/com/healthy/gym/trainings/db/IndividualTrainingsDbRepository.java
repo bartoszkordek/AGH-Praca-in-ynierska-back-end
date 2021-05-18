@@ -43,6 +43,10 @@ public class IndividualTrainingsDbRepository {
         return individualTrainingsRepository.findIndividualTrainingsById(trainingId);
     }
 
+    public List<IndividualTrainings> getMyAllIndividualTrainings(String clientId){
+        return individualTrainingsRepository.findIndividualTrainingsByClientIdEquals(clientId);
+    }
+
     public List<IndividualTrainings> getAcceptedIndividualTrainings(){
         return individualTrainingsRepository.findAllByAccepted(true);
     }

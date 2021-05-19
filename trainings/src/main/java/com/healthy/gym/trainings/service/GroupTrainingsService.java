@@ -105,6 +105,10 @@ public class GroupTrainingsService {
         return groupTrainingsDbRepository.getGroupTrainings();
     }
 
+    public List<GroupTrainingsPublicViewModel> getPublicGroupTrainings() throws InvalidHourException {
+        return groupTrainingsDbRepository.getPublicGroupTrainings();
+    }
+
     public GroupTrainings getGroupTrainingById(String trainingId) throws NotExistingGroupTrainingException {
         if(!groupTrainingsDbRepository.isGroupTrainingExist(trainingId))
             throw new NotExistingGroupTrainingException("Training with ID " + trainingId + " does not exist");

@@ -4,6 +4,7 @@ import com.healthy.gym.trainings.config.MongoConfig;
 import com.healthy.gym.trainings.entity.GroupTrainings;
 import com.healthy.gym.trainings.exception.InvalidHourException;
 import com.healthy.gym.trainings.model.GroupTrainingModel;
+import com.healthy.gym.trainings.model.GroupTrainingsPublicViewModel;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoCollection;
@@ -15,6 +16,7 @@ import org.springframework.stereotype.Repository;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -36,6 +38,22 @@ public class GroupTrainingsDbRepository {
 
     public List<GroupTrainings> getGroupTrainings(){
         return groupTrainingsRepository.findAll();
+    }
+
+    public List<GroupTrainingsPublicViewModel> getPublicGroupTrainings() throws InvalidHourException {
+        List<GroupTrainingsPublicViewModel> publicResponse = new ArrayList<>();
+        List<GroupTrainings> groupTrainings = groupTrainingsRepository.findAll();
+        for(GroupTrainings groupTraining : groupTrainings){
+            publicResponse.add(new GroupTrainingsPublicViewModel(groupTraining.getTrainingName(),
+                    groupTraining.getTrainerId(),
+                    groupTraining.getDate(),
+                    groupTraining.getStartTime(),
+                    groupTraining.getEndTime(),
+                    groupTraining.getHallNo(),
+                    groupTraining.getLimit()));
+        }
+
+        return publicResponse;
     }
 
     public GroupTrainings getGroupTrainingById(String trainingId){

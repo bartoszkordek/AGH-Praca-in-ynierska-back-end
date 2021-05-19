@@ -1,14 +1,23 @@
 package com.healthy.gym.account.security;
 
-import org.springframework.context.annotation.Configuration;
+import com.healthy.gym.account.component.token.TokenManager;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
 
-@Configuration
+@EnableGlobalMethodSecurity(prePostEnabled = true, securedEnabled = true)
 @EnableWebSecurity
 public class WebSecurity extends WebSecurityConfigurerAdapter {
+
+    private final TokenManager tokenManager;
+
+    @Autowired
+    public WebSecurity(TokenManager tokenManager) {
+        this.tokenManager = tokenManager;
+    }
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
@@ -18,8 +27,14 @@ public class WebSecurity extends WebSecurityConfigurerAdapter {
         http.authorizeRequests()
                 .antMatchers("/status").authenticated()
                 .and()
-                .authorizeRequests().antMatchers("/*").permitAll();
+                .authorizeRequests().antMatchers("/*").permitAll()
+                .and()
+                .addFilter(getAuthorizationFilter());
 
         http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+    }
+
+    private AuthorizationFilter getAuthorizationFilter() throws Exception {
+        return new AuthorizationFilter(authenticationManager(), tokenManager);
     }
 }

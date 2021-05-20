@@ -29,13 +29,19 @@ spring:
     timeout: 60000
   main:
     allow-bean-definition-overriding: true
+  data:
+    mongodb:
+      host: localhost
+      port: 27017
+      database: databasePracaInz
+      username: adminPracaInz
+      password: thisP@sswordNeed2BeChange
 server:
   port: 0
   error:
     include-message: always
     include-stacktrace: never
     include-exception: false
-
 eureka:
   client:
     service-url:

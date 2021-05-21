@@ -3,6 +3,7 @@ package com.healthy.gym.auth.service;
 import com.healthy.gym.auth.data.document.ResetPasswordTokenDocument;
 import com.healthy.gym.auth.data.document.UserDocument;
 import com.healthy.gym.auth.data.repository.mongo.UserDAO;
+import com.healthy.gym.auth.events.OnResetPasswordEvent;
 import com.healthy.gym.auth.shared.UserDTO;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
@@ -108,8 +109,7 @@ public class UserServiceImpl implements UserService {
 
         ResetPasswordTokenDocument resetPasswordToken = tokenService.createResetPasswordToken(userDocument);
 
-        // TODO
-        // applicationEventPublisher.publishEvent(new OnResetPasswordEvent(resetPasswordToken));
+        applicationEventPublisher.publishEvent(new OnResetPasswordEvent(resetPasswordToken));
 
         return resetPasswordToken;
     }

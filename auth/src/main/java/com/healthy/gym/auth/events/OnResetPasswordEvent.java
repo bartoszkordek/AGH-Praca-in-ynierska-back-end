@@ -1,17 +1,17 @@
 package com.healthy.gym.auth.events;
 
-import com.healthy.gym.auth.data.entity.ResetPasswordToken;
+import com.healthy.gym.auth.data.document.ResetPasswordTokenDocument;
 import org.springframework.context.ApplicationEvent;
 
 public class OnResetPasswordEvent extends ApplicationEvent {
-    private final ResetPasswordToken resetPasswordToken;
+    private final ResetPasswordTokenDocument resetPasswordToken;
 
-    public OnResetPasswordEvent(ResetPasswordToken resetPasswordToken) {
+    public OnResetPasswordEvent(ResetPasswordTokenDocument resetPasswordToken) {
         super(resetPasswordToken);
         this.resetPasswordToken = resetPasswordToken;
     }
 
-    public ResetPasswordToken getResetPasswordToken() {
+    public ResetPasswordTokenDocument getResetPasswordToken() {
         return resetPasswordToken;
     }
 }

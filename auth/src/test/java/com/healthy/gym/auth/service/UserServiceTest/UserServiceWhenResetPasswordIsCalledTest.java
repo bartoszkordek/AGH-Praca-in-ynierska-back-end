@@ -2,7 +2,6 @@ package com.healthy.gym.auth.service.UserServiceTest;
 
 import com.healthy.gym.auth.data.document.ResetPasswordTokenDocument;
 import com.healthy.gym.auth.data.document.UserDocument;
-import com.healthy.gym.auth.data.entity.ResetPasswordToken;
 import com.healthy.gym.auth.data.repository.mongo.UserDAO;
 import com.healthy.gym.auth.listener.ResetPasswordListener;
 import com.healthy.gym.auth.service.TokenService;

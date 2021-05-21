@@ -2,7 +2,6 @@ package com.healthy.gym.auth.security;
 
 import com.healthy.gym.auth.configuration.tests.TestCountry;
 import com.healthy.gym.auth.data.document.UserDocument;
-import com.healthy.gym.auth.data.entity.UserEntity;
 import com.healthy.gym.auth.data.repository.mongo.RegistrationTokenDAO;
 import com.healthy.gym.auth.data.repository.mongo.ResetPasswordTokenDAO;
 import com.healthy.gym.auth.data.repository.mongo.UserDAO;

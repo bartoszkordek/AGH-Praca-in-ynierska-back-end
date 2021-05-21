@@ -1,8 +1,8 @@
 package com.healthy.gym.auth.listener;
 
 import com.healthy.gym.auth.component.MailMessageManager;
-import com.healthy.gym.auth.data.entity.RegistrationToken;
-import com.healthy.gym.auth.data.entity.UserEntity;
+import com.healthy.gym.auth.data.document.RegistrationTokenDocument;
+import com.healthy.gym.auth.data.document.UserDocument;
 import com.healthy.gym.auth.events.OnRegistrationCompleteEvent;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -29,15 +29,15 @@ public class RegistrationCompleteListener {
     @Async
     @EventListener
     public void sendEmailToConfirmRegistration(OnRegistrationCompleteEvent event) {
-        RegistrationToken registrationToken = event.getRegistrationToken();
-        UserEntity user = registrationToken.getUserEntity();
+        RegistrationTokenDocument registrationToken = event.getRegistrationToken();
+        UserDocument user = registrationToken.getUserDocument();
 
         SimpleMailMessage confirmationEmail = getConfirmRegistrationMail(user, registrationToken);
 
         javaMailSender.send(confirmationEmail);
     }
 
-    private SimpleMailMessage getConfirmRegistrationMail(UserEntity user, RegistrationToken registrationToken) {
+    private SimpleMailMessage getConfirmRegistrationMail(UserDocument user, RegistrationTokenDocument registrationToken) {
         String recipientAddress = user.getEmail();
 
         String subject = mailMessageManager.getConfirmRegistrationMessageSubject();

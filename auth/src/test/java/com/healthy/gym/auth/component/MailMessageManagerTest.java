@@ -1,9 +1,9 @@
 package com.healthy.gym.auth.component;
 
 import com.healthy.gym.auth.configuration.tests.TestCountry;
-import com.healthy.gym.auth.data.entity.RegistrationToken;
-import com.healthy.gym.auth.data.entity.ResetPasswordToken;
-import com.healthy.gym.auth.data.entity.UserEntity;
+import com.healthy.gym.auth.data.document.RegistrationTokenDocument;
+import com.healthy.gym.auth.data.document.ResetPasswordTokenDocument;
+import com.healthy.gym.auth.data.document.UserDocument;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -49,12 +49,12 @@ class MailMessageManagerTest {
     class WhenGetConfirmRegistrationMessageTextIsCalled {
 
         private String token;
-        private RegistrationToken registrationToken;
+        private RegistrationTokenDocument registrationToken;
 
         @BeforeEach
         void setUp() {
             token = UUID.randomUUID().toString();
-            registrationToken = new RegistrationToken(token, new UserEntity());
+            registrationToken = new RegistrationTokenDocument(token, new UserDocument());
         }
 
         @ParameterizedTest
@@ -96,7 +96,7 @@ class MailMessageManagerTest {
         @Test
         void shouldThrowExceptionWhenInvalidRegistrationTokenProvided() {
             assertThatThrownBy(
-                    () -> mailMessageManager.getConfirmRegistrationMessageText(new RegistrationToken())
+                    () -> mailMessageManager.getConfirmRegistrationMessageText(new RegistrationTokenDocument())
             ).isInstanceOf(IllegalStateException.class);
         }
     }
@@ -122,12 +122,12 @@ class MailMessageManagerTest {
     class WhenGetResetPasswordMessageTextIsCalled {
 
         private String token;
-        private ResetPasswordToken resetPasswordToken;
+        private ResetPasswordTokenDocument resetPasswordToken;
 
         @BeforeEach
         void setUp() {
             token = UUID.randomUUID().toString();
-            resetPasswordToken = new ResetPasswordToken(token, new UserEntity());
+            resetPasswordToken = new ResetPasswordTokenDocument(token, new UserDocument());
         }
 
         @ParameterizedTest
@@ -170,7 +170,7 @@ class MailMessageManagerTest {
         @Test
         void shouldThrowExceptionWhenInvalidResetPasswordTokenProvided() {
             assertThatThrownBy(
-                    () -> mailMessageManager.getResetPasswordMessageText(new ResetPasswordToken())
+                    () -> mailMessageManager.getResetPasswordMessageText(new ResetPasswordTokenDocument())
             ).isInstanceOf(IllegalStateException.class);
         }
     }

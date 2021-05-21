@@ -1,18 +1,18 @@
 package com.healthy.gym.auth.events;
 
-import com.healthy.gym.auth.data.entity.RegistrationToken;
+import com.healthy.gym.auth.data.document.RegistrationTokenDocument;
 import org.springframework.context.ApplicationEvent;
 
 public class OnRegistrationCompleteEvent extends ApplicationEvent {
 
-    private final RegistrationToken registrationToken;
+    private final RegistrationTokenDocument registrationToken;
 
-    public OnRegistrationCompleteEvent(RegistrationToken registrationToken) {
+    public OnRegistrationCompleteEvent(RegistrationTokenDocument registrationToken) {
         super(registrationToken);
         this.registrationToken = registrationToken;
     }
 
-    public RegistrationToken getRegistrationToken() {
+    public RegistrationTokenDocument getRegistrationToken() {
         return registrationToken;
     }
 }

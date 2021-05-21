@@ -63,41 +63,6 @@ class AuthApplicationTests {
         }
 
         @Test
-        void shouldHaveSpringDataSourceUsername() {
-            assertThat(environment.getProperty("spring.datasource.username")).isNotNull();
-        }
-
-        @Test
-        void shouldHaveSpringDataSourcePassword() {
-            assertThat(environment.getProperty("spring.datasource.password")).isNotNull();
-        }
-
-        @Test
-        void shouldHaveSpringDataSourceUrl() {
-            assertThat(environment.getProperty("spring.datasource.url")).isNotNull();
-        }
-
-        @Test
-        void shouldHaveSpringH2ConsoleEnabled() {
-            assertThat(environment.getProperty("spring.h2.console.enabled")).isNotNull();
-        }
-
-        @Test
-        void shouldHaveSpringH2ConsolePath() {
-            assertThat(environment.getProperty("spring.h2.console.path")).isNotNull();
-        }
-
-        @Test
-        void shouldHaveSpringH2ConsoleWebAllowOthers() {
-            assertThat(environment.getProperty("spring.h2.console.settings.web-allow-others")).isNotNull();
-        }
-
-        @Test
-        void shouldHaveSpringH2JpaDatabasePlatform() {
-            assertThat(environment.getProperty("spring.h2.jpa.database-platform")).isNotNull();
-        }
-
-        @Test
         void shouldHaveSpringProfilesActive() {
             assertThat(environment.getProperty("spring.profiles.active")).isNotNull();
         }
@@ -125,6 +90,21 @@ class AuthApplicationTests {
         @Test
         void shouldHaveSpringRedisTimeout() {
             assertThat(environment.getProperty("spring.redis.timeout")).isNotNull();
+        }
+
+        @Test
+        void shouldHaveAllowBeanDefinitionOverriding() {
+            assertThat(environment.getProperty("spring.main.allow-bean-definition-overriding")).isNotNull();
+        }
+
+        @Test
+        void shouldHaveMongoDBUri() {
+            assertThat(environment.getProperty("spring.data.mongodb.uri")).isNotNull();
+        }
+
+        @Test
+        void shouldHaveMongoDBDatabase() {
+            assertThat(environment.getProperty("spring.data.mongodb.database")).isNotNull();
         }
 
         @Test
@@ -166,6 +146,26 @@ class AuthApplicationTests {
             assertThat(environment.getProperty("authorization.token.header.prefix"))
                     .isNotNull()
                     .isEqualTo("Bearer");
+        }
+
+        @Test
+        void shouldHaveFrontEndProtocol() {
+            assertThat(environment.getProperty("front-end.protocol")).isNotNull();
+        }
+
+        @Test
+        void shouldHaveFrontEndHost() {
+            assertThat(environment.getProperty("front-end.host")).isNotNull();
+        }
+
+        @Test
+        void shouldHaveFrontEndPort() {
+            assertThat(environment.getProperty("front-end.port")).isNotNull();
+        }
+
+        @Test
+        void shouldHaveFrontEndHomepage() {
+            assertThat(environment.getProperty("front-end.homepage")).isNotNull();
         }
     }
 }

@@ -1,7 +1,7 @@
 package com.healthy.gym.auth.service.UserServiceTest;
 
-import com.healthy.gym.auth.data.entity.UserEntity;
-import com.healthy.gym.auth.data.repository.UserDAO;
+import com.healthy.gym.auth.data.document.UserDocument;
+import com.healthy.gym.auth.data.repository.mongo.UserDAO;
 import com.healthy.gym.auth.service.UserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -30,15 +30,15 @@ class UserServiceWhenLoadUserByUserNameIsCalledTest {
     @MockBean
     private UserDAO userDAO;
 
-    private UserEntity testEntity;
+    private UserDocument testDocument;
     private UserDetails user;
 
     @BeforeEach
     void setUp() {
-        testEntity = new UserEntity();
-        testEntity.setEmail("test@test.com");
-        testEntity.setEncryptedPassword("password");
-        when(userDAO.findByEmail(anyString())).thenReturn(testEntity);
+        testDocument = new UserDocument();
+        testDocument.setEmail("test@test.com");
+        testDocument.setEncryptedPassword("password");
+        when(userDAO.findByEmail(anyString())).thenReturn(testDocument);
     }
 
     @Test
@@ -55,28 +55,28 @@ class UserServiceWhenLoadUserByUserNameIsCalledTest {
 
     @Test
     void shouldReturnEnabledUser() {
-        testEntity.setEnabled(true);
+        testDocument.setEnabled(true);
         user = userService.loadUserByUsername(anyString());
         assertThat(user.isEnabled()).isTrue();
     }
 
     @Test
     void shouldReturnAccountNonExpiredSetToTrue() {
-        testEntity.setAccountNonExpired(true);
+        testDocument.setAccountNonExpired(true);
         user = userService.loadUserByUsername(anyString());
         assertThat(user.isAccountNonExpired()).isTrue();
     }
 
     @Test
     void shouldReturnCredentialsNonExpiredSetToTrue() {
-        testEntity.setCredentialsNonExpired(true);
+        testDocument.setCredentialsNonExpired(true);
         user = userService.loadUserByUsername(anyString());
         assertThat(user.isCredentialsNonExpired()).isTrue();
     }
 
     @Test
     void shouldReturnAccountNonLockedSetToTrue() {
-        testEntity.setAccountNonLocked(true);
+        testDocument.setAccountNonLocked(true);
         user = userService.loadUserByUsername(anyString());
         assertThat(user.isAccountNonLocked()).isTrue();
     }

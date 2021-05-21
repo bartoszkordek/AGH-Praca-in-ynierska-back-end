@@ -2,7 +2,7 @@ package com.healthy.gym.auth;
 
 import com.healthy.gym.auth.component.Translator;
 import com.healthy.gym.auth.controller.UserController;
-import com.healthy.gym.auth.data.repository.UserDAO;
+import com.healthy.gym.auth.data.repository.mongo.UserDAO;
 import com.healthy.gym.auth.service.UserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;

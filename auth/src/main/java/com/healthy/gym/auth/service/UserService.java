@@ -1,6 +1,6 @@
 package com.healthy.gym.auth.service;
 
-import com.healthy.gym.auth.data.entity.ResetPasswordToken;
+import com.healthy.gym.auth.data.document.ResetPasswordTokenDocument;
 import com.healthy.gym.auth.shared.UserDTO;
 import org.springframework.security.core.userdetails.UserDetailsService;
 
@@ -11,5 +11,5 @@ public interface UserService extends UserDetailsService {
 
     UserDTO getUserDetailsByEmail(String email);
 
-    ResetPasswordToken resetPassword(String email);
+    ResetPasswordTokenDocument resetPassword(String email);
 }

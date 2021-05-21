@@ -41,6 +41,30 @@ public class UserDocument {
         this.userId = userId;
     }
 
+    public UserDocument(
+            String name,
+            String surname,
+            String email,
+            String phoneNumber,
+            String encryptedPassword,
+            String userId,
+            boolean enabled,
+            boolean accountNonExpired,
+            boolean credentialsNonExpired,
+            boolean accountNonLocked
+    ) {
+        this.name = name;
+        this.surname = surname;
+        this.email = email;
+        this.phoneNumber = phoneNumber;
+        this.encryptedPassword = encryptedPassword;
+        this.userId = userId;
+        this.enabled = enabled;
+        this.accountNonExpired = accountNonExpired;
+        this.credentialsNonExpired = credentialsNonExpired;
+        this.accountNonLocked = accountNonLocked;
+    }
+
     public String getId() {
         return id;
     }

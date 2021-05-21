@@ -1,17 +1,17 @@
 package com.healthy.gym.auth.service;
 
-import com.healthy.gym.auth.data.entity.RegistrationToken;
-import com.healthy.gym.auth.data.entity.ResetPasswordToken;
-import com.healthy.gym.auth.data.entity.UserEntity;
+import com.healthy.gym.auth.data.document.RegistrationTokenDocument;
+import com.healthy.gym.auth.data.document.ResetPasswordTokenDocument;
+import com.healthy.gym.auth.data.document.UserDocument;
 import com.healthy.gym.auth.exceptions.token.ExpiredTokenException;
 import com.healthy.gym.auth.exceptions.token.InvalidTokenException;
 import com.healthy.gym.auth.shared.UserDTO;
 
 public interface TokenService {
 
-    ResetPasswordToken createResetPasswordToken(UserEntity userEntity) throws IllegalStateException;
+    ResetPasswordTokenDocument createResetPasswordToken(UserDocument userDocument) throws IllegalStateException;
 
-    RegistrationToken createRegistrationToken(UserDTO user, String token);
+    RegistrationTokenDocument createRegistrationToken(UserDTO user, String token);
 
     UserDTO verifyRegistrationToken(String token) throws InvalidTokenException, ExpiredTokenException;
 

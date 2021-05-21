@@ -1,8 +1,9 @@
 package com.healthy.gym.auth.service.UserServiceTest;
 
+import com.healthy.gym.auth.data.document.ResetPasswordTokenDocument;
+import com.healthy.gym.auth.data.document.UserDocument;
 import com.healthy.gym.auth.data.entity.ResetPasswordToken;
-import com.healthy.gym.auth.data.entity.UserEntity;
-import com.healthy.gym.auth.data.repository.UserDAO;
+import com.healthy.gym.auth.data.repository.mongo.UserDAO;
 import com.healthy.gym.auth.listener.ResetPasswordListener;
 import com.healthy.gym.auth.service.TokenService;
 import com.healthy.gym.auth.service.UserService;
@@ -31,8 +32,8 @@ import static org.mockito.Mockito.when;
 @SpringBootTest
 class UserServiceWhenResetPasswordIsCalledTest {
 
-    private ResetPasswordToken resetPasswordToken;
-    private UserEntity janKowalskiEntity;
+    private ResetPasswordTokenDocument resetPasswordToken;
+    private UserDocument janKowalski;
     private String token;
 
     @Autowired
@@ -52,22 +53,23 @@ class UserServiceWhenResetPasswordIsCalledTest {
 
     @BeforeEach
     void setUp() {
-        janKowalskiEntity = new UserEntity(
+        janKowalski = new UserDocument(
                 "Jan",
                 "Kowalski",
                 "jan.kowalski@test.com",
                 "666 777 888",
                 bCryptPasswordEncoder.encode("password1234"),
-                UUID.randomUUID().toString(),
-                true,
-                true,
-                true,
-                true
+                UUID.randomUUID().toString()
         );
+        janKowalski.setEnabled(true);
+        janKowalski.setAccountNonExpired(true);
+        janKowalski.setAccountNonLocked(true);
+        janKowalski.setCredentialsNonExpired(true);
+
         doNothing().when(resetPasswordListener).sendEmailToResetPassword(any());
         token = UUID.randomUUID().toString();
         when(tokenService.createResetPasswordToken(any()))
-                .thenReturn(new ResetPasswordToken(token, janKowalskiEntity));
+                .thenReturn(new ResetPasswordTokenDocument(token, janKowalski));
     }
 
     @Test
@@ -80,8 +82,8 @@ class UserServiceWhenResetPasswordIsCalledTest {
 
     @Test
     void shouldThrowExceptionWhenAccountIsExpired() {
-        janKowalskiEntity.setAccountNonExpired(false);
-        when(userDAO.findByEmail("jan.kowalski@test.com")).thenReturn(janKowalskiEntity);
+        janKowalski.setAccountNonExpired(false);
+        when(userDAO.findByEmail("jan.kowalski@test.com")).thenReturn(janKowalski);
         assertThatThrownBy(
                 () -> userService.resetPassword("jan.kowalski@test.com")
         ).isInstanceOf(AccountExpiredException.class);
@@ -89,8 +91,8 @@ class UserServiceWhenResetPasswordIsCalledTest {
 
     @Test
     void shouldThrowExceptionWhenCredentialsExpired() {
-        janKowalskiEntity.setCredentialsNonExpired(false);
-        when(userDAO.findByEmail("jan.kowalski@test.com")).thenReturn(janKowalskiEntity);
+        janKowalski.setCredentialsNonExpired(false);
+        when(userDAO.findByEmail("jan.kowalski@test.com")).thenReturn(janKowalski);
         assertThatThrownBy(
                 () -> userService.resetPassword("jan.kowalski@test.com")
         ).isInstanceOf(CredentialsExpiredException.class);
@@ -98,8 +100,8 @@ class UserServiceWhenResetPasswordIsCalledTest {
 
     @Test
     void shouldThrowExceptionWhenAccountIsDisabled() {
-        janKowalskiEntity.setEnabled(false);
-        when(userDAO.findByEmail("jan.kowalski@test.com")).thenReturn(janKowalskiEntity);
+        janKowalski.setEnabled(false);
+        when(userDAO.findByEmail("jan.kowalski@test.com")).thenReturn(janKowalski);
         assertThatThrownBy(
                 () -> userService.resetPassword("jan.kowalski@test.com")
         ).isInstanceOf(DisabledException.class);
@@ -107,8 +109,8 @@ class UserServiceWhenResetPasswordIsCalledTest {
 
     @Test
     void shouldThrowExceptionWhenAccountIsLocked() {
-        janKowalskiEntity.setAccountNonLocked(false);
-        when(userDAO.findByEmail("jan.kowalski@test.com")).thenReturn(janKowalskiEntity);
+        janKowalski.setAccountNonLocked(false);
+        when(userDAO.findByEmail("jan.kowalski@test.com")).thenReturn(janKowalski);
         assertThatThrownBy(
                 () -> userService.resetPassword("jan.kowalski@test.com")
         ).isInstanceOf(LockedException.class);
@@ -116,14 +118,14 @@ class UserServiceWhenResetPasswordIsCalledTest {
 
     @Test
     void shouldReturnProperEntity() {
-        when(userDAO.findByEmail("jan.kowalski@test.com")).thenReturn(janKowalskiEntity);
+        when(userDAO.findByEmail("jan.kowalski@test.com")).thenReturn(janKowalski);
         resetPasswordToken = userService.resetPassword("jan.kowalski@test.com");
-        assertThat(resetPasswordToken.getUserEntity()).isEqualTo(janKowalskiEntity);
+        assertThat(resetPasswordToken.getUserDocument()).isEqualTo(janKowalski);
     }
 
     @Test
     void shouldReturnToken() {
-        when(userDAO.findByEmail("jan.kowalski@test.com")).thenReturn(janKowalskiEntity);
+        when(userDAO.findByEmail("jan.kowalski@test.com")).thenReturn(janKowalski);
         resetPasswordToken = userService.resetPassword("jan.kowalski@test.com");
         Pattern uuidPattern = Pattern.compile("([a-f0-9]{8}(-[a-f0-9]{4}){4}[a-f0-9]{8})");
         assertThat(resetPasswordToken.getToken()).isNotNull();

@@ -1,12 +1,12 @@
 package com.healthy.gym.auth.service;
 
-import com.healthy.gym.auth.data.entity.AbstractTokenEntity;
-import com.healthy.gym.auth.data.entity.RegistrationToken;
-import com.healthy.gym.auth.data.entity.ResetPasswordToken;
-import com.healthy.gym.auth.data.entity.UserEntity;
-import com.healthy.gym.auth.data.repository.RegistrationTokenDAO;
-import com.healthy.gym.auth.data.repository.ResetPasswordTokenDAO;
-import com.healthy.gym.auth.data.repository.UserDAO;
+import com.healthy.gym.auth.data.document.AbstractTokenDocument;
+import com.healthy.gym.auth.data.document.RegistrationTokenDocument;
+import com.healthy.gym.auth.data.document.ResetPasswordTokenDocument;
+import com.healthy.gym.auth.data.document.UserDocument;
+import com.healthy.gym.auth.data.repository.mongo.RegistrationTokenDAO;
+import com.healthy.gym.auth.data.repository.mongo.ResetPasswordTokenDAO;
+import com.healthy.gym.auth.data.repository.mongo.UserDAO;
 import com.healthy.gym.auth.exceptions.token.ExpiredTokenException;
 import com.healthy.gym.auth.exceptions.token.InvalidTokenException;
 import com.healthy.gym.auth.shared.UserDTO;
@@ -43,65 +43,65 @@ public class TokenServiceImpl implements TokenService {
     }
 
     @Override
-    public ResetPasswordToken createResetPasswordToken(UserEntity userEntity) throws IllegalStateException {
-        if (userEntity == null || userEntity.getId() == null) throw new IllegalStateException();
+    public ResetPasswordTokenDocument createResetPasswordToken(UserDocument userDocument) throws IllegalStateException {
+        if (userDocument == null || userDocument.getId() == null) throw new IllegalStateException();
 
         String token = UUID.randomUUID().toString();
 
-        ResetPasswordToken resetPasswordToken = new ResetPasswordToken(token, userEntity);
+        ResetPasswordTokenDocument resetPasswordToken = new ResetPasswordTokenDocument(token, userDocument);
         return resetPasswordTokenDAO.save(resetPasswordToken);
     }
 
     @Override
-    public RegistrationToken createRegistrationToken(UserDTO user, String token) {
+    public RegistrationTokenDocument createRegistrationToken(UserDTO user, String token) {
 
-        UserEntity userEntity = userDAO.findByEmail(user.getEmail());
-        RegistrationToken verificationToken = new RegistrationToken(token, userEntity);
+        UserDocument userDocument = userDAO.findByEmail(user.getEmail());
+        RegistrationTokenDocument verificationToken = new RegistrationTokenDocument(token, userDocument);
         return registrationTokenDAO.save(verificationToken);
     }
 
     @Override
     public UserDTO verifyRegistrationToken(String token) throws InvalidTokenException, ExpiredTokenException {
-        RegistrationToken registrationToken = registrationTokenDAO.findByToken(token);
+        RegistrationTokenDocument registrationToken = registrationTokenDAO.findByToken(token);
 
-        if (registrationToken == null || registrationToken.wasUsed()) throw new InvalidTokenException();
+        if (registrationToken == null || registrationToken.isWasUsed()) throw new InvalidTokenException();
         if (tokenExpired(registrationToken)) throw new ExpiredTokenException();
 
-        UserEntity userEntity = registrationToken.getUserEntity();
-        if (userEntity == null) throw new IllegalStateException();
-        userEntity.setEnabled(true);
+        UserDocument userDocument = registrationToken.getUserDocument();
+        if (userDocument == null) throw new IllegalStateException();
+        userDocument.setEnabled(true);
 
-        UserEntity savedUserEntity = userDAO.save(userEntity);
+        UserDocument savedUserDocument = userDAO.save(userDocument);
         registrationToken.setWasUsed(true);
-        RegistrationToken savedRegistrationToken = registrationTokenDAO.save(registrationToken);
-        if (!savedRegistrationToken.wasUsed()) throw new IllegalStateException();
+        RegistrationTokenDocument savedRegistrationToken = registrationTokenDAO.save(registrationToken);
+        if (!savedRegistrationToken.isWasUsed()) throw new IllegalStateException();
 
-        return modelMapper.map(savedUserEntity, UserDTO.class);
+        return modelMapper.map(savedUserDocument, UserDTO.class);
     }
 
-    private boolean tokenExpired(AbstractTokenEntity tokenEntity) {
-        return tokenEntity.getExpiryDate().isBefore(LocalDateTime.now());
+    private boolean tokenExpired(AbstractTokenDocument token) {
+        return token.getExpiryDate().isBefore(LocalDateTime.now());
     }
 
     @Override
     public UserDTO verifyTokenAndResetPassword(String token, String newPassword) throws InvalidTokenException, ExpiredTokenException {
 
-        ResetPasswordToken resetPasswordToken = resetPasswordTokenDAO.findByToken(token);
+        ResetPasswordTokenDocument resetPasswordToken = resetPasswordTokenDAO.findByToken(token);
 
-        if (resetPasswordToken == null || resetPasswordToken.wasUsed()) throw new InvalidTokenException();
+        if (resetPasswordToken == null || resetPasswordToken.isWasUsed()) throw new InvalidTokenException();
         if (tokenExpired(resetPasswordToken)) throw new ExpiredTokenException();
 
-        UserEntity userEntity = resetPasswordToken.getUserEntity();
-        if (userEntity == null) throw new IllegalStateException();
+        UserDocument userDocument = resetPasswordToken.getUserDocument();
+        if (userDocument == null) throw new IllegalStateException();
 
         String newEncryptedPassword = bCryptPasswordEncoder.encode(newPassword);
-        userEntity.setEncryptedPassword(newEncryptedPassword);
+        userDocument.setEncryptedPassword(newEncryptedPassword);
 
-        UserEntity savedUserEntity = userDAO.save(userEntity);
+        UserDocument savedUserDocument = userDAO.save(userDocument);
         resetPasswordToken.setWasUsed(true);
-        ResetPasswordToken savedResetPasswordToken = resetPasswordTokenDAO.save(resetPasswordToken);
-        if (!savedResetPasswordToken.wasUsed()) throw new IllegalStateException();
+        ResetPasswordTokenDocument savedResetPasswordToken = resetPasswordTokenDAO.save(resetPasswordToken);
+        if (!savedResetPasswordToken.isWasUsed()) throw new IllegalStateException();
 
-        return modelMapper.map(savedUserEntity, UserDTO.class);
+        return modelMapper.map(savedUserDocument, UserDTO.class);
     }
 }

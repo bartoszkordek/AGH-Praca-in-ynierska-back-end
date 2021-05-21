@@ -1,7 +1,7 @@
 package com.healthy.gym.auth.service.UserServiceTest;
 
-import com.healthy.gym.auth.data.entity.UserEntity;
-import com.healthy.gym.auth.data.repository.UserDAO;
+import com.healthy.gym.auth.data.document.UserDocument;
+import com.healthy.gym.auth.data.repository.mongo.UserDAO;
 import com.healthy.gym.auth.service.UserService;
 import com.healthy.gym.auth.shared.UserDTO;
 import org.junit.jupiter.api.BeforeEach;
@@ -21,7 +21,7 @@ import static org.mockito.Mockito.when;
 @SpringBootTest
 class UserServiceWhenGetUserDetailsByEmailIsCalledTest {
 
-    private UserEntity janKowalskiEntity;
+    private UserDocument janKowalski;
     private UserDTO user;
 
     @Autowired
@@ -35,18 +35,17 @@ class UserServiceWhenGetUserDetailsByEmailIsCalledTest {
 
     @BeforeEach
     void setUp() {
-        janKowalskiEntity = new UserEntity(
+        janKowalski = new UserDocument(
                 "Jan",
                 "Kowalski",
                 "jan.kowalski@test.com",
                 "666 777 888",
                 bCryptPasswordEncoder.encode("password1234"),
-                UUID.randomUUID().toString(),
-                true
+                UUID.randomUUID().toString()
         );
 
-        when(userDAO.findByEmail(janKowalskiEntity.getEmail()))
-                .thenReturn(janKowalskiEntity);
+        when(userDAO.findByEmail(janKowalski.getEmail()))
+                .thenReturn(janKowalski);
 
         user = userService.getUserDetailsByEmail("jan.kowalski@test.com");
     }
@@ -60,27 +59,27 @@ class UserServiceWhenGetUserDetailsByEmailIsCalledTest {
 
     @Test
     void shouldReturnUserDTOWithProperName() {
-        assertThat(user.getName()).isEqualTo(janKowalskiEntity.getName());
+        assertThat(user.getName()).isEqualTo(janKowalski.getName());
     }
 
     @Test
     void shouldReturnUserDTOWithProperSurname() {
-        assertThat(user.getSurname()).isEqualTo(janKowalskiEntity.getSurname());
+        assertThat(user.getSurname()).isEqualTo(janKowalski.getSurname());
     }
 
     @Test
     void shouldReturnUserDTOWithProperEmail() {
-        assertThat(user.getEmail()).isEqualTo(janKowalskiEntity.getEmail());
+        assertThat(user.getEmail()).isEqualTo(janKowalski.getEmail());
     }
 
     @Test
     void shouldReturnUserDTOWithProperPhoneNumber() {
-        assertThat(user.getPhoneNumber()).isEqualTo(janKowalskiEntity.getPhoneNumber());
+        assertThat(user.getPhoneNumber()).isEqualTo(janKowalski.getPhoneNumber());
     }
 
     @Test
     void shouldReturnUserDTOWithProperPassword() {
-        assertThat(user.getEncryptedPassword()).isEqualTo(janKowalskiEntity.getEncryptedPassword());
+        assertThat(user.getEncryptedPassword()).isEqualTo(janKowalski.getEncryptedPassword());
     }
 
     @Test
@@ -90,6 +89,6 @@ class UserServiceWhenGetUserDetailsByEmailIsCalledTest {
 
     @Test
     void shouldReturnUserDTOWithProperUserId() {
-        assertThat(user.getUserId()).isEqualTo(janKowalskiEntity.getUserId());
+        assertThat(user.getUserId()).isEqualTo(janKowalski.getUserId());
     }
 }

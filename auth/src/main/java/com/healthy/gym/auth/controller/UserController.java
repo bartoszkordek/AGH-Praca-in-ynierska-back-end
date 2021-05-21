@@ -1,8 +1,7 @@
 package com.healthy.gym.auth.controller;
 
 import com.healthy.gym.auth.component.Translator;
-import com.healthy.gym.auth.data.entity.RegistrationToken;
-import com.healthy.gym.auth.events.OnRegistrationCompleteEvent;
+import com.healthy.gym.auth.data.document.RegistrationTokenDocument;
 import com.healthy.gym.auth.exceptions.token.ExpiredTokenException;
 import com.healthy.gym.auth.exceptions.token.InvalidTokenException;
 import com.healthy.gym.auth.pojo.request.CreateUserRequest;
@@ -120,9 +119,10 @@ public class UserController {
         UserDTO createdUserDTO = userService.createUser(userDTO);
 
         String token = UUID.randomUUID().toString();
-        RegistrationToken registrationToken = tokenService.createRegistrationToken(createdUserDTO, token);
+        RegistrationTokenDocument registrationToken = tokenService.createRegistrationToken(createdUserDTO, token);
 
-        applicationEventPublisher.publishEvent(new OnRegistrationCompleteEvent(registrationToken));
+        //TODO
+        //applicationEventPublisher.publishEvent(new OnRegistrationCompleteEvent(registrationToken));
 
         String singUpSuccessMessage = translator.toLocale("user.sing-up.success");
 

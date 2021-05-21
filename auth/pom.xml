@@ -49,7 +49,8 @@
         <java.version>11</java.version>
         <spring-cloud.version>Hoxton.SR10</spring-cloud.version>
         <docker-hub-repo>gza73/agh-praca-inzynierska</docker-hub-repo>
-        <spring-boot.build-image.imageName>${docker-hub-repo}-${project.artifactId}:latest</spring-boot.build-image.imageName>
+        <spring-boot.build-image.imageName>${docker-hub-repo}-${project.artifactId}:latest
+        </spring-boot.build-image.imageName>
     </properties>
 
     <dependencies>
@@ -70,10 +71,6 @@
             <artifactId>spring-security-test</artifactId>
             <scope>test</scope>
         </dependency>
-<!--        <dependency>-->
-<!--            <groupId>org.springframework.boot</groupId>-->
-<!--            <artifactId>spring-boot-starter-data-jpa</artifactId>-->
-<!--        </dependency>-->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-validation</artifactId>
@@ -86,11 +83,6 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-mail</artifactId>
         </dependency>
-<!--        <dependency>-->
-<!--            <groupId>com.h2database</groupId>-->
-<!--            <artifactId>h2</artifactId>-->
-<!--            <version>1.4.200</version>-->
-<!--        </dependency>-->
         <dependency>
             <groupId>it.ozimov</groupId>
             <artifactId>embedded-redis</artifactId>
@@ -102,9 +94,15 @@
             <artifactId>spring-boot-starter-data-mongodb</artifactId>
         </dependency>
         <dependency>
-            <groupId>de.flapdoodle.embed</groupId>
-            <artifactId>de.flapdoodle.embed.mongo</artifactId>
-            <version>2.2.0</version>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <version>1.15.3</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>mongodb</artifactId>
+            <version>1.15.3</version>
             <scope>test</scope>
         </dependency>
         <dependency>

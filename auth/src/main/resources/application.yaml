@@ -4,19 +4,6 @@ spring:
   devtools:
     restart:
       enabled: true
-  datasource:
-    username: admin
-    password: admin
-    url: jdbc:h2:mem:testdb
-    driver-class-name: org.h2.Driver
-  h2:
-    console:
-      enabled: true
-      path: /h2-db-console
-      settings:
-        web-allow-others: true
-    jpa:
-      database-platform: org.hibernate.dialect.H2Dialect
   profiles:
     active: production
   redis:
@@ -29,13 +16,16 @@ spring:
     timeout: 60000
   main:
     allow-bean-definition-overriding: true
+  data:
+    mongodb:
+      uri: mongodb://adminPracaInz:thisPAsswordNeed2BeChange@localhost:27017/databasePracaInz
+      database: databasePracaInz
 server:
   port: 0
   error:
     include-message: always
     include-stacktrace: never
     include-exception: false
-
 eureka:
   client:
     service-url:

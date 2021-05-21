@@ -1,58 +1,37 @@
-package com.healthy.gym.auth.data.entity;
+package com.healthy.gym.auth.data.document;
 
-import javax.persistence.*;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
+
 import java.util.Objects;
 
-@Entity
-@Table(name = "users")
-public class UserEntity {
+@Document(collection = "users")
+public class UserDocument {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
-    @Column(nullable = false, length = 60)
+    private String id;
     private String name;
-
-    @Column(nullable = false, length = 60)
     private String surname;
-
-    @Column(nullable = false, length = 120, unique = true)
     private String email;
-
-    @Column(nullable = false, length = 60)
     private String phoneNumber;
-
-    @Column(nullable = false)
     private String encryptedPassword;
-
-    @Column(nullable = false, unique = true, updatable = false)
     private String userId;
-
-    @Column(nullable = false)
     private boolean enabled;
-
-    @Column(nullable = false)
     private boolean accountNonExpired;
-
-    @Column(nullable = false)
     private boolean credentialsNonExpired;
-
-    @Column(nullable = false)
     private boolean accountNonLocked;
 
-    public UserEntity() {
-        //empty constructor required by JPA
+    public UserDocument() {
+        //empty constructor required spring data mapper
     }
 
-    public UserEntity(
+    public UserDocument(
             String name,
             String surname,
             String email,
             String phoneNumber,
             String encryptedPassword,
-            String userId,
-            Boolean isEnabled
+            String userId
     ) {
         this.name = name;
         this.surname = surname;
@@ -60,17 +39,16 @@ public class UserEntity {
         this.phoneNumber = phoneNumber;
         this.encryptedPassword = encryptedPassword;
         this.userId = userId;
-        this.enabled = isEnabled;
     }
 
-    public UserEntity(
+    public UserDocument(
             String name,
             String surname,
             String email,
             String phoneNumber,
             String encryptedPassword,
             String userId,
-            boolean isEnabled,
+            boolean enabled,
             boolean accountNonExpired,
             boolean credentialsNonExpired,
             boolean accountNonLocked
@@ -81,17 +59,17 @@ public class UserEntity {
         this.phoneNumber = phoneNumber;
         this.encryptedPassword = encryptedPassword;
         this.userId = userId;
-        this.enabled = isEnabled;
+        this.enabled = enabled;
         this.accountNonExpired = accountNonExpired;
         this.credentialsNonExpired = credentialsNonExpired;
         this.accountNonLocked = accountNonLocked;
     }
 
-    public Long getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(String id) {
         this.id = id;
     }
 
@@ -176,27 +154,10 @@ public class UserEntity {
     }
 
     @Override
-    public String toString() {
-        return "UserEntity{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
-                ", surname='" + surname + '\'' +
-                ", email='" + email + '\'' +
-                ", phoneNumber='" + phoneNumber + '\'' +
-                ", encryptedPassword='" + encryptedPassword + '\'' +
-                ", userId='" + userId + '\'' +
-                ", isEnabled=" + enabled +
-                ", accountNonExpired=" + accountNonExpired +
-                ", credentialsNonExpired=" + credentialsNonExpired +
-                ", accountNonLocked=" + accountNonLocked +
-                '}';
-    }
-
-    @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        UserEntity that = (UserEntity) o;
+        UserDocument that = (UserDocument) o;
         return enabled == that.enabled
                 && accountNonExpired == that.accountNonExpired
                 && credentialsNonExpired == that.credentialsNonExpired
@@ -225,5 +186,22 @@ public class UserEntity {
                 credentialsNonExpired,
                 accountNonLocked
         );
+    }
+
+    @Override
+    public String toString() {
+        return "UserDocument{" +
+                "id='" + id + '\'' +
+                ", name='" + name + '\'' +
+                ", surname='" + surname + '\'' +
+                ", email='" + email + '\'' +
+                ", phoneNumber='" + phoneNumber + '\'' +
+                ", encryptedPassword='" + encryptedPassword + '\'' +
+                ", userId='" + userId + '\'' +
+                ", enabled=" + enabled +
+                ", accountNonExpired=" + accountNonExpired +
+                ", credentialsNonExpired=" + credentialsNonExpired +
+                ", accountNonLocked=" + accountNonLocked +
+                '}';
     }
 }

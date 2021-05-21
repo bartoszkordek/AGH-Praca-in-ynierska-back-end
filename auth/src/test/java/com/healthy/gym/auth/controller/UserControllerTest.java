@@ -1,9 +1,10 @@
 package com.healthy.gym.auth.controller;
 
 import com.healthy.gym.auth.configuration.tests.TestCountry;
+import com.healthy.gym.auth.data.document.RegistrationTokenDocument;
+import com.healthy.gym.auth.data.document.UserDocument;
 import com.healthy.gym.auth.exceptions.token.ExpiredTokenException;
 import com.healthy.gym.auth.exceptions.token.InvalidTokenException;
-import com.healthy.gym.auth.listener.RegistrationListener;
 import com.healthy.gym.auth.service.TokenService;
 import com.healthy.gym.auth.service.UserService;
 import com.healthy.gym.auth.shared.UserDTO;
@@ -17,6 +18,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
@@ -55,11 +58,11 @@ class UserControllerTest {
     private TokenService tokenService;
 
     @MockBean
-    private RegistrationListener registrationListener;
+    private JavaMailSender javaMailSender;
 
     @BeforeEach
     void setUp() {
-        doNothing().when(registrationListener).sendEmailToConfirmRegistration(any());
+        doNothing().when(javaMailSender).send(any(SimpleMailMessage.class));
     }
 
     @Test
@@ -93,8 +96,16 @@ class UserControllerTest {
 
         UserDTO responseUserDTO = new UserDTO();
         responseUserDTO.setUserId("test");
+
+        UserDocument userDocument = new UserDocument();
+        userDocument.setEmail("xmr09697@zwoho.co");
+        RegistrationTokenDocument registrationTokenDocument =
+                new RegistrationTokenDocument(UUID.randomUUID().toString(), userDocument);
+
         when(userService.loadUserByUsername(any())).thenThrow(UsernameNotFoundException.class);
         when(userService.createUser(any())).thenReturn(responseUserDTO);
+        when(tokenService.createRegistrationToken(any(), anyString()))
+                .thenReturn(registrationTokenDocument);
 
         RequestBuilder request = MockMvcRequestBuilders
                 .post(uri)
@@ -136,8 +147,15 @@ class UserControllerTest {
 
         UserDTO responseUserDTO = new UserDTO();
         responseUserDTO.setUserId("test");
+        UserDocument userDocument = new UserDocument();
+        userDocument.setEmail("xmr09697@zwoho.co");
+        RegistrationTokenDocument registrationTokenDocument =
+                new RegistrationTokenDocument(UUID.randomUUID().toString(), userDocument);
+
         when(userService.loadUserByUsername(any())).thenThrow(UsernameNotFoundException.class);
         when(userService.createUser(any())).thenReturn(responseUserDTO);
+        when(tokenService.createRegistrationToken(any(), anyString()))
+                .thenReturn(registrationTokenDocument);
 
         RequestBuilder request = MockMvcRequestBuilders
                 .post(uri)

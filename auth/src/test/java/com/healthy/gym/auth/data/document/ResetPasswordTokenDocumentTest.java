@@ -1,4 +1,4 @@
-package com.healthy.gym.auth.data.entity;
+package com.healthy.gym.auth.data.document;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -10,37 +10,36 @@ import java.util.UUID;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
-class ResetPasswordTokenTest {
+class ResetPasswordTokenDocumentTest {
 
     @Nested
     class WhenCreated {
         @Test
         void shouldHaveAllFieldNullOrEqual0() {
-            ResetPasswordToken token = new ResetPasswordToken();
-            assertThat(token).hasAllNullFieldsOrPropertiesExcept("id","wasUsed");
-            assertThat(token.getId()).isZero();
+            ResetPasswordTokenDocument token = new ResetPasswordTokenDocument();
+            assertThat(token).hasAllNullFieldsOrPropertiesExcept("id", "wasUsed");
         }
 
         @Test
         void shouldHaveAllFieldNullOrEqual0ExceptToken() {
-            UserEntity userEntity = mock(UserEntity.class);
+            UserDocument userDocument = mock(UserDocument.class);
             String token = UUID.randomUUID().toString();
-            ResetPasswordToken verificationToken = new ResetPasswordToken(token, userEntity);
-            assertThat(verificationToken).hasNoNullFieldsOrProperties();
+            ResetPasswordTokenDocument verificationToken = new ResetPasswordTokenDocument(token, userDocument);
+            assertThat(verificationToken).hasNoNullFieldsOrPropertiesExcept("id");
         }
     }
 
     @Nested
     class ExpirationTime {
 
-        private ResetPasswordToken verificationToken;
+        private ResetPasswordTokenDocument verificationToken;
         private LocalDateTime expirationTime;
 
         @BeforeEach
         void setUp() {
-            UserEntity userEntity = mock(UserEntity.class);
+            UserDocument userDocument = mock(UserDocument.class);
             String token = UUID.randomUUID().toString();
-            verificationToken = new ResetPasswordToken(token, userEntity);
+            verificationToken = new ResetPasswordTokenDocument(token, userDocument);
             expirationTime = LocalDateTime.now().plusHours(2);
         }
 
@@ -72,6 +71,4 @@ class ResetPasswordTokenTest {
             assertThat(actualExpirationSecond).isEqualTo(expectedExpirationSecond);
         }
     }
-
-
 }

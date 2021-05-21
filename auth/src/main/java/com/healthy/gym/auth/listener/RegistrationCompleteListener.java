@@ -16,13 +16,13 @@ import org.springframework.stereotype.Component;
 import java.util.UUID;
 
 @Component
-public class RegistrationListener {
+public class RegistrationCompleteListener {
     private final TokenService tokenService;
     private final JavaMailSender javaMailSender;
     private final MailMessageManager mailMessageManager;
 
     @Autowired
-    public RegistrationListener(
+    public RegistrationCompleteListener(
             TokenService tokenService,
             @Qualifier("getJavaMailSender") JavaMailSender javaMailSender,
             MailMessageManager mailMessageManager

@@ -3,7 +3,7 @@ package com.healthy.gym.auth.controller;
 import com.healthy.gym.auth.configuration.tests.TestCountry;
 import com.healthy.gym.auth.exceptions.token.ExpiredTokenException;
 import com.healthy.gym.auth.exceptions.token.InvalidTokenException;
-import com.healthy.gym.auth.listener.RegistrationListener;
+import com.healthy.gym.auth.listener.RegistrationCompleteListener;
 import com.healthy.gym.auth.service.TokenService;
 import com.healthy.gym.auth.service.UserService;
 import com.healthy.gym.auth.shared.UserDTO;
@@ -55,11 +55,11 @@ class UserControllerTest {
     private TokenService tokenService;
 
     @MockBean
-    private RegistrationListener registrationListener;
+    private RegistrationCompleteListener registrationCompleteListener;
 
     @BeforeEach
     void setUp() {
-        doNothing().when(registrationListener).sendEmailToConfirmRegistration(any());
+        doNothing().when(registrationCompleteListener).sendEmailToConfirmRegistration(any());
     }
 
     @Test

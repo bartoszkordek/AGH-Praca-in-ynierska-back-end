@@ -1,6 +1,7 @@
 package com.healthy.gym.auth.controller;
 
 import com.healthy.gym.auth.component.Translator;
+import com.healthy.gym.auth.data.entity.RegistrationToken;
 import com.healthy.gym.auth.events.OnRegistrationCompleteEvent;
 import com.healthy.gym.auth.exceptions.token.ExpiredTokenException;
 import com.healthy.gym.auth.exceptions.token.InvalidTokenException;
@@ -26,6 +27,7 @@ import org.springframework.web.server.ResponseStatusException;
 import javax.validation.Valid;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/users")
@@ -115,9 +117,12 @@ public class UserController {
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
 
         UserDTO userDTO = modelMapper.map(createUserRequest, UserDTO.class);
-        UserDTO responseUserDTO = userService.createUser(userDTO);
+        UserDTO createdUserDTO = userService.createUser(userDTO);
 
-        applicationEventPublisher.publishEvent(new OnRegistrationCompleteEvent(responseUserDTO));
+        String token = UUID.randomUUID().toString();
+        RegistrationToken registrationToken = tokenService.createRegistrationToken(createdUserDTO, token);
+
+        applicationEventPublisher.publishEvent(new OnRegistrationCompleteEvent(registrationToken));
 
         String singUpSuccessMessage = translator.toLocale("user.sing-up.success");
 
@@ -125,7 +130,7 @@ public class UserController {
                 true,
                 singUpSuccessMessage,
                 new HashMap<>(),
-                responseUserDTO.getUserId()
+                createdUserDTO.getUserId()
         );
     }
 

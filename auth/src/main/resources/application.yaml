@@ -4,19 +4,6 @@ spring:
   devtools:
     restart:
       enabled: true
-  datasource:
-    username: admin
-    password: admin
-    url: jdbc:h2:mem:testdb
-    driver-class-name: org.h2.Driver
-  h2:
-    console:
-      enabled: true
-      path: /h2-db-console
-      settings:
-        web-allow-others: true
-    jpa:
-      database-platform: org.hibernate.dialect.H2Dialect
   profiles:
     active: production
   redis:
@@ -31,11 +18,8 @@ spring:
     allow-bean-definition-overriding: true
   data:
     mongodb:
-      host: localhost
-      port: 27017
+      uri: mongodb://adminPracaInz:thisPAsswordNeed2BeChange@localhost:27017/databasePracaInz
       database: databasePracaInz
-      username: adminPracaInz
-      password: thisP@sswordNeed2BeChange
 server:
   port: 0
   error:

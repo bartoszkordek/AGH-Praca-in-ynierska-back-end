@@ -4,7 +4,10 @@ spring:
   devtools:
     restart:
       enabled: true
-
+  data:
+    mongodb:
+      uri: mongodb://adminPracaInz:thisPAsswordNeed2BeChange@localhost:27017/databasePracaInz
+      database: databasePracaInz
 server:
   port: 0
   error:

@@ -32,8 +32,6 @@ class UserDAOTest {
     private MongoTemplate mongoTemplate;
     @Autowired
     private UserDAO userDAO;
-    @Autowired
-    private BCryptPasswordEncoder bCryptPasswordEncoder;
     private UserDocument janKowalski, mariaNowak, andrzejNowak;
     private String andrzejNowakId;
 
@@ -44,6 +42,7 @@ class UserDAOTest {
 
     @BeforeEach
     void setUp() {
+        BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder();
         janKowalski = new UserDocument("Jan",
                 "Kowalski",
                 "jan.kowalski@test.com",

@@ -14,7 +14,12 @@ public class Messages {
                 {"field.password.failure", "Hasło powinno mieć od 8 do 24 znaków."},
                 {"field.password.match.failure", "Podane hasła powinny być identyczne."},
                 {"password.change.success", "Hasło zostało pomyślnie zmienione."},
-                {"request.failure", "Podczas przetwarzania żądania wystąpił błąd."}
+                {"password.exception.old.password.does.not.match",
+                        "Podano nieprawidłowe stare hasło. Wpisz poprawne."},
+                {"password.exception.old.identical.with.new.password",
+                        "Nowe hasło jest takie samo jak stare. Podaj inne hasło."},
+                {"request.failure", "Podczas przetwarzania żądania wystąpił błąd."},
+
         }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
     }
 
@@ -27,6 +32,10 @@ public class Messages {
                 {"field.password.failure", "Password should have from 8 to 24 characters."},
                 {"field.password.match.failure", "Provided passwords should match."},
                 {"password.change.success", "Password changed successfully."},
+                {"password.exception.old.password.does.not.match",
+                        "Provided invalid old password. Type correct one."},
+                {"password.exception.old.identical.with.new.password",
+                        "New password is equal to old one. Provide different password."},
                 {"request.failure", "An error occurred while processing your request."}
         }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
     }

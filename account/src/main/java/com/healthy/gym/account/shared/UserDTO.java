@@ -1,8 +1,5 @@
-package com.healthy.gym.auth.shared;
+package com.healthy.gym.account.shared;
 
-import com.healthy.gym.auth.enums.GymRole;
-
-import java.util.Collection;
 import java.util.Objects;
 
 public class UserDTO {
@@ -17,7 +14,6 @@ public class UserDTO {
     private boolean accountNonExpired;
     private boolean credentialsNonExpired;
     private boolean accountNonLocked;
-    private Collection<GymRole> gymRoles;
 
     public UserDTO() {
         // default constructor for object mapper
@@ -39,32 +35,6 @@ public class UserDTO {
         this.phoneNumber = phoneNumber;
         this.password = password;
         this.encryptedPassword = encryptedPassword;
-    }
-
-    public UserDTO(
-            String userId,
-            String name,
-            String surname,
-            String email,
-            String phoneNumber,
-            String password,
-            String encryptedPassword,
-            boolean enabled,
-            boolean accountNonExpired,
-            boolean credentialsNonExpired,
-            boolean accountNonLocked
-    ) {
-        this.userId = userId;
-        this.name = name;
-        this.surname = surname;
-        this.email = email;
-        this.phoneNumber = phoneNumber;
-        this.password = password;
-        this.encryptedPassword = encryptedPassword;
-        this.enabled = enabled;
-        this.accountNonExpired = accountNonExpired;
-        this.credentialsNonExpired = credentialsNonExpired;
-        this.accountNonLocked = accountNonLocked;
     }
 
     public String getUserId() {
@@ -155,14 +125,6 @@ public class UserDTO {
         this.accountNonLocked = accountNonLocked;
     }
 
-    public Collection<GymRole> getGymRoles() {
-        return gymRoles;
-    }
-
-    public void setGymRoles(Collection<GymRole> gymRoles) {
-        this.gymRoles = gymRoles;
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -178,9 +140,7 @@ public class UserDTO {
                 && Objects.equals(email, userDTO.email)
                 && Objects.equals(phoneNumber, userDTO.phoneNumber)
                 && Objects.equals(password, userDTO.password)
-                && Objects.equals(encryptedPassword, userDTO.encryptedPassword)
-                && Objects.equals(gymRoles, userDTO.gymRoles
-        );
+                && Objects.equals(encryptedPassword, userDTO.encryptedPassword);
     }
 
     @Override
@@ -196,8 +156,7 @@ public class UserDTO {
                 enabled,
                 accountNonExpired,
                 credentialsNonExpired,
-                accountNonLocked,
-                gymRoles
+                accountNonLocked
         );
     }
 }

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.healthy.gym.auth.component.Translator;
 import com.healthy.gym.auth.component.token.TokenManager;
+import com.healthy.gym.auth.enums.GymRole;
 import com.healthy.gym.auth.pojo.request.LogInUserRequest;
 import com.healthy.gym.auth.service.UserService;
 import com.healthy.gym.auth.shared.UserDTO;
@@ -23,10 +24,11 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
@@ -53,12 +55,14 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
         try {
             LogInUserRequest credentials = new ObjectMapper()
                     .readValue(request.getInputStream(), LogInUserRequest.class);
+            String userEmail = credentials.getEmail();
+            UserDTO userDetails = userService.getUserDetailsByEmail(userEmail);
 
             return getAuthenticationManager().authenticate(
                     new UsernamePasswordAuthenticationToken(
                             credentials.getEmail(),
                             credentials.getPassword(),
-                            new ArrayList<>()
+                            userDetails.getGymRoles()
                     )
             );
 
@@ -86,8 +90,15 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
     }
 
     private String getTokenForUser(UserDTO userDetails) {
+        List<String> userRoles = userDetails
+                .getGymRoles()
+                .stream()
+                .map(GymRole::getRole)
+                .collect(Collectors.toList());
+
         return Jwts.builder()
                 .setSubject(userDetails.getUserId())
+                .claim("roles", userRoles)
                 .setExpiration(setTokenExpirationTime())
                 .signWith(
                         tokenManager.getSignatureAlgorithm(),

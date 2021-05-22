@@ -3,6 +3,7 @@ package com.healthy.gym.auth.service;
 import com.healthy.gym.auth.data.document.ResetPasswordTokenDocument;
 import com.healthy.gym.auth.data.document.UserDocument;
 import com.healthy.gym.auth.data.repository.mongo.UserDAO;
+import com.healthy.gym.auth.enums.GymRole;
 import com.healthy.gym.auth.events.OnResetPasswordEvent;
 import com.healthy.gym.auth.shared.UserDTO;
 import org.modelmapper.ModelMapper;
@@ -19,7 +20,8 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 
 @Service
@@ -61,10 +63,17 @@ public class UserServiceImpl implements UserService {
         userDocument.setAccountNonExpired(true);
         userDocument.setCredentialsNonExpired(true);
         userDocument.setAccountNonLocked(true);
+        userDocument.setGymRoles(getInitialUserRoles());
 
         UserDocument userDocumentSaved = userDAO.save(userDocument);
 
         return modelMapper.map(userDocumentSaved, UserDTO.class);
+    }
+
+    private Set<GymRole> getInitialUserRoles() {
+        Set<GymRole> userRoles = new HashSet<>();
+        userRoles.add(GymRole.USER);
+        return userRoles;
     }
 
     private void encryptRawPassword(UserDTO userDetails) {
@@ -127,7 +136,7 @@ public class UserServiceImpl implements UserService {
                 userDocument.isAccountNonExpired(),
                 userDocument.isCredentialsNonExpired(),
                 userDocument.isAccountNonLocked(),
-                new ArrayList<>()
+                userDocument.getGymRoles()
         );
     }
 }

@@ -98,7 +98,7 @@ class WhenDeleteAccountTest {
         Map<String, String> messages = getMessagesAccordingToLocale(country);
         Locale testedLocale = convertEnumToLocale(country);
 
-        URI uri = new URI("/" + UUID.randomUUID().toString());
+        URI uri = new URI("/" + UUID.randomUUID());
 
         RequestBuilder request = MockMvcRequestBuilders
                 .delete(uri)
@@ -123,7 +123,7 @@ class WhenDeleteAccountTest {
         Map<String, String> messages = getMessagesAccordingToLocale(country);
         Locale testedLocale = convertEnumToLocale(country);
 
-        URI uri = new URI("/" + UUID.randomUUID().toString());
+        URI uri = new URI("/" + UUID.randomUUID());
 
         token = tokenManager.getTokenPrefix() + " " + Jwts.builder()
                 .setSubject(userId)

@@ -3,6 +3,7 @@ package com.healthy.gym.account.data.repository;
 import com.healthy.gym.account.data.document.UserDocument;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.mongo.embedded.EmbeddedMongoAutoConfiguration;
@@ -32,6 +33,7 @@ class UserDAOTest {
     @Autowired
     private UserDAO userDAO;
     private UserDocument janKowalski, mariaNowak, andrzejNowak;
+    private String andrzejNowakId;
 
     @DynamicPropertySource
     static void setProperties(DynamicPropertyRegistry registry) {
@@ -58,13 +60,15 @@ class UserDAOTest {
                 UUID.randomUUID().toString()
         );
 
+        andrzejNowakId = UUID.randomUUID().toString();
+
         andrzejNowak = new UserDocument(
                 "Andrzej",
                 "Nowak",
                 "andrzej.nowak@test.com",
                 "676 777 888",
                 bCryptPasswordEncoder.encode("password4576"),
-                UUID.randomUUID().toString()
+                andrzejNowakId
         );
 
         mongoTemplate.save(janKowalski);
@@ -80,20 +84,6 @@ class UserDAOTest {
     }
 
     @Test
-    void shouldReturnProperUserDocumentWhenFindByEmailIsCalled() {
-        UserDocument found = userDAO.findByEmail("jan.kowalski@test.com");
-        assertThat(found)
-                .isEqualTo(janKowalski)
-                .hasSameHashCodeAs(janKowalski);
-    }
-
-    @Test
-    void shouldReturnNullForIfUserNonExists() {
-        UserDocument found = userDAO.findByEmail("non.existing@test.com");
-        assertThat(found).isNull();
-    }
-
-    @Test
     void shouldReturnAllUsersInDatabase() {
         List<UserDocument> found = userDAO.findAll();
         assertThat(found)
@@ -106,4 +96,50 @@ class UserDAOTest {
                         janKowalski.getUserId()
                 );
     }
+
+    @Nested
+    class WhenFindByEmail {
+        @Test
+        void shouldReturnProperUserDocumentWhenUserExists() {
+            UserDocument found = userDAO.findByEmail("jan.kowalski@test.com");
+            assertThat(found)
+                    .isEqualTo(janKowalski)
+                    .hasSameHashCodeAs(janKowalski);
+        }
+
+        @Test
+        void shouldReturnNullWhenUserDoesNotExist() {
+            UserDocument found = userDAO.findByEmail("non.existing@test.com");
+            assertThat(found).isNull();
+        }
+
+        @Test
+        void shouldReturnNullWhenNullAsArgument() {
+            UserDocument found = userDAO.findByEmail(null);
+            assertThat(found).isNull();
+        }
+    }
+
+    @Nested
+    class WhenFindByUserId {
+        @Test
+        void shouldReturnProperUserDocumentWhenUserExists() {
+            UserDocument foundUser = userDAO.findByUserId(andrzejNowakId);
+            assertThat(foundUser).isEqualTo(andrzejNowak);
+        }
+
+        @Test
+        void shouldReturnNullWhenUserDoesNotExist() {
+            String nonExistingUserId = UUID.randomUUID().toString();
+            UserDocument foundUser = userDAO.findByUserId(nonExistingUserId);
+            assertThat(foundUser).isNull();
+        }
+
+        @Test
+        void shouldReturnNullWhenNullProvided() {
+            UserDocument foundUser = userDAO.findByUserId(null);
+            assertThat(foundUser).isNull();
+        }
+    }
+
 }

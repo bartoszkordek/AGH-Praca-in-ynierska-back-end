@@ -2,6 +2,7 @@ package com.healthy.gym.auth.service.UserServiceTest;
 
 import com.healthy.gym.auth.data.document.UserDocument;
 import com.healthy.gym.auth.data.repository.mongo.UserDAO;
+import com.healthy.gym.auth.enums.GymRole;
 import com.healthy.gym.auth.service.UserService;
 import com.healthy.gym.auth.shared.UserDTO;
 import org.junit.jupiter.api.BeforeEach;
@@ -12,6 +13,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -34,6 +37,7 @@ class UserServiceWhenCreateUserIsCalledTest {
 
     @BeforeEach
     void setUp() {
+
         andrzejNowakDTO = new UserDTO(
                 null,
                 "Andrzej",
@@ -43,6 +47,9 @@ class UserServiceWhenCreateUserIsCalledTest {
                 "password4576",
                 null
         );
+        Set<GymRole> userRolesDTO = new HashSet<>();
+        userRolesDTO.add(GymRole.USER);
+        andrzejNowakDTO.setGymRoles(userRolesDTO);
 
         UserDocument andrzejNowak = new UserDocument(
                 "Andrzej",
@@ -52,6 +59,9 @@ class UserServiceWhenCreateUserIsCalledTest {
                 bCryptPasswordEncoder.encode("password4576"),
                 UUID.randomUUID().toString()
         );
+        Set<GymRole> userRoles = new HashSet<>();
+        userRoles.add(GymRole.USER);
+        andrzejNowak.setGymRoles(userRoles);
 
         when(userDAO.save(Mockito.any(UserDocument.class)))
                 .thenReturn(andrzejNowak);

@@ -2,6 +2,7 @@ package com.healthy.gym.auth.service.UserServiceTest;
 
 import com.healthy.gym.auth.data.document.UserDocument;
 import com.healthy.gym.auth.data.repository.mongo.UserDAO;
+import com.healthy.gym.auth.enums.GymRole;
 import com.healthy.gym.auth.service.UserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -11,6 +12,9 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+
+import java.util.HashSet;
+import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -38,6 +42,10 @@ class UserServiceWhenLoadUserByUserNameIsCalledTest {
         testDocument = new UserDocument();
         testDocument.setEmail("test@test.com");
         testDocument.setEncryptedPassword("password");
+        Set<GymRole> userRoles = new HashSet<>();
+        userRoles.add(GymRole.USER);
+        testDocument.setGymRoles(userRoles);
+
         when(userDAO.findByEmail(anyString())).thenReturn(testDocument);
     }
 
@@ -84,7 +92,11 @@ class UserServiceWhenLoadUserByUserNameIsCalledTest {
     @Test
     void shouldReturnEmptyAuthorities() {
         user = userService.loadUserByUsername(anyString());
-        assertThat(user.getAuthorities()).isEmpty();
+        assertThat(user.getAuthorities().toArray())
+                .isNotEmpty()
+                .hasSize(1)
+                .contains(GymRole.USER);
+        ;
     }
 
     @Test

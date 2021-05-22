@@ -1,4 +1,4 @@
-package com.healthy.gym.account.service.accountServiceTest;
+package com.healthy.gym.account.service.accountServiceTest.unitTest;
 
 import com.healthy.gym.account.data.document.UserDocument;
 import com.healthy.gym.account.data.repository.UserDAO;

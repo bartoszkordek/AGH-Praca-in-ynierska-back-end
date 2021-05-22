@@ -22,7 +22,7 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public UserDTO changePassword(String password) {
+    public UserDTO changePassword(String userId, String oldPassword, String newPassword) {
         return null;
     }
 

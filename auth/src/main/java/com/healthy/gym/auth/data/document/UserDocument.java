@@ -1,8 +1,10 @@
 package com.healthy.gym.auth.data.document;
 
+import com.healthy.gym.auth.enums.GymRole;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.util.Collection;
 import java.util.Objects;
 
 @Document(collection = "users")
@@ -20,6 +22,7 @@ public class UserDocument {
     private boolean accountNonExpired;
     private boolean credentialsNonExpired;
     private boolean accountNonLocked;
+    private Collection<GymRole> gymRoles;
 
     public UserDocument() {
         //empty constructor required spring data mapper
@@ -153,6 +156,14 @@ public class UserDocument {
         this.accountNonLocked = accountNonLocked;
     }
 
+    public Collection<GymRole> getGymRoles() {
+        return gymRoles;
+    }
+
+    public void setGymRoles(Collection<GymRole> gymRoles) {
+        this.gymRoles = gymRoles;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -168,7 +179,8 @@ public class UserDocument {
                 && Objects.equals(email, that.email)
                 && Objects.equals(phoneNumber, that.phoneNumber)
                 && Objects.equals(encryptedPassword, that.encryptedPassword)
-                && Objects.equals(userId, that.userId);
+                && Objects.equals(userId, that.userId)
+                && Objects.equals(gymRoles, that.gymRoles);
     }
 
     @Override
@@ -184,7 +196,8 @@ public class UserDocument {
                 enabled,
                 accountNonExpired,
                 credentialsNonExpired,
-                accountNonLocked
+                accountNonLocked,
+                gymRoles
         );
     }
 
@@ -202,6 +215,7 @@ public class UserDocument {
                 ", accountNonExpired=" + accountNonExpired +
                 ", credentialsNonExpired=" + credentialsNonExpired +
                 ", accountNonLocked=" + accountNonLocked +
+                ", gymRoles=" + gymRoles +
                 '}';
     }
 }

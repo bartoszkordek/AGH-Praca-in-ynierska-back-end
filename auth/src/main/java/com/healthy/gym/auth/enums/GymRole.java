@@ -1,6 +1,8 @@
 package com.healthy.gym.auth.enums;
 
-public enum GymRole {
+import org.springframework.security.core.GrantedAuthority;
+
+public enum GymRole implements GrantedAuthority {
     ADMIN("ROLE_ADMIN"),
     EMPLOYEE("ROLE_EMPLOYEE"),
     TRAINER("ROLE_TRAINER"),
@@ -13,6 +15,16 @@ public enum GymRole {
     }
 
     public String getRole() {
-        return role;
+        return this.role;
+    }
+
+    @Override
+    public String getAuthority() {
+        return this.role;
+    }
+
+    @Override
+    public String toString() {
+        return this.role;
     }
 }

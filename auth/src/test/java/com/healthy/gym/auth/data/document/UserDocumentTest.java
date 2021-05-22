@@ -1,4 +1,4 @@
-package com.healthy.gym.auth.data.entity;
+package com.healthy.gym.auth.data.document;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -8,7 +8,7 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class UserEntityTest {
+class UserDocumentTest {
     private BCryptPasswordEncoder bCryptPasswordEncoder;
 
     @BeforeEach
@@ -18,38 +18,36 @@ class UserEntityTest {
 
     @Test
     void twoObjectsOfEmptyUserEntityShouldBeEqual() {
-        UserEntity userEntity1 = new UserEntity();
-        UserEntity userEntity2 = new UserEntity();
+        UserDocument userDocument1 = new UserDocument();
+        UserDocument userDocument2 = new UserDocument();
 
-        assertThat(userEntity1)
-                .isEqualTo(userEntity2)
-                .hasSameHashCodeAs(userEntity2);
+        assertThat(userDocument2)
+                .isEqualTo(userDocument1)
+                .hasSameHashCodeAs(userDocument1);
     }
 
     @Test
     void twoDifferentObjectsOfUserEntityShouldNotBeEqual() {
-        UserEntity janKowalskiEntity = new UserEntity(
+        UserDocument janKowalski = new UserDocument(
                 "Jan",
                 "Kowalski",
                 "jan.kowalski@test.com",
-                bCryptPasswordEncoder.encode("password1234"),
                 "666 777 888",
-                UUID.randomUUID().toString(),
-                false
+                bCryptPasswordEncoder.encode("password1234"),
+                UUID.randomUUID().toString()
         );
 
-        UserEntity mariaNowakEntity = new UserEntity(
+        UserDocument mariaNowak = new UserDocument(
                 "Maria",
                 "Nowak",
                 "maria.nowak@test.com",
-                bCryptPasswordEncoder.encode("password3456"),
                 "686 777 888",
-                UUID.randomUUID().toString(),
-                false
+                bCryptPasswordEncoder.encode("password3456"),
+                UUID.randomUUID().toString()
         );
 
-        assertThat(janKowalskiEntity).isNotEqualTo(mariaNowakEntity);
-        assertThat(janKowalskiEntity.hashCode()).isNotEqualTo(mariaNowakEntity.hashCode());
+        assertThat(janKowalski).isNotEqualTo(mariaNowak);
+        assertThat(janKowalski.hashCode()).isNotEqualTo(mariaNowak.hashCode());
     }
 
     @Test
@@ -57,34 +55,32 @@ class UserEntityTest {
         String userID = UUID.randomUUID().toString();
         String password = bCryptPasswordEncoder.encode("password1234");
 
-        UserEntity janKowalskiEntity1 = new UserEntity(
+        UserDocument janKowalski1 = new UserDocument(
                 "Jan",
                 "Kowalski",
                 "jan.kowalski@test.com",
                 "666 777 888",
                 password,
-                userID,
-                true
+                userID
         );
 
-        UserEntity janKowalskiEntity2 = new UserEntity(
+        UserDocument janKowalski2 = new UserDocument(
                 "Jan",
                 "Kowalski",
                 "jan.kowalski@test.com",
                 "666 777 888",
                 password,
-                userID,
-                true
+                userID
         );
 
-        assertThat(janKowalskiEntity1)
-                .isEqualTo(janKowalskiEntity2)
-                .hasSameHashCodeAs(janKowalskiEntity2);
+        assertThat(janKowalski1)
+                .isEqualTo(janKowalski2)
+                .hasSameHashCodeAs(janKowalski2);
     }
 
     @Test
     void whenCreatedHaveAllFieldNullExceptBooleanLong() {
-        assertThat(new UserEntity()).hasAllNullFieldsOrPropertiesExcept(
+        assertThat(new UserDocument()).hasAllNullFieldsOrPropertiesExcept(
                 "id", "enabled", "accountNonExpired", "credentialsNonExpired", "accountNonLocked"
         );
     }

@@ -1,7 +1,7 @@
 package com.healthy.gym.auth.service.UserServiceTest;
 
-import com.healthy.gym.auth.data.entity.UserEntity;
-import com.healthy.gym.auth.data.repository.UserDAO;
+import com.healthy.gym.auth.data.document.UserDocument;
+import com.healthy.gym.auth.data.repository.mongo.UserDAO;
 import com.healthy.gym.auth.service.UserService;
 import com.healthy.gym.auth.shared.UserDTO;
 import org.junit.jupiter.api.BeforeEach;
@@ -44,18 +44,17 @@ class UserServiceWhenCreateUserIsCalledTest {
                 null
         );
 
-        UserEntity andrzejNowakEntity = new UserEntity(
+        UserDocument andrzejNowak = new UserDocument(
                 "Andrzej",
                 "Nowak",
                 "andrzej.nowak@test.com",
                 "676 777 888",
                 bCryptPasswordEncoder.encode("password4576"),
-                UUID.randomUUID().toString(),
-                true
+                UUID.randomUUID().toString()
         );
 
-        when(userDAO.save(Mockito.any(UserEntity.class)))
-                .thenReturn(andrzejNowakEntity);
+        when(userDAO.save(Mockito.any(UserDocument.class)))
+                .thenReturn(andrzejNowak);
 
         savedUserDTO = userService.createUser(andrzejNowakDTO);
     }

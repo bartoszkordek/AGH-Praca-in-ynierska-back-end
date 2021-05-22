@@ -1,10 +1,10 @@
 package com.healthy.gym.auth.security;
 
 import com.healthy.gym.auth.configuration.tests.TestCountry;
-import com.healthy.gym.auth.data.entity.UserEntity;
-import com.healthy.gym.auth.data.repository.RegistrationTokenDAO;
-import com.healthy.gym.auth.data.repository.ResetPasswordTokenDAO;
-import com.healthy.gym.auth.data.repository.UserDAO;
+import com.healthy.gym.auth.data.document.UserDocument;
+import com.healthy.gym.auth.data.repository.mongo.RegistrationTokenDAO;
+import com.healthy.gym.auth.data.repository.mongo.ResetPasswordTokenDAO;
+import com.healthy.gym.auth.data.repository.mongo.UserDAO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -52,11 +52,11 @@ class AuthenticationFilterTest {
     @Autowired
     private BCryptPasswordEncoder bCryptPasswordEncoder;
 
-    private UserEntity userEntity;
+    private UserDocument userDocument;
 
     @BeforeEach
     void setUp() {
-        userEntity = new UserEntity(
+        userDocument = new UserDocument(
                 "Jan",
                 "Kowalski",
                 "jan.kowalski@wp.pl",
@@ -69,7 +69,7 @@ class AuthenticationFilterTest {
                 true
         );
 
-        when(userDAO.findByEmail("jan.kowalski@wp.pl")).thenReturn(userEntity);
+        when(userDAO.findByEmail("jan.kowalski@wp.pl")).thenReturn(userDocument);
     }
 
     @Nested
@@ -168,7 +168,7 @@ class AuthenticationFilterTest {
             Map<String, String> messages = getMessagesAccordingToLocale(country);
             Locale testedLocale = convertEnumToLocale(country);
 
-            userEntity.setEnabled(false);
+            userDocument.setEnabled(false);
             RequestBuilder request = buildRequest(testedLocale, requestBody);
             String expectedMessage = messages.get("mail.registration.confirmation.log-in.exception");
 
@@ -181,7 +181,7 @@ class AuthenticationFilterTest {
             Map<String, String> messages = getMessagesAccordingToLocale(country);
             Locale testedLocale = convertEnumToLocale(country);
 
-            userEntity.setAccountNonExpired(false);
+            userDocument.setAccountNonExpired(false);
             RequestBuilder request = buildRequest(testedLocale, requestBody);
             String expectedMessage = messages.get("user.log-in.fail.account.expired");
 
@@ -194,7 +194,7 @@ class AuthenticationFilterTest {
             Map<String, String> messages = getMessagesAccordingToLocale(country);
             Locale testedLocale = convertEnumToLocale(country);
 
-            userEntity.setAccountNonLocked(false);
+            userDocument.setAccountNonLocked(false);
             RequestBuilder request = buildRequest(testedLocale, requestBody);
             String expectedMessage = messages.get("user.log-in.fail.account.locked");
 
@@ -207,7 +207,7 @@ class AuthenticationFilterTest {
             Map<String, String> messages = getMessagesAccordingToLocale(country);
             Locale testedLocale = convertEnumToLocale(country);
 
-            userEntity.setCredentialsNonExpired(false);
+            userDocument.setCredentialsNonExpired(false);
             RequestBuilder request = buildRequest(testedLocale, requestBody);
             String expectedMessage = messages.get("user.log-in.fail.credentials.expired");
 

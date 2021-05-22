@@ -1,10 +1,9 @@
 package com.healthy.gym.auth.listener;
 
 import com.healthy.gym.auth.component.MailMessageManager;
-import com.healthy.gym.auth.data.entity.RegistrationToken;
+import com.healthy.gym.auth.data.document.RegistrationTokenDocument;
+import com.healthy.gym.auth.data.document.UserDocument;
 import com.healthy.gym.auth.events.OnRegistrationCompleteEvent;
-import com.healthy.gym.auth.service.TokenService;
-import com.healthy.gym.auth.shared.UserDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.event.EventListener;
@@ -13,21 +12,16 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
-import java.util.UUID;
-
 @Component
-public class RegistrationListener {
-    private final TokenService tokenService;
+public class RegistrationCompleteListener {
     private final JavaMailSender javaMailSender;
     private final MailMessageManager mailMessageManager;
 
     @Autowired
-    public RegistrationListener(
-            TokenService tokenService,
+    public RegistrationCompleteListener(
             @Qualifier("getJavaMailSender") JavaMailSender javaMailSender,
             MailMessageManager mailMessageManager
     ) {
-        this.tokenService = tokenService;
         this.javaMailSender = javaMailSender;
         this.mailMessageManager = mailMessageManager;
     }
@@ -35,17 +29,15 @@ public class RegistrationListener {
     @Async
     @EventListener
     public void sendEmailToConfirmRegistration(OnRegistrationCompleteEvent event) {
-        UserDTO user = event.getUserDTO();
-        String token = UUID.randomUUID().toString();
-
-        RegistrationToken registrationToken = tokenService.createRegistrationToken(user, token);
+        RegistrationTokenDocument registrationToken = event.getRegistrationToken();
+        UserDocument user = registrationToken.getUserDocument();
 
         SimpleMailMessage confirmationEmail = getConfirmRegistrationMail(user, registrationToken);
 
         javaMailSender.send(confirmationEmail);
     }
 
-    private SimpleMailMessage getConfirmRegistrationMail(UserDTO user, RegistrationToken registrationToken) {
+    private SimpleMailMessage getConfirmRegistrationMail(UserDocument user, RegistrationTokenDocument registrationToken) {
         String recipientAddress = user.getEmail();
 
         String subject = mailMessageManager.getConfirmRegistrationMessageSubject();

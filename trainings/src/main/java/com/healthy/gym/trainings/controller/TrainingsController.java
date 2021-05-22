@@ -1,7 +1,9 @@
 package com.healthy.gym.trainings.controller;
 
 import com.healthy.gym.trainings.entity.GroupTrainings;
+import com.healthy.gym.trainings.exception.InvalidHourException;
 import com.healthy.gym.trainings.exception.NotExistingGroupTrainingException;
+import com.healthy.gym.trainings.model.GroupTrainingsPublicViewModel;
 import com.healthy.gym.trainings.service.GroupTrainingsService;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -31,6 +33,11 @@ public class TrainingsController {
     @GetMapping("/group")
     public List<GroupTrainings> getGroupTrainings() {
         return groupTrainingsService.getGroupTrainings();
+    }
+
+    @GetMapping("/public/group")
+    public List<GroupTrainingsPublicViewModel> getPublicGroupTrainings() throws InvalidHourException {
+        return groupTrainingsService.getPublicGroupTrainings();
     }
 
     @GetMapping("/group/{trainingId}")

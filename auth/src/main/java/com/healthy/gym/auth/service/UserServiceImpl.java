@@ -1,8 +1,8 @@
 package com.healthy.gym.auth.service;
 
-import com.healthy.gym.auth.data.entity.ResetPasswordToken;
-import com.healthy.gym.auth.data.entity.UserEntity;
-import com.healthy.gym.auth.data.repository.UserDAO;
+import com.healthy.gym.auth.data.document.ResetPasswordTokenDocument;
+import com.healthy.gym.auth.data.document.UserDocument;
+import com.healthy.gym.auth.data.repository.mongo.UserDAO;
 import com.healthy.gym.auth.events.OnResetPasswordEvent;
 import com.healthy.gym.auth.shared.UserDTO;
 import org.modelmapper.ModelMapper;
@@ -57,14 +57,14 @@ public class UserServiceImpl implements UserService {
         encryptRawPassword(userDetails);
         assignRandomPublicUserId(userDetails);
 
-        UserEntity userEntity = modelMapper.map(userDetails, UserEntity.class);
-        userEntity.setAccountNonExpired(true);
-        userEntity.setCredentialsNonExpired(true);
-        userEntity.setAccountNonLocked(true);
+        UserDocument userDocument = modelMapper.map(userDetails, UserDocument.class);
+        userDocument.setAccountNonExpired(true);
+        userDocument.setCredentialsNonExpired(true);
+        userDocument.setAccountNonLocked(true);
 
-        UserEntity userEntitySaved = userDAO.save(userEntity);
+        UserDocument userDocumentSaved = userDAO.save(userDocument);
 
-        return modelMapper.map(userEntitySaved, UserDTO.class);
+        return modelMapper.map(userDocumentSaved, UserDTO.class);
     }
 
     private void encryptRawPassword(UserDTO userDetails) {
@@ -80,34 +80,34 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDTO getUserDetailsByEmail(String email) {
-        UserEntity userEntity = userDAO.findByEmail(email);
+        UserDocument userDocument = userDAO.findByEmail(email);
 
-        if (userEntity == null) throw new UsernameNotFoundException(email);
+        if (userDocument == null) throw new UsernameNotFoundException(email);
 
-        return modelMapper.map(userEntity, UserDTO.class);
+        return modelMapper.map(userDocument, UserDTO.class);
     }
 
     @Override
-    public ResetPasswordToken resetPassword(String email) {
+    public ResetPasswordTokenDocument resetPassword(String email) {
 
-        UserEntity userEntity = userDAO.findByEmail(email);
+        UserDocument userDocument = userDAO.findByEmail(email);
 
-        if (userEntity == null)
+        if (userDocument == null)
             throw new UsernameNotFoundException("No user found");
 
-        if (!userEntity.isAccountNonExpired())
+        if (!userDocument.isAccountNonExpired())
             throw new AccountExpiredException("Account expired");
 
-        if (!userEntity.isCredentialsNonExpired())
+        if (!userDocument.isCredentialsNonExpired())
             throw new CredentialsExpiredException("Credentials expired.");
 
-        if (!userEntity.isEnabled())
+        if (!userDocument.isEnabled())
             throw new DisabledException("User is not enabled");
 
-        if (!userEntity.isAccountNonLocked())
+        if (!userDocument.isAccountNonLocked())
             throw new LockedException("Account locked");
 
-        ResetPasswordToken resetPasswordToken = tokenService.createResetPasswordToken(userEntity);
+        ResetPasswordTokenDocument resetPasswordToken = tokenService.createResetPasswordToken(userDocument);
 
         applicationEventPublisher.publishEvent(new OnResetPasswordEvent(resetPasswordToken));
 
@@ -116,17 +116,17 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        UserEntity userEntity = userDAO.findByEmail(email);
+        UserDocument userDocument = userDAO.findByEmail(email);
 
-        if (userEntity == null) throw new UsernameNotFoundException(email);
+        if (userDocument == null) throw new UsernameNotFoundException(email);
 
         return new User(
-                userEntity.getEmail(),
-                userEntity.getEncryptedPassword(),
-                userEntity.isEnabled(),
-                userEntity.isAccountNonExpired(),
-                userEntity.isCredentialsNonExpired(),
-                userEntity.isAccountNonLocked(),
+                userDocument.getEmail(),
+                userDocument.getEncryptedPassword(),
+                userDocument.isEnabled(),
+                userDocument.isAccountNonExpired(),
+                userDocument.isCredentialsNonExpired(),
+                userDocument.isAccountNonLocked(),
                 new ArrayList<>()
         );
     }

@@ -1,7 +1,7 @@
 package com.healthy.gym.auth.component;
 
-import com.healthy.gym.auth.data.entity.RegistrationToken;
-import com.healthy.gym.auth.data.entity.ResetPasswordToken;
+import com.healthy.gym.auth.data.document.RegistrationTokenDocument;
+import com.healthy.gym.auth.data.document.ResetPasswordTokenDocument;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
@@ -26,7 +26,7 @@ public class MailMessageManagerImpl implements MailMessageManager {
     }
 
     @Override
-    public String getConfirmRegistrationMessageText(RegistrationToken registrationToken) {
+    public String getConfirmRegistrationMessageText(RegistrationTokenDocument registrationToken) {
         String token = registrationToken.getToken();
         LocalDateTime expiryDate = registrationToken.getExpiryDate();
 
@@ -45,7 +45,7 @@ public class MailMessageManagerImpl implements MailMessageManager {
     }
 
     @Override
-    public String getResetPasswordMessageText(ResetPasswordToken resetPasswordToken) {
+    public String getResetPasswordMessageText(ResetPasswordTokenDocument resetPasswordToken) {
         String token = resetPasswordToken.getToken();
         LocalDateTime expiryDate = resetPasswordToken.getExpiryDate();
 

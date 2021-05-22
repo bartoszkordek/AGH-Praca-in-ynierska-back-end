@@ -3,7 +3,6 @@ package com.healthy.gym.account.controller.accountController.integrationTest;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.healthy.gym.account.component.token.TokenManager;
 import com.healthy.gym.account.configuration.tests.TestCountry;
-import com.healthy.gym.account.controller.AccountController;
 import com.healthy.gym.account.data.document.UserDocument;
 import io.jsonwebtoken.Jwts;
 import org.junit.jupiter.api.AfterEach;
@@ -49,17 +48,13 @@ class WhenDeleteAccountIntegrationTest {
     @Autowired
     private TokenManager tokenManager;
     @Autowired
-    private AccountController accountController;
-    @Autowired
     private MongoTemplate mongoTemplate;
     @Autowired
     private BCryptPasswordEncoder bCryptPasswordEncoder;
 
     private String userToken;
     private String adminToken;
-    private String nonExistingToken;
     private String userId;
-    private String nonExistingUserId;
     private UserDocument janKowalski;
 
     @LocalServerPort
@@ -83,21 +78,10 @@ class WhenDeleteAccountIntegrationTest {
     @BeforeEach
     void setUp() {
         userId = UUID.randomUUID().toString();
-        nonExistingUserId = UUID.randomUUID().toString();
         String adminId = UUID.randomUUID().toString();
 
         userToken = tokenManager.getTokenPrefix() + " " + Jwts.builder()
                 .setSubject(userId)
-                .claim("roles", List.of("ROLE_USER"))
-                .setExpiration(setTokenExpirationTime())
-                .signWith(
-                        tokenManager.getSignatureAlgorithm(),
-                        tokenManager.getSigningKey()
-                )
-                .compact();
-
-        nonExistingToken = tokenManager.getTokenPrefix() + " " + Jwts.builder()
-                .setSubject(nonExistingUserId)
                 .claim("roles", List.of("ROLE_USER"))
                 .setExpiration(setTokenExpirationTime())
                 .signWith(

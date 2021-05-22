@@ -1,4 +1,4 @@
-package com.healthy.gym.account.controller.accountController;
+package com.healthy.gym.account.controller.accountController.unitTest;
 
 import com.healthy.gym.account.component.token.TokenManager;
 import com.healthy.gym.account.configuration.tests.TestCountry;
@@ -44,7 +44,8 @@ class WhenDeleteAccountTest {
     @MockBean
     private AccountService accountService;
 
-    private String token;
+    private String userToken;
+    private String adminToken;
     private String userId;
 
     private Date setTokenExpirationTime() {
@@ -56,8 +57,20 @@ class WhenDeleteAccountTest {
     @BeforeEach
     void setUp() {
         userId = UUID.randomUUID().toString();
-        token = tokenManager.getTokenPrefix() + " " + Jwts.builder()
+        userToken = tokenManager.getTokenPrefix() + " " + Jwts.builder()
                 .setSubject(userId)
+                .claim("roles", List.of("ROLE_USER"))
+                .setExpiration(setTokenExpirationTime())
+                .signWith(
+                        tokenManager.getSignatureAlgorithm(),
+                        tokenManager.getSigningKey()
+                )
+                .compact();
+
+        String adminId = UUID.randomUUID().toString();
+
+        adminToken = tokenManager.getTokenPrefix() + " " + Jwts.builder()
+                .setSubject(adminId)
                 .claim("roles", List.of("ROLE_USER", "ROLE_ADMIN"))
                 .setExpiration(setTokenExpirationTime())
                 .signWith(
@@ -78,7 +91,7 @@ class WhenDeleteAccountTest {
         RequestBuilder request = MockMvcRequestBuilders
                 .delete(uri)
                 .header("Accept-Language", testedLocale.toString())
-                .header("Authorization", token);
+                .header("Authorization", userToken);
 
         String expectedMessage = messages.get("delete.account.success");
         when(accountService.deleteAccount(anyString())).thenReturn(new UserDTO());
@@ -103,7 +116,7 @@ class WhenDeleteAccountTest {
         RequestBuilder request = MockMvcRequestBuilders
                 .delete(uri)
                 .header("Accept-Language", testedLocale.toString())
-                .header("Authorization", token);
+                .header("Authorization", adminToken);
 
         String expectedMessage = messages.get("delete.account.success");
         when(accountService.deleteAccount(anyString())).thenReturn(new UserDTO());
@@ -125,20 +138,10 @@ class WhenDeleteAccountTest {
 
         URI uri = new URI("/" + UUID.randomUUID());
 
-        token = tokenManager.getTokenPrefix() + " " + Jwts.builder()
-                .setSubject(userId)
-                .claim("roles", List.of("ROLE_USER"))
-                .setExpiration(setTokenExpirationTime())
-                .signWith(
-                        tokenManager.getSignatureAlgorithm(),
-                        tokenManager.getSigningKey()
-                )
-                .compact();
-
         RequestBuilder request = MockMvcRequestBuilders
                 .delete(uri)
                 .header("Accept-Language", testedLocale.toString())
-                .header("Authorization", token);
+                .header("Authorization", userToken);
 
         String expectedMessage = messages.get("exception.access.denied");
         when(accountService.deleteAccount(anyString())).thenReturn(new UserDTO());
@@ -161,20 +164,10 @@ class WhenDeleteAccountTest {
 
         URI uri = new URI("/" + userId);
 
-        token = tokenManager.getTokenPrefix() + " " + Jwts.builder()
-                .setSubject(userId)
-                .claim("roles", List.of("ROLE_USER"))
-                .setExpiration(setTokenExpirationTime())
-                .signWith(
-                        tokenManager.getSignatureAlgorithm(),
-                        tokenManager.getSigningKey()
-                )
-                .compact();
-
         RequestBuilder request = MockMvcRequestBuilders
                 .delete(uri)
                 .header("Accept-Language", testedLocale.toString())
-                .header("Authorization", token);
+                .header("Authorization", userToken);
 
         String expectedMessage = messages.get("request.failure");
 
@@ -196,22 +189,12 @@ class WhenDeleteAccountTest {
         Map<String, String> messages = getMessagesAccordingToLocale(country);
         Locale testedLocale = convertEnumToLocale(country);
 
-        token = tokenManager.getTokenPrefix() + " " + Jwts.builder()
-                .setSubject(userId)
-                .claim("roles", List.of("ROLE_USER"))
-                .setExpiration(setTokenExpirationTime())
-                .signWith(
-                        tokenManager.getSignatureAlgorithm(),
-                        tokenManager.getSigningKey()
-                )
-                .compact();
-
         URI uri = new URI("/" + userId);
 
         RequestBuilder request = MockMvcRequestBuilders
                 .delete(uri)
                 .header("Accept-Language", testedLocale.toString())
-                .header("Authorization", token);
+                .header("Authorization", userToken);
 
         String expectedMessage = messages.get("exception.account.not.found");
 

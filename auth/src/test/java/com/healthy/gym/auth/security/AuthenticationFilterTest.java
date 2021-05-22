@@ -5,6 +5,7 @@ import com.healthy.gym.auth.data.document.UserDocument;
 import com.healthy.gym.auth.data.repository.mongo.RegistrationTokenDAO;
 import com.healthy.gym.auth.data.repository.mongo.ResetPasswordTokenDAO;
 import com.healthy.gym.auth.data.repository.mongo.UserDAO;
+import com.healthy.gym.auth.enums.GymRole;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -21,9 +22,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.Locale;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.regex.Pattern;
 
 import static com.healthy.gym.auth.configuration.tests.LocaleConverter.convertEnumToLocale;
@@ -68,6 +67,9 @@ class AuthenticationFilterTest {
                 true,
                 true
         );
+        Set<GymRole> userRoles = new HashSet<>();
+        userRoles.add(GymRole.USER);
+        userDocument.setGymRoles(userRoles);
 
         when(userDAO.findByEmail("jan.kowalski@wp.pl")).thenReturn(userDocument);
     }

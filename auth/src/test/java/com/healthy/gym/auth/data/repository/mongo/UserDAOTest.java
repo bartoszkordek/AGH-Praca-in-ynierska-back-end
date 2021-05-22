@@ -1,6 +1,7 @@
 package com.healthy.gym.auth.data.repository.mongo;
 
 import com.healthy.gym.auth.data.document.UserDocument;
+import com.healthy.gym.auth.enums.GymRole;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -16,7 +17,9 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -68,6 +71,10 @@ class UserDAOTest {
                 bCryptPasswordEncoder.encode("password4576"),
                 UUID.randomUUID().toString()
         );
+        Set<GymRole> userRoles = new HashSet<>();
+        userRoles.add(GymRole.USER);
+        userRoles.add(GymRole.ADMIN);
+        andrzejNowak.setGymRoles(userRoles);
 
         mongoTemplate.save(janKowalski);
         mongoTemplate.save(mariaNowak);

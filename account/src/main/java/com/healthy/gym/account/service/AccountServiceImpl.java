@@ -36,6 +36,7 @@ public class AccountServiceImpl implements AccountService {
 
         foundUser.setEncryptedPassword(getNewEncryptedPassword(newPassword));
         UserDocument updateUser = userDAO.save(foundUser);
+
         return modelMapper.map(updateUser, UserDTO.class);
     }
 

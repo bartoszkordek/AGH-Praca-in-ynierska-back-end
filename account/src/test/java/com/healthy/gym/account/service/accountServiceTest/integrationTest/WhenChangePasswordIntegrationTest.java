@@ -2,6 +2,7 @@ package com.healthy.gym.account.service.accountServiceTest.integrationTest;
 
 import com.healthy.gym.account.component.token.TokenManager;
 import com.healthy.gym.account.data.document.UserDocument;
+import com.healthy.gym.account.enums.GymRole;
 import com.healthy.gym.account.exception.IdenticalOldAndNewPasswordException;
 import com.healthy.gym.account.exception.OldPasswordDoesNotMatchException;
 import com.healthy.gym.account.service.AccountService;
@@ -22,6 +23,8 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
 
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -67,6 +70,10 @@ class WhenChangePasswordIntegrationTest {
                 encryptedPassword,
                 userId
         );
+        Collection<GymRole> gymRoles = new HashSet<>();
+        gymRoles.add(GymRole.USER);
+        andrzejNowak.setGymRoles(gymRoles);
+
         mongoTemplate.save(andrzejNowak);
     }
 
@@ -104,5 +111,6 @@ class WhenChangePasswordIntegrationTest {
                 .changePassword(userId, "password4576", "password45768");
         String updatedPassword = userDTOUpdated.getEncryptedPassword();
         assertThat(bCryptPasswordEncoder.matches("password45768", updatedPassword)).isTrue();
+        assertThat(userDTOUpdated.getGymRoles()).contains(GymRole.USER);
     }
 }

@@ -38,9 +38,6 @@ class WhenDeleteAccountTest {
     @Autowired
     private TokenManager tokenManager;
 
-    @Autowired
-    private AccountController accountController;
-
     @MockBean
     private AccountService accountService;
 

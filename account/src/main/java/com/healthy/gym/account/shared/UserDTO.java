@@ -1,5 +1,8 @@
 package com.healthy.gym.account.shared;
 
+import com.healthy.gym.account.enums.GymRole;
+
+import java.util.Collection;
 import java.util.Objects;
 
 public class UserDTO {
@@ -14,6 +17,7 @@ public class UserDTO {
     private boolean accountNonExpired;
     private boolean credentialsNonExpired;
     private boolean accountNonLocked;
+    private Collection<GymRole> gymRoles;
 
     public UserDTO() {
         // default constructor for object mapper
@@ -125,6 +129,14 @@ public class UserDTO {
         this.accountNonLocked = accountNonLocked;
     }
 
+    public Collection<GymRole> getGymRoles() {
+        return gymRoles;
+    }
+
+    public void setGymRoles(Collection<GymRole> gymRoles) {
+        this.gymRoles = gymRoles;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -140,7 +152,8 @@ public class UserDTO {
                 && Objects.equals(email, userDTO.email)
                 && Objects.equals(phoneNumber, userDTO.phoneNumber)
                 && Objects.equals(password, userDTO.password)
-                && Objects.equals(encryptedPassword, userDTO.encryptedPassword);
+                && Objects.equals(encryptedPassword, userDTO.encryptedPassword)
+                && Objects.equals(gymRoles, userDTO.gymRoles);
     }
 
     @Override
@@ -156,7 +169,26 @@ public class UserDTO {
                 enabled,
                 accountNonExpired,
                 credentialsNonExpired,
-                accountNonLocked
+                accountNonLocked,
+                gymRoles
         );
+    }
+
+    @Override
+    public String toString() {
+        return "UserDTO{" +
+                "userId='" + userId + '\'' +
+                ", name='" + name + '\'' +
+                ", surname='" + surname + '\'' +
+                ", email='" + email + '\'' +
+                ", phoneNumber='" + phoneNumber + '\'' +
+                ", password='" + password + '\'' +
+                ", encryptedPassword='" + encryptedPassword + '\'' +
+                ", enabled=" + enabled +
+                ", accountNonExpired=" + accountNonExpired +
+                ", credentialsNonExpired=" + credentialsNonExpired +
+                ", accountNonLocked=" + accountNonLocked +
+                ", gymRoles=" + gymRoles +
+                '}';
     }
 }

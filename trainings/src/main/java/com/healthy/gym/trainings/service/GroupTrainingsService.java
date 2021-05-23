@@ -181,6 +181,7 @@ public class GroupTrainingsService {
             throw new TrainingCreationException("Cannot create new group training. Invalid hall no.");
         if(!isValidLimit(limit))
             throw new TrainingCreationException("Cannot create new group training. Invalid limit.");
+
         if(!groupTrainingsDbRepository.isAbilityToCreateTraining(groupTrainingModel))
             throw new TrainingCreationException("Cannot create new group training");
 

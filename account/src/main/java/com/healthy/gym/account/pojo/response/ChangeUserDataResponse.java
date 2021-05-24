@@ -1,28 +1,37 @@
-package com.healthy.gym.account.pojo.request;
+package com.healthy.gym.account.pojo.response;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.healthy.gym.account.validation.ValidEmail;
-import com.healthy.gym.account.validation.ValidPhoneNumber;
 
-import javax.validation.constraints.Size;
 import java.util.Objects;
 
-@JsonIgnoreProperties(ignoreUnknown = true)
-public class ChangeUserDataRequest {
+public class ChangeUserDataResponse extends AbstractResponse {
 
-    @Size(min = 2, max = 60, message = "{field.name.failure}")
     private String name;
-
-    @Size(min = 2, max = 60, message = "{field.surname.failure}")
     private String surname;
-
-    @ValidEmail(message = "{field.email.failure}")
     private String email;
-
     @JsonProperty("phone")
-    @ValidPhoneNumber(message = "{field.phone.number.failure}")
     private String phoneNumber;
+
+    public ChangeUserDataResponse() {
+    }
+
+    public ChangeUserDataResponse(String message) {
+        super(message);
+    }
+
+    public ChangeUserDataResponse(
+            String message,
+            String name,
+            String surname,
+            String email,
+            String phoneNumber
+    ) {
+        super(message);
+        this.name = name;
+        this.surname = surname;
+        this.email = email;
+        this.phoneNumber = phoneNumber;
+    }
 
     public String getName() {
         return name;
@@ -60,25 +69,26 @@ public class ChangeUserDataRequest {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        ChangeUserDataRequest that = (ChangeUserDataRequest) o;
-        return Objects.equals(name, that.name)
-                && Objects.equals(surname, that.surname)
-                && Objects.equals(email, that.email)
-                && Objects.equals(phoneNumber, that.phoneNumber);
+        if (!super.equals(o)) return false;
+        ChangeUserDataResponse response = (ChangeUserDataResponse) o;
+        return Objects.equals(name, response.name)
+                && Objects.equals(surname, response.surname)
+                && Objects.equals(email, response.email)
+                && Objects.equals(phoneNumber, response.phoneNumber);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(name, surname, email, phoneNumber);
+        return Objects.hash(super.hashCode(), name, surname, email, phoneNumber);
     }
 
     @Override
     public String toString() {
-        return "ChangeUserDataRequest{" +
+        return "ChangeUserDataResponse{" +
                 "name='" + name + '\'' +
                 ", surname='" + surname + '\'' +
                 ", email='" + email + '\'' +
                 ", phoneNumber='" + phoneNumber + '\'' +
-                '}';
+                "} " + super.toString();
     }
 }

@@ -1,19 +1,31 @@
 package com.healthy.gym.trainings.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.healthy.gym.trainings.exception.InvalidDateException;
 import com.healthy.gym.trainings.exception.InvalidHourException;
+import com.healthy.gym.trainings.validator.DateValidator;
 import com.healthy.gym.trainings.validator.Time24HoursValidator;
+import org.springframework.format.annotation.DateTimeFormat;
 
+import javax.validation.constraints.NotNull;
 import java.util.List;
 
 public class GroupTrainingModel {
 
+    @NotNull
     private String trainingName;
+    @NotNull
     private String trainerId;
+    @NotNull
+    @DateTimeFormat(pattern="yyyy-MM-dd")
     private String date;
+    @NotNull
     private String startTime;
+    @NotNull
     private String endTime;
+    @NotNull
     private int hallNo;
+    @NotNull
     private int limit;
     private List<String> participants;
     private List<String> reserveList;
@@ -26,11 +38,16 @@ public class GroupTrainingModel {
                               @JsonProperty("hallNo") int hallNo,
                               @JsonProperty("limit") int limit,
                               @JsonProperty("participants") List<String> participants,
-                              @JsonProperty("reserveList") List<String> reserveList) throws InvalidHourException {
+                              @JsonProperty("reserveList") List<String> reserveList) throws InvalidHourException, InvalidDateException {
+        DateValidator dateValidator = new DateValidator();
         Time24HoursValidator time24HoursValidator = new Time24HoursValidator();
         this.trainingName = trainingName;
         this.trainerId = trainerId;
-        this.date = date;
+        if(dateValidator.validate(date)){
+            this.date = date;
+        } else {
+            throw new InvalidDateException("Wrong date");
+        }
         if(time24HoursValidator.validate(startTime)){
             this.startTime = startTime;
         } else {

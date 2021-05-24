@@ -1,6 +1,7 @@
 package com.healthy.gym.trainings.exception;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.web.server.ResponseStatusException;
 
 public class RestException extends Exception {
     private final HttpStatus status;
@@ -10,6 +11,8 @@ public class RestException extends Exception {
                          final Throwable cause) {
         super(message, cause);
         this.status = status;
+        throw new ResponseStatusException(
+                status, message, cause);
     }
 
     public HttpStatus getStatus() {

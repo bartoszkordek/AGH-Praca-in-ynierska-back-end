@@ -105,7 +105,7 @@ public class GroupTrainingsService {
         return groupTrainingsDbRepository.getGroupTrainings();
     }
 
-    public List<GroupTrainingsPublicViewModel> getPublicGroupTrainings() throws InvalidHourException {
+    public List<GroupTrainingsPublicViewModel> getPublicGroupTrainings() throws InvalidHourException, InvalidDateException {
         return groupTrainingsDbRepository.getPublicGroupTrainings();
     }
 

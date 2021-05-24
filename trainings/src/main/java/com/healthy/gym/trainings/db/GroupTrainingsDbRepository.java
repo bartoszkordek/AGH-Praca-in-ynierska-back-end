@@ -2,6 +2,7 @@ package com.healthy.gym.trainings.db;
 
 import com.healthy.gym.trainings.config.MongoConfig;
 import com.healthy.gym.trainings.entity.GroupTrainings;
+import com.healthy.gym.trainings.exception.InvalidDateException;
 import com.healthy.gym.trainings.exception.InvalidHourException;
 import com.healthy.gym.trainings.model.GroupTrainingModel;
 import com.healthy.gym.trainings.model.GroupTrainingsPublicViewModel;
@@ -45,7 +46,7 @@ public class GroupTrainingsDbRepository {
         return groupTrainingsRepository.findAll();
     }
 
-    public List<GroupTrainingsPublicViewModel> getPublicGroupTrainings() throws InvalidHourException {
+    public List<GroupTrainingsPublicViewModel> getPublicGroupTrainings() throws InvalidHourException, InvalidDateException {
         List<GroupTrainingsPublicViewModel> publicResponse = new ArrayList<>();
         List<GroupTrainings> groupTrainings = groupTrainingsRepository.findAll();
         for(GroupTrainings groupTraining : groupTrainings){

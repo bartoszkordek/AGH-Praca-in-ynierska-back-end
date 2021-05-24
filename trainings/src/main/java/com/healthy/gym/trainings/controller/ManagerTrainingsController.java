@@ -24,7 +24,7 @@ public class ManagerTrainingsController {
         this.individualTrainingsService = individualTrainingsService;
     }
 
-    @PostMapping("/group/create")
+    @PostMapping("/group")
     public GroupTrainings createGroupTraining(@Valid @RequestBody GroupTrainingModel groupTrainingModel) throws RestException {
         try{
             return groupTrainingsService.createGroupTraining(groupTrainingModel);

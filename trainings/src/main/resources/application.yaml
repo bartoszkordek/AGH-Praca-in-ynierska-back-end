@@ -18,12 +18,3 @@ eureka:
       defaultZone: http://localhost:8010/eureka
   instance:
     instance-id: ${spring.application.name}:${spring.application.instance_id:${random.value}}
-
-microservice:
-  email:
-    name: silownia_herkules@vp.pl
-    password: sample_password1234
-    personal: Siłownia Herkules
-  smtp:
-    host: smtp.poczta.onet.pl
-    port: 587

@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.healthy.gym.account.component.token.TokenManager;
 import com.healthy.gym.account.configuration.tests.TestCountry;
 import com.healthy.gym.account.controller.AccountController;
+import com.healthy.gym.account.exception.UserDataNotUpdatedException;
 import com.healthy.gym.account.service.AccountService;
 import com.healthy.gym.account.shared.UserDTO;
 import io.jsonwebtoken.Jwts;
@@ -266,25 +267,16 @@ class WhenChangeUserDataTest {
                 .content(requestBody)
                 .contentType(MediaType.APPLICATION_JSON);
 
-        UserDTO updatedUserFailure = new UserDTO(
-                UUID.randomUUID().toString(),
-                "Janek",
-                "Kowalska",
-                "xmr09697@zwoho.pl",
-                "+48 685 263 684",
-                "testtest1234",
-                "encryptedtesttest1234"
-        );
-        when(accountService.changeUserData(any())).thenReturn(updatedUserFailure);
+        doThrow(UserDataNotUpdatedException.class).when(accountService).changeUserData(any());
 
-        String expectedMessage = messages.get("request.failure");
+        String expectedMessage = messages.get("account.change.user.data.failure");
         mockMvc.perform(request)
                 .andDo(print())
                 .andExpect(status().isInternalServerError())
                 .andExpect(status().reason(is(expectedMessage)))
                 .andExpect(result ->
                         assertThat(result.getResolvedException().getCause())
-                                .isInstanceOf(IllegalStateException.class)
+                                .isInstanceOf(UserDataNotUpdatedException.class)
                 );
     }
 
@@ -366,6 +358,36 @@ class WhenChangeUserDataTest {
                 .andExpect(result ->
                         assertThat(result.getResolvedException().getCause())
                                 .isInstanceOf(UsernameNotFoundException.class)
+                );
+    }
+
+    @ParameterizedTest
+    @EnumSource(TestCountry.class)
+    void shouldThrowExceptionWhenOtherErrorOccurs(TestCountry country) throws Exception {
+        Map<String, String> messages = getMessagesAccordingToLocale(country);
+        Locale testedLocale = convertEnumToLocale(country);
+
+        URI uri = new URI("/changeUserData/" + userId);
+        String requestBody = objectMapper.writeValueAsString(requestMap);
+
+        RequestBuilder request = MockMvcRequestBuilders
+                .patch(uri)
+                .header("Accept-Language", testedLocale.toString())
+                .header("Authorization", userToken)
+                .content(requestBody)
+                .contentType(MediaType.APPLICATION_JSON);
+
+        String expectedMessage = messages.get("request.failure");
+
+        doThrow(IllegalStateException.class).when(accountService).changeUserData(any());
+
+        mockMvc.perform(request)
+                .andDo(print())
+                .andExpect(status().isInternalServerError())
+                .andExpect(status().reason(is(expectedMessage)))
+                .andExpect(result ->
+                        assertThat(result.getResolvedException().getCause())
+                                .isInstanceOf(IllegalStateException.class)
                 );
     }
 }

@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.healthy.gym.account.component.Translator;
 import com.healthy.gym.account.exception.IdenticalOldAndNewPasswordException;
 import com.healthy.gym.account.exception.OldPasswordDoesNotMatchException;
+import com.healthy.gym.account.exception.UserDataNotUpdatedException;
 import com.healthy.gym.account.pojo.request.ChangePasswordRequest;
 import com.healthy.gym.account.pojo.request.ChangeUserDataRequest;
 import com.healthy.gym.account.pojo.response.ChangePasswordResponse;
@@ -118,8 +119,6 @@ public class AccountController {
             currentUser.setUserId(userId);
             UserDTO updatedUser = accountService.changeUserData(currentUser);
 
-            validateIfUpdatedUserDataProperly(currentUser, updatedUser);
-
             String message = translator.toLocale("account.change.user.data.success");
             ChangeUserDataResponse response = modelMapper.map(updatedUser, ChangeUserDataResponse.class);
             response.setMessage(message);
@@ -136,35 +135,16 @@ public class AccountController {
             String reason = getBindExceptionErrorMessages(exception);
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, exception);
 
+        } catch (UserDataNotUpdatedException exception) {
+            String reason = translator.toLocale("account.change.user.data.failure");
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, reason, exception);
+
         } catch (Exception exception) {
             String reason = translator.toLocale("request.failure");
             exception.printStackTrace();
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, reason, exception);
         }
     }
-
-    private void validateIfUpdatedUserDataProperly(UserDTO currentUser, UserDTO updatedUser) {
-        if (currentUser.getUserId() != null
-                && !currentUser.getUserId().equals(updatedUser.getUserId()))
-            throw new IllegalStateException();
-
-        if (currentUser.getEmail() != null
-                && !currentUser.getEmail().equals(updatedUser.getEmail()))
-            throw new IllegalStateException();
-
-        if (currentUser.getName() != null
-                && !currentUser.getName().equals(updatedUser.getName()))
-            throw new IllegalStateException();
-
-        if (currentUser.getSurname() != null
-                && !currentUser.getSurname().equals(updatedUser.getSurname()))
-            throw new IllegalStateException();
-
-        if (currentUser.getPhoneNumber() != null
-                && !currentUser.getPhoneNumber().equals(updatedUser.getPhoneNumber()))
-            throw new IllegalStateException();
-    }
-
 
     @PreAuthorize("hasRole('ADMIN') or principal==#userId")
     @DeleteMapping("/{id}")

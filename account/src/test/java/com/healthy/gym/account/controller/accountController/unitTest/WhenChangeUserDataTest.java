@@ -1,6 +1,5 @@
 package com.healthy.gym.account.controller.accountController.unitTest;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.healthy.gym.account.component.token.TokenManager;
 import com.healthy.gym.account.configuration.tests.TestCountry;
@@ -15,12 +14,12 @@ import org.junit.jupiter.params.provider.EnumSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.RequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.validation.BindException;
 
 import java.net.URI;
 import java.util.*;
@@ -307,28 +306,20 @@ class WhenChangeUserDataTest {
         mockMvc.perform(request)
                 .andDo(print())
                 .andExpect(status().isBadRequest())
-                .andExpect(result -> {
-                    String responseBody = result.getResponse().getErrorMessage();
-                    ObjectMapper objectMapper = new ObjectMapper();
-                    JsonNode jsonNode = objectMapper.readTree(responseBody);
-
-                    assertThat(jsonNode.get("name").textValue())
-                            .isEqualTo(messages.get("field.name.failure"));
-
-                    assertThat(jsonNode.get("surname").textValue())
-                            .isEqualTo(messages.get("field.surname.failure"));
-
-                    assertThat(jsonNode.get("email").textValue())
-                            .isEqualTo(messages.get("field.email.failure"));
-
-                    assertThat(jsonNode.get("phoneNumber").textValue())
-                            .isEqualTo(messages.get("field.phone.number.failure"));
-
-                })
-                .andExpect(result ->
-                        assertThat(result.getResolvedException().getCause())
-                                .isInstanceOf(BindException.class)
-                );
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.message")
+                        .value(is(messages.get("request.bind.exception"))))
+                .andExpect(jsonPath("$.error").value(is(HttpStatus.BAD_REQUEST.getReasonPhrase())))
+                .andExpect(jsonPath("$.status").value(HttpStatus.BAD_REQUEST.value()))
+                .andExpect(jsonPath("$.timestamp").exists())
+                .andExpect(jsonPath("$.errors.name")
+                        .value(is(messages.get("field.name.failure"))))
+                .andExpect(jsonPath("$.errors.surname")
+                        .value(is(messages.get("field.surname.failure"))))
+                .andExpect(jsonPath("$.errors.email")
+                        .value(is(messages.get("field.email.failure"))))
+                .andExpect(jsonPath("$.errors.phoneNumber")
+                        .value(is(messages.get("field.phone.number.failure"))));
     }
 
     @ParameterizedTest

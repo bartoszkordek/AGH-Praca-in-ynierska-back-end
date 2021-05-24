@@ -1,10 +1,9 @@
 package com.healthy.gym.account.controller;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.healthy.gym.account.component.Translator;
 import com.healthy.gym.account.exception.IdenticalOldAndNewPasswordException;
 import com.healthy.gym.account.exception.OldPasswordDoesNotMatchException;
+import com.healthy.gym.account.exception.ResponseBindException;
 import com.healthy.gym.account.exception.UserDataNotUpdatedException;
 import com.healthy.gym.account.pojo.request.ChangePasswordRequest;
 import com.healthy.gym.account.pojo.request.ChangeUserDataRequest;
@@ -23,13 +22,10 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.validation.BindException;
 import org.springframework.validation.BindingResult;
-import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import javax.validation.Valid;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 @RestController
 public class AccountController {
@@ -59,7 +55,7 @@ public class AccountController {
             @PathVariable("id") String userId,
             @Valid @RequestBody ChangePasswordRequest request,
             BindingResult bindingResult
-    ) throws JsonProcessingException {
+    ) throws ResponseBindException {
         try {
             if (bindingResult.hasErrors()) throw new BindException(bindingResult);
 
@@ -82,23 +78,14 @@ public class AccountController {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, exception);
 
         } catch (BindException exception) {
-            String reason = getBindExceptionErrorMessages(exception);
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, exception);
+            String reason = translator.toLocale("request.bind.exception");
+            throw new ResponseBindException(HttpStatus.BAD_REQUEST, reason, exception);
 
         } catch (Exception exception) {
             String reason = translator.toLocale("request.failure");
             exception.printStackTrace();
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, reason, exception);
         }
-    }
-
-    private String getBindExceptionErrorMessages(BindException exception) throws JsonProcessingException {
-        ObjectMapper objectMapper = new ObjectMapper();
-        Map<String, String> errorMessages = exception.getFieldErrors()
-                .stream()
-                .collect(Collectors.toMap(FieldError::getField, FieldError::getDefaultMessage));
-
-        return objectMapper.writeValueAsString(errorMessages);
     }
 
     @PreAuthorize("hasRole('ADMIN') or principal==#userId")
@@ -111,7 +98,7 @@ public class AccountController {
             @PathVariable("id") String userId,
             @Valid @RequestBody ChangeUserDataRequest request,
             BindingResult bindingResult
-    ) throws JsonProcessingException {
+    ) throws ResponseBindException {
         try {
             if (bindingResult.hasErrors()) throw new BindException(bindingResult);
 
@@ -132,8 +119,8 @@ public class AccountController {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, reason, exception);
 
         } catch (BindException exception) {
-            String reason = getBindExceptionErrorMessages(exception);
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, exception);
+            String reason = translator.toLocale("request.bind.exception");
+            throw new ResponseBindException(HttpStatus.BAD_REQUEST, reason, exception);
 
         } catch (UserDataNotUpdatedException exception) {
             String reason = translator.toLocale("account.change.user.data.failure");

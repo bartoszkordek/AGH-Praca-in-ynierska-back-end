@@ -15,12 +15,12 @@ import org.junit.jupiter.params.provider.EnumSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.RequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.validation.BindException;
 
 import java.net.URI;
 import java.util.*;
@@ -28,7 +28,6 @@ import java.util.*;
 import static com.healthy.gym.account.configuration.tests.LocaleConverter.convertEnumToLocale;
 import static com.healthy.gym.account.configuration.tests.Messages.getMessagesAccordingToLocale;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
@@ -247,16 +246,17 @@ class WhenChangePasswordTest {
                 .content(requestBody)
                 .contentType(MediaType.APPLICATION_JSON);
 
-        String expectedMessage = messages.get("field.password.failure");
-
         mockMvc.perform(request)
                 .andDo(print())
                 .andExpect(status().isBadRequest())
-                .andExpect(status().reason(containsString(expectedMessage)))
-                .andExpect(result ->
-                        assertThat(result.getResolvedException().getCause())
-                                .isInstanceOf(BindException.class)
-                );
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.message")
+                        .value(is(messages.get("request.bind.exception"))))
+                .andExpect(jsonPath("$.error").value(is(HttpStatus.BAD_REQUEST.getReasonPhrase())))
+                .andExpect(jsonPath("$.status").value(HttpStatus.BAD_REQUEST.value()))
+                .andExpect(jsonPath("$.timestamp").exists())
+                .andExpect(jsonPath("$.errors.oldPassword")
+                        .value(is(messages.get("field.password.failure"))));
     }
 
     @ParameterizedTest

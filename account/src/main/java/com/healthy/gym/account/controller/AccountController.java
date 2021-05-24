@@ -1,17 +1,17 @@
 package com.healthy.gym.account.controller;
 
 import com.healthy.gym.account.component.Translator;
-import com.healthy.gym.account.exception.IdenticalOldAndNewPasswordException;
-import com.healthy.gym.account.exception.OldPasswordDoesNotMatchException;
-import com.healthy.gym.account.exception.ResponseBindException;
-import com.healthy.gym.account.exception.UserDataNotUpdatedException;
+import com.healthy.gym.account.exception.*;
 import com.healthy.gym.account.pojo.request.ChangePasswordRequest;
+import com.healthy.gym.account.pojo.request.ChangePrivacyRequest;
 import com.healthy.gym.account.pojo.request.ChangeUserDataRequest;
 import com.healthy.gym.account.pojo.response.ChangePasswordResponse;
+import com.healthy.gym.account.pojo.response.ChangePrivacyResponse;
 import com.healthy.gym.account.pojo.response.ChangeUserDataResponse;
 import com.healthy.gym.account.pojo.response.DeleteAccountResponse;
 import com.healthy.gym.account.service.AccountService;
 import com.healthy.gym.account.shared.UserDTO;
+import com.healthy.gym.account.shared.UserPrivacyDTO;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -155,13 +155,48 @@ public class AccountController {
         }
     }
 
-    @PostMapping(
-            value = "/changeUserSettings",
+    @PreAuthorize("principal==#userId")
+    @PutMapping(
+            value = "/changePrivacy/{id}",
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    public String changeUserSettings() {
-        return "ok";
+    public ResponseEntity<ChangePrivacyResponse> changeUserPrivacy(
+            @PathVariable("id") String userId,
+            @Valid @RequestBody ChangePrivacyRequest request,
+            BindingResult bindingResult
+    ) throws ResponseBindException {
+        try {
+            if (bindingResult.hasErrors()) throw new BindException(bindingResult);
+
+            UserPrivacyDTO userPrivacyDTO = modelMapper.map(request, UserPrivacyDTO.class);
+            UserPrivacyDTO userPrivacyDTOUpdated = accountService.changeUserPrivacy(userPrivacyDTO, userId);
+            String message = translator.toLocale("account.change.user.data.success");
+
+            ChangePrivacyResponse response = modelMapper.map(userPrivacyDTOUpdated, ChangePrivacyResponse.class);
+            response.setMessage(message);
+
+            return ResponseEntity
+                    .status(HttpStatus.OK)
+                    .body(response);
+
+        } catch (UsernameNotFoundException exception) {
+            String reason = translator.toLocale("exception.account.not.found");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, reason, exception);
+
+        } catch (BindException exception) {
+            String reason = translator.toLocale("request.bind.exception");
+            throw new ResponseBindException(HttpStatus.BAD_REQUEST, reason, exception);
+
+        } catch (UserPrivacyNotUpdatedException exception) {
+            String reason = translator.toLocale("account.change.user.data.failure");
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, reason, exception);
+
+        } catch (Exception exception) {
+            String reason = translator.toLocale("request.failure");
+            exception.printStackTrace();
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, reason, exception);
+        }
     }
 
 }

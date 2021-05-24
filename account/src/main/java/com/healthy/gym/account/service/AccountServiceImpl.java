@@ -122,7 +122,7 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public UserPrivacyDTO changeUserPrivacy(UserPrivacyDTO userPrivacyDTO) {
+    public UserPrivacyDTO changeUserPrivacy(UserPrivacyDTO userPrivacyDTO, String userId) {
         return null;
     }
 }

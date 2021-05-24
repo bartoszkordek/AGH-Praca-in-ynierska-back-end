@@ -290,7 +290,7 @@ class WhenChangeUserDataTest {
         requestMap.put("name", "J");
         requestMap.put("surname", "K");
         requestMap.put("email", "xmr09697zwoho.com");
-        requestMap.put("phone", "+48 685263 683");
+        requestMap.put("phoneNumber", "+48 685263 683");
 
         System.out.println(requestMap);
 

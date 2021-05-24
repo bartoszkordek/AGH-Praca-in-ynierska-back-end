@@ -1,7 +1,6 @@
 package com.healthy.gym.account.pojo.request;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.healthy.gym.account.validation.ValidEmailNullable;
 import com.healthy.gym.account.validation.ValidPhoneNumber;
 import org.springframework.lang.Nullable;
@@ -23,7 +22,6 @@ public class ChangeUserDataRequest {
     @ValidEmailNullable(message = "{field.email.failure}")
     private String email;
 
-    @JsonProperty("phone")
     @ValidPhoneNumber(message = "{field.phone.number.failure}")
     private String phoneNumber;
 

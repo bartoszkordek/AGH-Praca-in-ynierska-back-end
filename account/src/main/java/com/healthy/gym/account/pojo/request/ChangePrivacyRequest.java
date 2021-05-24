@@ -1,12 +1,21 @@
 package com.healthy.gym.account.pojo.request;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+import javax.validation.constraints.NotNull;
 import java.util.Objects;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class ChangePrivacyRequest {
-    private boolean regulationsAccepted;
-    private boolean allowShowingTrainingsParticipation;
-    private boolean allowShowingUserStatistics;
-    private boolean allowShowingAvatar;
+
+    @NotNull(message = "{field.required}")
+    private Boolean regulationsAccepted;
+    @NotNull(message = "{field.required}")
+    private Boolean allowShowingTrainingsParticipation;
+    @NotNull(message = "{field.required}")
+    private Boolean allowShowingUserStatistics;
+    @NotNull(message = "{field.required}")
+    private Boolean allowShowingAvatar;
 
     public ChangePrivacyRequest() {
     }

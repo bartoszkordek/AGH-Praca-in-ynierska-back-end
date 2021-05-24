@@ -2,7 +2,7 @@ package com.healthy.gym.account.pojo.response;
 
 import java.util.Objects;
 
-public class ChangePrivacyResponse {
+public class ChangePrivacyResponse extends AbstractResponse {
     private boolean regulationsAccepted;
     private boolean allowShowingTrainingsParticipation;
     private boolean allowShowingUserStatistics;
@@ -11,12 +11,18 @@ public class ChangePrivacyResponse {
     public ChangePrivacyResponse() {
     }
 
+    public ChangePrivacyResponse(String message) {
+        super(message);
+    }
+
     public ChangePrivacyResponse(
             boolean regulationsAccepted,
             boolean allowShowingTrainingsParticipation,
             boolean allowShowingUserStatistics,
-            boolean allowShowingAvatar
+            boolean allowShowingAvatar,
+            String message
     ) {
+        super(message);
         this.regulationsAccepted = regulationsAccepted;
         this.allowShowingTrainingsParticipation = allowShowingTrainingsParticipation;
         this.allowShowingUserStatistics = allowShowingUserStatistics;

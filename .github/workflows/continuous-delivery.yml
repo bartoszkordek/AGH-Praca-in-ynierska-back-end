@@ -1,4 +1,4 @@
-name: Back-end CD
+name: Continuous delivery
 
 on:
   push:

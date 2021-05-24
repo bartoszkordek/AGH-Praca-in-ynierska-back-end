@@ -6,6 +6,7 @@ import com.healthy.gym.account.exception.IdenticalOldAndNewPasswordException;
 import com.healthy.gym.account.exception.OldPasswordDoesNotMatchException;
 import com.healthy.gym.account.exception.UserDataNotUpdatedException;
 import com.healthy.gym.account.shared.UserDTO;
+import com.healthy.gym.account.shared.UserPrivacyDTO;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -118,5 +119,10 @@ public class AccountServiceImpl implements AccountService {
         if (foundUser == null) throw new UsernameNotFoundException("User not found.");
         userDAO.delete(foundUser);
         return modelMapper.map(foundUser, UserDTO.class);
+    }
+
+    @Override
+    public UserPrivacyDTO changeUserPrivacy(UserPrivacyDTO userPrivacyDTO) {
+        return null;
     }
 }

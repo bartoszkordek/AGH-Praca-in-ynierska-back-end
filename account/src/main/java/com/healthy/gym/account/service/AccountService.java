@@ -4,6 +4,7 @@ import com.healthy.gym.account.exception.IdenticalOldAndNewPasswordException;
 import com.healthy.gym.account.exception.OldPasswordDoesNotMatchException;
 import com.healthy.gym.account.exception.UserDataNotUpdatedException;
 import com.healthy.gym.account.shared.UserDTO;
+import com.healthy.gym.account.shared.UserPrivacyDTO;
 
 public interface AccountService {
     UserDTO changePassword(String userId, String oldPassword, String newPassword)
@@ -12,4 +13,6 @@ public interface AccountService {
     UserDTO changeUserData(UserDTO userDTO) throws UserDataNotUpdatedException;
 
     UserDTO deleteAccount(String userId);
+
+    UserPrivacyDTO changeUserPrivacy(UserPrivacyDTO userPrivacyDTO);
 }

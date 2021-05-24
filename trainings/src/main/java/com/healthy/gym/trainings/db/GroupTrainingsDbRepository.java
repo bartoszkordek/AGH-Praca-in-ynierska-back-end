@@ -12,6 +12,7 @@ import com.mongodb.client.MongoDatabase;
 import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
+import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.stereotype.Repository;
 
 import java.text.ParseException;
@@ -31,10 +32,14 @@ public class GroupTrainingsDbRepository {
     private GroupTrainingsRepository groupTrainingsRepository;
 
     @Autowired
+    private MongoTemplate mongoTemplate;
+
+    @Autowired
     private MongoConfig mongoConfig;
 
     private MongoClient mongoClient;
     private MongoDatabase mdb;
+    private static String groupTrainingsCollectionName = "GroupTrainings";
 
     public List<GroupTrainings> getGroupTrainings(){
         return groupTrainingsRepository.findAll();
@@ -132,9 +137,9 @@ public class GroupTrainingsDbRepository {
     }
 
     public boolean isAbilityToCreateTraining(GroupTrainingModel groupTrainingModel) throws ParseException {
-        mongoClient = MongoClients.create();
-        mdb = mongoClient.getDatabase(environment.getProperty("microservice.db.name"));
-        MongoCollection collection = mdb.getCollection(environment.getProperty("microservice.db.collection"));
+        MongoClient mongoClient = MongoClients.create(environment.getProperty("spring.data.mongodb.uri"));
+        mdb = mongoClient.getDatabase(environment.getProperty("spring.data.mongodb.database"));
+        MongoCollection collection = mdb.getCollection(groupTrainingsCollectionName);
 
         String date = groupTrainingModel.getDate();
         String startTime = groupTrainingModel.getStartTime();

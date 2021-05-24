@@ -4,7 +4,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.healthy.gym.trainings.exception.InvalidHourException;
 import com.healthy.gym.trainings.validator.Time24HoursValidator;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
 
+@Document(collection = "IndividualTrainings")
 public class IndividualTrainings {
 
     @Id

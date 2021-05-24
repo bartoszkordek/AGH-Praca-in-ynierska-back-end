@@ -63,12 +63,12 @@ public class SignedClientTrainingsController {
         }
     }
 
-    @GetMapping("/group/reviews/all")
+    @GetMapping("/reviews/all")
     public List<GroupTrainingsReviews> getGroupTrainingReviews(){
         return groupTrainingsService.getGroupTrainingReviews();
     }
 
-    @GetMapping("/group/reviews/{reviewId}")
+    @GetMapping("/reviews/{reviewId}")
     public GroupTrainingsReviews getGroupTrainingReviewById(@PathVariable("reviewId") final String reviewId) throws RestException {
         try{
             return groupTrainingsService.getGroupTrainingReviewById(reviewId);
@@ -77,7 +77,7 @@ public class SignedClientTrainingsController {
         }
     }
 
-    @PostMapping("/group/review")
+    @PostMapping("/review")
     public GroupTrainingsReviews createGroupTrainingReview(@Valid @RequestBody GroupTrainingsReviewsModel groupTrainingsReviews,
                                                            @RequestParam(required = true) final String clientId) throws RestException {
         try{
@@ -87,7 +87,7 @@ public class SignedClientTrainingsController {
         }
     }
 
-    @DeleteMapping("/group/review/{reviewId}")
+    @DeleteMapping("/review/{reviewId}")
     public GroupTrainingsReviews removeGroupTrainingReview(@PathVariable("reviewId") final String reviewId,
                                                            @RequestParam(required = true) final String clientId) throws RestException {
         try{
@@ -99,7 +99,7 @@ public class SignedClientTrainingsController {
         }
     }
 
-    @PutMapping("/group/review/{reviewId}")
+    @PutMapping("/review/{reviewId}")
     public GroupTrainingsReviews updateGroupTrainingReview(@Valid @RequestBody final GroupTrainingsReviewsUpdateModel groupTrainingsReviewsUpdateModel,
                                                            @PathVariable("reviewId") final String reviewId,
                                                            @RequestParam(required = true) final String clientId) throws RestException {

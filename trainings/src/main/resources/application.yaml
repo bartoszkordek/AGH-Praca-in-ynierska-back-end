@@ -4,6 +4,10 @@ spring:
   devtools:
     restart:
       enabled: true
+  data:
+    mongodb:
+      uri: mongodb://adminPracaInz:thisPAsswordNeed2BeChange@localhost:27017/databasePracaInz
+      database: databasePracaInz
 
 server:
   port: 0
@@ -14,15 +18,3 @@ eureka:
       defaultZone: http://localhost:8010/eureka
   instance:
     instance-id: ${spring.application.name}:${spring.application.instance_id:${random.value}}
-
-microservice:
-  db:
-    name: Gym
-    collection: GroupTrainings
-  email:
-    name: silownia_herkules@vp.pl
-    password: sample_password1234
-    personal: Siłownia Herkules
-  smtp:
-    host: smtp.poczta.onet.pl
-    port: 587

@@ -56,7 +56,7 @@
 							}
 						],
 						"url": {
-							"raw": "http://localhost:8020/auth/users/confirmRegistration?token=bbaf773d-a463-4183-b245-0a7af848af1d",
+							"raw": "http://localhost:8020/auth/users/confirmRegistration?token=43f81f62-ec66-4970-b320-5fff6021970c",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -70,7 +70,7 @@
 							"query": [
 								{
 									"key": "token",
-									"value": "bbaf773d-a463-4183-b245-0a7af848af1d"
+									"value": "43f81f62-ec66-4970-b320-5fff6021970c"
 								}
 							]
 						}
@@ -90,7 +90,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"email\": \"xmr09697@zwoho.com\",\r\n    \"password\": \"testtest1234\"\r\n}",
+							"raw": "{\r\n    \"email\": \"xmr09697@zwoho.com\",\r\n    \"password\": \"testtest123\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -119,7 +119,7 @@
 						"header": [
 							{
 								"key": "Authorization",
-								"value": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI1N2QxNDRkOS04MmQ4LTRhYTItYmFhZi1hMmRkMjA2YWMzZDIiLCJyb2xlcyI6WyJST0xFX1VTRVIiXSwiZXhwIjoxNjIxNzM1OTE2fQ.auqne1ECE-ycm1Mo89cjzxB2W_m9uJo9Vnk3cXYRdKc",
+								"value": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJjNzQxMGNlMi01NTI3LTQxNjMtOTRlMC05ZmZmMTE5N2ZlMzIiLCJyb2xlcyI6WyJST0xFX1VTRVIiXSwiZXhwIjoxNjIxODg3NzYzfQ.MuqnJLG-KmhGTT379WAPIW-eqXNQKI7AfluxNhW-708",
 								"type": "text"
 							},
 							{
@@ -299,6 +299,47 @@
 								"account",
 								"changePassword",
 								"57d144d9-82d8-4aa2-baaf-a2dd206ac3d2"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Change user data",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJjNzQxMGNlMi01NTI3LTQxNjMtOTRlMC05ZmZmMTE5N2ZlMzIiLCJyb2xlcyI6WyJST0xFX1VTRVIiXSwiZXhwIjoxNjIxODg3NzYzfQ.MuqnJLG-KmhGTT379WAPIW-eqXNQKI7AfluxNhW-708",
+								"type": "text"
+							},
+							{
+								"key": "Accept-Language",
+								"value": "pl",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"Wojciech\",\r\n    \"surname\": \"Zacharski\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8020/account/changeUserData/c7410ce2-5527-4163-94e0-9fff1197fe32",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8020",
+							"path": [
+								"account",
+								"changeUserData",
+								"c7410ce2-5527-4163-94e0-9fff1197fe32"
 							]
 						}
 					},

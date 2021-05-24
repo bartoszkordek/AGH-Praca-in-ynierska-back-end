@@ -40,6 +40,11 @@ public class AccountServiceImpl implements AccountService {
         return modelMapper.map(updateUser, UserDTO.class);
     }
 
+    @Override
+    public UserDTO changeUserData(UserDTO userDTO) {
+        return null;
+    }
+
     private void validateIfOldPasswordMatches(String oldPassword, UserDocument foundUser)
             throws OldPasswordDoesNotMatchException {
         String encryptedPassword = foundUser.getEncryptedPassword();

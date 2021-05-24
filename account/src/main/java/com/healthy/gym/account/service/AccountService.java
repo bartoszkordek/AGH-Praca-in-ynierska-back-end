@@ -8,5 +8,7 @@ public interface AccountService {
     UserDTO changePassword(String userId, String oldPassword, String newPassword)
             throws IdenticalOldAndNewPasswordException, OldPasswordDoesNotMatchException;
 
+    UserDTO changeUserData(UserDTO userDTO);
+
     UserDTO deleteAccount(String userId);
 }

@@ -1,32 +1,45 @@
 package com.healthy.gym.trainings.config;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.env.Environment;
+import org.springframework.context.annotation.PropertySource;
 
 @Configuration
+@PropertySource(value = "classpath:email.properties", ignoreResourceNotFound = true)
 public class EmailConfig {
 
-    @Autowired
-    private Environment environment;
+    @Value("${spring.mail.name}")
+    private String emailName;
+
+    @Value("${spring.mail.password}")
+    private String emailPassword;
+
+    @Value("${spring.mail.personal}")
+    private String emailPersonal;
+
+    @Value("${spring.mail.host}")
+    private String smtpHost;
+
+    @Value("${spring.mail.port}")
+    private String smtpPort;
 
     public String getEmailName(){
-        return environment.getProperty("microservice.email.name");
+        return emailName;
     };
 
     public String getEmailPassword(){
-        return environment.getProperty("microservice.email.password");
+        return emailPassword;
     }
 
     public String getEmailPersonal(){
-        return environment.getProperty("microservice.email.personal");
+        return emailPersonal;
     }
 
     public String getSmtpHost(){
-        return environment.getProperty("microservice.smtp.host");
+        return smtpHost;
     }
 
     public String getSmtpPort(){
-        return environment.getProperty("microservice.smtp.port");
+        return smtpPort;
     }
 }

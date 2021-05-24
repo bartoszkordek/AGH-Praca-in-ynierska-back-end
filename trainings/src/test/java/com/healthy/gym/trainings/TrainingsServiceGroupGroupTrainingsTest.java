@@ -3,10 +3,7 @@ package com.healthy.gym.trainings;
 import com.healthy.gym.trainings.config.EmailConfig;
 import com.healthy.gym.trainings.db.GroupTrainingsDbRepository;
 import com.healthy.gym.trainings.entity.GroupTrainings;
-import com.healthy.gym.trainings.exception.InvalidHourException;
-import com.healthy.gym.trainings.exception.NotExistingGroupTrainingException;
-import com.healthy.gym.trainings.exception.TrainingCreationException;
-import com.healthy.gym.trainings.exception.TrainingEnrollmentException;
+import com.healthy.gym.trainings.exception.*;
 import com.healthy.gym.trainings.mock.TrainingsServiceGroupGroupTrainingsImpl;
 import com.healthy.gym.trainings.model.GroupTrainingModel;
 import com.healthy.gym.trainings.service.GroupTrainingsService;
@@ -62,7 +59,7 @@ public class TrainingsServiceGroupGroupTrainingsTest {
     private final GroupTrainings validGroupTrainingsWithValidClientAsParticipant = new GroupTrainings(validTestTrainingName, validTestTrainerId, validTestDate,
             validTestStartTime, validTestEndTime, validTestHallNo, validTestLimit, participantsWithValidClientId, emptyReserveList);
 
-    public TrainingsServiceGroupGroupTrainingsTest() throws InvalidHourException {
+    public TrainingsServiceGroupGroupTrainingsTest() throws InvalidHourException, InvalidDateException {
     }
 
 

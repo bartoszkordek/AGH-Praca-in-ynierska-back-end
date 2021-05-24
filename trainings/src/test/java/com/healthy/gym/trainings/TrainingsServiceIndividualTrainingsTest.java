@@ -83,7 +83,7 @@ public class TrainingsServiceIndividualTrainingsTest {
     private IndividualTrainingsDbRepository individualTrainingsDbRepository;
 
     @Before
-    public void setUp() throws InvalidHourException {
+    public void setUp() throws InvalidHourException, InvalidDateException {
         validIndividualTrainingsRequestModel = new IndividualTrainingsRequestModel(validTrainerId, validDate,
                 validStartTime, validEndTime, validRemarks);
         terminatedIndividualTrainingsRequestModelRetroDate = new IndividualTrainingsRequestModel(validTrainerId, retroDate,

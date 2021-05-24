@@ -1,6 +1,7 @@
 package com.healthy.gym.trainings.controller;
 
 import com.healthy.gym.trainings.entity.GroupTrainings;
+import com.healthy.gym.trainings.exception.InvalidDateException;
 import com.healthy.gym.trainings.exception.InvalidHourException;
 import com.healthy.gym.trainings.exception.NotExistingGroupTrainingException;
 import com.healthy.gym.trainings.model.GroupTrainingsPublicViewModel;
@@ -36,7 +37,7 @@ public class TrainingsController {
     }
 
     @GetMapping("/public/group")
-    public List<GroupTrainingsPublicViewModel> getPublicGroupTrainings() throws InvalidHourException {
+    public List<GroupTrainingsPublicViewModel> getPublicGroupTrainings() throws InvalidHourException, InvalidDateException {
         return groupTrainingsService.getPublicGroupTrainings();
     }
 

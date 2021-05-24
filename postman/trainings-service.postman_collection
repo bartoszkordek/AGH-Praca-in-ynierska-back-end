@@ -1,0 +1,1146 @@
+{
+	"info": {
+		"_postman_id": "6bfd40c4-0688-4954-aaf9-72265eba2250",
+		"name": "Praca_inzynierska-trainings",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Group",
+			"item": [
+				{
+					"name": "Create group training",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const { isEqual, isNull, isEmpty } = require('lodash');\r",
+									"\r",
+									"pm.test(\"Response status should be 200 or 201.\", () => {\r",
+									"    pm.expect(pm.response.code).to.be.oneOf([200, 201]);\r",
+									"});\r",
+									"\r",
+									"const resTime = Number.parseInt(pm.environment.get(\"responseTime\"));\r",
+									"\r",
+									"pm.test(`Response time should be less than ${resTime} ms.`, () => {\r",
+									"    pm.expect(pm.response.responseTime).to.be.lessThan(resTime);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"trainingName\": \"TestTraining1\",\r\n    \"trainerId\": \"Trainer1\",\r\n    \"date\": \"2021-10-01\",\r\n    \"startTime\": \"16:00\",\r\n    \"endTime\": \"17:00\",\r\n    \"hallNo\": 1,\r\n    \"limit\": 20,\r\n    \"participants\": [],\r\n    \"reserveList\": []\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8020/trainings/group/create",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8020",
+							"path": [
+								"trainings",
+								"group",
+								"create"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update group training by id",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const { isEqual, isNull, isEmpty } = require('lodash');\r",
+									"\r",
+									"pm.test(\"Response status should be 200 or 201.\", () => {\r",
+									"    pm.expect(pm.response.code).to.be.oneOf([200, 201]);\r",
+									"});\r",
+									"\r",
+									"const resTime = Number.parseInt(pm.environment.get(\"responseTime\"));\r",
+									"\r",
+									"pm.test(`Response time should be less than ${resTime} ms.`, () => {\r",
+									"    pm.expect(pm.response.responseTime).to.be.lessThan(resTime);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"trainingName\": \"UpdatedTestTraining1\",\r\n    \"trainerId\": \"Trainer1\",\r\n    \"date\": \"2021-10-01\",\r\n    \"startTime\": \"16:00\",\r\n    \"endTime\": \"17:00\",\r\n    \"hallNo\": 1,\r\n    \"limit\": 20,\r\n    \"participants\": [],\r\n    \"reserveList\": []\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8020/trainings/group/{trainingId}/update",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8020",
+							"path": [
+								"trainings",
+								"group",
+								"{trainingId}",
+								"update"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete group training by id",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const { isEqual, isNull, isEmpty } = require('lodash');\r",
+									"\r",
+									"pm.test(\"Response status should be 200 or 201.\", () => {\r",
+									"    pm.expect(pm.response.code).to.be.oneOf([200, 201]);\r",
+									"});\r",
+									"\r",
+									"const resTime = Number.parseInt(pm.environment.get(\"responseTime\"));\r",
+									"\r",
+									"pm.test(`Response time should be less than ${resTime} ms.`, () => {\r",
+									"    pm.expect(pm.response.responseTime).to.be.lessThan(resTime);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8020/trainings/group/{trainingId}/remove",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8020",
+							"path": [
+								"trainings",
+								"group",
+								"{trainingId}",
+								"remove"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "View my all group trainings",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const { isEqual, isNull, isEmpty } = require('lodash');\r",
+									"\r",
+									"pm.test(\"Response status should be 200.\", () => {\r",
+									"    pm.expect(pm.response.code).equals(200);\r",
+									"});\r",
+									"\r",
+									"const resTime = Number.parseInt(pm.environment.get(\"responseTime\"));\r",
+									"\r",
+									"pm.test(`Response time should be less than ${resTime} ms.`, () => {\r",
+									"    pm.expect(pm.response.responseTime).to.be.lessThan(resTime);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8020/trainings/group/all/mytrainings/all?clientId={clientId}",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8020",
+							"path": [
+								"trainings",
+								"group",
+								"all",
+								"mytrainings",
+								"all"
+							],
+							"query": [
+								{
+									"key": "clientId",
+									"value": "{clientId}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Enroll to group training",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const { isEqual, isNull, isEmpty } = require('lodash');\r",
+									"\r",
+									"pm.test(\"Response status should be 200 or 201.\", () => {\r",
+									"    pm.expect(pm.response.code).to.be.oneOf([200, 201]);\r",
+									"});\r",
+									"\r",
+									"const resTime = Number.parseInt(pm.environment.get(\"responseTime\"));\r",
+									"\r",
+									"pm.test(`Response time should be less than ${resTime} ms.`, () => {\r",
+									"    pm.expect(pm.response.responseTime).to.be.lessThan(resTime);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8020/trainings/group/{trainingId}/enroll?clientId={clientId}",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8020",
+							"path": [
+								"trainings",
+								"group",
+								"{trainingId}",
+								"enroll"
+							],
+							"query": [
+								{
+									"key": "clientId",
+									"value": "{clientId}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add to reserve list of group training",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const { isEqual, isNull, isEmpty } = require('lodash');\r",
+									"\r",
+									"pm.test(\"Response status should be 200 or 201.\", () => {\r",
+									"    pm.expect(pm.response.code).to.be.oneOf([200, 201]);\r",
+									"});\r",
+									"\r",
+									"const resTime = Number.parseInt(pm.environment.get(\"responseTime\"));\r",
+									"\r",
+									"pm.test(`Response time should be less than ${resTime} ms.`, () => {\r",
+									"    pm.expect(pm.response.responseTime).to.be.lessThan(resTime);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8020/trainings/group/{trainingId}/reservelist/add?clientId={clientId}",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8020",
+							"path": [
+								"trainings",
+								"group",
+								"{trainingId}",
+								"reservelist",
+								"add"
+							],
+							"query": [
+								{
+									"key": "clientId",
+									"value": "{clientId}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete group training reservation",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const { isEqual, isNull, isEmpty } = require('lodash');\r",
+									"\r",
+									"pm.test(\"Response status should be 200 or 201.\", () => {\r",
+									"    pm.expect(pm.response.code).to.be.oneOf([200, 201]);\r",
+									"});\r",
+									"\r",
+									"const resTime = Number.parseInt(pm.environment.get(\"responseTime\"));\r",
+									"\r",
+									"pm.test(`Response time should be less than ${resTime} ms.`, () => {\r",
+									"    pm.expect(pm.response.responseTime).to.be.lessThan(resTime);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8020/trainings/group/{trainingId}/enroll?clientId={clientId}",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8020",
+							"path": [
+								"trainings",
+								"group",
+								"{trainingId}",
+								"enroll"
+							],
+							"query": [
+								{
+									"key": "clientId",
+									"value": "{clientId}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "View training participants",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const { isEqual, isNull, isEmpty } = require('lodash');\r",
+									"\r",
+									"pm.test(\"Response status should be 200.\", () => {\r",
+									"    pm.expect(pm.response.code).equals(200);\r",
+									"});\r",
+									"\r",
+									"const resTime = Number.parseInt(pm.environment.get(\"responseTime\"));\r",
+									"\r",
+									"pm.test(`Response time should be less than ${resTime} ms.`, () => {\r",
+									"    pm.expect(pm.response.responseTime).to.be.lessThan(resTime);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8020/trainings/group/{trainingId}/participants",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8020",
+							"path": [
+								"trainings",
+								"group",
+								"{trainingId}",
+								"participants"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "View all group trainings",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const { isEqual, isNull, isEmpty } = require('lodash');\r",
+									"\r",
+									"pm.test(\"Response status should be 200.\", () => {\r",
+									"    pm.expect(pm.response.code).equals(200);\r",
+									"});\r",
+									"\r",
+									"const resTime = Number.parseInt(pm.environment.get(\"responseTime\"));\r",
+									"\r",
+									"pm.test(`Response time should be less than ${resTime} ms.`, () => {\r",
+									"    pm.expect(pm.response.responseTime).to.be.lessThan(resTime);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8020/trainings/group",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8020",
+							"path": [
+								"trainings",
+								"group"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "View group training by id",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const { isEqual, isNull, isEmpty } = require('lodash');\r",
+									"\r",
+									"pm.test(\"Response status should be 200.\", () => {\r",
+									"    pm.expect(pm.response.code).equals(200);\r",
+									"});\r",
+									"\r",
+									"const resTime = Number.parseInt(pm.environment.get(\"responseTime\"));\r",
+									"\r",
+									"pm.test(`Response time should be less than ${resTime} ms.`, () => {\r",
+									"    pm.expect(pm.response.responseTime).to.be.lessThan(resTime);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8020/trainings/group/{trainingId}",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8020",
+							"path": [
+								"trainings",
+								"group",
+								"{trainingId}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Individual",
+			"item": [
+				{
+					"name": "View all individual trainings",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const { isEqual, isNull, isEmpty } = require('lodash');\r",
+									"\r",
+									"pm.test(\"Response status should be 200.\", () => {\r",
+									"    pm.expect(pm.response.code).equals(200);\r",
+									"});\r",
+									"\r",
+									"const resTime = Number.parseInt(pm.environment.get(\"responseTime\"));\r",
+									"\r",
+									"pm.test(`Response time should be less than ${resTime} ms.`, () => {\r",
+									"    pm.expect(pm.response.responseTime).to.be.lessThan(resTime);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8020/trainings/individual",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8020",
+							"path": [
+								"trainings",
+								"individual"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "View all accepted individual trainings",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const { isEqual, isNull, isEmpty } = require('lodash');\r",
+									"\r",
+									"pm.test(\"Response status should be 200.\", () => {\r",
+									"    pm.expect(pm.response.code).equals(200);\r",
+									"});\r",
+									"\r",
+									"const resTime = Number.parseInt(pm.environment.get(\"responseTime\"));\r",
+									"\r",
+									"pm.test(`Response time should be less than ${resTime} ms.`, () => {\r",
+									"    pm.expect(pm.response.responseTime).to.be.lessThan(resTime);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8020/trainings/individual/all/accepted",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8020",
+							"path": [
+								"trainings",
+								"individual",
+								"all",
+								"accepted"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "View my all individual trainings",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const { isEqual, isNull, isEmpty } = require('lodash');\r",
+									"\r",
+									"pm.test(\"Response status should be 200.\", () => {\r",
+									"    pm.expect(pm.response.code).equals(200);\r",
+									"});\r",
+									"\r",
+									"const resTime = Number.parseInt(pm.environment.get(\"responseTime\"));\r",
+									"\r",
+									"pm.test(`Response time should be less than ${resTime} ms.`, () => {\r",
+									"    pm.expect(pm.response.responseTime).to.be.lessThan(resTime);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8020/trainings/individual/all/mytrainings/all?clientId={clientId}",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8020",
+							"path": [
+								"trainings",
+								"individual",
+								"all",
+								"mytrainings",
+								"all"
+							],
+							"query": [
+								{
+									"key": "clientId",
+									"value": "{clientId}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create individual training request",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const { isEqual, isNull, isEmpty } = require('lodash');\r",
+									"\r",
+									"pm.test(\"Response status should be 200 or 201.\", () => {\r",
+									"    pm.expect(pm.response.code).to.be.oneOf([200, 201]);\r",
+									"});\r",
+									"\r",
+									"const resTime = Number.parseInt(pm.environment.get(\"responseTime\"));\r",
+									"\r",
+									"pm.test(`Response time should be less than ${resTime} ms.`, () => {\r",
+									"    pm.expect(pm.response.responseTime).to.be.lessThan(resTime);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"trainerId\" : \"testTrainer1\",\r\n    \"date\" : \"2021-10-15\",\r\n    \"startTime\": \"12:00\",\r\n    \"endTime\" : \"13:00\",\r\n    \"remarks\" : \"I need a good individual TRX traning\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8020/trainings/individual/request?clientId={clientId}",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8020",
+							"path": [
+								"trainings",
+								"individual",
+								"request"
+							],
+							"query": [
+								{
+									"key": "clientId",
+									"value": "{clientId}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete individual training request by id",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const { isEqual, isNull, isEmpty } = require('lodash');\r",
+									"\r",
+									"pm.test(\"Response status should be 200 or 201.\", () => {\r",
+									"    pm.expect(pm.response.code).to.be.oneOf([200, 201]);\r",
+									"});\r",
+									"\r",
+									"const resTime = Number.parseInt(pm.environment.get(\"responseTime\"));\r",
+									"\r",
+									"pm.test(`Response time should be less than ${resTime} ms.`, () => {\r",
+									"    pm.expect(pm.response.responseTime).to.be.lessThan(resTime);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8020/trainings/individual/request/{trainingId}?clientId={clientId}",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8020",
+							"path": [
+								"trainings",
+								"individual",
+								"request",
+								"{trainingId}"
+							],
+							"query": [
+								{
+									"key": "clientId",
+									"value": "{clientId}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "View individual training by id",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const { isEqual, isNull, isEmpty } = require('lodash');\r",
+									"\r",
+									"pm.test(\"Response status should be 200.\", () => {\r",
+									"    pm.expect(pm.response.code).equals(200);\r",
+									"});\r",
+									"\r",
+									"const resTime = Number.parseInt(pm.environment.get(\"responseTime\"));\r",
+									"\r",
+									"pm.test(`Response time should be less than ${resTime} ms.`, () => {\r",
+									"    pm.expect(pm.response.responseTime).to.be.lessThan(resTime);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8020/trainings/individual/individual/{trainingId}",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8020",
+							"path": [
+								"trainings",
+								"individual",
+								"individual",
+								"{trainingId}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Accept individual training by trainer",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const { isEqual, isNull, isEmpty } = require('lodash');\r",
+									"\r",
+									"pm.test(\"Response status should be 200 or 201.\", () => {\r",
+									"    pm.expect(pm.response.code).to.be.oneOf([200, 201]);\r",
+									"});\r",
+									"\r",
+									"const resTime = Number.parseInt(pm.environment.get(\"responseTime\"));\r",
+									"\r",
+									"pm.test(`Response time should be less than ${resTime} ms.`, () => {\r",
+									"    pm.expect(pm.response.responseTime).to.be.lessThan(resTime);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"hallNo\" : 1\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8020/trainings/individual/{trainingId}/accept",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8020",
+							"path": [
+								"trainings",
+								"individual",
+								"{trainingId}",
+								"accept"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Decline individual training by trainer",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const { isEqual, isNull, isEmpty } = require('lodash');\r",
+									"\r",
+									"pm.test(\"Response status should be 200 or 201.\", () => {\r",
+									"    pm.expect(pm.response.code).to.be.oneOf([200, 201]);\r",
+									"});\r",
+									"\r",
+									"const resTime = Number.parseInt(pm.environment.get(\"responseTime\"));\r",
+									"\r",
+									"pm.test(`Response time should be less than ${resTime} ms.`, () => {\r",
+									"    pm.expect(pm.response.responseTime).to.be.lessThan(resTime);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8020/individual/{trainingId}/decline",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8020",
+							"path": [
+								"individual",
+								"{trainingId}",
+								"decline"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Reviews",
+			"item": [
+				{
+					"name": "View group training all reviews",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const { isEqual, isNull, isEmpty } = require('lodash');\r",
+									"\r",
+									"pm.test(\"Response status should be 200.\", () => {\r",
+									"    pm.expect(pm.response.code).equals(200);\r",
+									"});\r",
+									"\r",
+									"const resTime = Number.parseInt(pm.environment.get(\"responseTime\"));\r",
+									"\r",
+									"pm.test(`Response time should be less than ${resTime} ms.`, () => {\r",
+									"    pm.expect(pm.response.responseTime).to.be.lessThan(resTime);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Body not null\", () => {\r",
+									"    pm.expect(isNull(pm.response.body)).to.be.false;\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8020/trainings/reviews/all",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8020",
+							"path": [
+								"trainings",
+								"reviews",
+								"all"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "View group training review by id",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const { isEqual, isNull, isEmpty } = require('lodash');\r",
+									"\r",
+									"pm.test(\"Response status should be 200.\", () => {\r",
+									"    pm.expect(pm.response.code).equals(200);\r",
+									"});\r",
+									"\r",
+									"const resTime = Number.parseInt(pm.environment.get(\"responseTime\"));\r",
+									"\r",
+									"pm.test(`Response time should be less than ${resTime} ms.`, () => {\r",
+									"    pm.expect(pm.response.responseTime).to.be.lessThan(resTime);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Body not null\", () => {\r",
+									"    pm.expect(isNull(pm.response.body)).to.be.false;\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8020/trainings/reviews/{reviewId}",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8020",
+							"path": [
+								"trainings",
+								"reviews",
+								"{reviewId}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create group training review",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const { isEqual, isNull, isEmpty } = require('lodash');\r",
+									"\r",
+									"pm.test(\"Response status should be 200 or 201.\", () => {\r",
+									"    pm.expect(pm.response.code).to.be.oneOf([200, 201]);\r",
+									"});\r",
+									"\r",
+									"const resTime = Number.parseInt(pm.environment.get(\"responseTime\"));\r",
+									"\r",
+									"pm.test(`Response time should be less than ${resTime} ms.`, () => {\r",
+									"    pm.expect(pm.response.responseTime).to.be.lessThan(resTime);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"trainingName\" : \"TestTraining1\",\r\n    \"stars\" : 5,\r\n    \"text\" : \"Very good, training\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8020/trainings/review?clientId=client123",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8020",
+							"path": [
+								"trainings",
+								"review"
+							],
+							"query": [
+								{
+									"key": "clientId",
+									"value": "client123"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete group training review by id",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const { isEqual, isNull, isEmpty } = require('lodash');\r",
+									"\r",
+									"pm.test(\"Response status should be 200 or 201.\", () => {\r",
+									"    pm.expect(pm.response.code).to.be.oneOf([200, 201]);\r",
+									"});\r",
+									"\r",
+									"const resTime = Number.parseInt(pm.environment.get(\"responseTime\"));\r",
+									"\r",
+									"pm.test(`Response time should be less than ${resTime} ms.`, () => {\r",
+									"    pm.expect(pm.response.responseTime).to.be.lessThan(resTime);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8020/trainings/review/{reviewId}?clientId=client123",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8020",
+							"path": [
+								"trainings",
+								"review",
+								"{reviewId}"
+							],
+							"query": [
+								{
+									"key": "clientId",
+									"value": "client123"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Modify group training review",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const { isEqual, isNull, isEmpty } = require('lodash');\r",
+									"\r",
+									"pm.test(\"Response status should be 200 or 201.\", () => {\r",
+									"    pm.expect(pm.response.code).to.be.oneOf([200, 201]);\r",
+									"});\r",
+									"\r",
+									"const resTime = Number.parseInt(pm.environment.get(\"responseTime\"));\r",
+									"\r",
+									"pm.test(`Response time should be less than ${resTime} ms.`, () => {\r",
+									"    pm.expect(pm.response.responseTime).to.be.lessThan(resTime);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"stars\" : 4,\r\n    \"text\" : \"Good training!\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8020/trainings/review/{reviewId}?clientId=client123",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8020",
+							"path": [
+								"trainings",
+								"review",
+								"{reviewId}"
+							],
+							"query": [
+								{
+									"key": "clientId",
+									"value": "client123"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}

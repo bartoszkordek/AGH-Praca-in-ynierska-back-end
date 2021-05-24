@@ -6,9 +6,14 @@ import com.healthy.gym.account.component.Translator;
 import com.healthy.gym.account.exception.IdenticalOldAndNewPasswordException;
 import com.healthy.gym.account.exception.OldPasswordDoesNotMatchException;
 import com.healthy.gym.account.pojo.request.ChangePasswordRequest;
+import com.healthy.gym.account.pojo.request.ChangeUserDataRequest;
 import com.healthy.gym.account.pojo.response.ChangePasswordResponse;
+import com.healthy.gym.account.pojo.response.ChangeUserDataResponse;
 import com.healthy.gym.account.pojo.response.DeleteAccountResponse;
 import com.healthy.gym.account.service.AccountService;
+import com.healthy.gym.account.shared.UserDTO;
+import org.modelmapper.ModelMapper;
+import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -30,6 +35,7 @@ public class AccountController {
 
     private final AccountService accountService;
     private final Translator translator;
+    private final ModelMapper modelMapper;
 
     @Autowired
     public AccountController(
@@ -38,6 +44,8 @@ public class AccountController {
     ) {
         this.accountService = accountService;
         this.translator = translator;
+        modelMapper = new ModelMapper();
+        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
     }
 
     @PreAuthorize("principal==#userId")
@@ -92,14 +100,71 @@ public class AccountController {
         return objectMapper.writeValueAsString(errorMessages);
     }
 
-    @PostMapping(
-            value = "/changeUserPersonalData",
+    @PreAuthorize("hasRole('ADMIN') or principal==#userId")
+    @PatchMapping(
+            value = "/changeUserData/{id}",
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    public String changeUserPersonalData() {
-        return "ok";
+    public ResponseEntity<ChangeUserDataResponse> changeUserData(
+            @PathVariable("id") String userId,
+            @Valid @RequestBody ChangeUserDataRequest request,
+            BindingResult bindingResult
+    ) throws JsonProcessingException {
+        try {
+            if (bindingResult.hasErrors()) throw new BindException(bindingResult);
+
+            UserDTO currentUser = modelMapper.map(request, UserDTO.class);
+            currentUser.setUserId(userId);
+            UserDTO updatedUser = accountService.changeUserData(currentUser);
+
+            validateIfUpdatedUserDataProperly(currentUser, updatedUser);
+
+            String message = translator.toLocale("account.change.user.data.success");
+            ChangeUserDataResponse response = modelMapper.map(updatedUser, ChangeUserDataResponse.class);
+            response.setMessage(message);
+
+            return ResponseEntity
+                    .status(HttpStatus.OK)
+                    .body(response);
+
+        } catch (UsernameNotFoundException exception) {
+            String reason = translator.toLocale("exception.account.not.found");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, reason, exception);
+
+        } catch (BindException exception) {
+            String reason = getBindExceptionErrorMessages(exception);
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, exception);
+
+        } catch (Exception exception) {
+            String reason = translator.toLocale("request.failure");
+            exception.printStackTrace();
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, reason, exception);
+        }
     }
+
+    private void validateIfUpdatedUserDataProperly(UserDTO currentUser, UserDTO updatedUser) {
+        if (currentUser.getUserId() != null
+                && !currentUser.getUserId().equals(updatedUser.getUserId()))
+            throw new IllegalStateException();
+
+        if (currentUser.getEmail() != null
+                && !currentUser.getEmail().equals(updatedUser.getEmail()))
+            throw new IllegalStateException();
+
+        if (currentUser.getName() != null
+                && !currentUser.getName().equals(updatedUser.getName()))
+            throw new IllegalStateException();
+
+        if (currentUser.getSurname() != null
+                && !currentUser.getSurname().equals(updatedUser.getSurname()))
+            throw new IllegalStateException();
+
+        if (currentUser.getPhoneNumber() != null
+                && !currentUser.getPhoneNumber().equals(updatedUser.getPhoneNumber()))
+            throw new IllegalStateException();
+    }
+
 
     @PreAuthorize("hasRole('ADMIN') or principal==#userId")
     @DeleteMapping("/{id}")

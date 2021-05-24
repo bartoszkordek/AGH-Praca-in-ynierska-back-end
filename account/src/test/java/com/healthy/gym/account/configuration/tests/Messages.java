@@ -23,7 +23,8 @@ public class Messages {
                 {"password.exception.old.identical.with.new.password",
                         "Nowe hasło jest takie samo jak stare. Podaj inne hasło."},
                 {"request.failure", "Podczas przetwarzania żądania wystąpił błąd."},
-                {"account.change.user.data.success", "Pomyślnie zmieniono dane użytkownika."}
+                {"account.change.user.data.success", "Pomyślnie zmieniono dane użytkownika."},
+                {"account.change.user.data.failure", "Podczas zmiany danych użytkownika wystąpił błąd."}
         }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
     }
 
@@ -45,7 +46,8 @@ public class Messages {
                 {"password.exception.old.identical.with.new.password",
                         "New password is equal to old one. Provide different password."},
                 {"request.failure", "An error occurred while processing your request."},
-                {"account.change.user.data.success", "User data has been changed successfully."}
+                {"account.change.user.data.success", "User data has been changed successfully."},
+                {"account.change.user.data.failure", "An error occurred while updating user data."}
         }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
     }
 

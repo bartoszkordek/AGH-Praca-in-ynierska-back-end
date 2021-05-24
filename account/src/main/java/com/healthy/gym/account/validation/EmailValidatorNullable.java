@@ -3,7 +3,7 @@ package com.healthy.gym.account.validation;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 
-public class EmailValidatorNullable implements ConstraintValidator<ValidEmail, String> {
+public class EmailValidatorNullable implements ConstraintValidator<ValidEmailNullable, String> {
     @Override
     public boolean isValid(String value, ConstraintValidatorContext context) {
         if (value == null) return true;

@@ -2,8 +2,9 @@ package com.healthy.gym.account.pojo.request;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.healthy.gym.account.validation.ValidEmail;
+import com.healthy.gym.account.validation.ValidEmailNullable;
 import com.healthy.gym.account.validation.ValidPhoneNumber;
+import org.springframework.lang.Nullable;
 
 import javax.validation.constraints.Size;
 import java.util.Objects;
@@ -11,13 +12,15 @@ import java.util.Objects;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ChangeUserDataRequest {
 
+    @Nullable
     @Size(min = 2, max = 60, message = "{field.name.failure}")
     private String name;
 
+    @Nullable
     @Size(min = 2, max = 60, message = "{field.surname.failure}")
     private String surname;
 
-    @ValidEmail(message = "{field.email.failure}")
+    @ValidEmailNullable(message = "{field.email.failure}")
     private String email;
 
     @JsonProperty("phone")

@@ -7,6 +7,7 @@ import com.healthy.gym.account.controller.AccountController;
 import com.healthy.gym.account.exception.IdenticalOldAndNewPasswordException;
 import com.healthy.gym.account.exception.OldPasswordDoesNotMatchException;
 import com.healthy.gym.account.service.AccountService;
+import com.healthy.gym.account.service.PhotoService;
 import com.healthy.gym.account.shared.UserDTO;
 import io.jsonwebtoken.Jwts;
 import org.junit.jupiter.api.BeforeEach;
@@ -44,6 +45,9 @@ class WhenChangePasswordTest {
 
     @MockBean
     private AccountService accountService;
+
+    @MockBean
+    private PhotoService photoService;
 
     private String userToken;
     private String userId;

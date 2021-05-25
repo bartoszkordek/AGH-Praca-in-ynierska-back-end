@@ -6,6 +6,7 @@ import com.healthy.gym.account.configuration.tests.TestCountry;
 import com.healthy.gym.account.controller.AccountController;
 import com.healthy.gym.account.exception.UserPrivacyNotUpdatedException;
 import com.healthy.gym.account.service.AccountService;
+import com.healthy.gym.account.service.PhotoService;
 import com.healthy.gym.account.shared.UserDTO;
 import com.healthy.gym.account.shared.UserPrivacyDTO;
 import io.jsonwebtoken.Jwts;
@@ -44,6 +45,9 @@ class WhenChangeUserPrivacyTest {
 
     @MockBean
     private AccountService accountService;
+
+    @MockBean
+    private PhotoService photoService;
 
     private String userToken;
     private String adminToken;

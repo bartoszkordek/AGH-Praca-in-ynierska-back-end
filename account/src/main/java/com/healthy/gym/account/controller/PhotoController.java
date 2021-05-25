@@ -3,6 +3,8 @@ package com.healthy.gym.account.controller;
 import com.healthy.gym.account.component.ImageValidator;
 import com.healthy.gym.account.component.Translator;
 import com.healthy.gym.account.exception.PhotoSavingException;
+import com.healthy.gym.account.exception.UserAvatarNotFoundException;
+import com.healthy.gym.account.pojo.response.GetAvatarResponse;
 import com.healthy.gym.account.pojo.response.SetAvatarResponse;
 import com.healthy.gym.account.service.AccountService;
 import com.healthy.gym.account.service.PhotoService;
@@ -20,6 +22,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
 import javax.activation.UnsupportedDataTypeException;
+import java.util.Base64;
 
 @RestController
 @RequestMapping("/photos")
@@ -87,7 +90,26 @@ public class PhotoController {
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    public ResponseEntity<Object> getAvatar(@PathVariable("id") String userId) {
-        return ResponseEntity.status(HttpStatus.OK).body(userId);
+    public ResponseEntity<GetAvatarResponse> getAvatar(@PathVariable("id") String userId) {
+        try {
+            PhotoDTO photoDTO = photoService.getAvatar(userId);
+            String imageBase64 = Base64.getEncoder().encodeToString(photoDTO.getImage());
+            String message = translator.toLocale("avatar.get.found");
+            GetAvatarResponse response = new GetAvatarResponse(message, imageBase64);
+            return ResponseEntity.status(HttpStatus.OK).body(response);
+
+        } catch (UserAvatarNotFoundException exception) {
+            String reason = translator.toLocale("avatar.not.found.exception");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, reason, exception);
+
+        } catch (UsernameNotFoundException exception) {
+            String reason = translator.toLocale("exception.account.not.found");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, reason, exception);
+
+        } catch (Exception exception) {
+            String reason = translator.toLocale("request.failure");
+            exception.printStackTrace();
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, reason, exception);
+        }
     }
 }

@@ -8,7 +8,7 @@ import org.springframework.context.annotation.PropertySource;
 @PropertySource(value = "classpath:email.properties", ignoreResourceNotFound = true)
 public class EmailConfig {
 
-    @Value("${spring.mail.name}")
+    @Value("${spring.mail.username}")
     private String emailName;
 
     @Value("${spring.mail.password}")

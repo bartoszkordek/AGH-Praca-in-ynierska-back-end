@@ -56,7 +56,7 @@
 							}
 						],
 						"url": {
-							"raw": "http://localhost:8020/auth/users/confirmRegistration?token=ef35a3db-3d07-472e-ad9f-a2ca213d52f3",
+							"raw": "http://localhost:8020/auth/users/confirmRegistration?token=2c341434-270d-4b5c-b3f3-0dabf027b10f",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -70,7 +70,7 @@
 							"query": [
 								{
 									"key": "token",
-									"value": "ef35a3db-3d07-472e-ad9f-a2ca213d52f3"
+									"value": "2c341434-270d-4b5c-b3f3-0dabf027b10f"
 								}
 							]
 						}
@@ -119,7 +119,7 @@
 						"header": [
 							{
 								"key": "Authorization",
-								"value": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJjNzQxMGNlMi01NTI3LTQxNjMtOTRlMC05ZmZmMTE5N2ZlMzIiLCJyb2xlcyI6WyJST0xFX1VTRVIiXSwiZXhwIjoxNjIxODg3NzYzfQ.MuqnJLG-KmhGTT379WAPIW-eqXNQKI7AfluxNhW-708",
+								"value": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJiOWE5M2QxZS1lZDEzLTQwNDEtODJlNC0zNTQyYTVjMjFmZjciLCJyb2xlcyI6WyJST0xFX1VTRVIiXSwiZXhwIjoxNjIxOTYzMTA4fQ.6Vei_sYX9xhQJtbN6c-bRGGCWXK3MRnBz6r9xdG77ec",
 								"type": "text"
 							},
 							{
@@ -311,7 +311,7 @@
 						"header": [
 							{
 								"key": "Authorization",
-								"value": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJjNzQxMGNlMi01NTI3LTQxNjMtOTRlMC05ZmZmMTE5N2ZlMzIiLCJyb2xlcyI6WyJST0xFX1VTRVIiXSwiZXhwIjoxNjIxODg3NzYzfQ.MuqnJLG-KmhGTT379WAPIW-eqXNQKI7AfluxNhW-708",
+								"value": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJiOWE5M2QxZS1lZDEzLTQwNDEtODJlNC0zNTQyYTVjMjFmZjciLCJyb2xlcyI6WyJST0xFX1VTRVIiXSwiZXhwIjoxNjIxOTYzMTA4fQ.6Vei_sYX9xhQJtbN6c-bRGGCWXK3MRnBz6r9xdG77ec",
 								"type": "text"
 							},
 							{
@@ -330,7 +330,7 @@
 							}
 						},
 						"url": {
-							"raw": "http://localhost:8020/account/changeUserData/c7410ce2-5527-4163-94e0-9fff1197fe32",
+							"raw": "http://localhost:8020/account/changeUserData/b9a93d1e-ed13-4041-82e4-3542a5c21ff7",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -339,7 +339,7 @@
 							"path": [
 								"account",
 								"changeUserData",
-								"c7410ce2-5527-4163-94e0-9fff1197fe32"
+								"b9a93d1e-ed13-4041-82e4-3542a5c21ff7"
 							]
 						}
 					},
@@ -352,7 +352,7 @@
 						"header": [
 							{
 								"key": "Authorization",
-								"value": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIwNmI5ODc4OC1jMDMzLTQ0NTQtYjEwZS0zOGViMzA0NDE3NjciLCJyb2xlcyI6WyJST0xFX1VTRVIiXSwiZXhwIjoxNjIxOTMyNjA0fQ.DeLIFoZU0xh8mwB-i9uVnNeCUKVh-ITq_dwVqRZmTn8",
+								"value": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJiOWE5M2QxZS1lZDEzLTQwNDEtODJlNC0zNTQyYTVjMjFmZjciLCJyb2xlcyI6WyJST0xFX1VTRVIiXSwiZXhwIjoxNjIxOTYzMTA4fQ.6Vei_sYX9xhQJtbN6c-bRGGCWXK3MRnBz6r9xdG77ec",
 								"type": "text"
 							}
 						],
@@ -366,7 +366,7 @@
 							}
 						},
 						"url": {
-							"raw": "http://localhost:8020/account/changePrivacy/06b98788-c033-4454-b10e-38eb30441767",
+							"raw": "http://localhost:8020/account/changePrivacy/b9a93d1e-ed13-4041-82e4-3542a5c21ff7",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -375,7 +375,101 @@
 							"path": [
 								"account",
 								"changePrivacy",
-								"06b98788-c033-4454-b10e-38eb30441767"
+								"b9a93d1e-ed13-4041-82e4-3542a5c21ff7"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Upload avatar image",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJiOWE5M2QxZS1lZDEzLTQwNDEtODJlNC0zNTQyYTVjMjFmZjciLCJyb2xlcyI6WyJST0xFX1VTRVIiXSwiZXhwIjoxNjIxOTYzMTA4fQ.6Vei_sYX9xhQJtbN6c-bRGGCWXK3MRnBz6r9xdG77ec",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "avatar",
+									"type": "file",
+									"src": "/C:/Users/gzach/OneDrive/Obrazy/20200902_200403.jpg"
+								},
+								{
+									"key": "title",
+									"value": "Tytuł",
+									"type": "text",
+									"disabled": true
+								}
+							],
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8020/account/photos/b9a93d1e-ed13-4041-82e4-3542a5c21ff7/avatar",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8020",
+							"path": [
+								"account",
+								"photos",
+								"b9a93d1e-ed13-4041-82e4-3542a5c21ff7",
+								"avatar"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get avatar image",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJiOWE5M2QxZS1lZDEzLTQwNDEtODJlNC0zNTQyYTVjMjFmZjciLCJyb2xlcyI6WyJST0xFX1VTRVIiXSwiZXhwIjoxNjIxOTYzMTA4fQ.6Vei_sYX9xhQJtbN6c-bRGGCWXK3MRnBz6r9xdG77ec",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8020/account/photos/b9a93d1e-ed13-4041-82e4-3542a5c21ff7/avatar",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8020",
+							"path": [
+								"account",
+								"photos",
+								"b9a93d1e-ed13-4041-82e4-3542a5c21ff7",
+								"avatar"
 							]
 						}
 					},

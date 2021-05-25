@@ -72,7 +72,7 @@ class PhotoServiceTest {
         void shouldThrowExceptionWhenUserNotFound() {
             when(userDAO.findByUserId(userId)).thenReturn(null);
             assertThatThrownBy(
-                    () -> photoService.setAvatar(userId, any())
+                    () -> photoService.setAvatar(photoDTO)
             ).isInstanceOf(UsernameNotFoundException.class);
         }
 
@@ -86,7 +86,7 @@ class PhotoServiceTest {
             );
             when(photoDAO.save(photoDocument)).thenReturn(savedDocument);
             assertThatThrownBy(
-                    () -> photoService.setAvatar(userId, photoDTO)
+                    () -> photoService.setAvatar(photoDTO)
             ).isInstanceOf(PhotoSavingException.class);
         }
 
@@ -100,7 +100,7 @@ class PhotoServiceTest {
                     new Binary(data)
             );
             when(photoDAO.save(photoDocument)).thenReturn(savedDocument);
-            PhotoDTO setAvatar = photoService.setAvatar(userId, photoDTO);
+            PhotoDTO setAvatar = photoService.setAvatar(photoDTO);
             assertThat(setAvatar).isEqualTo(photoDTO);
         }
     }

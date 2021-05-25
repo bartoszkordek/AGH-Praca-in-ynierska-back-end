@@ -40,7 +40,8 @@ public class PhotoServiceImpl implements PhotoService {
     }
 
     @Override
-    public PhotoDTO setAvatar(String userId, PhotoDTO avatar) throws PhotoSavingException {
+    public PhotoDTO setAvatar(PhotoDTO avatar) throws PhotoSavingException {
+        String userId = avatar.getUserId();
         UserDocument userDocument = userDAO.findByUserId(userId);
         if (userDocument == null) throw new UsernameNotFoundException("No user with provided id " + userId);
 

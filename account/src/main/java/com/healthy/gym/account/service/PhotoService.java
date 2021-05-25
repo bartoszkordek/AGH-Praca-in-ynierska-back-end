@@ -7,5 +7,5 @@ import com.healthy.gym.account.shared.PhotoDTO;
 public interface PhotoService {
     PhotoDTO getAvatar(String userId) throws UserAvatarNotFoundException;
 
-    PhotoDTO setAvatar(String userId, PhotoDTO avatar) throws PhotoSavingException;
+    PhotoDTO setAvatar(PhotoDTO avatar) throws PhotoSavingException;
 }

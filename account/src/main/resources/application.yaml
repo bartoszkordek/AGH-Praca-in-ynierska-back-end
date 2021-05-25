@@ -8,6 +8,11 @@ spring:
     mongodb:
       uri: mongodb://adminPracaInz:thisPAsswordNeed2BeChange@localhost:27017/databasePracaInz
       database: databasePracaInz
+  servlet:
+    multipart:
+      max-file-size: 5MB
+      enabled: true
+      max-request-size: 5MB
 server:
   port: 0
   error:

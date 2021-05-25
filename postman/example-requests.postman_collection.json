@@ -21,7 +21,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"name\": \"Grzegorz\",\r\n    \"surname\": \"Zacharski\",\r\n    \"email\": \"xmr09697@zwoho.com\",\r\n    \"phone\": \"666 721 232\",\r\n    \"password\": \"testtest123\",\r\n    \"matchingPassword\": \"testtest123\"\r\n}",
+							"raw": "{\r\n    \"name\": \"Grzegorz\",\r\n    \"surname\": \"Zacharski\",\r\n     \"email\": \"xmr09697@zwoho.com\",\r\n    \"phone\": \"666 721 232\",\r\n    \"password\": \"testtest123\",\r\n    \"matchingPassword\": \"testtest123\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -56,7 +56,7 @@
 							}
 						],
 						"url": {
-							"raw": "http://localhost:8020/auth/users/confirmRegistration?token=43f81f62-ec66-4970-b320-5fff6021970c",
+							"raw": "http://localhost:8020/auth/users/confirmRegistration?token=ef35a3db-3d07-472e-ad9f-a2ca213d52f3",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -70,7 +70,7 @@
 							"query": [
 								{
 									"key": "token",
-									"value": "43f81f62-ec66-4970-b320-5fff6021970c"
+									"value": "ef35a3db-3d07-472e-ad9f-a2ca213d52f3"
 								}
 							]
 						}
@@ -90,7 +90,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"email\": \"xmr09697@zwoho.com\",\r\n    \"password\": \"testtest123\"\r\n}",
+							"raw": "{\r\n     \"email\": \"xmr09697@zwoho.com\",\r\n    \"password\": \"testtest123\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -340,6 +340,42 @@
 								"account",
 								"changeUserData",
 								"c7410ce2-5527-4163-94e0-9fff1197fe32"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Change User privacy",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIwNmI5ODc4OC1jMDMzLTQ0NTQtYjEwZS0zOGViMzA0NDE3NjciLCJyb2xlcyI6WyJST0xFX1VTRVIiXSwiZXhwIjoxNjIxOTMyNjA0fQ.DeLIFoZU0xh8mwB-i9uVnNeCUKVh-ITq_dwVqRZmTn8",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"regulationsAccepted\": true,\r\n    \"allowShowingTrainingsParticipation\": true,\r\n    \"allowShowingUserStatistics\": true,\r\n    \"allowShowingAvatar\": false\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8020/account/changePrivacy/06b98788-c033-4454-b10e-38eb30441767",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8020",
+							"path": [
+								"account",
+								"changePrivacy",
+								"06b98788-c033-4454-b10e-38eb30441767"
 							]
 						}
 					},

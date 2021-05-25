@@ -47,7 +47,7 @@ public class ManagerTrainingsController {
                                               @Valid @RequestBody GroupTrainingModel groupTrainingModelRequest) throws RestException {
         try{
             return groupTrainingsService.updateGroupTraining(trainingId, groupTrainingModelRequest);
-        } catch (TrainingUpdateException | InvalidHourException | EmailSendingException e){
+        } catch (TrainingUpdateException | InvalidHourException | EmailSendingException | ParseException e){
             throw new RestException(e.getMessage(), HttpStatus.BAD_REQUEST, e);
         }
     }

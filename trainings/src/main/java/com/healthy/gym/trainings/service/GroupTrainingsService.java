@@ -183,7 +183,7 @@ public class GroupTrainingsService {
             throw new TrainingCreationException("Cannot create new group training. Invalid limit.");
 
         if(!groupTrainingsDbRepository.isAbilityToCreateTraining(groupTrainingModel))
-            throw new TrainingCreationException("Cannot create new group training");
+            throw new TrainingCreationException("Cannot create new group training. Overlapping trainings.");
 
         return groupTrainingsDbRepository.createTraining(groupTrainingModel);
     }
@@ -207,9 +207,27 @@ public class GroupTrainingsService {
         return result;
     }
 
-    public GroupTrainings updateGroupTraining(String trainingId, GroupTrainingModel groupTrainingModelRequest) throws TrainingUpdateException, EmailSendingException, InvalidHourException {
+    public GroupTrainings updateGroupTraining(String trainingId, GroupTrainingModel groupTrainingModelRequest) throws TrainingUpdateException, EmailSendingException, InvalidHourException, ParseException {
         if (!groupTrainingsDbRepository.isGroupTrainingExist(trainingId))
             throw new TrainingUpdateException("Training with ID: "+ trainingId + " doesn't exist");
+
+        String date = groupTrainingModelRequest.getDate();
+        String startTime = groupTrainingModelRequest.getStartTime();
+        String endTime = groupTrainingModelRequest.getEndTime();
+        int hallNo = groupTrainingModelRequest.getHallNo();
+        int limit = groupTrainingModelRequest.getLimit();
+
+        if(isTrainingRetroDate(date))
+            throw new TrainingUpdateException("Cannot update group training. Training retro date.");
+        if(isStartTimeAfterEndTime(startTime, endTime))
+            throw new TrainingUpdateException("Cannot update group training. Start time after end time.");
+        if(!isValidHallNo(hallNo))
+            throw new TrainingUpdateException("Cannot update group training. Invalid hall no.");
+        if(!isValidLimit(limit))
+            throw new TrainingUpdateException("Cannot update group training. Invalid limit.");
+
+        if(!groupTrainingsDbRepository.isAbilityToCreateTraining(groupTrainingModelRequest))
+            throw new TrainingUpdateException("Cannot update group training. Overlapping trainings.");
 
         GroupTrainings result = groupTrainingsDbRepository.updateTraining(trainingId, groupTrainingModelRequest);
 

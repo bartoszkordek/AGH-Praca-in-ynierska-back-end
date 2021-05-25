@@ -26,7 +26,8 @@
 									"pm.test(`Response time should be less than ${resTime} ms.`, () => {\r",
 									"    pm.expect(pm.response.responseTime).to.be.lessThan(resTime);\r",
 									"});\r",
-									""
+									"\r",
+									"pm.collectionVariables.set(\"validGroupTrainingId\", pm.response.json()._id);"
 								],
 								"type": "text/javascript"
 							}
@@ -54,6 +55,107 @@
 							"path": [
 								"trainings",
 								"group"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Enroll to group training",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const { isEqual, isNull, isEmpty } = require('lodash');\r",
+									"\r",
+									"pm.test(\"Response status should be 200 or 201.\", () => {\r",
+									"    pm.expect(pm.response.code).to.be.oneOf([200, 201]);\r",
+									"});\r",
+									"\r",
+									"const resTime = Number.parseInt(pm.environment.get(\"responseTime\"));\r",
+									"\r",
+									"pm.test(`Response time should be less than ${resTime} ms.`, () => {\r",
+									"    pm.expect(pm.response.responseTime).to.be.lessThan(resTime);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8020/trainings/group/{{validGroupTrainingId}}/enroll?clientId={{validClientId}}",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8020",
+							"path": [
+								"trainings",
+								"group",
+								"{{validGroupTrainingId}}",
+								"enroll"
+							],
+							"query": [
+								{
+									"key": "clientId",
+									"value": "{{validClientId}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add to reserve list of group training",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const { isEqual, isNull, isEmpty } = require('lodash');\r",
+									"\r",
+									"pm.test(\"Response status should be 200 or 201.\", () => {\r",
+									"    pm.expect(pm.response.code).to.be.oneOf([200, 201]);\r",
+									"});\r",
+									"\r",
+									"const resTime = Number.parseInt(pm.environment.get(\"responseTime\"));\r",
+									"\r",
+									"pm.test(`Response time should be less than ${resTime} ms.`, () => {\r",
+									"    pm.expect(pm.response.responseTime).to.be.lessThan(resTime);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8020/trainings/group/{{{validGroupTrainingId}}/reservelist/add?clientId={{validClientId}}",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8020",
+							"path": [
+								"trainings",
+								"group",
+								"{{{validGroupTrainingId}}",
+								"reservelist",
+								"add"
+							],
+							"query": [
+								{
+									"key": "clientId",
+									"value": "{{validClientId}}"
+								}
 							]
 						}
 					},
@@ -96,7 +198,7 @@
 							}
 						},
 						"url": {
-							"raw": "http://localhost:8020/trainings/group/{trainingId}/update",
+							"raw": "http://localhost:8020/trainings/group/{{validGroupTrainingId}}/update",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -105,7 +207,7 @@
 							"path": [
 								"trainings",
 								"group",
-								"{trainingId}",
+								"{{validGroupTrainingId}}",
 								"update"
 							]
 						}
@@ -140,7 +242,7 @@
 						"method": "DELETE",
 						"header": [],
 						"url": {
-							"raw": "http://localhost:8020/trainings/group/{trainingId}/remove",
+							"raw": "http://localhost:8020/trainings/group/{{validGroupTrainingId}}/remove",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -149,7 +251,7 @@
 							"path": [
 								"trainings",
 								"group",
-								"{trainingId}",
+								"{{validGroupTrainingId}}",
 								"remove"
 							]
 						}
@@ -973,6 +1075,597 @@
 					"response": []
 				},
 				{
+					"name": "Should not enroll to group training when invalid training id",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const { isEqual, isNull, isEmpty } = require('lodash');\r",
+									"\r",
+									"pm.test(\"Response status should be 400.\", () => {\r",
+									"    pm.expect(pm.response.code).equals(400);\r",
+									"});\r",
+									"\r",
+									"const resTime = Number.parseInt(pm.environment.get(\"responseTime\"));\r",
+									"\r",
+									"pm.test(`Response time should be less than ${resTime} ms.`, () => {\r",
+									"    pm.expect(pm.response.responseTime).to.be.lessThan(resTime);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8020/trainings/group/{{invalidGroupTrainingId}}/enroll?clientId={{validClientId}}",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8020",
+							"path": [
+								"trainings",
+								"group",
+								"{{invalidGroupTrainingId}}",
+								"enroll"
+							],
+							"query": [
+								{
+									"key": "clientId",
+									"value": "{{validClientId}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Should not add to reserve list when invalid training id",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const { isEqual, isNull, isEmpty } = require('lodash');\r",
+									"\r",
+									"pm.test(\"Response status should be 400.\", () => {\r",
+									"    pm.expect(pm.response.code).equals(400);\r",
+									"});\r",
+									"\r",
+									"const resTime = Number.parseInt(pm.environment.get(\"responseTime\"));\r",
+									"\r",
+									"pm.test(`Response time should be less than ${resTime} ms.`, () => {\r",
+									"    pm.expect(pm.response.responseTime).to.be.lessThan(resTime);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8020/trainings/group/{{{invalidGroupTrainingId}}/reservelist/add?clientId={{validClientId}}",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8020",
+							"path": [
+								"trainings",
+								"group",
+								"{{{invalidGroupTrainingId}}",
+								"reservelist",
+								"add"
+							],
+							"query": [
+								{
+									"key": "clientId",
+									"value": "{{validClientId}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Cannot create overlapping group training - the same start and end time",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.sendRequest({\r",
+									"    url: \"http://localhost:8020/trainings/group\",\r",
+									"    method: \"GET\",\r",
+									"    header: {'Connection': 'keep-alive'},\r",
+									"    body: {}\r",
+									" },\r",
+									" function (err, res) {\r",
+									"    console.log('Existing trainings: ' + res.json());\r",
+									" }\r",
+									");\r",
+									"\r",
+									"const requestBody = {\r",
+									"    \"trainingName\": \"TestTraining1\",\r",
+									"    \"trainerId\": \"Trainer1\",\r",
+									"    \"date\": \"2021-07-02\",\r",
+									"    \"startTime\": \"16:00\",\r",
+									"    \"endTime\": \"17:00\",\r",
+									"    \"hallNo\": 1,\r",
+									"    \"limit\": 20,\r",
+									"    \"participants\": [],\r",
+									"    \"reserveList\": []\r",
+									"}\r",
+									"pm.sendRequest({\r",
+									"    url: 'http://localhost:8020/trainings/group',\r",
+									"    method: 'POST',\r",
+									"    header: {'Content-type': 'application/json', 'Connection': 'keep-alive'},\r",
+									"    body: {\r",
+									"        mode: 'raw',\r",
+									"        raw: JSON.stringify(requestBody)\r",
+									"    }\r",
+									"}, function (err, res) {\r",
+									"    createdTrainingId = res.json()._id;\r",
+									"    console.log('createdTrainingId: ' + createdTrainingId);\r",
+									"    pm.globals.set(\"createdGroupTrainingId\",  res.json()._id);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const { isEqual, isNull, isEmpty } = require('lodash');\r",
+									"\r",
+									"pm.test(\"Response status should be 400.\", () => {\r",
+									"    pm.expect(pm.response.code).equals(400);\r",
+									"});\r",
+									"\r",
+									"const resTime = Number.parseInt(pm.environment.get(\"responseTime\"));\r",
+									"\r",
+									"pm.test(`Response time should be less than ${resTime} ms.`, () => {\r",
+									"    pm.expect(pm.response.responseTime).to.be.lessThan(resTime);\r",
+									"});\r",
+									"\r",
+									"createdPreviouslyTrainingId = pm.globals.get(\"createdGroupTrainingId\");\r",
+									"console.log('Previously created training id: ' + createdPreviouslyTrainingId);\r",
+									"\r",
+									"pm.sendRequest({\r",
+									"    url: 'http://localhost:8020/trainings/group/'+ createdPreviouslyTrainingId +'/remove',\r",
+									"    method: 'DELETE',\r",
+									"}, function (err, res) {\r",
+									"    console.log(res);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"trainingName\": \"TestTraining1\",\r\n    \"trainerId\": \"Trainer1\",\r\n    \"date\": \"2021-07-02\",\r\n    \"startTime\": \"16:00\",\r\n    \"endTime\": \"17:00\",\r\n    \"hallNo\": 1,\r\n    \"limit\": 20,\r\n    \"participants\": [],\r\n    \"reserveList\": []\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8020/trainings/group",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8020",
+							"path": [
+								"trainings",
+								"group"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Cannot create overlapping group training - the start date between start and end date of first event end date after end date of first event",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"const requestBody = {\r",
+									"    \"trainingName\": \"TestTraining1\",\r",
+									"    \"trainerId\": \"Trainer1\",\r",
+									"    \"date\": \"2021-07-02\",\r",
+									"    \"startTime\": \"16:00\",\r",
+									"    \"endTime\": \"17:00\",\r",
+									"    \"hallNo\": 1,\r",
+									"    \"limit\": 20,\r",
+									"    \"participants\": [],\r",
+									"    \"reserveList\": []\r",
+									"}\r",
+									"pm.sendRequest({\r",
+									"    url: 'http://localhost:8020/trainings/group',\r",
+									"    method: 'POST',\r",
+									"    header: {'Content-type': 'application/json', 'Connection': 'keep-alive'},\r",
+									"    body: {\r",
+									"        mode: 'raw',\r",
+									"        raw: JSON.stringify(requestBody)\r",
+									"    }\r",
+									"}, function (err, res) {\r",
+									"    createdTrainingId = res.json()._id;\r",
+									"    console.log('createdTrainingId: ' + createdTrainingId);\r",
+									"    pm.globals.set(\"createdGroupTrainingId\",  res.json()._id);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const { isEqual, isNull, isEmpty } = require('lodash');\r",
+									"\r",
+									"pm.test(\"Response status should be 400.\", () => {\r",
+									"    pm.expect(pm.response.code).equals(400);\r",
+									"});\r",
+									"\r",
+									"const resTime = Number.parseInt(pm.environment.get(\"responseTime\"));\r",
+									"\r",
+									"pm.test(`Response time should be less than ${resTime} ms.`, () => {\r",
+									"    pm.expect(pm.response.responseTime).to.be.lessThan(resTime);\r",
+									"});\r",
+									"\r",
+									"createdPreviouslyTrainingId = pm.globals.get(\"createdGroupTrainingId\");\r",
+									"console.log('Previously created training id: ' + createdPreviouslyTrainingId);\r",
+									"\r",
+									"pm.sendRequest({\r",
+									"    url: 'http://localhost:8020/trainings/group/'+ createdPreviouslyTrainingId +'/remove',\r",
+									"    method: 'DELETE',\r",
+									"}, function (err, res) {\r",
+									"    console.log(res);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"trainingName\": \"TestTraining1\",\r\n    \"trainerId\": \"Trainer1\",\r\n    \"date\": \"2021-07-02\",\r\n    \"startTime\": \"16:30\",\r\n    \"endTime\": \"17:30\",\r\n    \"hallNo\": 1,\r\n    \"limit\": 20,\r\n    \"participants\": [],\r\n    \"reserveList\": []\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8020/trainings/group",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8020",
+							"path": [
+								"trainings",
+								"group"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Should not update group training when invalid training id",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const { isEqual, isNull, isEmpty } = require('lodash');\r",
+									"\r",
+									"pm.test(\"Response status should be 400.\", () => {\r",
+									"    pm.expect(pm.response.code).equals(400);\r",
+									"});\r",
+									"\r",
+									"const resTime = Number.parseInt(pm.environment.get(\"responseTime\"));\r",
+									"\r",
+									"pm.test(`Response time should be less than ${resTime} ms.`, () => {\r",
+									"    pm.expect(pm.response.responseTime).to.be.lessThan(resTime);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"trainingName\": \"UpdatedTestTraining1\",\r\n    \"trainerId\": \"Trainer1\",\r\n    \"date\": \"2021-10-01\",\r\n    \"startTime\": \"16:00\",\r\n    \"endTime\": \"17:00\",\r\n    \"hallNo\": 1,\r\n    \"limit\": 20,\r\n    \"participants\": [],\r\n    \"reserveList\": []\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8020/trainings/group/{{invalidGroupTrainingId}}/update",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8020",
+							"path": [
+								"trainings",
+								"group",
+								"{{invalidGroupTrainingId}}",
+								"update"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Cannot create overlapping group training - start date after first event start date and end date before first event end date",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"const requestBody = {\r",
+									"    \"trainingName\": \"TestTraining1\",\r",
+									"    \"trainerId\": \"Trainer1\",\r",
+									"    \"date\": \"2021-07-02\",\r",
+									"    \"startTime\": \"16:00\",\r",
+									"    \"endTime\": \"17:00\",\r",
+									"    \"hallNo\": 1,\r",
+									"    \"limit\": 20,\r",
+									"    \"participants\": [],\r",
+									"    \"reserveList\": []\r",
+									"}\r",
+									"pm.sendRequest({\r",
+									"    url: 'http://localhost:8020/trainings/group',\r",
+									"    method: 'POST',\r",
+									"    header: {'Content-type': 'application/json', 'Connection': 'keep-alive'},\r",
+									"    body: {\r",
+									"        mode: 'raw',\r",
+									"        raw: JSON.stringify(requestBody)\r",
+									"    }\r",
+									"}, function (err, res) {\r",
+									"    createdTrainingId = res.json()._id;\r",
+									"    console.log('createdTrainingId: ' + createdTrainingId);\r",
+									"    pm.globals.set(\"createdGroupTrainingId\",  res.json()._id);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const { isEqual, isNull, isEmpty } = require('lodash');\r",
+									"\r",
+									"pm.test(\"Response status should be 400.\", () => {\r",
+									"    pm.expect(pm.response.code).equals(400);\r",
+									"});\r",
+									"\r",
+									"const resTime = Number.parseInt(pm.environment.get(\"responseTime\"));\r",
+									"\r",
+									"pm.test(`Response time should be less than ${resTime} ms.`, () => {\r",
+									"    pm.expect(pm.response.responseTime).to.be.lessThan(resTime);\r",
+									"});\r",
+									"\r",
+									"createdPreviouslyTrainingId = pm.globals.get(\"createdGroupTrainingId\");\r",
+									"console.log('Previously created training id: ' + createdPreviouslyTrainingId);\r",
+									"\r",
+									"pm.sendRequest({\r",
+									"    url: 'http://localhost:8020/trainings/group/'+ createdPreviouslyTrainingId +'/remove',\r",
+									"    method: 'DELETE',\r",
+									"}, function (err, res) {\r",
+									"    console.log(res);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"trainingName\": \"TestTraining1\",\r\n    \"trainerId\": \"Trainer1\",\r\n    \"date\": \"2021-07-02\",\r\n    \"startTime\": \"16:15\",\r\n    \"endTime\": \"16:45\",\r\n    \"hallNo\": 1,\r\n    \"limit\": 20,\r\n    \"participants\": [],\r\n    \"reserveList\": []\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8020/trainings/group",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8020",
+							"path": [
+								"trainings",
+								"group"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Should not update group training when retro date",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const { isEqual, isNull, isEmpty } = require('lodash');\r",
+									"\r",
+									"pm.test(\"Response status should be 400.\", () => {\r",
+									"    pm.expect(pm.response.code).equals(400);\r",
+									"});\r",
+									"\r",
+									"const resTime = Number.parseInt(pm.environment.get(\"responseTime\"));\r",
+									"\r",
+									"pm.test(`Response time should be less than ${resTime} ms.`, () => {\r",
+									"    pm.expect(pm.response.responseTime).to.be.lessThan(resTime);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"trainingName\": \"UpdatedTestTraining1\",\r\n    \"trainerId\": \"Trainer1\",\r\n    \"date\": \"2000-10-01\",\r\n    \"startTime\": \"16:00\",\r\n    \"endTime\": \"17:00\",\r\n    \"hallNo\": 1,\r\n    \"limit\": 20,\r\n    \"participants\": [],\r\n    \"reserveList\": []\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8020/trainings/group/{{validGroupTrainingId}}/update",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8020",
+							"path": [
+								"trainings",
+								"group",
+								"{{validGroupTrainingId}}",
+								"update"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Should not update group training when start hour after end hour",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const { isEqual, isNull, isEmpty } = require('lodash');\r",
+									"\r",
+									"pm.test(\"Response status should be 400.\", () => {\r",
+									"    pm.expect(pm.response.code).equals(400);\r",
+									"});\r",
+									"\r",
+									"const resTime = Number.parseInt(pm.environment.get(\"responseTime\"));\r",
+									"a\r",
+									"pm.test(`Response time should be less than ${resTime} ms.`, () => {\r",
+									"    pm.expect(pm.response.responseTime).to.be.lessThan(resTime);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"trainingName\": \"UpdatedTestTraining1\",\r\n    \"trainerId\": \"Trainer1\",\r\n    \"date\": \"2021-10-01\",\r\n    \"startTime\": \"17:00\",\r\n    \"endTime\": \"16:00\",\r\n    \"hallNo\": 1,\r\n    \"limit\": 20,\r\n    \"participants\": [],\r\n    \"reserveList\": []\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8020/trainings/group/{{validGroupTrainingId}}/update",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8020",
+							"path": [
+								"trainings",
+								"group",
+								"{{validGroupTrainingId}}",
+								"update"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Should not delete group training when invalid training id",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const { isEqual, isNull, isEmpty } = require('lodash');\r",
+									"\r",
+									"pm.test(\"Response status should be 400.\", () => {\r",
+									"    pm.expect(pm.response.code).equals(400);\r",
+									"});\r",
+									"\r",
+									"const resTime = Number.parseInt(pm.environment.get(\"responseTime\"));\r",
+									"\r",
+									"pm.test(`Response time should be less than ${resTime} ms.`, () => {\r",
+									"    pm.expect(pm.response.responseTime).to.be.lessThan(resTime);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8020/trainings/group/{{invalidGroupTrainingId}}/remove",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8020",
+							"path": [
+								"trainings",
+								"group",
+								"{{invalidGroupTrainingId}}",
+								"remove"
+							]
+						}
+					},
+					"response": []
+				},
+				{
 					"name": "View my all group trainings",
 					"event": [
 						{
@@ -1000,7 +1693,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "http://localhost:8020/trainings/group/all/mytrainings/all?clientId={clientId}",
+							"raw": "http://localhost:8020/trainings/group/all/mytrainings/all?clientId={{validClientId}}",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -1016,108 +1709,7 @@
 							"query": [
 								{
 									"key": "clientId",
-									"value": "{clientId}"
-								}
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Enroll to group training",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"const { isEqual, isNull, isEmpty } = require('lodash');\r",
-									"\r",
-									"pm.test(\"Response status should be 200 or 201.\", () => {\r",
-									"    pm.expect(pm.response.code).to.be.oneOf([200, 201]);\r",
-									"});\r",
-									"\r",
-									"const resTime = Number.parseInt(pm.environment.get(\"responseTime\"));\r",
-									"\r",
-									"pm.test(`Response time should be less than ${resTime} ms.`, () => {\r",
-									"    pm.expect(pm.response.responseTime).to.be.lessThan(resTime);\r",
-									"});\r",
-									""
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [],
-						"url": {
-							"raw": "http://localhost:8020/trainings/group/{trainingId}/enroll?clientId={clientId}",
-							"protocol": "http",
-							"host": [
-								"localhost"
-							],
-							"port": "8020",
-							"path": [
-								"trainings",
-								"group",
-								"{trainingId}",
-								"enroll"
-							],
-							"query": [
-								{
-									"key": "clientId",
-									"value": "{clientId}"
-								}
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Add to reserve list of group training",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"const { isEqual, isNull, isEmpty } = require('lodash');\r",
-									"\r",
-									"pm.test(\"Response status should be 200 or 201.\", () => {\r",
-									"    pm.expect(pm.response.code).to.be.oneOf([200, 201]);\r",
-									"});\r",
-									"\r",
-									"const resTime = Number.parseInt(pm.environment.get(\"responseTime\"));\r",
-									"\r",
-									"pm.test(`Response time should be less than ${resTime} ms.`, () => {\r",
-									"    pm.expect(pm.response.responseTime).to.be.lessThan(resTime);\r",
-									"});\r",
-									""
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [],
-						"url": {
-							"raw": "http://localhost:8020/trainings/group/{trainingId}/reservelist/add?clientId={clientId}",
-							"protocol": "http",
-							"host": [
-								"localhost"
-							],
-							"port": "8020",
-							"path": [
-								"trainings",
-								"group",
-								"{trainingId}",
-								"reservelist",
-								"add"
-							],
-							"query": [
-								{
-									"key": "clientId",
-									"value": "{clientId}"
+									"value": "{{validClientId}}"
 								}
 							]
 						}
@@ -1152,7 +1744,7 @@
 						"method": "DELETE",
 						"header": [],
 						"url": {
-							"raw": "http://localhost:8020/trainings/group/{trainingId}/enroll?clientId={clientId}",
+							"raw": "http://localhost:8020/trainings/group/{trainingId}/enroll?clientId={{validClientId}}",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -1167,7 +1759,7 @@
 							"query": [
 								{
 									"key": "clientId",
-									"value": "{clientId}"
+									"value": "{{validClientId}}"
 								}
 							]
 						}
@@ -1202,7 +1794,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "http://localhost:8020/trainings/group/{trainingId}/participants",
+							"raw": "http://localhost:8020/trainings/group/{{validClientId}}/participants",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -1211,7 +1803,51 @@
 							"path": [
 								"trainings",
 								"group",
-								"{trainingId}",
+								"{{validClientId}}",
+								"participants"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Should not view group training participants when invalid training id",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const { isEqual, isNull, isEmpty } = require('lodash');\r",
+									"\r",
+									"pm.test(\"Response status should be 400.\", () => {\r",
+									"    pm.expect(pm.response.code).equals(400);\r",
+									"});\r",
+									"\r",
+									"const resTime = Number.parseInt(pm.environment.get(\"responseTime\"));\r",
+									"\r",
+									"pm.test(`Response time should be less than ${resTime} ms.`, () => {\r",
+									"    pm.expect(pm.response.responseTime).to.be.lessThan(resTime);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8020/trainings/group/{{validGroupTrainingId}}/participants",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8020",
+							"path": [
+								"trainings",
+								"group",
+								"{{validGroupTrainingId}}",
 								"participants"
 							]
 						}
@@ -1288,7 +1924,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "http://localhost:8020/trainings/group/{trainingId}",
+							"raw": "http://localhost:8020/trainings/group/{{validGroupTrainingId}}",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -1297,7 +1933,50 @@
 							"path": [
 								"trainings",
 								"group",
-								"{trainingId}"
+								"{{validGroupTrainingId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Should not view group training id when invalid training id",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const { isEqual, isNull, isEmpty } = require('lodash');\r",
+									"\r",
+									"pm.test(\"Response status should be 400.\", () => {\r",
+									"    pm.expect(pm.response.code).equals(400);\r",
+									"});\r",
+									"\r",
+									"const resTime = Number.parseInt(pm.environment.get(\"responseTime\"));\r",
+									"\r",
+									"pm.test(`Response time should be less than ${resTime} ms.`, () => {\r",
+									"    pm.expect(pm.response.responseTime).to.be.lessThan(resTime);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8020/trainings/group/{{invalidGroupTrainingId}}",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8020",
+							"path": [
+								"trainings",
+								"group",
+								"{{invalidGroupTrainingId}}"
 							]
 						}
 					},
@@ -1956,6 +2635,12 @@
 					"response": []
 				}
 			]
+		}
+	],
+	"variable": [
+		{
+			"key": "validGroupTrainingId",
+			"value": ""
 		}
 	]
 }

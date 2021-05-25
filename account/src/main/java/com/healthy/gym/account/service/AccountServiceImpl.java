@@ -1,10 +1,13 @@
 package com.healthy.gym.account.service;
 
 import com.healthy.gym.account.data.document.UserDocument;
+import com.healthy.gym.account.data.document.UserPrivacyDocument;
 import com.healthy.gym.account.data.repository.UserDAO;
+import com.healthy.gym.account.data.repository.UserPrivacyDAO;
 import com.healthy.gym.account.exception.IdenticalOldAndNewPasswordException;
 import com.healthy.gym.account.exception.OldPasswordDoesNotMatchException;
 import com.healthy.gym.account.exception.UserDataNotUpdatedException;
+import com.healthy.gym.account.exception.UserPrivacyNotUpdatedException;
 import com.healthy.gym.account.shared.UserDTO;
 import com.healthy.gym.account.shared.UserPrivacyDTO;
 import org.modelmapper.ModelMapper;
@@ -17,12 +20,18 @@ import org.springframework.stereotype.Service;
 @Service
 public class AccountServiceImpl implements AccountService {
     private final UserDAO userDAO;
+    private final UserPrivacyDAO userPrivacyDAO;
     private final ModelMapper modelMapper;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
     @Autowired
-    public AccountServiceImpl(UserDAO userDAO, BCryptPasswordEncoder bCryptPasswordEncoder) {
+    public AccountServiceImpl(
+            UserDAO userDAO,
+            UserPrivacyDAO userPrivacyDAO,
+            BCryptPasswordEncoder bCryptPasswordEncoder
+    ) {
         this.userDAO = userDAO;
+        this.userPrivacyDAO = userPrivacyDAO;
         this.bCryptPasswordEncoder = bCryptPasswordEncoder;
         modelMapper = new ModelMapper();
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
@@ -122,7 +131,28 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public UserPrivacyDTO changeUserPrivacy(UserPrivacyDTO userPrivacyDTO, String userId) {
-        return null;
+    public UserPrivacyDTO changeUserPrivacy(UserPrivacyDTO userPrivacyDTO, String userId)
+            throws UserPrivacyNotUpdatedException {
+
+        UserDocument foundUser = userDAO.findByUserId(userId);
+        if (foundUser == null) throw new UsernameNotFoundException("User not found.");
+
+        UserPrivacyDocument privacyDocument = userPrivacyDAO.findByUserDocument(foundUser);
+
+        if (privacyDocument == null) {
+            privacyDocument = new UserPrivacyDocument();
+            privacyDocument.setUserDocument(foundUser);
+        }
+
+        privacyDocument.setAllowShowingAvatar(userPrivacyDTO.isAllowShowingAvatar());
+        privacyDocument.setAllowShowingTrainingsParticipation(userPrivacyDTO.isAllowShowingTrainingsParticipation());
+        privacyDocument.setAllowShowingUserStatistics(userPrivacyDTO.isAllowShowingUserStatistics());
+        privacyDocument.setRegulationsAccepted(userPrivacyDTO.isRegulationsAccepted());
+
+        UserPrivacyDocument privacyDocumentUpdated = userPrivacyDAO.save(privacyDocument);
+        UserPrivacyDTO userPrivacyDTOUpdated = modelMapper.map(privacyDocumentUpdated, UserPrivacyDTO.class);
+
+        if (!userPrivacyDTOUpdated.equals(userPrivacyDTO)) throw new UserPrivacyNotUpdatedException();
+        return userPrivacyDTOUpdated;
     }
 }

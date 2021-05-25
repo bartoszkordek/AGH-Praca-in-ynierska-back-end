@@ -57,4 +57,13 @@ public class PhotoDTO {
         result = 31 * result + Arrays.hashCode(image);
         return result;
     }
+
+    @Override
+    public String toString() {
+        return "PhotoDTO{" +
+                "userId='" + userId + '\'' +
+                ", title='" + title + '\'' +
+                ", image=" + Arrays.toString(image) +
+                '}';
+    }
 }

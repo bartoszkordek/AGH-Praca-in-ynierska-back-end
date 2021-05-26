@@ -152,3 +152,39 @@ jobs:
             password: ${{ secrets.DOCKERHUB_TOKEN }}
         - name: Push to DockerHub
           run: docker push gza73/agh-praca-inzynierska-account:latest
+  
+  
+  
+  mongodb:
+    name: mongodb
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v2
+      - name: Build image
+        run: docker build -t gza73/agh-praca-inzynierska-mongodb ./mongodb
+      - name: Login to DockerHub
+        uses: docker/login-action@v1
+        with: 
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Push to DockerHub
+        run: docker push gza73/agh-praca-inzynierska-mongodb:latest
+  
+  
+  
+  redis:
+    name: redis
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v2
+      - name: Build image
+        run: docker build -t gza73/agh-praca-inzynierska-redis ./redis
+      - name: Login to DockerHub
+        uses: docker/login-action@v1
+        with: 
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Push to DockerHub
+        run: docker push gza73/agh-praca-inzynierska-redis:latest

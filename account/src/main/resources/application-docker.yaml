@@ -6,7 +6,7 @@ spring:
       enabled: true
   data:
     mongodb:
-      uri: mongodb://adminPracaInz:thisPAsswordNeed2BeChange@localhost:27017/databasePracaInz
+      uri: mongodb://adminPracaInz:thisPAsswordNeed2BeChange@mongodb:27017/databasePracaInz
       database: databasePracaInz
   servlet:
     multipart:

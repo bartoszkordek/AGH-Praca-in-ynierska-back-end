@@ -3,6 +3,7 @@ package com.healthy.gym.trainings.service;
 import com.healthy.gym.trainings.db.TrainingTypeRepository;
 import com.healthy.gym.trainings.entity.TrainingType;
 import com.healthy.gym.trainings.exception.DuplicatedTrainingTypes;
+import com.healthy.gym.trainings.exception.NotExistingTrainingType;
 import com.healthy.gym.trainings.model.TrainingTypeManagerViewModel;
 import com.healthy.gym.trainings.model.TrainingTypeModel;
 import com.healthy.gym.trainings.model.TrainingTypePublicViewModel;
@@ -33,9 +34,6 @@ public class TrainingTypeService {
                     trainingType.getDescription(),
                     trainingType.getAvatar()
             );
-            System.out.println("trainingType.getTrainingName(): " + trainingType.getTrainingName());
-            System.out.println("trainingType.getDescription(): " + trainingType.getDescription());
-            System.out.println("trainingType.getAvatar(): " + trainingType.getAvatar());
             trainingTypeManagerViewModels.add(trainingTypeManagerViewModel);
         }
 
@@ -67,4 +65,31 @@ public class TrainingTypeService {
         TrainingType response = trainingTypeRepository.insert(new TrainingType(trainingName, description, avatar));
         return response;
     }
+
+    public TrainingType removeTrainingTypeByName(String trainingName) throws NotExistingTrainingType {
+        if(!trainingTypeRepository.existsByTrainingName(trainingName)){
+            throw new NotExistingTrainingType("Training type of name: " + trainingName + " not exist.");
+        }
+
+        TrainingType trainingTypeToRemove = trainingTypeRepository.findTrainingTypeByTrainingName(trainingName);
+        trainingTypeRepository.removeTrainingTypeByTrainingName(trainingName);
+
+        return trainingTypeToRemove;
+    }
+
+    public TrainingType updateTrainingTypeById(String id, TrainingTypeModel trainingTypeModel, byte[] avatar) throws NotExistingTrainingType, DuplicatedTrainingTypes {
+        if(!trainingTypeRepository.existsTrainingTypeById(id)){
+            throw new NotExistingTrainingType("Training type of id: " + id + " not exist.");
+        }
+
+        String trainingName = trainingTypeModel.getTrainingName();
+        String description = trainingTypeModel.getDescription();
+        TrainingType trainingType = trainingTypeRepository.findTrainingTypeById(id);
+        trainingType.setTrainingName(trainingName);
+        trainingType.setDescription(description);
+        trainingType.setAvatar(avatar);
+
+        return trainingTypeRepository.save(trainingType);
+    }
+
 }

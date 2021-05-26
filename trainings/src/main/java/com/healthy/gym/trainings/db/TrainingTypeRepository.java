@@ -8,7 +8,13 @@ import java.util.List;
 public interface TrainingTypeRepository extends MongoRepository<TrainingType, String> {
 
     public List<TrainingType> findAll();
+    public TrainingType findTrainingTypeById(String id);
+    public TrainingType findTrainingTypeByTrainingName(String trainingName);
 
+    public boolean existsTrainingTypeById(String id);
     public boolean existsByTrainingName(String trainingName);
+
+    public void deleteByTrainingName(String trainingName);
+    public void removeTrainingTypeByTrainingName(String trainingName);
 
 }

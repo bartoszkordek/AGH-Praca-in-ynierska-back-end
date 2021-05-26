@@ -34,6 +34,8 @@ public class ManagerTrainingsController {
         this.trainingTypeService = trainingTypeService;
     }
 
+    private String genericErrorMessageWhileIssuesWithPhotoProcessing = "Errors while proto processing.";
+
     @PostMapping("/group")
     public GroupTrainings createGroupTraining(@Valid @RequestBody GroupTrainingModel groupTrainingModel) throws RestException {
         try{
@@ -86,7 +88,35 @@ public class ManagerTrainingsController {
         } catch (DuplicatedTrainingTypes e){
             throw new RestException(e.getMessage(), HttpStatus.CONFLICT, e);
         } catch (IOException e){
-            throw new RestException("Errors while proto processing.", HttpStatus.BAD_REQUEST, e);
+            throw new RestException(genericErrorMessageWhileIssuesWithPhotoProcessing, HttpStatus.BAD_REQUEST, e);
+        }
+    }
+
+
+    @DeleteMapping("/type/{trainingName}")
+    public TrainingType removeTrainingTypeByName(@PathVariable("trainingName") final String trainingName) throws RestException {
+        try{
+            return trainingTypeService.removeTrainingTypeByName(trainingName);
+        } catch (NotExistingTrainingType e){
+            throw new RestException(e.getMessage(), HttpStatus.BAD_REQUEST, e);
+        }
+    }
+
+
+    @PutMapping(
+            value = "/type/{id}",
+            consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    public TrainingType updateTrainingTypeById(@PathVariable("id") final String id,
+                                               @RequestParam("trainingName") String trainingName,
+                                               @RequestParam("description") String description,
+                                               @RequestParam("avatar") MultipartFile multipartFile) throws RestException {
+        try{
+            TrainingTypeModel trainingTypeModel = new TrainingTypeModel(trainingName, description);
+            return trainingTypeService. updateTrainingTypeById(id, trainingTypeModel, multipartFile.getBytes());
+        } catch (NotExistingTrainingType | IOException | DuplicatedTrainingTypes e){
+            throw new RestException(e.getMessage(), HttpStatus.BAD_REQUEST, e);
         }
     }
 

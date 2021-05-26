@@ -1,7 +1,7 @@
 version: "3.8"
 
 networks:
-  back-end:
+  backend:
 
 services:
   discovery:
@@ -12,7 +12,7 @@ services:
     ports:
       - 8010:8010
     networks:
-      - back-end
+      - backend
 
   gateway:
     container_name: gateway
@@ -22,23 +22,17 @@ services:
     ports:
       - 8020:8020
     networks:
-      - back-end
+      - backend
     depends_on:
       - discovery
 
-  mongo-db:
-    container_name: mongo-db
-    image: mongo:4.4.4-bionic
+  mongodb:
+    container_name: mongodb
+    image: gza73/agh-praca-inzynierska-mongodb:latest
     ports:
       - 27017:27017
-    environment:
-      - MONGO_INITDB_DATABASE=test
-      - MONGO_INITDB_ROOT_USERNAME=admin
-      - MONGO_INITDB_ROOT_PASSWORD=admin
-    volumes:
-      - ./database/init:/docker-entrypoint-initdb.d
     networks:
-      - back-end
+      - backend
 
   auth:
     container_name: auth
@@ -46,9 +40,9 @@ services:
     environment:
       - "SPRING_PROFILES_ACTIVE=docker,production"
     networks:
-      - back-end
+      - backend
     depends_on:
-      - mongo-db
+      - mongodb
       - gateway
 
   account:
@@ -57,30 +51,15 @@ services:
     environment:
       - "SPRING_PROFILES_ACTIVE=docker"
     networks:
-      - back-end
+      - backend
     depends_on:
-      - mongo-db
+      - mongodb
       - gateway
 
   redis:
     container_name: redis
-    build:
-      context: ./redis
+    image: gza73/agh-praca-inzynierska-redis:latest
     ports:
       - 6379:6379
     networks:
-      - back-end
-    depends_on:
-      - auth
-
-#  trainings:
-#    container_name: trainings
-#    image: gza73/agh-praca-inzynierska-trainings:latest
-#    environment:
-#      - "SPRING_PROFILES_ACTIVE=docker"
-#    networks:
-#      - back-end
-#    depends_on:
-#      - discovery
-#      - gateway
-#      - mongo-db
+      - backend

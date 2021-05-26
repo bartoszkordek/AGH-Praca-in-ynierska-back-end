@@ -1,0 +1,29 @@
+{
+	"id": "b890a1d5-0adf-49bb-8172-025d43b3a64d",
+	"values": [
+		{
+			"key": "validGroupTrainingId",
+			"value": "60a960bfa588d314703f6c54",
+			"enabled": true
+		},
+		{
+			"key": "validClientId",
+			"value": "Client123",
+			"enabled": true
+		},
+		{
+			"key": "invalidGroupTrainingId",
+			"value": "1111111111111111",
+			"enabled": true
+		},
+		{
+			"key": "createdGroupTrainingId",
+			"value": "60ac4b6a82b11007eecf413c",
+			"enabled": true
+		}
+	],
+	"name": "My Workspace Globals",
+	"_postman_variable_scope": "globals",
+	"_postman_exported_at": "2021-05-25T01:16:35.563Z",
+	"_postman_exported_using": "Postman/8.5.1"
+}

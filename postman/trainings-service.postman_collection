@@ -2635,6 +2635,165 @@
 					"response": []
 				}
 			]
+		},
+		{
+			"name": "TrainingTypes",
+			"item": [
+				{
+					"name": "Create training type",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "avatar",
+									"type": "file",
+									"src": []
+								},
+								{
+									"key": "trainingName",
+									"value": "Test",
+									"type": "text"
+								},
+								{
+									"key": "description",
+									"value": "sample description",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://localhost:8020/trainings/type",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8020",
+							"path": [
+								"trainings",
+								"type"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "View all training types - manager view",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8020/trainings/types?publicView=false",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8020",
+							"path": [
+								"trainings",
+								"types"
+							],
+							"query": [
+								{
+									"key": "publicView",
+									"value": "false"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "View all training types - public view",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8020/trainings/types?publicView=true",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8020",
+							"path": [
+								"trainings",
+								"types"
+							],
+							"query": [
+								{
+									"key": "publicView",
+									"value": "true"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update training type",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "avatar",
+									"type": "file",
+									"src": []
+								},
+								{
+									"key": "trainingName",
+									"value": "Updated Test",
+									"type": "text"
+								},
+								{
+									"key": "description",
+									"value": "updated description",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://localhost:8020/trainings/type/{trainingTypeId}",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8020",
+							"path": [
+								"trainings",
+								"type",
+								"{trainingTypeId}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete training type by id",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8020/trainings/type/{trainingTypeId}",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8020",
+							"path": [
+								"trainings",
+								"type",
+								"{trainingTypeId}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
 		}
 	],
 	"variable": [

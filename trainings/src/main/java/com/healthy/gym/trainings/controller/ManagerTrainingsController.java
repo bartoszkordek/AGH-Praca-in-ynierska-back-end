@@ -74,6 +74,15 @@ public class ManagerTrainingsController {
         return individualTrainingsService.getAllAcceptedIndividualTrainings();
     }
 
+    @GetMapping("/type/{trainingTypeId}")
+    public TrainingType getTrainingTypeById(@PathVariable("trainingTypeId") final String trainingTypeId) throws RestException {
+        try{
+            return trainingTypeService.getTrainingTypeById(trainingTypeId);
+        } catch (NotExistingTrainingType e){
+            throw new RestException(e.getMessage(), HttpStatus.BAD_REQUEST, e);
+        }
+    }
+
     @PostMapping(
             value = "/type",
             consumes = MediaType.MULTIPART_FORM_DATA_VALUE,

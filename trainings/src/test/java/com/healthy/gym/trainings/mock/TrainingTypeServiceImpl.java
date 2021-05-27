@@ -1,4 +1,4 @@
-package com.healthy.gym.trainings.service;
+package com.healthy.gym.trainings.mock;
 
 import com.healthy.gym.trainings.db.TrainingTypeRepository;
 import com.healthy.gym.trainings.entity.TrainingType;
@@ -7,23 +7,22 @@ import com.healthy.gym.trainings.exception.NotExistingTrainingType;
 import com.healthy.gym.trainings.model.TrainingTypeManagerViewModel;
 import com.healthy.gym.trainings.model.TrainingTypeModel;
 import com.healthy.gym.trainings.model.TrainingTypePublicViewModel;
+import com.healthy.gym.trainings.service.TrainingTypeService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
 
 import java.util.ArrayList;
 import java.util.List;
 
-@Service
-public class TrainingTypeService {
+public class TrainingTypeServiceImpl extends TrainingTypeService {
 
     @Autowired
     TrainingTypeRepository trainingTypeRepository;
 
-    public TrainingTypeService(TrainingTypeRepository trainingTypeRepository){
-        this.trainingTypeRepository = trainingTypeRepository;
+    public TrainingTypeServiceImpl(TrainingTypeRepository trainingTypeRepository) {
+        super(trainingTypeRepository);
     }
 
+    @Override
     public List<TrainingTypeManagerViewModel> getAllTrainingTypesManagerView(){
         List<TrainingType> trainingTypes = trainingTypeRepository.findAll();
         List<TrainingTypeManagerViewModel> trainingTypeManagerViewModels = new ArrayList<>();
@@ -40,6 +39,7 @@ public class TrainingTypeService {
         return trainingTypeManagerViewModels;
     }
 
+    @Override
     public List<TrainingTypePublicViewModel> getAllTrainingTypesPublicView(){
         List<TrainingType> trainingTypes = trainingTypeRepository.findAll();
         List<TrainingTypePublicViewModel> trainingTypePublicViewModels = new ArrayList<>();
@@ -55,6 +55,7 @@ public class TrainingTypeService {
         return trainingTypePublicViewModels;
     }
 
+    @Override
     public TrainingType getTrainingTypeById(String trainingTypeId) throws NotExistingTrainingType {
         if(!trainingTypeRepository.existsTrainingTypeById(trainingTypeId)){
             throw new NotExistingTrainingType("Training type of id: " + trainingTypeId + " not exist.");
@@ -62,6 +63,7 @@ public class TrainingTypeService {
         return trainingTypeRepository.findTrainingTypeById(trainingTypeId);
     }
 
+    @Override
     public TrainingType createTrainingType(TrainingTypeModel trainingTypeModel, byte[] avatar) throws DuplicatedTrainingTypes {
         String trainingName = trainingTypeModel.getTrainingName();
         String description = trainingTypeModel.getDescription();
@@ -73,6 +75,7 @@ public class TrainingTypeService {
         return response;
     }
 
+    @Override
     public TrainingType removeTrainingTypeByName(String trainingName) throws NotExistingTrainingType {
         if(!trainingTypeRepository.existsByTrainingName(trainingName)){
             throw new NotExistingTrainingType("Training type of name: " + trainingName + " not exist.");
@@ -84,19 +87,19 @@ public class TrainingTypeService {
         return trainingTypeToRemove;
     }
 
-    public TrainingType updateTrainingTypeById(String trainingTypeId, TrainingTypeModel trainingTypeModel, byte[] avatar) throws NotExistingTrainingType, DuplicatedTrainingTypes {
-        if(!trainingTypeRepository.existsTrainingTypeById(trainingTypeId)){
-            throw new NotExistingTrainingType("Training type of id: " + trainingTypeId + " not exist.");
+    @Override
+    public TrainingType updateTrainingTypeById(String trainingId, TrainingTypeModel trainingTypeModel, byte[] avatar) throws NotExistingTrainingType, DuplicatedTrainingTypes {
+        if(!trainingTypeRepository.existsTrainingTypeById(trainingId)){
+            throw new NotExistingTrainingType("Training type of id: " + trainingId + " not exist.");
         }
 
         String trainingName = trainingTypeModel.getTrainingName();
         String description = trainingTypeModel.getDescription();
-        TrainingType trainingType = trainingTypeRepository.findTrainingTypeById(trainingTypeId);
+        TrainingType trainingType = trainingTypeRepository.findTrainingTypeById(trainingId);
         trainingType.setTrainingName(trainingName);
         trainingType.setDescription(description);
         trainingType.setAvatar(avatar);
 
         return trainingTypeRepository.save(trainingType);
     }
-
 }

@@ -54,6 +54,16 @@ public class GroupTrainingController {
         return groupTrainingsService.getGroupTrainingById(trainingId);
     }
 
+    @GetMapping("/{trainingId}/participants")
+    public List<String> getTrainingParticipants(@PathVariable("trainingId") final String trainingId)
+            throws RestException {
+        try {
+            return groupTrainingsService.getTrainingParticipants(trainingId);
+        } catch (NotExistingGroupTrainingException e) {
+            throw new RestException(e.getMessage(), HttpStatus.BAD_REQUEST, e);
+        }
+    }
+
     // TODO only manager
     @PutMapping("/{trainingId}")
     public GroupTrainings updateGroupTraining(
@@ -86,8 +96,10 @@ public class GroupTrainingController {
 
     //TODO only with USER ROLE
     @PostMapping("/{trainingId}/enroll")
-    public void enrollToGroupTraining(@PathVariable("trainingId") final String trainingId,
-                                      @RequestParam(required = true) final String clientId) throws RestException {
+    public void enrollToGroupTraining(
+            @PathVariable("trainingId") final String trainingId,
+            @RequestParam final String clientId
+    ) throws RestException {
         try {
             groupTrainingsService.enrollToGroupTraining(trainingId, clientId);
         } catch (TrainingEnrollmentException e) {
@@ -110,8 +122,10 @@ public class GroupTrainingController {
 
     //TODO aktualizacja listy podstawowej i listy rezerwowej
     @DeleteMapping("/{trainingId}/enroll")
-    public void removeGroupTrainingEnrollment(@PathVariable("trainingId") final String trainingId,
-                                              @RequestParam(required = true) final String clientId) throws RestException {
+    public void removeGroupTrainingEnrollment(
+            @PathVariable("trainingId") final String trainingId,
+            @RequestParam final String clientId
+    ) throws RestException {
         try {
             groupTrainingsService.removeGroupTrainingEnrollment(trainingId, clientId);
         } catch (NotExistingGroupTrainingException | TrainingEnrollmentException e) {

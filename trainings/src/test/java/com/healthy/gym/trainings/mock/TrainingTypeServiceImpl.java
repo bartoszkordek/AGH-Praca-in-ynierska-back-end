@@ -1,7 +1,7 @@
 package com.healthy.gym.trainings.mock;
 
 import com.healthy.gym.trainings.data.repository.TrainingTypeRepository;
-import com.healthy.gym.trainings.data.document.TrainingType;
+import com.healthy.gym.trainings.data.document.TrainingTypeDocument;
 import com.healthy.gym.trainings.exception.DuplicatedTrainingTypes;
 import com.healthy.gym.trainings.exception.NotExistingTrainingType;
 import com.healthy.gym.trainings.model.TrainingTypeManagerViewModel;
@@ -22,12 +22,12 @@ public class TrainingTypeServiceImpl {
     }
 
     public List<TrainingTypeManagerViewModel> getAllTrainingTypesManagerView() {
-        List<TrainingType> trainingTypes = trainingTypeRepository.findAll();
+        List<TrainingTypeDocument> trainingTypes = trainingTypeRepository.findAll();
         List<TrainingTypeManagerViewModel> trainingTypeManagerViewModels = new ArrayList<>();
-        for (TrainingType trainingType : trainingTypes) {
+        for (TrainingTypeDocument trainingType : trainingTypes) {
             TrainingTypeManagerViewModel trainingTypeManagerViewModel = new TrainingTypeManagerViewModel(
                     trainingType.getId(),
-                    trainingType.getTrainingName(),
+                    trainingType.getName(),
                     trainingType.getDescription(),
                     trainingType.getAvatar()
             );
@@ -38,11 +38,11 @@ public class TrainingTypeServiceImpl {
     }
 
     public List<TrainingTypePublicViewModel> getAllTrainingTypesPublicView() {
-        List<TrainingType> trainingTypes = trainingTypeRepository.findAll();
+        List<TrainingTypeDocument> trainingTypes = trainingTypeRepository.findAll();
         List<TrainingTypePublicViewModel> trainingTypePublicViewModels = new ArrayList<>();
-        for (TrainingType trainingType : trainingTypes) {
+        for (TrainingTypeDocument trainingType : trainingTypes) {
             TrainingTypePublicViewModel trainingTypePublicViewModel = new TrainingTypePublicViewModel(
-                    trainingType.getTrainingName(),
+                    trainingType.getName(),
                     trainingType.getDescription(),
                     trainingType.getAvatar()
             );
@@ -52,14 +52,14 @@ public class TrainingTypeServiceImpl {
         return trainingTypePublicViewModels;
     }
 
-    public TrainingType getTrainingTypeById(String trainingTypeId) throws NotExistingTrainingType {
+    public TrainingTypeDocument getTrainingTypeById(String trainingTypeId) throws NotExistingTrainingType {
         if (!trainingTypeRepository.existsTrainingTypeById(trainingTypeId)) {
             throw new NotExistingTrainingType("Training type of id: " + trainingTypeId + " not exist.");
         }
         return trainingTypeRepository.findTrainingTypeById(trainingTypeId);
     }
 
-    public TrainingType createTrainingType(TrainingTypeModel trainingTypeModel, byte[] avatar)
+    public TrainingTypeDocument createTrainingType(TrainingTypeModel trainingTypeModel, byte[] avatar)
             throws DuplicatedTrainingTypes {
         String trainingName = trainingTypeModel.getTrainingName();
         String description = trainingTypeModel.getDescription();
@@ -67,22 +67,22 @@ public class TrainingTypeServiceImpl {
             throw new DuplicatedTrainingTypes("Training type of name: " + trainingName + " already exists.");
         }
 
-        TrainingType response = trainingTypeRepository.insert(new TrainingType(trainingName, description, avatar));
+        TrainingTypeDocument response = trainingTypeRepository.insert(new TrainingTypeDocument(trainingName, description, avatar));
         return response;
     }
 
-    public TrainingType removeTrainingTypeByName(String trainingName) throws NotExistingTrainingType {
+    public TrainingTypeDocument removeTrainingTypeByName(String trainingName) throws NotExistingTrainingType {
         if (!trainingTypeRepository.existsByTrainingName(trainingName)) {
             throw new NotExistingTrainingType("Training type of name: " + trainingName + " not exist.");
         }
 
-        TrainingType trainingTypeToRemove = trainingTypeRepository.findTrainingTypeByTrainingName(trainingName);
+        TrainingTypeDocument trainingTypeToRemove = trainingTypeRepository.findTrainingTypeByTrainingName(trainingName);
         trainingTypeRepository.removeTrainingTypeByTrainingName(trainingName);
 
         return trainingTypeToRemove;
     }
 
-    public TrainingType updateTrainingTypeById(String trainingId, TrainingTypeModel trainingTypeModel, byte[] avatar)
+    public TrainingTypeDocument updateTrainingTypeById(String trainingId, TrainingTypeModel trainingTypeModel, byte[] avatar)
             throws NotExistingTrainingType, DuplicatedTrainingTypes {
         if (!trainingTypeRepository.existsTrainingTypeById(trainingId)) {
             throw new NotExistingTrainingType("Training type of id: " + trainingId + " not exist.");
@@ -90,8 +90,8 @@ public class TrainingTypeServiceImpl {
 
         String trainingName = trainingTypeModel.getTrainingName();
         String description = trainingTypeModel.getDescription();
-        TrainingType trainingType = trainingTypeRepository.findTrainingTypeById(trainingId);
-        trainingType.setTrainingName(trainingName);
+        TrainingTypeDocument trainingType = trainingTypeRepository.findTrainingTypeById(trainingId);
+        trainingType.setName(trainingName);
         trainingType.setDescription(description);
         trainingType.setAvatar(avatar);
 

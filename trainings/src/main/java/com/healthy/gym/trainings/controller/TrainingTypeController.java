@@ -1,6 +1,6 @@
 package com.healthy.gym.trainings.controller;
 
-import com.healthy.gym.trainings.data.document.TrainingType;
+import com.healthy.gym.trainings.data.document.TrainingTypeDocument;
 import com.healthy.gym.trainings.exception.DuplicatedTrainingTypes;
 import com.healthy.gym.trainings.exception.NotExistingTrainingType;
 import com.healthy.gym.trainings.exception.RestException;
@@ -31,7 +31,7 @@ public class TrainingTypeController {
     }
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public TrainingType createTrainingType(
+    public TrainingTypeDocument createTrainingType(
             @RequestParam("trainingName") String trainingName,
             @RequestParam("description") String description,
             @RequestParam("avatar") MultipartFile multipartFile
@@ -47,7 +47,7 @@ public class TrainingTypeController {
     }
 
     @GetMapping("/{trainingTypeId}")
-    public TrainingType getTrainingTypeById(
+    public TrainingTypeDocument getTrainingTypeById(
             @PathVariable("trainingTypeId") final String trainingTypeId
     ) throws RestException {
         try {
@@ -73,7 +73,7 @@ public class TrainingTypeController {
             consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    public TrainingType updateTrainingTypeById(
+    public TrainingTypeDocument updateTrainingTypeById(
             @PathVariable("trainingTypeId") final String trainingTypeId,
             @RequestParam("trainingName") String trainingName,
             @RequestParam("description") String description,
@@ -89,7 +89,7 @@ public class TrainingTypeController {
 
     // TODO zmienić z trainingName na trainingID
     @DeleteMapping("/{trainingTypeId}")
-    public TrainingType removeTrainingTypeByName(
+    public TrainingTypeDocument removeTrainingTypeByName(
             @PathVariable("trainingName") final String trainingName
     ) throws RestException {
         try {

@@ -1,15 +1,15 @@
 package com.healthy.gym.trainings.data.repository;
 
-import com.healthy.gym.trainings.data.document.TrainingType;
+import com.healthy.gym.trainings.data.document.TrainingTypeDocument;
 import org.springframework.data.mongodb.repository.MongoRepository;
 
 import java.util.List;
 
-public interface TrainingTypeRepository extends MongoRepository<TrainingType, String> {
+public interface TrainingTypeRepository extends MongoRepository<TrainingTypeDocument, String> {
 
-    public List<TrainingType> findAll();
-    public TrainingType findTrainingTypeById(String id);
-    public TrainingType findTrainingTypeByTrainingName(String trainingName);
+    public List<TrainingTypeDocument> findAll();
+    public TrainingTypeDocument findTrainingTypeById(String id);
+    public TrainingTypeDocument findTrainingTypeByTrainingName(String trainingName);
 
     public boolean existsTrainingTypeById(String id);
     public boolean existsByTrainingName(String trainingName);

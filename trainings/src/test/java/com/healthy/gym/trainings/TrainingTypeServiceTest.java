@@ -1,7 +1,7 @@
 package com.healthy.gym.trainings;
 
 import com.healthy.gym.trainings.data.repository.TrainingTypeRepository;
-import com.healthy.gym.trainings.data.document.TrainingType;
+import com.healthy.gym.trainings.data.document.TrainingTypeDocument;
 import com.healthy.gym.trainings.exception.*;
 import com.healthy.gym.trainings.mock.TrainingTypeServiceImpl;
 import org.junit.Before;
@@ -24,7 +24,7 @@ public class TrainingTypeServiceTest {
     private final String validTrainingTypeId = "111111111111111111111111";
     private final String invalidTrainingTypeId = "999999999999999999999999";
 
-    private TrainingType validTrainingType;
+    private TrainingTypeDocument validTrainingType;
 
     public TrainingTypeServiceTest(){
 
@@ -51,7 +51,7 @@ public class TrainingTypeServiceTest {
     public void setUp() {
 
 
-        validTrainingType = new TrainingType("Valid Training Name", "Sample Description", null);
+        validTrainingType = new TrainingTypeDocument("Valid Training Name", "Sample Description", null);
         validTrainingType.setId(validTrainingTypeId);
         when(trainingTypeRepository.existsTrainingTypeById(validTrainingTypeId))
                 .thenReturn(true);

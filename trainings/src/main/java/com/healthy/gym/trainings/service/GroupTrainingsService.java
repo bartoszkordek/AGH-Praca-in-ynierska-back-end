@@ -1,6 +1,6 @@
 package com.healthy.gym.trainings.service;
 
-import com.healthy.gym.trainings.config.EmailConfig;
+import com.healthy.gym.trainings.configuration.EmailConfig;
 import com.healthy.gym.trainings.data.document.GroupTrainings;
 import com.healthy.gym.trainings.data.document.GroupTrainingsReviews;
 import com.healthy.gym.trainings.data.repository.GroupTrainingReviewsDbRepository;

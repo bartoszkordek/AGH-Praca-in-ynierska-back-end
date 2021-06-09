@@ -3,8 +3,8 @@ package com.healthy.gym.trainings.model.request;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.healthy.gym.trainings.exception.InvalidDateException;
 import com.healthy.gym.trainings.exception.InvalidHourException;
-import com.healthy.gym.trainings.validator.DateValidator;
-import com.healthy.gym.trainings.validator.Time24HoursValidator;
+import com.healthy.gym.trainings.validation.DateValidator;
+import com.healthy.gym.trainings.validation.Time24HoursValidator;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.validation.constraints.NotNull;

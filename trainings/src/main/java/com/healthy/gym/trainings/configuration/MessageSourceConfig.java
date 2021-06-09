@@ -1,4 +1,4 @@
-package com.healthy.gym.trainings.config;
+package com.healthy.gym.trainings.configuration;
 
 import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Bean;

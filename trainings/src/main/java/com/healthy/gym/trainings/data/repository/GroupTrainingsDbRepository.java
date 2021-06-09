@@ -1,6 +1,6 @@
 package com.healthy.gym.trainings.data.repository;
 
-import com.healthy.gym.trainings.config.MongoConfig;
+import com.healthy.gym.trainings.configuration.MongoConfig;
 import com.healthy.gym.trainings.data.document.GroupTrainings;
 import com.healthy.gym.trainings.exception.InvalidDateException;
 import com.healthy.gym.trainings.exception.InvalidHourException;

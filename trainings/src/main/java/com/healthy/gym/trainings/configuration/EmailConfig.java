@@ -1,4 +1,4 @@
-package com.healthy.gym.trainings.config;
+package com.healthy.gym.trainings.configuration;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;

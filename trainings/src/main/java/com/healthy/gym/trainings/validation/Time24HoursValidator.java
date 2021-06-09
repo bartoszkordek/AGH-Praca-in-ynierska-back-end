@@ -1,4 +1,4 @@
-package com.healthy.gym.trainings.validator;
+package com.healthy.gym.trainings.validation;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;

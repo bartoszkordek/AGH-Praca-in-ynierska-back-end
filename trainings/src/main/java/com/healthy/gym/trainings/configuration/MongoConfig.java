@@ -1,4 +1,4 @@
-package com.healthy.gym.trainings.config;
+package com.healthy.gym.trainings.configuration;
 
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;

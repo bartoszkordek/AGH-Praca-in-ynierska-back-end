@@ -1,9 +1,5 @@
 package com.healthy.gym.trainings.service.email;
 
-import com.healthy.gym.trainings.config.EmailConfig;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
 import javax.mail.Authenticator;
 import javax.mail.PasswordAuthentication;
 import javax.mail.Session;

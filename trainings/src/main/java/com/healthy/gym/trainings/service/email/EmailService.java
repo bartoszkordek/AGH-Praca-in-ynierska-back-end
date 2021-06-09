@@ -1,6 +1,6 @@
 package com.healthy.gym.trainings.service.email;
 
-import com.healthy.gym.trainings.model.EmailSendModel;
+import com.healthy.gym.trainings.model.other.EmailSendModel;
 import org.springframework.stereotype.Service;
 
 @Service

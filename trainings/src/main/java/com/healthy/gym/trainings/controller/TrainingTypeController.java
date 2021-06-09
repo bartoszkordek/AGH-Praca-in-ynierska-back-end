@@ -1,11 +1,11 @@
 package com.healthy.gym.trainings.controller;
 
-import com.healthy.gym.trainings.entity.TrainingType;
+import com.healthy.gym.trainings.data.document.TrainingTypeDocument;
 import com.healthy.gym.trainings.exception.DuplicatedTrainingTypes;
 import com.healthy.gym.trainings.exception.NotExistingTrainingType;
 import com.healthy.gym.trainings.exception.RestException;
-import com.healthy.gym.trainings.model.TrainingTypeModel;
-import com.healthy.gym.trainings.model.TrainingTypePublicViewModel;
+import com.healthy.gym.trainings.model.other.TrainingTypeModel;
+import com.healthy.gym.trainings.model.response.TrainingTypePublicResponse;
 import com.healthy.gym.trainings.service.TrainingTypeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -17,6 +17,7 @@ import java.io.IOException;
 import java.util.List;
 
 @RestController
+@RequestMapping("/trainingType")
 public class TrainingTypeController {
     //TODO Grzegorz
 
@@ -29,12 +30,8 @@ public class TrainingTypeController {
         this.trainingTypeService = trainingTypeService;
     }
 
-    @PostMapping(
-            value = "/type",
-            consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
-            produces = MediaType.APPLICATION_JSON_VALUE
-    )
-    public TrainingType createTrainingType(
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public TrainingTypeDocument createTrainingType(
             @RequestParam("trainingName") String trainingName,
             @RequestParam("description") String description,
             @RequestParam("avatar") MultipartFile multipartFile
@@ -44,13 +41,13 @@ public class TrainingTypeController {
             return trainingTypeService.createTrainingType(trainingTypeModel, multipartFile.getBytes());
         } catch (DuplicatedTrainingTypes e) {
             throw new RestException(e.getMessage(), HttpStatus.CONFLICT, e);
-        } catch (IOException e) {
-            throw new RestException(GENERIC_ERROR_MESSAGE_WHILE_ISSUES_WITH_PHOTO_PROCESSING, HttpStatus.BAD_REQUEST, e);
+        } catch (IOException exception) {
+            throw new RestException(GENERIC_ERROR_MESSAGE_WHILE_ISSUES_WITH_PHOTO_PROCESSING, HttpStatus.BAD_REQUEST, exception);
         }
     }
 
-    @GetMapping("/type/{trainingTypeId}")
-    public TrainingType getTrainingTypeById(
+    @GetMapping("/{trainingTypeId}")
+    public TrainingTypeDocument getTrainingTypeById(
             @PathVariable("trainingTypeId") final String trainingTypeId
     ) throws RestException {
         try {
@@ -60,8 +57,10 @@ public class TrainingTypeController {
         }
     }
 
-    @GetMapping("/types")
-    public List<? extends TrainingTypePublicViewModel> getAllTrainingTypes(@RequestParam("publicView") boolean publicView) {
+    @GetMapping
+    public List<? extends TrainingTypePublicResponse> getAllTrainingTypes(
+            @RequestParam("publicView") boolean publicView
+    ) {
         if (!publicView) {
             return trainingTypeService.getAllTrainingTypesManagerView();
         } else {
@@ -70,27 +69,27 @@ public class TrainingTypeController {
     }
 
     @PutMapping(
-            value = "/type/{id}",
+            value = "/{trainingTypeId}",
             consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    public TrainingType updateTrainingTypeById(
-            @PathVariable("id") final String id,
+    public TrainingTypeDocument updateTrainingTypeById(
+            @PathVariable("trainingTypeId") final String trainingTypeId,
             @RequestParam("trainingName") String trainingName,
             @RequestParam("description") String description,
             @RequestParam("avatar") MultipartFile multipartFile
     ) throws RestException {
         try {
             TrainingTypeModel trainingTypeModel = new TrainingTypeModel(trainingName, description);
-            return trainingTypeService.updateTrainingTypeById(id, trainingTypeModel, multipartFile.getBytes());
+            return trainingTypeService.updateTrainingTypeById(trainingTypeId, trainingTypeModel, multipartFile.getBytes());
         } catch (NotExistingTrainingType | IOException | DuplicatedTrainingTypes e) {
             throw new RestException(e.getMessage(), HttpStatus.BAD_REQUEST, e);
         }
     }
 
     // TODO zmienić z trainingName na trainingID
-    @DeleteMapping("/type/{trainingName}")
-    public TrainingType removeTrainingTypeByName(
+    @DeleteMapping("/{trainingTypeId}")
+    public TrainingTypeDocument removeTrainingTypeByName(
             @PathVariable("trainingName") final String trainingName
     ) throws RestException {
         try {

@@ -1,13 +1,13 @@
 package com.healthy.gym.trainings.controller;
 
-import com.healthy.gym.trainings.entity.GroupTrainingsReviews;
+import com.healthy.gym.trainings.data.document.GroupTrainingsReviews;
 import com.healthy.gym.trainings.exception.NotAuthorizedClientException;
 import com.healthy.gym.trainings.exception.NotExistingGroupTrainingReviewException;
 import com.healthy.gym.trainings.exception.RestException;
 import com.healthy.gym.trainings.exception.StarsOutOfRangeException;
-import com.healthy.gym.trainings.model.GroupTrainingsReviewsModel;
-import com.healthy.gym.trainings.model.GroupTrainingsReviewsUpdateModel;
-import com.healthy.gym.trainings.service.GroupTrainingsService;
+import com.healthy.gym.trainings.model.request.GroupTrainingReviewRequest;
+import com.healthy.gym.trainings.model.request.GroupTrainingReviewUpdateRequest;
+import com.healthy.gym.trainings.service.GroupTrainingService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -19,17 +19,17 @@ import java.util.List;
 @RequestMapping("/review")
 public class ReviewController {
 
-    private final GroupTrainingsService groupTrainingsService;
+    private final GroupTrainingService groupTrainingsService;
 
     @Autowired
-    public ReviewController(GroupTrainingsService groupTrainingsService) {
+    public ReviewController(GroupTrainingService groupTrainingsService) {
         this.groupTrainingsService = groupTrainingsService;
     }
 
     //TODO only logged in users
     @PostMapping
     public GroupTrainingsReviews createGroupTrainingReview(
-            @Valid @RequestBody GroupTrainingsReviewsModel groupTrainingsReviews,
+            @Valid @RequestBody GroupTrainingReviewRequest groupTrainingsReviews,
             @RequestParam final String clientId
     ) throws RestException {
         try {
@@ -77,7 +77,7 @@ public class ReviewController {
     //TODO only user own review
     @PutMapping("/{reviewId}")
     public GroupTrainingsReviews updateGroupTrainingReview(
-            @Valid @RequestBody final GroupTrainingsReviewsUpdateModel groupTrainingsReviewsUpdateModel,
+            @Valid @RequestBody final GroupTrainingReviewUpdateRequest groupTrainingsReviewsUpdateModel,
             @PathVariable("reviewId") final String reviewId,
             @RequestParam final String clientId
     ) throws RestException {

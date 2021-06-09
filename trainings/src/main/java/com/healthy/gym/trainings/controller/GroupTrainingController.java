@@ -1,10 +1,10 @@
 package com.healthy.gym.trainings.controller;
 
-import com.healthy.gym.trainings.entity.GroupTrainings;
+import com.healthy.gym.trainings.data.document.GroupTrainings;
 import com.healthy.gym.trainings.exception.*;
-import com.healthy.gym.trainings.model.GroupTrainingModel;
-import com.healthy.gym.trainings.model.GroupTrainingsPublicViewModel;
-import com.healthy.gym.trainings.service.GroupTrainingsService;
+import com.healthy.gym.trainings.model.request.GroupTrainingRequest;
+import com.healthy.gym.trainings.model.response.GroupTrainingPublicResponse;
+import com.healthy.gym.trainings.service.GroupTrainingService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -17,17 +17,17 @@ import java.util.List;
 @RequestMapping("/group")
 public class GroupTrainingController {
 
-    private final GroupTrainingsService groupTrainingsService;
+    private final GroupTrainingService groupTrainingsService;
 
     @Autowired
-    public GroupTrainingController(GroupTrainingsService groupTrainingsService) {
+    public GroupTrainingController(GroupTrainingService groupTrainingsService) {
         this.groupTrainingsService = groupTrainingsService;
     }
 
     // TODO only manager
     @PostMapping
     public GroupTrainings createGroupTraining(
-            @Valid @RequestBody GroupTrainingModel groupTrainingModel
+            @Valid @RequestBody GroupTrainingRequest groupTrainingModel
     ) throws RestException {
         try {
             return groupTrainingsService.createGroupTraining(groupTrainingModel);
@@ -42,7 +42,7 @@ public class GroupTrainingController {
     }
 
     @GetMapping("/public")
-    public List<GroupTrainingsPublicViewModel> getPublicGroupTrainings()
+    public List<GroupTrainingPublicResponse> getPublicGroupTrainings()
             throws InvalidHourException, InvalidDateException {
         return groupTrainingsService.getPublicGroupTrainings();
     }
@@ -68,7 +68,7 @@ public class GroupTrainingController {
     @PutMapping("/{trainingId}")
     public GroupTrainings updateGroupTraining(
             @PathVariable("trainingId") final String trainingId,
-            @Valid @RequestBody GroupTrainingModel groupTrainingModelRequest
+            @Valid @RequestBody GroupTrainingRequest groupTrainingModelRequest
     ) throws RestException {
         try {
             return groupTrainingsService.updateGroupTraining(trainingId, groupTrainingModelRequest);

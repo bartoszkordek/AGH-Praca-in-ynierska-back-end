@@ -1,10 +1,10 @@
 package com.healthy.gym.trainings.controller;
 
-import com.healthy.gym.trainings.entity.IndividualTrainings;
+import com.healthy.gym.trainings.data.document.IndividualTrainings;
 import com.healthy.gym.trainings.exception.*;
-import com.healthy.gym.trainings.model.IndividualTrainingsAcceptModel;
-import com.healthy.gym.trainings.model.IndividualTrainingsRequestModel;
-import com.healthy.gym.trainings.service.IndividualTrainingsService;
+import com.healthy.gym.trainings.model.request.IndividualTrainingAcceptanceRequest;
+import com.healthy.gym.trainings.model.request.IndividualTrainingRequest;
+import com.healthy.gym.trainings.service.IndividualTrainingService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -17,16 +17,16 @@ import java.util.List;
 @RequestMapping("/individual")
 public class IndividualTrainingController {
 
-    private final IndividualTrainingsService individualTrainingsService;
+    private final IndividualTrainingService individualTrainingsService;
 
     @Autowired
-    public IndividualTrainingController(IndividualTrainingsService individualTrainingsService) {
+    public IndividualTrainingController(IndividualTrainingService individualTrainingsService) {
         this.individualTrainingsService = individualTrainingsService;
     }
 
     @PostMapping("/request")
     public IndividualTrainings createIndividualTrainingRequest(
-            @Valid @RequestBody final IndividualTrainingsRequestModel individualTrainingsRequestModel,
+            @Valid @RequestBody final IndividualTrainingRequest individualTrainingsRequestModel,
             @RequestParam final String clientId
     ) throws RestException {
         try {
@@ -70,7 +70,7 @@ public class IndividualTrainingController {
     @PutMapping("/{trainingId}/accept")
     public IndividualTrainings acceptIndividualTraining(
             @PathVariable("trainingId") final String trainingId,
-            @Valid @RequestBody final IndividualTrainingsAcceptModel individualTrainingsAcceptModel
+            @Valid @RequestBody final IndividualTrainingAcceptanceRequest individualTrainingsAcceptModel
     ) throws RestException {
         try {
             return individualTrainingsService.acceptIndividualTraining(trainingId, individualTrainingsAcceptModel);

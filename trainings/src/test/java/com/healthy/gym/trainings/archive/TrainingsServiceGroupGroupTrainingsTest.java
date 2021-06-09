@@ -1,6 +1,6 @@
 package com.healthy.gym.trainings.archive;
 
-import com.healthy.gym.trainings.config.EmailConfig;
+import com.healthy.gym.trainings.configuration.EmailConfig;
 import com.healthy.gym.trainings.data.document.GroupTrainings;
 import com.healthy.gym.trainings.data.repository.GroupTrainingsDbRepository;
 import com.healthy.gym.trainings.exception.*;

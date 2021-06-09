@@ -1,6 +1,9 @@
 package com.healthy.gym.trainings.classesToImprove;
 
-//@RunWith(SpringRunner.class)
+import org.junit.jupiter.api.Disabled;
+
+//@RunWith
+@Disabled
 public class TrainingTypeServiceTest {
 //
 //

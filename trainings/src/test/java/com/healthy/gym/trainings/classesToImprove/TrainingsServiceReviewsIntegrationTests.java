@@ -1,13 +1,16 @@
 package com.healthy.gym.trainings.classesToImprove;
 
 
+import org.junit.jupiter.api.Disabled;
+
 //@Disabled
 //@Testcontainers
 //@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 //@TestPropertySource(properties = {
 //        "eureka.client.fetch-registry=false",
 //        "eureka.client.register-with-eureka=false"
-//})
+//}
+@Disabled
 public class TrainingsServiceReviewsIntegrationTests {
 //    @Container
 //    static MongoDBContainer mongoDBContainer =

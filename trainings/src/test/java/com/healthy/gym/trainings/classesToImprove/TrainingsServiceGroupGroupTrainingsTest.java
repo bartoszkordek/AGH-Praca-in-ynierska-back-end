@@ -1,6 +1,9 @@
 package com.healthy.gym.trainings.classesToImprove;
 
+import org.junit.jupiter.api.Disabled;
+
 //@RunWith(SpringRunner.class)
+@Disabled
 public class TrainingsServiceGroupGroupTrainingsTest {
 //
 //    private final String validTrainingId = "111111111111111111111111";

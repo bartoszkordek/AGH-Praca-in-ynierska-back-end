@@ -1,6 +1,9 @@
 package com.healthy.gym.trainings.classesToImprove.mock;
 
-public class TrainingsServiceGroupGroupTrainingsImpl  {
+import org.junit.jupiter.api.Disabled;
+
+@Disabled
+public class TrainingsServiceGroupGroupTrainingsImpl {
 //
 //    @Autowired
 //    GroupTrainingsDbRepository groupTrainingsDbRepository;

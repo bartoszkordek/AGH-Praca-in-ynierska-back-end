@@ -8,7 +8,6 @@ import com.healthy.gym.trainings.validator.Time24HoursValidator;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.validation.constraints.NotNull;
-import java.util.List;
 
 public class GroupTrainingsPublicViewModel {
 
@@ -17,7 +16,7 @@ public class GroupTrainingsPublicViewModel {
     @NotNull
     private String trainerId;
     @NotNull
-    @DateTimeFormat(pattern="yyyy-MM-dd")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
     private String date;
     @NotNull
     private String startTime;
@@ -28,29 +27,31 @@ public class GroupTrainingsPublicViewModel {
     @NotNull
     private int limit;
 
-    public GroupTrainingsPublicViewModel(@JsonProperty("trainingName") String trainingName,
-                              @JsonProperty("trainerId") String trainerId,
-                              @JsonProperty("date") String date,
-                              @JsonProperty("startTime") String startTime,
-                              @JsonProperty("endTime") String endTime,
-                              @JsonProperty("hallNo") int hallNo,
-                              @JsonProperty("limit") int limit) throws InvalidHourException, InvalidDateException {
+    public GroupTrainingsPublicViewModel(
+            @JsonProperty("trainingName") String trainingName,
+            @JsonProperty("trainerId") String trainerId,
+            @JsonProperty("date") String date,
+            @JsonProperty("startTime") String startTime,
+            @JsonProperty("endTime") String endTime,
+            @JsonProperty("hallNo") int hallNo,
+            @JsonProperty("limit") int limit
+    ) throws InvalidHourException, InvalidDateException {
 
         DateValidator dateValidator = new DateValidator();
         Time24HoursValidator time24HoursValidator = new Time24HoursValidator();
         this.trainingName = trainingName;
         this.trainerId = trainerId;
-        if(dateValidator.validate(date)){
+        if (dateValidator.validate(date)) {
             this.date = date;
         } else {
             throw new InvalidDateException("Wrong date");
         }
-        if(time24HoursValidator.validate(startTime)){
+        if (time24HoursValidator.validate(startTime)) {
             this.startTime = startTime;
         } else {
             throw new InvalidHourException("Wrong start time");
         }
-        if(time24HoursValidator.validate(endTime)){
+        if (time24HoursValidator.validate(endTime)) {
             this.endTime = endTime;
         } else {
             throw new InvalidHourException("Wrong end time");

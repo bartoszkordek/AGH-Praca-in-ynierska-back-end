@@ -1,30 +1,5 @@
-package com.healthy.gym.trainings.archive;
+package com.healthy.gym.trainings.classesToImprove;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import org.junit.Test;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.Nested;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.web.server.LocalServerPort;
-import org.springframework.http.*;
-import org.springframework.test.context.DynamicPropertyRegistry;
-import org.springframework.test.context.DynamicPropertySource;
-import org.springframework.test.context.TestPropertySource;
-import org.springframework.web.client.RestTemplate;
-import org.testcontainers.containers.MongoDBContainer;
-import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.junit.jupiter.Testcontainers;
-import org.testcontainers.utility.DockerImageName;
-import org.springframework.boot.test.web.client.TestRestTemplate;
-
-import java.net.URI;
-import java.net.URISyntaxException;
-
-
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 //@Disabled
 //@Testcontainers

@@ -1,4 +1,4 @@
-package com.healthy.gym.trainings.mock;
+package com.healthy.gym.trainings.classesToImprove.mock;
 
 public class TrainingsServiceIndividualTrainingsImpl {
 //

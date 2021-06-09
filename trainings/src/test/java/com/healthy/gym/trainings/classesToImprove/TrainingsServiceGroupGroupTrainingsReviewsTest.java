@@ -1,4 +1,4 @@
-package com.healthy.gym.trainings.archive;
+package com.healthy.gym.trainings.classesToImprove;
 
 //@RunWith(SpringRunner.class)
 public class TrainingsServiceGroupGroupTrainingsReviewsTest {

@@ -1,4 +1,4 @@
-package com.healthy.gym.trainings.mock;
+package com.healthy.gym.trainings.classesToImprove.mock;
 
 import com.healthy.gym.trainings.data.document.TrainingTypeDocument;
 import com.healthy.gym.trainings.data.repository.TrainingTypeDAO;

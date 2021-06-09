@@ -1,22 +1,4 @@
-package com.healthy.gym.trainings.mock;
-
-import com.healthy.gym.trainings.data.document.GroupTrainings;
-import com.healthy.gym.trainings.data.repository.GroupTrainingReviewsDbRepository;
-import com.healthy.gym.trainings.data.repository.GroupTrainingsDbRepository;
-import com.healthy.gym.trainings.exception.InvalidHourException;
-import com.healthy.gym.trainings.exception.NotExistingGroupTrainingException;
-import com.healthy.gym.trainings.exception.TrainingCreationException;
-import com.healthy.gym.trainings.exception.TrainingEnrollmentException;
-import com.healthy.gym.trainings.model.request.GroupTrainingRequest;
-import com.healthy.gym.trainings.service.GroupTrainingService;
-import org.springframework.beans.factory.annotation.Autowired;
-
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.time.Duration;
-import java.time.LocalTime;
-import java.util.Date;
-import java.util.List;
+package com.healthy.gym.trainings.classesToImprove.mock;
 
 public class TrainingsServiceGroupGroupTrainingsImpl  {
 //

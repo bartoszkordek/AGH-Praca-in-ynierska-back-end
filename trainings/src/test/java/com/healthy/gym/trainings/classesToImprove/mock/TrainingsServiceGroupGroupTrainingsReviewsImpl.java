@@ -1,19 +1,4 @@
-package com.healthy.gym.trainings.mock;
-
-import com.healthy.gym.trainings.data.document.GroupTrainingsReviews;
-import com.healthy.gym.trainings.data.repository.GroupTrainingReviewsDbRepository;
-import com.healthy.gym.trainings.data.repository.GroupTrainingsDbRepository;
-import com.healthy.gym.trainings.exception.NotAuthorizedClientException;
-import com.healthy.gym.trainings.exception.NotExistingGroupTrainingReviewException;
-import com.healthy.gym.trainings.exception.StarsOutOfRangeException;
-import com.healthy.gym.trainings.model.request.GroupTrainingReviewRequest;
-import com.healthy.gym.trainings.model.request.GroupTrainingReviewUpdateRequest;
-import com.healthy.gym.trainings.service.GroupTrainingServiceImpl;
-import org.springframework.beans.factory.annotation.Autowired;
-
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.List;
+package com.healthy.gym.trainings.classesToImprove.mock;
 
 public class TrainingsServiceGroupGroupTrainingsReviewsImpl {
 //    @Autowired

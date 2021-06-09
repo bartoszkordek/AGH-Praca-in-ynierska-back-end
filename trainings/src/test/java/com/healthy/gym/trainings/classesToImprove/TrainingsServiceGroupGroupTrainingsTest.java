@@ -1,27 +1,4 @@
-package com.healthy.gym.trainings.archive;
-
-import com.healthy.gym.trainings.configuration.EmailConfig;
-import com.healthy.gym.trainings.data.document.GroupTrainings;
-import com.healthy.gym.trainings.data.repository.GroupTrainingsDbRepository;
-import com.healthy.gym.trainings.exception.*;
-import com.healthy.gym.trainings.mock.TrainingsServiceGroupGroupTrainingsImpl;
-import com.healthy.gym.trainings.model.request.GroupTrainingRequest;
-import com.healthy.gym.trainings.service.GroupTrainingsService;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.TestConfiguration;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.context.annotation.Bean;
-import org.springframework.test.context.junit4.SpringRunner;
-
-import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.List;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.when;
+package com.healthy.gym.trainings.classesToImprove;
 
 //@RunWith(SpringRunner.class)
 public class TrainingsServiceGroupGroupTrainingsTest {

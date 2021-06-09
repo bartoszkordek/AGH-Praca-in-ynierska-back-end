@@ -13,6 +13,8 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import java.util.UUID;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
@@ -37,7 +39,13 @@ public class TrainingTypeServiceTest {
     public void setUp() {
 
 
-        validTrainingType = new TrainingTypeDocument("Valid Training Name", "Sample Description", null);
+        validTrainingType = new TrainingTypeDocument(
+                UUID.randomUUID().toString(),
+                "Valid Training Name",
+                "Sample Description",
+                null,
+                null
+        );
         validTrainingType.setId(validTrainingTypeId);
         when(trainingTypeRepository.existsTrainingTypeById(validTrainingTypeId))
                 .thenReturn(true);

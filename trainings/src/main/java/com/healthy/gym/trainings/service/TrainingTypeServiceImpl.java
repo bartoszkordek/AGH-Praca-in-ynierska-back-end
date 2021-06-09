@@ -31,7 +31,7 @@ public class TrainingTypeServiceImpl implements TrainingTypeService {
                     trainingType.getId(),
                     trainingType.getName(),
                     trainingType.getDescription(),
-                    trainingType.getAvatar()
+                    null //trainingType.getImageDocument()
             );
             trainingTypeManagerViewModels.add(trainingTypeManagerViewModel);
         }
@@ -46,7 +46,7 @@ public class TrainingTypeServiceImpl implements TrainingTypeService {
             TrainingTypePublicViewModel trainingTypePublicViewModel = new TrainingTypePublicViewModel(
                     trainingType.getName(),
                     trainingType.getDescription(),
-                    trainingType.getAvatar()
+                    null //trainingType.getAvatar()
             );
             trainingTypePublicViewModels.add(trainingTypePublicViewModel);
         }
@@ -68,7 +68,8 @@ public class TrainingTypeServiceImpl implements TrainingTypeService {
             throw new DuplicatedTrainingTypes("Training type of name: " + trainingName + " already exists.");
         }
 
-        TrainingTypeDocument response = trainingTypeRepository.insert(new TrainingTypeDocument(trainingName, description, avatar));
+        TrainingTypeDocument response = trainingTypeRepository
+                .insert(new TrainingTypeDocument(null, trainingName, description, null, null));
         return response;
     }
 
@@ -93,7 +94,7 @@ public class TrainingTypeServiceImpl implements TrainingTypeService {
         TrainingTypeDocument trainingType = trainingTypeRepository.findByTrainingTypeId(trainingTypeId);
         trainingType.setName(trainingName);
         trainingType.setDescription(description);
-        trainingType.setAvatar(avatar);
+//        trainingType.setAvatar(avatar);
 
         return trainingTypeRepository.save(trainingType);
     }

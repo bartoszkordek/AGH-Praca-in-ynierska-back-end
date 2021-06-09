@@ -3,13 +3,13 @@ package com.healthy.gym.trainings.model.request;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class GroupTrainingsReviewsModel {
+public class GroupTrainingReviewRequest {
 
     private String trainingName;
     private int stars;
     private String text;
 
-    public GroupTrainingsReviewsModel(@JsonProperty("trainingName") String trainingName,
+    public GroupTrainingReviewRequest(@JsonProperty("trainingName") String trainingName,
                                       @JsonProperty("stars") int stars,
                                       @JsonProperty("text") String text){
         this.trainingName = trainingName;

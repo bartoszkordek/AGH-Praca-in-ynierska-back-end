@@ -7,9 +7,9 @@ import com.healthy.gym.trainings.data.repository.GroupTrainingReviewsDbRepositor
 import com.healthy.gym.trainings.data.repository.GroupTrainingsDbRepository;
 import com.healthy.gym.trainings.exception.*;
 import com.healthy.gym.trainings.model.other.EmailSendModel;
-import com.healthy.gym.trainings.model.request.GroupTrainingModel;
-import com.healthy.gym.trainings.model.request.GroupTrainingsReviewsModel;
-import com.healthy.gym.trainings.model.request.GroupTrainingsReviewsUpdateModel;
+import com.healthy.gym.trainings.model.request.GroupTrainingRequest;
+import com.healthy.gym.trainings.model.request.GroupTrainingReviewRequest;
+import com.healthy.gym.trainings.model.request.GroupTrainingReviewUpdateRequest;
 import com.healthy.gym.trainings.model.response.GroupTrainingsPublicViewModel;
 import com.healthy.gym.trainings.service.email.EmailService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,7 +51,7 @@ public class GroupTrainingsService {
         emailService.sendEmailTLS(emailSendModel);
     }
 
-    private boolean isExistRequiredDataForGroupTraining(GroupTrainingModel groupTrainingModel) {
+    private boolean isExistRequiredDataForGroupTraining(GroupTrainingRequest groupTrainingModel) {
         String trainingName = groupTrainingModel.getTrainingName();
         String trainerId = groupTrainingModel.getTrainerId();
         String date = groupTrainingModel.getDate();
@@ -161,7 +161,7 @@ public class GroupTrainingsService {
         }
     }
 
-    public GroupTrainings createGroupTraining(GroupTrainingModel groupTrainingModel) throws TrainingCreationException, ParseException, InvalidHourException {
+    public GroupTrainings createGroupTraining(GroupTrainingRequest groupTrainingModel) throws TrainingCreationException, ParseException, InvalidHourException {
         if (!isExistRequiredDataForGroupTraining(groupTrainingModel))
             throw new TrainingCreationException("Cannot create new group training. Missing required data.");
 
@@ -205,7 +205,7 @@ public class GroupTrainingsService {
         return result;
     }
 
-    public GroupTrainings updateGroupTraining(String trainingId, GroupTrainingModel groupTrainingModelRequest) throws TrainingUpdateException, EmailSendingException, InvalidHourException, ParseException {
+    public GroupTrainings updateGroupTraining(String trainingId, GroupTrainingRequest groupTrainingModelRequest) throws TrainingUpdateException, EmailSendingException, InvalidHourException, ParseException {
         if (!groupTrainingsDbRepository.isGroupTrainingExist(trainingId))
             throw new TrainingUpdateException("Training with ID: " + trainingId + " doesn't exist");
 
@@ -253,7 +253,7 @@ public class GroupTrainingsService {
         return groupTrainingReviewsDbRepository.getGroupTrainingsReviewById(reviewId);
     }
 
-    public GroupTrainingsReviews createGroupTrainingReview(GroupTrainingsReviewsModel groupTrainingsReviewsModel,
+    public GroupTrainingsReviews createGroupTrainingReview(GroupTrainingReviewRequest groupTrainingsReviewsModel,
                                                            String clientId) throws StarsOutOfRangeException {
         if (groupTrainingsReviewsModel.getStars() < 1 || groupTrainingsReviewsModel.getStars() > 5) {
             throw new StarsOutOfRangeException("Stars must be in range: 1-5");
@@ -276,7 +276,7 @@ public class GroupTrainingsService {
         return groupTrainingReviewsDbRepository.removeGroupTrainingsReview(reviewId);
     }
 
-    public GroupTrainingsReviews updateGroupTrainingReview(GroupTrainingsReviewsUpdateModel groupTrainingsReviewsUpdateModel,
+    public GroupTrainingsReviews updateGroupTrainingReview(GroupTrainingReviewUpdateRequest groupTrainingsReviewsUpdateModel,
                                                            String reviewId,
                                                            String clientId) throws NotAuthorizedClientException, StarsOutOfRangeException, NotExistingGroupTrainingReviewException {
         if (!groupTrainingReviewsDbRepository.isGroupTrainingsReviewExist(reviewId)) {

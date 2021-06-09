@@ -2,7 +2,7 @@ package com.healthy.gym.trainings.controller;
 
 import com.healthy.gym.trainings.data.document.GroupTrainings;
 import com.healthy.gym.trainings.exception.*;
-import com.healthy.gym.trainings.model.request.GroupTrainingModel;
+import com.healthy.gym.trainings.model.request.GroupTrainingRequest;
 import com.healthy.gym.trainings.model.response.GroupTrainingsPublicViewModel;
 import com.healthy.gym.trainings.service.GroupTrainingsService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,7 +27,7 @@ public class GroupTrainingController {
     // TODO only manager
     @PostMapping
     public GroupTrainings createGroupTraining(
-            @Valid @RequestBody GroupTrainingModel groupTrainingModel
+            @Valid @RequestBody GroupTrainingRequest groupTrainingModel
     ) throws RestException {
         try {
             return groupTrainingsService.createGroupTraining(groupTrainingModel);
@@ -68,7 +68,7 @@ public class GroupTrainingController {
     @PutMapping("/{trainingId}")
     public GroupTrainings updateGroupTraining(
             @PathVariable("trainingId") final String trainingId,
-            @Valid @RequestBody GroupTrainingModel groupTrainingModelRequest
+            @Valid @RequestBody GroupTrainingRequest groupTrainingModelRequest
     ) throws RestException {
         try {
             return groupTrainingsService.updateGroupTraining(trainingId, groupTrainingModelRequest);

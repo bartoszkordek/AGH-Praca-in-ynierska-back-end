@@ -7,8 +7,8 @@ import com.healthy.gym.trainings.exception.NotAuthorizedClientException;
 import com.healthy.gym.trainings.exception.NotExistingGroupTrainingReviewException;
 import com.healthy.gym.trainings.exception.StarsOutOfRangeException;
 import com.healthy.gym.trainings.mock.TrainingsServiceGroupGroupTrainingsReviewsImpl;
-import com.healthy.gym.trainings.model.request.GroupTrainingsReviewsModel;
-import com.healthy.gym.trainings.model.request.GroupTrainingsReviewsUpdateModel;
+import com.healthy.gym.trainings.model.request.GroupTrainingReviewRequest;
+import com.healthy.gym.trainings.model.request.GroupTrainingReviewUpdateRequest;
 import com.healthy.gym.trainings.service.GroupTrainingsService;
 import org.junit.Before;
 import org.junit.Test;
@@ -46,7 +46,7 @@ public class TrainingsServiceGroupGroupTrainingsReviewsTest {
     private int sampleStarsToUpdate = 4;
     private String sampleTextToUpdate = "OK";
     private String sampleDateToUpdate = "2021-11-03";
-    private GroupTrainingsReviewsUpdateModel groupTrainingsReviewsUpdateModel;
+    private GroupTrainingReviewUpdateRequest groupTrainingsReviewsUpdateModel;
     @MockBean
     private GroupTrainingReviewsDbRepository groupTrainingReviewsDbRepository;
 
@@ -57,7 +57,7 @@ public class TrainingsServiceGroupGroupTrainingsReviewsTest {
         Date now = new Date();
         String todayDateFormatted = sdfDate.format(now);
 
-        GroupTrainingsReviewsModel validGroupTrainingsReviewsModel = new GroupTrainingsReviewsModel(sampleTrainingName,
+        GroupTrainingReviewRequest validGroupTrainingsReviewsModel = new GroupTrainingReviewRequest(sampleTrainingName,
                 sampleStars, sampleText);
 
         List<GroupTrainingsReviews> groupTrainingsReviewsList = new ArrayList<>();
@@ -98,7 +98,7 @@ public class TrainingsServiceGroupGroupTrainingsReviewsTest {
                 textToUpdate);
         groupTrainingsReviewsSampleAfterUpdate.setId(validReviewIdToUpdate);
 
-        groupTrainingsReviewsUpdateModel = new GroupTrainingsReviewsUpdateModel(starsToUpdate, textToUpdate);
+        groupTrainingsReviewsUpdateModel = new GroupTrainingReviewUpdateRequest(starsToUpdate, textToUpdate);
         when(groupTrainingReviewsDbRepository.updateGroupTrainingsReview(groupTrainingsReviewsUpdateModel, validReviewIdToUpdate))
                 .thenReturn(groupTrainingsReviewsSampleAfterUpdate);
 
@@ -134,7 +134,7 @@ public class TrainingsServiceGroupGroupTrainingsReviewsTest {
 
         int stars = 5;
         String text = "good";
-        GroupTrainingsReviewsModel groupTrainingsReviewToCreate = new GroupTrainingsReviewsModel(sampleTrainingName,
+        GroupTrainingReviewRequest groupTrainingsReviewToCreate = new GroupTrainingReviewRequest(sampleTrainingName,
                 stars, text);
         //then
         assertThat(groupTrainingsService.createGroupTrainingReview(groupTrainingsReviewToCreate, validClientId));
@@ -145,7 +145,7 @@ public class TrainingsServiceGroupGroupTrainingsReviewsTest {
         //when
         int stars = 6;
         String text = "above scale";
-        GroupTrainingsReviewsModel groupTrainingsReviewToCreate = new GroupTrainingsReviewsModel(sampleTrainingName,
+        GroupTrainingReviewRequest groupTrainingsReviewToCreate = new GroupTrainingReviewRequest(sampleTrainingName,
                 stars, text);
         //then
         assertThat(groupTrainingsService.createGroupTrainingReview(groupTrainingsReviewToCreate, validClientId));
@@ -156,7 +156,7 @@ public class TrainingsServiceGroupGroupTrainingsReviewsTest {
         //when
         int stars = 0;
         String text = "below scale";
-        GroupTrainingsReviewsModel groupTrainingsReviewToCreate = new GroupTrainingsReviewsModel(sampleTrainingName,
+        GroupTrainingReviewRequest groupTrainingsReviewToCreate = new GroupTrainingReviewRequest(sampleTrainingName,
                 stars, text);
         //then
         assertThat(groupTrainingsService.createGroupTrainingReview(groupTrainingsReviewToCreate, validClientId));
@@ -203,7 +203,7 @@ public class TrainingsServiceGroupGroupTrainingsReviewsTest {
 
         int starsAfterUpdate = 4;
         String textAfterUpdate = "Rather good";
-        GroupTrainingsReviewsUpdateModel groupTrainingsReviewsUpdateModel = new GroupTrainingsReviewsUpdateModel(starsAfterUpdate, textAfterUpdate);
+        GroupTrainingReviewUpdateRequest groupTrainingsReviewsUpdateModel = new GroupTrainingReviewUpdateRequest(starsAfterUpdate, textAfterUpdate);
 
         //then
         groupTrainingsService.updateGroupTrainingReview(groupTrainingsReviewsUpdateModel, validReviewIdToUpdate, invalidClientId);
@@ -223,7 +223,7 @@ public class TrainingsServiceGroupGroupTrainingsReviewsTest {
 
         int starsAfterUpdate = 4;
         String textAfterUpdate = "Rather good";
-        GroupTrainingsReviewsUpdateModel groupTrainingsReviewsUpdateModel = new GroupTrainingsReviewsUpdateModel(starsAfterUpdate, textAfterUpdate);
+        GroupTrainingReviewUpdateRequest groupTrainingsReviewsUpdateModel = new GroupTrainingReviewUpdateRequest(starsAfterUpdate, textAfterUpdate);
 
         //then
         groupTrainingsService.updateGroupTrainingReview(groupTrainingsReviewsUpdateModel, invalidReviewId, validClientId);
@@ -243,7 +243,7 @@ public class TrainingsServiceGroupGroupTrainingsReviewsTest {
 
         int starsAfterUpdate = 6;
         String textAfterUpdate = "Perfect!";
-        GroupTrainingsReviewsUpdateModel groupTrainingsReviewsUpdateModel = new GroupTrainingsReviewsUpdateModel(starsAfterUpdate, textAfterUpdate);
+        GroupTrainingReviewUpdateRequest groupTrainingsReviewsUpdateModel = new GroupTrainingReviewUpdateRequest(starsAfterUpdate, textAfterUpdate);
 
         //then
         groupTrainingsService.updateGroupTrainingReview(groupTrainingsReviewsUpdateModel, invalidReviewId, validClientId);
@@ -263,7 +263,7 @@ public class TrainingsServiceGroupGroupTrainingsReviewsTest {
 
         int starsAfterUpdate = 0;
         String textAfterUpdate = "Totally poor!";
-        GroupTrainingsReviewsUpdateModel groupTrainingsReviewsUpdateModel = new GroupTrainingsReviewsUpdateModel(starsAfterUpdate, textAfterUpdate);
+        GroupTrainingReviewUpdateRequest groupTrainingsReviewsUpdateModel = new GroupTrainingReviewUpdateRequest(starsAfterUpdate, textAfterUpdate);
 
         //then
         groupTrainingsService.updateGroupTrainingReview(groupTrainingsReviewsUpdateModel, invalidReviewId, validClientId);

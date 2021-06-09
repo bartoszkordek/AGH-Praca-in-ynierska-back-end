@@ -5,7 +5,7 @@ import com.healthy.gym.trainings.data.document.GroupTrainings;
 import com.healthy.gym.trainings.data.repository.GroupTrainingsDbRepository;
 import com.healthy.gym.trainings.exception.*;
 import com.healthy.gym.trainings.mock.TrainingsServiceGroupGroupTrainingsImpl;
-import com.healthy.gym.trainings.model.request.GroupTrainingModel;
+import com.healthy.gym.trainings.model.request.GroupTrainingRequest;
 import com.healthy.gym.trainings.service.GroupTrainingsService;
 import org.junit.Before;
 import org.junit.Test;
@@ -43,18 +43,18 @@ public class TrainingsServiceGroupGroupTrainingsTest {
     private final List<String> emptyParticipants = new ArrayList<>();
     private final List<String> emptyReserveList = new ArrayList<>();
 
-    private final GroupTrainingModel validGroupTrainingModel = new GroupTrainingModel(validTestTrainingName, validTestTrainerId, validTestDate,
+    private final GroupTrainingRequest validGroupTrainingModel = new GroupTrainingRequest(validTestTrainingName, validTestTrainerId, validTestDate,
             validTestStartTime, validTestEndTime, validTestHallNo, validTestLimit, emptyParticipants, emptyReserveList);
-    private final GroupTrainingModel invalidGroupTrainingModel_invalidTestRetroDate = new GroupTrainingModel(validTestTrainingName, validTestTrainerId, invalidTestRetroDate,
+    private final GroupTrainingRequest invalidGroupTrainingModel_invalidTestRetroDate = new GroupTrainingRequest(validTestTrainingName, validTestTrainerId, invalidTestRetroDate,
             validTestStartTime, validTestEndTime, validTestHallNo, validTestLimit, emptyParticipants, emptyReserveList);
-    private final GroupTrainingModel invalidGroupTrainingModel_invalidHallNo = new GroupTrainingModel(validTestTrainingName, validTestTrainerId, validTestDate,
+    private final GroupTrainingRequest invalidGroupTrainingModel_invalidHallNo = new GroupTrainingRequest(validTestTrainingName, validTestTrainerId, validTestDate,
             validTestStartTime, validTestEndTime, invalidTestHallNo, validTestLimit, emptyParticipants, emptyReserveList);
 
     private final GroupTrainings validGroupTrainings = new GroupTrainings(validTestTrainingName, validTestTrainerId, validTestDate,
             validTestStartTime, validTestEndTime, validTestHallNo, validTestLimit, emptyParticipants, emptyReserveList);
 
     List<String> participantsWithValidClientId = new ArrayList<>();
-    private final GroupTrainingModel validGroupTrainingsModelWithValidClientAsParticipant = new GroupTrainingModel(validTestTrainingName, validTestTrainerId, validTestDate,
+    private final GroupTrainingRequest validGroupTrainingsModelWithValidClientAsParticipant = new GroupTrainingRequest(validTestTrainingName, validTestTrainerId, validTestDate,
             validTestStartTime, validTestEndTime, validTestHallNo, validTestLimit, participantsWithValidClientId, emptyReserveList);
     private final GroupTrainings validGroupTrainingsWithValidClientAsParticipant = new GroupTrainings(validTestTrainingName, validTestTrainerId, validTestDate,
             validTestStartTime, validTestEndTime, validTestHallNo, validTestLimit, participantsWithValidClientId, emptyReserveList);

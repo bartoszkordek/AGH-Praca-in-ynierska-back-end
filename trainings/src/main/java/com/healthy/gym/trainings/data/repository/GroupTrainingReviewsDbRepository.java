@@ -1,8 +1,8 @@
 package com.healthy.gym.trainings.data.repository;
 
 import com.healthy.gym.trainings.data.document.GroupTrainingsReviews;
-import com.healthy.gym.trainings.model.request.GroupTrainingsReviewsModel;
-import com.healthy.gym.trainings.model.request.GroupTrainingsReviewsUpdateModel;
+import com.healthy.gym.trainings.model.request.GroupTrainingReviewRequest;
+import com.healthy.gym.trainings.model.request.GroupTrainingReviewUpdateRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Repository;
@@ -34,7 +34,7 @@ public class GroupTrainingReviewsDbRepository {
         return groupTrainingReviewsRepository.existsByIdAndAndClientId(reviewId, clientId);
     }
 
-    public GroupTrainingsReviews createGroupTrainingReview(GroupTrainingsReviewsModel groupTrainingsReviewsModel,
+    public GroupTrainingsReviews createGroupTrainingReview(GroupTrainingReviewRequest groupTrainingsReviewsModel,
                                                            String date,
                                                            String clientId){
 
@@ -54,7 +54,7 @@ public class GroupTrainingReviewsDbRepository {
         return groupTrainingsReviews;
     }
 
-    public GroupTrainingsReviews updateGroupTrainingsReview(GroupTrainingsReviewsUpdateModel groupTrainingsReviewsUpdateModel,
+    public GroupTrainingsReviews updateGroupTrainingsReview(GroupTrainingReviewUpdateRequest groupTrainingsReviewsUpdateModel,
                                                             String reviewId){
         GroupTrainingsReviews groupTrainingsReview = groupTrainingReviewsRepository.findGroupTrainingsReviewsById(reviewId);
         int stars = groupTrainingsReviewsUpdateModel.getStars();

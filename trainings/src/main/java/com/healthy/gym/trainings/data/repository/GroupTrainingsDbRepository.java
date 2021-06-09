@@ -4,7 +4,7 @@ import com.healthy.gym.trainings.config.MongoConfig;
 import com.healthy.gym.trainings.data.document.GroupTrainings;
 import com.healthy.gym.trainings.exception.InvalidDateException;
 import com.healthy.gym.trainings.exception.InvalidHourException;
-import com.healthy.gym.trainings.model.request.GroupTrainingModel;
+import com.healthy.gym.trainings.model.request.GroupTrainingRequest;
 import com.healthy.gym.trainings.model.response.GroupTrainingsPublicViewModel;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
@@ -137,7 +137,7 @@ public class GroupTrainingsDbRepository {
         groupTrainingsRepository.save(groupTrainings);
     }
 
-    public boolean isAbilityToCreateTraining(GroupTrainingModel groupTrainingModel) throws ParseException {
+    public boolean isAbilityToCreateTraining(GroupTrainingRequest groupTrainingModel) throws ParseException {
         MongoClient mongoClient = MongoClients.create(environment.getProperty("spring.data.mongodb.uri"));
         mdb = mongoClient.getDatabase(environment.getProperty("spring.data.mongodb.database"));
         MongoCollection collection = mdb.getCollection(groupTrainingsCollectionName);
@@ -180,7 +180,7 @@ public class GroupTrainingsDbRepository {
         return !collection.aggregate(pipeline).cursor().hasNext();
     }
 
-    public GroupTrainings createTraining(GroupTrainingModel groupTrainingModel) throws InvalidHourException {
+    public GroupTrainings createTraining(GroupTrainingRequest groupTrainingModel) throws InvalidHourException {
         GroupTrainings response = groupTrainingsRepository.insert(new GroupTrainings(
                 groupTrainingModel.getTrainingName(),
                 groupTrainingModel.getTrainerId(),
@@ -201,7 +201,7 @@ public class GroupTrainingsDbRepository {
         return groupTrainings;
     }
 
-    public GroupTrainings updateTraining(String trainingId, GroupTrainingModel groupTrainingModelRequest) throws InvalidHourException {
+    public GroupTrainings updateTraining(String trainingId, GroupTrainingRequest groupTrainingModelRequest) throws InvalidHourException {
         boolean ifExistGroupTraining = groupTrainingsRepository.existsById(trainingId);
 
         GroupTrainings groupTrainings = null;

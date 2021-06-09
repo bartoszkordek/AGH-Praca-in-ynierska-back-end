@@ -9,7 +9,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.validation.constraints.NotNull;
 
-public class IndividualTrainingsRequestModel {
+public class IndividualTrainingRequest {
 
     @NotNull
     private String trainerId;
@@ -22,11 +22,11 @@ public class IndividualTrainingsRequestModel {
     private String endTime;
     private String remarks;
 
-    public IndividualTrainingsRequestModel(@JsonProperty("trainerId") String trainerId,
-                                           @JsonProperty("date") String date,
-                                           @JsonProperty("startTime") String startTime,
-                                           @JsonProperty("endTime") String endTime,
-                                           @JsonProperty("remarks") String remarks) throws InvalidDateException, InvalidHourException {
+    public IndividualTrainingRequest(@JsonProperty("trainerId") String trainerId,
+                                     @JsonProperty("date") String date,
+                                     @JsonProperty("startTime") String startTime,
+                                     @JsonProperty("endTime") String endTime,
+                                     @JsonProperty("remarks") String remarks) throws InvalidDateException, InvalidHourException {
         DateValidator dateValidator = new DateValidator();
         Time24HoursValidator time24HoursValidator = new Time24HoursValidator();
         this.trainerId = trainerId;

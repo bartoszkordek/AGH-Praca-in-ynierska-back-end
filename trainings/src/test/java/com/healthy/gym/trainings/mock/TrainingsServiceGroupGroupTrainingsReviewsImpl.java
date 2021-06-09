@@ -6,8 +6,8 @@ import com.healthy.gym.trainings.data.repository.GroupTrainingsDbRepository;
 import com.healthy.gym.trainings.exception.NotAuthorizedClientException;
 import com.healthy.gym.trainings.exception.NotExistingGroupTrainingReviewException;
 import com.healthy.gym.trainings.exception.StarsOutOfRangeException;
-import com.healthy.gym.trainings.model.request.GroupTrainingsReviewsModel;
-import com.healthy.gym.trainings.model.request.GroupTrainingsReviewsUpdateModel;
+import com.healthy.gym.trainings.model.request.GroupTrainingReviewRequest;
+import com.healthy.gym.trainings.model.request.GroupTrainingReviewUpdateRequest;
 import com.healthy.gym.trainings.service.GroupTrainingsService;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -39,7 +39,7 @@ public class TrainingsServiceGroupGroupTrainingsReviewsImpl extends GroupTrainin
     }
 
     @Override
-    public GroupTrainingsReviews createGroupTrainingReview(GroupTrainingsReviewsModel groupTrainingsReviewsModel,
+    public GroupTrainingsReviews createGroupTrainingReview(GroupTrainingReviewRequest groupTrainingsReviewsModel,
                                                            String clientId) throws StarsOutOfRangeException {
         if (groupTrainingsReviewsModel.getStars() < 1 || groupTrainingsReviewsModel.getStars() > 5) {
             throw new StarsOutOfRangeException("Stars must be in range: 1-5");
@@ -53,7 +53,7 @@ public class TrainingsServiceGroupGroupTrainingsReviewsImpl extends GroupTrainin
     }
 
     @Override
-    public GroupTrainingsReviews updateGroupTrainingReview(GroupTrainingsReviewsUpdateModel groupTrainingsReviewsUpdateModel,
+    public GroupTrainingsReviews updateGroupTrainingReview(GroupTrainingReviewUpdateRequest groupTrainingsReviewsUpdateModel,
                                                            String reviewId,
                                                            String clientId) throws NotAuthorizedClientException, StarsOutOfRangeException, NotExistingGroupTrainingReviewException {
         if (!groupTrainingReviewsDbRepository.isGroupTrainingsReviewExist(reviewId)) {

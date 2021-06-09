@@ -2,8 +2,8 @@ package com.healthy.gym.trainings.data.repository;
 
 import com.healthy.gym.trainings.data.document.IndividualTrainings;
 import com.healthy.gym.trainings.exception.InvalidHourException;
-import com.healthy.gym.trainings.model.request.IndividualTrainingsAcceptModel;
-import com.healthy.gym.trainings.model.request.IndividualTrainingsRequestModel;
+import com.healthy.gym.trainings.model.request.IndividualTrainingAcceptanceRequest;
+import com.healthy.gym.trainings.model.request.IndividualTrainingRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Repository;
@@ -51,7 +51,7 @@ public class IndividualTrainingsDbRepository {
         return individualTrainingsRepository.findAllByAccepted(true);
     }
 
-    public IndividualTrainings createIndividualTrainingRequest(IndividualTrainingsRequestModel individualTrainingsRequestModel,
+    public IndividualTrainings createIndividualTrainingRequest(IndividualTrainingRequest individualTrainingsRequestModel,
                                                                String clientId) throws InvalidHourException {
         IndividualTrainings response = individualTrainingsRepository.insert(new IndividualTrainings(
                 clientId,
@@ -68,7 +68,7 @@ public class IndividualTrainingsDbRepository {
     }
 
     public IndividualTrainings acceptIndividualTrainingRequest(String trainingId,
-                                                               IndividualTrainingsAcceptModel individualTrainingsAcceptModel){
+                                                               IndividualTrainingAcceptanceRequest individualTrainingsAcceptModel){
 
         IndividualTrainings individualTrainings = individualTrainingsRepository.findIndividualTrainingsById(trainingId);
         individualTrainings.setAccepted(true);

@@ -2,8 +2,8 @@ package com.healthy.gym.trainings.controller;
 
 import com.healthy.gym.trainings.data.document.IndividualTrainings;
 import com.healthy.gym.trainings.exception.*;
-import com.healthy.gym.trainings.model.request.IndividualTrainingsAcceptModel;
-import com.healthy.gym.trainings.model.request.IndividualTrainingsRequestModel;
+import com.healthy.gym.trainings.model.request.IndividualTrainingAcceptanceRequest;
+import com.healthy.gym.trainings.model.request.IndividualTrainingRequest;
 import com.healthy.gym.trainings.service.IndividualTrainingsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -26,7 +26,7 @@ public class IndividualTrainingController {
 
     @PostMapping("/request")
     public IndividualTrainings createIndividualTrainingRequest(
-            @Valid @RequestBody final IndividualTrainingsRequestModel individualTrainingsRequestModel,
+            @Valid @RequestBody final IndividualTrainingRequest individualTrainingsRequestModel,
             @RequestParam final String clientId
     ) throws RestException {
         try {
@@ -70,7 +70,7 @@ public class IndividualTrainingController {
     @PutMapping("/{trainingId}/accept")
     public IndividualTrainings acceptIndividualTraining(
             @PathVariable("trainingId") final String trainingId,
-            @Valid @RequestBody final IndividualTrainingsAcceptModel individualTrainingsAcceptModel
+            @Valid @RequestBody final IndividualTrainingAcceptanceRequest individualTrainingsAcceptModel
     ) throws RestException {
         try {
             return individualTrainingsService.acceptIndividualTraining(trainingId, individualTrainingsAcceptModel);

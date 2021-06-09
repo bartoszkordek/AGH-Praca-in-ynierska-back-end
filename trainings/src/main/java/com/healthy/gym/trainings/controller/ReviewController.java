@@ -5,8 +5,8 @@ import com.healthy.gym.trainings.exception.NotAuthorizedClientException;
 import com.healthy.gym.trainings.exception.NotExistingGroupTrainingReviewException;
 import com.healthy.gym.trainings.exception.RestException;
 import com.healthy.gym.trainings.exception.StarsOutOfRangeException;
-import com.healthy.gym.trainings.model.request.GroupTrainingsReviewsModel;
-import com.healthy.gym.trainings.model.request.GroupTrainingsReviewsUpdateModel;
+import com.healthy.gym.trainings.model.request.GroupTrainingReviewRequest;
+import com.healthy.gym.trainings.model.request.GroupTrainingReviewUpdateRequest;
 import com.healthy.gym.trainings.service.GroupTrainingsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -29,7 +29,7 @@ public class ReviewController {
     //TODO only logged in users
     @PostMapping
     public GroupTrainingsReviews createGroupTrainingReview(
-            @Valid @RequestBody GroupTrainingsReviewsModel groupTrainingsReviews,
+            @Valid @RequestBody GroupTrainingReviewRequest groupTrainingsReviews,
             @RequestParam final String clientId
     ) throws RestException {
         try {
@@ -77,7 +77,7 @@ public class ReviewController {
     //TODO only user own review
     @PutMapping("/{reviewId}")
     public GroupTrainingsReviews updateGroupTrainingReview(
-            @Valid @RequestBody final GroupTrainingsReviewsUpdateModel groupTrainingsReviewsUpdateModel,
+            @Valid @RequestBody final GroupTrainingReviewUpdateRequest groupTrainingsReviewsUpdateModel,
             @PathVariable("reviewId") final String reviewId,
             @RequestParam final String clientId
     ) throws RestException {

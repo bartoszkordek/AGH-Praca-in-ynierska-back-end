@@ -2,12 +2,12 @@ package com.healthy.gym.trainings.model.request;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class GroupTrainingsReviewsUpdateModel {
+public class GroupTrainingReviewUpdateRequest {
 
     private int stars;
     private String text;
 
-    public GroupTrainingsReviewsUpdateModel(@JsonProperty("stars") int stars,
+    public GroupTrainingReviewUpdateRequest(@JsonProperty("stars") int stars,
                                             @JsonProperty("text") String text){
         this.stars = stars;
         this.text = text;

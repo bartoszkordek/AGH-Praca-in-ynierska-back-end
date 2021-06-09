@@ -5,8 +5,8 @@ import com.healthy.gym.trainings.data.repository.IndividualTrainingsDbRepository
 import com.healthy.gym.trainings.data.document.IndividualTrainings;
 import com.healthy.gym.trainings.exception.*;
 import com.healthy.gym.trainings.mock.TrainingsServiceIndividualTrainingsImpl;
-import com.healthy.gym.trainings.model.request.IndividualTrainingsAcceptModel;
-import com.healthy.gym.trainings.model.request.IndividualTrainingsRequestModel;
+import com.healthy.gym.trainings.model.request.IndividualTrainingAcceptanceRequest;
+import com.healthy.gym.trainings.model.request.IndividualTrainingRequest;
 import com.healthy.gym.trainings.service.IndividualTrainingsService;
 import org.junit.Before;
 import org.junit.Test;
@@ -43,12 +43,12 @@ public class TrainingsServiceIndividualTrainingsTest {
     private final boolean isAccepted = false;
     private final boolean isDeclined = false;
 
-    private IndividualTrainingsRequestModel validIndividualTrainingsRequestModel;
-    private IndividualTrainingsRequestModel terminatedIndividualTrainingsRequestModelRetroDate;
+    private IndividualTrainingRequest validIndividualTrainingsRequestModel;
+    private IndividualTrainingRequest terminatedIndividualTrainingsRequestModelRetroDate;
     private IndividualTrainings validIndividualTraining;
 
-    private IndividualTrainingsAcceptModel individualTrainingsAcceptModel;
-    private IndividualTrainingsAcceptModel invalidIndividualTrainingsAcceptModelWrongHallNo;
+    private IndividualTrainingAcceptanceRequest individualTrainingsAcceptModel;
+    private IndividualTrainingAcceptanceRequest invalidIndividualTrainingsAcceptModelWrongHallNo;
     private IndividualTrainings validAcceptedIndividualTraining;
 
     private IndividualTrainings acceptedIndividualTraining;
@@ -84,20 +84,20 @@ public class TrainingsServiceIndividualTrainingsTest {
 
     @Before
     public void setUp() throws InvalidHourException, InvalidDateException {
-        validIndividualTrainingsRequestModel = new IndividualTrainingsRequestModel(validTrainerId, validDate,
+        validIndividualTrainingsRequestModel = new IndividualTrainingRequest(validTrainerId, validDate,
                 validStartTime, validEndTime, validRemarks);
-        terminatedIndividualTrainingsRequestModelRetroDate = new IndividualTrainingsRequestModel(validTrainerId, retroDate,
+        terminatedIndividualTrainingsRequestModelRetroDate = new IndividualTrainingRequest(validTrainerId, retroDate,
                 validStartTime, validEndTime, validRemarks);
         validIndividualTraining = new  IndividualTrainings(validClientId, validTrainerId,
                 validDate, validStartTime, validEndTime, validHallNo, validRemarks, isAccepted, isDeclined);
         validIndividualTraining.setId(validNotAcceptedTrainingId);
 
-        individualTrainingsAcceptModel = new IndividualTrainingsAcceptModel(validHallNo);
+        individualTrainingsAcceptModel = new IndividualTrainingAcceptanceRequest(validHallNo);
         validAcceptedIndividualTraining = new  IndividualTrainings(validClientId, validTrainerId,
                 validDate, validStartTime, validEndTime, validHallNo, validRemarks, true, isDeclined);
         validAcceptedIndividualTraining.setId(validAcceptedTrainingId);
 
-        invalidIndividualTrainingsAcceptModelWrongHallNo = new IndividualTrainingsAcceptModel(invalidHallNo);
+        invalidIndividualTrainingsAcceptModelWrongHallNo = new IndividualTrainingAcceptanceRequest(invalidHallNo);
 
         acceptedIndividualTraining = new  IndividualTrainings(validClientId, validTrainerId,
                 validDate, validStartTime, validEndTime, validHallNo, validRemarks, true, isDeclined);

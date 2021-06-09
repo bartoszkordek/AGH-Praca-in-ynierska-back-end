@@ -3,8 +3,8 @@ package com.healthy.gym.trainings.mock;
 import com.healthy.gym.trainings.data.repository.IndividualTrainingsDbRepository;
 import com.healthy.gym.trainings.data.document.IndividualTrainings;
 import com.healthy.gym.trainings.exception.*;
-import com.healthy.gym.trainings.model.request.IndividualTrainingsAcceptModel;
-import com.healthy.gym.trainings.model.request.IndividualTrainingsRequestModel;
+import com.healthy.gym.trainings.model.request.IndividualTrainingAcceptanceRequest;
+import com.healthy.gym.trainings.model.request.IndividualTrainingRequest;
 import com.healthy.gym.trainings.service.IndividualTrainingsService;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -43,7 +43,7 @@ public class TrainingsServiceIndividualTrainingsImpl extends IndividualTrainings
     }
 
     @Override
-    public IndividualTrainings createIndividualTrainingRequest(IndividualTrainingsRequestModel individualTrainingsRequestModel,
+    public IndividualTrainings createIndividualTrainingRequest(IndividualTrainingRequest individualTrainingsRequestModel,
                                                                String clientId) throws InvalidHourException, ParseException, RetroIndividualTrainingException {
         String individualTrainingDate = individualTrainingsRequestModel.getDate();
         String individualTrainingStartTime = individualTrainingsRequestModel.getStartTime();
@@ -54,7 +54,7 @@ public class TrainingsServiceIndividualTrainingsImpl extends IndividualTrainings
     }
 
     @Override
-    public IndividualTrainings acceptIndividualTraining(String trainingId, IndividualTrainingsAcceptModel individualTrainingsAcceptModel) throws NotExistingIndividualTrainingException, AlreadyAcceptedIndividualTrainingException, HallNoOutOfRangeException, ParseException, RetroIndividualTrainingException {
+    public IndividualTrainings acceptIndividualTraining(String trainingId, IndividualTrainingAcceptanceRequest individualTrainingsAcceptModel) throws NotExistingIndividualTrainingException, AlreadyAcceptedIndividualTrainingException, HallNoOutOfRangeException, ParseException, RetroIndividualTrainingException {
         if(!individualTrainingsDbRepository.isIndividualTrainingExist(trainingId)){
             throw new NotExistingIndividualTrainingException("Training with ID: "+ trainingId + " doesn't exist");
         }

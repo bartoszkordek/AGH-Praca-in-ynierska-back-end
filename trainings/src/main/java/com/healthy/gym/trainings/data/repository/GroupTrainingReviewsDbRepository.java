@@ -1,8 +1,8 @@
 package com.healthy.gym.trainings.data.repository;
 
 import com.healthy.gym.trainings.data.document.GroupTrainingsReviews;
-import com.healthy.gym.trainings.model.GroupTrainingsReviewsModel;
-import com.healthy.gym.trainings.model.GroupTrainingsReviewsUpdateModel;
+import com.healthy.gym.trainings.model.request.GroupTrainingsReviewsModel;
+import com.healthy.gym.trainings.model.request.GroupTrainingsReviewsUpdateModel;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Repository;

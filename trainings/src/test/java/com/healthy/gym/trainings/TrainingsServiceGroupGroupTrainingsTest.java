@@ -5,7 +5,7 @@ import com.healthy.gym.trainings.data.document.GroupTrainings;
 import com.healthy.gym.trainings.data.repository.GroupTrainingsDbRepository;
 import com.healthy.gym.trainings.exception.*;
 import com.healthy.gym.trainings.mock.TrainingsServiceGroupGroupTrainingsImpl;
-import com.healthy.gym.trainings.model.GroupTrainingModel;
+import com.healthy.gym.trainings.model.request.GroupTrainingModel;
 import com.healthy.gym.trainings.service.GroupTrainingsService;
 import org.junit.Before;
 import org.junit.Test;

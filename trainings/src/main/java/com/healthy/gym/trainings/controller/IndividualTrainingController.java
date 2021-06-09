@@ -2,8 +2,8 @@ package com.healthy.gym.trainings.controller;
 
 import com.healthy.gym.trainings.data.document.IndividualTrainings;
 import com.healthy.gym.trainings.exception.*;
-import com.healthy.gym.trainings.model.IndividualTrainingsAcceptModel;
-import com.healthy.gym.trainings.model.IndividualTrainingsRequestModel;
+import com.healthy.gym.trainings.model.request.IndividualTrainingsAcceptModel;
+import com.healthy.gym.trainings.model.request.IndividualTrainingsRequestModel;
 import com.healthy.gym.trainings.service.IndividualTrainingsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;

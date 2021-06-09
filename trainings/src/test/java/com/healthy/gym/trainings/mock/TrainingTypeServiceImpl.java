@@ -2,16 +2,8 @@ package com.healthy.gym.trainings.mock;
 
 import com.healthy.gym.trainings.data.document.TrainingTypeDocument;
 import com.healthy.gym.trainings.data.repository.TrainingTypeDAO;
-import com.healthy.gym.trainings.exception.DuplicatedTrainingTypes;
 import com.healthy.gym.trainings.exception.NotExistingTrainingType;
-import com.healthy.gym.trainings.model.TrainingTypeManagerViewModel;
-import com.healthy.gym.trainings.model.TrainingTypeModel;
-import com.healthy.gym.trainings.model.TrainingTypePublicViewModel;
 import org.springframework.beans.factory.annotation.Autowired;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
 
 public class TrainingTypeServiceImpl {
 

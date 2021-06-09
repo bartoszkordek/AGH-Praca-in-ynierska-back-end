@@ -2,8 +2,8 @@ package com.healthy.gym.trainings.data.repository;
 
 import com.healthy.gym.trainings.data.document.IndividualTrainings;
 import com.healthy.gym.trainings.exception.InvalidHourException;
-import com.healthy.gym.trainings.model.IndividualTrainingsAcceptModel;
-import com.healthy.gym.trainings.model.IndividualTrainingsRequestModel;
+import com.healthy.gym.trainings.model.request.IndividualTrainingsAcceptModel;
+import com.healthy.gym.trainings.model.request.IndividualTrainingsRequestModel;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Repository;

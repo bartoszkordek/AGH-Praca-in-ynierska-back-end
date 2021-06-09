@@ -1,4 +1,4 @@
-package com.healthy.gym.trainings.model;
+package com.healthy.gym.trainings.model.response;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.healthy.gym.trainings.exception.InvalidDateException;
@@ -10,7 +10,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 import javax.validation.constraints.NotNull;
 import java.util.List;
 
-public class GroupTrainingModel {
+public class GroupTrainingsPublicViewModel {
 
     @NotNull
     private String trainingName;
@@ -27,18 +27,15 @@ public class GroupTrainingModel {
     private int hallNo;
     @NotNull
     private int limit;
-    private List<String> participants;
-    private List<String> reserveList;
 
-    public GroupTrainingModel(@JsonProperty("trainingName") String trainingName,
+    public GroupTrainingsPublicViewModel(@JsonProperty("trainingName") String trainingName,
                               @JsonProperty("trainerId") String trainerId,
                               @JsonProperty("date") String date,
                               @JsonProperty("startTime") String startTime,
                               @JsonProperty("endTime") String endTime,
                               @JsonProperty("hallNo") int hallNo,
-                              @JsonProperty("limit") int limit,
-                              @JsonProperty("participants") List<String> participants,
-                              @JsonProperty("reserveList") List<String> reserveList) throws InvalidHourException, InvalidDateException {
+                              @JsonProperty("limit") int limit) throws InvalidHourException, InvalidDateException {
+
         DateValidator dateValidator = new DateValidator();
         Time24HoursValidator time24HoursValidator = new Time24HoursValidator();
         this.trainingName = trainingName;
@@ -60,8 +57,6 @@ public class GroupTrainingModel {
         }
         this.hallNo = hallNo;
         this.limit = limit;
-        this.participants = participants;
-        this.reserveList = reserveList;
     }
 
     public String getTrainingName() {
@@ -92,11 +87,4 @@ public class GroupTrainingModel {
         return limit;
     }
 
-    public List<String> getParticipants() {
-        return participants;
-    }
-
-    public List<String> getReserveList() {
-        return reserveList;
-    }
 }

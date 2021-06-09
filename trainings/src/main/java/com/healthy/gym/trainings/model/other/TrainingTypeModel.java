@@ -1,8 +1,8 @@
-package com.healthy.gym.trainings.model;
+package com.healthy.gym.trainings.model.other;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class TrainingTypePublicViewModel {
+public class TrainingTypeModel {
 
     @JsonProperty("trainingName")
     private String trainingName;
@@ -10,17 +10,12 @@ public class TrainingTypePublicViewModel {
     @JsonProperty("description")
     private String description;
 
-    @JsonProperty("avatar")
-    private byte[] avatar;
-
-    public TrainingTypePublicViewModel(
+    public TrainingTypeModel(
             @JsonProperty("trainingName") String trainingName,
-            @JsonProperty("description") String description,
-            @JsonProperty("avatar") byte[] avatar){
+            @JsonProperty("description") String description){
 
         this.trainingName = trainingName;
         this.description = description;
-        this.avatar = avatar;
     }
 
     public String getTrainingName() {
@@ -29,9 +24,5 @@ public class TrainingTypePublicViewModel {
 
     public String getDescription() {
         return description;
-    }
-
-    public byte[] getAvatar() {
-        return avatar;
     }
 }

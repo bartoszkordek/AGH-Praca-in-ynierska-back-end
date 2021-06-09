@@ -1,8 +1,9 @@
-package com.healthy.gym.trainings.model;
+package com.healthy.gym.trainings.model.response;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.healthy.gym.trainings.model.response.TrainingTypePublicViewModel;
 
-public class TrainingTypeManagerViewModel extends TrainingTypePublicViewModel{
+public class TrainingTypeManagerViewModel extends TrainingTypePublicViewModel {
 
     @JsonProperty("_id")
     private String id;

@@ -2,6 +2,7 @@ package com.healthy.gym.trainings.service;
 
 import com.healthy.gym.trainings.data.document.GroupTrainingsReviews;
 import com.healthy.gym.trainings.exception.StarsOutOfRangeException;
+import com.healthy.gym.trainings.exception.StartDateAfterEndDateException;
 import com.healthy.gym.trainings.model.request.GroupTrainingReviewRequest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -14,7 +15,8 @@ public interface ReviewService {
                                                     String clientId) throws StarsOutOfRangeException;
 
 
-    Page<GroupTrainingsReviews> getGroupTrainingReviews(String startDate, String endDate, Pageable pageable) throws ParseException;
+    Page<GroupTrainingsReviews> getAllReviews(String startDate, String endDate, Pageable pageable) throws ParseException, StartDateAfterEndDateException;
 
+    Page<GroupTrainingsReviews> getAllReviewsByUserId(String startDate, String endDate, String userId, Pageable pageable) throws ParseException, StartDateAfterEndDateException;
 
 }

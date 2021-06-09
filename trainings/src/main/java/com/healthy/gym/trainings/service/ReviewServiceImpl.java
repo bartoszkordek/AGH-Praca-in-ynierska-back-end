@@ -3,6 +3,7 @@ package com.healthy.gym.trainings.service;
 import com.healthy.gym.trainings.data.document.GroupTrainingsReviews;
 import com.healthy.gym.trainings.data.repository.ReviewDAO;
 import com.healthy.gym.trainings.exception.StarsOutOfRangeException;
+import com.healthy.gym.trainings.exception.StartDateAfterEndDateException;
 import com.healthy.gym.trainings.model.request.GroupTrainingReviewRequest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -16,6 +17,7 @@ import java.util.Date;
 public class ReviewServiceImpl implements ReviewService{
 
     private final ReviewDAO reviewRepository;
+    private SimpleDateFormat sdfDate = new SimpleDateFormat("yyyy-MM-dd");
 
     public ReviewServiceImpl(ReviewDAO reviewRepository){
         this.reviewRepository = reviewRepository;
@@ -26,7 +28,7 @@ public class ReviewServiceImpl implements ReviewService{
         if (groupTrainingsReviewsModel.getStars() < 1 || groupTrainingsReviewsModel.getStars() > 5) {
             throw new StarsOutOfRangeException("Stars must be in range: 1-5");
         }
-        SimpleDateFormat sdfDate = new SimpleDateFormat("yyyy-MM-dd");
+
         Date now = new Date();
         String todayDateFormatted = sdfDate.format(now);
 
@@ -41,14 +43,31 @@ public class ReviewServiceImpl implements ReviewService{
     }
 
     @Override
-    public Page<GroupTrainingsReviews> getGroupTrainingReviews(String startDate, String endDate, Pageable pageable) throws ParseException {
-        SimpleDateFormat sdfDate = new SimpleDateFormat("yyyy-MM-dd");
+    public Page<GroupTrainingsReviews> getAllReviews(String startDate, String endDate, Pageable pageable)
+            throws ParseException, StartDateAfterEndDateException {
         Date startDateParsed = sdfDate.parse(startDate);
         Date startDateMinusOneDay = new Date(startDateParsed.getTime() - (1000 * 60 * 60 * 24));
         Date endDateParsed = sdfDate.parse(endDate);
         Date endDatePlusOneDay = new Date(endDateParsed.getTime() + (1000 * 60 * 60 * 24));
+        if(startDateParsed.after(endDateParsed)){
+            throw new StartDateAfterEndDateException("Start date after end date");
+        }
         return reviewRepository.findAllByDateAfterAndDateBefore(sdfDate.format(startDateMinusOneDay),
                 sdfDate.format(endDatePlusOneDay), pageable);
+    }
+
+    @Override
+    public Page<GroupTrainingsReviews> getAllReviewsByUserId(String startDate, String endDate, String userId, Pageable pageable)
+            throws ParseException, StartDateAfterEndDateException {
+        Date startDateParsed = sdfDate.parse(startDate);
+        Date startDateMinusOneDay = new Date(startDateParsed.getTime() - (1000 * 60 * 60 * 24));
+        Date endDateParsed = sdfDate.parse(endDate);
+        Date endDatePlusOneDay = new Date(endDateParsed.getTime() + (1000 * 60 * 60 * 24));
+        if(startDateParsed.after(endDateParsed)){
+            throw new StartDateAfterEndDateException("Start date after end date");
+        }
+        return reviewRepository.findAllByDateAfterAndDateBeforeAndClientId(sdfDate.format(startDateMinusOneDay),
+                sdfDate.format(endDatePlusOneDay), userId, pageable);
     }
 
 

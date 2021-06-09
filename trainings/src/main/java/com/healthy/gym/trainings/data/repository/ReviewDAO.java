@@ -22,6 +22,6 @@ public interface ReviewDAO extends MongoRepository<GroupTrainingsReviews, String
     public void removeById(String id);
 
     Page<GroupTrainingsReviews> findAllByDateAfterAndDateBefore(String startDate, String endDate, Pageable pageable);
-
+    Page<GroupTrainingsReviews> findAllByDateAfterAndDateBeforeAndClientId(String startDate, String endDate, String clientId, Pageable pageable);
 
 }

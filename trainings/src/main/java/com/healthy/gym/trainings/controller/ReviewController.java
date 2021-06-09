@@ -1,10 +1,7 @@
 package com.healthy.gym.trainings.controller;
 
 import com.healthy.gym.trainings.data.document.GroupTrainingsReviews;
-import com.healthy.gym.trainings.exception.NotAuthorizedClientException;
-import com.healthy.gym.trainings.exception.NotExistingGroupTrainingReviewException;
-import com.healthy.gym.trainings.exception.RestException;
-import com.healthy.gym.trainings.exception.StarsOutOfRangeException;
+import com.healthy.gym.trainings.exception.*;
 import com.healthy.gym.trainings.model.request.GroupTrainingReviewRequest;
 import com.healthy.gym.trainings.model.request.GroupTrainingReviewUpdateRequest;
 import com.healthy.gym.trainings.service.GroupTrainingService;
@@ -54,16 +51,16 @@ public class ReviewController {
 
     //TODO for admin paginacja, filtrowanie po datach
     @GetMapping("/{page}")
-    public ResponseEntity<Map<String, Object>> getGroupTrainingReviews(
-            @RequestParam final String startDate,
-            @RequestParam final String endDate,
+    public ResponseEntity<Map<String, Object>> getAllReviews(
+            @RequestParam(required = false) final String startDate,
+            @RequestParam(required = false) final String endDate,
             @RequestParam(defaultValue = "10") final int size,
-            @PathVariable final int page) throws ParseException {
+            @PathVariable final int page) throws ParseException, StartDateAfterEndDateException {
 
         List<GroupTrainingsReviews> reviews = new ArrayList<GroupTrainingsReviews>();
         Pageable paging = PageRequest.of(page, size);
 
-        Page<GroupTrainingsReviews> pageReviews = reviewService.getGroupTrainingReviews(startDate,
+        Page<GroupTrainingsReviews> pageReviews = reviewService.getAllReviews(startDate,
                 endDate, paging);
 
         reviews = pageReviews.getContent();
@@ -78,9 +75,29 @@ public class ReviewController {
     }
 
     // TODO only for admin and user who owns it
-    @GetMapping("/user/{userId}")
-    public String getAllReviewsByUserId(@PathVariable final String userId) {
-        return null;
+    @GetMapping("/user/{userId}/{page}")
+    public ResponseEntity<Map<String, Object>> getAllReviewsByUserId(
+            @RequestParam final String startDate,
+            @RequestParam final String endDate,
+            @RequestParam(defaultValue = "10") final int size,
+            @PathVariable final String userId,
+            @PathVariable final int page) throws ParseException, StartDateAfterEndDateException {
+
+        List<GroupTrainingsReviews> reviews = new ArrayList<GroupTrainingsReviews>();
+        Pageable paging = PageRequest.of(page, size);
+
+        Page<GroupTrainingsReviews> pageReviews = reviewService.getAllReviewsByUserId(startDate,
+                endDate, userId, paging);
+
+        reviews = pageReviews.getContent();
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("tutorials", reviews);
+        response.put("currentPage", pageReviews.getNumber());
+        response.put("totalItems", pageReviews.getTotalElements());
+        response.put("totalPages", pageReviews.getTotalPages());
+
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     // TODO only logged in users

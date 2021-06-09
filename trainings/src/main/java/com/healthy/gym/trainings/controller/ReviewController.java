@@ -8,22 +8,34 @@ import com.healthy.gym.trainings.exception.StarsOutOfRangeException;
 import com.healthy.gym.trainings.model.request.GroupTrainingReviewRequest;
 import com.healthy.gym.trainings.model.request.GroupTrainingReviewUpdateRequest;
 import com.healthy.gym.trainings.service.GroupTrainingService;
+import com.healthy.gym.trainings.service.ReviewService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/review")
 public class ReviewController {
 
     private final GroupTrainingService groupTrainingsService;
+    private final ReviewService reviewService;
 
     @Autowired
-    public ReviewController(GroupTrainingService groupTrainingsService) {
+    public ReviewController(GroupTrainingService groupTrainingsService,
+                            ReviewService reviewService) {
         this.groupTrainingsService = groupTrainingsService;
+        this.reviewService = reviewService;
     }
 
     //TODO only logged in users
@@ -39,10 +51,30 @@ public class ReviewController {
         }
     }
 
+
     //TODO for admin paginacja, filtrowanie po datach
-    @GetMapping
-    public List<GroupTrainingsReviews> getGroupTrainingReviews() {
-        return groupTrainingsService.getGroupTrainingReviews();
+    @GetMapping("/{page}")
+    public ResponseEntity<Map<String, Object>> getGroupTrainingReviews(
+            @RequestParam final String startDate,
+            @RequestParam final String endDate,
+            @RequestParam(defaultValue = "10") final int size,
+            @PathVariable final int page) throws ParseException {
+
+        List<GroupTrainingsReviews> reviews = new ArrayList<GroupTrainingsReviews>();
+        Pageable paging = PageRequest.of(page, size);
+
+        Page<GroupTrainingsReviews> pageReviews = reviewService.getGroupTrainingReviews(startDate,
+                endDate, paging);
+
+        reviews = pageReviews.getContent();
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("tutorials", reviews);
+        response.put("currentPage", pageReviews.getNumber());
+        response.put("totalItems", pageReviews.getTotalElements());
+        response.put("totalPages", pageReviews.getTotalPages());
+
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     // TODO only for admin and user who owns it

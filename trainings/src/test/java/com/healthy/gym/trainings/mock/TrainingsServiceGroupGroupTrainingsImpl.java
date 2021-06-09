@@ -108,7 +108,8 @@ public class TrainingsServiceGroupGroupTrainingsImpl extends GroupTrainingsServi
     }
 
     @Override
-    public void addToReserveList(String trainingId, String clientId) throws NotExistingGroupTrainingException, TrainingEnrollmentException {
+    public void addToReserveList(String trainingId, String clientId)
+            throws NotExistingGroupTrainingException, TrainingEnrollmentException {
         if(!groupTrainingsDbRepository.isGroupTrainingExist(trainingId))
             throw new NotExistingGroupTrainingException("Training with ID " + trainingId + " does not exist");
         if(groupTrainingsDbRepository.isClientAlreadyEnrolledToGroupTraining(trainingId, clientId))
@@ -120,7 +121,8 @@ public class TrainingsServiceGroupGroupTrainingsImpl extends GroupTrainingsServi
     }
 
     @Override
-    public void removeGroupTrainingEnrollment(String trainingId, String clientId) throws NotExistingGroupTrainingException, TrainingEnrollmentException {
+    public void removeGroupTrainingEnrollment(String trainingId, String clientId)
+            throws NotExistingGroupTrainingException, TrainingEnrollmentException {
         if(!groupTrainingsDbRepository.isGroupTrainingExist(trainingId))
             throw new NotExistingGroupTrainingException("Training with ID " + trainingId + " does not exist");
         if(!groupTrainingsDbRepository.isClientAlreadyEnrolledToGroupTraining(trainingId, clientId)
@@ -135,7 +137,8 @@ public class TrainingsServiceGroupGroupTrainingsImpl extends GroupTrainingsServi
     }
 
     @Override
-    public GroupTrainings createGroupTraining(GroupTrainingModel groupTrainingModel) throws TrainingCreationException, ParseException, InvalidHourException {
+    public GroupTrainings createGroupTraining(GroupTrainingModel groupTrainingModel)
+            throws TrainingCreationException, ParseException, InvalidHourException {
         if(!isExistRequiredDataForGroupTraining(groupTrainingModel))
             throw new TrainingCreationException("Cannot create new group training. Missing required data.");
 

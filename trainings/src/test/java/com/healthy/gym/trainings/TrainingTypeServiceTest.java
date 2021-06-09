@@ -4,7 +4,6 @@ import com.healthy.gym.trainings.db.TrainingTypeRepository;
 import com.healthy.gym.trainings.entity.TrainingType;
 import com.healthy.gym.trainings.exception.*;
 import com.healthy.gym.trainings.mock.TrainingTypeServiceImpl;
-import com.healthy.gym.trainings.service.TrainingTypeService;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -36,14 +35,14 @@ public class TrainingTypeServiceTest {
     static class TrainingTypesServiceImplTestContextConfiguration {
 
         @Bean
-        public TrainingTypeService trainingTypeService() {
+        public TrainingTypeServiceImpl trainingTypeService() {
             return new TrainingTypeServiceImpl(null);
         }
 
     }
 
     @Autowired
-    TrainingTypeService trainingTypeService;
+    TrainingTypeServiceImpl trainingTypeService;
 
     @MockBean
     private TrainingTypeRepository trainingTypeRepository;

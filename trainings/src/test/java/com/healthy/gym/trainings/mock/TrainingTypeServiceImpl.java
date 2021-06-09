@@ -7,26 +7,24 @@ import com.healthy.gym.trainings.exception.NotExistingTrainingType;
 import com.healthy.gym.trainings.model.TrainingTypeManagerViewModel;
 import com.healthy.gym.trainings.model.TrainingTypeModel;
 import com.healthy.gym.trainings.model.TrainingTypePublicViewModel;
-import com.healthy.gym.trainings.service.TrainingTypeService;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class TrainingTypeServiceImpl extends TrainingTypeService {
+public class TrainingTypeServiceImpl {
 
     @Autowired
-    TrainingTypeRepository trainingTypeRepository;
+    private final TrainingTypeRepository trainingTypeRepository;
 
     public TrainingTypeServiceImpl(TrainingTypeRepository trainingTypeRepository) {
-        super(trainingTypeRepository);
+        this.trainingTypeRepository = trainingTypeRepository;
     }
 
-    @Override
-    public List<TrainingTypeManagerViewModel> getAllTrainingTypesManagerView(){
+    public List<TrainingTypeManagerViewModel> getAllTrainingTypesManagerView() {
         List<TrainingType> trainingTypes = trainingTypeRepository.findAll();
         List<TrainingTypeManagerViewModel> trainingTypeManagerViewModels = new ArrayList<>();
-        for(TrainingType trainingType : trainingTypes) {
+        for (TrainingType trainingType : trainingTypes) {
             TrainingTypeManagerViewModel trainingTypeManagerViewModel = new TrainingTypeManagerViewModel(
                     trainingType.getId(),
                     trainingType.getTrainingName(),
@@ -39,11 +37,10 @@ public class TrainingTypeServiceImpl extends TrainingTypeService {
         return trainingTypeManagerViewModels;
     }
 
-    @Override
-    public List<TrainingTypePublicViewModel> getAllTrainingTypesPublicView(){
+    public List<TrainingTypePublicViewModel> getAllTrainingTypesPublicView() {
         List<TrainingType> trainingTypes = trainingTypeRepository.findAll();
         List<TrainingTypePublicViewModel> trainingTypePublicViewModels = new ArrayList<>();
-        for(TrainingType trainingType : trainingTypes){
+        for (TrainingType trainingType : trainingTypes) {
             TrainingTypePublicViewModel trainingTypePublicViewModel = new TrainingTypePublicViewModel(
                     trainingType.getTrainingName(),
                     trainingType.getDescription(),
@@ -55,19 +52,18 @@ public class TrainingTypeServiceImpl extends TrainingTypeService {
         return trainingTypePublicViewModels;
     }
 
-    @Override
     public TrainingType getTrainingTypeById(String trainingTypeId) throws NotExistingTrainingType {
-        if(!trainingTypeRepository.existsTrainingTypeById(trainingTypeId)){
+        if (!trainingTypeRepository.existsTrainingTypeById(trainingTypeId)) {
             throw new NotExistingTrainingType("Training type of id: " + trainingTypeId + " not exist.");
         }
         return trainingTypeRepository.findTrainingTypeById(trainingTypeId);
     }
 
-    @Override
-    public TrainingType createTrainingType(TrainingTypeModel trainingTypeModel, byte[] avatar) throws DuplicatedTrainingTypes {
+    public TrainingType createTrainingType(TrainingTypeModel trainingTypeModel, byte[] avatar)
+            throws DuplicatedTrainingTypes {
         String trainingName = trainingTypeModel.getTrainingName();
         String description = trainingTypeModel.getDescription();
-        if(trainingTypeRepository.existsByTrainingName(trainingName)){
+        if (trainingTypeRepository.existsByTrainingName(trainingName)) {
             throw new DuplicatedTrainingTypes("Training type of name: " + trainingName + " already exists.");
         }
 
@@ -75,9 +71,8 @@ public class TrainingTypeServiceImpl extends TrainingTypeService {
         return response;
     }
 
-    @Override
     public TrainingType removeTrainingTypeByName(String trainingName) throws NotExistingTrainingType {
-        if(!trainingTypeRepository.existsByTrainingName(trainingName)){
+        if (!trainingTypeRepository.existsByTrainingName(trainingName)) {
             throw new NotExistingTrainingType("Training type of name: " + trainingName + " not exist.");
         }
 
@@ -87,9 +82,9 @@ public class TrainingTypeServiceImpl extends TrainingTypeService {
         return trainingTypeToRemove;
     }
 
-    @Override
-    public TrainingType updateTrainingTypeById(String trainingId, TrainingTypeModel trainingTypeModel, byte[] avatar) throws NotExistingTrainingType, DuplicatedTrainingTypes {
-        if(!trainingTypeRepository.existsTrainingTypeById(trainingId)){
+    public TrainingType updateTrainingTypeById(String trainingId, TrainingTypeModel trainingTypeModel, byte[] avatar)
+            throws NotExistingTrainingType, DuplicatedTrainingTypes {
+        if (!trainingTypeRepository.existsTrainingTypeById(trainingId)) {
             throw new NotExistingTrainingType("Training type of id: " + trainingId + " not exist.");
         }
 

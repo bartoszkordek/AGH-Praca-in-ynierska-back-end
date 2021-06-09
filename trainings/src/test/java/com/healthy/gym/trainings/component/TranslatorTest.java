@@ -10,6 +10,7 @@ import java.util.Locale;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+@Disabled
 @SpringBootTest
 class TranslatorTest {
     private final Locale poland = new Locale("pl", "PL");

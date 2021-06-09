@@ -7,6 +7,8 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.web.servlet.MockMvc;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 @WebMvcTest(TrainingTypeController.class)
 class TrainingTypeControllerTest {
 
@@ -18,6 +20,6 @@ class TrainingTypeControllerTest {
 
     @Test
     void name() {
-
+        assertThat(true).isTrue();
     }
 }

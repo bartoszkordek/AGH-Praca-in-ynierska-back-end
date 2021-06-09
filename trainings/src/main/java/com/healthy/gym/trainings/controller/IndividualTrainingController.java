@@ -4,7 +4,7 @@ import com.healthy.gym.trainings.data.document.IndividualTrainings;
 import com.healthy.gym.trainings.exception.*;
 import com.healthy.gym.trainings.model.request.IndividualTrainingAcceptanceRequest;
 import com.healthy.gym.trainings.model.request.IndividualTrainingRequest;
-import com.healthy.gym.trainings.service.IndividualTrainingsService;
+import com.healthy.gym.trainings.service.IndividualTrainingService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -17,10 +17,10 @@ import java.util.List;
 @RequestMapping("/individual")
 public class IndividualTrainingController {
 
-    private final IndividualTrainingsService individualTrainingsService;
+    private final IndividualTrainingService individualTrainingsService;
 
     @Autowired
-    public IndividualTrainingController(IndividualTrainingsService individualTrainingsService) {
+    public IndividualTrainingController(IndividualTrainingService individualTrainingsService) {
         this.individualTrainingsService = individualTrainingsService;
     }
 

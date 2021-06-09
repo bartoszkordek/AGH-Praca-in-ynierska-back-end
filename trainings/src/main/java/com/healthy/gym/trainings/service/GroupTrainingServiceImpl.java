@@ -23,17 +23,19 @@ import java.util.Date;
 import java.util.List;
 
 @Service
-public class GroupTrainingsService {
+public class GroupTrainingServiceImpl implements GroupTrainingService {
+
+    private final EmailConfig emailConfig;
+    private final GroupTrainingsDbRepository groupTrainingsDbRepository;
+    private final GroupTrainingReviewsDbRepository groupTrainingReviewsDbRepository;
 
     @Autowired
-    EmailConfig emailConfig;
-    GroupTrainingsDbRepository groupTrainingsDbRepository;
-    GroupTrainingReviewsDbRepository groupTrainingReviewsDbRepository;
-
-    public GroupTrainingsService(
+    public GroupTrainingServiceImpl(
+            EmailConfig emailConfig,
             GroupTrainingsDbRepository groupTrainingsDbRepository,
             GroupTrainingReviewsDbRepository groupTrainingReviewsDbRepository
     ) {
+        this.emailConfig = emailConfig;
         this.groupTrainingsDbRepository = groupTrainingsDbRepository;
         this.groupTrainingReviewsDbRepository = groupTrainingReviewsDbRepository;
     }
@@ -43,7 +45,15 @@ public class GroupTrainingsService {
         String personal = emailConfig.getEmailPersonal();
         String password = emailConfig.getEmailPassword();
         String filePath = null;
-        EmailSendModel emailSendModel = new EmailSendModel(fromEmail, personal, recipients, password, subject, body, filePath);
+        EmailSendModel emailSendModel = new EmailSendModel(
+                fromEmail,
+                personal,
+                recipients,
+                password,
+                subject,
+                body,
+                filePath
+        );
         EmailService emailService = new EmailService();
         String host = emailConfig.getSmtpHost();
         String port = emailConfig.getSmtpPort();
@@ -103,7 +113,8 @@ public class GroupTrainingsService {
         return groupTrainingsDbRepository.getGroupTrainings();
     }
 
-    public List<GroupTrainingPublicResponse> getPublicGroupTrainings() throws InvalidHourException, InvalidDateException {
+    public List<GroupTrainingPublicResponse> getPublicGroupTrainings()
+            throws InvalidHourException, InvalidDateException {
         return groupTrainingsDbRepository.getPublicGroupTrainings();
     }
 
@@ -136,7 +147,9 @@ public class GroupTrainingsService {
             groupTrainingsDbRepository.removeFromReserveList(trainingId, clientId);
     }
 
-    public void addToReserveList(String trainingId, String clientId) throws NotExistingGroupTrainingException, TrainingEnrollmentException {
+    public void addToReserveList(String trainingId, String clientId)
+            throws NotExistingGroupTrainingException, TrainingEnrollmentException {
+
         if (!groupTrainingsDbRepository.isGroupTrainingExist(trainingId))
             throw new NotExistingGroupTrainingException("Training with ID " + trainingId + " does not exist");
         if (groupTrainingsDbRepository.isClientAlreadyEnrolledToGroupTraining(trainingId, clientId))
@@ -147,7 +160,9 @@ public class GroupTrainingsService {
         groupTrainingsDbRepository.addToReserveList(trainingId, clientId);
     }
 
-    public void removeGroupTrainingEnrollment(String trainingId, String clientId) throws NotExistingGroupTrainingException, TrainingEnrollmentException {
+    public void removeGroupTrainingEnrollment(String trainingId, String clientId)
+            throws NotExistingGroupTrainingException, TrainingEnrollmentException {
+
         if (!groupTrainingsDbRepository.isGroupTrainingExist(trainingId))
             throw new NotExistingGroupTrainingException("Training with ID " + trainingId + " does not exist");
         if (!groupTrainingsDbRepository.isClientAlreadyEnrolledToGroupTraining(trainingId, clientId)
@@ -161,7 +176,9 @@ public class GroupTrainingsService {
         }
     }
 
-    public GroupTrainings createGroupTraining(GroupTrainingRequest groupTrainingModel) throws TrainingCreationException, ParseException, InvalidHourException {
+    public GroupTrainings createGroupTraining(GroupTrainingRequest groupTrainingModel)
+            throws TrainingCreationException, ParseException, InvalidHourException {
+
         if (!isExistRequiredDataForGroupTraining(groupTrainingModel))
             throw new TrainingCreationException("Cannot create new group training. Missing required data.");
 
@@ -186,7 +203,9 @@ public class GroupTrainingsService {
         return groupTrainingsDbRepository.createTraining(groupTrainingModel);
     }
 
-    public GroupTrainings removeGroupTraining(String trainingId) throws TrainingRemovalException, EmailSendingException {
+    public GroupTrainings removeGroupTraining(String trainingId)
+            throws TrainingRemovalException, EmailSendingException {
+
         if (!groupTrainingsDbRepository.isGroupTrainingExist(trainingId))
             throw new TrainingRemovalException("Training with ID: " + trainingId + " doesn't exist");
 
@@ -194,8 +213,8 @@ public class GroupTrainingsService {
 
         List<String> toEmails = result.getParticipants();
         String subject = "Training has been deleted";
-        String body = "Training " + result.getTrainingName() + " on " + result.getDate() + " at " + result.getStartTime() +
-                " with " + result.getTrainerId() + " has been deleted.";
+        String body = "Training " + result.getTrainingName() + " on " + result.getDate() + " at "
+                + result.getStartTime() + " with " + result.getTrainerId() + " has been deleted.";
         try {
             sendEmailWithoutAttachment(toEmails, subject, body);
         } catch (Exception e) {
@@ -205,7 +224,9 @@ public class GroupTrainingsService {
         return result;
     }
 
-    public GroupTrainings updateGroupTraining(String trainingId, GroupTrainingRequest groupTrainingModelRequest) throws TrainingUpdateException, EmailSendingException, InvalidHourException, ParseException {
+    public GroupTrainings updateGroupTraining(String trainingId, GroupTrainingRequest groupTrainingModelRequest)
+            throws TrainingUpdateException, EmailSendingException, InvalidHourException, ParseException {
+
         if (!groupTrainingsDbRepository.isGroupTrainingExist(trainingId))
             throw new TrainingUpdateException("Training with ID: " + trainingId + " doesn't exist");
 
@@ -231,8 +252,8 @@ public class GroupTrainingsService {
 
         List<String> toEmails = result.getParticipants();
         String subject = "Training has been updated";
-        String body = "Training " + result.getTrainingName() + " on " + result.getDate() + " at " + result.getStartTime() +
-                " with " + result.getTrainerId() + " has been updated.";
+        String body = "Training " + result.getTrainingName() + " on " + result.getDate() + " at "
+                + result.getStartTime() + " with " + result.getTrainerId() + " has been updated.";
         try {
             sendEmailWithoutAttachment(toEmails, subject, body);
         } catch (Exception e) {
@@ -246,7 +267,9 @@ public class GroupTrainingsService {
         return groupTrainingReviewsDbRepository.getGroupTrainingReviews();
     }
 
-    public GroupTrainingsReviews getGroupTrainingReviewById(String reviewId) throws NotExistingGroupTrainingReviewException {
+    public GroupTrainingsReviews getGroupTrainingReviewById(String reviewId)
+            throws NotExistingGroupTrainingReviewException {
+
         if (!groupTrainingReviewsDbRepository.isGroupTrainingsReviewExist(reviewId)) {
             throw new NotExistingGroupTrainingReviewException("Review with ID: " + reviewId + " doesn't exist");
         }
@@ -266,7 +289,9 @@ public class GroupTrainingsService {
                 clientId);
     }
 
-    public GroupTrainingsReviews removeGroupTrainingReview(String reviewId, String clientId) throws NotAuthorizedClientException, NotExistingGroupTrainingReviewException {
+    public GroupTrainingsReviews removeGroupTrainingReview(String reviewId, String clientId)
+            throws NotAuthorizedClientException, NotExistingGroupTrainingReviewException {
+
         if (!groupTrainingReviewsDbRepository.isGroupTrainingsReviewExist(reviewId)) {
             throw new NotExistingGroupTrainingReviewException("Review with ID: " + reviewId + " doesn't exist");
         }
@@ -276,9 +301,12 @@ public class GroupTrainingsService {
         return groupTrainingReviewsDbRepository.removeGroupTrainingsReview(reviewId);
     }
 
-    public GroupTrainingsReviews updateGroupTrainingReview(GroupTrainingReviewUpdateRequest groupTrainingsReviewsUpdateModel,
-                                                           String reviewId,
-                                                           String clientId) throws NotAuthorizedClientException, StarsOutOfRangeException, NotExistingGroupTrainingReviewException {
+    public GroupTrainingsReviews updateGroupTrainingReview(
+            GroupTrainingReviewUpdateRequest groupTrainingsReviewsUpdateModel,
+            String reviewId,
+            String clientId
+    ) throws NotAuthorizedClientException, StarsOutOfRangeException, NotExistingGroupTrainingReviewException {
+
         if (!groupTrainingReviewsDbRepository.isGroupTrainingsReviewExist(reviewId)) {
             throw new NotExistingGroupTrainingReviewException("Review with ID: " + reviewId + " doesn't exist");
         }

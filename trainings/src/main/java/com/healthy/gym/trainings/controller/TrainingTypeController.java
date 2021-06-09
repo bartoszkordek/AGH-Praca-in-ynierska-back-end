@@ -6,7 +6,7 @@ import com.healthy.gym.trainings.exception.NotExistingTrainingType;
 import com.healthy.gym.trainings.exception.RestException;
 import com.healthy.gym.trainings.model.other.TrainingTypeModel;
 import com.healthy.gym.trainings.model.response.TrainingTypePublicResponse;
-import com.healthy.gym.trainings.service.TrainingTypeServiceImpl;
+import com.healthy.gym.trainings.service.TrainingTypeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -23,10 +23,10 @@ public class TrainingTypeController {
 
     private static final String GENERIC_ERROR_MESSAGE_WHILE_ISSUES_WITH_PHOTO_PROCESSING =
             "Errors while proto processing.";
-    private final TrainingTypeServiceImpl trainingTypeService;
+    private final TrainingTypeService trainingTypeService;
 
     @Autowired
-    public TrainingTypeController(TrainingTypeServiceImpl trainingTypeService) {
+    public TrainingTypeController(TrainingTypeService trainingTypeService) {
         this.trainingTypeService = trainingTypeService;
     }
 

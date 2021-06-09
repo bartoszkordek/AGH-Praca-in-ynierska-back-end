@@ -1,26 +1,25 @@
 package com.healthy.gym.trainings.data.document;
 
-import org.apache.http.entity.ContentType;
 import org.bson.types.Binary;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.Objects;
 
-@Document(collection = "trainingTypeImage")
-public class TrainingTypeImageDocument {
+@Document(collection = "images")
+public class ImageDocument {
 
     @Id
     private String id;
     private String imageId;
     private Binary imageData;
-    private ContentType contentType;
+    private String contentType;
 
-    public TrainingTypeImageDocument() {
+    public ImageDocument() {
         //empty constructor required by spring data mapper
     }
 
-    public TrainingTypeImageDocument(String imageId, Binary imageData, ContentType contentType) {
+    public ImageDocument(String imageId, Binary imageData, String contentType) {
         this.imageId = imageId;
         this.imageData = imageData;
         this.contentType = contentType;
@@ -50,11 +49,11 @@ public class TrainingTypeImageDocument {
         this.imageData = imageData;
     }
 
-    public ContentType getContentType() {
+    public String getContentType() {
         return contentType;
     }
 
-    public void setContentType(ContentType contentType) {
+    public void setContentType(String contentType) {
         this.contentType = contentType;
     }
 
@@ -62,7 +61,7 @@ public class TrainingTypeImageDocument {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        TrainingTypeImageDocument that = (TrainingTypeImageDocument) o;
+        ImageDocument that = (ImageDocument) o;
         return Objects.equals(id, that.id)
                 && Objects.equals(imageId, that.imageId)
                 && Objects.equals(imageData, that.imageData)
@@ -76,8 +75,9 @@ public class TrainingTypeImageDocument {
 
     @Override
     public String toString() {
-        return "TrainingTypeImageDocument{" +
-                "imageId='" + imageId + '\'' +
+        return "ImageDocument{" +
+                "id='" + id + '\'' +
+                ", imageId='" + imageId + '\'' +
                 ", imageData=" + imageData +
                 ", contentType=" + contentType +
                 '}';

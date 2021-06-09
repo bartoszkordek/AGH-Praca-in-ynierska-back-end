@@ -9,7 +9,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.validation.constraints.NotNull;
 
-public class GroupTrainingsPublicViewModel {
+public class GroupTrainingPublicResponse {
 
     @NotNull
     private String trainingName;
@@ -27,7 +27,7 @@ public class GroupTrainingsPublicViewModel {
     @NotNull
     private int limit;
 
-    public GroupTrainingsPublicViewModel(
+    public GroupTrainingPublicResponse(
             @JsonProperty("trainingName") String trainingName,
             @JsonProperty("trainerId") String trainerId,
             @JsonProperty("date") String date,

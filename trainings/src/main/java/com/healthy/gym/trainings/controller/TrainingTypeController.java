@@ -5,7 +5,7 @@ import com.healthy.gym.trainings.exception.DuplicatedTrainingTypes;
 import com.healthy.gym.trainings.exception.NotExistingTrainingType;
 import com.healthy.gym.trainings.exception.RestException;
 import com.healthy.gym.trainings.model.other.TrainingTypeModel;
-import com.healthy.gym.trainings.model.response.TrainingTypePublicViewModel;
+import com.healthy.gym.trainings.model.response.TrainingTypePublicResponse;
 import com.healthy.gym.trainings.service.TrainingTypeServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -58,7 +58,7 @@ public class TrainingTypeController {
     }
 
     @GetMapping
-    public List<? extends TrainingTypePublicViewModel> getAllTrainingTypes(
+    public List<? extends TrainingTypePublicResponse> getAllTrainingTypes(
             @RequestParam("publicView") boolean publicView
     ) {
         if (!publicView) {

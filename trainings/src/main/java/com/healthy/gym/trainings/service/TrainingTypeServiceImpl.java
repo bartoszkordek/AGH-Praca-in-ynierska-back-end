@@ -4,9 +4,9 @@ import com.healthy.gym.trainings.data.document.TrainingTypeDocument;
 import com.healthy.gym.trainings.data.repository.TrainingTypeDAO;
 import com.healthy.gym.trainings.exception.DuplicatedTrainingTypes;
 import com.healthy.gym.trainings.exception.NotExistingTrainingType;
-import com.healthy.gym.trainings.model.response.TrainingTypeManagerViewModel;
+import com.healthy.gym.trainings.model.response.TrainingTypeManagerResponse;
 import com.healthy.gym.trainings.model.other.TrainingTypeModel;
-import com.healthy.gym.trainings.model.response.TrainingTypePublicViewModel;
+import com.healthy.gym.trainings.model.response.TrainingTypePublicResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -23,11 +23,11 @@ public class TrainingTypeServiceImpl implements TrainingTypeService {
         this.trainingTypeRepository = trainingTypeRepository;
     }
 
-    public List<TrainingTypeManagerViewModel> getAllTrainingTypesManagerView() {
+    public List<TrainingTypeManagerResponse> getAllTrainingTypesManagerView() {
         List<TrainingTypeDocument> trainingTypes = trainingTypeRepository.findAll();
-        List<TrainingTypeManagerViewModel> trainingTypeManagerViewModels = new ArrayList<>();
+        List<TrainingTypeManagerResponse> trainingTypeManagerViewModels = new ArrayList<>();
         for (TrainingTypeDocument trainingType : trainingTypes) {
-            TrainingTypeManagerViewModel trainingTypeManagerViewModel = new TrainingTypeManagerViewModel(
+            TrainingTypeManagerResponse trainingTypeManagerViewModel = new TrainingTypeManagerResponse(
                     trainingType.getId(),
                     trainingType.getName(),
                     trainingType.getDescription(),
@@ -39,11 +39,11 @@ public class TrainingTypeServiceImpl implements TrainingTypeService {
         return trainingTypeManagerViewModels;
     }
 
-    public List<TrainingTypePublicViewModel> getAllTrainingTypesPublicView() {
+    public List<TrainingTypePublicResponse> getAllTrainingTypesPublicView() {
         List<TrainingTypeDocument> trainingTypes = trainingTypeRepository.findAll();
-        List<TrainingTypePublicViewModel> trainingTypePublicViewModels = new ArrayList<>();
+        List<TrainingTypePublicResponse> trainingTypePublicViewModels = new ArrayList<>();
         for (TrainingTypeDocument trainingType : trainingTypes) {
-            TrainingTypePublicViewModel trainingTypePublicViewModel = new TrainingTypePublicViewModel(
+            TrainingTypePublicResponse trainingTypePublicViewModel = new TrainingTypePublicResponse(
                     trainingType.getName(),
                     trainingType.getDescription(),
                     null //trainingType.getAvatar()

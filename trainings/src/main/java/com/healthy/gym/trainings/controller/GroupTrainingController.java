@@ -3,7 +3,7 @@ package com.healthy.gym.trainings.controller;
 import com.healthy.gym.trainings.data.document.GroupTrainings;
 import com.healthy.gym.trainings.exception.*;
 import com.healthy.gym.trainings.model.request.GroupTrainingRequest;
-import com.healthy.gym.trainings.model.response.GroupTrainingsPublicViewModel;
+import com.healthy.gym.trainings.model.response.GroupTrainingPublicResponse;
 import com.healthy.gym.trainings.service.GroupTrainingsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -42,7 +42,7 @@ public class GroupTrainingController {
     }
 
     @GetMapping("/public")
-    public List<GroupTrainingsPublicViewModel> getPublicGroupTrainings()
+    public List<GroupTrainingPublicResponse> getPublicGroupTrainings()
             throws InvalidHourException, InvalidDateException {
         return groupTrainingsService.getPublicGroupTrainings();
     }

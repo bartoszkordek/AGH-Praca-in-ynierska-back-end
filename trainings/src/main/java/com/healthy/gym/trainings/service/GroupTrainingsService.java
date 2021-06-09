@@ -10,7 +10,7 @@ import com.healthy.gym.trainings.model.other.EmailSendModel;
 import com.healthy.gym.trainings.model.request.GroupTrainingRequest;
 import com.healthy.gym.trainings.model.request.GroupTrainingReviewRequest;
 import com.healthy.gym.trainings.model.request.GroupTrainingReviewUpdateRequest;
-import com.healthy.gym.trainings.model.response.GroupTrainingsPublicViewModel;
+import com.healthy.gym.trainings.model.response.GroupTrainingPublicResponse;
 import com.healthy.gym.trainings.service.email.EmailService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -103,7 +103,7 @@ public class GroupTrainingsService {
         return groupTrainingsDbRepository.getGroupTrainings();
     }
 
-    public List<GroupTrainingsPublicViewModel> getPublicGroupTrainings() throws InvalidHourException, InvalidDateException {
+    public List<GroupTrainingPublicResponse> getPublicGroupTrainings() throws InvalidHourException, InvalidDateException {
         return groupTrainingsDbRepository.getPublicGroupTrainings();
     }
 

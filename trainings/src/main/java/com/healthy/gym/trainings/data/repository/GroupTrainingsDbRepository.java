@@ -5,7 +5,7 @@ import com.healthy.gym.trainings.data.document.GroupTrainings;
 import com.healthy.gym.trainings.exception.InvalidDateException;
 import com.healthy.gym.trainings.exception.InvalidHourException;
 import com.healthy.gym.trainings.model.request.GroupTrainingRequest;
-import com.healthy.gym.trainings.model.response.GroupTrainingsPublicViewModel;
+import com.healthy.gym.trainings.model.response.GroupTrainingPublicResponse;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoCollection;
@@ -46,11 +46,11 @@ public class GroupTrainingsDbRepository {
         return groupTrainingsRepository.findAll();
     }
 
-    public List<GroupTrainingsPublicViewModel> getPublicGroupTrainings() throws InvalidHourException, InvalidDateException {
-        List<GroupTrainingsPublicViewModel> publicResponse = new ArrayList<>();
+    public List<GroupTrainingPublicResponse> getPublicGroupTrainings() throws InvalidHourException, InvalidDateException {
+        List<GroupTrainingPublicResponse> publicResponse = new ArrayList<>();
         List<GroupTrainings> groupTrainings = groupTrainingsRepository.findAll();
         for(GroupTrainings groupTraining : groupTrainings){
-            publicResponse.add(new GroupTrainingsPublicViewModel(groupTraining.getTrainingName(),
+            publicResponse.add(new GroupTrainingPublicResponse(groupTraining.getTrainingName(),
                     groupTraining.getTrainerId(),
                     groupTraining.getDate(),
                     groupTraining.getStartTime(),

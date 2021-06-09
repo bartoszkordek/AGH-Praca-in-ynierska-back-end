@@ -1,8 +1,8 @@
 package com.healthy.gym.trainings;
 
 import com.healthy.gym.trainings.config.EmailConfig;
-import com.healthy.gym.trainings.data.repository.GroupTrainingsDbRepository;
 import com.healthy.gym.trainings.data.document.GroupTrainings;
+import com.healthy.gym.trainings.data.repository.GroupTrainingsDbRepository;
 import com.healthy.gym.trainings.exception.*;
 import com.healthy.gym.trainings.mock.TrainingsServiceGroupGroupTrainingsImpl;
 import com.healthy.gym.trainings.model.GroupTrainingModel;
@@ -21,7 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.when;
 
 @RunWith(SpringRunner.class)
 public class TrainingsServiceGroupGroupTrainingsTest {
@@ -58,31 +58,13 @@ public class TrainingsServiceGroupGroupTrainingsTest {
             validTestStartTime, validTestEndTime, validTestHallNo, validTestLimit, participantsWithValidClientId, emptyReserveList);
     private final GroupTrainings validGroupTrainingsWithValidClientAsParticipant = new GroupTrainings(validTestTrainingName, validTestTrainerId, validTestDate,
             validTestStartTime, validTestEndTime, validTestHallNo, validTestLimit, participantsWithValidClientId, emptyReserveList);
+    @Autowired
+    GroupTrainingsService groupTrainingsService;
+    @MockBean
+    private GroupTrainingsDbRepository groupTrainingsDbRepository;
 
     public TrainingsServiceGroupGroupTrainingsTest() throws InvalidHourException, InvalidDateException {
     }
-
-
-    @TestConfiguration
-    static class TrainingsServiceImplTestContextConfiguration {
-
-        @Bean
-        public GroupTrainingsService groupTrainingsService() {
-            return new TrainingsServiceGroupGroupTrainingsImpl(null, null, null);
-        }
-
-        @Bean
-        EmailConfig emailConfig() {
-            return new EmailConfig();
-        }
-
-    }
-
-    @Autowired
-    GroupTrainingsService groupTrainingsService;
-
-    @MockBean
-    private GroupTrainingsDbRepository groupTrainingsDbRepository;
 
     @Before
     public void setUp() throws InvalidHourException, ParseException {
@@ -91,7 +73,7 @@ public class TrainingsServiceGroupGroupTrainingsTest {
         List<String> reserveListTraining1 = new ArrayList<>();
         participantsTraining1.add("ASmith");
         GroupTrainings training1 = new GroupTrainings("Zumba", "99999", "01-06-2025", "18:00", "19:00",
-                    2, 20, participantsTraining1, reserveListTraining1);
+                2, 20, participantsTraining1, reserveListTraining1);
         training1.setId(validTrainingId);
         trainingsList.add(training1);
 
@@ -130,12 +112,12 @@ public class TrainingsServiceGroupGroupTrainingsTest {
         when(groupTrainingsDbRepository.isAbilityToCreateTraining(validGroupTrainingModel))
                 .thenReturn(true);
 
-        }
+    }
 
     @Test
     public void shouldReturnFirstTrainingName_whenValidRequest() {
         assertThat(groupTrainingsService.getGroupTrainings().get(0).getTrainingName())
-                    .isEqualTo("Zumba");
+                .isEqualTo("Zumba");
     }
 
     @Test
@@ -148,7 +130,6 @@ public class TrainingsServiceGroupGroupTrainingsTest {
     public void shouldReturnExceptionTrainingId_whenInvalidTrainingId() throws NotExistingGroupTrainingException {
         groupTrainingsService.getGroupTrainingById(invalidTrainingId);
     }
-
 
     @Test
     public void shouldReturnTrainingParticipants_whenValidTrainingId() throws NotExistingGroupTrainingException {
@@ -171,7 +152,7 @@ public class TrainingsServiceGroupGroupTrainingsTest {
 
     @Test(expected = TrainingEnrollmentException.class)
     public void shouldNotEnrollToGroupTraining_whenInvalidTraining() throws TrainingEnrollmentException {
-        groupTrainingsService.enrollToGroupTraining(invalidTrainingId,validClientId);
+        groupTrainingsService.enrollToGroupTraining(invalidTrainingId, validClientId);
     }
 
     @Test(expected = TrainingEnrollmentException.class)
@@ -191,12 +172,12 @@ public class TrainingsServiceGroupGroupTrainingsTest {
         when(groupTrainingsDbRepository.isClientAlreadyExistInReserveList(validTrainingId, validClientId))
                 .thenReturn(false);
         //then
-        groupTrainingsService.addToReserveList(validTrainingId,validClientId);
+        groupTrainingsService.addToReserveList(validTrainingId, validClientId);
     }
 
     @Test(expected = NotExistingGroupTrainingException.class)
     public void shouldNotAddToReserveList_whenInvalidTraining() throws NotExistingGroupTrainingException, TrainingEnrollmentException {
-        groupTrainingsService.addToReserveList(invalidTrainingId,validClientId);
+        groupTrainingsService.addToReserveList(invalidTrainingId, validClientId);
     }
 
     @Test
@@ -207,7 +188,7 @@ public class TrainingsServiceGroupGroupTrainingsTest {
         when(groupTrainingsDbRepository.isClientAlreadyExistInReserveList(validTrainingId, validClientId))
                 .thenReturn(false);
         //then
-        groupTrainingsService.removeGroupTrainingEnrollment(validTrainingId,validClientId);
+        groupTrainingsService.removeGroupTrainingEnrollment(validTrainingId, validClientId);
     }
 
     @Test(expected = NotExistingGroupTrainingException.class)
@@ -218,13 +199,13 @@ public class TrainingsServiceGroupGroupTrainingsTest {
         when(groupTrainingsDbRepository.isClientAlreadyExistInReserveList(validTrainingId, validClientId))
                 .thenReturn(false);
         //then
-        groupTrainingsService.removeGroupTrainingEnrollment(invalidTrainingId,validClientId);
+        groupTrainingsService.removeGroupTrainingEnrollment(invalidTrainingId, validClientId);
     }
 
     @Test
     public void shouldCreateGroupTraining_whenValidRequest() throws ParseException, InvalidHourException, TrainingCreationException {
         assertThat(groupTrainingsService.createGroupTraining(validGroupTrainingModel))
-        .isEqualTo(validGroupTrainings);
+                .isEqualTo(validGroupTrainings);
     }
 
     @Test(expected = TrainingCreationException.class)
@@ -236,6 +217,21 @@ public class TrainingsServiceGroupGroupTrainingsTest {
     @Test(expected = TrainingCreationException.class)
     public void shouldNotCreateGroupTraining_whenInvalidHallNo() throws ParseException, InvalidHourException, TrainingCreationException {
         groupTrainingsService.createGroupTraining(invalidGroupTrainingModel_invalidHallNo);
+    }
+
+    @TestConfiguration
+    static class TrainingsServiceImplTestContextConfiguration {
+
+        @Bean
+        public GroupTrainingsService groupTrainingsService() {
+            return new TrainingsServiceGroupGroupTrainingsImpl(null, null);
+        }
+
+        @Bean
+        EmailConfig emailConfig() {
+            return new EmailConfig();
+        }
+
     }
 
 

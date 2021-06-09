@@ -1,8 +1,8 @@
 package com.healthy.gym.trainings;
 
 import com.healthy.gym.trainings.config.EmailConfig;
-import com.healthy.gym.trainings.data.repository.GroupTrainingReviewsDbRepository;
 import com.healthy.gym.trainings.data.document.GroupTrainingsReviews;
+import com.healthy.gym.trainings.data.repository.GroupTrainingReviewsDbRepository;
 import com.healthy.gym.trainings.exception.NotAuthorizedClientException;
 import com.healthy.gym.trainings.exception.NotExistingGroupTrainingReviewException;
 import com.healthy.gym.trainings.exception.StarsOutOfRangeException;
@@ -25,7 +25,7 @@ import java.util.Date;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.when;
 
 @RunWith(SpringRunner.class)
 public class TrainingsServiceGroupGroupTrainingsReviewsTest {
@@ -40,29 +40,13 @@ public class TrainingsServiceGroupGroupTrainingsReviewsTest {
     private final String sampleText = "good";
 
     private final String validReviewIdToUpdate = "222222222222222222222222";
+    @Autowired
+    GroupTrainingsService groupTrainingsService;
     private String sampleTrainingNameToUpdate = "Spinning";
     private int sampleStarsToUpdate = 4;
     private String sampleTextToUpdate = "OK";
     private String sampleDateToUpdate = "2021-11-03";
-
     private GroupTrainingsReviewsUpdateModel groupTrainingsReviewsUpdateModel;
-
-    @TestConfiguration
-    static class TrainingsReviewServiceImplTestContextConfiguration {
-
-        @Bean
-        public GroupTrainingsService trainingsReviewsService() {
-            return new TrainingsServiceGroupGroupTrainingsReviewsImpl(null, null, null);
-        }
-        @Bean
-        EmailConfig emailConfig(){
-            return new EmailConfig();
-        }
-    }
-
-    @Autowired
-    GroupTrainingsService groupTrainingsService;
-
     @MockBean
     private GroupTrainingReviewsDbRepository groupTrainingReviewsDbRepository;
 
@@ -153,7 +137,7 @@ public class TrainingsServiceGroupGroupTrainingsReviewsTest {
         GroupTrainingsReviewsModel groupTrainingsReviewToCreate = new GroupTrainingsReviewsModel(sampleTrainingName,
                 stars, text);
         //then
-        assertThat(groupTrainingsService.createGroupTrainingReview(groupTrainingsReviewToCreate,validClientId));
+        assertThat(groupTrainingsService.createGroupTrainingReview(groupTrainingsReviewToCreate, validClientId));
     }
 
     @Test(expected = StarsOutOfRangeException.class)
@@ -164,7 +148,7 @@ public class TrainingsServiceGroupGroupTrainingsReviewsTest {
         GroupTrainingsReviewsModel groupTrainingsReviewToCreate = new GroupTrainingsReviewsModel(sampleTrainingName,
                 stars, text);
         //then
-        assertThat(groupTrainingsService.createGroupTrainingReview(groupTrainingsReviewToCreate,validClientId));
+        assertThat(groupTrainingsService.createGroupTrainingReview(groupTrainingsReviewToCreate, validClientId));
     }
 
     @Test(expected = StarsOutOfRangeException.class)
@@ -175,7 +159,7 @@ public class TrainingsServiceGroupGroupTrainingsReviewsTest {
         GroupTrainingsReviewsModel groupTrainingsReviewToCreate = new GroupTrainingsReviewsModel(sampleTrainingName,
                 stars, text);
         //then
-        assertThat(groupTrainingsService.createGroupTrainingReview(groupTrainingsReviewToCreate,validClientId));
+        assertThat(groupTrainingsService.createGroupTrainingReview(groupTrainingsReviewToCreate, validClientId));
     }
 
     @Test
@@ -191,17 +175,17 @@ public class TrainingsServiceGroupGroupTrainingsReviewsTest {
         groupTrainingsReviewsSampleAfterUpdate.setId(validReviewIdToUpdate);
 
         //then
-        assertThat(groupTrainingsService.updateGroupTrainingReview(groupTrainingsReviewsUpdateModel,validReviewIdToUpdate,validClientId).getId())
+        assertThat(groupTrainingsService.updateGroupTrainingReview(groupTrainingsReviewsUpdateModel, validReviewIdToUpdate, validClientId).getId())
                 .isEqualTo(groupTrainingsReviewsSampleAfterUpdate.getId());
-        assertThat(groupTrainingsService.updateGroupTrainingReview(groupTrainingsReviewsUpdateModel,validReviewIdToUpdate,validClientId).getTrainingName())
+        assertThat(groupTrainingsService.updateGroupTrainingReview(groupTrainingsReviewsUpdateModel, validReviewIdToUpdate, validClientId).getTrainingName())
                 .isEqualTo(groupTrainingsReviewsSampleAfterUpdate.getTrainingName());
-        assertThat(groupTrainingsService.updateGroupTrainingReview(groupTrainingsReviewsUpdateModel,validReviewIdToUpdate,validClientId).getClientId())
+        assertThat(groupTrainingsService.updateGroupTrainingReview(groupTrainingsReviewsUpdateModel, validReviewIdToUpdate, validClientId).getClientId())
                 .isEqualTo(groupTrainingsReviewsSampleAfterUpdate.getClientId());
-        assertThat(groupTrainingsService.updateGroupTrainingReview(groupTrainingsReviewsUpdateModel,validReviewIdToUpdate,validClientId).getDate())
+        assertThat(groupTrainingsService.updateGroupTrainingReview(groupTrainingsReviewsUpdateModel, validReviewIdToUpdate, validClientId).getDate())
                 .isEqualTo(groupTrainingsReviewsSampleAfterUpdate.getDate());
-        assertThat(groupTrainingsService.updateGroupTrainingReview(groupTrainingsReviewsUpdateModel,validReviewIdToUpdate,validClientId).getStars())
+        assertThat(groupTrainingsService.updateGroupTrainingReview(groupTrainingsReviewsUpdateModel, validReviewIdToUpdate, validClientId).getStars())
                 .isEqualTo(groupTrainingsReviewsSampleAfterUpdate.getStars());
-        assertThat(groupTrainingsService.updateGroupTrainingReview(groupTrainingsReviewsUpdateModel,validReviewIdToUpdate,validClientId).getText())
+        assertThat(groupTrainingsService.updateGroupTrainingReview(groupTrainingsReviewsUpdateModel, validReviewIdToUpdate, validClientId).getText())
                 .isEqualTo(groupTrainingsReviewsSampleAfterUpdate.getText());
     }
 
@@ -222,7 +206,7 @@ public class TrainingsServiceGroupGroupTrainingsReviewsTest {
         GroupTrainingsReviewsUpdateModel groupTrainingsReviewsUpdateModel = new GroupTrainingsReviewsUpdateModel(starsAfterUpdate, textAfterUpdate);
 
         //then
-        groupTrainingsService.updateGroupTrainingReview(groupTrainingsReviewsUpdateModel,validReviewIdToUpdate,invalidClientId);
+        groupTrainingsService.updateGroupTrainingReview(groupTrainingsReviewsUpdateModel, validReviewIdToUpdate, invalidClientId);
     }
 
     @Test(expected = NotExistingGroupTrainingReviewException.class)
@@ -242,7 +226,7 @@ public class TrainingsServiceGroupGroupTrainingsReviewsTest {
         GroupTrainingsReviewsUpdateModel groupTrainingsReviewsUpdateModel = new GroupTrainingsReviewsUpdateModel(starsAfterUpdate, textAfterUpdate);
 
         //then
-        groupTrainingsService.updateGroupTrainingReview(groupTrainingsReviewsUpdateModel,invalidReviewId,validClientId);
+        groupTrainingsService.updateGroupTrainingReview(groupTrainingsReviewsUpdateModel, invalidReviewId, validClientId);
     }
 
     @Test(expected = NotExistingGroupTrainingReviewException.class)
@@ -262,7 +246,7 @@ public class TrainingsServiceGroupGroupTrainingsReviewsTest {
         GroupTrainingsReviewsUpdateModel groupTrainingsReviewsUpdateModel = new GroupTrainingsReviewsUpdateModel(starsAfterUpdate, textAfterUpdate);
 
         //then
-        groupTrainingsService.updateGroupTrainingReview(groupTrainingsReviewsUpdateModel,invalidReviewId,validClientId);
+        groupTrainingsService.updateGroupTrainingReview(groupTrainingsReviewsUpdateModel, invalidReviewId, validClientId);
     }
 
     @Test(expected = NotExistingGroupTrainingReviewException.class)
@@ -282,6 +266,20 @@ public class TrainingsServiceGroupGroupTrainingsReviewsTest {
         GroupTrainingsReviewsUpdateModel groupTrainingsReviewsUpdateModel = new GroupTrainingsReviewsUpdateModel(starsAfterUpdate, textAfterUpdate);
 
         //then
-        groupTrainingsService.updateGroupTrainingReview(groupTrainingsReviewsUpdateModel,invalidReviewId,validClientId);
+        groupTrainingsService.updateGroupTrainingReview(groupTrainingsReviewsUpdateModel, invalidReviewId, validClientId);
+    }
+
+    @TestConfiguration
+    static class TrainingsReviewServiceImplTestContextConfiguration {
+
+        @Bean
+        public GroupTrainingsService trainingsReviewsService() {
+            return new TrainingsServiceGroupGroupTrainingsReviewsImpl(null, null);
+        }
+
+        @Bean
+        EmailConfig emailConfig() {
+            return new EmailConfig();
+        }
     }
 }

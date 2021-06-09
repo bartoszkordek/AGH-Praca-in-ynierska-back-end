@@ -1,11 +1,10 @@
 package com.healthy.gym.trainings.service;
 
 import com.healthy.gym.trainings.config.EmailConfig;
-import com.healthy.gym.trainings.data.repository.GroupTrainingReviewsDbRepository;
-import com.healthy.gym.trainings.data.repository.GroupTrainingsDbRepository;
-import com.healthy.gym.trainings.data.repository.TestRepository;
 import com.healthy.gym.trainings.data.document.GroupTrainings;
 import com.healthy.gym.trainings.data.document.GroupTrainingsReviews;
+import com.healthy.gym.trainings.data.repository.GroupTrainingReviewsDbRepository;
+import com.healthy.gym.trainings.data.repository.GroupTrainingsDbRepository;
 import com.healthy.gym.trainings.exception.*;
 import com.healthy.gym.trainings.model.*;
 import com.healthy.gym.trainings.service.email.EmailService;
@@ -24,19 +23,18 @@ public class GroupTrainingsService {
 
     @Autowired
     EmailConfig emailConfig;
-    TestRepository testRepository;
     GroupTrainingsDbRepository groupTrainingsDbRepository;
     GroupTrainingReviewsDbRepository groupTrainingReviewsDbRepository;
 
-    public GroupTrainingsService(TestRepository testRepository,
-                                 GroupTrainingsDbRepository groupTrainingsDbRepository,
-                                 GroupTrainingReviewsDbRepository groupTrainingReviewsDbRepository){
-        this.testRepository = testRepository;
+    public GroupTrainingsService(
+            GroupTrainingsDbRepository groupTrainingsDbRepository,
+            GroupTrainingReviewsDbRepository groupTrainingReviewsDbRepository
+    ) {
         this.groupTrainingsDbRepository = groupTrainingsDbRepository;
         this.groupTrainingReviewsDbRepository = groupTrainingReviewsDbRepository;
     }
 
-    private void sendEmailWithoutAttachment(List<String> recipients, String subject, String body){
+    private void sendEmailWithoutAttachment(List<String> recipients, String subject, String body) {
         String fromEmail = emailConfig.getEmailName();
         String personal = emailConfig.getEmailPersonal();
         String password = emailConfig.getEmailPassword();
@@ -49,27 +47,27 @@ public class GroupTrainingsService {
         emailService.sendEmailTLS(emailSendModel);
     }
 
-    private boolean isExistRequiredDataForGroupTraining(GroupTrainingModel groupTrainingModel){
+    private boolean isExistRequiredDataForGroupTraining(GroupTrainingModel groupTrainingModel) {
         String trainingName = groupTrainingModel.getTrainingName();
         String trainerId = groupTrainingModel.getTrainerId();
         String date = groupTrainingModel.getDate();
         String startTime = groupTrainingModel.getStartTime();
         String endTime = groupTrainingModel.getEndTime();
 
-        if(trainingName.isEmpty() || trainerId.isEmpty() || date.isEmpty() || startTime.isEmpty() || endTime.isEmpty())
+        if (trainingName.isEmpty() || trainerId.isEmpty() || date.isEmpty() || startTime.isEmpty() || endTime.isEmpty())
             return false;
 
         return true;
     }
 
-    private boolean isValidHallNo(int hallNo){
-        if(hallNo <= 0)
+    private boolean isValidHallNo(int hallNo) {
+        if (hallNo <= 0)
             return false;
         return true;
     }
 
-    private boolean isValidLimit(int limit){
-        if(limit <= 0)
+    private boolean isValidLimit(int limit) {
+        if (limit <= 0)
             return false;
         return true;
     }
@@ -81,24 +79,20 @@ public class GroupTrainingsService {
         String todayDateFormatted = sdfDate.format(now);
         Date todayDateParsed = sdfDate.parse(todayDateFormatted);
 
-        if(requestDateParsed.before(todayDateParsed)) return true;
+        if (requestDateParsed.before(todayDateParsed)) return true;
 
         return false;
     }
 
-    private boolean isStartTimeAfterEndTime(String  startTime, String endTime){
+    private boolean isStartTimeAfterEndTime(String startTime, String endTime) {
 
-        LocalTime start = LocalTime.parse( startTime);
-        LocalTime stop = LocalTime.parse( endTime );
-        Duration duration = Duration.between( start, stop );
+        LocalTime start = LocalTime.parse(startTime);
+        LocalTime stop = LocalTime.parse(endTime);
+        Duration duration = Duration.between(start, stop);
 
-        if(duration.toMinutes()<=0) return true;
+        if (duration.toMinutes() <= 0) return true;
 
         return false;
-    }
-
-    public String getFirstTestDocument(){
-        return testRepository.getFirstTestDocument();
     }
 
     public List<GroupTrainings> getGroupTrainings() {
@@ -110,61 +104,61 @@ public class GroupTrainingsService {
     }
 
     public GroupTrainings getGroupTrainingById(String trainingId) throws NotExistingGroupTrainingException {
-        if(!groupTrainingsDbRepository.isGroupTrainingExist(trainingId))
+        if (!groupTrainingsDbRepository.isGroupTrainingExist(trainingId))
             throw new NotExistingGroupTrainingException("Training with ID " + trainingId + " does not exist");
         return groupTrainingsDbRepository.getGroupTrainingById(trainingId);
     }
 
-    public List<GroupTrainings> getMyAllTrainings(String clientId){
+    public List<GroupTrainings> getMyAllTrainings(String clientId) {
         //add if Client Exists validation
         return groupTrainingsDbRepository.getMyAllGroupTrainings(clientId);
     }
 
     public List<String> getTrainingParticipants(String trainingId) throws NotExistingGroupTrainingException {
-        if(!groupTrainingsDbRepository.isGroupTrainingExist(trainingId))
+        if (!groupTrainingsDbRepository.isGroupTrainingExist(trainingId))
             throw new NotExistingGroupTrainingException("Training with ID " + trainingId + " does not exist");
         return groupTrainingsDbRepository.getTrainingParticipants(trainingId);
     }
 
     public void enrollToGroupTraining(String trainingId, String clientId) throws TrainingEnrollmentException {
-        if(trainingId.length() != 24 || !groupTrainingsDbRepository.isAbilityToGroupTrainingEnrollment(trainingId))
+        if (trainingId.length() != 24 || !groupTrainingsDbRepository.isAbilityToGroupTrainingEnrollment(trainingId))
             throw new TrainingEnrollmentException("Cannot enroll to this training");
-        if(groupTrainingsDbRepository.isClientAlreadyEnrolledToGroupTraining(trainingId, clientId))
+        if (groupTrainingsDbRepository.isClientAlreadyEnrolledToGroupTraining(trainingId, clientId))
             throw new TrainingEnrollmentException("Client is already enrolled to this training");
 
         groupTrainingsDbRepository.enrollToGroupTraining(trainingId, clientId);
 
-        if(groupTrainingsDbRepository.isClientAlreadyExistInReserveList(trainingId, clientId))
+        if (groupTrainingsDbRepository.isClientAlreadyExistInReserveList(trainingId, clientId))
             groupTrainingsDbRepository.removeFromReserveList(trainingId, clientId);
     }
 
     public void addToReserveList(String trainingId, String clientId) throws NotExistingGroupTrainingException, TrainingEnrollmentException {
-        if(!groupTrainingsDbRepository.isGroupTrainingExist(trainingId))
+        if (!groupTrainingsDbRepository.isGroupTrainingExist(trainingId))
             throw new NotExistingGroupTrainingException("Training with ID " + trainingId + " does not exist");
-        if(groupTrainingsDbRepository.isClientAlreadyEnrolledToGroupTraining(trainingId, clientId))
+        if (groupTrainingsDbRepository.isClientAlreadyEnrolledToGroupTraining(trainingId, clientId))
             throw new TrainingEnrollmentException("Client is already enrolled to this training");
-        if(groupTrainingsDbRepository.isClientAlreadyExistInReserveList(trainingId, clientId))
+        if (groupTrainingsDbRepository.isClientAlreadyExistInReserveList(trainingId, clientId))
             throw new TrainingEnrollmentException("Client already exists in reserve list");
 
         groupTrainingsDbRepository.addToReserveList(trainingId, clientId);
     }
 
     public void removeGroupTrainingEnrollment(String trainingId, String clientId) throws NotExistingGroupTrainingException, TrainingEnrollmentException {
-        if(!groupTrainingsDbRepository.isGroupTrainingExist(trainingId))
+        if (!groupTrainingsDbRepository.isGroupTrainingExist(trainingId))
             throw new NotExistingGroupTrainingException("Training with ID " + trainingId + " does not exist");
-        if(!groupTrainingsDbRepository.isClientAlreadyEnrolledToGroupTraining(trainingId, clientId)
-           && !groupTrainingsDbRepository.isClientAlreadyExistInReserveList(trainingId, clientId))
+        if (!groupTrainingsDbRepository.isClientAlreadyEnrolledToGroupTraining(trainingId, clientId)
+                && !groupTrainingsDbRepository.isClientAlreadyExistInReserveList(trainingId, clientId))
             throw new TrainingEnrollmentException("Client is not enrolled to this training");
-        if(groupTrainingsDbRepository.isClientAlreadyEnrolledToGroupTraining(trainingId, clientId)){
+        if (groupTrainingsDbRepository.isClientAlreadyEnrolledToGroupTraining(trainingId, clientId)) {
             groupTrainingsDbRepository.removeFromParticipants(trainingId, clientId);
         }
-        if(groupTrainingsDbRepository.isClientAlreadyExistInReserveList(trainingId, clientId)){
+        if (groupTrainingsDbRepository.isClientAlreadyExistInReserveList(trainingId, clientId)) {
             groupTrainingsDbRepository.removeFromReserveList(trainingId, clientId);
         }
     }
 
     public GroupTrainings createGroupTraining(GroupTrainingModel groupTrainingModel) throws TrainingCreationException, ParseException, InvalidHourException {
-        if(!isExistRequiredDataForGroupTraining(groupTrainingModel))
+        if (!isExistRequiredDataForGroupTraining(groupTrainingModel))
             throw new TrainingCreationException("Cannot create new group training. Missing required data.");
 
         String date = groupTrainingModel.getDate();
@@ -173,16 +167,16 @@ public class GroupTrainingsService {
         int hallNo = groupTrainingModel.getHallNo();
         int limit = groupTrainingModel.getLimit();
 
-        if(isTrainingRetroDate(date))
+        if (isTrainingRetroDate(date))
             throw new TrainingCreationException("Cannot create new group training. Training retro date.");
-        if(isStartTimeAfterEndTime(startTime, endTime))
+        if (isStartTimeAfterEndTime(startTime, endTime))
             throw new TrainingCreationException("Cannot create new group training. Start time after end time.");
-        if(!isValidHallNo(hallNo))
+        if (!isValidHallNo(hallNo))
             throw new TrainingCreationException("Cannot create new group training. Invalid hall no.");
-        if(!isValidLimit(limit))
+        if (!isValidLimit(limit))
             throw new TrainingCreationException("Cannot create new group training. Invalid limit.");
 
-        if(!groupTrainingsDbRepository.isAbilityToCreateTraining(groupTrainingModel))
+        if (!groupTrainingsDbRepository.isAbilityToCreateTraining(groupTrainingModel))
             throw new TrainingCreationException("Cannot create new group training. Overlapping trainings.");
 
         return groupTrainingsDbRepository.createTraining(groupTrainingModel);
@@ -190,17 +184,17 @@ public class GroupTrainingsService {
 
     public GroupTrainings removeGroupTraining(String trainingId) throws TrainingRemovalException, EmailSendingException {
         if (!groupTrainingsDbRepository.isGroupTrainingExist(trainingId))
-            throw new TrainingRemovalException("Training with ID: "+ trainingId + " doesn't exist");
+            throw new TrainingRemovalException("Training with ID: " + trainingId + " doesn't exist");
 
         GroupTrainings result = groupTrainingsDbRepository.removeTraining(trainingId);
 
         List<String> toEmails = result.getParticipants();
         String subject = "Training has been deleted";
-        String body = "Training " + result.getTrainingName() + " on " + result.getDate() + " at "+result.getStartTime()+
-                " with "+result.getTrainerId() + " has been deleted.";
-        try{
+        String body = "Training " + result.getTrainingName() + " on " + result.getDate() + " at " + result.getStartTime() +
+                " with " + result.getTrainerId() + " has been deleted.";
+        try {
             sendEmailWithoutAttachment(toEmails, subject, body);
-        } catch (Exception e){
+        } catch (Exception e) {
             throw new EmailSendingException("Cannot send email");
         }
 
@@ -209,7 +203,7 @@ public class GroupTrainingsService {
 
     public GroupTrainings updateGroupTraining(String trainingId, GroupTrainingModel groupTrainingModelRequest) throws TrainingUpdateException, EmailSendingException, InvalidHourException, ParseException {
         if (!groupTrainingsDbRepository.isGroupTrainingExist(trainingId))
-            throw new TrainingUpdateException("Training with ID: "+ trainingId + " doesn't exist");
+            throw new TrainingUpdateException("Training with ID: " + trainingId + " doesn't exist");
 
         String date = groupTrainingModelRequest.getDate();
         String startTime = groupTrainingModelRequest.getStartTime();
@@ -217,47 +211,47 @@ public class GroupTrainingsService {
         int hallNo = groupTrainingModelRequest.getHallNo();
         int limit = groupTrainingModelRequest.getLimit();
 
-        if(isTrainingRetroDate(date))
+        if (isTrainingRetroDate(date))
             throw new TrainingUpdateException("Cannot update group training. Training retro date.");
-        if(isStartTimeAfterEndTime(startTime, endTime))
+        if (isStartTimeAfterEndTime(startTime, endTime))
             throw new TrainingUpdateException("Cannot update group training. Start time after end time.");
-        if(!isValidHallNo(hallNo))
+        if (!isValidHallNo(hallNo))
             throw new TrainingUpdateException("Cannot update group training. Invalid hall no.");
-        if(!isValidLimit(limit))
+        if (!isValidLimit(limit))
             throw new TrainingUpdateException("Cannot update group training. Invalid limit.");
 
-        if(!groupTrainingsDbRepository.isAbilityToCreateTraining(groupTrainingModelRequest))
+        if (!groupTrainingsDbRepository.isAbilityToCreateTraining(groupTrainingModelRequest))
             throw new TrainingUpdateException("Cannot update group training. Overlapping trainings.");
 
         GroupTrainings result = groupTrainingsDbRepository.updateTraining(trainingId, groupTrainingModelRequest);
 
         List<String> toEmails = result.getParticipants();
         String subject = "Training has been updated";
-        String body = "Training " + result.getTrainingName() + " on " + result.getDate() + " at "+result.getStartTime()+
-                " with "+result.getTrainerId() + " has been updated.";
-        try{
+        String body = "Training " + result.getTrainingName() + " on " + result.getDate() + " at " + result.getStartTime() +
+                " with " + result.getTrainerId() + " has been updated.";
+        try {
             sendEmailWithoutAttachment(toEmails, subject, body);
-        } catch (Exception e){
+        } catch (Exception e) {
             throw new EmailSendingException("Cannot send email");
         }
 
         return result;
     }
 
-    public List<GroupTrainingsReviews> getGroupTrainingReviews(){
+    public List<GroupTrainingsReviews> getGroupTrainingReviews() {
         return groupTrainingReviewsDbRepository.getGroupTrainingReviews();
     }
 
     public GroupTrainingsReviews getGroupTrainingReviewById(String reviewId) throws NotExistingGroupTrainingReviewException {
-        if(!groupTrainingReviewsDbRepository.isGroupTrainingsReviewExist(reviewId)){
-            throw new NotExistingGroupTrainingReviewException("Review with ID: "+ reviewId + " doesn't exist");
+        if (!groupTrainingReviewsDbRepository.isGroupTrainingsReviewExist(reviewId)) {
+            throw new NotExistingGroupTrainingReviewException("Review with ID: " + reviewId + " doesn't exist");
         }
         return groupTrainingReviewsDbRepository.getGroupTrainingsReviewById(reviewId);
     }
 
     public GroupTrainingsReviews createGroupTrainingReview(GroupTrainingsReviewsModel groupTrainingsReviewsModel,
                                                            String clientId) throws StarsOutOfRangeException {
-        if(groupTrainingsReviewsModel.getStars()<1 || groupTrainingsReviewsModel.getStars() >5){
+        if (groupTrainingsReviewsModel.getStars() < 1 || groupTrainingsReviewsModel.getStars() > 5) {
             throw new StarsOutOfRangeException("Stars must be in range: 1-5");
         }
         SimpleDateFormat sdfDate = new SimpleDateFormat("yyyy-MM-dd");
@@ -269,10 +263,10 @@ public class GroupTrainingsService {
     }
 
     public GroupTrainingsReviews removeGroupTrainingReview(String reviewId, String clientId) throws NotAuthorizedClientException, NotExistingGroupTrainingReviewException {
-        if(!groupTrainingReviewsDbRepository.isGroupTrainingsReviewExist(reviewId)){
-            throw new NotExistingGroupTrainingReviewException("Review with ID: "+ reviewId + " doesn't exist");
+        if (!groupTrainingReviewsDbRepository.isGroupTrainingsReviewExist(reviewId)) {
+            throw new NotExistingGroupTrainingReviewException("Review with ID: " + reviewId + " doesn't exist");
         }
-        if(!groupTrainingReviewsDbRepository.isClientReviewOwner(reviewId, clientId)){
+        if (!groupTrainingReviewsDbRepository.isClientReviewOwner(reviewId, clientId)) {
             throw new NotAuthorizedClientException("Client is not authorized to remove this review");
         }
         return groupTrainingReviewsDbRepository.removeGroupTrainingsReview(reviewId);
@@ -281,16 +275,16 @@ public class GroupTrainingsService {
     public GroupTrainingsReviews updateGroupTrainingReview(GroupTrainingsReviewsUpdateModel groupTrainingsReviewsUpdateModel,
                                                            String reviewId,
                                                            String clientId) throws NotAuthorizedClientException, StarsOutOfRangeException, NotExistingGroupTrainingReviewException {
-        if(!groupTrainingReviewsDbRepository.isGroupTrainingsReviewExist(reviewId)){
-            throw new NotExistingGroupTrainingReviewException("Review with ID: "+ reviewId + " doesn't exist");
+        if (!groupTrainingReviewsDbRepository.isGroupTrainingsReviewExist(reviewId)) {
+            throw new NotExistingGroupTrainingReviewException("Review with ID: " + reviewId + " doesn't exist");
         }
-        if(!groupTrainingReviewsDbRepository.isClientReviewOwner(reviewId, clientId)){
+        if (!groupTrainingReviewsDbRepository.isClientReviewOwner(reviewId, clientId)) {
             throw new NotAuthorizedClientException("Client is not authorized to remove this review");
         }
-        if(groupTrainingsReviewsUpdateModel.getStars()<1 || groupTrainingsReviewsUpdateModel.getStars() >5){
+        if (groupTrainingsReviewsUpdateModel.getStars() < 1 || groupTrainingsReviewsUpdateModel.getStars() > 5) {
             throw new StarsOutOfRangeException("Stars must be in range: 1-5");
         }
-        return groupTrainingReviewsDbRepository.updateGroupTrainingsReview(groupTrainingsReviewsUpdateModel,reviewId);
+        return groupTrainingReviewsDbRepository.updateGroupTrainingsReview(groupTrainingsReviewsUpdateModel, reviewId);
     }
 
 }

@@ -1,8 +1,8 @@
 package com.healthy.gym.trainings;
 
-import com.healthy.gym.trainings.data.repository.TrainingTypeRepository;
 import com.healthy.gym.trainings.data.document.TrainingTypeDocument;
-import com.healthy.gym.trainings.exception.*;
+import com.healthy.gym.trainings.data.repository.TrainingTypeDAO;
+import com.healthy.gym.trainings.exception.NotExistingTrainingType;
 import com.healthy.gym.trainings.mock.TrainingTypeServiceImpl;
 import org.junit.Before;
 import org.junit.Test;
@@ -23,29 +23,15 @@ public class TrainingTypeServiceTest {
 
     private final String validTrainingTypeId = "111111111111111111111111";
     private final String invalidTrainingTypeId = "999999999999999999999999";
-
-    private TrainingTypeDocument validTrainingType;
-
-    public TrainingTypeServiceTest(){
-
-    }
-
-
-    @TestConfiguration
-    static class TrainingTypesServiceImplTestContextConfiguration {
-
-        @Bean
-        public TrainingTypeServiceImpl trainingTypeService() {
-            return new TrainingTypeServiceImpl(null);
-        }
-
-    }
-
     @Autowired
     TrainingTypeServiceImpl trainingTypeService;
-
+    private TrainingTypeDocument validTrainingType;
     @MockBean
-    private TrainingTypeRepository trainingTypeRepository;
+    private TrainingTypeDAO trainingTypeRepository;
+
+    public TrainingTypeServiceTest() {
+
+    }
 
     @Before
     public void setUp() {
@@ -55,7 +41,7 @@ public class TrainingTypeServiceTest {
         validTrainingType.setId(validTrainingTypeId);
         when(trainingTypeRepository.existsTrainingTypeById(validTrainingTypeId))
                 .thenReturn(true);
-        when(trainingTypeRepository.findTrainingTypeById(validTrainingTypeId))
+        when(trainingTypeRepository.findByTrainingTypeId(validTrainingTypeId))
                 .thenReturn(validTrainingType);
     }
 
@@ -70,6 +56,15 @@ public class TrainingTypeServiceTest {
         trainingTypeService.getTrainingTypeById(invalidTrainingTypeId);
     }
 
+    @TestConfiguration
+    static class TrainingTypesServiceImplTestContextConfiguration {
+
+        @Bean
+        public TrainingTypeServiceImpl trainingTypeService() {
+            return new TrainingTypeServiceImpl(null);
+        }
+
+    }
 
 
 }

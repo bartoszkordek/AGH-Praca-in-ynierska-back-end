@@ -11,7 +11,7 @@ import org.springframework.data.mongodb.repository.config.EnableMongoRepositorie
 
 
 
-@EnableMongoRepositories(basePackages = "com.healthy.gym.trainings.db")
+@EnableMongoRepositories(basePackages = "com.healthy.gym.trainings.data.repository")
 @Configuration
 public class MongoConfig extends AbstractMongoClientConfiguration {
 

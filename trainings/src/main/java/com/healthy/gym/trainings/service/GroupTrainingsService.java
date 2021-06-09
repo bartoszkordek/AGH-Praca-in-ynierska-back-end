@@ -1,11 +1,11 @@
 package com.healthy.gym.trainings.service;
 
 import com.healthy.gym.trainings.config.EmailConfig;
-import com.healthy.gym.trainings.db.GroupTrainingReviewsDbRepository;
-import com.healthy.gym.trainings.db.GroupTrainingsDbRepository;
-import com.healthy.gym.trainings.db.TestRepository;
-import com.healthy.gym.trainings.entity.GroupTrainings;
-import com.healthy.gym.trainings.entity.GroupTrainingsReviews;
+import com.healthy.gym.trainings.data.repository.GroupTrainingReviewsDbRepository;
+import com.healthy.gym.trainings.data.repository.GroupTrainingsDbRepository;
+import com.healthy.gym.trainings.data.repository.TestRepository;
+import com.healthy.gym.trainings.data.document.GroupTrainings;
+import com.healthy.gym.trainings.data.document.GroupTrainingsReviews;
 import com.healthy.gym.trainings.exception.*;
 import com.healthy.gym.trainings.model.*;
 import com.healthy.gym.trainings.service.email.EmailService;

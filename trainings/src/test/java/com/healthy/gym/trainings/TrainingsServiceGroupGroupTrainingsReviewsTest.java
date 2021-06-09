@@ -1,8 +1,8 @@
 package com.healthy.gym.trainings;
 
 import com.healthy.gym.trainings.config.EmailConfig;
-import com.healthy.gym.trainings.db.GroupTrainingReviewsDbRepository;
-import com.healthy.gym.trainings.entity.GroupTrainingsReviews;
+import com.healthy.gym.trainings.data.repository.GroupTrainingReviewsDbRepository;
+import com.healthy.gym.trainings.data.document.GroupTrainingsReviews;
 import com.healthy.gym.trainings.exception.NotAuthorizedClientException;
 import com.healthy.gym.trainings.exception.NotExistingGroupTrainingReviewException;
 import com.healthy.gym.trainings.exception.StarsOutOfRangeException;

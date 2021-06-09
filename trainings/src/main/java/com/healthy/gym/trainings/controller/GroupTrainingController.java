@@ -1,6 +1,6 @@
 package com.healthy.gym.trainings.controller;
 
-import com.healthy.gym.trainings.entity.GroupTrainings;
+import com.healthy.gym.trainings.data.document.GroupTrainings;
 import com.healthy.gym.trainings.exception.*;
 import com.healthy.gym.trainings.model.GroupTrainingModel;
 import com.healthy.gym.trainings.model.GroupTrainingsPublicViewModel;

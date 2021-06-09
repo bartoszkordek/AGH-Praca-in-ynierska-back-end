@@ -1,6 +1,6 @@
-package com.healthy.gym.trainings.db;
+package com.healthy.gym.trainings.data.repository;
 
-import com.healthy.gym.trainings.entity.IndividualTrainings;
+import com.healthy.gym.trainings.data.document.IndividualTrainings;
 import org.springframework.data.mongodb.repository.MongoRepository;
 
 import java.util.List;

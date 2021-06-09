@@ -1,8 +1,8 @@
 package com.healthy.gym.trainings;
 
 import com.healthy.gym.trainings.config.EmailConfig;
-import com.healthy.gym.trainings.db.IndividualTrainingsDbRepository;
-import com.healthy.gym.trainings.entity.IndividualTrainings;
+import com.healthy.gym.trainings.data.repository.IndividualTrainingsDbRepository;
+import com.healthy.gym.trainings.data.document.IndividualTrainings;
 import com.healthy.gym.trainings.exception.*;
 import com.healthy.gym.trainings.mock.TrainingsServiceIndividualTrainingsImpl;
 import com.healthy.gym.trainings.model.IndividualTrainingsAcceptModel;

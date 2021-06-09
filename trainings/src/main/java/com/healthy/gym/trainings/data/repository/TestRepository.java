@@ -1,4 +1,4 @@
-package com.healthy.gym.trainings.db;
+package com.healthy.gym.trainings.data.repository;
 
 import com.mongodb.client.*;
 import org.bson.Document;

@@ -1,9 +1,9 @@
 package com.healthy.gym.trainings.mock;
 
-import com.healthy.gym.trainings.db.GroupTrainingReviewsDbRepository;
-import com.healthy.gym.trainings.db.GroupTrainingsDbRepository;
-import com.healthy.gym.trainings.db.TestRepository;
-import com.healthy.gym.trainings.entity.GroupTrainingsReviews;
+import com.healthy.gym.trainings.data.repository.GroupTrainingReviewsDbRepository;
+import com.healthy.gym.trainings.data.repository.GroupTrainingsDbRepository;
+import com.healthy.gym.trainings.data.repository.TestRepository;
+import com.healthy.gym.trainings.data.document.GroupTrainingsReviews;
 import com.healthy.gym.trainings.exception.NotAuthorizedClientException;
 import com.healthy.gym.trainings.exception.NotExistingGroupTrainingReviewException;
 import com.healthy.gym.trainings.exception.StarsOutOfRangeException;

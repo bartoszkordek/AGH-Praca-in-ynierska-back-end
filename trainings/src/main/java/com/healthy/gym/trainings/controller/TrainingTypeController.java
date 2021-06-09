@@ -1,6 +1,6 @@
 package com.healthy.gym.trainings.controller;
 
-import com.healthy.gym.trainings.entity.TrainingType;
+import com.healthy.gym.trainings.data.document.TrainingType;
 import com.healthy.gym.trainings.exception.DuplicatedTrainingTypes;
 import com.healthy.gym.trainings.exception.NotExistingTrainingType;
 import com.healthy.gym.trainings.exception.RestException;

@@ -1,4 +1,4 @@
-package com.healthy.gym.trainings.entity;
+package com.healthy.gym.trainings.data.document;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.healthy.gym.trainings.exception.InvalidHourException;

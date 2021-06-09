@@ -1,7 +1,7 @@
 package com.healthy.gym.trainings;
 
-import com.healthy.gym.trainings.db.TrainingTypeRepository;
-import com.healthy.gym.trainings.entity.TrainingType;
+import com.healthy.gym.trainings.data.repository.TrainingTypeRepository;
+import com.healthy.gym.trainings.data.document.TrainingType;
 import com.healthy.gym.trainings.exception.*;
 import com.healthy.gym.trainings.mock.TrainingTypeServiceImpl;
 import org.junit.Before;

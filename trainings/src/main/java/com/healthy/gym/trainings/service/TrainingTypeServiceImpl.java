@@ -1,7 +1,7 @@
 package com.healthy.gym.trainings.service;
 
-import com.healthy.gym.trainings.db.TrainingTypeRepository;
-import com.healthy.gym.trainings.entity.TrainingType;
+import com.healthy.gym.trainings.data.repository.TrainingTypeRepository;
+import com.healthy.gym.trainings.data.document.TrainingType;
 import com.healthy.gym.trainings.exception.DuplicatedTrainingTypes;
 import com.healthy.gym.trainings.exception.NotExistingTrainingType;
 import com.healthy.gym.trainings.model.TrainingTypeManagerViewModel;

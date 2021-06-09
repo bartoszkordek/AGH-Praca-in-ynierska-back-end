@@ -1,6 +1,6 @@
-package com.healthy.gym.trainings.db;
+package com.healthy.gym.trainings.data.repository;
 
-import com.healthy.gym.trainings.entity.IndividualTrainings;
+import com.healthy.gym.trainings.data.document.IndividualTrainings;
 import com.healthy.gym.trainings.exception.InvalidHourException;
 import com.healthy.gym.trainings.model.IndividualTrainingsAcceptModel;
 import com.healthy.gym.trainings.model.IndividualTrainingsRequestModel;

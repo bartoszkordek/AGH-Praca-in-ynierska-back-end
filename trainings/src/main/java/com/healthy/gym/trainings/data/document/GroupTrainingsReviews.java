@@ -1,4 +1,4 @@
-package com.healthy.gym.trainings.entity;
+package com.healthy.gym.trainings.data.document;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.springframework.data.annotation.Id;

@@ -1,5 +1,6 @@
-package com.healthy.gym.trainings.controller;
+package com.healthy.gym.trainings.controller.trainingTypeController.unitTest;
 
+import com.healthy.gym.trainings.controller.TrainingTypeController;
 import com.healthy.gym.trainings.service.TrainingTypeService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,8 +11,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @WebMvcTest(TrainingTypeController.class)
-class TrainingTypeControllerTest {
-
+public class WhenCreateTrainingTypeTest {
     @Autowired
     private MockMvc mockMvc;
 

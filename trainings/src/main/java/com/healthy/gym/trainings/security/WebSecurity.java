@@ -26,7 +26,7 @@ public class WebSecurity extends WebSecurityConfigurerAdapter {
         http.headers().frameOptions().disable();
 
         http.authorizeRequests()
-                .antMatchers(HttpMethod.GET, "/trainingType").permitAll()
+                .antMatchers(HttpMethod.GET, "/trainingType/**").permitAll()
                 .anyRequest().authenticated()
                 .and()
                 .addFilter(getAuthorizationFilter());

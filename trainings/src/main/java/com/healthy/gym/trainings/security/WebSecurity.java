@@ -2,6 +2,7 @@ package com.healthy.gym.trainings.security;
 
 import com.healthy.gym.trainings.component.TokenManager;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -25,9 +26,8 @@ public class WebSecurity extends WebSecurityConfigurerAdapter {
         http.headers().frameOptions().disable();
 
         http.authorizeRequests()
-                .antMatchers("/status").authenticated()
-                .and()
-                .authorizeRequests().antMatchers("/*").permitAll()
+                .antMatchers(HttpMethod.GET, "/trainingType").permitAll()
+                .anyRequest().authenticated()
                 .and()
                 .addFilter(getAuthorizationFilter());
 

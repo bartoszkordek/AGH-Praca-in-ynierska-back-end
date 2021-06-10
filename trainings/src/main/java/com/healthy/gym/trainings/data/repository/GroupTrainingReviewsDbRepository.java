@@ -34,19 +34,19 @@ public class GroupTrainingReviewsDbRepository {
         return reviewDAO.existsByIdAndAndClientId(reviewId, clientId);
     }
 
-    public GroupTrainingsReviews createGroupTrainingReview(GroupTrainingReviewRequest groupTrainingsReviewsModel,
-                                                           String date,
-                                                           String clientId){
-
-        GroupTrainingsReviews response = reviewDAO.insert(new GroupTrainingsReviews(
-                groupTrainingsReviewsModel.getTrainingName(),
-                clientId,
-                date,
-                groupTrainingsReviewsModel.getStars(),
-                groupTrainingsReviewsModel.getText()
-        ));
-        return response;
-    }
+//    public GroupTrainingsReviews createGroupTrainingReview(GroupTrainingReviewRequest groupTrainingsReviewsModel,
+//                                                           String date,
+//                                                           String clientId){
+//
+//        GroupTrainingsReviews response = reviewDAO.insert(new GroupTrainingsReviews(
+//                groupTrainingsReviewsModel.getTrainingName(),
+//                clientId,
+//                date,
+//                groupTrainingsReviewsModel.getStars(),
+//                groupTrainingsReviewsModel.getText()
+//        ));
+//        return response;
+//    }
 
     public GroupTrainingsReviews removeGroupTrainingsReview(String reviewId){
         GroupTrainingsReviews groupTrainingsReviews = reviewDAO.findGroupTrainingsReviewsById(reviewId);

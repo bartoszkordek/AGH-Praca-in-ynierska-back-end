@@ -20,6 +20,8 @@ public class ReviewServiceImpl implements ReviewService{
 
     private final ReviewDAO reviewRepository;
     private SimpleDateFormat sdfDate = new SimpleDateFormat("yyyy-MM-dd");
+    private String defaultStartDate = "1900-01-01";
+    private String defaultEndDate = "2099-12-31";
 
     public ReviewServiceImpl(ReviewDAO reviewRepository){
         this.reviewRepository = reviewRepository;
@@ -58,6 +60,12 @@ public class ReviewServiceImpl implements ReviewService{
     @Override
     public Page<GroupTrainingReviewResponse> getAllReviews(String startDate, String endDate, Pageable pageable)
             throws ParseException, StartDateAfterEndDateException {
+        if(startDate == null)
+            startDate = defaultStartDate;
+
+        if(endDate == null)
+            endDate = defaultEndDate;
+
         Date startDateParsed = sdfDate.parse(startDate);
         Date startDateMinusOneDay = new Date(startDateParsed.getTime() - (1000 * 60 * 60 * 24));
         Date endDateParsed = sdfDate.parse(endDate);
@@ -66,13 +74,19 @@ public class ReviewServiceImpl implements ReviewService{
             throw new StartDateAfterEndDateException("Start date after end date");
         }
 
-        return reviewRepository.findAllByDateAfterAndDateBefore(sdfDate.format(startDateMinusOneDay),
+        return reviewRepository.findByDateBetween(sdfDate.format(startDateMinusOneDay),
                 sdfDate.format(endDatePlusOneDay), pageable);
     }
 
     @Override
     public Page<GroupTrainingReviewResponse> getAllReviewsByUserId(String startDate, String endDate, String userId, Pageable pageable)
             throws ParseException, StartDateAfterEndDateException {
+        if(startDate == null)
+            startDate = defaultStartDate;
+
+        if(endDate == null)
+            endDate = defaultEndDate;
+
         Date startDateParsed = sdfDate.parse(startDate);
         Date startDateMinusOneDay = new Date(startDateParsed.getTime() - (1000 * 60 * 60 * 24));
         Date endDateParsed = sdfDate.parse(endDate);
@@ -80,12 +94,18 @@ public class ReviewServiceImpl implements ReviewService{
         if(startDateParsed.after(endDateParsed)){
             throw new StartDateAfterEndDateException("Start date after end date");
         }
-        return reviewRepository.findAllByDateAfterAndDateBeforeAndClientId(sdfDate.format(startDateMinusOneDay),
+        return reviewRepository.findByDateBetweenAndClientId(sdfDate.format(startDateMinusOneDay),
                 sdfDate.format(endDatePlusOneDay), userId, pageable);
     }
 
     @Override
     public Page<GroupTrainingReviewResponse> getAllReviewsByTrainingTypeId(String startDate, String endDate, String trainingTypeId, Pageable pageable) throws ParseException, StartDateAfterEndDateException {
+        if(startDate == null)
+            startDate = defaultStartDate;
+
+        if(endDate == null)
+            endDate = defaultEndDate;
+
         Date startDateParsed = sdfDate.parse(startDate);
         Date startDateMinusOneDay = new Date(startDateParsed.getTime() - (1000 * 60 * 60 * 24));
         Date endDateParsed = sdfDate.parse(endDate);
@@ -93,7 +113,7 @@ public class ReviewServiceImpl implements ReviewService{
         if(startDateParsed.after(endDateParsed)){
             throw new StartDateAfterEndDateException("Start date after end date");
         }
-        return reviewRepository.findAllByDateAfterAndDateBeforeAndTrainingName(sdfDate.format(startDateMinusOneDay),
+        return reviewRepository.findByDateBetweenAndTrainingName(sdfDate.format(startDateMinusOneDay),
                 sdfDate.format(endDatePlusOneDay), trainingTypeId, pageable);
     }
 

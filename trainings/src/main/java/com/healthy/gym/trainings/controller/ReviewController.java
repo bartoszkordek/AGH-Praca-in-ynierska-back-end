@@ -36,14 +36,27 @@ public class ReviewController {
         this.reviewService = reviewService;
     }
 
+    private Map<String, Object> reviewPaginationResponse(Page<GroupTrainingReviewResponse> pageReviews){
+
+        List<GroupTrainingReviewResponse> reviews = pageReviews.getContent();
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("tutorials", reviews);
+        response.put("currentPage", pageReviews.getNumber());
+        response.put("totalItems", pageReviews.getTotalElements());
+        response.put("totalPages", pageReviews.getTotalPages());
+
+        return response;
+    }
+
     //TODO only logged in users
     @PostMapping
-    public GroupTrainingsReviews createGroupTrainingReview(
+    public GroupTrainingReviewResponse createGroupTrainingReview(
             @Valid @RequestBody GroupTrainingReviewRequest groupTrainingsReviews,
             @RequestParam final String clientId
     ) throws RestException {
         try {
-            return groupTrainingsService.createGroupTrainingReview(groupTrainingsReviews, clientId);
+            return reviewService.createGroupTrainingReview(groupTrainingsReviews, clientId);
         } catch (StarsOutOfRangeException e) {
             throw new RestException(e.getMessage(), HttpStatus.BAD_REQUEST, e);
         }
@@ -51,26 +64,19 @@ public class ReviewController {
 
 
     //TODO for admin paginacja, filtrowanie po datach
-    @GetMapping("/{page}")
+    @GetMapping("/page/{page}")
     public ResponseEntity<Map<String, Object>> getAllReviews(
             @RequestParam(required = false) final String startDate,
             @RequestParam(required = false) final String endDate,
             @RequestParam(defaultValue = "10") final int size,
             @PathVariable final int page) throws RestException {
 
-        List<GroupTrainingReviewResponse> reviews = new ArrayList<GroupTrainingReviewResponse>();
         Pageable paging = PageRequest.of(page, size);
 
         try{ Page<GroupTrainingReviewResponse> pageReviews = reviewService.getAllReviews(startDate,
                     endDate, paging);
 
-            reviews = pageReviews.getContent();
-
-            Map<String, Object> response = new HashMap<>();
-            response.put("tutorials", reviews);
-            response.put("currentPage", pageReviews.getNumber());
-            response.put("totalItems", pageReviews.getTotalElements());
-            response.put("totalPages", pageReviews.getTotalPages());
+            Map<String, Object> response = reviewPaginationResponse(pageReviews);
 
             return new ResponseEntity<>(response, HttpStatus.OK);
 
@@ -81,7 +87,7 @@ public class ReviewController {
     }
 
     // TODO only for admin and user who owns it
-    @GetMapping("/user/{userId}/{page}")
+    @GetMapping("/user/{userId}/page/{page}")
     public ResponseEntity<Map<String, Object>> getAllReviewsByUserId(
             @RequestParam(required = false) final String startDate,
             @RequestParam(required = false) final String endDate,
@@ -89,19 +95,12 @@ public class ReviewController {
             @PathVariable final String userId,
             @PathVariable final int page) throws RestException {
 
-        List<GroupTrainingReviewResponse> reviews = new ArrayList<GroupTrainingReviewResponse>();
         Pageable paging = PageRequest.of(page, size);
 
         try { Page<GroupTrainingReviewResponse> pageReviews = reviewService.getAllReviewsByUserId(startDate,
                     endDate, userId, paging);
 
-            reviews = pageReviews.getContent();
-
-            Map<String, Object> response = new HashMap<>();
-            response.put("tutorials", reviews);
-            response.put("currentPage", pageReviews.getNumber());
-            response.put("totalItems", pageReviews.getTotalElements());
-            response.put("totalPages", pageReviews.getTotalPages());
+            Map<String, Object> response = reviewPaginationResponse(pageReviews);
 
             return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (ParseException | StartDateAfterEndDateException e){
@@ -110,7 +109,7 @@ public class ReviewController {
     }
 
     // TODO only logged in users
-    @GetMapping("/trainingType/{trainingTypeId}/{page}")
+    @GetMapping("/trainingType/{trainingTypeId}/page/{page}")
     public ResponseEntity<Map<String, Object>> getAllReviewsByTrainingTypeId(
             @RequestParam(required = false) final String startDate,
             @RequestParam(required = false) final String endDate,
@@ -118,19 +117,12 @@ public class ReviewController {
             @PathVariable final String trainingTypeId,
             @PathVariable final int page) throws RestException {
 
-        List<GroupTrainingReviewResponse> reviews = new ArrayList<GroupTrainingReviewResponse>();
         Pageable paging = PageRequest.of(page, size);
 
         try { Page<GroupTrainingReviewResponse> pageReviews = reviewService.getAllReviewsByTrainingTypeId(startDate,
                 endDate, trainingTypeId, paging);
 
-            reviews = pageReviews.getContent();
-
-            Map<String, Object> response = new HashMap<>();
-            response.put("tutorials", reviews);
-            response.put("currentPage", pageReviews.getNumber());
-            response.put("totalItems", pageReviews.getTotalElements());
-            response.put("totalPages", pageReviews.getTotalPages());
+            Map<String, Object> response = reviewPaginationResponse(pageReviews);
 
             return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (ParseException | StartDateAfterEndDateException e){

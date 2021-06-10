@@ -22,9 +22,9 @@ public interface ReviewDAO extends MongoRepository<GroupTrainingsReviews, String
 
     public void removeById(String id);
 
-    Page<GroupTrainingReviewResponse> findAllByDateAfterAndDateBefore(String startDate, String endDate, Pageable pageable);
-    Page<GroupTrainingReviewResponse> findAllByDateAfterAndDateBeforeAndClientId(String startDate, String endDate, String clientId, Pageable pageable);
+    Page<GroupTrainingReviewResponse> findByDateBetween(String startDate, String endDate, Pageable pageable);
+    Page<GroupTrainingReviewResponse> findByDateBetweenAndClientId(String startDate, String endDate, String clientId, Pageable pageable);
 
     //TBC if TrainingName == Training Type ID
-    Page<GroupTrainingReviewResponse> findAllByDateAfterAndDateBeforeAndTrainingName(String startDate, String endDate, String trainingTypeId, Pageable pageable);
+    Page<GroupTrainingReviewResponse> findByDateBetweenAndTrainingName(String startDate, String endDate, String trainingTypeId, Pageable pageable);
 }

@@ -4,6 +4,7 @@ import com.healthy.gym.trainings.data.document.GroupTrainingsReviews;
 import com.healthy.gym.trainings.exception.*;
 import com.healthy.gym.trainings.model.request.GroupTrainingReviewRequest;
 import com.healthy.gym.trainings.model.request.GroupTrainingReviewUpdateRequest;
+import com.healthy.gym.trainings.model.response.GroupTrainingReviewResponse;
 import com.healthy.gym.trainings.service.GroupTrainingService;
 import com.healthy.gym.trainings.service.ReviewService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,55 +56,86 @@ public class ReviewController {
             @RequestParam(required = false) final String startDate,
             @RequestParam(required = false) final String endDate,
             @RequestParam(defaultValue = "10") final int size,
-            @PathVariable final int page) throws ParseException, StartDateAfterEndDateException {
+            @PathVariable final int page) throws RestException {
 
-        List<GroupTrainingsReviews> reviews = new ArrayList<GroupTrainingsReviews>();
+        List<GroupTrainingReviewResponse> reviews = new ArrayList<GroupTrainingReviewResponse>();
         Pageable paging = PageRequest.of(page, size);
 
-        Page<GroupTrainingsReviews> pageReviews = reviewService.getAllReviews(startDate,
-                endDate, paging);
+        try{ Page<GroupTrainingReviewResponse> pageReviews = reviewService.getAllReviews(startDate,
+                    endDate, paging);
 
-        reviews = pageReviews.getContent();
+            reviews = pageReviews.getContent();
 
-        Map<String, Object> response = new HashMap<>();
-        response.put("tutorials", reviews);
-        response.put("currentPage", pageReviews.getNumber());
-        response.put("totalItems", pageReviews.getTotalElements());
-        response.put("totalPages", pageReviews.getTotalPages());
+            Map<String, Object> response = new HashMap<>();
+            response.put("tutorials", reviews);
+            response.put("currentPage", pageReviews.getNumber());
+            response.put("totalItems", pageReviews.getTotalElements());
+            response.put("totalPages", pageReviews.getTotalPages());
 
-        return new ResponseEntity<>(response, HttpStatus.OK);
+            return new ResponseEntity<>(response, HttpStatus.OK);
+
+        } catch (ParseException | StartDateAfterEndDateException e){
+            throw new RestException(e.getMessage(), HttpStatus.BAD_REQUEST, e);
+        }
+
     }
 
     // TODO only for admin and user who owns it
     @GetMapping("/user/{userId}/{page}")
     public ResponseEntity<Map<String, Object>> getAllReviewsByUserId(
-            @RequestParam final String startDate,
-            @RequestParam final String endDate,
+            @RequestParam(required = false) final String startDate,
+            @RequestParam(required = false) final String endDate,
             @RequestParam(defaultValue = "10") final int size,
             @PathVariable final String userId,
-            @PathVariable final int page) throws ParseException, StartDateAfterEndDateException {
+            @PathVariable final int page) throws RestException {
 
-        List<GroupTrainingsReviews> reviews = new ArrayList<GroupTrainingsReviews>();
+        List<GroupTrainingReviewResponse> reviews = new ArrayList<GroupTrainingReviewResponse>();
         Pageable paging = PageRequest.of(page, size);
 
-        Page<GroupTrainingsReviews> pageReviews = reviewService.getAllReviewsByUserId(startDate,
-                endDate, userId, paging);
+        try { Page<GroupTrainingReviewResponse> pageReviews = reviewService.getAllReviewsByUserId(startDate,
+                    endDate, userId, paging);
 
-        reviews = pageReviews.getContent();
+            reviews = pageReviews.getContent();
 
-        Map<String, Object> response = new HashMap<>();
-        response.put("tutorials", reviews);
-        response.put("currentPage", pageReviews.getNumber());
-        response.put("totalItems", pageReviews.getTotalElements());
-        response.put("totalPages", pageReviews.getTotalPages());
+            Map<String, Object> response = new HashMap<>();
+            response.put("tutorials", reviews);
+            response.put("currentPage", pageReviews.getNumber());
+            response.put("totalItems", pageReviews.getTotalElements());
+            response.put("totalPages", pageReviews.getTotalPages());
 
-        return new ResponseEntity<>(response, HttpStatus.OK);
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (ParseException | StartDateAfterEndDateException e){
+            throw new RestException(e.getMessage(), HttpStatus.BAD_REQUEST, e);
+        }
     }
 
     // TODO only logged in users
-    @GetMapping("/trainingType/{trainingTypeId}")
-    public String getAllReviewsByTrainingTypeId(@PathVariable final String trainingTypeId) {
-        return null;
+    @GetMapping("/trainingType/{trainingTypeId}/{page}")
+    public ResponseEntity<Map<String, Object>> getAllReviewsByTrainingTypeId(
+            @RequestParam(required = false) final String startDate,
+            @RequestParam(required = false) final String endDate,
+            @RequestParam(defaultValue = "10") final int size,
+            @PathVariable final String trainingTypeId,
+            @PathVariable final int page) throws RestException {
+
+        List<GroupTrainingReviewResponse> reviews = new ArrayList<GroupTrainingReviewResponse>();
+        Pageable paging = PageRequest.of(page, size);
+
+        try { Page<GroupTrainingReviewResponse> pageReviews = reviewService.getAllReviewsByTrainingTypeId(startDate,
+                endDate, trainingTypeId, paging);
+
+            reviews = pageReviews.getContent();
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("tutorials", reviews);
+            response.put("currentPage", pageReviews.getNumber());
+            response.put("totalItems", pageReviews.getTotalElements());
+            response.put("totalPages", pageReviews.getTotalPages());
+
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (ParseException | StartDateAfterEndDateException e){
+            throw new RestException(e.getMessage(), HttpStatus.BAD_REQUEST, e);
+        }
     }
 
     //TODO without usernames and avatars

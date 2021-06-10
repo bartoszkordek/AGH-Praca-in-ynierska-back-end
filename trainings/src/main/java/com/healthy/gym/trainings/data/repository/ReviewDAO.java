@@ -2,6 +2,7 @@ package com.healthy.gym.trainings.data.repository;
 
 
 import com.healthy.gym.trainings.data.document.GroupTrainingsReviews;
+import com.healthy.gym.trainings.model.response.GroupTrainingReviewResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.repository.MongoRepository;
@@ -21,7 +22,9 @@ public interface ReviewDAO extends MongoRepository<GroupTrainingsReviews, String
 
     public void removeById(String id);
 
-    Page<GroupTrainingsReviews> findAllByDateAfterAndDateBefore(String startDate, String endDate, Pageable pageable);
-    Page<GroupTrainingsReviews> findAllByDateAfterAndDateBeforeAndClientId(String startDate, String endDate, String clientId, Pageable pageable);
+    Page<GroupTrainingReviewResponse> findAllByDateAfterAndDateBefore(String startDate, String endDate, Pageable pageable);
+    Page<GroupTrainingReviewResponse> findAllByDateAfterAndDateBeforeAndClientId(String startDate, String endDate, String clientId, Pageable pageable);
 
+    //TBC if TrainingName == Training Type ID
+    Page<GroupTrainingReviewResponse> findAllByDateAfterAndDateBeforeAndTrainingName(String startDate, String endDate, String trainingTypeId, Pageable pageable);
 }

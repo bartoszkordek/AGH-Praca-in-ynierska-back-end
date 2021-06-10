@@ -2,13 +2,15 @@ package com.healthy.gym.trainings.service;
 
 import com.healthy.gym.trainings.data.document.TrainingTypeDocument;
 import com.healthy.gym.trainings.data.repository.TrainingTypeDAO;
-import com.healthy.gym.trainings.exception.DuplicatedTrainingTypes;
+import com.healthy.gym.trainings.exception.DuplicatedTrainingTypeException;
 import com.healthy.gym.trainings.exception.NotExistingTrainingType;
-import com.healthy.gym.trainings.model.response.TrainingTypeManagerResponse;
 import com.healthy.gym.trainings.model.other.TrainingTypeModel;
+import com.healthy.gym.trainings.model.request.TrainingTypeRequest;
+import com.healthy.gym.trainings.model.response.TrainingTypeManagerResponse;
 import com.healthy.gym.trainings.model.response.TrainingTypePublicResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -61,16 +63,26 @@ public class TrainingTypeServiceImpl implements TrainingTypeService {
         return trainingTypeRepository.findByTrainingTypeId(trainingTypeId);
     }
 
-    public TrainingTypeDocument createTrainingType(TrainingTypeModel trainingTypeModel, byte[] avatar) throws DuplicatedTrainingTypes {
+    public TrainingTypeDocument createTrainingType(TrainingTypeModel trainingTypeModel, byte[] avatar) throws DuplicatedTrainingTypeException {
         String trainingName = trainingTypeModel.getTrainingName();
         String description = trainingTypeModel.getDescription();
         if (trainingTypeRepository.existsByName(trainingName)) {
-            throw new DuplicatedTrainingTypes("Training type of name: " + trainingName + " already exists.");
+            throw new DuplicatedTrainingTypeException("Training type of name: " + trainingName + " already exists.");
         }
 
         TrainingTypeDocument response = trainingTypeRepository
                 .insert(new TrainingTypeDocument(null, trainingName, description, null, null));
         return response;
+    }
+
+    @Override
+    public TrainingTypeDocument createTrainingType(TrainingTypeRequest trainingTypeRequest, MultipartFile multipartFile) throws DuplicatedTrainingTypeException {
+        return null;
+    }
+
+    @Override
+    public TrainingTypeDocument createTrainingType(TrainingTypeRequest trainingTypeRequest) throws DuplicatedTrainingTypeException {
+        return null;
     }
 
     public TrainingTypeDocument removeTrainingTypeByName(String trainingName) throws NotExistingTrainingType {
@@ -84,7 +96,7 @@ public class TrainingTypeServiceImpl implements TrainingTypeService {
         return trainingTypeToRemove;
     }
 
-    public TrainingTypeDocument updateTrainingTypeById(String trainingTypeId, TrainingTypeModel trainingTypeModel, byte[] avatar) throws NotExistingTrainingType, DuplicatedTrainingTypes {
+    public TrainingTypeDocument updateTrainingTypeById(String trainingTypeId, TrainingTypeModel trainingTypeModel, byte[] avatar) throws NotExistingTrainingType, DuplicatedTrainingTypeException {
         if (!trainingTypeRepository.existsTrainingTypeById(trainingTypeId)) {
             throw new NotExistingTrainingType("Training type of id: " + trainingTypeId + " not exist.");
         }

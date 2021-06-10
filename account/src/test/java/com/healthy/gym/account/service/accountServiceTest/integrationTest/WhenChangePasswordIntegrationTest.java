@@ -1,6 +1,6 @@
 package com.healthy.gym.account.service.accountServiceTest.integrationTest;
 
-import com.healthy.gym.account.component.token.TokenManager;
+import com.healthy.gym.account.component.TokenManager;
 import com.healthy.gym.account.data.document.UserDocument;
 import com.healthy.gym.account.enums.GymRole;
 import com.healthy.gym.account.exception.IdenticalOldAndNewPasswordException;

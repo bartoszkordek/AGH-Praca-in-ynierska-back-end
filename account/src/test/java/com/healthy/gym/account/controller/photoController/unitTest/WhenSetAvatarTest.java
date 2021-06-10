@@ -1,7 +1,7 @@
 package com.healthy.gym.account.controller.photoController.unitTest;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.healthy.gym.account.component.token.TokenManager;
+import com.healthy.gym.account.component.TokenManager;
 import com.healthy.gym.account.configuration.tests.TestCountry;
 import com.healthy.gym.account.controller.PhotoController;
 import com.healthy.gym.account.exception.PhotoSavingException;

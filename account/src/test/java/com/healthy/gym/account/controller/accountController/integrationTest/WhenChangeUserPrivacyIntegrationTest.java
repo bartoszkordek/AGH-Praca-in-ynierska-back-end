@@ -1,7 +1,7 @@
 package com.healthy.gym.account.controller.accountController.integrationTest;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.healthy.gym.account.component.token.TokenManager;
+import com.healthy.gym.account.component.TokenManager;
 import com.healthy.gym.account.configuration.tests.TestCountry;
 import com.healthy.gym.account.data.document.UserDocument;
 import com.healthy.gym.account.pojo.request.ChangePrivacyRequest;

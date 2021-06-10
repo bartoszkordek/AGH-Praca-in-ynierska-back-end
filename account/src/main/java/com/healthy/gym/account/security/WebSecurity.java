@@ -1,6 +1,6 @@
 package com.healthy.gym.account.security;
 
-import com.healthy.gym.account.component.token.TokenManager;
+import com.healthy.gym.account.component.TokenManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;

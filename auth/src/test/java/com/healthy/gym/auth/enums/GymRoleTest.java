@@ -106,4 +106,29 @@ class GymRoleTest {
             assertThat(GymRole.USER).hasToString(role);
         }
     }
+
+    @Nested
+    class RoleManager {
+        private String role;
+
+        @BeforeEach
+        void setUp() {
+            role = "ROLE_MANAGER";
+        }
+
+        @Test
+        void shouldReturnProperRole() {
+            assertThat(GymRole.MANAGER.getRole()).isEqualTo(role);
+        }
+
+        @Test
+        void shouldReturnProperAuthority() {
+            assertThat(GymRole.MANAGER.getAuthority()).isEqualTo(role);
+        }
+
+        @Test
+        void shouldReturnProperToString() {
+            assertThat(GymRole.MANAGER).hasToString(role);
+        }
+    }
 }

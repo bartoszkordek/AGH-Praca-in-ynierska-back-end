@@ -2,7 +2,7 @@ package com.healthy.gym.trainings.service;
 
 import com.healthy.gym.trainings.data.document.TrainingTypeDocument;
 import com.healthy.gym.trainings.exception.DuplicatedTrainingTypeException;
-import com.healthy.gym.trainings.exception.NotExistingTrainingType;
+import com.healthy.gym.trainings.exception.TrainingTypeNotFoundException;
 import com.healthy.gym.trainings.model.other.TrainingTypeModel;
 import com.healthy.gym.trainings.model.request.TrainingTypeRequest;
 import com.healthy.gym.trainings.model.response.TrainingTypeManagerResponse;
@@ -17,7 +17,7 @@ public interface TrainingTypeService {
 
     List<TrainingTypePublicResponse> getAllTrainingTypesPublicView();
 
-    TrainingTypeDocument getTrainingTypeById(String trainingTypeId) throws NotExistingTrainingType;
+    TrainingTypeDocument getTrainingTypeById(String trainingTypeId) throws TrainingTypeNotFoundException;
 
     TrainingTypeDocument createTrainingType(TrainingTypeModel trainingTypeModel, byte[] avatar)
             throws DuplicatedTrainingTypeException;
@@ -28,8 +28,8 @@ public interface TrainingTypeService {
     TrainingTypeDocument createTrainingType(TrainingTypeRequest trainingTypeRequest)
             throws DuplicatedTrainingTypeException;
 
-    TrainingTypeDocument removeTrainingTypeByName(String trainingName) throws NotExistingTrainingType;
+    TrainingTypeDocument removeTrainingTypeByName(String trainingName) throws TrainingTypeNotFoundException;
 
     TrainingTypeDocument updateTrainingTypeById(String trainingId, TrainingTypeModel trainingTypeModel, byte[] avatar)
-            throws NotExistingTrainingType, DuplicatedTrainingTypeException;
+            throws TrainingTypeNotFoundException, DuplicatedTrainingTypeException;
 }

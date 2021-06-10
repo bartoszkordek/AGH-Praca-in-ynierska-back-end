@@ -3,7 +3,7 @@ package com.healthy.gym.trainings.service;
 import com.healthy.gym.trainings.data.document.TrainingTypeDocument;
 import com.healthy.gym.trainings.data.repository.TrainingTypeDAO;
 import com.healthy.gym.trainings.exception.DuplicatedTrainingTypeException;
-import com.healthy.gym.trainings.exception.NotExistingTrainingType;
+import com.healthy.gym.trainings.exception.TrainingTypeNotFoundException;
 import com.healthy.gym.trainings.model.other.TrainingTypeModel;
 import com.healthy.gym.trainings.model.request.TrainingTypeRequest;
 import com.healthy.gym.trainings.model.response.TrainingTypeManagerResponse;
@@ -56,9 +56,9 @@ public class TrainingTypeServiceImpl implements TrainingTypeService {
         return trainingTypePublicViewModels;
     }
 
-    public TrainingTypeDocument getTrainingTypeById(String trainingTypeId) throws NotExistingTrainingType {
+    public TrainingTypeDocument getTrainingTypeById(String trainingTypeId) throws TrainingTypeNotFoundException {
         if (!trainingTypeRepository.existsTrainingTypeById(trainingTypeId)) {
-            throw new NotExistingTrainingType("Training type of id: " + trainingTypeId + " not exist.");
+            throw new TrainingTypeNotFoundException("Training type of id: " + trainingTypeId + " not exist.");
         }
         return trainingTypeRepository.findByTrainingTypeId(trainingTypeId);
     }
@@ -85,9 +85,9 @@ public class TrainingTypeServiceImpl implements TrainingTypeService {
         return null;
     }
 
-    public TrainingTypeDocument removeTrainingTypeByName(String trainingName) throws NotExistingTrainingType {
+    public TrainingTypeDocument removeTrainingTypeByName(String trainingName) throws TrainingTypeNotFoundException {
         if (!trainingTypeRepository.existsByName(trainingName)) {
-            throw new NotExistingTrainingType("Training type of name: " + trainingName + " not exist.");
+            throw new TrainingTypeNotFoundException("Training type of name: " + trainingName + " not exist.");
         }
 
         TrainingTypeDocument trainingTypeToRemove = trainingTypeRepository.findByName(trainingName);
@@ -96,9 +96,9 @@ public class TrainingTypeServiceImpl implements TrainingTypeService {
         return trainingTypeToRemove;
     }
 
-    public TrainingTypeDocument updateTrainingTypeById(String trainingTypeId, TrainingTypeModel trainingTypeModel, byte[] avatar) throws NotExistingTrainingType, DuplicatedTrainingTypeException {
+    public TrainingTypeDocument updateTrainingTypeById(String trainingTypeId, TrainingTypeModel trainingTypeModel, byte[] avatar) throws TrainingTypeNotFoundException, DuplicatedTrainingTypeException {
         if (!trainingTypeRepository.existsTrainingTypeById(trainingTypeId)) {
-            throw new NotExistingTrainingType("Training type of id: " + trainingTypeId + " not exist.");
+            throw new TrainingTypeNotFoundException("Training type of id: " + trainingTypeId + " not exist.");
         }
 
         String trainingName = trainingTypeModel.getTrainingName();

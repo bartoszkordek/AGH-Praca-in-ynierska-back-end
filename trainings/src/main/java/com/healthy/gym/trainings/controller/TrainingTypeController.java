@@ -1,19 +1,20 @@
 package com.healthy.gym.trainings.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.healthy.gym.trainings.component.ImageValidator;
 import com.healthy.gym.trainings.component.MultipartFileValidator;
 import com.healthy.gym.trainings.component.Translator;
 import com.healthy.gym.trainings.data.document.TrainingTypeDocument;
 import com.healthy.gym.trainings.exception.DuplicatedTrainingTypeException;
 import com.healthy.gym.trainings.exception.MultipartBodyException;
-import com.healthy.gym.trainings.exception.NotExistingTrainingType;
 import com.healthy.gym.trainings.exception.RestException;
+import com.healthy.gym.trainings.exception.TrainingTypeNotFoundException;
 import com.healthy.gym.trainings.model.other.TrainingTypeModel;
 import com.healthy.gym.trainings.model.request.TrainingTypeRequest;
 import com.healthy.gym.trainings.model.response.TrainingTypePublicResponse;
 import com.healthy.gym.trainings.model.response.TrainingTypeResponse;
 import com.healthy.gym.trainings.service.TrainingTypeService;
+import org.modelmapper.ModelMapper;
+import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -33,13 +34,11 @@ import java.util.List;
 public class TrainingTypeController {
     //TODO Grzegorz
 
-    private static final String GENERIC_ERROR_MESSAGE_WHILE_ISSUES_WITH_PHOTO_PROCESSING =
-            "Errors while proto processing.";
     private final TrainingTypeService trainingTypeService;
-    private final ObjectMapper objectMapper;
     private final Translator translator;
     private final MultipartFileValidator multipartFileValidator;
     private final ImageValidator imageValidator;
+    private final ModelMapper modelMapper;
 
     @Autowired
     public TrainingTypeController(
@@ -52,7 +51,8 @@ public class TrainingTypeController {
         this.translator = translator;
         this.multipartFileValidator = multipartFileValidator;
         this.imageValidator = imageValidator;
-        this.objectMapper = new ObjectMapper();
+        modelMapper = new ModelMapper();
+        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
     }
 
     @PreAuthorize("hasRole('ADMIN') or hasRole('MANAGER')")
@@ -109,13 +109,28 @@ public class TrainingTypeController {
     }
 
     @GetMapping("/{trainingTypeId}")
-    public TrainingTypeDocument getTrainingTypeById(
+    public ResponseEntity<TrainingTypeResponse> getTrainingTypeById(
             @PathVariable("trainingTypeId") final String trainingTypeId
-    ) throws RestException {
+    ) {
         try {
-            return trainingTypeService.getTrainingTypeById(trainingTypeId);
-        } catch (NotExistingTrainingType e) {
-            throw new RestException(e.getMessage(), HttpStatus.BAD_REQUEST, e);
+            TrainingTypeDocument trainingTypeDocument = trainingTypeService.getTrainingTypeById(trainingTypeId);
+
+            TrainingTypeResponse trainingTypeResponse = modelMapper
+                    .map(trainingTypeDocument, TrainingTypeResponse.class);
+
+            return ResponseEntity
+                    .status(HttpStatus.OK)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(trainingTypeResponse);
+
+        } catch (TrainingTypeNotFoundException exception) {
+            String reason = translator.toLocale("exception.not.found.training.type");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, reason, exception);
+
+        } catch (Exception exception) {
+            String reason = translator.toLocale("exception.internal.error");
+            exception.printStackTrace();
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, reason, exception);
         }
     }
 
@@ -144,7 +159,7 @@ public class TrainingTypeController {
         try {
             TrainingTypeModel trainingTypeModel = new TrainingTypeModel(trainingName, description);
             return trainingTypeService.updateTrainingTypeById(trainingTypeId, trainingTypeModel, multipartFile.getBytes());
-        } catch (NotExistingTrainingType | IOException | DuplicatedTrainingTypeException e) {
+        } catch (TrainingTypeNotFoundException | IOException | DuplicatedTrainingTypeException e) {
             throw new RestException(e.getMessage(), HttpStatus.BAD_REQUEST, e);
         }
     }
@@ -156,7 +171,7 @@ public class TrainingTypeController {
     ) throws RestException {
         try {
             return trainingTypeService.removeTrainingTypeByName(trainingName);
-        } catch (NotExistingTrainingType e) {
+        } catch (TrainingTypeNotFoundException e) {
             throw new RestException(e.getMessage(), HttpStatus.BAD_REQUEST, e);
         }
     }

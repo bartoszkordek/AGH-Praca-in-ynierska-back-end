@@ -11,9 +11,11 @@ public class GroupTrainingsReviews {
     @JsonProperty("_id")
     private String id;
 
+    @JsonProperty("reviewId")
+    private String reviewId;
     @JsonProperty("trainingName")
     private String trainingName;
-    @JsonProperty("clientId")
+    @JsonProperty("clientId") // + Avatar TBC
     private String clientId;
     @JsonProperty("date")
     private String date;
@@ -26,7 +28,8 @@ public class GroupTrainingsReviews {
 
     }
 
-    public GroupTrainingsReviews(String trainingName, String clientId, String date, int stars, String text){
+    public GroupTrainingsReviews(String reviewId, String trainingName, String clientId, String date, int stars, String text){
+        this.reviewId = reviewId;
         this.trainingName = trainingName;
         this.clientId = clientId;
         this.date = date;
@@ -38,6 +41,7 @@ public class GroupTrainingsReviews {
     public String toString() {
         return "GroupTrainingsReviews{" +
                 "id='" + id + '\'' +
+                ", reviewId='" + reviewId + '\'' +
                 ", trainingName='" + trainingName + '\'' +
                 ", clientId='" + clientId + '\'' +
                 ", date='" + date + '\'' +
@@ -49,6 +53,8 @@ public class GroupTrainingsReviews {
     public String getId() {
         return id;
     }
+
+    public String getReviewId() { return reviewId; }
 
     public String getTrainingName() {
         return trainingName;
@@ -73,6 +79,8 @@ public class GroupTrainingsReviews {
     public void setId(String id) {
         this.id = id;
     }
+
+    public void setReviewId(String reviewId) { this.reviewId = reviewId; }
 
     public void setTrainingId(String trainingId) {
         this.trainingName = trainingId;

@@ -16,47 +16,47 @@ public class GroupTrainingReviewsDbRepository {
     private Environment environment;
 
     @Autowired
-    private GroupTrainingReviewsRepository groupTrainingReviewsRepository;
+    private ReviewDAO reviewDAO;
 
     public List<GroupTrainingsReviews> getGroupTrainingReviews(){
-        return groupTrainingReviewsRepository.findAll();
+        return reviewDAO.findAll();
     }
 
     public GroupTrainingsReviews getGroupTrainingsReviewById(String reviewId){
-        return groupTrainingReviewsRepository.findGroupTrainingsReviewsById(reviewId);
+        return reviewDAO.findGroupTrainingsReviewsById(reviewId);
     }
 
     public boolean isGroupTrainingsReviewExist(String reviewId){
-        return groupTrainingReviewsRepository.existsById(reviewId);
+        return reviewDAO.existsById(reviewId);
     }
 
     public boolean isClientReviewOwner(String reviewId, String clientId){
-        return groupTrainingReviewsRepository.existsByIdAndAndClientId(reviewId, clientId);
+        return reviewDAO.existsByIdAndAndClientId(reviewId, clientId);
     }
 
-    public GroupTrainingsReviews createGroupTrainingReview(GroupTrainingReviewRequest groupTrainingsReviewsModel,
-                                                           String date,
-                                                           String clientId){
-
-        GroupTrainingsReviews response = groupTrainingReviewsRepository.insert(new GroupTrainingsReviews(
-                groupTrainingsReviewsModel.getTrainingName(),
-                clientId,
-                date,
-                groupTrainingsReviewsModel.getStars(),
-                groupTrainingsReviewsModel.getText()
-        ));
-        return response;
-    }
+//    public GroupTrainingsReviews createGroupTrainingReview(GroupTrainingReviewRequest groupTrainingsReviewsModel,
+//                                                           String date,
+//                                                           String clientId){
+//
+//        GroupTrainingsReviews response = reviewDAO.insert(new GroupTrainingsReviews(
+//                groupTrainingsReviewsModel.getTrainingName(),
+//                clientId,
+//                date,
+//                groupTrainingsReviewsModel.getStars(),
+//                groupTrainingsReviewsModel.getText()
+//        ));
+//        return response;
+//    }
 
     public GroupTrainingsReviews removeGroupTrainingsReview(String reviewId){
-        GroupTrainingsReviews groupTrainingsReviews = groupTrainingReviewsRepository.findGroupTrainingsReviewsById(reviewId);
-        groupTrainingReviewsRepository.removeById(reviewId);
+        GroupTrainingsReviews groupTrainingsReviews = reviewDAO.findGroupTrainingsReviewsById(reviewId);
+        reviewDAO.removeById(reviewId);
         return groupTrainingsReviews;
     }
 
     public GroupTrainingsReviews updateGroupTrainingsReview(GroupTrainingReviewUpdateRequest groupTrainingsReviewsUpdateModel,
                                                             String reviewId){
-        GroupTrainingsReviews groupTrainingsReview = groupTrainingReviewsRepository.findGroupTrainingsReviewsById(reviewId);
+        GroupTrainingsReviews groupTrainingsReview = reviewDAO.findGroupTrainingsReviewsById(reviewId);
         int stars = groupTrainingsReviewsUpdateModel.getStars();
         String text = groupTrainingsReviewsUpdateModel.getText();
         if(stars >= 1 && stars <=5){
@@ -65,7 +65,7 @@ public class GroupTrainingReviewsDbRepository {
         if(!text.isEmpty()){
             groupTrainingsReview.setText(groupTrainingsReviewsUpdateModel.getText());
         }
-        GroupTrainingsReviews response = groupTrainingReviewsRepository.save(groupTrainingsReview);
+        GroupTrainingsReviews response = reviewDAO.save(groupTrainingsReview);
         return response;
     }
 }

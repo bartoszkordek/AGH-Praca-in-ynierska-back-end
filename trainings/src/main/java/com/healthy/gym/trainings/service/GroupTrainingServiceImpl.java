@@ -277,16 +277,8 @@ public class GroupTrainingServiceImpl implements GroupTrainingService {
     }
 
     public GroupTrainingsReviews createGroupTrainingReview(GroupTrainingReviewRequest groupTrainingsReviewsModel,
-                                                           String clientId) throws StarsOutOfRangeException {
-        if (groupTrainingsReviewsModel.getStars() < 1 || groupTrainingsReviewsModel.getStars() > 5) {
-            throw new StarsOutOfRangeException("Stars must be in range: 1-5");
-        }
-        SimpleDateFormat sdfDate = new SimpleDateFormat("yyyy-MM-dd");
-        Date now = new Date();
-        String todayDateFormatted = sdfDate.format(now);
-        return groupTrainingReviewsDbRepository.createGroupTrainingReview(groupTrainingsReviewsModel,
-                todayDateFormatted,
-                clientId);
+                                                           String clientId)  {
+        return null;
     }
 
     public GroupTrainingsReviews removeGroupTrainingReview(String reviewId, String clientId)

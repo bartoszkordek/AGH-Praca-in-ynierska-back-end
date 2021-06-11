@@ -1,7 +1,6 @@
 package com.healthy.gym.trainings.controller.trainingTypeController.unitTest;
 
 import com.healthy.gym.trainings.configuration.TestCountry;
-import com.healthy.gym.trainings.configuration.TestRoleTokenFactory;
 import com.healthy.gym.trainings.controller.TrainingTypeController;
 import com.healthy.gym.trainings.data.document.TrainingTypeDocument;
 import com.healthy.gym.trainings.exception.TrainingTypeNotFoundException;
@@ -39,9 +38,6 @@ class WhenGetTrainingTypeByIdTest {
 
     @Autowired
     private MockMvc mockMvc;
-
-    @Autowired
-    private TestRoleTokenFactory tokenFactory;
 
     @MockBean
     private TrainingTypeService trainingTypeService;

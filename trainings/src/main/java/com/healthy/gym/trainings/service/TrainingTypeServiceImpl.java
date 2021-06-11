@@ -62,7 +62,7 @@ public class TrainingTypeServiceImpl implements TrainingTypeService {
     }
 
     public TrainingTypeDocument getTrainingTypeById(String trainingTypeId) throws TrainingTypeNotFoundException {
-        if (!trainingTypeRepository.existsTrainingTypeById(trainingTypeId)) {
+        if (trainingTypeRepository.existsByTrainingTypeId(trainingTypeId)) {
             throw new TrainingTypeNotFoundException("Training type of id: " + trainingTypeId + " not exist.");
         }
         return trainingTypeRepository.findByTrainingTypeId(trainingTypeId);
@@ -102,7 +102,7 @@ public class TrainingTypeServiceImpl implements TrainingTypeService {
     }
 
     public TrainingTypeDocument updateTrainingTypeById(String trainingTypeId, TrainingTypeModel trainingTypeModel, byte[] avatar) throws TrainingTypeNotFoundException, DuplicatedTrainingTypeException {
-        if (!trainingTypeRepository.existsTrainingTypeById(trainingTypeId)) {
+        if (trainingTypeRepository.existsByTrainingTypeId(trainingTypeId)) {
             throw new TrainingTypeNotFoundException("Training type of id: " + trainingTypeId + " not exist.");
         }
 

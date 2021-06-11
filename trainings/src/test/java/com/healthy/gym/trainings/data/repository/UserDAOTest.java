@@ -78,9 +78,7 @@ class UserDAOTest {
 
     @AfterEach
     void tearDown() {
-        mongoTemplate.remove(janKowalski);
-        mongoTemplate.remove(mariaNowak);
-        mongoTemplate.remove(andrzejNowak);
+        mongoTemplate.dropCollection(UserDocument.class);
     }
 
     @Test

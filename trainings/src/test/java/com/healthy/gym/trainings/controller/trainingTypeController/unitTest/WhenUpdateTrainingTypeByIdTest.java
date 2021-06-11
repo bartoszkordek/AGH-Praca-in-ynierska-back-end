@@ -5,7 +5,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.healthy.gym.trainings.configuration.TestCountry;
 import com.healthy.gym.trainings.configuration.TestRoleTokenFactory;
 import com.healthy.gym.trainings.controller.TrainingTypeController;
+import com.healthy.gym.trainings.data.document.TrainingTypeDocument;
 import com.healthy.gym.trainings.exception.DuplicatedTrainingTypeException;
+import com.healthy.gym.trainings.exception.TrainingTypeNotFoundException;
 import com.healthy.gym.trainings.model.request.TrainingTypeRequest;
 import com.healthy.gym.trainings.service.TrainingTypeService;
 import org.junit.jupiter.api.BeforeEach;
@@ -16,6 +18,7 @@ import org.mockito.ArgumentMatchers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
@@ -25,6 +28,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import javax.activation.UnsupportedDataTypeException;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
 import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
@@ -33,13 +37,15 @@ import static com.healthy.gym.trainings.configuration.LocaleConverter.convertEnu
 import static com.healthy.gym.trainings.configuration.Messages.getMessagesAccordingToLocale;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.*;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.ResultMatcher.matchAll;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(TrainingTypeController.class)
-class WhenCreateTrainingTypeTest {
+class WhenUpdateTrainingTypeByIdTest {
     @Autowired
     private MockMvc mockMvc;
 
@@ -106,37 +112,57 @@ class WhenCreateTrainingTypeTest {
                 MediaType.APPLICATION_JSON_VALUE,
                 invalidJsonBody.getBytes(StandardCharsets.UTF_8)
         );
-
     }
 
     @Nested
     class ShouldAcceptRequestWhenUserHasAdminOrManagerRoleAnd {
         @ParameterizedTest
         @EnumSource(TestCountry.class)
-        void shouldCreateNewTrainingType(TestCountry country) throws Exception {
+        void shouldUpdateTrainingType(TestCountry country) throws Exception {
             Map<String, String> messages = getMessagesAccordingToLocale(country);
             Locale testedLocale = convertEnumToLocale(country);
 
-            URI uri = new URI("/trainingType");
+            String trainingTypeId = UUID.randomUUID().toString();
+
+            URI uri = new URI("/trainingType/" + trainingTypeId);
 
             RequestBuilder request = MockMvcRequestBuilders
                     .multipart(uri)
                     .file(validFile)
                     .file(validBody)
+                    .with(request1 -> {
+                        request1.setMethod(HttpMethod.PUT.name());
+                        return request1;
+                    })
                     .header("Accept-Language", testedLocale.toString())
                     .header("Authorization", adminToken)
                     .contentType(MediaType.MULTIPART_FORM_DATA_VALUE);
 
-            String expectedMessage = messages.get("training.type.created");
+            TrainingTypeDocument trainingTypeDocument = new TrainingTypeDocument(
+                    trainingTypeId,
+                    "Test name",
+                    "Test description",
+                    Duration.ofMillis(60000),
+                    null
+            );
+
+            when(trainingTypeService.updateTrainingTypeById(
+                    anyString(),
+                    ArgumentMatchers.any(TrainingTypeRequest.class),
+                    ArgumentMatchers.any(MockMultipartFile.class)
+            )).thenReturn(trainingTypeDocument);
+
+            String expectedMessage = messages.get("training.type.updated");
 
             mockMvc.perform(request)
                     .andDo(print())
                     .andExpect(matchAll(
-                            status().isCreated(),
+                            status().isOk(),
                             content().contentType(MediaType.APPLICATION_JSON),
                             jsonPath("$.message").value(is(expectedMessage)),
                             jsonPath("$.errors").doesNotHaveJsonPath(),
-                            jsonPath("$.image").isNotEmpty(),
+                            jsonPath("$.image").value(is(nullValue())),
+                            jsonPath("$.trainingTypeId").value(is(trainingTypeId)),
                             jsonPath("$.name").value(is("Test name")),
                             jsonPath("$.description").value(is("Test description"))
                     ));
@@ -148,17 +174,21 @@ class WhenCreateTrainingTypeTest {
             Map<String, String> messages = getMessagesAccordingToLocale(country);
             Locale testedLocale = convertEnumToLocale(country);
 
-            URI uri = new URI("/trainingType");
-
-            String expectedMessage = messages.get("exception.unsupported.data.type");
+            URI uri = new URI("/trainingType/" + UUID.randomUUID());
 
             RequestBuilder request = MockMvcRequestBuilders
                     .multipart(uri)
                     .file(invalidFile)
                     .file(validBody)
+                    .with(request1 -> {
+                        request1.setMethod(HttpMethod.PUT.name());
+                        return request1;
+                    })
                     .header("Accept-Language", testedLocale.toString())
-                    .header("Authorization", managerToken)
+                    .header("Authorization", adminToken)
                     .contentType(MediaType.MULTIPART_FORM_DATA_VALUE);
+
+            String expectedMessage = messages.get("exception.unsupported.data.type");
 
             mockMvc.perform(request)
                     .andDo(print())
@@ -176,12 +206,16 @@ class WhenCreateTrainingTypeTest {
             Map<String, String> messages = getMessagesAccordingToLocale(country);
             Locale testedLocale = convertEnumToLocale(country);
 
-            URI uri = new URI("/trainingType");
+            URI uri = new URI("/trainingType/" + UUID.randomUUID());
 
             RequestBuilder request = MockMvcRequestBuilders
                     .multipart(uri)
                     .file(validFile)
                     .file(invalidBody)
+                    .with(request1 -> {
+                        request1.setMethod(HttpMethod.PUT.name());
+                        return request1;
+                    })
                     .header("Accept-Language", testedLocale.toString())
                     .header("Authorization", managerToken)
                     .contentType(MediaType.MULTIPART_FORM_DATA_VALUE);
@@ -207,24 +241,70 @@ class WhenCreateTrainingTypeTest {
 
         @ParameterizedTest
         @EnumSource(TestCountry.class)
-        void shouldThrowDuplicatedTrainingTypeExceptionWhenTrainingTypeNameAlreadyExists(TestCountry country)
+        void shouldThrowTrainingTypeNotFoundExceptionWhenTrainingTypeDoesNotExist(TestCountry country)
                 throws Exception {
             Map<String, String> messages = getMessagesAccordingToLocale(country);
             Locale testedLocale = convertEnumToLocale(country);
 
-            URI uri = new URI("/trainingType");
+            URI uri = new URI("/trainingType/" + UUID.randomUUID());
 
             RequestBuilder request = MockMvcRequestBuilders
                     .multipart(uri)
                     .file(validFile)
                     .file(validBody)
+                    .with(request1 -> {
+                        request1.setMethod(HttpMethod.PUT.name());
+                        return request1;
+                    })
+                    .header("Accept-Language", testedLocale.toString())
+                    .header("Authorization", adminToken)
+                    .contentType(MediaType.MULTIPART_FORM_DATA_VALUE);
+
+            doThrow(TrainingTypeNotFoundException.class)
+                    .when(trainingTypeService)
+                    .updateTrainingTypeById(
+                            anyString(),
+                            ArgumentMatchers.any(TrainingTypeRequest.class),
+                            ArgumentMatchers.any(MockMultipartFile.class)
+                    );
+
+            String expectedMessage = messages.get("exception.not.found.training.type");
+
+            mockMvc.perform(request)
+                    .andDo(print())
+                    .andExpect(status().isNotFound())
+                    .andExpect(status().reason(is(expectedMessage)))
+                    .andExpect(result ->
+                            assertThat(result.getResolvedException().getCause())
+                                    .isInstanceOf(TrainingTypeNotFoundException.class)
+                    );
+        }
+
+        @ParameterizedTest
+        @EnumSource(TestCountry.class)
+        void shouldThrowDuplicatedTrainingTypeExceptionWhenTrainingTypeNameAlreadyExists(TestCountry country)
+                throws Exception {
+            Map<String, String> messages = getMessagesAccordingToLocale(country);
+            Locale testedLocale = convertEnumToLocale(country);
+
+            URI uri = new URI("/trainingType/" + UUID.randomUUID());
+
+            RequestBuilder request = MockMvcRequestBuilders
+                    .multipart(uri)
+                    .file(validFile)
+                    .file(validBody)
+                    .with(request1 -> {
+                        request1.setMethod(HttpMethod.PUT.name());
+                        return request1;
+                    })
                     .header("Accept-Language", testedLocale.toString())
                     .header("Authorization", managerToken)
                     .contentType(MediaType.MULTIPART_FORM_DATA_VALUE);
 
             doThrow(DuplicatedTrainingTypeException.class)
                     .when(trainingTypeService)
-                    .createTrainingType(
+                    .updateTrainingTypeById(
+                            anyString(),
                             ArgumentMatchers.any(TrainingTypeRequest.class),
                             ArgumentMatchers.any(MockMultipartFile.class)
                     );
@@ -243,24 +323,28 @@ class WhenCreateTrainingTypeTest {
 
         @ParameterizedTest
         @EnumSource(TestCountry.class)
-        void shouldThrowIllegalStateExceptionWhenInternalErrorOccurs(TestCountry country)
-                throws Exception {
+        void shouldThrowIllegalStateExceptionWhenInternalErrorOccurs(TestCountry country) throws Exception {
             Map<String, String> messages = getMessagesAccordingToLocale(country);
             Locale testedLocale = convertEnumToLocale(country);
 
-            URI uri = new URI("/trainingType");
+            URI uri = new URI("/trainingType/" + UUID.randomUUID());
 
             RequestBuilder request = MockMvcRequestBuilders
                     .multipart(uri)
                     .file(validFile)
                     .file(validBody)
+                    .with(request1 -> {
+                        request1.setMethod(HttpMethod.PUT.name());
+                        return request1;
+                    })
                     .header("Accept-Language", testedLocale.toString())
                     .header("Authorization", managerToken)
                     .contentType(MediaType.MULTIPART_FORM_DATA_VALUE);
 
             doThrow(IllegalStateException.class)
                     .when(trainingTypeService)
-                    .createTrainingType(
+                    .updateTrainingTypeById(
+                            anyString(),
                             ArgumentMatchers.any(TrainingTypeRequest.class),
                             ArgumentMatchers.any(MockMultipartFile.class)
                     );
@@ -286,12 +370,16 @@ class WhenCreateTrainingTypeTest {
             Map<String, String> messages = getMessagesAccordingToLocale(country);
             Locale testedLocale = convertEnumToLocale(country);
 
-            URI uri = new URI("/trainingType");
+            URI uri = new URI("/trainingType/" + UUID.randomUUID());
 
             RequestBuilder request = MockMvcRequestBuilders
                     .multipart(uri)
                     .file(validFile)
                     .file(validBody)
+                    .with(request1 -> {
+                        request1.setMethod(HttpMethod.PUT.name());
+                        return request1;
+                    })
                     .header("Accept-Language", testedLocale.toString())
                     .header("Authorization", userToken)
                     .contentType(MediaType.MULTIPART_FORM_DATA_VALUE);
@@ -313,12 +401,16 @@ class WhenCreateTrainingTypeTest {
         void whenUserIsNotLogIn(TestCountry country) throws Exception {
             Locale testedLocale = convertEnumToLocale(country);
 
-            URI uri = new URI("/trainingType");
+            URI uri = new URI("/trainingType/" + UUID.randomUUID());
 
             RequestBuilder request = MockMvcRequestBuilders
                     .multipart(uri)
                     .file(validFile)
                     .file(validBody)
+                    .with(request1 -> {
+                        request1.setMethod(HttpMethod.PUT.name());
+                        return request1;
+                    })
                     .header("Accept-Language", testedLocale.toString())
                     .contentType(MediaType.MULTIPART_FORM_DATA_VALUE);
 

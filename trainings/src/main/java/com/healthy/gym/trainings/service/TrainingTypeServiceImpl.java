@@ -86,38 +86,53 @@ public class TrainingTypeServiceImpl implements TrainingTypeService {
     }
 
     @Override
-    public TrainingTypeDocument removeTrainingTypeById(String trainingName) throws TrainingTypeNotFoundException {
-        TrainingTypeDocument trainingTypeToRemove = trainingTypeRepository.findByTrainingTypeId(trainingName);
-        if (trainingTypeToRemove == null) throw new TrainingTypeNotFoundException();
-        trainingTypeRepository.deleteByTrainingTypeId(trainingName);
-        return trainingTypeToRemove;
-    }
-
-    public TrainingTypeDocument updateTrainingTypeById(
-            String trainingTypeId,
-            TrainingTypeModel trainingTypeModel,
-            byte[] avatar
-    ) throws TrainingTypeNotFoundException, DuplicatedTrainingTypeException {
-        if (trainingTypeRepository.existsByTrainingTypeId(trainingTypeId)) {
-            throw new TrainingTypeNotFoundException("Training type of id: " + trainingTypeId + " not exist.");
-        }
-
-        String trainingName = trainingTypeModel.getTrainingName();
-        String description = trainingTypeModel.getDescription();
-        TrainingTypeDocument trainingType = trainingTypeRepository.findByTrainingTypeId(trainingTypeId);
-        trainingType.setName(trainingName);
-        trainingType.setDescription(description);
-//        trainingType.setAvatar(avatar);
-
-        return trainingTypeRepository.save(trainingType);
-    }
-
-    @Override
     public TrainingTypeDocument updateTrainingTypeById(
             String trainingId,
             TrainingTypeRequest trainingTypeRequest,
             MultipartFile multipartFile
     ) throws TrainingTypeNotFoundException, DuplicatedTrainingTypeException {
-        return null;
+        TrainingTypeDocument trainingTypeDocumentFound = trainingTypeRepository.findByTrainingTypeId(trainingId);
+        if (trainingTypeDocumentFound == null) throw new TrainingTypeNotFoundException();
+
+        String updatedTrainingName = trainingTypeRequest.getName();
+        if (!trainingTypeDocumentFound.getName().equals(updatedTrainingName)
+                && trainingTypeRepository.existsByName(updatedTrainingName)) {
+            throw new DuplicatedTrainingTypeException();
+        }
+
+        trainingTypeDocumentFound.setDescription(trainingTypeRequest.getDescription());
+        trainingTypeDocumentFound.setDuration(getDuration(trainingTypeRequest));
+        trainingTypeDocumentFound.setName(trainingTypeRequest.getName());
+        if (multipartFile != null) {
+            try {
+                ImageDocument imageToUpdate;
+                if (trainingTypeDocumentFound.getImageDocument() != null) {
+                    imageToUpdate = trainingTypeDocumentFound.getImageDocument();
+                    imageToUpdate.setImageData(new Binary(multipartFile.getBytes()));
+                    imageToUpdate.setContentType(multipartFile.getContentType());
+
+                } else {
+                    imageToUpdate = new ImageDocument(
+                            UUID.randomUUID().toString(),
+                            new Binary(multipartFile.getBytes()),
+                            multipartFile.getContentType()
+                    );
+                }
+                ImageDocument savedImageDocument = imageDAO.save(imageToUpdate);
+                trainingTypeDocumentFound.setImageDocument(savedImageDocument);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        return trainingTypeRepository.save(trainingTypeDocumentFound);
+    }
+
+    @Override
+    public TrainingTypeDocument removeTrainingTypeById(String trainingName) throws TrainingTypeNotFoundException {
+        TrainingTypeDocument trainingTypeToRemove = trainingTypeRepository.findByTrainingTypeId(trainingName);
+        if (trainingTypeToRemove == null) throw new TrainingTypeNotFoundException();
+        trainingTypeRepository.deleteByTrainingTypeId(trainingName);
+        return trainingTypeToRemove;
     }
 }

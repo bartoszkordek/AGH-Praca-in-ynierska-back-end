@@ -30,7 +30,6 @@ import java.util.List;
 @RestController
 @RequestMapping("/trainingType")
 public class TrainingTypeController {
-    //TODO Grzegorz
 
     private final TrainingTypeService trainingTypeService;
     private final Translator translator;
@@ -67,14 +66,15 @@ public class TrainingTypeController {
             multipartFileValidator.validateBody(trainingTypeRequest);
             imageValidator.isFileSupported(multipartFile);
 
-            trainingTypeService.createTrainingType(trainingTypeRequest, multipartFile);
+            TrainingTypeDocument trainingTypeDocument =
+                    trainingTypeService.createTrainingType(trainingTypeRequest, multipartFile);
+
+            response = modelMapper.map(trainingTypeDocument, TrainingTypeResponse.class);
 
             String message = translator.toLocale("training.type.created");
             response.setMessage(message);
-            response.setName(trainingTypeRequest.getName());
-            response.setDescription(trainingTypeRequest.getDescription());
-            String imageBas64 = Base64.getEncoder().encodeToString(multipartFile.getBytes());
-            response.setImageBase64Encoded(imageBas64);
+            String imageBase64 = getUpdatedImageAsBase64String(trainingTypeDocument);
+            response.setImageBase64Encoded(imageBase64);
 
             return ResponseEntity
                     .status(HttpStatus.CREATED)
@@ -104,6 +104,13 @@ public class TrainingTypeController {
             exception.printStackTrace();
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, reason, exception);
         }
+    }
+
+    private String getUpdatedImageAsBase64String(TrainingTypeDocument trainingTypeDocument) {
+        ImageDocument imageDocument = trainingTypeDocument.getImageDocument();
+        if (imageDocument == null) return null;
+        byte[] updatedMultipartFile = imageDocument.getImageData().getData();
+        return Base64.getEncoder().encodeToString(updatedMultipartFile);
     }
 
     @GetMapping("/{trainingTypeId}")
@@ -223,13 +230,6 @@ public class TrainingTypeController {
             exception.printStackTrace();
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, reason, exception);
         }
-    }
-
-    private String getUpdatedImageAsBase64String(TrainingTypeDocument trainingTypeDocument) {
-        ImageDocument imageDocument = trainingTypeDocument.getImageDocument();
-        if (imageDocument == null) return null;
-        byte[] updatedMultipartFile = imageDocument.getImageData().getData();
-        return Base64.getEncoder().encodeToString(updatedMultipartFile);
     }
 
     @PreAuthorize("hasRole('ADMIN') or hasRole('MANAGER')")

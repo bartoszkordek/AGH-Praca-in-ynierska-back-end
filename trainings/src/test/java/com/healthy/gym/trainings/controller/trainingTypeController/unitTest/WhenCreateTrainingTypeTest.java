@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.healthy.gym.trainings.configuration.TestCountry;
 import com.healthy.gym.trainings.configuration.TestRoleTokenFactory;
 import com.healthy.gym.trainings.controller.TrainingTypeController;
+import com.healthy.gym.trainings.data.document.TrainingTypeDocument;
 import com.healthy.gym.trainings.exception.DuplicatedTrainingTypeException;
 import com.healthy.gym.trainings.model.request.TrainingTypeRequest;
 import com.healthy.gym.trainings.service.TrainingTypeService;
@@ -25,6 +26,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import javax.activation.UnsupportedDataTypeException;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
 import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
@@ -34,6 +36,7 @@ import static com.healthy.gym.trainings.configuration.Messages.getMessagesAccord
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.*;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.ResultMatcher.matchAll;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -127,6 +130,19 @@ class WhenCreateTrainingTypeTest {
                     .header("Authorization", adminToken)
                     .contentType(MediaType.MULTIPART_FORM_DATA_VALUE);
 
+            TrainingTypeDocument trainingTypeDocument = new TrainingTypeDocument(
+                    UUID.randomUUID().toString(),
+                    "Test name",
+                    "Test description",
+                    Duration.ofMillis(60000),
+                    null
+            );
+
+            when(trainingTypeService.createTrainingType(
+                    ArgumentMatchers.any(TrainingTypeRequest.class),
+                    ArgumentMatchers.any(MockMultipartFile.class)
+            )).thenReturn(trainingTypeDocument);
+
             String expectedMessage = messages.get("training.type.created");
 
             mockMvc.perform(request)
@@ -136,7 +152,9 @@ class WhenCreateTrainingTypeTest {
                             content().contentType(MediaType.APPLICATION_JSON),
                             jsonPath("$.message").value(is(expectedMessage)),
                             jsonPath("$.errors").doesNotHaveJsonPath(),
-                            jsonPath("$.image").isNotEmpty(),
+                            jsonPath("$.image").value(is(nullValue())),
+                            jsonPath("$.trainingTypeId")
+                                    .value(is(trainingTypeDocument.getTrainingTypeId())),
                             jsonPath("$.name").value(is("Test name")),
                             jsonPath("$.description").value(is("Test description"))
                     ));

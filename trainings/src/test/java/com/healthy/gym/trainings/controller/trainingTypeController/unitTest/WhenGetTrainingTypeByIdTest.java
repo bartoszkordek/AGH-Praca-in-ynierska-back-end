@@ -69,8 +69,8 @@ class WhenGetTrainingTypeByIdTest {
                 .andExpect(matchAll(
                         status().isOk(),
                         content().contentType(MediaType.APPLICATION_JSON),
-                        jsonPath("$.message").value(is(nullValue())),
-                        jsonPath("$.errors").value(is(nullValue())),
+                        jsonPath("$.message").doesNotHaveJsonPath(),
+                        jsonPath("$.errors").doesNotHaveJsonPath(),
                         jsonPath("$.image").value(is(nullValue())),
                         jsonPath("$.name").value(is(trainingTypeDocument.getName())),
                         jsonPath("$.description").value(is(trainingTypeDocument.getDescription())),

@@ -64,52 +64,53 @@ class WhenRemoveTrainingTypeByIdTest {
         adminToken = tokenFactory.getAdminToken(adminId);
     }
 
+    @ParameterizedTest
+    @EnumSource(TestCountry.class)
+    void shouldRemoveTrainingType(TestCountry country) throws Exception {
+        Map<String, String> messages = getMessagesAccordingToLocale(country);
+        Locale testedLocale = convertEnumToLocale(country);
+
+        String trainingTypeId = UUID.randomUUID().toString();
+
+        TrainingTypeDocument trainingTypeDocument = new TrainingTypeDocument(
+                trainingTypeId,
+                "Test name",
+                "Test description",
+                Duration.ofMillis(60000),
+                null
+        );
+
+        URI uri = new URI("/trainingType/" + trainingTypeId);
+
+        RequestBuilder request = MockMvcRequestBuilders
+                .delete(uri)
+                .header("Accept-Language", testedLocale.toString())
+                .header("Authorization", adminToken)
+                .contentType(MediaType.APPLICATION_JSON_VALUE);
+
+        String expectedMessage = messages.get("training.type.removed");
+
+        when(trainingTypeService.removeTrainingTypeByName(anyString()))
+                .thenReturn(trainingTypeDocument);
+
+        mockMvc.perform(request)
+                .andDo(print())
+                .andExpect(matchAll(
+                        status().isOk(),
+                        content().contentType(MediaType.APPLICATION_JSON)
+                ))
+                .andExpect(matchAll(
+                        jsonPath("$.message").value(is(expectedMessage)),
+                        jsonPath("$.errors").doesNotHaveJsonPath(),
+                        jsonPath("$.image").value(is(nullValue())),
+                        jsonPath("$.trainingTypeId").value(is(trainingTypeId)),
+                        jsonPath("$.name").value(is("Test name")),
+                        jsonPath("$.description").value(is("Test description"))
+                ));
+    }
+
     @Nested
-    class ShouldAcceptRequest {
-
-        @ParameterizedTest
-        @EnumSource(TestCountry.class)
-        void shouldRemoveTrainingType(TestCountry country) throws Exception {
-            Map<String, String> messages = getMessagesAccordingToLocale(country);
-            Locale testedLocale = convertEnumToLocale(country);
-
-            String trainingTypeId = UUID.randomUUID().toString();
-
-            TrainingTypeDocument trainingTypeDocument = new TrainingTypeDocument(
-                    trainingTypeId,
-                    "Test name",
-                    "Test description",
-                    Duration.ofMillis(60000),
-                    null
-            );
-
-            when(trainingTypeService.removeTrainingTypeByName(trainingTypeId)).thenReturn(trainingTypeDocument);
-
-            URI uri = new URI("/trainingType/" + trainingTypeId);
-
-            RequestBuilder request = MockMvcRequestBuilders
-                    .delete(uri)
-                    .header("Accept-Language", testedLocale.toString())
-                    .header("Authorization", adminToken)
-                    .contentType(MediaType.APPLICATION_JSON_VALUE);
-
-            String expectedMessage = messages.get("training.type.removed");
-
-            mockMvc.perform(request)
-                    .andDo(print())
-                    .andExpect(matchAll(
-                            status().isOk(),
-                            content().contentType(MediaType.APPLICATION_JSON)
-                    ))
-                    .andExpect(matchAll(
-                            jsonPath("$.message").value(is(expectedMessage)),
-                            jsonPath("$.errors").doesNotHaveJsonPath(),
-                            jsonPath("$.image").value(is(nullValue())),
-                            jsonPath("$.trainingTypeId").value(is(trainingTypeDocument.getTrainingTypeId())),
-                            jsonPath("$.name").value(is(trainingTypeDocument.getName())),
-                            jsonPath("$.description").value(is(trainingTypeDocument.getDescription()))
-                    ));
-        }
+    class ShouldAcceptRequestAndThrowException {
 
         @ParameterizedTest
         @EnumSource(TestCountry.class)

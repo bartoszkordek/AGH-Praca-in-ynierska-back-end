@@ -189,15 +189,30 @@ public class TrainingTypeController {
         }
     }
 
-    // TODO zmienić z trainingName na trainingID
+    @PreAuthorize("hasRole('ADMIN') or hasRole('MANAGER')")
     @DeleteMapping("/{trainingTypeId}")
-    public TrainingTypeDocument removeTrainingTypeByName(
-            @PathVariable("trainingName") final String trainingName
-    ) throws RestException {
+    public ResponseEntity<TrainingTypeResponse> removeTrainingTypeById(
+            @PathVariable("trainingTypeId") final String trainingTypeId
+    ) {
         try {
-            return trainingTypeService.removeTrainingTypeByName(trainingName);
-        } catch (TrainingTypeNotFoundException e) {
-            throw new RestException(e.getMessage(), HttpStatus.BAD_REQUEST, e);
+            TrainingTypeDocument trainingTypeDocument = trainingTypeService.removeTrainingTypeByName(trainingTypeId);
+            TrainingTypeResponse trainingTypeResponse =
+                    modelMapper.map(trainingTypeDocument, TrainingTypeResponse.class);
+
+            String message = translator.toLocale("training.type.removed");
+            trainingTypeResponse.setMessage(message);
+
+            return ResponseEntity.status(HttpStatus.OK)
+                    .contentType(MediaType.APPLICATION_JSON).body(trainingTypeResponse);
+
+        } catch (TrainingTypeNotFoundException exception) {
+            String reason = translator.toLocale("exception.not.found.training.type");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, reason, exception);
+
+        } catch (Exception exception) {
+            String reason = translator.toLocale("exception.internal.error");
+            exception.printStackTrace();
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, reason, exception);
         }
     }
 

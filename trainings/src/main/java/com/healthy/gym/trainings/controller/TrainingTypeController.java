@@ -141,8 +141,6 @@ public class TrainingTypeController {
     public ResponseEntity<List<TrainingTypeResponse>> getAllTrainingTypes() {
         try {
             List<TrainingTypeDocument> trainingTypes = trainingTypeService.getAllTrainingTypes();
-
-            if (trainingTypes.isEmpty()) throw new TrainingTypeNotFoundException("No training type found.");
             List<TrainingTypeResponse> trainingTypeResponseList = mapTrainingDocumentToTrainingResponse(trainingTypes);
 
             return ResponseEntity

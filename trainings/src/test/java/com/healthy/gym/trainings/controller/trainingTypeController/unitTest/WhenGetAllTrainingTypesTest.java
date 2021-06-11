@@ -108,7 +108,7 @@ class WhenGetAllTrainingTypesTest {
                 .header("Accept-Language", testedLocale.toString())
                 .contentType(MediaType.APPLICATION_JSON_VALUE);
 
-        when(trainingTypeService.getAllTrainingTypes()).thenReturn(new ArrayList<>());
+        doThrow(TrainingTypeNotFoundException.class).when(trainingTypeService).getAllTrainingTypes();
         String expectedMessage = messages.get("exception.not.found.training.type.all");
 
         mockMvc.perform(request)

@@ -1,4 +1,4 @@
-package com.healthy.gym.trainings.service;
+package com.healthy.gym.trainings.service.trainingTypeService;
 
 import com.healthy.gym.trainings.data.document.ImageDocument;
 import com.healthy.gym.trainings.data.document.TrainingTypeDocument;
@@ -6,6 +6,7 @@ import com.healthy.gym.trainings.data.repository.ImageDAO;
 import com.healthy.gym.trainings.data.repository.TrainingTypeDAO;
 import com.healthy.gym.trainings.exception.DuplicatedTrainingTypeException;
 import com.healthy.gym.trainings.model.request.TrainingTypeRequest;
+import com.healthy.gym.trainings.service.TrainingTypeService;
 import org.bson.types.Binary;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -28,7 +29,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 @SpringBootTest
-class TrainingTypeServiceTest {
+class WhenCreateTrainingTypeTest {
 
     @Autowired
     private TrainingTypeService trainingTypeService;

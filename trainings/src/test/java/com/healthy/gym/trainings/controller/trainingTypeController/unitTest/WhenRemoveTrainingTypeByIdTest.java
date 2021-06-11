@@ -19,7 +19,6 @@ import org.springframework.test.web.servlet.RequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import java.net.URI;
-import java.time.Duration;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
@@ -30,7 +29,6 @@ import static com.healthy.gym.trainings.configuration.LocaleConverter.convertEnu
 import static com.healthy.gym.trainings.configuration.Messages.getMessagesAccordingToLocale;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
@@ -92,7 +90,7 @@ class WhenRemoveTrainingTypeByIdTest {
 
         String expectedMessage = messages.get("training.type.removed");
 
-        when(trainingTypeService.removeTrainingTypeByName(anyString()))
+        when(trainingTypeService.removeTrainingTypeById(anyString()))
                 .thenReturn(trainingTypeDocument);
 
         mockMvc.perform(request)
@@ -126,7 +124,7 @@ class WhenRemoveTrainingTypeByIdTest {
 
             doThrow(TrainingTypeNotFoundException.class)
                     .when(trainingTypeService)
-                    .removeTrainingTypeByName(anyString());
+                    .removeTrainingTypeById(anyString());
 
             RequestBuilder request = MockMvcRequestBuilders
                     .delete(uri)
@@ -156,7 +154,7 @@ class WhenRemoveTrainingTypeByIdTest {
 
             doThrow(IllegalStateException.class)
                     .when(trainingTypeService)
-                    .removeTrainingTypeByName(anyString());
+                    .removeTrainingTypeById(anyString());
 
             RequestBuilder request = MockMvcRequestBuilders
                     .delete(uri)

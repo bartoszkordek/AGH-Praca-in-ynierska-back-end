@@ -25,5 +25,5 @@ public interface TrainingTypeService {
             String trainingId, TrainingTypeRequest trainingTypeRequest, MultipartFile multipartFile
     ) throws TrainingTypeNotFoundException, DuplicatedTrainingTypeException;
 
-    TrainingTypeDocument removeTrainingTypeByName(String trainingName) throws TrainingTypeNotFoundException;
+    TrainingTypeDocument removeTrainingTypeById(String trainingName) throws TrainingTypeNotFoundException;
 }

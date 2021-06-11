@@ -234,7 +234,7 @@ public class TrainingTypeController {
     @DeleteMapping("/{trainingTypeId}")
     public ResponseEntity<TrainingTypeResponse> removeTrainingTypeById(@PathVariable final String trainingTypeId) {
         try {
-            TrainingTypeDocument trainingTypeDocument = trainingTypeService.removeTrainingTypeByName(trainingTypeId);
+            TrainingTypeDocument trainingTypeDocument = trainingTypeService.removeTrainingTypeById(trainingTypeId);
             TrainingTypeResponse trainingTypeResponse =
                     modelMapper.map(trainingTypeDocument, TrainingTypeResponse.class);
 

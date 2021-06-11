@@ -85,14 +85,11 @@ public class TrainingTypeServiceImpl implements TrainingTypeService {
         return trainingTypeDocument;
     }
 
-    public TrainingTypeDocument removeTrainingTypeByName(String trainingName) throws TrainingTypeNotFoundException {
-        if (!trainingTypeRepository.existsByName(trainingName)) {
-            throw new TrainingTypeNotFoundException("Training type of name: " + trainingName + " not exist.");
-        }
-
-        TrainingTypeDocument trainingTypeToRemove = trainingTypeRepository.findByName(trainingName);
-        trainingTypeRepository.removeByName(trainingName);
-
+    @Override
+    public TrainingTypeDocument removeTrainingTypeById(String trainingName) throws TrainingTypeNotFoundException {
+        TrainingTypeDocument trainingTypeToRemove = trainingTypeRepository.findByTrainingTypeId(trainingName);
+        if (trainingTypeToRemove == null) throw new TrainingTypeNotFoundException();
+        trainingTypeRepository.deleteByTrainingTypeId(trainingName);
         return trainingTypeToRemove;
     }
 

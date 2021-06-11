@@ -56,6 +56,11 @@ public class TrainingTypeServiceImpl implements TrainingTypeService {
         return trainingTypePublicViewModels;
     }
 
+    @Override
+    public List<TrainingTypeDocument> getAllTrainingTypes() {
+        return null;
+    }
+
     public TrainingTypeDocument getTrainingTypeById(String trainingTypeId) throws TrainingTypeNotFoundException {
         if (!trainingTypeRepository.existsTrainingTypeById(trainingTypeId)) {
             throw new TrainingTypeNotFoundException("Training type of id: " + trainingTypeId + " not exist.");

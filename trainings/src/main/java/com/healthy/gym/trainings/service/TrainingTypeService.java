@@ -17,6 +17,8 @@ public interface TrainingTypeService {
 
     List<TrainingTypePublicResponse> getAllTrainingTypesPublicView();
 
+    List<TrainingTypeDocument> getAllTrainingTypes();
+
     TrainingTypeDocument getTrainingTypeById(String trainingTypeId) throws TrainingTypeNotFoundException;
 
     TrainingTypeDocument createTrainingType(TrainingTypeModel trainingTypeModel, byte[] avatar)

@@ -10,7 +10,6 @@ import com.healthy.gym.trainings.exception.RestException;
 import com.healthy.gym.trainings.exception.TrainingTypeNotFoundException;
 import com.healthy.gym.trainings.model.other.TrainingTypeModel;
 import com.healthy.gym.trainings.model.request.TrainingTypeRequest;
-import com.healthy.gym.trainings.model.response.TrainingTypePublicResponse;
 import com.healthy.gym.trainings.model.response.TrainingTypeResponse;
 import com.healthy.gym.trainings.service.TrainingTypeService;
 import org.modelmapper.ModelMapper;
@@ -26,6 +25,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import javax.activation.UnsupportedDataTypeException;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
 
@@ -135,14 +135,39 @@ public class TrainingTypeController {
     }
 
     @GetMapping
-    public List<? extends TrainingTypePublicResponse> getAllTrainingTypes(
-            @RequestParam("publicView") boolean publicView
-    ) {
-        if (!publicView) {
-            return trainingTypeService.getAllTrainingTypesManagerView();
-        } else {
-            return trainingTypeService.getAllTrainingTypesPublicView();
+    public ResponseEntity<List<TrainingTypeResponse>> getAllTrainingTypes() {
+        try {
+            List<TrainingTypeDocument> trainingTypes = trainingTypeService.getAllTrainingTypes();
+
+            if (trainingTypes.isEmpty()) throw new TrainingTypeNotFoundException("No training type found.");
+            List<TrainingTypeResponse> trainingTypeResponseList = mapTrainingDocumentToTrainingResponse(trainingTypes);
+
+            return ResponseEntity
+                    .status(HttpStatus.OK)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(trainingTypeResponseList);
+
+        } catch (TrainingTypeNotFoundException exception) {
+            String reason = translator.toLocale("exception.not.found.training.type.all");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, reason, exception);
+
+        } catch (Exception exception) {
+            String reason = translator.toLocale("exception.internal.error");
+            exception.printStackTrace();
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, reason, exception);
         }
+    }
+
+    private List<TrainingTypeResponse> mapTrainingDocumentToTrainingResponse(List<TrainingTypeDocument> trainingTypes) {
+        List<TrainingTypeResponse> trainingTypeResponseList = new ArrayList<>();
+
+        for (TrainingTypeDocument trainingTypeDocument : trainingTypes) {
+            TrainingTypeResponse trainingTypeResponse = modelMapper
+                    .map(trainingTypeDocument, TrainingTypeResponse.class);
+            trainingTypeResponseList.add(trainingTypeResponse);
+        }
+
+        return trainingTypeResponseList;
     }
 
     @PutMapping(

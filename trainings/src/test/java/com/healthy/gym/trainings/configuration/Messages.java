@@ -16,6 +16,7 @@ public class Messages {
                 {"exception.internal.error", "Podczas przetwarzania żądania wystąpił błąd."},
                 {"field.required", "Pole jest wymagane."},
                 {"training.type.created", "Nowy typ treningu został stworzony."},
+                {"training.type.updated", "Typ treningu został zaktualizowany."},
                 {"training.type.removed", "Typ treningu został usunięty."},
                 {"training.type.failure", "Wystąpił błąd podczas tworzenia treningu."}
         }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
@@ -32,6 +33,7 @@ public class Messages {
                 {"exception.internal.error", "An error occurred while processing your request."},
                 {"field.required", "Field is required."},
                 {"training.type.created", "New training type has been created."},
+                {"training.type.updated", "Training type has been updated."},
                 {"training.type.removed", "Training type has been removed."},
                 {"training.type.failure", "An error occurred while creating new training type."}
         }).collect(Collectors.toMap(data -> data[0], data -> data[1]));

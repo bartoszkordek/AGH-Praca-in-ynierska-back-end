@@ -16,14 +16,14 @@ import org.springframework.test.web.servlet.RequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import java.net.URI;
-import java.time.Duration;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 import static com.healthy.gym.trainings.configuration.LocaleConverter.convertEnumToLocale;
 import static com.healthy.gym.trainings.configuration.Messages.getMessagesAccordingToLocale;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.ResultMatcher.matchAll;
@@ -48,14 +48,14 @@ class WhenGetAllTrainingTypesTest {
                 UUID.randomUUID().toString(),
                 "Test name1",
                 "Test description1",
-                Duration.ofMillis(60000),
+                LocalTime.parse("00:30:00.000", DateTimeFormatter.ofPattern("HH:mm:ss.SSS")),
                 null
         );
         TrainingTypeDocument trainingTypeDocument2 = new TrainingTypeDocument(
                 UUID.randomUUID().toString(),
                 "Test name2",
                 "Test description2",
-                Duration.ofMillis(60000),
+                LocalTime.parse("00:30:00.000", DateTimeFormatter.ofPattern("HH:mm:ss.SSS")),
                 null
         );
 
@@ -79,7 +79,8 @@ class WhenGetAllTrainingTypesTest {
                         jsonPath("$.[0].trainingTypeId").value(is(trainingTypeDocument1.getTrainingTypeId())),
                         jsonPath("$.[0].name").value(is(trainingTypeDocument1.getName())),
                         jsonPath("$.[0].description").value(is(trainingTypeDocument1.getDescription())),
-                        jsonPath("$.[0].image").value(is(nullValue())),
+                        jsonPath("$.[0].duration").value(is("00:30:00.000")),
+                        jsonPath("$.[0].image").doesNotHaveJsonPath(),
                         jsonPath("$.[0].message").doesNotHaveJsonPath(),
                         jsonPath("$.[0].errors").doesNotHaveJsonPath()
                 ))
@@ -87,7 +88,8 @@ class WhenGetAllTrainingTypesTest {
                         jsonPath("$.[1].trainingTypeId").value(is(trainingTypeDocument2.getTrainingTypeId())),
                         jsonPath("$.[1].name").value(is(trainingTypeDocument2.getName())),
                         jsonPath("$.[1].description").value(is(trainingTypeDocument2.getDescription())),
-                        jsonPath("$.[0].image").value(is(nullValue())),
+                        jsonPath("$.[1].duration").value(is("00:30:00.000")),
+                        jsonPath("$.[1].image").doesNotHaveJsonPath(),
                         jsonPath("$.[1].message").doesNotHaveJsonPath(),
                         jsonPath("$.[1].errors").doesNotHaveJsonPath()
                 ));

@@ -16,7 +16,8 @@ import org.springframework.test.web.servlet.RequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import java.net.URI;
-import java.time.Duration;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
@@ -25,7 +26,6 @@ import static com.healthy.gym.trainings.configuration.LocaleConverter.convertEnu
 import static com.healthy.gym.trainings.configuration.Messages.getMessagesAccordingToLocale;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
@@ -53,7 +53,7 @@ class WhenGetTrainingTypeByIdTest {
                 UUID.randomUUID().toString(),
                 "Test name",
                 "Test description",
-                Duration.ofMillis(60000),
+                LocalTime.parse("00:30:00.000", DateTimeFormatter.ofPattern("HH:mm:ss.SSS")),
                 null
         );
 
@@ -71,10 +71,11 @@ class WhenGetTrainingTypeByIdTest {
                         content().contentType(MediaType.APPLICATION_JSON),
                         jsonPath("$.message").doesNotHaveJsonPath(),
                         jsonPath("$.errors").doesNotHaveJsonPath(),
-                        jsonPath("$.image").value(is(nullValue())),
+                        jsonPath("$.image").doesNotHaveJsonPath(),
                         jsonPath("$.name").value(is(trainingTypeDocument.getName())),
                         jsonPath("$.description").value(is(trainingTypeDocument.getDescription())),
-                        jsonPath("$.trainingTypeId").value(is(trainingTypeDocument.getTrainingTypeId()))
+                        jsonPath("$.trainingTypeId").value(is(trainingTypeDocument.getTrainingTypeId())),
+                        jsonPath("$.duration").value(is("00:30:00.000"))
                 ));
     }
 

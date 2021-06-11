@@ -16,7 +16,8 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
 
-import java.time.Duration;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.UUID;
 
@@ -47,7 +48,7 @@ class TrainingTypeDAOTest {
                 trainingTypeId,
                 "TRX",
                 "Test description",
-                Duration.ofMillis(60000),
+                LocalTime.parse("00:30:00.000", DateTimeFormatter.ofPattern("HH:mm:ss.SSS")),
                 null
         );
 
@@ -55,7 +56,7 @@ class TrainingTypeDAOTest {
                 UUID.randomUUID().toString(),
                 "Pilates",
                 "Test description 2",
-                Duration.ofMillis(70000),
+                LocalTime.parse("00:30:00.000", DateTimeFormatter.ofPattern("HH:mm:ss.SSS")),
                 null
         );
 

@@ -1,10 +1,14 @@
 package com.healthy.gym.trainings.model.response;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import java.time.LocalTime;
 import java.util.Map;
 import java.util.Objects;
 
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class TrainingTypeResponse extends AbstractResponse {
     @JsonProperty("image")
     public String imageBase64Encoded;
@@ -12,6 +16,9 @@ public class TrainingTypeResponse extends AbstractResponse {
     private String trainingTypeId;
     private String name;
     private String description;
+
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "HH:mm:ss.SSS")
+    private LocalTime duration;
 
     public TrainingTypeResponse() {
     }
@@ -22,13 +29,15 @@ public class TrainingTypeResponse extends AbstractResponse {
             String imageBase64Encoded,
             String trainingTypeId,
             String name,
-            String description
+            String description,
+            LocalTime duration
     ) {
         super(message, errors);
         this.imageBase64Encoded = imageBase64Encoded;
         this.trainingTypeId = trainingTypeId;
         this.name = name;
         this.description = description;
+        this.duration = duration;
     }
 
     public String getImageBase64Encoded() {
@@ -63,6 +72,14 @@ public class TrainingTypeResponse extends AbstractResponse {
         this.trainingTypeId = trainingTypeId;
     }
 
+    public LocalTime getDuration() {
+        return duration;
+    }
+
+    public void setDuration(LocalTime duration) {
+        this.duration = duration;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -72,12 +89,13 @@ public class TrainingTypeResponse extends AbstractResponse {
         return Objects.equals(imageBase64Encoded, that.imageBase64Encoded)
                 && Objects.equals(trainingTypeId, that.trainingTypeId)
                 && Objects.equals(name, that.name)
-                && Objects.equals(description, that.description);
+                && Objects.equals(description, that.description)
+                && Objects.equals(duration, that.duration);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), imageBase64Encoded, trainingTypeId, name, description);
+        return Objects.hash(super.hashCode(), imageBase64Encoded, trainingTypeId, name, description, duration);
     }
 
     @Override
@@ -87,6 +105,7 @@ public class TrainingTypeResponse extends AbstractResponse {
                 ", trainingTypeId='" + trainingTypeId + '\'' +
                 ", name='" + name + '\'' +
                 ", description='" + description + '\'' +
+                ", duration='" + duration + '\'' +
                 "} " + super.toString();
     }
 }

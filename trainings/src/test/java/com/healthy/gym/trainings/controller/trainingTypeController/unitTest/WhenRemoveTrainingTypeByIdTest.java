@@ -20,6 +20,8 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import java.net.URI;
 import java.time.Duration;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
@@ -76,7 +78,7 @@ class WhenRemoveTrainingTypeByIdTest {
                 trainingTypeId,
                 "Test name",
                 "Test description",
-                Duration.ofMillis(60000),
+                LocalTime.parse("00:30:00.000", DateTimeFormatter.ofPattern("HH:mm:ss.SSS")),
                 null
         );
 
@@ -102,10 +104,11 @@ class WhenRemoveTrainingTypeByIdTest {
                 .andExpect(matchAll(
                         jsonPath("$.message").value(is(expectedMessage)),
                         jsonPath("$.errors").doesNotHaveJsonPath(),
-                        jsonPath("$.image").value(is(nullValue())),
+                        jsonPath("$.image").doesNotHaveJsonPath(),
                         jsonPath("$.trainingTypeId").value(is(trainingTypeId)),
                         jsonPath("$.name").value(is("Test name")),
-                        jsonPath("$.description").value(is("Test description"))
+                        jsonPath("$.description").value(is("Test description")),
+                        jsonPath("$.duration").value(is("00:30:00.000"))
                 ));
     }
 

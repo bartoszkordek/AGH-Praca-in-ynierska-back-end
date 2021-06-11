@@ -28,7 +28,8 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import javax.activation.UnsupportedDataTypeException;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
-import java.time.Duration;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
@@ -36,7 +37,8 @@ import java.util.UUID;
 import static com.healthy.gym.trainings.configuration.LocaleConverter.convertEnumToLocale;
 import static com.healthy.gym.trainings.configuration.Messages.getMessagesAccordingToLocale;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
@@ -91,6 +93,7 @@ class WhenUpdateTrainingTypeByIdTest {
         TrainingTypeRequest trainingTypeRequestValid = new TrainingTypeRequest();
         trainingTypeRequestValid.setName("Test name");
         trainingTypeRequestValid.setDescription("Test description");
+        trainingTypeRequestValid.setDuration("00:30:00.000");
         ObjectMapper objectMapper = new ObjectMapper();
         String jsonBody = objectMapper.writeValueAsString(trainingTypeRequestValid);
 
@@ -104,6 +107,7 @@ class WhenUpdateTrainingTypeByIdTest {
         TrainingTypeRequest trainingTypeRequestInvalid = new TrainingTypeRequest();
         trainingTypeRequestInvalid.setName("a");
         trainingTypeRequestInvalid.setDescription("T");
+        trainingTypeRequestInvalid.setDuration("00:30");
         String invalidJsonBody = objectMapper.writeValueAsString(trainingTypeRequestInvalid);
 
         invalidBody = new MockMultipartFile(
@@ -142,7 +146,7 @@ class WhenUpdateTrainingTypeByIdTest {
                     trainingTypeId,
                     "Test name",
                     "Test description",
-                    Duration.ofMillis(60000),
+                    LocalTime.parse("00:30:00.000", DateTimeFormatter.ofPattern("HH:mm:ss.SSS")),
                     null
             );
 
@@ -161,10 +165,11 @@ class WhenUpdateTrainingTypeByIdTest {
                             content().contentType(MediaType.APPLICATION_JSON),
                             jsonPath("$.message").value(is(expectedMessage)),
                             jsonPath("$.errors").doesNotHaveJsonPath(),
-                            jsonPath("$.image").value(is(nullValue())),
+                            jsonPath("$.image").doesNotHaveJsonPath(),
                             jsonPath("$.trainingTypeId").value(is(trainingTypeId)),
                             jsonPath("$.name").value(is("Test name")),
-                            jsonPath("$.description").value(is("Test description"))
+                            jsonPath("$.description").value(is("Test description")),
+                            jsonPath("$.duration").value(is("00:30:00.000"))
                     ));
         }
 
@@ -233,9 +238,11 @@ class WhenUpdateTrainingTypeByIdTest {
                                     .value(is(messages.get("field.required"))),
                             jsonPath("$.errors.description")
                                     .value(is(messages.get("field.required"))),
-                            jsonPath("$.image").value(is(nullValue())),
-                            jsonPath("$.name").value(is(nullValue())),
-                            jsonPath("$.description").value(is(nullValue()))
+                            jsonPath("$.errors.duration")
+                                    .value(is(messages.get("exception.duration.format"))),
+                            jsonPath("$.image").doesNotHaveJsonPath(),
+                            jsonPath("$.name").doesNotHaveJsonPath(),
+                            jsonPath("$.description").doesNotHaveJsonPath()
                     ));
         }
 

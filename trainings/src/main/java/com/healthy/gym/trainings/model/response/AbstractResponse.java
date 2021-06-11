@@ -6,10 +6,9 @@ import java.io.Serializable;
 import java.util.Map;
 import java.util.Objects;
 
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public abstract class AbstractResponse implements Serializable {
-    @JsonInclude(JsonInclude.Include.NON_NULL)
     private String message;
-    @JsonInclude(JsonInclude.Include.NON_NULL)
     private Map<String, String> errors;
 
     protected AbstractResponse() {

@@ -26,7 +26,8 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import javax.activation.UnsupportedDataTypeException;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
-import java.time.Duration;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
@@ -88,6 +89,8 @@ class WhenCreateTrainingTypeTest {
         TrainingTypeRequest trainingTypeRequestValid = new TrainingTypeRequest();
         trainingTypeRequestValid.setName("Test name");
         trainingTypeRequestValid.setDescription("Test description");
+        trainingTypeRequestValid.setDuration("02:30:00.000");
+
         ObjectMapper objectMapper = new ObjectMapper();
         String jsonBody = objectMapper.writeValueAsString(trainingTypeRequestValid);
 
@@ -101,6 +104,7 @@ class WhenCreateTrainingTypeTest {
         TrainingTypeRequest trainingTypeRequestInvalid = new TrainingTypeRequest();
         trainingTypeRequestInvalid.setName("a");
         trainingTypeRequestInvalid.setDescription("T");
+        trainingTypeRequestInvalid.setDuration("02:30");
         String invalidJsonBody = objectMapper.writeValueAsString(trainingTypeRequestInvalid);
 
         invalidBody = new MockMultipartFile(
@@ -109,7 +113,6 @@ class WhenCreateTrainingTypeTest {
                 MediaType.APPLICATION_JSON_VALUE,
                 invalidJsonBody.getBytes(StandardCharsets.UTF_8)
         );
-
     }
 
     @Nested
@@ -134,7 +137,7 @@ class WhenCreateTrainingTypeTest {
                     UUID.randomUUID().toString(),
                     "Test name",
                     "Test description",
-                    Duration.ofMillis(60000),
+                    LocalTime.parse("02:30:00.000", DateTimeFormatter.ofPattern("HH:mm:ss.SSS")),
                     null
             );
 
@@ -152,11 +155,12 @@ class WhenCreateTrainingTypeTest {
                             content().contentType(MediaType.APPLICATION_JSON),
                             jsonPath("$.message").value(is(expectedMessage)),
                             jsonPath("$.errors").doesNotHaveJsonPath(),
-                            jsonPath("$.image").value(is(nullValue())),
+                            jsonPath("$.image").doesNotHaveJsonPath(),
                             jsonPath("$.trainingTypeId")
                                     .value(is(trainingTypeDocument.getTrainingTypeId())),
                             jsonPath("$.name").value(is("Test name")),
-                            jsonPath("$.description").value(is("Test description"))
+                            jsonPath("$.description").value(is("Test description")),
+                            jsonPath("$.duration").value(is("02:30:00.000"))
                     ));
         }
 
@@ -217,9 +221,11 @@ class WhenCreateTrainingTypeTest {
                                     .value(is(messages.get("field.required"))),
                             jsonPath("$.errors.description")
                                     .value(is(messages.get("field.required"))),
-                            jsonPath("$.image").value(is(nullValue())),
-                            jsonPath("$.name").value(is(nullValue())),
-                            jsonPath("$.description").value(is(nullValue()))
+                            jsonPath("$.errors.duration")
+                                    .value(is(messages.get("exception.duration.format"))),
+                            jsonPath("$.image").doesNotHaveJsonPath(),
+                            jsonPath("$.name").doesNotHaveJsonPath(),
+                            jsonPath("$.description").doesNotHaveJsonPath()
                     ));
         }
 

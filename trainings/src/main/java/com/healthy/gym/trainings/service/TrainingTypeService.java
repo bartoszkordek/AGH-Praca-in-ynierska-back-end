@@ -34,4 +34,8 @@ public interface TrainingTypeService {
 
     TrainingTypeDocument updateTrainingTypeById(String trainingId, TrainingTypeModel trainingTypeModel, byte[] avatar)
             throws TrainingTypeNotFoundException, DuplicatedTrainingTypeException;
+
+    TrainingTypeDocument updateTrainingTypeById(
+            String trainingId, TrainingTypeRequest trainingTypeRequest, MultipartFile multipartFile
+    ) throws TrainingTypeNotFoundException, DuplicatedTrainingTypeException;
 }

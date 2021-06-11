@@ -115,4 +115,9 @@ public class TrainingTypeServiceImpl implements TrainingTypeService {
 
         return trainingTypeRepository.save(trainingType);
     }
+
+    @Override
+    public TrainingTypeDocument updateTrainingTypeById(String trainingId, TrainingTypeRequest trainingTypeRequest, MultipartFile multipartFile) throws TrainingTypeNotFoundException, DuplicatedTrainingTypeException {
+        return null;
+    }
 }

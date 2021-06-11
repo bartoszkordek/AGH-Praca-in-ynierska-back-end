@@ -5,32 +5,18 @@ import com.healthy.gym.trainings.exception.DuplicatedTrainingTypeException;
 import com.healthy.gym.trainings.exception.TrainingTypeNotFoundException;
 import com.healthy.gym.trainings.model.other.TrainingTypeModel;
 import com.healthy.gym.trainings.model.request.TrainingTypeRequest;
-import com.healthy.gym.trainings.model.response.TrainingTypeManagerResponse;
-import com.healthy.gym.trainings.model.response.TrainingTypePublicResponse;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
 public interface TrainingTypeService {
 
-    List<TrainingTypeManagerResponse> getAllTrainingTypesManagerView();
-
-    List<TrainingTypePublicResponse> getAllTrainingTypesPublicView();
+    TrainingTypeDocument createTrainingType(TrainingTypeRequest trainingTypeRequest, MultipartFile multipartFile)
+            throws DuplicatedTrainingTypeException;
 
     List<TrainingTypeDocument> getAllTrainingTypes();
 
     TrainingTypeDocument getTrainingTypeById(String trainingTypeId) throws TrainingTypeNotFoundException;
-
-    TrainingTypeDocument createTrainingType(TrainingTypeModel trainingTypeModel, byte[] avatar)
-            throws DuplicatedTrainingTypeException;
-
-    TrainingTypeDocument createTrainingType(TrainingTypeRequest trainingTypeRequest, MultipartFile multipartFile)
-            throws DuplicatedTrainingTypeException;
-
-    TrainingTypeDocument createTrainingType(TrainingTypeRequest trainingTypeRequest)
-            throws DuplicatedTrainingTypeException;
-
-    TrainingTypeDocument removeTrainingTypeByName(String trainingName) throws TrainingTypeNotFoundException;
 
     TrainingTypeDocument updateTrainingTypeById(String trainingId, TrainingTypeModel trainingTypeModel, byte[] avatar)
             throws TrainingTypeNotFoundException, DuplicatedTrainingTypeException;
@@ -38,4 +24,6 @@ public interface TrainingTypeService {
     TrainingTypeDocument updateTrainingTypeById(
             String trainingId, TrainingTypeRequest trainingTypeRequest, MultipartFile multipartFile
     ) throws TrainingTypeNotFoundException, DuplicatedTrainingTypeException;
+
+    TrainingTypeDocument removeTrainingTypeByName(String trainingName) throws TrainingTypeNotFoundException;
 }

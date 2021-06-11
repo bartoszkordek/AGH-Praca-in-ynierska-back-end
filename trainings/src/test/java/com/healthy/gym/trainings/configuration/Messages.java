@@ -9,6 +9,7 @@ public class Messages {
         return Stream.of(new String[][]{
                 {"exception.access.denied", "Nie masz uprawnień do wykonania tej operacji."},
                 {"exception.duplicated.training.type", "Podana nazwa treningu już istnieje."},
+                {"exception.duration.format", "Niepoprawny format czasu trwania."},
                 {"exception.multipart.body", "Źle wypełniony formularz."},
                 {"exception.not.found.training.type", "Nie znaleziono podanego typu treningu."},
                 {"exception.not.found.training.type.all", "Brak typów treningów do wyświetlenia."},
@@ -26,6 +27,7 @@ public class Messages {
         return Stream.of(new String[][]{
                 {"exception.access.denied", "You are not allowed to perform this operation."},
                 {"exception.duplicated.training.type", "Provided training type name already exists."},
+                {"exception.duration.format", "Invalid time duration format."},
                 {"exception.multipart.body", "Incorrectly completed form."},
                 {"exception.not.found.training.type", "Specified training type not found."},
                 {"exception.not.found.training.type.all", "There are no workout types to display."},

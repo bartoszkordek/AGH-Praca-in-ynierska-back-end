@@ -78,11 +78,11 @@ public class TrainingTypeServiceImpl implements TrainingTypeService {
         return trainingTypes;
     }
 
+    @Override
     public TrainingTypeDocument getTrainingTypeById(String trainingTypeId) throws TrainingTypeNotFoundException {
-        if (trainingTypeRepository.existsByTrainingTypeId(trainingTypeId)) {
-            throw new TrainingTypeNotFoundException("Training type of id: " + trainingTypeId + " not exist.");
-        }
-        return trainingTypeRepository.findByTrainingTypeId(trainingTypeId);
+        TrainingTypeDocument trainingTypeDocument = trainingTypeRepository.findByTrainingTypeId(trainingTypeId);
+        if (trainingTypeDocument == null) throw new TrainingTypeNotFoundException();
+        return trainingTypeDocument;
     }
 
     public TrainingTypeDocument removeTrainingTypeByName(String trainingName) throws TrainingTypeNotFoundException {

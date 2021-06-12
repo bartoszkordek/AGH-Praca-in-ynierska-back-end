@@ -90,11 +90,11 @@ class WhenUpdateTrainingTypeByIdTest {
 
     @Test
     void shouldThrowExceptionWhenTrainingTypeAlreadyExists() {
-        when(trainingTypeDAO.existsByName("Test name")).thenReturn(true);
+        when(trainingTypeDAO.existsByName(anyString())).thenReturn(true);
         when(trainingTypeDAO.findByTrainingTypeId(anyString()))
                 .thenReturn(new TrainingTypeDocument(
                         trainingTypeId,
-                        "Test name2",
+                        "Test name",
                         "Test description",
                         localTime,
                         new ImageDocument()

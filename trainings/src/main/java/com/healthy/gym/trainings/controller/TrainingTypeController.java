@@ -126,6 +126,9 @@ public class TrainingTypeController {
             TrainingTypeResponse trainingTypeResponse = modelMapper
                     .map(trainingTypeDocument, TrainingTypeResponse.class);
 
+            ImageDTO imageDTO = getUpdatedImageDTO(trainingTypeDocument);
+            trainingTypeResponse.setImageDTO(imageDTO);
+
             return ResponseEntity
                     .status(HttpStatus.OK)
                     .contentType(MediaType.APPLICATION_JSON)

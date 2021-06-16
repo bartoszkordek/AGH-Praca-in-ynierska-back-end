@@ -6,7 +6,6 @@ import com.healthy.gym.trainings.data.repository.ImageDAO;
 import com.healthy.gym.trainings.data.repository.TrainingTypeDAO;
 import com.healthy.gym.trainings.exception.DuplicatedTrainingTypeException;
 import com.healthy.gym.trainings.exception.TrainingTypeNotFoundException;
-import com.healthy.gym.trainings.model.other.TrainingTypeModel;
 import com.healthy.gym.trainings.model.request.TrainingTypeRequest;
 import org.bson.types.Binary;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,15 +21,15 @@ import java.util.UUID;
 @Service
 public class TrainingTypeServiceImpl implements TrainingTypeService {
 
-    private final TrainingTypeDAO trainingTypeRepository;
+    private final TrainingTypeDAO trainingTypeDAO;
     private final ImageDAO imageDAO;
 
     @Autowired
     public TrainingTypeServiceImpl(
-            TrainingTypeDAO trainingTypeRepository,
+            TrainingTypeDAO trainingTypeDAO,
             ImageDAO imageDAO
     ) {
-        this.trainingTypeRepository = trainingTypeRepository;
+        this.trainingTypeDAO = trainingTypeDAO;
         this.imageDAO = imageDAO;
     }
 
@@ -41,7 +40,7 @@ public class TrainingTypeServiceImpl implements TrainingTypeService {
     ) throws DuplicatedTrainingTypeException {
         String name = trainingTypeRequest.getName();
 
-        if (trainingTypeRepository.existsByName(name)) throw new DuplicatedTrainingTypeException();
+        if (trainingTypeDAO.existsByName(name)) throw new DuplicatedTrainingTypeException();
         ImageDocument savedImageDocument = null;
         if (multipartFile != null) {
             try {
@@ -63,7 +62,7 @@ public class TrainingTypeServiceImpl implements TrainingTypeService {
                 savedImageDocument
         );
 
-        return trainingTypeRepository.save(trainingTypeDocument);
+        return trainingTypeDAO.save(trainingTypeDocument);
     }
 
     private LocalTime getDuration(TrainingTypeRequest trainingTypeRequest) {
@@ -73,14 +72,14 @@ public class TrainingTypeServiceImpl implements TrainingTypeService {
 
     @Override
     public List<TrainingTypeDocument> getAllTrainingTypes() throws TrainingTypeNotFoundException {
-        List<TrainingTypeDocument> trainingTypes = trainingTypeRepository.findAll();
+        List<TrainingTypeDocument> trainingTypes = trainingTypeDAO.findAll();
         if (trainingTypes.isEmpty()) throw new TrainingTypeNotFoundException();
         return trainingTypes;
     }
 
     @Override
     public TrainingTypeDocument getTrainingTypeById(String trainingTypeId) throws TrainingTypeNotFoundException {
-        TrainingTypeDocument trainingTypeDocument = trainingTypeRepository.findByTrainingTypeId(trainingTypeId);
+        TrainingTypeDocument trainingTypeDocument = trainingTypeDAO.findByTrainingTypeId(trainingTypeId);
         if (trainingTypeDocument == null) throw new TrainingTypeNotFoundException();
         return trainingTypeDocument;
     }
@@ -91,12 +90,12 @@ public class TrainingTypeServiceImpl implements TrainingTypeService {
             TrainingTypeRequest trainingTypeRequest,
             MultipartFile multipartFile
     ) throws TrainingTypeNotFoundException, DuplicatedTrainingTypeException {
-        TrainingTypeDocument trainingTypeDocumentFound = trainingTypeRepository.findByTrainingTypeId(trainingId);
+        TrainingTypeDocument trainingTypeDocumentFound = trainingTypeDAO.findByTrainingTypeId(trainingId);
         if (trainingTypeDocumentFound == null) throw new TrainingTypeNotFoundException();
 
         String updatedTrainingName = trainingTypeRequest.getName();
         if (!trainingTypeDocumentFound.getName().equals(updatedTrainingName)
-                && trainingTypeRepository.existsByName(updatedTrainingName)) {
+                && trainingTypeDAO.existsByName(updatedTrainingName)) {
             throw new DuplicatedTrainingTypeException();
         }
 
@@ -125,14 +124,19 @@ public class TrainingTypeServiceImpl implements TrainingTypeService {
             }
         }
 
-        return trainingTypeRepository.save(trainingTypeDocumentFound);
+        return trainingTypeDAO.save(trainingTypeDocumentFound);
     }
 
     @Override
-    public TrainingTypeDocument removeTrainingTypeById(String trainingName) throws TrainingTypeNotFoundException {
-        TrainingTypeDocument trainingTypeToRemove = trainingTypeRepository.findByTrainingTypeId(trainingName);
+    public TrainingTypeDocument removeTrainingTypeById(String trainingId) throws TrainingTypeNotFoundException {
+        TrainingTypeDocument trainingTypeToRemove = trainingTypeDAO.findByTrainingTypeId(trainingId);
         if (trainingTypeToRemove == null) throw new TrainingTypeNotFoundException();
-        trainingTypeRepository.deleteByTrainingTypeId(trainingName);
+        trainingTypeDAO.deleteByTrainingTypeId(trainingId);
+        ImageDocument imageDocument = trainingTypeToRemove.getImageDocument();
+        if (imageDocument != null) {
+            String imageId = imageDocument.getImageId();
+            imageDAO.deleteByImageId(imageId);
+        }
         return trainingTypeToRemove;
     }
 }

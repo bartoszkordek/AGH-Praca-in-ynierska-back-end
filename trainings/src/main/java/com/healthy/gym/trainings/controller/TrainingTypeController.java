@@ -74,7 +74,7 @@ public class TrainingTypeController {
 
             String message = translator.toLocale("training.type.created");
             response.setMessage(message);
-            ImageDTO imageDTO = getUpdatedImageDTO(trainingTypeDocument);
+            ImageDTO imageDTO = getImageDTO(trainingTypeDocument);
             response.setImageDTO(imageDTO);
 
             return ResponseEntity
@@ -107,7 +107,7 @@ public class TrainingTypeController {
         }
     }
 
-    private ImageDTO getUpdatedImageDTO(TrainingTypeDocument trainingTypeDocument) {
+    private ImageDTO getImageDTO(TrainingTypeDocument trainingTypeDocument) {
         ImageDocument imageDocument = trainingTypeDocument.getImageDocument();
         if (imageDocument == null) return null;
         byte[] updatedMultipartFile = imageDocument.getImageData().getData();
@@ -126,7 +126,7 @@ public class TrainingTypeController {
             TrainingTypeResponse trainingTypeResponse = modelMapper
                     .map(trainingTypeDocument, TrainingTypeResponse.class);
 
-            ImageDTO imageDTO = getUpdatedImageDTO(trainingTypeDocument);
+            ImageDTO imageDTO = getImageDTO(trainingTypeDocument);
             trainingTypeResponse.setImageDTO(imageDTO);
 
             return ResponseEntity
@@ -173,7 +173,7 @@ public class TrainingTypeController {
         for (TrainingTypeDocument trainingTypeDocument : trainingTypes) {
             TrainingTypeResponse trainingTypeResponse = modelMapper
                     .map(trainingTypeDocument, TrainingTypeResponse.class);
-            ImageDTO imageDTO = getUpdatedImageDTO(trainingTypeDocument);
+            ImageDTO imageDTO = getImageDTO(trainingTypeDocument);
             trainingTypeResponse.setImageDTO(imageDTO);
             trainingTypeResponseList.add(trainingTypeResponse);
         }
@@ -203,7 +203,7 @@ public class TrainingTypeController {
             response = modelMapper.map(trainingTypeDocument, TrainingTypeResponse.class);
             String message = translator.toLocale("training.type.updated");
             response.setMessage(message);
-            ImageDTO imageDTO = getUpdatedImageDTO(trainingTypeDocument);
+            ImageDTO imageDTO = getImageDTO(trainingTypeDocument);
             response.setImageDTO(imageDTO);
 
             return ResponseEntity
@@ -250,6 +250,9 @@ public class TrainingTypeController {
 
             String message = translator.toLocale("training.type.removed");
             trainingTypeResponse.setMessage(message);
+
+            ImageDTO imageDTO = getImageDTO(trainingTypeDocument);
+            trainingTypeResponse.setImageDTO(imageDTO);
 
             return ResponseEntity.status(HttpStatus.OK)
                     .contentType(MediaType.APPLICATION_JSON).body(trainingTypeResponse);

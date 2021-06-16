@@ -18,6 +18,7 @@ public class TrainingTypeRequest {
     @Size(min = 2, max = 1000, message = "{field.required}")
     private String description;
 
+    @NotNull(message = "{field.required}")
     @ValidDurationFormat(message = "{exception.duration.format}")
     private String duration;
 

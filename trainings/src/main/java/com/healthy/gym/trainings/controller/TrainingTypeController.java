@@ -173,6 +173,8 @@ public class TrainingTypeController {
         for (TrainingTypeDocument trainingTypeDocument : trainingTypes) {
             TrainingTypeResponse trainingTypeResponse = modelMapper
                     .map(trainingTypeDocument, TrainingTypeResponse.class);
+            ImageDTO imageDTO = getUpdatedImageDTO(trainingTypeDocument);
+            trainingTypeResponse.setImageDTO(imageDTO);
             trainingTypeResponseList.add(trainingTypeResponse);
         }
 

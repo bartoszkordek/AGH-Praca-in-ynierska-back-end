@@ -8,38 +8,38 @@ import org.springframework.context.annotation.PropertySource;
 @PropertySource(value = "classpath:email.properties", ignoreResourceNotFound = true)
 public class EmailConfig {
 
-    @Value("${spring.mail.username}")
+    @Value("${spring.mail.username:username}")
     private String emailName;
 
-    @Value("${spring.mail.password}")
+    @Value("${spring.mail.password:password}")
     private String emailPassword;
 
-    @Value("${spring.mail.personal}")
+    @Value("${spring.mail.personal:personal}")
     private String emailPersonal;
 
-    @Value("${spring.mail.host}")
+    @Value("${spring.mail.host:smtp.gmail.com}")
     private String smtpHost;
 
-    @Value("${spring.mail.port}")
+    @Value("${spring.mail.port:587}")
     private String smtpPort;
 
-    public String getEmailName(){
+    public String getEmailName() {
         return emailName;
-    };
+    }
 
-    public String getEmailPassword(){
+    public String getEmailPassword() {
         return emailPassword;
     }
 
-    public String getEmailPersonal(){
+    public String getEmailPersonal() {
         return emailPersonal;
     }
 
-    public String getSmtpHost(){
+    public String getSmtpHost() {
         return smtpHost;
     }
 
-    public String getSmtpPort(){
+    public String getSmtpPort() {
         return smtpPort;
     }
 }

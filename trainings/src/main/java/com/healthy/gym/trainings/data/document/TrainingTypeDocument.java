@@ -4,7 +4,7 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import java.time.Duration;
+import java.time.LocalTime;
 import java.util.Objects;
 
 @Document(collection = "trainingTypes")
@@ -15,7 +15,7 @@ public class TrainingTypeDocument {
     private String trainingTypeId;
     private String name;
     private String description;
-    private Duration duration;
+    private LocalTime duration;
     @DBRef
     private ImageDocument imageDocument;
 
@@ -27,7 +27,7 @@ public class TrainingTypeDocument {
             String trainingTypeId,
             String name,
             String description,
-            Duration duration,
+            LocalTime duration,
             ImageDocument imageDocument
     ) {
         this.trainingTypeId = trainingTypeId;
@@ -69,11 +69,11 @@ public class TrainingTypeDocument {
         this.description = description;
     }
 
-    public Duration getDuration() {
+    public LocalTime getDuration() {
         return duration;
     }
 
-    public void setDuration(Duration duration) {
+    public void setDuration(LocalTime duration) {
         this.duration = duration;
     }
 

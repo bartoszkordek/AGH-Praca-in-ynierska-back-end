@@ -5,6 +5,7 @@ import org.springframework.security.core.GrantedAuthority;
 public enum GymRole implements GrantedAuthority {
     ADMIN("ROLE_ADMIN"),
     EMPLOYEE("ROLE_EMPLOYEE"),
+    MANAGER("ROLE_MANAGER"),
     TRAINER("ROLE_TRAINER"),
     USER("ROLE_USER");
 

@@ -1,6 +1,6 @@
 package com.healthy.gym.account.security;
 
-import com.healthy.gym.account.component.token.TokenManager;
+import com.healthy.gym.account.component.TokenManager;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;

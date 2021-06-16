@@ -1,5 +1,6 @@
 package com.healthy.gym.account.component.token;
 
+import com.healthy.gym.account.component.TokenManager;
 import io.jsonwebtoken.SignatureAlgorithm;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -1,4 +1,4 @@
-package com.healthy.gym.account.component.token;
+package com.healthy.gym.trainings.component;
 
 import io.jsonwebtoken.SignatureAlgorithm;
 

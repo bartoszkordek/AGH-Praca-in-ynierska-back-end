@@ -10,6 +10,7 @@ import com.healthy.gym.trainings.service.ReviewServiceImpl;
 import com.healthy.gym.trainings.service.email.EmailService;
 import org.junit.Test;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,7 +31,7 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
-
+@Disabled
 @RunWith(SpringRunner.class)
 public class ReviewServiceTest {
 

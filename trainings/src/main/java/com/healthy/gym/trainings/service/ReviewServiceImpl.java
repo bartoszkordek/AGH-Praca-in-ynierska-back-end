@@ -6,6 +6,7 @@ import com.healthy.gym.trainings.exception.StarsOutOfRangeException;
 import com.healthy.gym.trainings.exception.StartDateAfterEndDateException;
 import com.healthy.gym.trainings.model.request.GroupTrainingReviewRequest;
 import com.healthy.gym.trainings.model.response.GroupTrainingReviewResponse;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -23,6 +24,7 @@ public class ReviewServiceImpl implements ReviewService{
     private String defaultStartDate = "1900-01-01";
     private String defaultEndDate = "2099-12-31";
 
+    @Autowired
     public ReviewServiceImpl(ReviewDAO reviewRepository){
         this.reviewRepository = reviewRepository;
     }
@@ -74,8 +76,11 @@ public class ReviewServiceImpl implements ReviewService{
             throw new StartDateAfterEndDateException("Start date after end date");
         }
 
-        return reviewRepository.findByDateBetween(sdfDate.format(startDateMinusOneDay),
-                sdfDate.format(endDatePlusOneDay), pageable);
+        String startDateMinusOneDayFormatted = sdfDate.format(startDateMinusOneDay);
+        String endDatePlusOneDayFormatted = sdfDate.format(endDatePlusOneDay);
+
+        return reviewRepository.findByDateBetween(startDateMinusOneDayFormatted,
+                endDatePlusOneDayFormatted, pageable);
     }
 
     @Override

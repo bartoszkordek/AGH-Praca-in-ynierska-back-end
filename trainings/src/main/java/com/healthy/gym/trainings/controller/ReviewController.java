@@ -90,8 +90,8 @@ public class ReviewController {
     // TODO only for admin and user who owns it
     @GetMapping("/user/{userId}/page/{page}")
     public ResponseEntity<Map<String, Object>> getAllReviewsByUserId(
-            @RequestParam(required = false) final String startDate,
-            @RequestParam(required = false) final String endDate,
+            @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") final String startDate,
+            @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") final String endDate,
             @RequestParam(defaultValue = "10") final int size,
             @PathVariable final String userId,
             @PathVariable final int page) throws RestException {
@@ -104,7 +104,7 @@ public class ReviewController {
             Map<String, Object> response = reviewPaginationResponse(pageReviews);
 
             return new ResponseEntity<>(response, HttpStatus.OK);
-        } catch (ParseException | StartDateAfterEndDateException e){
+        } catch (ParseException | StartDateAfterEndDateException | InvalidUserIdException e){
             throw new RestException(e.getMessage(), HttpStatus.BAD_REQUEST, e);
         }
     }

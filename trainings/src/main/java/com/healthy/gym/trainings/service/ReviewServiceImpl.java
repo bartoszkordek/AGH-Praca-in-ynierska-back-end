@@ -2,6 +2,7 @@ package com.healthy.gym.trainings.service;
 
 import com.healthy.gym.trainings.data.document.GroupTrainingsReviews;
 import com.healthy.gym.trainings.data.repository.ReviewDAO;
+import com.healthy.gym.trainings.exception.InvalidUserIdException;
 import com.healthy.gym.trainings.exception.StarsOutOfRangeException;
 import com.healthy.gym.trainings.exception.StartDateAfterEndDateException;
 import com.healthy.gym.trainings.model.request.GroupTrainingReviewRequest;
@@ -85,7 +86,7 @@ public class ReviewServiceImpl implements ReviewService{
 
     @Override
     public Page<GroupTrainingReviewResponse> getAllReviewsByUserId(String startDate, String endDate, String userId, Pageable pageable)
-            throws ParseException, StartDateAfterEndDateException {
+            throws ParseException, StartDateAfterEndDateException, InvalidUserIdException {
         if(startDate == null)
             startDate = defaultStartDate;
 
@@ -99,8 +100,15 @@ public class ReviewServiceImpl implements ReviewService{
         if(startDateParsed.after(endDateParsed)){
             throw new StartDateAfterEndDateException("Start date after end date");
         }
-        return reviewRepository.findByDateBetweenAndClientId(sdfDate.format(startDateMinusOneDay),
-                sdfDate.format(endDatePlusOneDay), userId, pageable);
+        if(userId == null){
+            throw new InvalidUserIdException("Empty User ID");
+        }
+
+        String startDateMinusOneDayFormatted = sdfDate.format(startDateMinusOneDay);
+        String endDatePlusOneDayFormatted = sdfDate.format(endDatePlusOneDay);
+
+        return reviewRepository.findByDateBetweenAndClientId(startDateMinusOneDayFormatted,
+                endDatePlusOneDayFormatted, userId, pageable);
     }
 
     @Override

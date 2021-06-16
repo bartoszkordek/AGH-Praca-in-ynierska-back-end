@@ -31,7 +31,6 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
-@Disabled
 @RunWith(SpringRunner.class)
 public class ReviewServiceTest {
 
@@ -45,11 +44,6 @@ public class ReviewServiceTest {
         }
 
         @Bean
-        public EmailConfig emailConfig() {
-            return new EmailConfig();
-        }
-
-        @Bean
         public ReviewDAO reviewDAO() {
             return Mockito.mock(ReviewDAO.class);
         }
@@ -58,9 +52,6 @@ public class ReviewServiceTest {
 
     @Autowired
     private ReviewService reviewService;
-
-    @MockBean
-    private EmailService emailService;
 
     @MockBean
     private ReviewDAO reviewRepository;

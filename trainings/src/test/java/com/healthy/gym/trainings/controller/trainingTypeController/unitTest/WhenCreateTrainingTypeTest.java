@@ -5,10 +5,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.healthy.gym.trainings.configuration.TestCountry;
 import com.healthy.gym.trainings.configuration.TestRoleTokenFactory;
 import com.healthy.gym.trainings.controller.TrainingTypeController;
+import com.healthy.gym.trainings.data.document.ImageDocument;
 import com.healthy.gym.trainings.data.document.TrainingTypeDocument;
 import com.healthy.gym.trainings.exception.DuplicatedTrainingTypeException;
 import com.healthy.gym.trainings.model.request.TrainingTypeRequest;
 import com.healthy.gym.trainings.service.TrainingTypeService;
+import org.bson.types.Binary;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -28,6 +30,7 @@ import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Base64;
 import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
@@ -35,7 +38,8 @@ import java.util.UUID;
 import static com.healthy.gym.trainings.configuration.LocaleConverter.convertEnumToLocale;
 import static com.healthy.gym.trainings.configuration.Messages.getMessagesAccordingToLocale;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.ResultMatcher.matchAll;
@@ -133,6 +137,65 @@ class WhenCreateTrainingTypeTest {
                     .header("Authorization", adminToken)
                     .contentType(MediaType.MULTIPART_FORM_DATA_VALUE);
 
+            ImageDocument imageDocument = new ImageDocument(
+                    UUID.randomUUID().toString(),
+                    new Binary(validBody.getBytes()),
+                    MediaType.IMAGE_JPEG_VALUE
+            );
+
+            TrainingTypeDocument trainingTypeDocument = new TrainingTypeDocument(
+                    UUID.randomUUID().toString(),
+                    "Test name",
+                    "Test description",
+                    LocalTime.parse("02:30:00.000", DateTimeFormatter.ofPattern("HH:mm:ss.SSS")),
+                    imageDocument
+            );
+
+            when(trainingTypeService.createTrainingType(
+                    ArgumentMatchers.any(TrainingTypeRequest.class),
+                    ArgumentMatchers.any(MockMultipartFile.class)
+            )).thenReturn(trainingTypeDocument);
+
+            String expectedMessage = messages.get("training.type.created");
+
+            mockMvc.perform(request)
+                    .andDo(print())
+                    .andExpect(matchAll(
+                            status().isCreated(),
+                            content().contentType(MediaType.APPLICATION_JSON),
+                            jsonPath("$.message").value(is(expectedMessage)),
+                            jsonPath("$.errors").doesNotHaveJsonPath(),
+                            jsonPath("$.image.data").value(is(getExpectedImageBase64(imageDocument))),
+                            jsonPath("$.image.format").value(is(MediaType.IMAGE_JPEG_VALUE)),
+                            jsonPath("$.trainingTypeId")
+                                    .value(is(trainingTypeDocument.getTrainingTypeId())),
+                            jsonPath("$.name").value(is("Test name")),
+                            jsonPath("$.description").value(is("Test description")),
+                            jsonPath("$.duration").value(is("02:30:00.000"))
+                    ));
+        }
+
+        private String getExpectedImageBase64(ImageDocument imageDocument) {
+            byte[] imageData = imageDocument.getImageData().getData();
+            return Base64.getEncoder()
+                    .encodeToString(imageData);
+        }
+
+        @ParameterizedTest
+        @EnumSource(TestCountry.class)
+        void shouldCreateNewTrainingTypeWithoutImage(TestCountry country) throws Exception {
+            Map<String, String> messages = getMessagesAccordingToLocale(country);
+            Locale testedLocale = convertEnumToLocale(country);
+
+            URI uri = new URI("/trainingType");
+
+            RequestBuilder request = MockMvcRequestBuilders
+                    .multipart(uri)
+                    .file(validBody)
+                    .header("Accept-Language", testedLocale.toString())
+                    .header("Authorization", adminToken)
+                    .contentType(MediaType.MULTIPART_FORM_DATA_VALUE);
+
             TrainingTypeDocument trainingTypeDocument = new TrainingTypeDocument(
                     UUID.randomUUID().toString(),
                     "Test name",
@@ -143,7 +206,7 @@ class WhenCreateTrainingTypeTest {
 
             when(trainingTypeService.createTrainingType(
                     ArgumentMatchers.any(TrainingTypeRequest.class),
-                    ArgumentMatchers.any(MockMultipartFile.class)
+                    ArgumentMatchers.isNull()
             )).thenReturn(trainingTypeDocument);
 
             String expectedMessage = messages.get("training.type.created");
@@ -194,7 +257,7 @@ class WhenCreateTrainingTypeTest {
 
         @ParameterizedTest
         @EnumSource(TestCountry.class)
-        void shouldMultipartBodyExceptionWhenInvalidBody(TestCountry country) throws Exception {
+        void shouldThrowMultipartBodyExceptionWhenInvalidBody(TestCountry country) throws Exception {
             Map<String, String> messages = getMessagesAccordingToLocale(country);
             Locale testedLocale = convertEnumToLocale(country);
 

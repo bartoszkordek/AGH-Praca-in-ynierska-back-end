@@ -11,6 +11,7 @@ import com.healthy.gym.trainings.exception.TrainingTypeNotFoundException;
 import com.healthy.gym.trainings.model.request.TrainingTypeRequest;
 import com.healthy.gym.trainings.model.response.TrainingTypeResponse;
 import com.healthy.gym.trainings.service.TrainingTypeService;
+import com.healthy.gym.trainings.shared.ImageDTO;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,7 +55,7 @@ public class TrainingTypeController {
 
     @PreAuthorize("hasRole('ADMIN') or hasRole('MANAGER')")
     @PostMapping(
-            consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
+            consumes = {MediaType.MULTIPART_FORM_DATA_VALUE, MediaType.APPLICATION_JSON_VALUE},
             produces = MediaType.APPLICATION_JSON_VALUE
     )
     public ResponseEntity<TrainingTypeResponse> createTrainingType(
@@ -64,7 +65,7 @@ public class TrainingTypeController {
         TrainingTypeResponse response = new TrainingTypeResponse();
         try {
             multipartFileValidator.validateBody(trainingTypeRequest);
-            imageValidator.isFileSupported(multipartFile);
+            if (multipartFile != null) imageValidator.isFileSupported(multipartFile);
 
             TrainingTypeDocument trainingTypeDocument =
                     trainingTypeService.createTrainingType(trainingTypeRequest, multipartFile);
@@ -73,8 +74,8 @@ public class TrainingTypeController {
 
             String message = translator.toLocale("training.type.created");
             response.setMessage(message);
-            String imageBase64 = getUpdatedImageAsBase64String(trainingTypeDocument);
-            response.setImageBase64Encoded(imageBase64);
+            ImageDTO imageDTO = getUpdatedImageDTO(trainingTypeDocument);
+            response.setImageDTO(imageDTO);
 
             return ResponseEntity
                     .status(HttpStatus.CREATED)
@@ -106,11 +107,15 @@ public class TrainingTypeController {
         }
     }
 
-    private String getUpdatedImageAsBase64String(TrainingTypeDocument trainingTypeDocument) {
+    private ImageDTO getUpdatedImageDTO(TrainingTypeDocument trainingTypeDocument) {
         ImageDocument imageDocument = trainingTypeDocument.getImageDocument();
         if (imageDocument == null) return null;
         byte[] updatedMultipartFile = imageDocument.getImageData().getData();
-        return Base64.getEncoder().encodeToString(updatedMultipartFile);
+
+        String data = Base64.getEncoder().encodeToString(updatedMultipartFile);
+        String format = imageDocument.getContentType();
+
+        return new ImageDTO(data, format);
     }
 
     @GetMapping("/{trainingTypeId}")
@@ -185,7 +190,7 @@ public class TrainingTypeController {
         TrainingTypeResponse response = new TrainingTypeResponse();
         try {
             multipartFileValidator.validateBody(trainingTypeRequest);
-            imageValidator.isFileSupported(multipartFile);
+            if (multipartFile != null) imageValidator.isFileSupported(multipartFile);
 
             TrainingTypeDocument trainingTypeDocument = trainingTypeService
                     .updateTrainingTypeById(trainingTypeId, trainingTypeRequest, multipartFile);
@@ -193,8 +198,8 @@ public class TrainingTypeController {
             response = modelMapper.map(trainingTypeDocument, TrainingTypeResponse.class);
             String message = translator.toLocale("training.type.updated");
             response.setMessage(message);
-            String imageBase64Encoded = getUpdatedImageAsBase64String(trainingTypeDocument);
-            response.setImageBase64Encoded(imageBase64Encoded);
+            ImageDTO imageDTO = getUpdatedImageDTO(trainingTypeDocument);
+            response.setImageDTO(imageDTO);
 
             return ResponseEntity
                     .status(HttpStatus.OK)

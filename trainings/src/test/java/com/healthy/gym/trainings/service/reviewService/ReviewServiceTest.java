@@ -1,16 +1,15 @@
 package com.healthy.gym.trainings.service.reviewService;
 
-import com.healthy.gym.trainings.configuration.EmailConfig;
 import com.healthy.gym.trainings.data.repository.ReviewDAO;
+import com.healthy.gym.trainings.data.repository.TrainingTypeDAO;
 import com.healthy.gym.trainings.exception.InvalidUserIdException;
 import com.healthy.gym.trainings.exception.StartDateAfterEndDateException;
+import com.healthy.gym.trainings.exception.TrainingTypeNotFoundException;
 import com.healthy.gym.trainings.model.response.GroupTrainingReviewResponse;
 import com.healthy.gym.trainings.service.ReviewService;
 import com.healthy.gym.trainings.service.ReviewServiceImpl;
-import com.healthy.gym.trainings.service.email.EmailService;
 import org.junit.Test;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,12 +39,19 @@ public class ReviewServiceTest {
         @Bean
         @Primary
         public ReviewService reviewService() {
-            return new ReviewServiceImpl(reviewDAO());
+            return new ReviewServiceImpl(reviewDAO(), trainingTypeDAO());
         }
 
         @Bean
+        @Primary
         public ReviewDAO reviewDAO() {
             return Mockito.mock(ReviewDAO.class);
+        }
+
+        @Bean
+        @Primary
+        public TrainingTypeDAO trainingTypeDAO() {
+            return Mockito.mock(TrainingTypeDAO.class);
         }
 
     }
@@ -56,6 +62,9 @@ public class ReviewServiceTest {
     @MockBean
     private ReviewDAO reviewRepository;
 
+    @MockBean
+    private TrainingTypeDAO trainingTypeRepository;
+
 
     @BeforeEach
     void setUp() {
@@ -63,7 +72,7 @@ public class ReviewServiceTest {
     }
 
     @Test
-    public void shouldReturnAllReviews_whenValidReques() throws ParseException, StartDateAfterEndDateException {
+    public void shouldReturnAllReviews_whenValidRequest() throws ParseException, StartDateAfterEndDateException {
         //before
         String startDate = "2021-01-01";
         String endDate = "2021-02-01";
@@ -95,7 +104,6 @@ public class ReviewServiceTest {
         when(reviewRepository.findByDateBetween(startDateMinusOneDay,
                 endDatePlusOneDay, pageable))
                 .thenReturn(reviewsInPages);
-
         //then
         assertThat(reviewService.getAllReviews(startDate, endDate, pageable))
                 .isEqualTo(reviewRepository.findByDateBetween(startDateMinusOneDay,
@@ -108,19 +116,17 @@ public class ReviewServiceTest {
         when(reviewRepository.findByDateBetween(startDateMinusOneDay,
                 defaultEndDatePlusOneDay, pageable))
                 .thenReturn(reviewsInPages);
-
         //then
         assertThat(reviewService.getAllReviews(startDate, null, pageable))
                 .isEqualTo(reviewRepository.findByDateBetween(startDateMinusOneDay,
                         defaultEndDatePlusOneDay, pageable));
 
-        //populated start date only
+        //populated end date only
         //when
         String defaultStartDateMinusOneDay = "1899-12-31";
         when(reviewRepository.findByDateBetween(defaultStartDateMinusOneDay,
                 endDatePlusOneDay, pageable))
                 .thenReturn(reviewsInPages);
-
         //then
         assertThat(reviewService.getAllReviews(null, endDate, pageable))
                 .isEqualTo(reviewRepository.findByDateBetween(defaultStartDateMinusOneDay,
@@ -135,6 +141,36 @@ public class ReviewServiceTest {
         assertThat(reviewService.getAllReviews(null, null, pageable))
                 .isEqualTo(reviewRepository.findByDateBetween(defaultStartDateMinusOneDay,
                         defaultEndDatePlusOneDay, pageable));
+    }
+
+    @Test(expected = StartDateAfterEndDateException.class)
+    public void shouldNotReturnAllReviewsWhenStartDateAfterEndDate() throws ParseException, StartDateAfterEndDateException {
+        //before
+        String startDate = "2021-01-02";
+        String endDate = "2021-01-01";
+        int page = 0;
+        int size = 15;
+        Pageable pageable = PageRequest.of(page, size);
+        List<GroupTrainingReviewResponse> reviews = new ArrayList<>();
+        String reviewId = "852ed953-e37f-435a-bd1e-9fb2a327c4d5";
+        String trainingName = "TestTrainingName";
+        String clientId = "Client123";
+        String date = "2021-01-01";
+        int stars = 5;
+        String text = "Very good training!";
+        GroupTrainingReviewResponse review = new GroupTrainingReviewResponse(
+                reviewId,
+                trainingName,
+                clientId,
+                date,
+                stars,
+                text);
+        reviews.add(review);
+
+        Page<GroupTrainingReviewResponse> reviewsInPages = new PageImpl<>(reviews);
+
+        //then
+        assertThat(reviewService.getAllReviews(startDate, endDate, pageable));
     }
 
 
@@ -178,28 +214,38 @@ public class ReviewServiceTest {
                 .isEqualTo(reviewRepository.findByDateBetweenAndClientId(startDateMinusOneDay,
                         endDatePlusOneDay, validClientId, pageable));
 
-        //populated start date only
+        //populated end date only
         //when
-        String defaultStartDateMinusOneDayFormatted = "1899-12-31";
-        when(reviewRepository.findByDateBetweenAndClientId(defaultStartDateMinusOneDayFormatted,
+        String defaultStartDateMinusOneDay = "1899-12-31";
+        when(reviewRepository.findByDateBetweenAndClientId(defaultStartDateMinusOneDay,
                 endDatePlusOneDay, validClientId, pageable))
                 .thenReturn(reviewsInPages);
 
         //then
         assertThat(reviewService.getAllReviewsByUserId(null, endDate, validClientId, pageable))
-                .isEqualTo(reviewRepository.findByDateBetweenAndClientId(defaultStartDateMinusOneDayFormatted,
+                .isEqualTo(reviewRepository.findByDateBetweenAndClientId(defaultStartDateMinusOneDay,
                         endDatePlusOneDay, validClientId, pageable));
+
+        //populated start date only
+        //when
+        String defaultEndDatePlusOneDay = "2100-01-01";
+        when(reviewRepository.findByDateBetweenAndClientId(startDateMinusOneDay,
+                defaultEndDatePlusOneDay, validClientId, pageable))
+                .thenReturn(reviewsInPages);
+        //then
+        assertThat(reviewService.getAllReviewsByUserId(startDate, null, validClientId, pageable))
+                .isEqualTo(reviewRepository.findByDateBetweenAndClientId(startDateMinusOneDay,
+                        defaultEndDatePlusOneDay, validClientId, pageable));
 
         //not populated start and end date
         //when
-        String defaultEndDatePlusOneDayFormatted = "2100-01-01";
-        when(reviewRepository.findByDateBetweenAndClientId(defaultStartDateMinusOneDayFormatted,
-                defaultEndDatePlusOneDayFormatted, validClientId, pageable))
+        when(reviewRepository.findByDateBetweenAndClientId(defaultStartDateMinusOneDay,
+                defaultEndDatePlusOneDay, validClientId, pageable))
                 .thenReturn(reviewsInPages);
         //then
         assertThat(reviewService.getAllReviewsByUserId(null, null, validClientId, pageable))
-                .isEqualTo(reviewRepository.findByDateBetweenAndClientId(defaultStartDateMinusOneDayFormatted,
-                        defaultEndDatePlusOneDayFormatted, validClientId, pageable));
+                .isEqualTo(reviewRepository.findByDateBetweenAndClientId(defaultStartDateMinusOneDay,
+                        defaultEndDatePlusOneDay, validClientId, pageable));
 
 
     }
@@ -239,6 +285,77 @@ public class ReviewServiceTest {
 
         //then
         reviewService.getAllReviewsByUserId(null, null, null, pageable);
+    }
 
+    @Test
+    public void shouldReturnAllReviewsByTrainingTypeId_whenValidRequest() throws ParseException, TrainingTypeNotFoundException, StartDateAfterEndDateException {
+        //before
+        List<GroupTrainingReviewResponse> reviews = new ArrayList<>();
+        String reviewId = "852ed953-e37f-435a-bd1e-9fb2a327c4d5";
+        String trainingName = "TestTrainingName";
+        String validClientId = "Client123";
+        String date = "2021-01-01";
+        int stars = 5;
+        String text = "Very good training!";
+        GroupTrainingReviewResponse review = new GroupTrainingReviewResponse(
+                reviewId,
+                trainingName,
+                validClientId,
+                date,
+                stars,
+                text);
+        reviews.add(review);
+
+        Page<GroupTrainingReviewResponse> reviewsInPages = new PageImpl<>(reviews);
+
+        String startDate = "2021-01-01";
+        String endDate = "2021-02-01";
+        int page = 0;
+        int size = 15;
+        Pageable pageable = PageRequest.of(page, size);
+
+        //populated both start and end date
+        //when
+        String startDateMinusOneDay = "2020-12-31";
+        String endDatePlusOneDay = "2021-02-02";
+        when(reviewRepository.findByDateBetweenAndTrainingName(startDateMinusOneDay,
+                endDatePlusOneDay, trainingName, pageable))
+                .thenReturn(reviewsInPages);
+        //then
+        assertThat(reviewService.getAllReviewsByTrainingTypeId(startDate, endDate, trainingName, pageable))
+                .isEqualTo(reviewRepository.findByDateBetweenAndTrainingName(startDateMinusOneDay,
+                        endDatePlusOneDay, trainingName, pageable));
+
+        //populated end date only
+        //when
+        String defaultStartDateMinusOneDay = "1899-12-31";
+        when(reviewRepository.findByDateBetweenAndTrainingName(defaultStartDateMinusOneDay,
+                endDatePlusOneDay, trainingName, pageable))
+                .thenReturn(reviewsInPages);
+        //then
+        assertThat(reviewService.getAllReviewsByTrainingTypeId(null, endDate, trainingName, pageable))
+                .isEqualTo(reviewRepository.findByDateBetweenAndTrainingName(defaultStartDateMinusOneDay,
+                        endDatePlusOneDay, trainingName, pageable));
+
+        //populated start date only
+        //when
+        String defaultEndDatePlusOneDay = "2100-01-01";
+        when(reviewRepository.findByDateBetweenAndTrainingName(startDateMinusOneDay,
+                defaultEndDatePlusOneDay, trainingName, pageable))
+                .thenReturn(reviewsInPages);
+        //then
+        assertThat(reviewService.getAllReviewsByTrainingTypeId(startDate, null, trainingName, pageable))
+                .isEqualTo(reviewRepository.findByDateBetweenAndTrainingName(startDateMinusOneDay,
+                        defaultEndDatePlusOneDay, trainingName, pageable));
+
+        //not populated start and end date
+        //when
+        when(reviewRepository.findByDateBetweenAndTrainingName(defaultStartDateMinusOneDay,
+                defaultEndDatePlusOneDay, trainingName, pageable))
+                .thenReturn(reviewsInPages);
+        //then
+        assertThat(reviewService.getAllReviewsByTrainingTypeId(null, null, trainingName, pageable))
+                .isEqualTo(reviewRepository.findByDateBetweenAndTrainingName(defaultStartDateMinusOneDay,
+                        defaultEndDatePlusOneDay, trainingName, pageable));
     }
 }

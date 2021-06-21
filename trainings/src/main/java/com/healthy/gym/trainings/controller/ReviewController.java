@@ -112,8 +112,8 @@ public class ReviewController {
     // TODO only logged in users
     @GetMapping("/trainingType/{trainingTypeId}/page/{page}")
     public ResponseEntity<Map<String, Object>> getAllReviewsByTrainingTypeId(
-            @RequestParam(required = false) final String startDate,
-            @RequestParam(required = false) final String endDate,
+            @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") final String startDate,
+            @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") final String endDate,
             @RequestParam(defaultValue = "10") final int size,
             @PathVariable final String trainingTypeId,
             @PathVariable final int page) throws RestException {
@@ -126,7 +126,7 @@ public class ReviewController {
             Map<String, Object> response = reviewPaginationResponse(pageReviews);
 
             return new ResponseEntity<>(response, HttpStatus.OK);
-        } catch (ParseException | StartDateAfterEndDateException e){
+        } catch (ParseException | StartDateAfterEndDateException | TrainingTypeNotFoundException e){
             throw new RestException(e.getMessage(), HttpStatus.BAD_REQUEST, e);
         }
     }

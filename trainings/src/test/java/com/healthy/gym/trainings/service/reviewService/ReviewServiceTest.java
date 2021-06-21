@@ -47,6 +47,7 @@ public class ReviewServiceTest {
     @Autowired
     private ReviewService reviewService;
 
+    @Autowired
     @MockBean
     private ReviewDAO reviewRepository;
 

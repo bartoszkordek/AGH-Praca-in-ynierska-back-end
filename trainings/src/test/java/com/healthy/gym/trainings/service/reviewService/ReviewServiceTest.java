@@ -39,18 +39,18 @@ public class ReviewServiceTest {
         @Bean
         @Primary
         public ReviewService reviewService() {
-            return new ReviewServiceImpl(reviewDAO(), trainingTypeDAO());
+            return new ReviewServiceImpl(reviewRepository(), trainingTypeRepository());
         }
 
         @Bean
         @Primary
-        public ReviewDAO reviewDAO() {
+        public ReviewDAO reviewRepository() {
             return Mockito.mock(ReviewDAO.class);
         }
 
         @Bean
         @Primary
-        public TrainingTypeDAO trainingTypeDAO() {
+        public TrainingTypeDAO trainingTypeRepository() {
             return Mockito.mock(TrainingTypeDAO.class);
         }
 

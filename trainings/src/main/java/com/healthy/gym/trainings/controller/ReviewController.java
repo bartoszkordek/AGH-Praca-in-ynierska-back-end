@@ -27,13 +27,10 @@ import java.util.Map;
 @RequestMapping("/review")
 public class ReviewController {
 
-    private final GroupTrainingService groupTrainingsService;
     private final ReviewService reviewService;
 
     @Autowired
-    public ReviewController(GroupTrainingService groupTrainingsService,
-                            ReviewService reviewService) {
-        this.groupTrainingsService = groupTrainingsService;
+    public ReviewController(ReviewService reviewService) {
         this.reviewService = reviewService;
     }
 
@@ -137,45 +134,5 @@ public class ReviewController {
         return null;
     }
 
-    @GetMapping("/{reviewId}")
-    public GroupTrainingsReviews getGroupTrainingReviewById(
-            @PathVariable("reviewId") final String reviewId
-    ) throws RestException {
-        try {
-            return groupTrainingsService.getGroupTrainingReviewById(reviewId);
-        } catch (NotExistingGroupTrainingReviewException e) {
-            throw new RestException(e.getMessage(), HttpStatus.BAD_REQUEST, e);
-        }
-    }
 
-    //TODO only user own review
-    @PutMapping("/{reviewId}")
-    public GroupTrainingsReviews updateGroupTrainingReview(
-            @Valid @RequestBody final GroupTrainingReviewUpdateRequest groupTrainingsReviewsUpdateModel,
-            @PathVariable("reviewId") final String reviewId,
-            @RequestParam final String clientId
-    ) throws RestException {
-        try {
-            return groupTrainingsService.updateGroupTrainingReview(groupTrainingsReviewsUpdateModel, reviewId, clientId);
-        } catch (NotExistingGroupTrainingReviewException | StarsOutOfRangeException e) {
-            throw new RestException(e.getMessage(), HttpStatus.BAD_REQUEST, e);
-        } catch (NotAuthorizedClientException e) {
-            throw new RestException(e.getMessage(), HttpStatus.FORBIDDEN, e);
-        }
-    }
-
-    //TODO only admin and user own review
-    @DeleteMapping("/{reviewId}")
-    public GroupTrainingsReviews removeGroupTrainingReview(
-            @PathVariable("reviewId") final String reviewId,
-            @RequestParam final String clientId
-    ) throws RestException {
-        try {
-            return groupTrainingsService.removeGroupTrainingReview(reviewId, clientId);
-        } catch (NotExistingGroupTrainingReviewException e) {
-            throw new RestException(e.getMessage(), HttpStatus.BAD_REQUEST, e);
-        } catch (NotAuthorizedClientException e) {
-            throw new RestException(e.getMessage(), HttpStatus.FORBIDDEN, e);
-        }
-    }
 }

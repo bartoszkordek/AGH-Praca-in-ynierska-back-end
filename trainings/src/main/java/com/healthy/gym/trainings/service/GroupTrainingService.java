@@ -44,22 +44,4 @@ public interface GroupTrainingService {
     GroupTrainings updateGroupTraining(String trainingId, GroupTrainingRequest groupTrainingModelRequest)
             throws TrainingUpdateException, EmailSendingException, InvalidHourException, ParseException;
 
-    List<GroupTrainingsReviews> getGroupTrainingReviews();
-
-    GroupTrainingsReviews getGroupTrainingReviewById(String reviewId)
-            throws NotExistingGroupTrainingReviewException;
-
-    GroupTrainingsReviews createGroupTrainingReview(
-            GroupTrainingReviewRequest groupTrainingsReviewsModel,
-            String clientId
-    ) throws StarsOutOfRangeException;
-
-    GroupTrainingsReviews removeGroupTrainingReview(String reviewId, String clientId)
-            throws NotAuthorizedClientException, NotExistingGroupTrainingReviewException;
-
-    GroupTrainingsReviews updateGroupTrainingReview(
-            GroupTrainingReviewUpdateRequest groupTrainingsReviewsUpdateModel,
-            String reviewId,
-            String clientId
-    ) throws NotAuthorizedClientException, StarsOutOfRangeException, NotExistingGroupTrainingReviewException;
 }

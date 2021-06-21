@@ -2,14 +2,10 @@ package com.healthy.gym.trainings.service;
 
 import com.healthy.gym.trainings.configuration.EmailConfig;
 import com.healthy.gym.trainings.data.document.GroupTrainings;
-import com.healthy.gym.trainings.data.document.GroupTrainingsReviews;
-import com.healthy.gym.trainings.data.repository.GroupTrainingReviewsDbRepository;
 import com.healthy.gym.trainings.data.repository.GroupTrainingsDbRepository;
 import com.healthy.gym.trainings.exception.*;
 import com.healthy.gym.trainings.model.other.EmailSendModel;
 import com.healthy.gym.trainings.model.request.GroupTrainingRequest;
-import com.healthy.gym.trainings.model.request.GroupTrainingReviewRequest;
-import com.healthy.gym.trainings.model.request.GroupTrainingReviewUpdateRequest;
 import com.healthy.gym.trainings.model.response.GroupTrainingPublicResponse;
 import com.healthy.gym.trainings.service.email.EmailService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,17 +23,14 @@ public class GroupTrainingServiceImpl implements GroupTrainingService {
 
     private final EmailConfig emailConfig;
     private final GroupTrainingsDbRepository groupTrainingsDbRepository;
-    private final GroupTrainingReviewsDbRepository groupTrainingReviewsDbRepository;
 
     @Autowired
     public GroupTrainingServiceImpl(
             EmailConfig emailConfig,
-            GroupTrainingsDbRepository groupTrainingsDbRepository,
-            GroupTrainingReviewsDbRepository groupTrainingReviewsDbRepository
+            GroupTrainingsDbRepository groupTrainingsDbRepository
     ) {
         this.emailConfig = emailConfig;
         this.groupTrainingsDbRepository = groupTrainingsDbRepository;
-        this.groupTrainingReviewsDbRepository = groupTrainingReviewsDbRepository;
     }
 
     private void sendEmailWithoutAttachment(List<String> recipients, String subject, String body) {
@@ -261,54 +254,6 @@ public class GroupTrainingServiceImpl implements GroupTrainingService {
         }
 
         return result;
-    }
-
-    public List<GroupTrainingsReviews> getGroupTrainingReviews() {
-        return groupTrainingReviewsDbRepository.getGroupTrainingReviews();
-    }
-
-    public GroupTrainingsReviews getGroupTrainingReviewById(String reviewId)
-            throws NotExistingGroupTrainingReviewException {
-
-        if (!groupTrainingReviewsDbRepository.isGroupTrainingsReviewExist(reviewId)) {
-            throw new NotExistingGroupTrainingReviewException("Review with ID: " + reviewId + " doesn't exist");
-        }
-        return groupTrainingReviewsDbRepository.getGroupTrainingsReviewById(reviewId);
-    }
-
-    public GroupTrainingsReviews createGroupTrainingReview(GroupTrainingReviewRequest groupTrainingsReviewsModel,
-                                                           String clientId)  {
-        return null;
-    }
-
-    public GroupTrainingsReviews removeGroupTrainingReview(String reviewId, String clientId)
-            throws NotAuthorizedClientException, NotExistingGroupTrainingReviewException {
-
-        if (!groupTrainingReviewsDbRepository.isGroupTrainingsReviewExist(reviewId)) {
-            throw new NotExistingGroupTrainingReviewException("Review with ID: " + reviewId + " doesn't exist");
-        }
-        if (!groupTrainingReviewsDbRepository.isClientReviewOwner(reviewId, clientId)) {
-            throw new NotAuthorizedClientException("Client is not authorized to remove this review");
-        }
-        return groupTrainingReviewsDbRepository.removeGroupTrainingsReview(reviewId);
-    }
-
-    public GroupTrainingsReviews updateGroupTrainingReview(
-            GroupTrainingReviewUpdateRequest groupTrainingsReviewsUpdateModel,
-            String reviewId,
-            String clientId
-    ) throws NotAuthorizedClientException, StarsOutOfRangeException, NotExistingGroupTrainingReviewException {
-
-        if (!groupTrainingReviewsDbRepository.isGroupTrainingsReviewExist(reviewId)) {
-            throw new NotExistingGroupTrainingReviewException("Review with ID: " + reviewId + " doesn't exist");
-        }
-        if (!groupTrainingReviewsDbRepository.isClientReviewOwner(reviewId, clientId)) {
-            throw new NotAuthorizedClientException("Client is not authorized to remove this review");
-        }
-        if (groupTrainingsReviewsUpdateModel.getStars() < 1 || groupTrainingsReviewsUpdateModel.getStars() > 5) {
-            throw new StarsOutOfRangeException("Stars must be in range: 1-5");
-        }
-        return groupTrainingReviewsDbRepository.updateGroupTrainingsReview(groupTrainingsReviewsUpdateModel, reviewId);
     }
 
 }

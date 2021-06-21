@@ -107,7 +107,7 @@ public class ReviewController {
             Map<String, Object> response = reviewPaginationResponse(pageReviews);
 
             return new ResponseEntity<>(response, HttpStatus.OK);
-        } catch (ParseException | StartDateAfterEndDateException e){
+        } catch (ParseException | StartDateAfterEndDateException | InvalidUserIdException e){
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage(), e);
         }
     }
@@ -119,7 +119,7 @@ public class ReviewController {
             @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") final String endDate,
             @RequestParam(defaultValue = "10") final int size,
             @PathVariable final String trainingTypeId,
-            @PathVariable final int page) throws RestException {
+            @PathVariable final int page) {
 
         Pageable paging = PageRequest.of(page, size);
 
@@ -129,7 +129,7 @@ public class ReviewController {
             Map<String, Object> response = reviewPaginationResponse(pageReviews);
 
             return new ResponseEntity<>(response, HttpStatus.OK);
-        } catch (ParseException | StartDateAfterEndDateException e){
+        } catch (ParseException | StartDateAfterEndDateException | TrainingTypeNotFoundException e){
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage(), e);
         }
     }

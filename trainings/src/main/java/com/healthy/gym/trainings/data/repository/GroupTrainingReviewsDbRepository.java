@@ -16,7 +16,11 @@ public class GroupTrainingReviewsDbRepository {
     private Environment environment;
 
     @Autowired
-    private ReviewDAO reviewDAO;
+    private final ReviewDAO reviewDAO;
+
+    public GroupTrainingReviewsDbRepository(ReviewDAO reviewDAO){
+        this.reviewDAO = reviewDAO;
+    }
 
     public List<GroupTrainingsReviews> getGroupTrainingReviews(){
         return reviewDAO.findAll();

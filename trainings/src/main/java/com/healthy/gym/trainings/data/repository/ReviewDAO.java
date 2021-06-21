@@ -28,8 +28,6 @@ public interface ReviewDAO extends MongoRepository<GroupTrainingsReviews, String
 
     Page<GroupTrainingReviewResponse> findByDateBetween(String startDate, String endDate, Pageable pageable);
     Page<GroupTrainingReviewResponse> findByDateBetweenAndClientId(String startDate, String endDate, String clientId, Pageable pageable);
-    Page<GroupTrainingReviewResponse> getAllReviewsByUserId(String startDate, String endDate, String userId, Pageable pageable) throws ParseException, StartDateAfterEndDateException, InvalidUserIdException;
-    Page<GroupTrainingReviewResponse> getAllReviewsByTrainingTypeId(String startDate, String endDate, String trainingTypeId, Pageable pageable) throws ParseException, StartDateAfterEndDateException, TrainingTypeNotFoundException;
 
     //TBC if TrainingName == Training Type ID
     Page<GroupTrainingReviewResponse> findByDateBetweenAndTrainingName(String startDate, String endDate, String trainingTypeId, Pageable pageable);

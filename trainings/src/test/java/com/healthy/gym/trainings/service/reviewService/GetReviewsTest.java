@@ -109,6 +109,89 @@ public class GetReviewsTest {
                         defaultEndDatePlusOneDay, pageable));
     }
 
+    @Test
+    public void shouldReturnAllReviewsInTimeFrame_whenValidRequest() throws ParseException, StartDateAfterEndDateException {
+        //mocks
+        ReviewDAO reviewRepository = Mockito.mock(ReviewDAO.class);
+        TrainingTypeDAO trainingTypeRepository = Mockito.mock(TrainingTypeDAO.class);
+        ReviewService reviewService = new ReviewServiceImpl(reviewRepository, trainingTypeRepository);
+
+        //before
+        int page = 0;
+        int size = 15;
+        Pageable pageable = PageRequest.of(page, size);
+        List<GroupTrainingReviewResponse> reviewsAll = new ArrayList<>();
+        List<GroupTrainingReviewResponse> reviewsBeforeJuly2021 = new ArrayList<>();
+        List<GroupTrainingReviewResponse> reviewsAfterJuly2021 = new ArrayList<>();
+
+        String reviewIdRev1 = "852ed953-e37f-435a-bd1e-9fb2a327c4d5";
+        String trainingNameRev1 = "TestTrainingName1";
+        String clientIdRev1 = "Client123";
+        String dateRev1 = "2021-01-01";
+        int starsRev1 = 5;
+        String textRev1 = "Very good training!";
+        GroupTrainingReviewResponse review1 = new GroupTrainingReviewResponse(
+                reviewIdRev1,
+                trainingNameRev1,
+                clientIdRev1,
+                dateRev1,
+                starsRev1,
+                textRev1);
+        reviewsAll.add(review1);
+        reviewsBeforeJuly2021.add(review1);
+
+        String reviewIdRev2 = "852ed953-e37f-435a-bd1e-9fb2a327c4d6";
+        String trainingNameRev2 = "TestTrainingName2";
+        String clientIdRev2 = "Client123";
+        String dateRev2 = "2021-08-01";
+        int starsRev2 = 4;
+        String textRev2 = "Good training!";
+        GroupTrainingReviewResponse review2 = new GroupTrainingReviewResponse(
+                reviewIdRev2,
+                trainingNameRev2,
+                clientIdRev2,
+                dateRev2,
+                starsRev2,
+                textRev2);
+        reviewsAll.add(review2);
+        reviewsAfterJuly2021.add(review2);
+
+        Page<GroupTrainingReviewResponse> reviewsBeforeJuly2021InPages = new PageImpl<>(reviewsBeforeJuly2021);
+        Page<GroupTrainingReviewResponse> reviewsAfterJuly2021InPages = new PageImpl<>(reviewsAfterJuly2021);
+
+        //populated both start and end date before July 2021 (between 2021-01-01 and 2021-07-01)
+        String beforeJuly2021PeriodStartDate = "2021-01-01";
+        String beforeJuly2021PeriodEndDate = "2021-07-31";
+
+        //when
+        String beforeJuly2021PeriodStartDateMinusOneDay = "2020-12-31";
+        String beforeJuly2021PeriodEndDatePlusOneDay = "2021-08-01";
+        when(reviewRepository.findByDateBetween(beforeJuly2021PeriodStartDateMinusOneDay,
+                beforeJuly2021PeriodEndDatePlusOneDay, pageable))
+                .thenReturn(reviewsBeforeJuly2021InPages);
+        //then
+        assertThat(reviewService.getAllReviews(beforeJuly2021PeriodStartDate, beforeJuly2021PeriodEndDate, pageable))
+                .isEqualTo(reviewRepository.findByDateBetween(beforeJuly2021PeriodStartDateMinusOneDay,
+                        beforeJuly2021PeriodEndDatePlusOneDay, pageable));
+
+
+        //populated both start and end date after July 2021 (between 2021-08-01 and 2021-31-01)
+        String afterJuly2021PeriodStartDate = "2021-08-01";
+        String afterJuly2021PeriodEndDate = "2021-12-31";
+
+        //when
+        String afterJuly2021PeriodStartDateMinusOneDay = "2021-07-31";
+        String afterJuly2021PeriodEndDatePlusOneDay = "2022-01-01";
+        when(reviewRepository.findByDateBetween(afterJuly2021PeriodStartDateMinusOneDay,
+                afterJuly2021PeriodEndDatePlusOneDay, pageable))
+                .thenReturn(reviewsBeforeJuly2021InPages);
+
+        //then
+        assertThat(reviewService.getAllReviews(afterJuly2021PeriodStartDate, afterJuly2021PeriodEndDate, pageable))
+                .isEqualTo(reviewRepository.findByDateBetween(afterJuly2021PeriodStartDateMinusOneDay,
+                        afterJuly2021PeriodEndDatePlusOneDay, pageable));
+    }
+
     @Test(expected = StartDateAfterEndDateException.class)
     public void shouldNotReturnAllReviews_whenStartDateAfterEndDate() throws ParseException, StartDateAfterEndDateException {
         //mocks

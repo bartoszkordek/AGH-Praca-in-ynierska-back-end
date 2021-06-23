@@ -3,6 +3,7 @@ package com.healthy.gym.trainings.model.response;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import javax.validation.constraints.NotNull;
+import java.util.Objects;
 
 public class GroupTrainingReviewResponse {
 
@@ -37,6 +38,37 @@ public class GroupTrainingReviewResponse {
         this.date = date;
         this.stars = stars;
         this.text = text;
+    }
+
+    @Override
+    public String toString() {
+        return "GroupTrainingReviewResponse{" +
+                "reviewId='" + reviewId + '\'' +
+                ", trainingName='" + trainingName + '\'' +
+                ", clientId='" + clientId + '\'' +
+                ", date='" + date + '\'' +
+                ", stars=" + stars +
+                ", text='" + text + '\'' +
+                '}';
+    }
+
+    //for testing purposes reviewId as UUID excluded from checking
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        GroupTrainingReviewResponse that = (GroupTrainingReviewResponse) o;
+        return stars == that.stars &&
+//                Objects.equals(reviewId, that.reviewId) &&
+                Objects.equals(trainingName, that.trainingName) &&
+                Objects.equals(clientId, that.clientId) &&
+                Objects.equals(date, that.date) &&
+                Objects.equals(text, that.text);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(reviewId, trainingName, clientId, date, stars, text);
     }
 
     public String getReviewId() {

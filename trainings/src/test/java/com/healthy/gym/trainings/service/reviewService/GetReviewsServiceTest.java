@@ -27,7 +27,7 @@ import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 import static org.mockito.Mockito.when;
 
 @RunWith(SpringRunner.class)
-public class GetReviewsTest {
+public class GetReviewsServiceTest {
 
     @Autowired
     ApplicationContext applicationContext;

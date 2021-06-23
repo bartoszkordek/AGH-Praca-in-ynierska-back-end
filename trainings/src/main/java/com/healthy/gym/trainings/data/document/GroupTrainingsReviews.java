@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.util.Objects;
+
 @Document(collection = "GroupTrainingsReviews")
 public class GroupTrainingsReviews {
 
@@ -48,6 +50,26 @@ public class GroupTrainingsReviews {
                 ", stars=" + stars +
                 ", text='" + text + '\'' +
                 '}';
+    }
+
+    //for testing purposes reviewId as UUID excluded from checking
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        GroupTrainingsReviews that = (GroupTrainingsReviews) o;
+        return stars == that.stars &&
+                Objects.equals(id, that.id) &&
+//                Objects.equals(reviewId, that.reviewId) &&
+                Objects.equals(trainingName, that.trainingName) &&
+                Objects.equals(clientId, that.clientId) &&
+                Objects.equals(date, that.date) &&
+                Objects.equals(text, that.text);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, reviewId, trainingName, clientId, date, stars, text);
     }
 
     public String getId() {

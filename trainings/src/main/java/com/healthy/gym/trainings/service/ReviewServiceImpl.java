@@ -54,8 +54,8 @@ public class ReviewServiceImpl implements ReviewService{
         GroupTrainingReviewResponse response = new GroupTrainingReviewResponse(
                     dbResponse.getReviewId(),
                     dbResponse.getTrainingName(),
-                    dbResponse.getDate(),
                     dbResponse.getClientId(),
+                    dbResponse.getDate(),
                     dbResponse.getStars(),
                     dbResponse.getText());
 
@@ -108,8 +108,6 @@ public class ReviewServiceImpl implements ReviewService{
 
         String startDateMinusOneDayFormatted = sdfDate.format(startDateMinusOneDay);
         String endDatePlusOneDayFormatted = sdfDate.format(endDatePlusOneDay);
-        System.out.println(startDateMinusOneDayFormatted);
-        System.out.println(endDatePlusOneDayFormatted);
         return reviewRepository.findByDateBetweenAndClientId(startDateMinusOneDayFormatted,
                 endDatePlusOneDayFormatted, userId, pageable);
     }

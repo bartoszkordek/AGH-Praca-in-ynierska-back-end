@@ -5,6 +5,7 @@ import com.healthy.gym.trainings.data.document.GroupTrainingsReviews;
 import com.healthy.gym.trainings.exception.*;
 import com.healthy.gym.trainings.model.request.GroupTrainingReviewRequest;
 import com.healthy.gym.trainings.model.request.GroupTrainingReviewUpdateRequest;
+import com.healthy.gym.trainings.model.response.GroupTrainingReviewPublicResponse;
 import com.healthy.gym.trainings.model.response.GroupTrainingReviewResponse;
 import com.healthy.gym.trainings.service.GroupTrainingService;
 import com.healthy.gym.trainings.service.ReviewService;
@@ -43,6 +44,19 @@ public class ReviewController {
     private Map<String, Object> reviewPaginationResponse(Page<GroupTrainingReviewResponse> pageReviews){
 
         List<GroupTrainingReviewResponse> reviews = pageReviews.getContent();
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("tutorials", reviews);
+        response.put("currentPage", pageReviews.getNumber());
+        response.put("totalItems", pageReviews.getTotalElements());
+        response.put("totalPages", pageReviews.getTotalPages());
+
+        return response;
+    }
+
+    private Map<String, Object> reviewPaginationPublicResponse(Page<GroupTrainingReviewPublicResponse> pageReviews){
+
+        List<GroupTrainingReviewPublicResponse> reviews = pageReviews.getContent();
 
         Map<String, Object> response = new HashMap<>();
         response.put("tutorials", reviews);
@@ -135,9 +149,25 @@ public class ReviewController {
     }
 
     //TODO without usernames and avatars
-    @GetMapping("/trainingType/{trainingTypeId}/public")
-    public String getAllReviewsByTrainingTypeIdPublic(@PathVariable final String trainingTypeId) {
-        return null;
+    @GetMapping("/trainingType/{trainingTypeId}/public/page/{page}")
+    public ResponseEntity<Map<String, Object>> getAllReviewsByTrainingTypeIdPublic(
+            @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") final String startDate,
+            @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") final String endDate,
+            @RequestParam(defaultValue = "10") final int size,
+            @PathVariable final String trainingTypeId,
+            @PathVariable final int page) {
+
+        Pageable paging = PageRequest.of(page, size);
+
+        try{ Page<GroupTrainingReviewPublicResponse> pageReviews = reviewService.getAllReviewsByTrainingTypeIdPublic(startDate,
+                endDate, trainingTypeId, paging);
+
+            Map<String, Object> response = reviewPaginationPublicResponse(pageReviews);
+            return new ResponseEntity<>(response, HttpStatus.OK);
+
+        } catch (ParseException | StartDateAfterEndDateException | TrainingTypeNotFoundException e){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage(), e);
+        }
     }
 
     @GetMapping("/{reviewId}")

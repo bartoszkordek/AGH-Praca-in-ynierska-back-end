@@ -2,6 +2,7 @@ package com.healthy.gym.trainings.data.repository;
 
 
 import com.healthy.gym.trainings.data.document.GroupTrainingsReviews;
+import com.healthy.gym.trainings.model.response.GroupTrainingReviewPublicResponse;
 import com.healthy.gym.trainings.model.response.GroupTrainingReviewResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -27,4 +28,5 @@ public interface ReviewDAO extends MongoRepository<GroupTrainingsReviews, String
 
     //TBC if TrainingName == Training Type ID
     Page<GroupTrainingReviewResponse> findByDateBetweenAndTrainingName(String startDate, String endDate, String trainingTypeId, Pageable pageable);
+    Page<GroupTrainingReviewPublicResponse> getAllByDateBetweenAndTrainingName(String startDate, String endDate, String trainingTypeId, Pageable pageable);
 }

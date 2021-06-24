@@ -5,6 +5,7 @@ import com.healthy.gym.trainings.data.repository.TrainingTypeDAO;
 import com.healthy.gym.trainings.exception.InvalidUserIdException;
 import com.healthy.gym.trainings.exception.StartDateAfterEndDateException;
 import com.healthy.gym.trainings.exception.TrainingTypeNotFoundException;
+import com.healthy.gym.trainings.model.response.GroupTrainingReviewPublicResponse;
 import com.healthy.gym.trainings.model.response.GroupTrainingReviewResponse;
 import com.healthy.gym.trainings.service.ReviewService;
 import com.healthy.gym.trainings.service.ReviewServiceImpl;
@@ -429,6 +430,8 @@ public class GetReviewsServiceTest {
         //when
         String startDateMinusOneDay = "2020-12-31";
         String endDatePlusOneDay = "2021-02-02";
+
+        when(trainingTypeRepository.existsByTrainingTypeId(trainingName)).thenReturn(true);
         when(reviewRepository.findByDateBetweenAndTrainingName(startDateMinusOneDay,
                 endDatePlusOneDay, trainingName, pageable))
                 .thenReturn(reviewsInPages);
@@ -504,8 +507,9 @@ public class GetReviewsServiceTest {
         String defaultEndDatePlusOneDay = "2100-01-01";
 
         //when
+        when(reviewRepository.existsById(trainingName)).thenReturn(true);
         when(reviewRepository.findByDateBetweenAndTrainingName(defaultStartDateMinusOneDay,
-                defaultEndDatePlusOneDay, validClientId, pageable))
+                defaultEndDatePlusOneDay, trainingName, pageable))
                 .thenReturn(reviewsInPages);
 
         String startDate = "2021-31-12";
@@ -515,7 +519,7 @@ public class GetReviewsServiceTest {
         reviewService.getAllReviewsByTrainingTypeId(startDate, endDate, trainingName, pageable);
     }
 
-    @Test
+    @Test(expected = TrainingTypeNotFoundException.class)
     public void shouldNotReturnAllReviewsByTrainingTypeId_whenEmptyTrainingName() throws ParseException, TrainingTypeNotFoundException, StartDateAfterEndDateException {
         //mocks
         ReviewDAO reviewRepository = Mockito.mock(ReviewDAO.class);
@@ -550,7 +554,7 @@ public class GetReviewsServiceTest {
 
         //when
         when(reviewRepository.findByDateBetweenAndTrainingName(defaultStartDateMinusOneDay, defaultEndDatePlusOneDay,
-                validClientId, pageable))
+                trainingName, pageable))
                 .thenReturn(reviewsInPages);
 
         //then
@@ -558,5 +562,169 @@ public class GetReviewsServiceTest {
                 null, pageable);
 
     }
+
+
+    @Test
+    public void shouldReturnAllPublicReviewsByTrainingTypeId_whenValidRequest() throws ParseException, TrainingTypeNotFoundException, StartDateAfterEndDateException {
+        //mocks
+        ReviewDAO reviewRepository = Mockito.mock(ReviewDAO.class);
+        TrainingTypeDAO trainingTypeRepository = Mockito.mock(TrainingTypeDAO.class);
+        ReviewService reviewService = new ReviewServiceImpl(reviewRepository, trainingTypeRepository);
+
+        //before
+        List<GroupTrainingReviewPublicResponse> reviews = new ArrayList<>();
+        String reviewId = "852ed953-e37f-435a-bd1e-9fb2a327c4d5";
+        String trainingName = "TestTrainingName";
+        String date = "2021-01-01";
+        int stars = 5;
+        String text = "Very good training!";
+        GroupTrainingReviewPublicResponse review = new GroupTrainingReviewPublicResponse(
+                reviewId,
+                trainingName,
+                date,
+                stars,
+                text);
+        reviews.add(review);
+
+        Page<GroupTrainingReviewPublicResponse> reviewsInPages = new PageImpl<>(reviews);
+
+        String startDate = "2021-01-01";
+        String endDate = "2021-02-01";
+        int page = 0;
+        int size = 15;
+        Pageable pageable = PageRequest.of(page, size);
+
+        //populated both start and end date
+        //when
+        String startDateMinusOneDay = "2020-12-31";
+        String endDatePlusOneDay = "2021-02-02";
+        when(trainingTypeRepository.existsByTrainingTypeId(trainingName)).thenReturn(true);
+        when(reviewRepository.getAllByDateBetweenAndTrainingName(startDateMinusOneDay,
+                endDatePlusOneDay, trainingName, pageable))
+                .thenReturn(reviewsInPages);
+        //then
+        assertThat(reviewService.getAllReviewsByTrainingTypeIdPublic(startDate, endDate, trainingName, pageable))
+                .isEqualTo(reviewRepository.getAllByDateBetweenAndTrainingName(startDateMinusOneDay,
+                        endDatePlusOneDay, trainingName, pageable));
+
+        //populated end date only
+        //when
+        String defaultStartDateMinusOneDay = "1899-12-31";
+        when(reviewRepository.getAllByDateBetweenAndTrainingName(defaultStartDateMinusOneDay,
+                endDatePlusOneDay, trainingName, pageable))
+                .thenReturn(reviewsInPages);
+        //then
+        assertThat(reviewService.getAllReviewsByTrainingTypeIdPublic(null, endDate, trainingName, pageable))
+                .isEqualTo(reviewRepository.getAllByDateBetweenAndTrainingName(defaultStartDateMinusOneDay,
+                        endDatePlusOneDay, trainingName, pageable));
+
+        //populated start date only
+        //when
+        String defaultEndDatePlusOneDay = "2100-01-01";
+        when(reviewRepository.getAllByDateBetweenAndTrainingName(startDateMinusOneDay,
+                defaultEndDatePlusOneDay, trainingName, pageable))
+                .thenReturn(reviewsInPages);
+        //then
+        assertThat(reviewService.getAllReviewsByTrainingTypeIdPublic(startDate, null, trainingName, pageable))
+                .isEqualTo(reviewRepository.getAllByDateBetweenAndTrainingName(startDateMinusOneDay,
+                        defaultEndDatePlusOneDay, trainingName, pageable));
+
+        //not populated start and end date
+        //when
+        when(reviewRepository.getAllByDateBetweenAndTrainingName(defaultStartDateMinusOneDay,
+                defaultEndDatePlusOneDay, trainingName, pageable))
+                .thenReturn(reviewsInPages);
+        //then
+        assertThat(reviewService.getAllReviewsByTrainingTypeIdPublic(null, null, trainingName, pageable))
+                .isEqualTo(reviewRepository.getAllByDateBetweenAndTrainingName(defaultStartDateMinusOneDay,
+                        defaultEndDatePlusOneDay, trainingName, pageable));
+    }
+
+    @Test(expected = TrainingTypeNotFoundException.class)
+    public void shouldNotReturnAllPublicReviewsByTrainingTypeId_whenEmptyTrainingName() throws ParseException, TrainingTypeNotFoundException, StartDateAfterEndDateException {
+        //mocks
+        ReviewDAO reviewRepository = Mockito.mock(ReviewDAO.class);
+        TrainingTypeDAO trainingTypeRepository = Mockito.mock(TrainingTypeDAO.class);
+        ReviewService reviewService = new ReviewServiceImpl(reviewRepository, trainingTypeRepository);
+
+        //before
+        List<GroupTrainingReviewPublicResponse> reviews = new ArrayList<>();
+        String reviewId = "852ed953-e37f-435a-bd1e-9fb2a327c4d5";
+        String trainingName = "TestTrainingName";
+        String date = "2021-01-01";
+        int stars = 5;
+        String text = "Very good training!";
+        GroupTrainingReviewPublicResponse review = new GroupTrainingReviewPublicResponse(
+                reviewId,
+                trainingName,
+                date,
+                stars,
+                text);
+        reviews.add(review);
+
+        Page<GroupTrainingReviewPublicResponse> reviewsInPages = new PageImpl<>(reviews);
+
+        String startDate = "2021-01-01";
+        String endDate = "2021-02-01";
+        int page = 0;
+        int size = 15;
+        Pageable pageable = PageRequest.of(page, size);
+
+        //populated both start and end date
+        //when
+        String startDateMinusOneDay = "2020-12-31";
+        String endDatePlusOneDay = "2021-02-02";
+        when(reviewRepository.getAllByDateBetweenAndTrainingName(startDateMinusOneDay,
+                endDatePlusOneDay, trainingName, pageable))
+                .thenReturn(reviewsInPages);
+
+        //then
+        reviewService.getAllReviewsByTrainingTypeIdPublic(startDate, endDate, trainingName, pageable);
+    }
+
+    @Test(expected = StartDateAfterEndDateException.class)
+    public void shouldNotReturnAllPublicReviewsByTrainingTypeId_whenStartDateAfterEndDate() throws ParseException, TrainingTypeNotFoundException, StartDateAfterEndDateException {
+        //mocks
+        ReviewDAO reviewRepository = Mockito.mock(ReviewDAO.class);
+        TrainingTypeDAO trainingTypeRepository = Mockito.mock(TrainingTypeDAO.class);
+        ReviewService reviewService = new ReviewServiceImpl(reviewRepository, trainingTypeRepository);
+
+        //before
+        List<GroupTrainingReviewPublicResponse> reviews = new ArrayList<>();
+        String reviewId = "852ed953-e37f-435a-bd1e-9fb2a327c4d5";
+        String trainingName = "TestTrainingName";
+        String date = "2021-01-01";
+        int stars = 5;
+        String text = "Very good training!";
+        GroupTrainingReviewPublicResponse review = new GroupTrainingReviewPublicResponse(
+                reviewId,
+                trainingName,
+                date,
+                stars,
+                text);
+        reviews.add(review);
+
+        Page<GroupTrainingReviewPublicResponse> reviewsInPages = new PageImpl<>(reviews);
+
+        int page = 0;
+        int size = 15;
+        Pageable pageable = PageRequest.of(page, size);
+
+        String defaultStartDateMinusOneDay = "1899-12-31";
+        String defaultEndDatePlusOneDay = "2100-01-01";
+
+        //when
+        when(reviewRepository.existsById(trainingName)).thenReturn(true);
+        when(reviewRepository.getAllByDateBetweenAndTrainingName(defaultStartDateMinusOneDay,
+                defaultEndDatePlusOneDay, trainingName, pageable))
+                .thenReturn(reviewsInPages);
+
+        String startDate = "2021-31-12";
+        String endDate = "2021-01-01";
+
+        //then
+        reviewService.getAllReviewsByTrainingTypeId(startDate, endDate, trainingName, pageable);
+    }
+
 
 }

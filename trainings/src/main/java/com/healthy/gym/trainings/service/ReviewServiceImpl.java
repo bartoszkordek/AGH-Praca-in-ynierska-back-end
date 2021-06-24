@@ -8,6 +8,7 @@ import com.healthy.gym.trainings.exception.StarsOutOfRangeException;
 import com.healthy.gym.trainings.exception.StartDateAfterEndDateException;
 import com.healthy.gym.trainings.exception.TrainingTypeNotFoundException;
 import com.healthy.gym.trainings.model.request.GroupTrainingReviewRequest;
+import com.healthy.gym.trainings.model.response.GroupTrainingReviewPublicResponse;
 import com.healthy.gym.trainings.model.response.GroupTrainingReviewResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -127,7 +128,7 @@ public class ReviewServiceImpl implements ReviewService{
         if(startDateParsed.after(endDateParsed)){
             throw new StartDateAfterEndDateException("Start date after end date");
         }
-        if(trainingTypeRepository.existsByTrainingTypeId(trainingTypeId)){
+        if(!trainingTypeRepository.existsByTrainingTypeId(trainingTypeId)){
             throw new TrainingTypeNotFoundException("Training type does not exist");
         }
 
@@ -135,6 +136,32 @@ public class ReviewServiceImpl implements ReviewService{
         String endDatePlusOneDayFormatted = sdfDate.format(endDatePlusOneDay);
 
         return reviewRepository.findByDateBetweenAndTrainingName(startDateMinusOneDayFormatted,
+                endDatePlusOneDayFormatted, trainingTypeId, pageable);
+    }
+
+    @Override
+    public Page<GroupTrainingReviewPublicResponse> getAllReviewsByTrainingTypeIdPublic(String startDate, String endDate, String trainingTypeId, Pageable pageable) throws ParseException, StartDateAfterEndDateException, TrainingTypeNotFoundException {
+        if(startDate == null)
+            startDate = defaultStartDate;
+
+        if(endDate == null)
+            endDate = defaultEndDate;
+
+        Date startDateParsed = sdfDate.parse(startDate);
+        Date startDateMinusOneDay = new Date(startDateParsed.getTime() - (1000 * 60 * 60 * 24));
+        Date endDateParsed = sdfDate.parse(endDate);
+        Date endDatePlusOneDay = new Date(endDateParsed.getTime() + (1000 * 60 * 60 * 24));
+        if(startDateParsed.after(endDateParsed)){
+            throw new StartDateAfterEndDateException("Start date after end date");
+        }
+        if(!trainingTypeRepository.existsByTrainingTypeId(trainingTypeId)){
+            throw new TrainingTypeNotFoundException("Training type does not exist");
+        }
+
+        String startDateMinusOneDayFormatted = sdfDate.format(startDateMinusOneDay);
+        String endDatePlusOneDayFormatted = sdfDate.format(endDatePlusOneDay);
+
+        return reviewRepository.getAllByDateBetweenAndTrainingName(startDateMinusOneDayFormatted,
                 endDatePlusOneDayFormatted, trainingTypeId, pageable);
     }
 

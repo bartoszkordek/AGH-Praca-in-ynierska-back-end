@@ -3,6 +3,7 @@ package com.healthy.gym.trainings.service.reviewService;
 import com.healthy.gym.trainings.data.repository.ReviewDAO;
 import com.healthy.gym.trainings.data.repository.TrainingTypeDAO;
 import com.healthy.gym.trainings.exception.InvalidUserIdException;
+import com.healthy.gym.trainings.exception.NotExistingGroupTrainingReviewException;
 import com.healthy.gym.trainings.exception.StartDateAfterEndDateException;
 import com.healthy.gym.trainings.exception.TrainingTypeNotFoundException;
 import com.healthy.gym.trainings.model.response.GroupTrainingReviewPublicResponse;
@@ -724,6 +725,75 @@ public class GetReviewsServiceTest {
 
         //then
         reviewService.getAllReviewsByTrainingTypeId(startDate, endDate, trainingName, pageable);
+    }
+
+    @Test
+    public void shouldReturnReview_whenValidReviewId() throws NotExistingGroupTrainingReviewException {
+        //mocks
+        ReviewDAO reviewRepository = Mockito.mock(ReviewDAO.class);
+        TrainingTypeDAO trainingTypeRepository = Mockito.mock(TrainingTypeDAO.class);
+        ReviewService reviewService = new ReviewServiceImpl(reviewRepository, trainingTypeRepository);
+
+        //before
+        List<GroupTrainingReviewResponse> reviews = new ArrayList<>();
+        String reviewId = "852ed953-e37f-435a-bd1e-9fb2a327c4d5";
+        String trainingName = "TestTrainingName";
+        String validClientId = "Client123";
+        String date = "2021-01-01";
+        int stars = 5;
+        String text = "Very good training!";
+        GroupTrainingReviewResponse review = new GroupTrainingReviewResponse(
+                reviewId,
+                trainingName,
+                validClientId,
+                date,
+                stars,
+                text);
+        reviews.add(review);
+
+        //when
+        when(reviewRepository.existsByReviewId(reviewId))
+                .thenReturn(true);
+        when(reviewRepository.getFirstByReviewId(reviewId))
+                .thenReturn(reviews.get(0));
+
+        //then
+        assertThat(reviewService.getReviewByReviewId(reviewId))
+            .isEqualTo(reviews.get(0));
+    }
+
+    @Test(expected = NotExistingGroupTrainingReviewException.class)
+    public void shouldNotReturnReview_whenInvalidReviewId() throws NotExistingGroupTrainingReviewException {
+        //mocks
+        ReviewDAO reviewRepository = Mockito.mock(ReviewDAO.class);
+        TrainingTypeDAO trainingTypeRepository = Mockito.mock(TrainingTypeDAO.class);
+        ReviewService reviewService = new ReviewServiceImpl(reviewRepository, trainingTypeRepository);
+
+        //before
+        List<GroupTrainingReviewResponse> reviews = new ArrayList<>();
+        String reviewId = "852ed953-e37f-435a-bd1e-9fb2a327c4d7";
+        String trainingName = "TestTrainingName";
+        String validClientId = "Client123";
+        String date = "2021-01-01";
+        int stars = 5;
+        String text = "Very good training!";
+        GroupTrainingReviewResponse review = new GroupTrainingReviewResponse(
+                reviewId,
+                trainingName,
+                validClientId,
+                date,
+                stars,
+                text);
+        reviews.add(review);
+
+        //when
+        when(reviewRepository.existsByReviewId(reviewId))
+                .thenReturn(false);
+        when(reviewRepository.getFirstByReviewId(reviewId))
+                .thenReturn(reviews.get(0));
+
+        //then
+        reviewService.getReviewByReviewId(reviewId);
     }
 
 

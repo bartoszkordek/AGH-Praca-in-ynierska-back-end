@@ -3,10 +3,7 @@ package com.healthy.gym.trainings.service;
 import com.healthy.gym.trainings.data.document.GroupTrainingsReviews;
 import com.healthy.gym.trainings.data.repository.ReviewDAO;
 import com.healthy.gym.trainings.data.repository.TrainingTypeDAO;
-import com.healthy.gym.trainings.exception.InvalidUserIdException;
-import com.healthy.gym.trainings.exception.StarsOutOfRangeException;
-import com.healthy.gym.trainings.exception.StartDateAfterEndDateException;
-import com.healthy.gym.trainings.exception.TrainingTypeNotFoundException;
+import com.healthy.gym.trainings.exception.*;
 import com.healthy.gym.trainings.model.request.GroupTrainingReviewRequest;
 import com.healthy.gym.trainings.model.response.GroupTrainingReviewPublicResponse;
 import com.healthy.gym.trainings.model.response.GroupTrainingReviewResponse;
@@ -61,6 +58,14 @@ public class ReviewServiceImpl implements ReviewService{
                     dbResponse.getText());
 
         return response;
+    }
+
+    @Override
+    public GroupTrainingReviewResponse getReviewByReviewId(String reviewId) throws NotExistingGroupTrainingReviewException {
+        if(!reviewRepository.existsByReviewId(reviewId)){
+            throw new NotExistingGroupTrainingReviewException("Training does not exist");
+        }
+        return reviewRepository.getFirstByReviewId(reviewId);
     }
 
     @Override

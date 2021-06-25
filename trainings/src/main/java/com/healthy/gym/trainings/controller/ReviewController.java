@@ -171,11 +171,11 @@ public class ReviewController {
     }
 
     @GetMapping("/{reviewId}")
-    public GroupTrainingsReviews getGroupTrainingReviewById(
+    public GroupTrainingReviewResponse getGroupTrainingReviewById(
             @PathVariable("reviewId") final String reviewId
     ) {
         try {
-            return groupTrainingsService.getGroupTrainingReviewById(reviewId);
+            return reviewService.getReviewByReviewId(reviewId);
         } catch (NotExistingGroupTrainingReviewException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage(), e);
         }

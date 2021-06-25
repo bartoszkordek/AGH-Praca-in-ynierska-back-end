@@ -48,7 +48,8 @@
         <java.version>11</java.version>
         <spring-cloud.version>Hoxton.SR10</spring-cloud.version>
         <docker-hub-repo>gza73/agh-praca-inzynierska</docker-hub-repo>
-        <spring-boot.build-image.imageName>${docker-hub-repo}-${project.artifactId}:latest</spring-boot.build-image.imageName>
+        <spring-boot.build-image.imageName>${docker-hub-repo}-${project.artifactId}:latest
+        </spring-boot.build-image.imageName>
     </properties>
 
     <dependencies>
@@ -59,6 +60,10 @@
         <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-mongodb</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>

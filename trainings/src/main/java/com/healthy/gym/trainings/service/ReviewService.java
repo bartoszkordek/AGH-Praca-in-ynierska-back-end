@@ -2,6 +2,7 @@ package com.healthy.gym.trainings.service;
 
 import com.healthy.gym.trainings.exception.*;
 import com.healthy.gym.trainings.model.request.GroupTrainingReviewRequest;
+import com.healthy.gym.trainings.model.request.GroupTrainingReviewUpdateRequest;
 import com.healthy.gym.trainings.model.response.GroupTrainingReviewPublicResponse;
 import com.healthy.gym.trainings.model.response.GroupTrainingReviewResponse;
 import org.springframework.data.domain.Page;
@@ -21,5 +22,5 @@ public interface ReviewService {
     Page<GroupTrainingReviewResponse> getAllReviewsByTrainingTypeId(String startDate, String endDate, String trainingTypeId, Pageable pageable) throws ParseException, StartDateAfterEndDateException, TrainingTypeNotFoundException;
     Page<GroupTrainingReviewPublicResponse> getAllReviewsByTrainingTypeIdPublic(String startDate, String endDate, String trainingTypeId, Pageable pageable) throws ParseException, StartDateAfterEndDateException, TrainingTypeNotFoundException;
 
-    GroupTrainingReviewResponse updateGroupTrainingReviewByReviewId(String reviewId) throws NotExistingGroupTrainingReviewException;
+    GroupTrainingReviewResponse updateGroupTrainingReviewByReviewId(GroupTrainingReviewUpdateRequest groupTrainingReviewUpdateRequestModel, String reviewId, String clientId) throws NotExistingGroupTrainingReviewException, NotAuthorizedClientException, StarsOutOfRangeException;
 }

@@ -5,6 +5,7 @@ import com.healthy.gym.trainings.data.repository.ReviewDAO;
 import com.healthy.gym.trainings.data.repository.TrainingTypeDAO;
 import com.healthy.gym.trainings.exception.*;
 import com.healthy.gym.trainings.model.request.GroupTrainingReviewRequest;
+import com.healthy.gym.trainings.model.request.GroupTrainingReviewUpdateRequest;
 import com.healthy.gym.trainings.model.response.GroupTrainingReviewPublicResponse;
 import com.healthy.gym.trainings.model.response.GroupTrainingReviewResponse;
 import org.springframework.data.domain.Page;
@@ -171,12 +172,33 @@ public class ReviewServiceImpl implements ReviewService{
     }
 
     @Override
-    public GroupTrainingReviewResponse updateGroupTrainingReviewByReviewId(String reviewId) throws NotExistingGroupTrainingReviewException {
+    public GroupTrainingReviewResponse updateGroupTrainingReviewByReviewId(
+            GroupTrainingReviewUpdateRequest groupTrainingReviewUpdateRequestModel,
+            String reviewId, String clientId)
+            throws NotExistingGroupTrainingReviewException, NotAuthorizedClientException, StarsOutOfRangeException {
+        int starsAfterUpdate = groupTrainingReviewUpdateRequestModel.getStars();
+        String textAfterUpdate = groupTrainingReviewUpdateRequestModel.getText();
+
         if(!reviewRepository.existsByReviewId(reviewId)){
             throw new NotExistingGroupTrainingReviewException("Training does not exist");
         }
-        
-        return null;
+        if(!reviewRepository.existsByIdAndAndClientId(reviewId, clientId)) {
+            throw new NotAuthorizedClientException("Client is not authorized to remove this review");
+        }
+        GroupTrainingsReviews existingGroupTrainingsReview = reviewRepository.findGroupTrainingsReviewsById(reviewId);
+        if (starsAfterUpdate  < 1 || starsAfterUpdate  > 5) {
+            throw new StarsOutOfRangeException("Stars must be in range: 1-5");
+        }
+        if(!textAfterUpdate.isEmpty()){
+            existingGroupTrainingsReview.setText(groupTrainingReviewUpdateRequestModel.getText());
+        }
+        GroupTrainingsReviews responseFromDb = reviewRepository.save(existingGroupTrainingsReview);
+
+        GroupTrainingReviewResponse response = new GroupTrainingReviewResponse(responseFromDb.getReviewId(),
+                responseFromDb.getTrainingName(), responseFromDb.getClientId(), responseFromDb.getDate(),
+                responseFromDb.getStars(), responseFromDb.getText());
+
+        return response;
     }
 
 

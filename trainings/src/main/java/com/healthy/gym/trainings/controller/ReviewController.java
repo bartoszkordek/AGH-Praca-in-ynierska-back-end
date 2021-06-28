@@ -183,13 +183,13 @@ public class ReviewController {
 
     //TODO only user own review
     @PutMapping("/{reviewId}")
-    public GroupTrainingsReviews updateGroupTrainingReview(
-            @Valid @RequestBody final GroupTrainingReviewUpdateRequest groupTrainingsReviewsUpdateModel,
+    public GroupTrainingReviewResponse updateGroupTrainingReview(
+            @Valid @RequestBody final GroupTrainingReviewUpdateRequest groupTrainingReviewUpdateRequestModel,
             @PathVariable("reviewId") final String reviewId,
             @RequestParam final String clientId
     ) {
         try {
-            return groupTrainingsService.updateGroupTrainingReview(groupTrainingsReviewsUpdateModel, reviewId, clientId);
+            return reviewService.updateGroupTrainingReviewByReviewId(groupTrainingReviewUpdateRequestModel, reviewId, clientId);//groupTrainingsService.updateGroupTrainingReview(groupTrainingReviewUpdateRequestModel, reviewId, clientId);
         } catch (NotExistingGroupTrainingReviewException | StarsOutOfRangeException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage(), e);
         } catch (NotAuthorizedClientException e) {

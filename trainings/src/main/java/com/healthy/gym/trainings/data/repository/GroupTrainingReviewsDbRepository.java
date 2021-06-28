@@ -31,7 +31,7 @@ public class GroupTrainingReviewsDbRepository {
     }
 
     public boolean isClientReviewOwner(String reviewId, String clientId){
-        return reviewDAO.existsByIdAndAndClientId(reviewId, clientId);
+        return reviewDAO.existsByReviewIdAndAndClientId(reviewId, clientId);
     }
 
 //    public GroupTrainingsReviews createGroupTrainingReview(GroupTrainingReviewRequest groupTrainingsReviewsModel,

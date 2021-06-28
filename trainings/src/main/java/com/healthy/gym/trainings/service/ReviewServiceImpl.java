@@ -182,7 +182,7 @@ public class ReviewServiceImpl implements ReviewService{
         if(!reviewRepository.existsByReviewId(reviewId)){
             throw new NotExistingGroupTrainingReviewException("Training does not exist");
         }
-        if(!reviewRepository.existsByIdAndAndClientId(reviewId, clientId)) {
+        if(!reviewRepository.existsByReviewIdAndAndClientId(reviewId, clientId)) {
             throw new NotAuthorizedClientException("Client is not authorized to remove this review");
         }
         GroupTrainingsReviews existingGroupTrainingsReview = reviewRepository.findGroupTrainingsReviewsById(reviewId);

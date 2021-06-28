@@ -16,7 +16,7 @@ public interface ReviewDAO extends MongoRepository<GroupTrainingsReviews, String
 
     public boolean existsById(String id);
     public boolean existsByReviewId(String reviewId);
-    public boolean existsByIdAndAndClientId(String reviewId, String clientId);
+    public boolean existsByReviewIdAndAndClientId(String reviewId, String clientId);
 
     public GroupTrainingReviewResponse getFirstByReviewId(String reviewId);
     public GroupTrainingsReviews getFirstBy(String id);

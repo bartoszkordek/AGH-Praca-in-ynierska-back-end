@@ -185,7 +185,7 @@ public class ReviewServiceImpl implements ReviewService{
         if(!reviewRepository.existsByReviewIdAndAndClientId(reviewId, clientId)) {
             throw new NotAuthorizedClientException("Client is not authorized to remove this review");
         }
-        GroupTrainingsReviews existingGroupTrainingsReview = reviewRepository.findGroupTrainingsReviewsById(reviewId);
+        GroupTrainingsReviews existingGroupTrainingsReview = reviewRepository.findGroupTrainingsReviewsByReviewId(reviewId);
         if (starsAfterUpdate  < 1 || starsAfterUpdate  > 5) {
             throw new StarsOutOfRangeException("Stars must be in range: 1-5");
         }
@@ -197,6 +197,26 @@ public class ReviewServiceImpl implements ReviewService{
         GroupTrainingReviewResponse response = new GroupTrainingReviewResponse(responseFromDb.getReviewId(),
                 responseFromDb.getTrainingName(), responseFromDb.getClientId(), responseFromDb.getDate(),
                 responseFromDb.getStars(), responseFromDb.getText());
+
+        return response;
+    }
+
+    @Override
+    public GroupTrainingReviewResponse removeGroupTrainingReviewByReviewId(String reviewId, String clientId) throws NotExistingGroupTrainingReviewException, NotAuthorizedClientException {
+
+        if(!reviewRepository.existsByReviewId(reviewId)){
+            throw new NotExistingGroupTrainingReviewException("Training does not exist");
+        }
+        if(!reviewRepository.existsByReviewIdAndAndClientId(reviewId, clientId)) {
+            throw new NotAuthorizedClientException("Client is not authorized to remove this review");
+        }
+
+        GroupTrainingsReviews reviewToRemove = reviewRepository.findGroupTrainingsReviewsByReviewId(reviewId);
+        reviewRepository.removeById(reviewId);
+
+        GroupTrainingReviewResponse response = new GroupTrainingReviewResponse(reviewToRemove.getReviewId(),
+                reviewToRemove.getTrainingName(), reviewToRemove.getClientId(), reviewToRemove.getDate(),
+                reviewToRemove.getStars(), reviewToRemove.getText());
 
         return response;
     }

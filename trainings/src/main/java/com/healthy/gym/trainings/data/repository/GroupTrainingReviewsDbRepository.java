@@ -23,7 +23,7 @@ public class GroupTrainingReviewsDbRepository {
     }
 
     public GroupTrainingsReviews getGroupTrainingsReviewById(String reviewId){
-        return reviewDAO.findGroupTrainingsReviewsById(reviewId);
+        return reviewDAO.findGroupTrainingsReviewsByReviewId(reviewId);
     }
 
     public boolean isGroupTrainingsReviewExist(String reviewId){
@@ -49,14 +49,14 @@ public class GroupTrainingReviewsDbRepository {
 //    }
 
     public GroupTrainingsReviews removeGroupTrainingsReview(String reviewId){
-        GroupTrainingsReviews groupTrainingsReviews = reviewDAO.findGroupTrainingsReviewsById(reviewId);
+        GroupTrainingsReviews groupTrainingsReviews = reviewDAO.findGroupTrainingsReviewsByReviewId(reviewId);
         reviewDAO.removeById(reviewId);
         return groupTrainingsReviews;
     }
 
     public GroupTrainingsReviews updateGroupTrainingsReview(GroupTrainingReviewUpdateRequest groupTrainingsReviewsUpdateModel,
                                                             String reviewId){
-        GroupTrainingsReviews groupTrainingsReview = reviewDAO.findGroupTrainingsReviewsById(reviewId);
+        GroupTrainingsReviews groupTrainingsReview = reviewDAO.findGroupTrainingsReviewsByReviewId(reviewId);
         int stars = groupTrainingsReviewsUpdateModel.getStars();
         String text = groupTrainingsReviewsUpdateModel.getText();
         if(stars >= 1 && stars <=5){

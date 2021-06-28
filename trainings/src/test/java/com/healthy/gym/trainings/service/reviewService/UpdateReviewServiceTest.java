@@ -55,7 +55,7 @@ public class UpdateReviewServiceTest {
 
 
         //when
-        when(reviewRepository.findGroupTrainingsReviewsById(reviewId))
+        when(reviewRepository.findGroupTrainingsReviewsByReviewId(reviewId))
                 .thenReturn(existingGroupTrainingsReview);
         when(reviewRepository.save(existingGroupTrainingsReview))
                 .thenReturn(updatedGroupTrainingsReview);
@@ -98,7 +98,7 @@ public class UpdateReviewServiceTest {
                 clientId, date, starsAfterUpdate, textBeforeUpdate);
 
         //when
-        when(reviewRepository.findGroupTrainingsReviewsById(reviewId))
+        when(reviewRepository.findGroupTrainingsReviewsByReviewId(reviewId))
                 .thenReturn(existingGroupTrainingsReview);
         when(reviewRepository.save(existingGroupTrainingsReview))
                 .thenReturn(updatedGroupTrainingsReview);
@@ -140,7 +140,7 @@ public class UpdateReviewServiceTest {
                 clientId, date, starsAfterUpdate, textAfterUpdate);
 
         //when
-        when(reviewRepository.findGroupTrainingsReviewsById(reviewId))
+        when(reviewRepository.findGroupTrainingsReviewsByReviewId(reviewId))
                 .thenReturn(existingGroupTrainingsReview);
         when(reviewRepository.save(existingGroupTrainingsReview))
                 .thenReturn(updatedGroupTrainingsReview);
@@ -182,7 +182,7 @@ public class UpdateReviewServiceTest {
                 clientId, date, starsAfterUpdate, textAfterUpdate);
 
         //when
-        when(reviewRepository.findGroupTrainingsReviewsById(reviewId))
+        when(reviewRepository.findGroupTrainingsReviewsByReviewId(reviewId))
                 .thenReturn(existingGroupTrainingsReview);
         when(reviewRepository.save(existingGroupTrainingsReview))
                 .thenReturn(updatedGroupTrainingsReview);
@@ -224,7 +224,7 @@ public class UpdateReviewServiceTest {
                 clientId, date, starsAfterUpdate, textAfterUpdate);
 
         //when
-        when(reviewRepository.findGroupTrainingsReviewsById(reviewId))
+        when(reviewRepository.findGroupTrainingsReviewsByReviewId(reviewId))
                 .thenReturn(existingGroupTrainingsReview);
         when(reviewRepository.save(existingGroupTrainingsReview))
                 .thenReturn(updatedGroupTrainingsReview);
@@ -266,7 +266,7 @@ public class UpdateReviewServiceTest {
                 clientId, date, starsAfterUpdate, textAfterUpdate);
 
         //when
-        when(reviewRepository.findGroupTrainingsReviewsById(reviewId))
+        when(reviewRepository.findGroupTrainingsReviewsByReviewId(reviewId))
                 .thenReturn(existingGroupTrainingsReview);
         when(reviewRepository.save(existingGroupTrainingsReview))
                 .thenReturn(updatedGroupTrainingsReview);

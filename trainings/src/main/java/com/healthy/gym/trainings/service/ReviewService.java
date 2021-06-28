@@ -23,4 +23,5 @@ public interface ReviewService {
     Page<GroupTrainingReviewPublicResponse> getAllReviewsByTrainingTypeIdPublic(String startDate, String endDate, String trainingTypeId, Pageable pageable) throws ParseException, StartDateAfterEndDateException, TrainingTypeNotFoundException;
 
     GroupTrainingReviewResponse updateGroupTrainingReviewByReviewId(GroupTrainingReviewUpdateRequest groupTrainingReviewUpdateRequestModel, String reviewId, String clientId) throws NotExistingGroupTrainingReviewException, NotAuthorizedClientException, StarsOutOfRangeException;
+    GroupTrainingReviewResponse removeGroupTrainingReviewByReviewId(String reviewId, String clientId) throws NotExistingGroupTrainingReviewException, NotAuthorizedClientException;
 }

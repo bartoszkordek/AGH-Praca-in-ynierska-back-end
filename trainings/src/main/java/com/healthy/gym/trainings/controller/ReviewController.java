@@ -200,12 +200,12 @@ public class ReviewController {
 
     //TODO only admin and user own review
     @DeleteMapping("/{reviewId}")
-    public GroupTrainingsReviews removeGroupTrainingReview(
+    public GroupTrainingReviewResponse removeGroupTrainingReview(
             @PathVariable("reviewId") final String reviewId,
             @RequestParam final String clientId
     ) {
         try {
-            return groupTrainingsService.removeGroupTrainingReview(reviewId, clientId);
+            return reviewService.removeGroupTrainingReviewByReviewId(reviewId, clientId);
         } catch (NotExistingGroupTrainingReviewException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage(), e);
         } catch (NotAuthorizedClientException e) {

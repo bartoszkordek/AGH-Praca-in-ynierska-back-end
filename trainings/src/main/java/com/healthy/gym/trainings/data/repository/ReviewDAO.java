@@ -20,7 +20,7 @@ public interface ReviewDAO extends MongoRepository<GroupTrainingsReviews, String
 
     public GroupTrainingReviewResponse getFirstByReviewId(String reviewId);
     public GroupTrainingsReviews getFirstBy(String id);
-    public GroupTrainingsReviews findGroupTrainingsReviewsById(String id);
+    public GroupTrainingsReviews findGroupTrainingsReviewsByReviewId(String id);
 
     public void removeById(String id);
 

@@ -30,4 +30,6 @@ public interface ReviewDAO extends MongoRepository<GroupTrainingsReviews, String
     //TBC if TrainingName == Training Type ID
     Page<GroupTrainingReviewResponse> findByDateBetweenAndTrainingName(String startDate, String endDate, String trainingTypeId, Pageable pageable);
     Page<GroupTrainingReviewPublicResponse> getAllByDateBetweenAndTrainingName(String startDate, String endDate, String trainingTypeId, Pageable pageable);
+
+    public void removeByReviewId(String reviewId);
 }

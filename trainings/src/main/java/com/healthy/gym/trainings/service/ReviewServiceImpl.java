@@ -189,6 +189,7 @@ public class ReviewServiceImpl implements ReviewService{
         if (starsAfterUpdate  < 1 || starsAfterUpdate  > 5) {
             throw new StarsOutOfRangeException("Stars must be in range: 1-5");
         }
+        existingGroupTrainingsReview.setStars(groupTrainingReviewUpdateRequestModel.getStars());
         if(!textAfterUpdate.isEmpty()){
             existingGroupTrainingsReview.setText(groupTrainingReviewUpdateRequestModel.getText());
         }
@@ -212,7 +213,7 @@ public class ReviewServiceImpl implements ReviewService{
         }
 
         GroupTrainingsReviews reviewToRemove = reviewRepository.findGroupTrainingsReviewsByReviewId(reviewId);
-        reviewRepository.removeById(reviewId);
+        reviewRepository.removeByReviewId(reviewId);
 
         GroupTrainingReviewResponse response = new GroupTrainingReviewResponse(reviewToRemove.getReviewId(),
                 reviewToRemove.getTrainingName(), reviewToRemove.getClientId(), reviewToRemove.getDate(),

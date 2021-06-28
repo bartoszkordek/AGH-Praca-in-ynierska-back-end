@@ -70,6 +70,48 @@ public class UpdateReviewServiceTest {
                 .isEqualTo(response);
     }
 
+    @Test
+    public void shouldUpdateOnlyStarsReview_whenEmptyText() throws StarsOutOfRangeException, NotAuthorizedClientException, NotExistingGroupTrainingReviewException {
+        //mocks
+        ReviewDAO reviewRepository = Mockito.mock(ReviewDAO.class);
+        TrainingTypeDAO trainingTypeRepository = Mockito.mock(TrainingTypeDAO.class);
+        ReviewService reviewService = new ReviewServiceImpl(reviewRepository, trainingTypeRepository);
+
+        //before
+        String reviewId = "852ed953-e37f-435a-bd1e-9fb2a327c4d5";
+        String clientId = "client123";
+        String trainingName = "TestTrainingName";
+        String date = "2021-01-01";
+        int starsBeforeUpdate = 5;
+        String textBeforeUpdate = "Very good training!";
+        int starsAfterUpdate = 4;
+        String textAfterUpdate = "";
+
+        GroupTrainingReviewUpdateRequest groupTrainingReviewUpdateRequestModel = new GroupTrainingReviewUpdateRequest(
+                starsAfterUpdate, textAfterUpdate);
+
+        GroupTrainingsReviews existingGroupTrainingsReview = new GroupTrainingsReviews(reviewId, trainingName,
+                clientId, date, starsBeforeUpdate, textBeforeUpdate);
+        GroupTrainingsReviews updatedGroupTrainingsReview = new GroupTrainingsReviews(reviewId, trainingName,
+                clientId, date, starsAfterUpdate, textBeforeUpdate);
+        GroupTrainingReviewResponse response = new GroupTrainingReviewResponse(reviewId, trainingName,
+                clientId, date, starsAfterUpdate, textBeforeUpdate);
+
+        //when
+        when(reviewRepository.findGroupTrainingsReviewsById(reviewId))
+                .thenReturn(existingGroupTrainingsReview);
+        when(reviewRepository.save(existingGroupTrainingsReview))
+                .thenReturn(updatedGroupTrainingsReview);
+        when(reviewRepository.existsByReviewId(reviewId))
+                .thenReturn(true);
+        when(reviewRepository.existsByReviewIdAndAndClientId(reviewId, clientId))
+                .thenReturn(true);
+
+        assertThat(reviewService.updateGroupTrainingReviewByReviewId(groupTrainingReviewUpdateRequestModel, reviewId,
+                clientId))
+                .isEqualTo(response);
+    }
+
     @Test(expected = NotExistingGroupTrainingReviewException.class)
     public void shouldNotUpdateReview_whenInvalidReviewId() throws StarsOutOfRangeException, NotAuthorizedClientException, NotExistingGroupTrainingReviewException {
         //mocks
@@ -237,5 +279,4 @@ public class UpdateReviewServiceTest {
         reviewService.updateGroupTrainingReviewByReviewId(groupTrainingReviewUpdateRequestModel, reviewId,
                 clientId);
     }
-
 }

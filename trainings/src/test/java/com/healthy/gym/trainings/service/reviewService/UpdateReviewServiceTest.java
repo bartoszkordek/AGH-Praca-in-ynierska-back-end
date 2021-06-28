@@ -154,4 +154,88 @@ public class UpdateReviewServiceTest {
                 clientId);
     }
 
+    @Test(expected = StarsOutOfRangeException.class)
+    public void shouldNotUpdateReview_whenStarsLessThan1() throws StarsOutOfRangeException, NotAuthorizedClientException, NotExistingGroupTrainingReviewException {
+        //mocks
+        ReviewDAO reviewRepository = Mockito.mock(ReviewDAO.class);
+        TrainingTypeDAO trainingTypeRepository = Mockito.mock(TrainingTypeDAO.class);
+        ReviewService reviewService = new ReviewServiceImpl(reviewRepository, trainingTypeRepository);
+
+        //before
+        String reviewId = "852ed953-e37f-435a-bd1e-9fb2a327c4d5";
+        String clientId = "client123";
+        String trainingName = "TestTrainingName";
+        String date = "2021-01-01";
+        int starsBeforeUpdate = 5;
+        String textBeforeUpdate = "Very good training!";
+        int starsAfterUpdate = 0;
+        String textAfterUpdate = "Zero!";
+
+        GroupTrainingReviewUpdateRequest groupTrainingReviewUpdateRequestModel = new GroupTrainingReviewUpdateRequest(
+                starsAfterUpdate, textAfterUpdate);
+
+        GroupTrainingsReviews existingGroupTrainingsReview = new GroupTrainingsReviews(reviewId, trainingName,
+                clientId, date, starsBeforeUpdate, textBeforeUpdate);
+        GroupTrainingsReviews updatedGroupTrainingsReview = new GroupTrainingsReviews(reviewId, trainingName,
+                clientId, date, starsAfterUpdate, textAfterUpdate);
+        GroupTrainingReviewResponse response = new GroupTrainingReviewResponse(reviewId, trainingName,
+                clientId, date, starsAfterUpdate, textAfterUpdate);
+
+        //when
+        when(reviewRepository.findGroupTrainingsReviewsById(reviewId))
+                .thenReturn(existingGroupTrainingsReview);
+        when(reviewRepository.save(existingGroupTrainingsReview))
+                .thenReturn(updatedGroupTrainingsReview);
+        when(reviewRepository.existsByReviewId(reviewId))
+                .thenReturn(true);
+        when(reviewRepository.existsByReviewIdAndAndClientId(reviewId, clientId))
+                .thenReturn(true);
+
+        //then
+        reviewService.updateGroupTrainingReviewByReviewId(groupTrainingReviewUpdateRequestModel, reviewId,
+                clientId);
+    }
+
+    @Test(expected = StarsOutOfRangeException.class)
+    public void shouldNotUpdateReview_whenStarsGreaterThan5() throws StarsOutOfRangeException, NotAuthorizedClientException, NotExistingGroupTrainingReviewException {
+        //mocks
+        ReviewDAO reviewRepository = Mockito.mock(ReviewDAO.class);
+        TrainingTypeDAO trainingTypeRepository = Mockito.mock(TrainingTypeDAO.class);
+        ReviewService reviewService = new ReviewServiceImpl(reviewRepository, trainingTypeRepository);
+
+        //before
+        String reviewId = "852ed953-e37f-435a-bd1e-9fb2a327c4d5";
+        String clientId = "client123";
+        String trainingName = "TestTrainingName";
+        String date = "2021-01-01";
+        int starsBeforeUpdate = 5;
+        String textBeforeUpdate = "Very good training!";
+        int starsAfterUpdate = 6;
+        String textAfterUpdate = "Ultra good training!";
+
+        GroupTrainingReviewUpdateRequest groupTrainingReviewUpdateRequestModel = new GroupTrainingReviewUpdateRequest(
+                starsAfterUpdate, textAfterUpdate);
+
+        GroupTrainingsReviews existingGroupTrainingsReview = new GroupTrainingsReviews(reviewId, trainingName,
+                clientId, date, starsBeforeUpdate, textBeforeUpdate);
+        GroupTrainingsReviews updatedGroupTrainingsReview = new GroupTrainingsReviews(reviewId, trainingName,
+                clientId, date, starsAfterUpdate, textAfterUpdate);
+        GroupTrainingReviewResponse response = new GroupTrainingReviewResponse(reviewId, trainingName,
+                clientId, date, starsAfterUpdate, textAfterUpdate);
+
+        //when
+        when(reviewRepository.findGroupTrainingsReviewsById(reviewId))
+                .thenReturn(existingGroupTrainingsReview);
+        when(reviewRepository.save(existingGroupTrainingsReview))
+                .thenReturn(updatedGroupTrainingsReview);
+        when(reviewRepository.existsByReviewId(reviewId))
+                .thenReturn(true);
+        when(reviewRepository.existsByReviewIdAndAndClientId(reviewId, clientId))
+                .thenReturn(true);
+
+        //then
+        reviewService.updateGroupTrainingReviewByReviewId(groupTrainingReviewUpdateRequestModel, reviewId,
+                clientId);
+    }
+
 }

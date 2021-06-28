@@ -170,5 +170,14 @@ public class ReviewServiceImpl implements ReviewService{
                 endDatePlusOneDayFormatted, trainingTypeId, pageable);
     }
 
+    @Override
+    public GroupTrainingReviewResponse updateGroupTrainingReviewByReviewId(String reviewId) throws NotExistingGroupTrainingReviewException {
+        if(!reviewRepository.existsByReviewId(reviewId)){
+            throw new NotExistingGroupTrainingReviewException("Training does not exist");
+        }
+        
+        return null;
+    }
+
 
 }

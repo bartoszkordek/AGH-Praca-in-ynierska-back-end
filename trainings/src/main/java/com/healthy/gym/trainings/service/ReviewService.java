@@ -20,4 +20,6 @@ public interface ReviewService {
     Page<GroupTrainingReviewResponse> getAllReviewsByUserId(String startDate, String endDate, String userId, Pageable pageable) throws ParseException, StartDateAfterEndDateException, InvalidUserIdException;
     Page<GroupTrainingReviewResponse> getAllReviewsByTrainingTypeId(String startDate, String endDate, String trainingTypeId, Pageable pageable) throws ParseException, StartDateAfterEndDateException, TrainingTypeNotFoundException;
     Page<GroupTrainingReviewPublicResponse> getAllReviewsByTrainingTypeIdPublic(String startDate, String endDate, String trainingTypeId, Pageable pageable) throws ParseException, StartDateAfterEndDateException, TrainingTypeNotFoundException;
+
+    GroupTrainingReviewResponse updateGroupTrainingReviewByReviewId(String reviewId) throws NotExistingGroupTrainingReviewException;
 }

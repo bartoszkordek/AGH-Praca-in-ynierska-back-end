@@ -73,7 +73,7 @@ public class ReviewController {
     ) {
         try {
             return reviewService.createGroupTrainingReview(groupTrainingsReviews, clientId);
-        } catch (StarsOutOfRangeException e) {
+        } catch (StarsOutOfRangeException | TrainingTypeNotFoundException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage(), e);
         }
     }

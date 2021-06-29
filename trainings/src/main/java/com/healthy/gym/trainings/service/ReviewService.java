@@ -13,7 +13,7 @@ import java.text.ParseException;
 public interface ReviewService {
 
     GroupTrainingReviewResponse createGroupTrainingReview(GroupTrainingReviewRequest groupTrainingsReviews,
-                                                    String clientId) throws StarsOutOfRangeException;
+                                                    String clientId) throws StarsOutOfRangeException, TrainingTypeNotFoundException;
 
 
     GroupTrainingReviewResponse getReviewByReviewId(String reviewId) throws NotExistingGroupTrainingReviewException;

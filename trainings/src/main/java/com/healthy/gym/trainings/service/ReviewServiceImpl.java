@@ -32,9 +32,12 @@ public class ReviewServiceImpl implements ReviewService{
     }
 
     @Override
-    public GroupTrainingReviewResponse createGroupTrainingReview(GroupTrainingReviewRequest groupTrainingsReviewsModel, String clientId) throws StarsOutOfRangeException {
+    public GroupTrainingReviewResponse createGroupTrainingReview(GroupTrainingReviewRequest groupTrainingsReviewsModel, String clientId) throws StarsOutOfRangeException, TrainingTypeNotFoundException {
         if (groupTrainingsReviewsModel.getStars() < 1 || groupTrainingsReviewsModel.getStars() > 5) {
             throw new StarsOutOfRangeException("Stars must be in range: 1-5");
+        }
+        if(!trainingTypeRepository.existsByTrainingTypeId(groupTrainingsReviewsModel.geTrainingTypeId())){
+            throw new TrainingTypeNotFoundException("Training type does not exist");
         }
 
         Date now = new Date();

@@ -5,20 +5,20 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class GroupTrainingReviewRequest {
 
-    private String trainingName;
+    private String trainingTypeId;
     private int stars;
     private String text;
 
-    public GroupTrainingReviewRequest(@JsonProperty("trainingName") String trainingName,
+    public GroupTrainingReviewRequest(@JsonProperty("trainingTypeId") String trainingTypeId,
                                       @JsonProperty("stars") int stars,
                                       @JsonProperty("text") String text){
-        this.trainingName = trainingName;
+        this.trainingTypeId = trainingTypeId;
         this.stars = stars;
         this.text = text;
     }
 
-    public String getTrainingName() {
-        return trainingName;
+    public String geTrainingTypeId() {
+        return trainingTypeId;
     }
 
     public int getStars() {

@@ -35,10 +35,10 @@ public class CreateReviewServiceTest {
         ReviewService reviewService = new ReviewServiceImpl(reviewRepository, trainingTypeRepository);
 
         //before
-        String trainingName = "TestTraining";
+        String trainingTypeId = "eeded953-e37f-435a-bd1e-9fb2a327c46m";
         int stars = 5;
         String text = "Good training";
-        GroupTrainingReviewRequest groupTrainingsReviewsModel= new GroupTrainingReviewRequest(trainingName, stars, text);
+        GroupTrainingReviewRequest groupTrainingsReviewsModel= new GroupTrainingReviewRequest(trainingTypeId, stars, text);
         String clientId = "client123";
 
         String reviewId = "852ed953-e37f-435a-bd1e-9fb2a327c4d5";
@@ -46,13 +46,13 @@ public class CreateReviewServiceTest {
         SimpleDateFormat sdfDate = new SimpleDateFormat("yyyy-MM-dd");
         Date now = new Date();
         String todayDateFormatted = sdfDate.format(now);
-        GroupTrainingsReviews dbResponse = new GroupTrainingsReviews(reviewId, trainingName, clientId,
+        GroupTrainingsReviews dbResponse = new GroupTrainingsReviews(reviewId, trainingTypeId, clientId,
                 todayDateFormatted, stars, text);
         dbResponse.setId("507f1f77bcf86cd799439011");
 
         GroupTrainingReviewResponse response = new GroupTrainingReviewResponse(
                 dbResponse.getReviewId(),
-                dbResponse.getTrainingName(),
+                dbResponse.getTrainingTypeId(),
                 dbResponse.getClientId(),
                 dbResponse.getDate(),
                 dbResponse.getStars(),
@@ -61,7 +61,7 @@ public class CreateReviewServiceTest {
         //when
         when(reviewRepository.insert( new GroupTrainingsReviews(
                 reviewId,
-                groupTrainingsReviewsModel.getTrainingName(),
+                groupTrainingsReviewsModel.geTrainingTypeId(),
                 clientId,
                 todayDateFormatted,
                 groupTrainingsReviewsModel.getStars(),
@@ -81,10 +81,10 @@ public class CreateReviewServiceTest {
         ReviewService reviewService = new ReviewServiceImpl(reviewRepository, trainingTypeRepository);
 
         //before
-        String trainingName = "TestTraining";
+        String trainingTypeId = "eeded953-e37f-435a-bd1e-9fb2a327c46m";
         int stars = 0;
         String text = "Total zero!";
-        GroupTrainingReviewRequest groupTrainingsReviewsModel= new GroupTrainingReviewRequest(trainingName, stars, text);
+        GroupTrainingReviewRequest groupTrainingsReviewsModel= new GroupTrainingReviewRequest(trainingTypeId, stars, text);
         String clientId = "client123";
 
         String reviewId = "852ed953-e37f-435a-bd1e-9fb2a327c4d5";
@@ -92,13 +92,13 @@ public class CreateReviewServiceTest {
         SimpleDateFormat sdfDate = new SimpleDateFormat("yyyy-MM-dd");
         Date now = new Date();
         String todayDateFormatted = sdfDate.format(now);
-        GroupTrainingsReviews dbResponse = new GroupTrainingsReviews(reviewId, trainingName, clientId,
+        GroupTrainingsReviews dbResponse = new GroupTrainingsReviews(reviewId, trainingTypeId, clientId,
                 todayDateFormatted, stars, text);
         dbResponse.setId("507f1f77bcf86cd799439011");
 
         GroupTrainingReviewResponse response = new GroupTrainingReviewResponse(
                 dbResponse.getReviewId(),
-                dbResponse.getTrainingName(),
+                dbResponse.getTrainingTypeId(),
                 dbResponse.getClientId(),
                 dbResponse.getDate(),
                 dbResponse.getStars(),
@@ -106,7 +106,7 @@ public class CreateReviewServiceTest {
 
         GroupTrainingsReviews groupTrainingsReviews = new GroupTrainingsReviews(
                 reviewId,
-                groupTrainingsReviewsModel.getTrainingName(),
+                groupTrainingsReviewsModel.geTrainingTypeId(),
                 clientId,
                 todayDateFormatted,
                 groupTrainingsReviewsModel.getStars(),
@@ -128,10 +128,10 @@ public class CreateReviewServiceTest {
         ReviewService reviewService = new ReviewServiceImpl(reviewRepository, trainingTypeRepository);
 
         //before
-        String trainingName = "TestTraining";
+        String trainingTypeId = "eeded953-e37f-435a-bd1e-9fb2a327c46m";
         int stars = 6;
         String text = "Ultra good training";
-        GroupTrainingReviewRequest groupTrainingsReviewsModel= new GroupTrainingReviewRequest(trainingName, stars, text);
+        GroupTrainingReviewRequest groupTrainingsReviewsModel= new GroupTrainingReviewRequest(trainingTypeId, stars, text);
         String clientId = "client123";
 
         String reviewId = "852ed953-e37f-435a-bd1e-9fb2a327c4d5";
@@ -139,13 +139,13 @@ public class CreateReviewServiceTest {
         SimpleDateFormat sdfDate = new SimpleDateFormat("yyyy-MM-dd");
         Date now = new Date();
         String todayDateFormatted = sdfDate.format(now);
-        GroupTrainingsReviews dbResponse = new GroupTrainingsReviews(reviewId, trainingName, clientId,
+        GroupTrainingsReviews dbResponse = new GroupTrainingsReviews(reviewId, trainingTypeId, clientId,
                 todayDateFormatted, stars, text);
         dbResponse.setId("507f1f77bcf86cd799439011");
 
         GroupTrainingReviewResponse response = new GroupTrainingReviewResponse(
                 dbResponse.getReviewId(),
-                dbResponse.getTrainingName(),
+                dbResponse.getTrainingTypeId(),
                 dbResponse.getClientId(),
                 dbResponse.getDate(),
                 dbResponse.getStars(),
@@ -153,7 +153,7 @@ public class CreateReviewServiceTest {
 
         GroupTrainingsReviews groupTrainingsReviews = new GroupTrainingsReviews(
                 reviewId,
-                groupTrainingsReviewsModel.getTrainingName(),
+                groupTrainingsReviewsModel.geTrainingTypeId(),
                 clientId,
                 todayDateFormatted,
                 groupTrainingsReviewsModel.getStars(),

@@ -49,14 +49,14 @@ public class GetReviewsServiceTest {
         Pageable pageable = PageRequest.of(page, size);
         List<GroupTrainingReviewResponse> reviews = new ArrayList<>();
         String reviewId = "852ed953-e37f-435a-bd1e-9fb2a327c4d5";
-        String trainingName = "TestTrainingName";
+        String trainingTypeId = "eeded953-e37f-435a-bd1e-9fb2a327c46m";
         String clientId = "Client123";
         String date = "2021-01-01";
         int stars = 5;
         String text = "Very good training!";
         GroupTrainingReviewResponse review = new GroupTrainingReviewResponse(
                 reviewId,
-                trainingName,
+                trainingTypeId,
                 clientId,
                 date,
                 stars,
@@ -127,14 +127,14 @@ public class GetReviewsServiceTest {
         List<GroupTrainingReviewResponse> reviewsAfterJuly2021 = new ArrayList<>();
 
         String reviewIdRev1 = "852ed953-e37f-435a-bd1e-9fb2a327c4d5";
-        String trainingNameRev1 = "TestTrainingName1";
+        String trainingTypeIdRev1 = "eeded953-e37f-435a-bd1e-9fb2a327c46m";
         String clientIdRev1 = "Client123";
         String dateRev1 = "2021-01-01";
         int starsRev1 = 5;
         String textRev1 = "Very good training!";
         GroupTrainingReviewResponse review1 = new GroupTrainingReviewResponse(
                 reviewIdRev1,
-                trainingNameRev1,
+                trainingTypeIdRev1,
                 clientIdRev1,
                 dateRev1,
                 starsRev1,
@@ -143,14 +143,14 @@ public class GetReviewsServiceTest {
         reviewsBeforeJuly2021.add(review1);
 
         String reviewIdRev2 = "852ed953-e37f-435a-bd1e-9fb2a327c4d6";
-        String trainingNameRev2 = "TestTrainingName2";
+        String trainingTypeIdRev2 = "abded953-e37f-435a-bd1e-9fb2a327c46k";
         String clientIdRev2 = "Client123";
         String dateRev2 = "2021-08-01";
         int starsRev2 = 4;
         String textRev2 = "Good training!";
         GroupTrainingReviewResponse review2 = new GroupTrainingReviewResponse(
                 reviewIdRev2,
-                trainingNameRev2,
+                trainingTypeIdRev2,
                 clientIdRev2,
                 dateRev2,
                 starsRev2,
@@ -209,14 +209,14 @@ public class GetReviewsServiceTest {
         Pageable pageable = PageRequest.of(page, size);
         List<GroupTrainingReviewResponse> reviews = new ArrayList<>();
         String reviewId = "852ed953-e37f-435a-bd1e-9fb2a327c4d5";
-        String trainingName = "TestTrainingName";
+        String trainingTypeId = "eeded953-e37f-435a-bd1e-9fb2a327c46m";
         String clientId = "Client123";
         String date = "2021-01-01";
         int stars = 5;
         String text = "Very good training!";
         GroupTrainingReviewResponse review = new GroupTrainingReviewResponse(
                 reviewId,
-                trainingName,
+                trainingTypeId,
                 clientId,
                 date,
                 stars,
@@ -239,14 +239,14 @@ public class GetReviewsServiceTest {
         //before
         List<GroupTrainingReviewResponse> reviews = new ArrayList<>();
         String reviewId = "852ed953-e37f-435a-bd1e-9fb2a327c4d5";
-        String trainingName = "TestTrainingName";
+        String trainingTypeId = "eeded953-e37f-435a-bd1e-9fb2a327c46m";
         String validClientId = "Client123";
         String date = "2021-01-01";
         int stars = 5;
         String text = "Very good training!";
         GroupTrainingReviewResponse review = new GroupTrainingReviewResponse(
                 reviewId,
-                trainingName,
+                trainingTypeId,
                 validClientId,
                 date,
                 stars,
@@ -318,14 +318,14 @@ public class GetReviewsServiceTest {
         //before
         List<GroupTrainingReviewResponse> reviews = new ArrayList<>();
         String reviewId = "852ed953-e37f-435a-bd1e-9fb2a327c4d5";
-        String trainingName = "TestTrainingName";
+        String trainingTypeId = "eeded953-e37f-435a-bd1e-9fb2a327c46m";
         String validClientId = "Client123";
         String date = "2021-01-01";
         int stars = 5;
         String text = "Very good training!";
         GroupTrainingReviewResponse review = new GroupTrainingReviewResponse(
                 reviewId,
-                trainingName,
+                trainingTypeId,
                 validClientId,
                 date,
                 stars,
@@ -363,14 +363,14 @@ public class GetReviewsServiceTest {
         //before
         List<GroupTrainingReviewResponse> reviews = new ArrayList<>();
         String reviewId = "852ed953-e37f-435a-bd1e-9fb2a327c4d5";
-        String trainingName = "TestTrainingName";
+        String trainingTypeId = "eeded953-e37f-435a-bd1e-9fb2a327c46m";
         String validClientId = "Client123";
         String date = "2021-01-01";
         int stars = 5;
         String text = "Very good training!";
         GroupTrainingReviewResponse review = new GroupTrainingReviewResponse(
                 reviewId,
-                trainingName,
+                trainingTypeId,
                 validClientId,
                 date,
                 stars,
@@ -405,14 +405,14 @@ public class GetReviewsServiceTest {
         //before
         List<GroupTrainingReviewResponse> reviews = new ArrayList<>();
         String reviewId = "852ed953-e37f-435a-bd1e-9fb2a327c4d5";
-        String trainingName = "TestTrainingName";
+        String trainingTypeId = "eeded953-e37f-435a-bd1e-9fb2a327c46m";
         String validClientId = "Client123";
         String date = "2021-01-01";
         int stars = 5;
         String text = "Very good training!";
         GroupTrainingReviewResponse review = new GroupTrainingReviewResponse(
                 reviewId,
-                trainingName,
+                trainingTypeId,
                 validClientId,
                 date,
                 stars,
@@ -432,46 +432,46 @@ public class GetReviewsServiceTest {
         String startDateMinusOneDay = "2020-12-31";
         String endDatePlusOneDay = "2021-02-02";
 
-        when(trainingTypeRepository.existsByTrainingTypeId(trainingName)).thenReturn(true);
-        when(reviewRepository.findByDateBetweenAndTrainingName(startDateMinusOneDay,
-                endDatePlusOneDay, trainingName, pageable))
+        when(trainingTypeRepository.existsByTrainingTypeId(trainingTypeId)).thenReturn(true);
+        when(reviewRepository.findByDateBetweenAndTrainingTypeId(startDateMinusOneDay,
+                endDatePlusOneDay, trainingTypeId, pageable))
                 .thenReturn(reviewsInPages);
         //then
-        assertThat(reviewService.getAllReviewsByTrainingTypeId(startDate, endDate, trainingName, pageable))
-                .isEqualTo(reviewRepository.findByDateBetweenAndTrainingName(startDateMinusOneDay,
-                        endDatePlusOneDay, trainingName, pageable));
+        assertThat(reviewService.getAllReviewsByTrainingTypeId(startDate, endDate, trainingTypeId, pageable))
+                .isEqualTo(reviewRepository.findByDateBetweenAndTrainingTypeId(startDateMinusOneDay,
+                        endDatePlusOneDay, trainingTypeId, pageable));
 
         //populated end date only
         //when
         String defaultStartDateMinusOneDay = "1899-12-31";
-        when(reviewRepository.findByDateBetweenAndTrainingName(defaultStartDateMinusOneDay,
-                endDatePlusOneDay, trainingName, pageable))
+        when(reviewRepository.findByDateBetweenAndTrainingTypeId(defaultStartDateMinusOneDay,
+                endDatePlusOneDay, trainingTypeId, pageable))
                 .thenReturn(reviewsInPages);
         //then
-        assertThat(reviewService.getAllReviewsByTrainingTypeId(null, endDate, trainingName, pageable))
-                .isEqualTo(reviewRepository.findByDateBetweenAndTrainingName(defaultStartDateMinusOneDay,
-                        endDatePlusOneDay, trainingName, pageable));
+        assertThat(reviewService.getAllReviewsByTrainingTypeId(null, endDate, trainingTypeId, pageable))
+                .isEqualTo(reviewRepository.findByDateBetweenAndTrainingTypeId(defaultStartDateMinusOneDay,
+                        endDatePlusOneDay, trainingTypeId, pageable));
 
         //populated start date only
         //when
         String defaultEndDatePlusOneDay = "2100-01-01";
-        when(reviewRepository.findByDateBetweenAndTrainingName(startDateMinusOneDay,
-                defaultEndDatePlusOneDay, trainingName, pageable))
+        when(reviewRepository.findByDateBetweenAndTrainingTypeId(startDateMinusOneDay,
+                defaultEndDatePlusOneDay, trainingTypeId, pageable))
                 .thenReturn(reviewsInPages);
         //then
-        assertThat(reviewService.getAllReviewsByTrainingTypeId(startDate, null, trainingName, pageable))
-                .isEqualTo(reviewRepository.findByDateBetweenAndTrainingName(startDateMinusOneDay,
-                        defaultEndDatePlusOneDay, trainingName, pageable));
+        assertThat(reviewService.getAllReviewsByTrainingTypeId(startDate, null, trainingTypeId, pageable))
+                .isEqualTo(reviewRepository.findByDateBetweenAndTrainingTypeId(startDateMinusOneDay,
+                        defaultEndDatePlusOneDay, trainingTypeId, pageable));
 
         //not populated start and end date
         //when
-        when(reviewRepository.findByDateBetweenAndTrainingName(defaultStartDateMinusOneDay,
-                defaultEndDatePlusOneDay, trainingName, pageable))
+        when(reviewRepository.findByDateBetweenAndTrainingTypeId(defaultStartDateMinusOneDay,
+                defaultEndDatePlusOneDay, trainingTypeId, pageable))
                 .thenReturn(reviewsInPages);
         //then
-        assertThat(reviewService.getAllReviewsByTrainingTypeId(null, null, trainingName, pageable))
-                .isEqualTo(reviewRepository.findByDateBetweenAndTrainingName(defaultStartDateMinusOneDay,
-                        defaultEndDatePlusOneDay, trainingName, pageable));
+        assertThat(reviewService.getAllReviewsByTrainingTypeId(null, null, trainingTypeId, pageable))
+                .isEqualTo(reviewRepository.findByDateBetweenAndTrainingTypeId(defaultStartDateMinusOneDay,
+                        defaultEndDatePlusOneDay, trainingTypeId, pageable));
     }
 
     @Test(expected = StartDateAfterEndDateException.class)
@@ -484,14 +484,14 @@ public class GetReviewsServiceTest {
         //before
         List<GroupTrainingReviewResponse> reviews = new ArrayList<>();
         String reviewId = "852ed953-e37f-435a-bd1e-9fb2a327c4d5";
-        String trainingName = "TestTrainingName";
+        String trainingTypeId = "eeded953-e37f-435a-bd1e-9fb2a327c46m";
         String validClientId = "Client123";
         String date = "2021-01-01";
         int stars = 5;
         String text = "Very good training!";
         GroupTrainingReviewResponse review = new GroupTrainingReviewResponse(
                 reviewId,
-                trainingName,
+                trainingTypeId,
                 validClientId,
                 date,
                 stars,
@@ -508,20 +508,20 @@ public class GetReviewsServiceTest {
         String defaultEndDatePlusOneDay = "2100-01-01";
 
         //when
-        when(reviewRepository.existsById(trainingName)).thenReturn(true);
-        when(reviewRepository.findByDateBetweenAndTrainingName(defaultStartDateMinusOneDay,
-                defaultEndDatePlusOneDay, trainingName, pageable))
+        when(trainingTypeRepository.existsByTrainingTypeId(trainingTypeId)).thenReturn(true);
+        when(reviewRepository.findByDateBetweenAndTrainingTypeId(defaultStartDateMinusOneDay,
+                defaultEndDatePlusOneDay, trainingTypeId, pageable))
                 .thenReturn(reviewsInPages);
 
         String startDate = "2021-31-12";
         String endDate = "2021-01-01";
 
         //then
-        reviewService.getAllReviewsByTrainingTypeId(startDate, endDate, trainingName, pageable);
+        reviewService.getAllReviewsByTrainingTypeId(startDate, endDate, trainingTypeId, pageable);
     }
 
     @Test(expected = TrainingTypeNotFoundException.class)
-    public void shouldNotReturnAllReviewsByTrainingTypeId_whenEmptyTrainingName() throws ParseException, TrainingTypeNotFoundException, StartDateAfterEndDateException {
+    public void shouldNotReturnAllReviewsByTrainingTypeId_whenEmptyTrainingTypeId() throws ParseException, TrainingTypeNotFoundException, StartDateAfterEndDateException {
         //mocks
         ReviewDAO reviewRepository = Mockito.mock(ReviewDAO.class);
         TrainingTypeDAO trainingTypeRepository = Mockito.mock(TrainingTypeDAO.class);
@@ -530,14 +530,14 @@ public class GetReviewsServiceTest {
         //before
         List<GroupTrainingReviewResponse> reviews = new ArrayList<>();
         String reviewId = "852ed953-e37f-435a-bd1e-9fb2a327c4d5";
-        String trainingName = "TestTrainingName";
+        String trainingTypeId = "eeded953-e37f-435a-bd1e-9fb2a327c46m";
         String validClientId = "Client123";
         String date = "2021-01-01";
         int stars = 5;
         String text = "Very good training!";
         GroupTrainingReviewResponse review = new GroupTrainingReviewResponse(
                 reviewId,
-                trainingName,
+                trainingTypeId,
                 validClientId,
                 date,
                 stars,
@@ -554,8 +554,8 @@ public class GetReviewsServiceTest {
         String defaultEndDatePlusOneDay = "2100-01-01";
 
         //when
-        when(reviewRepository.findByDateBetweenAndTrainingName(defaultStartDateMinusOneDay, defaultEndDatePlusOneDay,
-                trainingName, pageable))
+        when(reviewRepository.findByDateBetweenAndTrainingTypeId(defaultStartDateMinusOneDay, defaultEndDatePlusOneDay,
+                trainingTypeId, pageable))
                 .thenReturn(reviewsInPages);
 
         //then
@@ -575,13 +575,13 @@ public class GetReviewsServiceTest {
         //before
         List<GroupTrainingReviewPublicResponse> reviews = new ArrayList<>();
         String reviewId = "852ed953-e37f-435a-bd1e-9fb2a327c4d5";
-        String trainingName = "TestTrainingName";
+        String trainingTypeId = "eeded953-e37f-435a-bd1e-9fb2a327c46m";
         String date = "2021-01-01";
         int stars = 5;
         String text = "Very good training!";
         GroupTrainingReviewPublicResponse review = new GroupTrainingReviewPublicResponse(
                 reviewId,
-                trainingName,
+                trainingTypeId,
                 date,
                 stars,
                 text);
@@ -599,50 +599,50 @@ public class GetReviewsServiceTest {
         //when
         String startDateMinusOneDay = "2020-12-31";
         String endDatePlusOneDay = "2021-02-02";
-        when(trainingTypeRepository.existsByTrainingTypeId(trainingName)).thenReturn(true);
-        when(reviewRepository.getAllByDateBetweenAndTrainingName(startDateMinusOneDay,
-                endDatePlusOneDay, trainingName, pageable))
+        when(trainingTypeRepository.existsByTrainingTypeId(trainingTypeId)).thenReturn(true);
+        when(reviewRepository.getAllByDateBetweenAndTrainingTypeId(startDateMinusOneDay,
+                endDatePlusOneDay, trainingTypeId, pageable))
                 .thenReturn(reviewsInPages);
         //then
-        assertThat(reviewService.getAllReviewsByTrainingTypeIdPublic(startDate, endDate, trainingName, pageable))
-                .isEqualTo(reviewRepository.getAllByDateBetweenAndTrainingName(startDateMinusOneDay,
-                        endDatePlusOneDay, trainingName, pageable));
+        assertThat(reviewService.getAllReviewsByTrainingTypeIdPublic(startDate, endDate, trainingTypeId, pageable))
+                .isEqualTo(reviewRepository.getAllByDateBetweenAndTrainingTypeId(startDateMinusOneDay,
+                        endDatePlusOneDay, trainingTypeId, pageable));
 
         //populated end date only
         //when
         String defaultStartDateMinusOneDay = "1899-12-31";
-        when(reviewRepository.getAllByDateBetweenAndTrainingName(defaultStartDateMinusOneDay,
-                endDatePlusOneDay, trainingName, pageable))
+        when(reviewRepository.getAllByDateBetweenAndTrainingTypeId(defaultStartDateMinusOneDay,
+                endDatePlusOneDay, trainingTypeId, pageable))
                 .thenReturn(reviewsInPages);
         //then
-        assertThat(reviewService.getAllReviewsByTrainingTypeIdPublic(null, endDate, trainingName, pageable))
-                .isEqualTo(reviewRepository.getAllByDateBetweenAndTrainingName(defaultStartDateMinusOneDay,
-                        endDatePlusOneDay, trainingName, pageable));
+        assertThat(reviewService.getAllReviewsByTrainingTypeIdPublic(null, endDate, trainingTypeId, pageable))
+                .isEqualTo(reviewRepository.getAllByDateBetweenAndTrainingTypeId(defaultStartDateMinusOneDay,
+                        endDatePlusOneDay, trainingTypeId, pageable));
 
         //populated start date only
         //when
         String defaultEndDatePlusOneDay = "2100-01-01";
-        when(reviewRepository.getAllByDateBetweenAndTrainingName(startDateMinusOneDay,
-                defaultEndDatePlusOneDay, trainingName, pageable))
+        when(reviewRepository.getAllByDateBetweenAndTrainingTypeId(startDateMinusOneDay,
+                defaultEndDatePlusOneDay, trainingTypeId, pageable))
                 .thenReturn(reviewsInPages);
         //then
-        assertThat(reviewService.getAllReviewsByTrainingTypeIdPublic(startDate, null, trainingName, pageable))
-                .isEqualTo(reviewRepository.getAllByDateBetweenAndTrainingName(startDateMinusOneDay,
-                        defaultEndDatePlusOneDay, trainingName, pageable));
+        assertThat(reviewService.getAllReviewsByTrainingTypeIdPublic(startDate, null, trainingTypeId, pageable))
+                .isEqualTo(reviewRepository.getAllByDateBetweenAndTrainingTypeId(startDateMinusOneDay,
+                        defaultEndDatePlusOneDay, trainingTypeId, pageable));
 
         //not populated start and end date
         //when
-        when(reviewRepository.getAllByDateBetweenAndTrainingName(defaultStartDateMinusOneDay,
-                defaultEndDatePlusOneDay, trainingName, pageable))
+        when(reviewRepository.getAllByDateBetweenAndTrainingTypeId(defaultStartDateMinusOneDay,
+                defaultEndDatePlusOneDay, trainingTypeId, pageable))
                 .thenReturn(reviewsInPages);
         //then
-        assertThat(reviewService.getAllReviewsByTrainingTypeIdPublic(null, null, trainingName, pageable))
-                .isEqualTo(reviewRepository.getAllByDateBetweenAndTrainingName(defaultStartDateMinusOneDay,
-                        defaultEndDatePlusOneDay, trainingName, pageable));
+        assertThat(reviewService.getAllReviewsByTrainingTypeIdPublic(null, null, trainingTypeId, pageable))
+                .isEqualTo(reviewRepository.getAllByDateBetweenAndTrainingTypeId(defaultStartDateMinusOneDay,
+                        defaultEndDatePlusOneDay, trainingTypeId, pageable));
     }
 
     @Test(expected = TrainingTypeNotFoundException.class)
-    public void shouldNotReturnAllPublicReviewsByTrainingTypeId_whenEmptyTrainingName() throws ParseException, TrainingTypeNotFoundException, StartDateAfterEndDateException {
+    public void shouldNotReturnAllPublicReviewsByTrainingTypeId_whenEmptyTrainingTypeId() throws ParseException, TrainingTypeNotFoundException, StartDateAfterEndDateException {
         //mocks
         ReviewDAO reviewRepository = Mockito.mock(ReviewDAO.class);
         TrainingTypeDAO trainingTypeRepository = Mockito.mock(TrainingTypeDAO.class);
@@ -651,13 +651,13 @@ public class GetReviewsServiceTest {
         //before
         List<GroupTrainingReviewPublicResponse> reviews = new ArrayList<>();
         String reviewId = "852ed953-e37f-435a-bd1e-9fb2a327c4d5";
-        String trainingName = "TestTrainingName";
+        String trainingTypeId = "eeded953-e37f-435a-bd1e-9fb2a327c46m";
         String date = "2021-01-01";
         int stars = 5;
         String text = "Very good training!";
         GroupTrainingReviewPublicResponse review = new GroupTrainingReviewPublicResponse(
                 reviewId,
-                trainingName,
+                trainingTypeId,
                 date,
                 stars,
                 text);
@@ -675,12 +675,12 @@ public class GetReviewsServiceTest {
         //when
         String startDateMinusOneDay = "2020-12-31";
         String endDatePlusOneDay = "2021-02-02";
-        when(reviewRepository.getAllByDateBetweenAndTrainingName(startDateMinusOneDay,
-                endDatePlusOneDay, trainingName, pageable))
+        when(reviewRepository.getAllByDateBetweenAndTrainingTypeId(startDateMinusOneDay,
+                endDatePlusOneDay, trainingTypeId, pageable))
                 .thenReturn(reviewsInPages);
 
         //then
-        reviewService.getAllReviewsByTrainingTypeIdPublic(startDate, endDate, trainingName, pageable);
+        reviewService.getAllReviewsByTrainingTypeIdPublic(startDate, endDate, trainingTypeId, pageable);
     }
 
     @Test(expected = StartDateAfterEndDateException.class)
@@ -693,13 +693,13 @@ public class GetReviewsServiceTest {
         //before
         List<GroupTrainingReviewPublicResponse> reviews = new ArrayList<>();
         String reviewId = "852ed953-e37f-435a-bd1e-9fb2a327c4d5";
-        String trainingName = "TestTrainingName";
+        String trainingTypeId = "eeded953-e37f-435a-bd1e-9fb2a327c46m";
         String date = "2021-01-01";
         int stars = 5;
         String text = "Very good training!";
         GroupTrainingReviewPublicResponse review = new GroupTrainingReviewPublicResponse(
                 reviewId,
-                trainingName,
+                trainingTypeId,
                 date,
                 stars,
                 text);
@@ -715,16 +715,16 @@ public class GetReviewsServiceTest {
         String defaultEndDatePlusOneDay = "2100-01-01";
 
         //when
-        when(reviewRepository.existsById(trainingName)).thenReturn(true);
-        when(reviewRepository.getAllByDateBetweenAndTrainingName(defaultStartDateMinusOneDay,
-                defaultEndDatePlusOneDay, trainingName, pageable))
+        when(trainingTypeRepository.existsByTrainingTypeId(trainingTypeId)).thenReturn(true);
+        when(reviewRepository.getAllByDateBetweenAndTrainingTypeId(defaultStartDateMinusOneDay,
+                defaultEndDatePlusOneDay, trainingTypeId, pageable))
                 .thenReturn(reviewsInPages);
 
         String startDate = "2021-31-12";
         String endDate = "2021-01-01";
 
         //then
-        reviewService.getAllReviewsByTrainingTypeId(startDate, endDate, trainingName, pageable);
+        reviewService.getAllReviewsByTrainingTypeId(startDate, endDate, trainingTypeId, pageable);
     }
 
     @Test
@@ -737,14 +737,14 @@ public class GetReviewsServiceTest {
         //before
         List<GroupTrainingReviewResponse> reviews = new ArrayList<>();
         String reviewId = "852ed953-e37f-435a-bd1e-9fb2a327c4d5";
-        String trainingName = "TestTrainingName";
+        String trainingTypeId = "eeded953-e37f-435a-bd1e-9fb2a327c46m";
         String validClientId = "Client123";
         String date = "2021-01-01";
         int stars = 5;
         String text = "Very good training!";
         GroupTrainingReviewResponse review = new GroupTrainingReviewResponse(
                 reviewId,
-                trainingName,
+                trainingTypeId,
                 validClientId,
                 date,
                 stars,
@@ -772,14 +772,14 @@ public class GetReviewsServiceTest {
         //before
         List<GroupTrainingReviewResponse> reviews = new ArrayList<>();
         String reviewId = "852ed953-e37f-435a-bd1e-9fb2a327c4d7";
-        String trainingName = "TestTrainingName";
+        String trainingTypeId = "eeded953-e37f-435a-bd1e-9fb2a327c46m";
         String validClientId = "Client123";
         String date = "2021-01-01";
         int stars = 5;
         String text = "Very good training!";
         GroupTrainingReviewResponse review = new GroupTrainingReviewResponse(
                 reviewId,
-                trainingName,
+                trainingTypeId,
                 validClientId,
                 date,
                 stars,

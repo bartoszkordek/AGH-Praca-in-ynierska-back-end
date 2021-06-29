@@ -43,7 +43,7 @@ public class ReviewServiceImpl implements ReviewService{
         String reviewId = UUID.randomUUID().toString();
         GroupTrainingsReviews dbResponse = reviewRepository.insert(new GroupTrainingsReviews(
                 reviewId,
-                groupTrainingsReviewsModel.getTrainingName(),
+                groupTrainingsReviewsModel.geTrainingTypeId(),
                 clientId,
                 todayDateFormatted,
                 groupTrainingsReviewsModel.getStars(),
@@ -52,7 +52,7 @@ public class ReviewServiceImpl implements ReviewService{
 
         GroupTrainingReviewResponse response = new GroupTrainingReviewResponse(
                     dbResponse.getReviewId(),
-                    dbResponse.getTrainingName(),
+                    dbResponse.getTrainingTypeId(),
                     dbResponse.getClientId(),
                     dbResponse.getDate(),
                     dbResponse.getStars(),
@@ -141,7 +141,7 @@ public class ReviewServiceImpl implements ReviewService{
         String startDateMinusOneDayFormatted = sdfDate.format(startDateMinusOneDay);
         String endDatePlusOneDayFormatted = sdfDate.format(endDatePlusOneDay);
 
-        return reviewRepository.findByDateBetweenAndTrainingName(startDateMinusOneDayFormatted,
+        return reviewRepository.findByDateBetweenAndTrainingTypeId(startDateMinusOneDayFormatted,
                 endDatePlusOneDayFormatted, trainingTypeId, pageable);
     }
 
@@ -167,7 +167,7 @@ public class ReviewServiceImpl implements ReviewService{
         String startDateMinusOneDayFormatted = sdfDate.format(startDateMinusOneDay);
         String endDatePlusOneDayFormatted = sdfDate.format(endDatePlusOneDay);
 
-        return reviewRepository.getAllByDateBetweenAndTrainingName(startDateMinusOneDayFormatted,
+        return reviewRepository.getAllByDateBetweenAndTrainingTypeId(startDateMinusOneDayFormatted,
                 endDatePlusOneDayFormatted, trainingTypeId, pageable);
     }
 
@@ -196,7 +196,7 @@ public class ReviewServiceImpl implements ReviewService{
         GroupTrainingsReviews responseFromDb = reviewRepository.save(existingGroupTrainingsReview);
 
         GroupTrainingReviewResponse response = new GroupTrainingReviewResponse(responseFromDb.getReviewId(),
-                responseFromDb.getTrainingName(), responseFromDb.getClientId(), responseFromDb.getDate(),
+                responseFromDb.getTrainingTypeId(), responseFromDb.getClientId(), responseFromDb.getDate(),
                 responseFromDb.getStars(), responseFromDb.getText());
 
         return response;
@@ -216,7 +216,7 @@ public class ReviewServiceImpl implements ReviewService{
         reviewRepository.removeByReviewId(reviewId);
 
         GroupTrainingReviewResponse response = new GroupTrainingReviewResponse(reviewToRemove.getReviewId(),
-                reviewToRemove.getTrainingName(), reviewToRemove.getClientId(), reviewToRemove.getDate(),
+                reviewToRemove.getTrainingTypeId(), reviewToRemove.getClientId(), reviewToRemove.getDate(),
                 reviewToRemove.getStars(), reviewToRemove.getText());
 
         return response;

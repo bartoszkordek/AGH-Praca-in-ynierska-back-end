@@ -33,7 +33,7 @@ public class RemoveReviewServiceTest {
 
         //before
         String reviewId = "852ed953-e37f-435a-bd1e-9fb2a327c4d5";
-        String trainingName = "TestTrainingName";
+        String trainingTypeId = "eeded953-e37f-435a-bd1e-9fb2a327c46m";
         String clientId = "Client123";
         String date = "2021-01-01";
         int stars = 5;
@@ -41,7 +41,7 @@ public class RemoveReviewServiceTest {
 
         GroupTrainingsReviews reviewToRemove = new GroupTrainingsReviews(
                 reviewId,
-                trainingName,
+                trainingTypeId,
                 clientId,
                 date,
                 stars,
@@ -49,7 +49,7 @@ public class RemoveReviewServiceTest {
         );
         GroupTrainingReviewResponse reviewResponse = new GroupTrainingReviewResponse(
                 reviewId,
-                trainingName,
+                trainingTypeId,
                 clientId,
                 date,
                 stars,
@@ -77,7 +77,7 @@ public class RemoveReviewServiceTest {
 
         //before
         String reviewId = "852ed953-e37f-435a-bd1e-9fb2a327c4d5";
-        String trainingName = "TestTrainingName";
+        String trainingTypeId = "eeded953-e37f-435a-bd1e-9fb2a327c46m";
         String clientId = "Client123";
         String date = "2021-01-01";
         int stars = 5;
@@ -85,7 +85,7 @@ public class RemoveReviewServiceTest {
 
         GroupTrainingsReviews reviewToRemove = new GroupTrainingsReviews(
                 reviewId,
-                trainingName,
+                trainingTypeId,
                 clientId,
                 date,
                 stars,
@@ -93,7 +93,7 @@ public class RemoveReviewServiceTest {
         );
         GroupTrainingReviewResponse reviewResponse = new GroupTrainingReviewResponse(
                 reviewId,
-                trainingName,
+                trainingTypeId,
                 clientId,
                 date,
                 stars,
@@ -119,7 +119,7 @@ public class RemoveReviewServiceTest {
 
         //before
         String reviewId = "852ed953-e37f-435a-bd1e-9fb2a327c4d5";
-        String trainingName = "TestTrainingName";
+        String trainingTypeId = "eeded953-e37f-435a-bd1e-9fb2a327c46m";
         String clientId = "Client123";
         String date = "2021-01-01";
         int stars = 5;
@@ -127,7 +127,7 @@ public class RemoveReviewServiceTest {
 
         GroupTrainingsReviews reviewToRemove = new GroupTrainingsReviews(
                 reviewId,
-                trainingName,
+                trainingTypeId,
                 clientId,
                 date,
                 stars,
@@ -135,7 +135,7 @@ public class RemoveReviewServiceTest {
         );
         GroupTrainingReviewResponse reviewResponse = new GroupTrainingReviewResponse(
                 reviewId,
-                trainingName,
+                trainingTypeId,
                 clientId,
                 date,
                 stars,

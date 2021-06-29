@@ -15,8 +15,8 @@ public class GroupTrainingsReviews {
 
     @JsonProperty("reviewId")
     private String reviewId;
-    @JsonProperty("trainingName")
-    private String trainingName;
+    @JsonProperty("trainingTypeId")
+    private String trainingTypeId;
     @JsonProperty("clientId") // + Avatar TBC
     private String clientId;
     @JsonProperty("date")
@@ -30,9 +30,9 @@ public class GroupTrainingsReviews {
 
     }
 
-    public GroupTrainingsReviews(String reviewId, String trainingName, String clientId, String date, int stars, String text){
+    public GroupTrainingsReviews(String reviewId, String trainingTypeId, String clientId, String date, int stars, String text){
         this.reviewId = reviewId;
-        this.trainingName = trainingName;
+        this.trainingTypeId = trainingTypeId;
         this.clientId = clientId;
         this.date = date;
         this.stars = stars;
@@ -44,7 +44,7 @@ public class GroupTrainingsReviews {
         return "GroupTrainingsReviews{" +
                 "id='" + id + '\'' +
                 ", reviewId='" + reviewId + '\'' +
-                ", trainingName='" + trainingName + '\'' +
+                ", trainingTypeId='" + trainingTypeId + '\'' +
                 ", clientId='" + clientId + '\'' +
                 ", date='" + date + '\'' +
                 ", stars=" + stars +
@@ -61,7 +61,7 @@ public class GroupTrainingsReviews {
         return stars == that.stars &&
                 Objects.equals(id, that.id) &&
 //                Objects.equals(reviewId, that.reviewId) &&
-                Objects.equals(trainingName, that.trainingName) &&
+                Objects.equals(trainingTypeId, that.trainingTypeId) &&
                 Objects.equals(clientId, that.clientId) &&
                 Objects.equals(date, that.date) &&
                 Objects.equals(text, that.text);
@@ -69,7 +69,7 @@ public class GroupTrainingsReviews {
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, reviewId, trainingName, clientId, date, stars, text);
+        return Objects.hash(id, reviewId, trainingTypeId, clientId, date, stars, text);
     }
 
     public String getId() {
@@ -78,8 +78,8 @@ public class GroupTrainingsReviews {
 
     public String getReviewId() { return reviewId; }
 
-    public String getTrainingName() {
-        return trainingName;
+    public String getTrainingTypeId() {
+        return trainingTypeId;
     }
 
     public String getClientId() {
@@ -104,8 +104,8 @@ public class GroupTrainingsReviews {
 
     public void setReviewId(String reviewId) { this.reviewId = reviewId; }
 
-    public void setTrainingId(String trainingId) {
-        this.trainingName = trainingId;
+    public void setTrainingTypeId(String trainingTypeId) {
+        this.trainingTypeId = trainingTypeId;
     }
 
     public void setClientId(String clientId) {

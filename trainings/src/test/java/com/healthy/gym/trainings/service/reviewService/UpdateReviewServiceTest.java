@@ -36,7 +36,7 @@ public class UpdateReviewServiceTest {
         //before
         String reviewId = "852ed953-e37f-435a-bd1e-9fb2a327c4d5";
         String clientId = "client123";
-        String trainingName = "TestTrainingName";
+        String trainingTypeId = "eeded953-e37f-435a-bd1e-9fb2a327c46m";
         String date = "2021-01-01";
         int starsBeforeUpdate = 5;
         String textBeforeUpdate = "Very good training!";
@@ -46,11 +46,11 @@ public class UpdateReviewServiceTest {
         GroupTrainingReviewUpdateRequest groupTrainingReviewUpdateRequestModel = new GroupTrainingReviewUpdateRequest(
                 starsAfterUpdate, textAfterUpdate);
 
-        GroupTrainingsReviews existingGroupTrainingsReview = new GroupTrainingsReviews(reviewId, trainingName,
+        GroupTrainingsReviews existingGroupTrainingsReview = new GroupTrainingsReviews(reviewId, trainingTypeId,
                 clientId, date, starsBeforeUpdate, textBeforeUpdate);
-        GroupTrainingsReviews updatedGroupTrainingsReview = new GroupTrainingsReviews(reviewId, trainingName,
+        GroupTrainingsReviews updatedGroupTrainingsReview = new GroupTrainingsReviews(reviewId, trainingTypeId,
                 clientId, date, starsAfterUpdate, textAfterUpdate);
-        GroupTrainingReviewResponse response = new GroupTrainingReviewResponse(reviewId, trainingName,
+        GroupTrainingReviewResponse response = new GroupTrainingReviewResponse(reviewId, trainingTypeId,
                 clientId, date, starsAfterUpdate, textAfterUpdate);
 
 
@@ -80,7 +80,7 @@ public class UpdateReviewServiceTest {
         //before
         String reviewId = "852ed953-e37f-435a-bd1e-9fb2a327c4d5";
         String clientId = "client123";
-        String trainingName = "TestTrainingName";
+        String trainingTypeId = "eeded953-e37f-435a-bd1e-9fb2a327c46m";
         String date = "2021-01-01";
         int starsBeforeUpdate = 5;
         String textBeforeUpdate = "Very good training!";
@@ -90,11 +90,11 @@ public class UpdateReviewServiceTest {
         GroupTrainingReviewUpdateRequest groupTrainingReviewUpdateRequestModel = new GroupTrainingReviewUpdateRequest(
                 starsAfterUpdate, textAfterUpdate);
 
-        GroupTrainingsReviews existingGroupTrainingsReview = new GroupTrainingsReviews(reviewId, trainingName,
+        GroupTrainingsReviews existingGroupTrainingsReview = new GroupTrainingsReviews(reviewId, trainingTypeId,
                 clientId, date, starsBeforeUpdate, textBeforeUpdate);
-        GroupTrainingsReviews updatedGroupTrainingsReview = new GroupTrainingsReviews(reviewId, trainingName,
+        GroupTrainingsReviews updatedGroupTrainingsReview = new GroupTrainingsReviews(reviewId, trainingTypeId,
                 clientId, date, starsAfterUpdate, textBeforeUpdate);
-        GroupTrainingReviewResponse response = new GroupTrainingReviewResponse(reviewId, trainingName,
+        GroupTrainingReviewResponse response = new GroupTrainingReviewResponse(reviewId, trainingTypeId,
                 clientId, date, starsAfterUpdate, textBeforeUpdate);
 
         //when
@@ -122,7 +122,7 @@ public class UpdateReviewServiceTest {
         //before
         String reviewId = "852ed953-e37f-435a-bd1e-9fb2a327c4d5";
         String clientId = "client123";
-        String trainingName = "TestTrainingName";
+        String trainingTypeId = "eeded953-e37f-435a-bd1e-9fb2a327c46m";
         String date = "2021-01-01";
         int starsBeforeUpdate = 5;
         String textBeforeUpdate = "Very good training!";
@@ -132,11 +132,11 @@ public class UpdateReviewServiceTest {
         GroupTrainingReviewUpdateRequest groupTrainingReviewUpdateRequestModel = new GroupTrainingReviewUpdateRequest(
                 starsAfterUpdate, textAfterUpdate);
 
-        GroupTrainingsReviews existingGroupTrainingsReview = new GroupTrainingsReviews(reviewId, trainingName,
+        GroupTrainingsReviews existingGroupTrainingsReview = new GroupTrainingsReviews(reviewId, trainingTypeId,
                 clientId, date, starsBeforeUpdate, textBeforeUpdate);
-        GroupTrainingsReviews updatedGroupTrainingsReview = new GroupTrainingsReviews(reviewId, trainingName,
+        GroupTrainingsReviews updatedGroupTrainingsReview = new GroupTrainingsReviews(reviewId, trainingTypeId,
                 clientId, date, starsAfterUpdate, textAfterUpdate);
-        GroupTrainingReviewResponse response = new GroupTrainingReviewResponse(reviewId, trainingName,
+        GroupTrainingReviewResponse response = new GroupTrainingReviewResponse(reviewId, trainingTypeId,
                 clientId, date, starsAfterUpdate, textAfterUpdate);
 
         //when
@@ -164,7 +164,7 @@ public class UpdateReviewServiceTest {
         //before
         String reviewId = "852ed953-e37f-435a-bd1e-9fb2a327c4d5";
         String clientId = "client123";
-        String trainingName = "TestTrainingName";
+        String trainingTypeId = "eeded953-e37f-435a-bd1e-9fb2a327c46m";
         String date = "2021-01-01";
         int starsBeforeUpdate = 5;
         String textBeforeUpdate = "Very good training!";
@@ -174,11 +174,11 @@ public class UpdateReviewServiceTest {
         GroupTrainingReviewUpdateRequest groupTrainingReviewUpdateRequestModel = new GroupTrainingReviewUpdateRequest(
                 starsAfterUpdate, textAfterUpdate);
 
-        GroupTrainingsReviews existingGroupTrainingsReview = new GroupTrainingsReviews(reviewId, trainingName,
+        GroupTrainingsReviews existingGroupTrainingsReview = new GroupTrainingsReviews(reviewId, trainingTypeId,
                 clientId, date, starsBeforeUpdate, textBeforeUpdate);
-        GroupTrainingsReviews updatedGroupTrainingsReview = new GroupTrainingsReviews(reviewId, trainingName,
+        GroupTrainingsReviews updatedGroupTrainingsReview = new GroupTrainingsReviews(reviewId, trainingTypeId,
                 clientId, date, starsAfterUpdate, textAfterUpdate);
-        GroupTrainingReviewResponse response = new GroupTrainingReviewResponse(reviewId, trainingName,
+        GroupTrainingReviewResponse response = new GroupTrainingReviewResponse(reviewId, trainingTypeId,
                 clientId, date, starsAfterUpdate, textAfterUpdate);
 
         //when
@@ -206,7 +206,7 @@ public class UpdateReviewServiceTest {
         //before
         String reviewId = "852ed953-e37f-435a-bd1e-9fb2a327c4d5";
         String clientId = "client123";
-        String trainingName = "TestTrainingName";
+        String trainingTypeId = "eeded953-e37f-435a-bd1e-9fb2a327c46m";
         String date = "2021-01-01";
         int starsBeforeUpdate = 5;
         String textBeforeUpdate = "Very good training!";
@@ -216,11 +216,11 @@ public class UpdateReviewServiceTest {
         GroupTrainingReviewUpdateRequest groupTrainingReviewUpdateRequestModel = new GroupTrainingReviewUpdateRequest(
                 starsAfterUpdate, textAfterUpdate);
 
-        GroupTrainingsReviews existingGroupTrainingsReview = new GroupTrainingsReviews(reviewId, trainingName,
+        GroupTrainingsReviews existingGroupTrainingsReview = new GroupTrainingsReviews(reviewId, trainingTypeId,
                 clientId, date, starsBeforeUpdate, textBeforeUpdate);
-        GroupTrainingsReviews updatedGroupTrainingsReview = new GroupTrainingsReviews(reviewId, trainingName,
+        GroupTrainingsReviews updatedGroupTrainingsReview = new GroupTrainingsReviews(reviewId, trainingTypeId,
                 clientId, date, starsAfterUpdate, textAfterUpdate);
-        GroupTrainingReviewResponse response = new GroupTrainingReviewResponse(reviewId, trainingName,
+        GroupTrainingReviewResponse response = new GroupTrainingReviewResponse(reviewId, trainingTypeId,
                 clientId, date, starsAfterUpdate, textAfterUpdate);
 
         //when
@@ -248,7 +248,7 @@ public class UpdateReviewServiceTest {
         //before
         String reviewId = "852ed953-e37f-435a-bd1e-9fb2a327c4d5";
         String clientId = "client123";
-        String trainingName = "TestTrainingName";
+        String trainingTypeId = "eeded953-e37f-435a-bd1e-9fb2a327c46m";
         String date = "2021-01-01";
         int starsBeforeUpdate = 5;
         String textBeforeUpdate = "Very good training!";
@@ -258,11 +258,11 @@ public class UpdateReviewServiceTest {
         GroupTrainingReviewUpdateRequest groupTrainingReviewUpdateRequestModel = new GroupTrainingReviewUpdateRequest(
                 starsAfterUpdate, textAfterUpdate);
 
-        GroupTrainingsReviews existingGroupTrainingsReview = new GroupTrainingsReviews(reviewId, trainingName,
+        GroupTrainingsReviews existingGroupTrainingsReview = new GroupTrainingsReviews(reviewId, trainingTypeId,
                 clientId, date, starsBeforeUpdate, textBeforeUpdate);
-        GroupTrainingsReviews updatedGroupTrainingsReview = new GroupTrainingsReviews(reviewId, trainingName,
+        GroupTrainingsReviews updatedGroupTrainingsReview = new GroupTrainingsReviews(reviewId, trainingTypeId,
                 clientId, date, starsAfterUpdate, textAfterUpdate);
-        GroupTrainingReviewResponse response = new GroupTrainingReviewResponse(reviewId, trainingName,
+        GroupTrainingReviewResponse response = new GroupTrainingReviewResponse(reviewId, trainingTypeId,
                 clientId, date, starsAfterUpdate, textAfterUpdate);
 
         //when

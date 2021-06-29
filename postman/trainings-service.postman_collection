@@ -2378,51 +2378,177 @@
 			"name": "Reviews",
 			"item": [
 				{
-					"name": "View group training all reviews",
-					"event": [
+					"name": "View",
+					"item": [
 						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"const { isEqual, isNull, isEmpty } = require('lodash');\r",
-									"\r",
-									"pm.test(\"Response status should be 200.\", () => {\r",
-									"    pm.expect(pm.response.code).equals(200);\r",
-									"});\r",
-									"\r",
-									"const resTime = Number.parseInt(pm.environment.get(\"responseTime\"));\r",
-									"\r",
-									"pm.test(`Response time should be less than ${resTime} ms.`, () => {\r",
-									"    pm.expect(pm.response.responseTime).to.be.lessThan(resTime);\r",
-									"});\r",
-									"\r",
-									"pm.test(\"Body not null\", () => {\r",
-									"    pm.expect(isNull(pm.response.body)).to.be.false;\r",
-									"});\r",
-									""
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "http://localhost:8020/trainings/reviews/all",
-							"protocol": "http",
-							"host": [
-								"localhost"
-							],
-							"port": "8020",
-							"path": [
-								"trainings",
-								"reviews",
-								"all"
+							"name": "All",
+							"item": [
+								{
+									"name": "View group training all reviews",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"const { isEqual, isNull, isEmpty } = require('lodash');\r",
+													"\r",
+													"pm.test(\"Response status should be 200.\", () => {\r",
+													"    pm.expect(pm.response.code).equals(200);\r",
+													"});\r",
+													"\r",
+													"const resTime = Number.parseInt(pm.environment.get(\"responseTime\"));\r",
+													"\r",
+													"pm.test(`Response time should be less than ${resTime} ms.`, () => {\r",
+													"    pm.expect(pm.response.responseTime).to.be.lessThan(resTime);\r",
+													"});\r",
+													"\r",
+													"pm.test(\"Body not null\", () => {\r",
+													"    pm.expect(isNull(pm.response.body)).to.be.false;\r",
+													"});\r",
+													""
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "http://localhost:8020/trainings/review/page/0?startDate=2021-06-10&endDate=2021-06-20",
+											"protocol": "http",
+											"host": [
+												"localhost"
+											],
+											"port": "8020",
+											"path": [
+												"trainings",
+												"review",
+												"page",
+												"0"
+											],
+											"query": [
+												{
+													"key": "startDate",
+													"value": "2021-06-10"
+												},
+												{
+													"key": "endDate",
+													"value": "2021-06-20"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Should Not View group training all reviews - when invalid dates",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"const { isEqual, isNull, isEmpty } = require('lodash');\r",
+													"\r",
+													"pm.test(\"Response status should be 400.\", () => {\r",
+													"    pm.expect(pm.response.code).equals(400);\r",
+													"});\r",
+													"\r",
+													"const resTime = Number.parseInt(pm.environment.get(\"responseTime\"));\r",
+													"\r",
+													"pm.test(`Response time should be less than ${resTime} ms.`, () => {\r",
+													"    pm.expect(pm.response.responseTime).to.be.lessThan(resTime);\r",
+													"});\r",
+													"\r",
+													"pm.test(\"Body not null\", () => {\r",
+													"    pm.expect(isNull(pm.response.body)).to.be.false;\r",
+													"});\r",
+													""
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "http://localhost:8020/trainings/review/page/0?startDate=2021-06-20&endDate=2021-06-10",
+											"protocol": "http",
+											"host": [
+												"localhost"
+											],
+											"port": "8020",
+											"path": [
+												"trainings",
+												"review",
+												"page",
+												"0"
+											],
+											"query": [
+												{
+													"key": "startDate",
+													"value": "2021-06-20"
+												},
+												{
+													"key": "endDate",
+													"value": "2021-06-10"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "View group training all reviews - public view",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "http://localhost:8020/trainings/trainingType/{trainingTypeId}/public/page/{page}",
+											"protocol": "http",
+											"host": [
+												"localhost"
+											],
+											"port": "8020",
+											"path": [
+												"trainings",
+												"trainingType",
+												"{trainingTypeId}",
+												"public",
+												"page",
+												"{page}"
+											]
+										}
+									},
+									"response": []
+								}
 							]
+						},
+						{
+							"name": "View group training review by training type ID",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://localhost:8020/trainings/trainingType/{trainingTypeId}/page/{page}",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8020",
+									"path": [
+										"trainings",
+										"trainingType",
+										"{trainingTypeId}",
+										"page",
+										"{page}"
+									]
+								}
+							},
+							"response": []
 						}
-					},
-					"response": []
+					]
 				},
 				{
 					"name": "View group training review by id",
@@ -2499,7 +2625,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"trainingName\" : \"TestTraining1\",\r\n    \"stars\" : 5,\r\n    \"text\" : \"Very good, training\"\r\n}",
+							"raw": "{\r\n    \"trainingTypeId\" : \"eeded953-e37f-435a-bd1e-9fb2a327c46m\",\r\n    \"stars\" : 5,\r\n    \"text\" : \"Very good, training\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"

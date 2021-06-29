@@ -30,14 +30,12 @@ import java.util.Map;
 public class ReviewController {
 
     private final Translator translator;
-    private final GroupTrainingService groupTrainingsService;
     private final ReviewService reviewService;
 
     @Autowired
-    public ReviewController(Translator translator, GroupTrainingService groupTrainingsService,
+    public ReviewController(Translator translator,
                             ReviewService reviewService) {
         this.translator = translator;
-        this.groupTrainingsService = groupTrainingsService;
         this.reviewService = reviewService;
     }
 

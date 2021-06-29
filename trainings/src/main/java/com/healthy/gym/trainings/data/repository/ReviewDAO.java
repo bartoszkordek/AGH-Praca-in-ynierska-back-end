@@ -23,6 +23,7 @@ public interface ReviewDAO extends MongoRepository<GroupTrainingsReviews, String
     public GroupTrainingsReviews findGroupTrainingsReviewsByReviewId(String id);
 
     public void removeById(String id);
+    public void removeByReviewId(String reviewId);
 
     Page<GroupTrainingReviewResponse> findByDateBetween(String startDate, String endDate, Pageable pageable);
     Page<GroupTrainingReviewResponse> findByDateBetweenAndClientId(String startDate, String endDate, String clientId, Pageable pageable);
@@ -31,5 +32,4 @@ public interface ReviewDAO extends MongoRepository<GroupTrainingsReviews, String
     Page<GroupTrainingReviewResponse> findByDateBetweenAndTrainingName(String startDate, String endDate, String trainingTypeId, Pageable pageable);
     Page<GroupTrainingReviewPublicResponse> getAllByDateBetweenAndTrainingName(String startDate, String endDate, String trainingTypeId, Pageable pageable);
 
-    public void removeByReviewId(String reviewId);
 }

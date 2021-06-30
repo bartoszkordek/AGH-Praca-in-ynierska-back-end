@@ -15,18 +15,19 @@ public interface ReviewDAO extends MongoRepository<GroupTrainingsReviews, String
     public List<GroupTrainingsReviews> findAll();
 
     public boolean existsById(String id);
-    public boolean existsByIdAndAndClientId(String reviewId, String clientId);
+    public boolean existsByReviewId(String reviewId);
+    public boolean existsByReviewIdAndAndClientId(String reviewId, String clientId);
 
-    public GroupTrainingsReviews findFirstBy(String id);
+    public GroupTrainingReviewResponse getFirstByReviewId(String reviewId);
     public GroupTrainingsReviews getFirstBy(String id);
-    public GroupTrainingsReviews findGroupTrainingsReviewsById(String id);
+    public GroupTrainingsReviews findGroupTrainingsReviewsByReviewId(String id);
 
     public void removeById(String id);
+    public void removeByReviewId(String reviewId);
 
     Page<GroupTrainingReviewResponse> findByDateBetween(String startDate, String endDate, Pageable pageable);
     Page<GroupTrainingReviewResponse> findByDateBetweenAndClientId(String startDate, String endDate, String clientId, Pageable pageable);
 
-    //TBC if TrainingName == Training Type ID
-    Page<GroupTrainingReviewResponse> findByDateBetweenAndTrainingName(String startDate, String endDate, String trainingTypeId, Pageable pageable);
-    Page<GroupTrainingReviewPublicResponse> getAllByDateBetweenAndTrainingName(String startDate, String endDate, String trainingTypeId, Pageable pageable);
+    Page<GroupTrainingReviewResponse> findByDateBetweenAndTrainingTypeId(String startDate, String endDate, String trainingTypeId, Pageable pageable);
+    Page<GroupTrainingReviewPublicResponse> getAllByDateBetweenAndTrainingTypeId(String startDate, String endDate, String trainingTypeId, Pageable pageable);
 }

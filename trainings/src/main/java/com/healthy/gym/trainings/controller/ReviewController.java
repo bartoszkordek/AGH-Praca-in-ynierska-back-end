@@ -15,6 +15,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
@@ -30,14 +31,12 @@ import java.util.Map;
 public class ReviewController {
 
     private final Translator translator;
-    private final GroupTrainingService groupTrainingsService;
     private final ReviewService reviewService;
 
     @Autowired
-    public ReviewController(Translator translator, GroupTrainingService groupTrainingsService,
+    public ReviewController(Translator translator,
                             ReviewService reviewService) {
         this.translator = translator;
-        this.groupTrainingsService = groupTrainingsService;
         this.reviewService = reviewService;
     }
 
@@ -69,14 +68,26 @@ public class ReviewController {
 
     //TODO only logged in users
     @PostMapping
-    public GroupTrainingReviewResponse createGroupTrainingReview(
+    public ResponseEntity<GroupTrainingReviewResponse> createGroupTrainingReview(
             @Valid @RequestBody GroupTrainingReviewRequest groupTrainingsReviews,
             @RequestParam final String clientId
     ) {
         try {
-            return reviewService.createGroupTrainingReview(groupTrainingsReviews, clientId);
+            GroupTrainingReviewResponse response = reviewService.createGroupTrainingReview(groupTrainingsReviews, clientId);
+            return ResponseEntity
+                    .status(HttpStatus.CREATED)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(response);
         } catch (StarsOutOfRangeException e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage(), e);
+            String reason = translator.toLocale("exception.review.stars.out.of.range");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, e);
+        } catch (TrainingTypeNotFoundException e){
+            String reason = translator.toLocale("exception.not.found.training.type");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, e);
+        } catch (Exception exception) {
+            String reason = translator.toLocale("exception.internal.error");
+            exception.printStackTrace();
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, reason, exception);
         }
     }
 
@@ -98,8 +109,16 @@ public class ReviewController {
 
             return new ResponseEntity<>(response, HttpStatus.OK);
 
-        } catch (ParseException | StartDateAfterEndDateException e){
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage(), e);
+        } catch (ParseException e){
+            String reason = translator.toLocale("exception.date.or.hour.parse");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, e);
+        } catch (StartDateAfterEndDateException e){
+            String reason = translator.toLocale("exception.review.stars.out.of.range");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, e);
+        } catch (Exception exception) {
+            String reason = translator.toLocale("exception.internal.error");
+            exception.printStackTrace();
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, reason, exception);
         }
 
     }
@@ -121,8 +140,19 @@ public class ReviewController {
             Map<String, Object> response = reviewPaginationResponse(pageReviews);
 
             return new ResponseEntity<>(response, HttpStatus.OK);
-        } catch (ParseException | StartDateAfterEndDateException | InvalidUserIdException e){
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage(), e);
+        } catch (ParseException e) {
+            String reason = translator.toLocale("exception.date.or.hour.parse");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, e);
+        } catch (StartDateAfterEndDateException e) {
+            String reason = translator.toLocale("exception.review.stars.out.of.range");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, e);
+        }  catch (InvalidUserIdException e){
+            String reason = translator.toLocale("exception.not.found.user.id");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, e);
+        } catch (Exception exception) {
+            String reason = translator.toLocale("exception.internal.error");
+            exception.printStackTrace();
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, reason, exception);
         }
     }
 
@@ -143,8 +173,19 @@ public class ReviewController {
             Map<String, Object> response = reviewPaginationResponse(pageReviews);
 
             return new ResponseEntity<>(response, HttpStatus.OK);
-        } catch (ParseException | StartDateAfterEndDateException | TrainingTypeNotFoundException e){
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage(), e);
+        } catch (ParseException e) {
+            String reason = translator.toLocale("exception.date.or.hour.parse");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, e);
+        } catch (StartDateAfterEndDateException e) {
+            String reason = translator.toLocale("exception.review.stars.out.of.range");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, e);
+        } catch (TrainingTypeNotFoundException e){
+            String reason = translator.toLocale("exception.not.found.training.type");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, e);
+        } catch (Exception exception) {
+            String reason = translator.toLocale("exception.internal.error");
+            exception.printStackTrace();
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, reason, exception);
         }
     }
 
@@ -165,51 +206,77 @@ public class ReviewController {
             Map<String, Object> response = reviewPaginationPublicResponse(pageReviews);
             return new ResponseEntity<>(response, HttpStatus.OK);
 
-        } catch (ParseException | StartDateAfterEndDateException | TrainingTypeNotFoundException e){
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage(), e);
+        } catch (ParseException e) {
+            String reason = translator.toLocale("exception.date.or.hour.parse");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, e);
+        } catch (StartDateAfterEndDateException e) {
+            String reason = translator.toLocale("exception.review.stars.out.of.range");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, e);
+        } catch (TrainingTypeNotFoundException e){
+            String reason = translator.toLocale("exception.not.found.training.type");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, e);
+        } catch (Exception exception) {
+            String reason = translator.toLocale("exception.internal.error");
+            exception.printStackTrace();
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, reason, exception);
         }
     }
 
     @GetMapping("/{reviewId}")
-    public GroupTrainingsReviews getGroupTrainingReviewById(
+    public GroupTrainingReviewResponse getGroupTrainingReviewById(
             @PathVariable("reviewId") final String reviewId
     ) {
         try {
-            return groupTrainingsService.getGroupTrainingReviewById(reviewId);
+            return reviewService.getReviewByReviewId(reviewId);
         } catch (NotExistingGroupTrainingReviewException e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage(), e);
+            String reason = translator.toLocale("exception.not.found.review.id");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, e);
+        } catch (Exception exception) {
+            String reason = translator.toLocale("exception.internal.error");
+            exception.printStackTrace();
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, reason, exception);
         }
     }
 
     //TODO only user own review
     @PutMapping("/{reviewId}")
-    public GroupTrainingsReviews updateGroupTrainingReview(
-            @Valid @RequestBody final GroupTrainingReviewUpdateRequest groupTrainingsReviewsUpdateModel,
+    public GroupTrainingReviewResponse updateGroupTrainingReview(
+            @Valid @RequestBody final GroupTrainingReviewUpdateRequest groupTrainingReviewUpdateRequestModel,
             @PathVariable("reviewId") final String reviewId,
             @RequestParam final String clientId
     ) {
         try {
-            return groupTrainingsService.updateGroupTrainingReview(groupTrainingsReviewsUpdateModel, reviewId, clientId);
-        } catch (NotExistingGroupTrainingReviewException | StarsOutOfRangeException e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage(), e);
+            return reviewService.updateGroupTrainingReviewByReviewId(groupTrainingReviewUpdateRequestModel, reviewId, clientId);//groupTrainingsService.updateGroupTrainingReview(groupTrainingReviewUpdateRequestModel, reviewId, clientId);
+        } catch (NotExistingGroupTrainingReviewException e) {
+            String reason = translator.toLocale("exception.not.found.review.id");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, e);
+        } catch (StarsOutOfRangeException e) {
+            String reason = translator.toLocale("exception.review.stars.out.of.range");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, e);
         } catch (NotAuthorizedClientException e) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, e.getMessage(), e);
-
+            String reason = translator.toLocale("exception.access.denied");
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, reason, e);
+        } catch (Exception exception) {
+            String reason = translator.toLocale("exception.internal.error");
+            exception.printStackTrace();
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, reason, exception);
         }
     }
 
     //TODO only admin and user own review
     @DeleteMapping("/{reviewId}")
-    public GroupTrainingsReviews removeGroupTrainingReview(
+    public GroupTrainingReviewResponse removeGroupTrainingReview(
             @PathVariable("reviewId") final String reviewId,
             @RequestParam final String clientId
     ) {
         try {
-            return groupTrainingsService.removeGroupTrainingReview(reviewId, clientId);
+            return reviewService.removeGroupTrainingReviewByReviewId(reviewId, clientId);
         } catch (NotExistingGroupTrainingReviewException e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage(), e);
+            String reason = translator.toLocale("exception.not.found.review.id");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, e);
         } catch (NotAuthorizedClientException e) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, e.getMessage(), e);
+            String reason = translator.toLocale("exception.access.denied");
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, reason, e);
         }
     }
 }

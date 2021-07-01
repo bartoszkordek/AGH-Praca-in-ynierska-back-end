@@ -1,13 +1,19 @@
 package com.healthy.gym.account.pojo.response;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.util.Objects;
 
 public class AccountUserInfoResponse extends AbstractResponse {
 
-    private final String name;
-    private final String surname;
-    private final String email;
-    private final String phone;
+    private String name;
+    private String surname;
+    private String email;
+    @JsonProperty("phone")
+    private String phoneNumber;
+
+    public AccountUserInfoResponse() {
+    }
 
     public AccountUserInfoResponse(
             String message,
@@ -20,7 +26,7 @@ public class AccountUserInfoResponse extends AbstractResponse {
         this.name = name;
         this.surname = surname;
         this.email = email;
-        this.phone = phone;
+        this.phoneNumber = phone;
     }
 
     public AccountUserInfoResponse(
@@ -32,7 +38,39 @@ public class AccountUserInfoResponse extends AbstractResponse {
         this.name = name;
         this.surname = surname;
         this.email = email;
-        this.phone = phone;
+        this.phoneNumber = phone;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getSurname() {
+        return surname;
+    }
+
+    public void setSurname(String surname) {
+        this.surname = surname;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public String getPhoneNumber() {
+        return phoneNumber;
+    }
+
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
     }
 
     @Override
@@ -44,12 +82,12 @@ public class AccountUserInfoResponse extends AbstractResponse {
         return Objects.equals(name, that.name)
                 && Objects.equals(surname, that.surname)
                 && Objects.equals(email, that.email)
-                && Objects.equals(phone, that.phone);
+                && Objects.equals(phoneNumber, that.phoneNumber);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), name, surname, email, phone);
+        return Objects.hash(super.hashCode(), name, surname, email, phoneNumber);
     }
 
     @Override
@@ -58,7 +96,7 @@ public class AccountUserInfoResponse extends AbstractResponse {
                 "name='" + name + '\'' +
                 ", surname='" + surname + '\'' +
                 ", email='" + email + '\'' +
-                ", phone='" + phone + '\'' +
+                ", phone='" + phoneNumber + '\'' +
                 "} " + super.toString();
     }
 }

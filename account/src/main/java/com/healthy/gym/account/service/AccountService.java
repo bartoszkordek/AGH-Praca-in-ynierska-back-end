@@ -15,6 +15,8 @@ public interface AccountService {
 
     UserDTO deleteAccount(String userId);
 
+    UserDTO getAccountInfo(String userId);
+
     UserPrivacyDTO changeUserPrivacy(UserPrivacyDTO userPrivacyDTO, String userId)
             throws UserPrivacyNotUpdatedException;
 }

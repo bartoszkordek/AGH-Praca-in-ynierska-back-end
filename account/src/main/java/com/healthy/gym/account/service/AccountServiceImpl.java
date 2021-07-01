@@ -41,7 +41,7 @@ public class AccountServiceImpl implements AccountService {
     public UserDTO changePassword(String userId, String oldPassword, String newPassword)
             throws OldPasswordDoesNotMatchException, IdenticalOldAndNewPasswordException {
         UserDocument foundUser = userDAO.findByUserId(userId);
-        if (foundUser == null) throw new UsernameNotFoundException("User not found.");
+        if (foundUser == null) throw new UsernameNotFoundException(getExceptionMessage(userId));
         validateIfOldPasswordMatches(oldPassword, foundUser);
         validateIfNewPasswordIsNotEqualToOldPassword(newPassword, foundUser);
 
@@ -49,6 +49,10 @@ public class AccountServiceImpl implements AccountService {
         UserDocument updateUser = userDAO.save(foundUser);
 
         return modelMapper.map(updateUser, UserDTO.class);
+    }
+
+    private String getExceptionMessage(String userId) {
+        return "User with id: " + userId + "not found.";
     }
 
     private void validateIfOldPasswordMatches(String oldPassword, UserDocument foundUser)
@@ -73,7 +77,7 @@ public class AccountServiceImpl implements AccountService {
     public UserDTO changeUserData(UserDTO userDataToUpdate) throws UserDataNotUpdatedException {
         String userId = userDataToUpdate.getUserId();
         UserDocument foundUser = userDAO.findByUserId(userId);
-        if (foundUser == null) throw new UsernameNotFoundException("User not found.");
+        if (foundUser == null) throw new UsernameNotFoundException(getExceptionMessage(userId));
 
         updateFoundUserExceptUserId(foundUser, userDataToUpdate);
         UserDocument userDocumentUpdated = userDAO.save(foundUser);
@@ -125,8 +129,15 @@ public class AccountServiceImpl implements AccountService {
     @Override
     public UserDTO deleteAccount(String userId) {
         UserDocument foundUser = userDAO.findByUserId(userId);
-        if (foundUser == null) throw new UsernameNotFoundException("User not found.");
+        if (foundUser == null) throw new UsernameNotFoundException(getExceptionMessage(userId));
         userDAO.delete(foundUser);
+        return modelMapper.map(foundUser, UserDTO.class);
+    }
+
+    @Override
+    public UserDTO getAccountInfo(String userId) {
+        UserDocument foundUser = userDAO.findByUserId(userId);
+        if (foundUser == null) throw new UsernameNotFoundException(getExceptionMessage(userId));
         return modelMapper.map(foundUser, UserDTO.class);
     }
 
@@ -135,7 +146,7 @@ public class AccountServiceImpl implements AccountService {
             throws UserPrivacyNotUpdatedException {
 
         UserDocument foundUser = userDAO.findByUserId(userId);
-        if (foundUser == null) throw new UsernameNotFoundException("User not found.");
+        if (foundUser == null) throw new UsernameNotFoundException(getExceptionMessage(userId));
 
         UserPrivacyDocument privacyDocument = userPrivacyDAO.findByUserDocument(foundUser);
 

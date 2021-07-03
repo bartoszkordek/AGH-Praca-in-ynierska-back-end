@@ -5,6 +5,7 @@ import com.healthy.gym.account.component.TokenManager;
 import com.healthy.gym.account.configuration.tests.TestCountry;
 import com.healthy.gym.account.controller.PhotoController;
 import com.healthy.gym.account.exception.UserAvatarNotFoundException;
+import com.healthy.gym.account.pojo.Image;
 import com.healthy.gym.account.service.AccountService;
 import com.healthy.gym.account.service.PhotoService;
 import com.healthy.gym.account.shared.PhotoDTO;
@@ -90,7 +91,7 @@ class WhenGetAvatar {
                 MediaType.IMAGE_PNG_VALUE,
                 "data".getBytes(StandardCharsets.UTF_8)
         );
-        photoDTO = new PhotoDTO(userId, "avatar", validFile.getBytes());
+        photoDTO = new PhotoDTO(userId, "avatar", new Image(validFile.getBytes(), MediaType.IMAGE_PNG_VALUE));
     }
 
     @ParameterizedTest
@@ -134,7 +135,7 @@ class WhenGetAvatar {
         when(photoService.getAvatar(userId)).thenReturn(new PhotoDTO(
                 UUID.randomUUID().toString(),
                 "title",
-                data
+                new Image(data, MediaType.IMAGE_PNG_VALUE)
         ));
 
         RequestBuilder request = MockMvcRequestBuilders

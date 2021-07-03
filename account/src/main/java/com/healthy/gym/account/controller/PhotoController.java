@@ -4,6 +4,7 @@ import com.healthy.gym.account.component.ImageValidator;
 import com.healthy.gym.account.component.Translator;
 import com.healthy.gym.account.exception.PhotoSavingException;
 import com.healthy.gym.account.exception.UserAvatarNotFoundException;
+import com.healthy.gym.account.pojo.Image;
 import com.healthy.gym.account.pojo.response.GetAvatarResponse;
 import com.healthy.gym.account.pojo.response.SetAvatarResponse;
 import com.healthy.gym.account.service.AccountService;
@@ -60,7 +61,14 @@ public class PhotoController {
     ) {
         try {
             imageValidator.isFileSupported(multipartFile);
-            PhotoDTO photoDTO = new PhotoDTO(userId, multipartFile.getOriginalFilename(), multipartFile.getBytes());
+            PhotoDTO photoDTO = new PhotoDTO(
+                    userId,
+                    multipartFile.getOriginalFilename(),
+                    new Image(
+                            multipartFile.getBytes(),
+                            multipartFile.getContentType()
+                    )
+            );
             photoService.setAvatar(photoDTO);
             String message = translator.toLocale("avatar.update.success");
             return ResponseEntity.status(HttpStatus.OK).body(new SetAvatarResponse(message));
@@ -93,7 +101,7 @@ public class PhotoController {
     public ResponseEntity<GetAvatarResponse> getAvatar(@PathVariable("id") String userId) {
         try {
             PhotoDTO photoDTO = photoService.getAvatar(userId);
-            String imageBase64 = Base64.getEncoder().encodeToString(photoDTO.getImage());
+            String imageBase64 = Base64.getEncoder().encodeToString(photoDTO.getImage().getData().getData());
             String message = translator.toLocale("avatar.get.found");
             GetAvatarResponse response = new GetAvatarResponse(message, imageBase64);
             return ResponseEntity.status(HttpStatus.OK).body(response);

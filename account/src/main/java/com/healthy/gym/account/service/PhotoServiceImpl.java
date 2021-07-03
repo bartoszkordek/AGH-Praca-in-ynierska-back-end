@@ -6,8 +6,8 @@ import com.healthy.gym.account.data.repository.PhotoDAO;
 import com.healthy.gym.account.data.repository.UserDAO;
 import com.healthy.gym.account.exception.PhotoSavingException;
 import com.healthy.gym.account.exception.UserAvatarNotFoundException;
+import com.healthy.gym.account.pojo.Image;
 import com.healthy.gym.account.shared.PhotoDTO;
-import org.bson.types.Binary;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,7 +34,7 @@ public class PhotoServiceImpl implements PhotoService {
         if (photoDocument == null) throw new UserAvatarNotFoundException();
 
         PhotoDTO returnPhoto = modelMapper.map(photoDocument, PhotoDTO.class);
-        returnPhoto.setImage(photoDocument.getImage().getData());
+        returnPhoto.setImage(photoDocument.getImage());
 
         return returnPhoto;
     }
@@ -47,7 +47,7 @@ public class PhotoServiceImpl implements PhotoService {
 
         PhotoDocument photoSaved = savePhoto(userId, avatar);
         PhotoDTO photoDTOSaved = modelMapper.map(photoSaved, PhotoDTO.class);
-        photoDTOSaved.setImage(photoSaved.getImage().getData());
+        photoDTOSaved.setImage(photoSaved.getImage());
 
         if (!photoDTOSaved.equals(avatar)) throw new PhotoSavingException();
 
@@ -55,9 +55,9 @@ public class PhotoServiceImpl implements PhotoService {
     }
 
     private PhotoDocument savePhoto(String userId, PhotoDTO avatar) {
-        byte[] data = avatar.getImage();
+        Image image = avatar.getImage();
         String title = avatar.getTitle();
-        PhotoDocument photoToSave = new PhotoDocument(userId, title, new Binary(data));
+        PhotoDocument photoToSave = new PhotoDocument(userId, title, image);
         return photoDAO.save(photoToSave);
     }
 }

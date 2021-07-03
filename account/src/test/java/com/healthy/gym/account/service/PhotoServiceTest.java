@@ -6,6 +6,7 @@ import com.healthy.gym.account.data.repository.PhotoDAO;
 import com.healthy.gym.account.data.repository.UserDAO;
 import com.healthy.gym.account.exception.PhotoSavingException;
 import com.healthy.gym.account.exception.UserAvatarNotFoundException;
+import com.healthy.gym.account.pojo.Image;
 import com.healthy.gym.account.shared.PhotoDTO;
 import org.bson.types.Binary;
 import org.junit.jupiter.api.BeforeEach;
@@ -14,6 +15,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.MediaType;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 import java.nio.charset.StandardCharsets;
@@ -21,7 +23,6 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 @SpringBootTest
@@ -44,8 +45,10 @@ class PhotoServiceTest {
     void setUp() {
         byte[] data = "sample data".getBytes(StandardCharsets.UTF_8);
         userId = UUID.randomUUID().toString();
-        photoDTO = new PhotoDTO(userId, "Avatar", data);
-        photoDocument = new PhotoDocument(userId, "Avatar", new Binary(data));
+        photoDTO = new PhotoDTO(userId, "Avatar", new Image(data, MediaType.IMAGE_JPEG_VALUE));
+        photoDocument = new PhotoDocument(userId, "Avatar",
+                new Image(new Binary(data), MediaType.IMAGE_JPEG_VALUE)
+        );
     }
 
     @Nested
@@ -82,7 +85,9 @@ class PhotoServiceTest {
             PhotoDocument savedDocument = new PhotoDocument(
                     UUID.randomUUID().toString(),
                     "title",
-                    new Binary("data".getBytes(StandardCharsets.UTF_8))
+                    new Image(
+                            new Binary("data".getBytes(StandardCharsets.UTF_8)), MediaType.IMAGE_JPEG_VALUE
+                    )
             );
             when(photoDAO.save(photoDocument)).thenReturn(savedDocument);
             assertThatThrownBy(
@@ -97,7 +102,7 @@ class PhotoServiceTest {
             PhotoDocument savedDocument = new PhotoDocument(
                     userId,
                     "Avatar",
-                    new Binary(data)
+                    new Image(new Binary(data), MediaType.IMAGE_JPEG_VALUE)
             );
             when(photoDAO.save(photoDocument)).thenReturn(savedDocument);
             PhotoDTO setAvatar = photoService.setAvatar(photoDTO);

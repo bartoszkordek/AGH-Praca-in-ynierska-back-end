@@ -1,17 +1,18 @@
 package com.healthy.gym.account.shared;
 
-import java.util.Arrays;
+import com.healthy.gym.account.pojo.Image;
+
 import java.util.Objects;
 
 public class PhotoDTO {
     private String userId;
     private String title;
-    private byte[] image;
+    private Image image;
 
     public PhotoDTO() {
     }
 
-    public PhotoDTO(String userId, String title, byte[] image) {
+    public PhotoDTO(String userId, String title, Image image) {
         this.userId = userId;
         this.title = title;
         this.image = image;
@@ -33,11 +34,11 @@ public class PhotoDTO {
         this.title = title;
     }
 
-    public byte[] getImage() {
+    public Image getImage() {
         return image;
     }
 
-    public void setImage(byte[] image) {
+    public void setImage(Image image) {
         this.image = image;
     }
 
@@ -48,14 +49,12 @@ public class PhotoDTO {
         PhotoDTO photoDTO = (PhotoDTO) o;
         return Objects.equals(userId, photoDTO.userId)
                 && Objects.equals(title, photoDTO.title)
-                && Arrays.equals(image, photoDTO.image);
+                && Objects.equals(image, photoDTO.image);
     }
 
     @Override
     public int hashCode() {
-        int result = Objects.hash(userId, title);
-        result = 31 * result + Arrays.hashCode(image);
-        return result;
+        return Objects.hash(userId, title, image);
     }
 
     @Override
@@ -63,7 +62,7 @@ public class PhotoDTO {
         return "PhotoDTO{" +
                 "userId='" + userId + '\'' +
                 ", title='" + title + '\'' +
-                ", image=" + Arrays.toString(image) +
+                ", image=" + image +
                 '}';
     }
 }

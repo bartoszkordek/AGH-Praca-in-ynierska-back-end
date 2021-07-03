@@ -1,6 +1,7 @@
 package com.healthy.gym.account.data.repository;
 
 import com.healthy.gym.account.data.document.PhotoDocument;
+import com.healthy.gym.account.pojo.Image;
 import org.bson.types.Binary;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -43,7 +44,7 @@ class PhotoDAOTest {
     void setUp() {
         userId = UUID.randomUUID().toString();
         Binary binary = new Binary(userId.getBytes(StandardCharsets.UTF_8));
-        photoDocument = new PhotoDocument(userId, "Avatar", binary);
+        photoDocument = new PhotoDocument(userId, "Avatar", new Image(binary,"image/jpeg"));
         mongoTemplate.save(photoDocument);
     }
 

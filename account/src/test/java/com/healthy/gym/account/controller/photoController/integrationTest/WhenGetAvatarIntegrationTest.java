@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.healthy.gym.account.component.TokenManager;
 import com.healthy.gym.account.configuration.tests.TestCountry;
 import com.healthy.gym.account.data.document.PhotoDocument;
+import com.healthy.gym.account.pojo.Image;
 import io.jsonwebtoken.Jwts;
 import org.bson.types.Binary;
 import org.junit.jupiter.api.AfterEach;
@@ -93,7 +94,7 @@ class WhenGetAvatarIntegrationTest {
         Path filePath = resource.getFile().toPath();
         imageBytes = Files.readAllBytes(filePath);
         Binary image = new Binary(imageBytes);
-        avatar = new PhotoDocument(userId, "title", image);
+        avatar = new PhotoDocument(userId, "title", new Image(image, MediaType.IMAGE_JPEG_VALUE));
 
         mongoTemplate.save(avatar);
     }

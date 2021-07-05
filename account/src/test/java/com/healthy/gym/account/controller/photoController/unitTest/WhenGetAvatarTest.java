@@ -1,15 +1,12 @@
 package com.healthy.gym.account.controller.photoController.unitTest;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.healthy.gym.account.component.TokenManager;
 import com.healthy.gym.account.configuration.tests.TestCountry;
+import com.healthy.gym.account.configuration.tests.TestRoleTokenFactory;
 import com.healthy.gym.account.controller.PhotoController;
 import com.healthy.gym.account.exception.UserAvatarNotFoundException;
-import com.healthy.gym.account.pojo.Image;
 import com.healthy.gym.account.service.AccountService;
 import com.healthy.gym.account.service.PhotoService;
-import com.healthy.gym.account.shared.PhotoDTO;
-import io.jsonwebtoken.Jwts;
+import com.healthy.gym.account.shared.ImageDTO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
@@ -17,16 +14,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
-import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.RequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
-import java.io.IOException;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.util.Base64;
+import java.util.Locale;
+import java.util.Map;
+import java.util.UUID;
 
 import static com.healthy.gym.account.configuration.tests.LocaleConverter.convertEnumToLocale;
 import static com.healthy.gym.account.configuration.tests.Messages.getMessagesAccordingToLocale;
@@ -38,65 +36,32 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(PhotoController.class)
-class WhenGetAvatar {
+class WhenGetAvatarTest {
 
     @Autowired
     private MockMvc mockMvc;
 
     @Autowired
-    private TokenManager tokenManager;
+    private TestRoleTokenFactory tokenFactory;
 
     @MockBean
-    private AccountService accountService;
+    private AccountService accountService; // do NOT remove - necessary to load application context
 
     @MockBean
     private PhotoService photoService;
 
     private String userToken;
     private String userId;
-    private ObjectMapper objectMapper;
-    private PhotoDTO photoDTO;
-    private MockMultipartFile invalidFile;
-    private MockMultipartFile validFile;
-
-    private Date setTokenExpirationTime() {
-        long currentTime = System.currentTimeMillis();
-        long expirationTime = tokenManager.getExpirationTimeInMillis();
-        return new Date(currentTime + expirationTime);
-    }
 
     @BeforeEach
-    void setUp() throws IOException {
-        objectMapper = new ObjectMapper();
+    void setUp() {
         userId = UUID.randomUUID().toString();
-        userToken = tokenManager.getTokenPrefix() + " " + Jwts.builder()
-                .setSubject(userId)
-                .claim("roles", List.of("ROLE_USER"))
-                .setExpiration(setTokenExpirationTime())
-                .signWith(
-                        tokenManager.getSignatureAlgorithm(),
-                        tokenManager.getSigningKey()
-                )
-                .compact();
-        invalidFile = new MockMultipartFile(
-                "avatar",
-                "hello.txt",
-                MediaType.TEXT_PLAIN_VALUE,
-                "Hello, World!".getBytes(StandardCharsets.UTF_8)
-        );
-
-        validFile = new MockMultipartFile(
-                "avatar",
-                "hello.png",
-                MediaType.IMAGE_PNG_VALUE,
-                "data".getBytes(StandardCharsets.UTF_8)
-        );
-        photoDTO = new PhotoDTO(userId, "avatar", new Image(validFile.getBytes(), MediaType.IMAGE_PNG_VALUE));
+        userToken = tokenFactory.getUserToken(userId);
     }
 
     @ParameterizedTest
     @EnumSource(TestCountry.class)
-    void ShouldRejectRequestWhenUserIsNotLogIn(TestCountry country) throws Exception {
+    void shouldRejectRequestWhenUserIsNotLogIn(TestCountry country) throws Exception {
         Map<String, String> messages = getMessagesAccordingToLocale(country);
         Locale testedLocale = convertEnumToLocale(country);
 
@@ -132,11 +97,9 @@ class WhenGetAvatar {
         String dataBase64 = Base64.getEncoder().encodeToString(data);
 
         String expectedMessage = messages.get("avatar.get.found");
-        when(photoService.getAvatar(userId)).thenReturn(new PhotoDTO(
-                UUID.randomUUID().toString(),
-                "title",
-                new Image(data, MediaType.IMAGE_PNG_VALUE)
-        ));
+        when(photoService.getAvatar(userId)).thenReturn(
+                new ImageDTO(dataBase64, MediaType.IMAGE_JPEG_VALUE)
+        );
 
         RequestBuilder request = MockMvcRequestBuilders
                 .get(uri)
@@ -149,7 +112,8 @@ class WhenGetAvatar {
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.message").value(is(expectedMessage)))
-                .andExpect(jsonPath("$.avatar").value(is(dataBase64)));
+                .andExpect(jsonPath("$.avatar.data").value(is(dataBase64)))
+                .andExpect(jsonPath("$.avatar.format").value(is(MediaType.IMAGE_JPEG_VALUE)));
     }
 
     @ParameterizedTest

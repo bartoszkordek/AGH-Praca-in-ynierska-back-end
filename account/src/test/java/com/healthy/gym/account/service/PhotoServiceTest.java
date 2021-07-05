@@ -7,6 +7,7 @@ import com.healthy.gym.account.data.repository.UserDAO;
 import com.healthy.gym.account.exception.PhotoSavingException;
 import com.healthy.gym.account.exception.UserAvatarNotFoundException;
 import com.healthy.gym.account.pojo.Image;
+import com.healthy.gym.account.shared.ImageDTO;
 import com.healthy.gym.account.shared.PhotoDTO;
 import org.bson.types.Binary;
 import org.junit.jupiter.api.BeforeEach;
@@ -16,9 +17,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -28,6 +32,7 @@ import static org.mockito.Mockito.when;
 @SpringBootTest
 class PhotoServiceTest {
 
+    private ImageDTO imageDTO;
     private PhotoDTO photoDTO;
     private PhotoDocument photoDocument;
     private String userId;
@@ -41,13 +46,23 @@ class PhotoServiceTest {
     @MockBean
     private UserDAO userDAO;
 
+    private MockMultipartFile mockMultipartFile;
+
     @BeforeEach
     void setUp() {
         byte[] data = "sample data".getBytes(StandardCharsets.UTF_8);
         userId = UUID.randomUUID().toString();
+        String dataEncondedBase64 = Base64.getEncoder().encodeToString(data);
+        imageDTO = new ImageDTO(dataEncondedBase64, MediaType.IMAGE_JPEG_VALUE);
         photoDTO = new PhotoDTO(userId, "Avatar", new Image(data, MediaType.IMAGE_JPEG_VALUE));
         photoDocument = new PhotoDocument(userId, "Avatar",
                 new Image(new Binary(data), MediaType.IMAGE_JPEG_VALUE)
+        );
+        mockMultipartFile = new MockMultipartFile(
+                "avatar",
+                "hello.png",
+                MediaType.IMAGE_PNG_VALUE,
+                "data".getBytes(StandardCharsets.UTF_8)
         );
     }
 
@@ -64,8 +79,8 @@ class PhotoServiceTest {
         @Test
         void shouldReturnPhotoWhenFound() throws UserAvatarNotFoundException {
             when(photoDAO.findByUserId(userId)).thenReturn(photoDocument);
-            PhotoDTO returnPhoto = photoService.getAvatar(userId);
-            assertThat(returnPhoto).isEqualTo(photoDTO);
+            ImageDTO returnPhoto = photoService.getAvatar(userId);
+            assertThat(returnPhoto).isEqualTo(imageDTO);
         }
     }
 
@@ -75,7 +90,7 @@ class PhotoServiceTest {
         void shouldThrowExceptionWhenUserNotFound() {
             when(userDAO.findByUserId(userId)).thenReturn(null);
             assertThatThrownBy(
-                    () -> photoService.setAvatar(photoDTO)
+                    () -> photoService.setAvatar(userId, mockMultipartFile)
             ).isInstanceOf(UsernameNotFoundException.class);
         }
 
@@ -91,12 +106,12 @@ class PhotoServiceTest {
             );
             when(photoDAO.save(photoDocument)).thenReturn(savedDocument);
             assertThatThrownBy(
-                    () -> photoService.setAvatar(photoDTO)
+                    () -> photoService.setAvatar(userId, mockMultipartFile)
             ).isInstanceOf(PhotoSavingException.class);
         }
 
         @Test
-        void shouldProperlySetAvatar() throws PhotoSavingException {
+        void shouldProperlySetAvatar() throws PhotoSavingException, IOException {
             when(userDAO.findByUserId(userId)).thenReturn(new UserDocument());
             byte[] data = "sample data".getBytes(StandardCharsets.UTF_8);
             PhotoDocument savedDocument = new PhotoDocument(
@@ -105,8 +120,8 @@ class PhotoServiceTest {
                     new Image(new Binary(data), MediaType.IMAGE_JPEG_VALUE)
             );
             when(photoDAO.save(photoDocument)).thenReturn(savedDocument);
-            PhotoDTO setAvatar = photoService.setAvatar(photoDTO);
-            assertThat(setAvatar).isEqualTo(photoDTO);
+            ImageDTO setAvatar = photoService.setAvatar(userId, mockMultipartFile);
+            assertThat(setAvatar).isEqualTo(imageDTO);
         }
     }
 }

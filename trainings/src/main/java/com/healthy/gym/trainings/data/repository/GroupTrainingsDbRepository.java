@@ -4,6 +4,7 @@ import com.healthy.gym.trainings.configuration.MongoConfig;
 import com.healthy.gym.trainings.data.document.GroupTrainings;
 import com.healthy.gym.trainings.exception.InvalidDateException;
 import com.healthy.gym.trainings.exception.InvalidHourException;
+import com.healthy.gym.trainings.exception.StartDateAfterEndDateException;
 import com.healthy.gym.trainings.model.request.GroupTrainingRequest;
 import com.healthy.gym.trainings.model.response.GroupTrainingPublicResponse;
 import com.healthy.gym.trainings.model.response.GroupTrainingResponse;
@@ -39,9 +40,31 @@ public class GroupTrainingsDbRepository {
     private MongoClient mongoClient;
     private MongoDatabase mdb;
     private static String groupTrainingsCollectionName = "GroupTrainings";
+    private SimpleDateFormat sdfDate = new SimpleDateFormat("yyyy-MM-dd");
+    private String defaultStartDate = "1900-01-01";
+    private String defaultEndDate = "2099-12-31";
 
-    public List<GroupTrainingResponse> getGroupTrainings() throws InvalidHourException {
-        List<GroupTrainings> dbResponse = groupTrainingsRepository.findAll();
+
+    public List<GroupTrainingResponse> getGroupTrainings(String startDate, String endDate) throws InvalidHourException, StartDateAfterEndDateException, ParseException {
+        if(startDate == null)
+            startDate = defaultStartDate;
+
+        if(endDate == null)
+            endDate = defaultEndDate;
+
+        Date startDateParsed = sdfDate.parse(startDate);
+        Date startDateMinusOneDay = new Date(startDateParsed.getTime() - (1000 * 60 * 60 * 24));
+        Date endDateParsed = sdfDate.parse(endDate);
+        Date endDatePlusOneDay = new Date(endDateParsed.getTime() + (1000 * 60 * 60 * 24));
+        if(startDateParsed.after(endDateParsed)){
+            throw new StartDateAfterEndDateException("Start date after end date");
+        }
+
+        String startDateMinusOneDayFormatted = sdfDate.format(startDateMinusOneDay);
+        String endDatePlusOneDayFormatted = sdfDate.format(endDatePlusOneDay);
+
+        List<GroupTrainings> dbResponse = groupTrainingsRepository.findByDateBetween(startDateMinusOneDayFormatted,
+                endDatePlusOneDayFormatted);
         List<GroupTrainingResponse> result = new ArrayList<>();
         for(GroupTrainings training : dbResponse){
             GroupTrainingResponse groupTraining = new GroupTrainingResponse(training.getTrainingId(),

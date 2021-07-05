@@ -11,7 +11,7 @@ import java.util.List;
 
 public interface GroupTrainingService {
 
-    List<GroupTrainingResponse> getGroupTrainings() throws InvalidHourException;
+    List<GroupTrainingResponse> getGroupTrainings(String startDate, String endDate) throws InvalidHourException, StartDateAfterEndDateException, ParseException;
 
     List<GroupTrainingPublicResponse> getPublicGroupTrainings()
             throws InvalidHourException, InvalidDateException;

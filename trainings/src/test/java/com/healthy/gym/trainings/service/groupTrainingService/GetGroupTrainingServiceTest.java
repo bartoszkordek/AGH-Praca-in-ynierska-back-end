@@ -5,6 +5,7 @@ import com.healthy.gym.trainings.data.repository.GroupTrainingsDbRepository;
 import com.healthy.gym.trainings.exception.InvalidDateException;
 import com.healthy.gym.trainings.exception.InvalidHourException;
 import com.healthy.gym.trainings.exception.NotExistingGroupTrainingException;
+import com.healthy.gym.trainings.exception.StartDateAfterEndDateException;
 import com.healthy.gym.trainings.model.response.GroupTrainingPublicResponse;
 import com.healthy.gym.trainings.model.response.GroupTrainingResponse;
 import com.healthy.gym.trainings.service.GroupTrainingService;
@@ -16,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,13 +31,15 @@ public class GetGroupTrainingServiceTest {
     ApplicationContext applicationContext;
 
     @Test
-    public void shouldReturnAllGroupTrainings_whenValidRequest() throws InvalidHourException {
+    public void shouldReturnAllGroupTrainings_whenValidRequest() throws InvalidHourException, StartDateAfterEndDateException, ParseException {
         //mocks
         EmailConfig emailConfig = Mockito.mock(EmailConfig.class);
         GroupTrainingsDbRepository groupTrainingsDbRepository = Mockito.mock(GroupTrainingsDbRepository.class);
         GroupTrainingService groupTrainingService = new GroupTrainingServiceImpl(emailConfig, groupTrainingsDbRepository);
 
         //before
+        String startDate = "2000-01-01";
+        String endDate = "2030-12-31";
         String trainingId = "122ed953-e37f-435a-bd1e-9fb2a327c4d3";
         String trainingTypeId = "222ed952-es7f-435a-bd1e-9fb2a327c4dk";
         String trainerId = "Test Trainer";
@@ -53,10 +57,10 @@ public class GetGroupTrainingServiceTest {
         groupTrainings.add(groupTraining);
 
         //when
-        when(groupTrainingsDbRepository.getGroupTrainings()).thenReturn(groupTrainings);
+        when(groupTrainingsDbRepository.getGroupTrainings(startDate, endDate)).thenReturn(groupTrainings);
 
         //then
-        assertThat(groupTrainingService.getGroupTrainings()).isEqualTo(groupTrainings);
+        assertThat(groupTrainingService.getGroupTrainings(startDate, endDate)).isEqualTo(groupTrainings);
     }
 
     @Test

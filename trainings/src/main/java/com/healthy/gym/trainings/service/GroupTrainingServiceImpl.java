@@ -103,8 +103,9 @@ public class GroupTrainingServiceImpl implements GroupTrainingService {
         return false;
     }
 
-    public List<GroupTrainingResponse> getGroupTrainings() throws InvalidHourException {
-        return groupTrainingsDbRepository.getGroupTrainings();
+    public List<GroupTrainingResponse> getGroupTrainings(String startDate, String endDate)
+            throws InvalidHourException, StartDateAfterEndDateException, ParseException {
+        return groupTrainingsDbRepository.getGroupTrainings(startDate, endDate);
     }
 
     public List<GroupTrainingPublicResponse> getPublicGroupTrainings()

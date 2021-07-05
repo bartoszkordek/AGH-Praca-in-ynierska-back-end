@@ -7,6 +7,7 @@ import com.healthy.gym.trainings.model.response.GroupTrainingPublicResponse;
 import com.healthy.gym.trainings.model.response.GroupTrainingResponse;
 import com.healthy.gym.trainings.service.GroupTrainingService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -38,8 +39,15 @@ public class GroupTrainingController {
     }
 
     @GetMapping
-    public List<GroupTrainingResponse> getGroupTrainings() throws InvalidHourException {
-        return groupTrainingsService.getGroupTrainings();
+    public List<GroupTrainingResponse> getGroupTrainings(
+            @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") final String startDate,
+            @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") final String endDate)
+            throws ParseException, RestException {
+        try {
+            return groupTrainingsService.getGroupTrainings(startDate, endDate);
+        } catch (InvalidHourException | StartDateAfterEndDateException e){
+            throw new RestException(e.getMessage(), HttpStatus.BAD_REQUEST, e);
+        }
     }
 
     @GetMapping("/public")

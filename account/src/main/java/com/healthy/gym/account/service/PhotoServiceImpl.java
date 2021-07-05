@@ -8,10 +8,7 @@ import com.healthy.gym.account.exception.PhotoSavingException;
 import com.healthy.gym.account.exception.UserAvatarNotFoundException;
 import com.healthy.gym.account.pojo.Image;
 import com.healthy.gym.account.shared.ImageDTO;
-import com.healthy.gym.account.shared.PhotoDTO;
 import org.bson.types.Binary;
-import org.modelmapper.ModelMapper;
-import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
@@ -24,14 +21,11 @@ import java.util.Base64;
 public class PhotoServiceImpl implements PhotoService {
     private final PhotoDAO photoDAO;
     private final UserDAO userDAO;
-    private final ModelMapper modelMapper;
 
     @Autowired
     public PhotoServiceImpl(PhotoDAO photoDAO, UserDAO userDAO) {
         this.photoDAO = photoDAO;
         this.userDAO = userDAO;
-        modelMapper = new ModelMapper();
-        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
     }
 
     @Override
@@ -57,37 +51,52 @@ public class PhotoServiceImpl implements PhotoService {
     public ImageDTO setAvatar(String userId, MultipartFile multipartFile) throws PhotoSavingException, IOException {
         UserDocument userDocument = userDAO.findByUserId(userId);
         if (userDocument == null) throw new UsernameNotFoundException("No user with provided id " + userId);
-        PhotoDTO avatar = new PhotoDTO(
-                userId,
-                multipartFile.getOriginalFilename(),
-                new Image(
-                        multipartFile.getBytes(),
-                        multipartFile.getContentType()
-                )
+
+        Image image = new Image(
+                multipartFile.getBytes(),
+                multipartFile.getContentType()
         );
+        String imageTitle = multipartFile.getName();
 
-        PhotoDocument photoSaved = savePhoto(userId, avatar);
-        PhotoDTO photoDTOSaved = modelMapper.map(photoSaved, PhotoDTO.class);
+        PhotoDocument photoUpdated = setOrUpdateAvatar(userId, imageTitle, image);
+        checkIfSavedCorrectly(photoUpdated, image, imageTitle);
 
-        if (!photoDTOSaved.equals(avatar)) throw new PhotoSavingException();
+        String data = getDataEncodeBase64(photoUpdated);
+        String format = photoUpdated.getImage().getFormat();
 
-        //return photoDTOSaved;
-        return new ImageDTO();
+        return new ImageDTO(data, format);
     }
 
-    private PhotoDocument savePhoto(String userId, PhotoDTO avatar) {
-        Image image = avatar.getImage();
-        String title = avatar.getTitle();
-
-        PhotoDocument actualPhoto = photoDAO.findByUserId(userId);
+    private PhotoDocument setOrUpdateAvatar(
+            String userId,
+            String title,
+            Image image
+    ) {
+        PhotoDocument photoUpdated;
+        PhotoDocument actualPhoto = getCurrentAvatar(userId);
 
         if (actualPhoto != null) {
             actualPhoto.setTitle(title);
             actualPhoto.setImage(image);
-            return photoDAO.save(actualPhoto);
+            photoUpdated = photoDAO.save(actualPhoto);
+        } else {
+            PhotoDocument photoToSave = new PhotoDocument(userId, title, image);
+            photoUpdated = photoDAO.save(photoToSave);
         }
 
-        PhotoDocument photoToSave = new PhotoDocument(userId, title, image);
-        return photoDAO.save(photoToSave);
+        return photoUpdated;
+    }
+
+    private PhotoDocument getCurrentAvatar(String userId) {
+        return photoDAO.findByUserId(userId);
+    }
+
+    private void checkIfSavedCorrectly(PhotoDocument photoUpdated, Image imageToSave, String imageTitleToSave)
+            throws PhotoSavingException {
+        System.out.println(photoUpdated);
+        System.out.println(imageToSave);
+        System.out.println(imageTitleToSave);
+        if (!photoUpdated.getImage().equals(imageToSave) || !photoUpdated.getTitle().equals(imageTitleToSave))
+            throw new PhotoSavingException();
     }
 }

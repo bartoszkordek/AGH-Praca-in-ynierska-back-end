@@ -71,7 +71,7 @@ class WhenDeleteAccountTest {
 
     @Test
     void shouldThrowExceptionWhenProvidedUserIdIsInvalidOrDoestNotExist() {
-        when(userDAO.findByUserId(userId)).thenThrow(UsernameNotFoundException.class);
+        when(userDAO.findByUserId(userId)).thenReturn(null);
         assertThatThrownBy(() -> accountService.deleteAccount(userId))
                 .isInstanceOf(UsernameNotFoundException.class);
 

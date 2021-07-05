@@ -142,5 +142,44 @@ public class GetGroupTrainingServiceTest {
         groupTrainingService.getGroupTrainingById(invalidTrainingId);
     }
 
+    @Test
+    public void shouldGetTrainingParticipants_whenValidTrainingId() throws NotExistingGroupTrainingException {
+        //mocks
+        EmailConfig emailConfig = Mockito.mock(EmailConfig.class);
+        GroupTrainingsDbRepository groupTrainingsDbRepository = Mockito.mock(GroupTrainingsDbRepository.class);
+        GroupTrainingService groupTrainingService = new GroupTrainingServiceImpl(emailConfig, groupTrainingsDbRepository);
+
+        //before
+        String trainingId = "122ed953-e37f-435a-bd1e-9fb2a327c4d3";
+        String participant1 = "Participant 1";
+        String participant2 = "Participant 2";
+        List<String> participants = new ArrayList<>();
+        participants.add(participant1);
+        participants.add(participant2);
+
+        //when
+        when(groupTrainingsDbRepository.isGroupTrainingExist(trainingId)).thenReturn(true);
+        when(groupTrainingsDbRepository.getTrainingParticipants(trainingId)).thenReturn(participants);
+
+        //then
+        assertThat(groupTrainingService.getTrainingParticipants(trainingId));
+    }
+
+    @Test(expected = NotExistingGroupTrainingException.class)
+    public void shouldNotGetTrainingParticipants_whenInvalidTrainingId() throws NotExistingGroupTrainingException {
+        //mocks
+        EmailConfig emailConfig = Mockito.mock(EmailConfig.class);
+        GroupTrainingsDbRepository groupTrainingsDbRepository = Mockito.mock(GroupTrainingsDbRepository.class);
+        GroupTrainingService groupTrainingService = new GroupTrainingServiceImpl(emailConfig, groupTrainingsDbRepository);
+
+        //before
+        String invalidTrainingId = "122ed953-e37f-435a-bd1e-9fb2a327c4d3";
+
+        //when
+        when(groupTrainingsDbRepository.isGroupTrainingExist(invalidTrainingId)).thenReturn(false);
+
+        //then
+        groupTrainingService.getTrainingParticipants(invalidTrainingId);
+    }
 
 }

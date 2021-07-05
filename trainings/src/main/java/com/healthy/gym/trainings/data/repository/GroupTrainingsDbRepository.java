@@ -73,7 +73,7 @@ public class GroupTrainingsDbRepository {
     }
 
     public boolean isGroupTrainingExist(String trainingId){
-        return groupTrainingsRepository.existsById(trainingId);
+        return groupTrainingsRepository.existsByTrainingId(trainingId);
     }
 
     public boolean isAbilityToGroupTrainingEnrollment(String trainingId){
@@ -83,13 +83,13 @@ public class GroupTrainingsDbRepository {
         String todayDateFormatted = sdfDate.format(now);
         String timeNowFormatted = sdfTime.format(now);
 
-        if(!groupTrainingsRepository.existsById(trainingId)) return false;
+        if(!groupTrainingsRepository.existsByTrainingId(trainingId)) return false;
 
         int participantsCount = groupTrainingsRepository.getFirstByTrainingId(trainingId).getParticipants().size();
 
-        boolean isAbilityInTheFutureEvents = groupTrainingsRepository.existsByIdAndDateAfterAndLimitGreaterThan(trainingId,
+        boolean isAbilityInTheFutureEvents = groupTrainingsRepository.existsByTrainingIdAndDateAfterAndLimitGreaterThan(trainingId,
                 todayDateFormatted, participantsCount);
-        boolean isAbilityInTheTodayEvents = groupTrainingsRepository.existsByIdAndDateEqualsAndStartTimeAfterAndLimitGreaterThan(
+        boolean isAbilityInTheTodayEvents = groupTrainingsRepository.existsByTrainingIdAndDateEqualsAndStartTimeAfterAndLimitGreaterThan(
                 trainingId, todayDateFormatted, timeNowFormatted, participantsCount);
 
         return isAbilityInTheFutureEvents || isAbilityInTheTodayEvents;
@@ -201,7 +201,7 @@ public class GroupTrainingsDbRepository {
     }
 
     public GroupTrainings updateTraining(String trainingId, GroupTrainingRequest groupTrainingModelRequest) throws InvalidHourException {
-        boolean ifExistGroupTraining = groupTrainingsRepository.existsById(trainingId);
+        boolean ifExistGroupTraining = groupTrainingsRepository.existsByTrainingId(trainingId);
 
         GroupTrainings groupTrainings = null;
         if(ifExistGroupTraining){

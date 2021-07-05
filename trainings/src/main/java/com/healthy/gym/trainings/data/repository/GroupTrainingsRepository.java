@@ -11,10 +11,10 @@ public interface GroupTrainingsRepository extends MongoRepository<GroupTrainings
     public List<GroupTrainings> findGroupTrainingsByParticipantsContains(String clientId);
     public boolean existsByTrainingId(String trainingId);
     public boolean existsByDateAfter(String date);
-    public boolean existsByIdAndDateAfter(String id, String date);
+    public boolean existsTrainingIdAndDateAfter(String id, String date);
     public boolean existsByLimitGreaterThan(int participantsCount);
-    public boolean existsByIdAndDateAfterAndLimitGreaterThan(String id, String date, int limit);
-    public boolean existsByIdAndDateEqualsAndStartTimeAfterAndLimitGreaterThan(String id, String date, String startTime, int limit);
+    public boolean existsByTrainingIdAndDateAfterAndLimitGreaterThan(String id, String date, int limit);
+    public boolean existsByTrainingIdAndDateEqualsAndStartTimeAfterAndLimitGreaterThan(String id, String date, String startTime, int limit);
     //public boolean existsByStart_time(int date);\\\between
     public boolean existsByStartTimeBetween(String beginning, String end);
 

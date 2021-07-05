@@ -4,19 +4,20 @@ import com.healthy.gym.trainings.data.document.GroupTrainings;
 import com.healthy.gym.trainings.exception.*;
 import com.healthy.gym.trainings.model.request.GroupTrainingRequest;
 import com.healthy.gym.trainings.model.response.GroupTrainingPublicResponse;
+import com.healthy.gym.trainings.model.response.GroupTrainingResponse;
 
 import java.text.ParseException;
 import java.util.List;
 
 public interface GroupTrainingService {
 
-    List<GroupTrainings> getGroupTrainings();
+    List<GroupTrainingResponse> getGroupTrainings() throws InvalidHourException;
 
     List<GroupTrainingPublicResponse> getPublicGroupTrainings()
             throws InvalidHourException, InvalidDateException;
 
-    GroupTrainings getGroupTrainingById(String trainingId)
-            throws NotExistingGroupTrainingException;
+    GroupTrainingResponse getGroupTrainingById(String trainingId)
+            throws NotExistingGroupTrainingException, InvalidHourException;
 
     List<GroupTrainings> getMyAllTrainings(String clientId);
 

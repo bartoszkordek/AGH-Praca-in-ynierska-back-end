@@ -6,6 +6,7 @@ import com.healthy.gym.trainings.exception.InvalidDateException;
 import com.healthy.gym.trainings.exception.InvalidHourException;
 import com.healthy.gym.trainings.model.request.GroupTrainingRequest;
 import com.healthy.gym.trainings.model.response.GroupTrainingPublicResponse;
+import com.healthy.gym.trainings.model.response.GroupTrainingResponse;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoCollection;
@@ -39,8 +40,23 @@ public class GroupTrainingsDbRepository {
     private MongoDatabase mdb;
     private static String groupTrainingsCollectionName = "GroupTrainings";
 
-    public List<GroupTrainings> getGroupTrainings(){
-        return groupTrainingsRepository.findAll();
+    public List<GroupTrainingResponse> getGroupTrainings() throws InvalidHourException {
+        List<GroupTrainings> dbResponse = groupTrainingsRepository.findAll();
+        List<GroupTrainingResponse> result = new ArrayList<>();
+        for(GroupTrainings training : dbResponse){
+            GroupTrainingResponse groupTraining = new GroupTrainingResponse(training.getTrainingId(),
+                    training.geTrainingTypeId(),
+                    training.getTrainerId(),
+                    training.getDate(),
+                    training.getStartTime(),
+                    training.getEndTime(),
+                    training.getHallNo(),
+                    training.getLimit(),
+                    training.getParticipants(),
+                    training.getReserveList());
+            result.add(groupTraining);
+        }
+        return result;
     }
 
     public List<GroupTrainingPublicResponse> getPublicGroupTrainings() throws InvalidHourException, InvalidDateException {
@@ -60,8 +76,19 @@ public class GroupTrainingsDbRepository {
         return publicResponse;
     }
 
-    public GroupTrainings getGroupTrainingById(String trainingId){
-        return groupTrainingsRepository.findFirstByTrainingId(trainingId);
+    public GroupTrainingResponse getGroupTrainingById(String trainingId) throws InvalidHourException {
+        GroupTrainings dbResponse = groupTrainingsRepository.findFirstByTrainingId(trainingId);
+        GroupTrainingResponse result = new GroupTrainingResponse(dbResponse.getTrainingId(),
+                dbResponse.geTrainingTypeId(),
+                dbResponse.getTrainerId(),
+                dbResponse.getDate(),
+                dbResponse.getStartTime(),
+                dbResponse.getEndTime(),
+                dbResponse.getHallNo(),
+                dbResponse.getLimit(),
+                dbResponse.getParticipants(),
+                dbResponse.getReserveList());
+        return result;
     }
 
     public List<GroupTrainings> getMyAllGroupTrainings(String clientId){

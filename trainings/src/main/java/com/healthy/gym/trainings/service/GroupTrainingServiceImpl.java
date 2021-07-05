@@ -7,6 +7,7 @@ import com.healthy.gym.trainings.exception.*;
 import com.healthy.gym.trainings.model.other.EmailSendModel;
 import com.healthy.gym.trainings.model.request.GroupTrainingRequest;
 import com.healthy.gym.trainings.model.response.GroupTrainingPublicResponse;
+import com.healthy.gym.trainings.model.response.GroupTrainingResponse;
 import com.healthy.gym.trainings.service.email.EmailService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -102,7 +103,7 @@ public class GroupTrainingServiceImpl implements GroupTrainingService {
         return false;
     }
 
-    public List<GroupTrainings> getGroupTrainings() {
+    public List<GroupTrainingResponse> getGroupTrainings() throws InvalidHourException {
         return groupTrainingsDbRepository.getGroupTrainings();
     }
 
@@ -111,7 +112,7 @@ public class GroupTrainingServiceImpl implements GroupTrainingService {
         return groupTrainingsDbRepository.getPublicGroupTrainings();
     }
 
-    public GroupTrainings getGroupTrainingById(String trainingId) throws NotExistingGroupTrainingException {
+    public GroupTrainingResponse getGroupTrainingById(String trainingId) throws NotExistingGroupTrainingException, InvalidHourException {
         if (!groupTrainingsDbRepository.isGroupTrainingExist(trainingId))
             throw new NotExistingGroupTrainingException("Training with ID " + trainingId + " does not exist");
         return groupTrainingsDbRepository.getGroupTrainingById(trainingId);

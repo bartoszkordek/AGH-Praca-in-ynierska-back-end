@@ -4,6 +4,7 @@ import com.healthy.gym.trainings.data.document.GroupTrainings;
 import com.healthy.gym.trainings.exception.*;
 import com.healthy.gym.trainings.model.request.GroupTrainingRequest;
 import com.healthy.gym.trainings.model.response.GroupTrainingPublicResponse;
+import com.healthy.gym.trainings.model.response.GroupTrainingResponse;
 import com.healthy.gym.trainings.service.GroupTrainingService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -37,7 +38,7 @@ public class GroupTrainingController {
     }
 
     @GetMapping
-    public List<GroupTrainings> getGroupTrainings() {
+    public List<GroupTrainingResponse> getGroupTrainings() throws InvalidHourException {
         return groupTrainingsService.getGroupTrainings();
     }
 
@@ -48,9 +49,9 @@ public class GroupTrainingController {
     }
 
     @GetMapping("/{trainingId}")
-    public GroupTrainings getGroupTrainingById(
+    public GroupTrainingResponse getGroupTrainingById(
             @PathVariable("trainingId") final String trainingId
-    ) throws NotExistingGroupTrainingException {
+    ) throws NotExistingGroupTrainingException, InvalidHourException {
         return groupTrainingsService.getGroupTrainingById(trainingId);
     }
 

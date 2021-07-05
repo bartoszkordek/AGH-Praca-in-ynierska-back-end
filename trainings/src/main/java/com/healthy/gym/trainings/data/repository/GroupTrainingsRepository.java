@@ -1,6 +1,7 @@
 package com.healthy.gym.trainings.data.repository;
 
 import com.healthy.gym.trainings.data.document.GroupTrainings;
+import com.healthy.gym.trainings.model.response.GroupTrainingResponse;
 import org.springframework.data.mongodb.repository.MongoRepository;
 
 import java.util.List;

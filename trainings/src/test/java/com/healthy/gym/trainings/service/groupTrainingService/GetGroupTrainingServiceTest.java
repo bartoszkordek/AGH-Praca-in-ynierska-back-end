@@ -1,12 +1,12 @@
 package com.healthy.gym.trainings.service.groupTrainingService;
 
 import com.healthy.gym.trainings.configuration.EmailConfig;
-import com.healthy.gym.trainings.data.document.GroupTrainings;
 import com.healthy.gym.trainings.data.repository.GroupTrainingsDbRepository;
 import com.healthy.gym.trainings.exception.InvalidDateException;
 import com.healthy.gym.trainings.exception.InvalidHourException;
 import com.healthy.gym.trainings.exception.NotExistingGroupTrainingException;
 import com.healthy.gym.trainings.model.response.GroupTrainingPublicResponse;
+import com.healthy.gym.trainings.model.response.GroupTrainingResponse;
 import com.healthy.gym.trainings.service.GroupTrainingService;
 import com.healthy.gym.trainings.service.GroupTrainingServiceImpl;
 import org.junit.Test;
@@ -36,7 +36,6 @@ public class GetGroupTrainingServiceTest {
         GroupTrainingService groupTrainingService = new GroupTrainingServiceImpl(emailConfig, groupTrainingsDbRepository);
 
         //before
-        String id = "507f1f77bcf86cd799439011";
         String trainingId = "122ed953-e37f-435a-bd1e-9fb2a327c4d3";
         String trainingTypeId = "222ed952-es7f-435a-bd1e-9fb2a327c4dk";
         String trainerId = "Test Trainer";
@@ -47,11 +46,10 @@ public class GetGroupTrainingServiceTest {
         int limit = 15;
         List<String> participants = new ArrayList<>();
         List<String> reserveList = new ArrayList<>();
-        GroupTrainings groupTraining = new GroupTrainings(trainingId, trainingTypeId, trainerId, date, startTime,
+        GroupTrainingResponse groupTraining = new GroupTrainingResponse(trainingId, trainingTypeId, trainerId, date, startTime,
                 endTime, hallNo, limit, participants, reserveList);
-        groupTraining.setId(id);
 
-        List<GroupTrainings> groupTrainings = new ArrayList<>();
+        List<GroupTrainingResponse> groupTrainings = new ArrayList<>();
         groupTrainings.add(groupTraining);
 
         //when
@@ -77,10 +75,7 @@ public class GetGroupTrainingServiceTest {
         String endTime = "19:00";
         int hallNo = 1;
         int limit = 15;
-        List<String> participants = new ArrayList<>();
-        List<String> reserveList = new ArrayList<>();
-        GroupTrainings groupTraining = new GroupTrainings(trainingId, trainingTypeId, trainerId, date, startTime,
-                endTime, hallNo, limit, participants, reserveList);
+
         GroupTrainingPublicResponse groupTrainingPublicResponse = new GroupTrainingPublicResponse(trainingId,
                 trainingTypeId, trainerId, date, startTime, endTime, hallNo, limit);
 
@@ -102,7 +97,6 @@ public class GetGroupTrainingServiceTest {
         GroupTrainingService groupTrainingService = new GroupTrainingServiceImpl(emailConfig, groupTrainingsDbRepository);
 
         //before
-        String id = "507f1f77bcf86cd799439011";
         String trainingId = "122ed953-e37f-435a-bd1e-9fb2a327c4d3";
         String trainingTypeId = "222ed952-es7f-435a-bd1e-9fb2a327c4dk";
         String trainerId = "Test Trainer";
@@ -113,9 +107,11 @@ public class GetGroupTrainingServiceTest {
         int limit = 15;
         List<String> participants = new ArrayList<>();
         List<String> reserveList = new ArrayList<>();
-        GroupTrainings groupTraining = new GroupTrainings(trainingId, trainingTypeId, trainerId, date, startTime,
+        GroupTrainingResponse groupTraining = new GroupTrainingResponse(trainingId, trainingTypeId, trainerId, date, startTime,
                 endTime, hallNo, limit, participants, reserveList);
-        groupTraining.setId(id);
+
+        List<GroupTrainingResponse> groupTrainings = new ArrayList<>();
+        groupTrainings.add(groupTraining);
 
         //when
         when(groupTrainingsDbRepository.isGroupTrainingExist(trainingId)).thenReturn(true);

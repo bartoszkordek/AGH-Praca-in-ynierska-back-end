@@ -93,9 +93,6 @@ public class PhotoServiceImpl implements PhotoService {
 
     private void checkIfSavedCorrectly(PhotoDocument photoUpdated, Image imageToSave, String imageTitleToSave)
             throws PhotoSavingException {
-        System.out.println(photoUpdated);
-        System.out.println(imageToSave);
-        System.out.println(imageTitleToSave);
         if (!photoUpdated.getImage().equals(imageToSave) || !photoUpdated.getTitle().equals(imageTitleToSave))
             throw new PhotoSavingException();
     }

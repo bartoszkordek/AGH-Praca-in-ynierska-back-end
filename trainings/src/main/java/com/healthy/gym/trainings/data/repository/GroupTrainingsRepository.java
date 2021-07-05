@@ -9,7 +9,7 @@ public interface GroupTrainingsRepository extends MongoRepository<GroupTrainings
 
     public List<GroupTrainings> findAll();
     public List<GroupTrainings> findGroupTrainingsByParticipantsContains(String clientId);
-    public boolean existsById(String id);
+    public boolean existsByTrainingId(String trainingId);
     public boolean existsByDateAfter(String date);
     public boolean existsByIdAndDateAfter(String id, String date);
     public boolean existsByLimitGreaterThan(int participantsCount);
@@ -18,8 +18,8 @@ public interface GroupTrainingsRepository extends MongoRepository<GroupTrainings
     //public boolean existsByStart_time(int date);\\\between
     public boolean existsByStartTimeBetween(String beginning, String end);
 
-    public GroupTrainings getFirstById(String id);
-    public GroupTrainings findFirstById(String id);
+    public GroupTrainings getFirstByTrainingId(String trainingId);
+    public GroupTrainings findFirstByTrainingId(String trainingId);
 
-    public void removeById(String id);
+    public void removeByTrainingId(String trainingId);
 }

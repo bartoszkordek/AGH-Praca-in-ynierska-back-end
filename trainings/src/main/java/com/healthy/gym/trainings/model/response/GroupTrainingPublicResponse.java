@@ -12,6 +12,8 @@ import javax.validation.constraints.NotNull;
 public class GroupTrainingPublicResponse {
 
     @NotNull
+    private String trainingId;
+    @NotNull
     private String trainingTypeId;
     @NotNull
     private String trainerId;
@@ -28,6 +30,7 @@ public class GroupTrainingPublicResponse {
     private int limit;
 
     public GroupTrainingPublicResponse(
+            @JsonProperty("trainingId") String  trainingId,
             @JsonProperty("trainingTypeId") String trainingTypeId,
             @JsonProperty("trainerId") String trainerId,
             @JsonProperty("date") String date,
@@ -39,6 +42,7 @@ public class GroupTrainingPublicResponse {
 
         DateValidator dateValidator = new DateValidator();
         Time24HoursValidator time24HoursValidator = new Time24HoursValidator();
+        this.trainingId = trainingId;
         this.trainingTypeId = trainingTypeId;
         this.trainerId = trainerId;
         if (dateValidator.validate(date)) {
@@ -59,6 +63,8 @@ public class GroupTrainingPublicResponse {
         this.hallNo = hallNo;
         this.limit = limit;
     }
+
+    public String getTrainingId() { return trainingId; }
 
     public String getTrainingTypeId() {
         return trainingTypeId;

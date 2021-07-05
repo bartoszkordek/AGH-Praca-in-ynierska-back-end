@@ -55,7 +55,7 @@ public class GroupTrainingServiceImpl implements GroupTrainingService {
     }
 
     private boolean isExistRequiredDataForGroupTraining(GroupTrainingRequest groupTrainingModel) {
-        String trainingName = groupTrainingModel.getTrainingName();
+        String trainingName = groupTrainingModel.getTrainingTypeId();
         String trainerId = groupTrainingModel.getTrainerId();
         String date = groupTrainingModel.getDate();
         String startTime = groupTrainingModel.getStartTime();
@@ -206,7 +206,7 @@ public class GroupTrainingServiceImpl implements GroupTrainingService {
 
         List<String> toEmails = result.getParticipants();
         String subject = "Training has been deleted";
-        String body = "Training " + result.getTrainingName() + " on " + result.getDate() + " at "
+        String body = "Training " + result.getTrainingId() + " on " + result.getDate() + " at "
                 + result.getStartTime() + " with " + result.getTrainerId() + " has been deleted.";
         try {
             sendEmailWithoutAttachment(toEmails, subject, body);
@@ -245,7 +245,7 @@ public class GroupTrainingServiceImpl implements GroupTrainingService {
 
         List<String> toEmails = result.getParticipants();
         String subject = "Training has been updated";
-        String body = "Training " + result.getTrainingName() + " on " + result.getDate() + " at "
+        String body = "Training " + result.getTrainingId() + " on " + result.getDate() + " at "
                 + result.getStartTime() + " with " + result.getTrainerId() + " has been updated.";
         try {
             sendEmailWithoutAttachment(toEmails, subject, body);

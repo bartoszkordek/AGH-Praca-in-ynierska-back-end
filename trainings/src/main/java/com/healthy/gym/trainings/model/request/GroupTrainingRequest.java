@@ -13,7 +13,7 @@ import java.util.List;
 public class GroupTrainingRequest {
 
     @NotNull
-    private String trainingName;
+    private String trainingTypeId;
     @NotNull
     private String trainerId;
     @NotNull
@@ -31,7 +31,7 @@ public class GroupTrainingRequest {
     private List<String> reserveList;
 
     public GroupTrainingRequest(
-            @JsonProperty("trainingName") String trainingName,
+            @JsonProperty("trainingTypeId") String trainingTypeId,
             @JsonProperty("trainerId") String trainerId,
             @JsonProperty("date") String date,
             @JsonProperty("startTime") String startTime,
@@ -43,7 +43,7 @@ public class GroupTrainingRequest {
     ) throws InvalidHourException, InvalidDateException {
         DateValidator dateValidator = new DateValidator();
         Time24HoursValidator time24HoursValidator = new Time24HoursValidator();
-        this.trainingName = trainingName;
+        this.trainingTypeId = trainingTypeId;
         this.trainerId = trainerId;
         if (dateValidator.validate(date)) {
             this.date = date;
@@ -66,8 +66,8 @@ public class GroupTrainingRequest {
         this.reserveList = reserveList;
     }
 
-    public String getTrainingName() {
-        return trainingName;
+    public String getTrainingTypeId() {
+        return trainingTypeId;
     }
 
     public String getTrainerId() {

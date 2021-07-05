@@ -18,10 +18,7 @@ import org.springframework.stereotype.Repository;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 @Repository
 public class GroupTrainingsDbRepository {
@@ -50,7 +47,8 @@ public class GroupTrainingsDbRepository {
         List<GroupTrainingPublicResponse> publicResponse = new ArrayList<>();
         List<GroupTrainings> groupTrainings = groupTrainingsRepository.findAll();
         for(GroupTrainings groupTraining : groupTrainings){
-            publicResponse.add(new GroupTrainingPublicResponse(groupTraining.getTrainingName(),
+            publicResponse.add(new GroupTrainingPublicResponse(groupTraining.getTrainingId(),
+                    groupTraining.geTrainingTypeId(),
                     groupTraining.getTrainerId(),
                     groupTraining.getDate(),
                     groupTraining.getStartTime(),
@@ -63,7 +61,7 @@ public class GroupTrainingsDbRepository {
     }
 
     public GroupTrainings getGroupTrainingById(String trainingId){
-        return groupTrainingsRepository.findFirstById(trainingId);
+        return groupTrainingsRepository.findFirstByTrainingId(trainingId);
     }
 
     public List<GroupTrainings> getMyAllGroupTrainings(String clientId){
@@ -71,7 +69,7 @@ public class GroupTrainingsDbRepository {
     }
 
     public List<String> getTrainingParticipants(String trainingId){
-        return groupTrainingsRepository.getFirstById(trainingId).getParticipants();
+        return groupTrainingsRepository.getFirstByTrainingId(trainingId).getParticipants();
     }
 
     public boolean isGroupTrainingExist(String trainingId){
@@ -87,7 +85,7 @@ public class GroupTrainingsDbRepository {
 
         if(!groupTrainingsRepository.existsById(trainingId)) return false;
 
-        int participantsCount = groupTrainingsRepository.getFirstById(trainingId).getParticipants().size();
+        int participantsCount = groupTrainingsRepository.getFirstByTrainingId(trainingId).getParticipants().size();
 
         boolean isAbilityInTheFutureEvents = groupTrainingsRepository.existsByIdAndDateAfterAndLimitGreaterThan(trainingId,
                 todayDateFormatted, participantsCount);
@@ -98,15 +96,15 @@ public class GroupTrainingsDbRepository {
     }
 
     public boolean isClientAlreadyEnrolledToGroupTraining(String trainingId, String clientId){
-        return groupTrainingsRepository.getFirstById(trainingId).getParticipants().contains(clientId);
+        return groupTrainingsRepository.getFirstByTrainingId(trainingId).getParticipants().contains(clientId);
     }
 
     public boolean isClientAlreadyExistInReserveList(String trainingId, String clientId){
-        return groupTrainingsRepository.getFirstById(trainingId).getReserveList().contains(clientId);
+        return groupTrainingsRepository.getFirstByTrainingId(trainingId).getReserveList().contains(clientId);
     }
 
     public void enrollToGroupTraining(String trainingId, String participantId){
-        GroupTrainings groupTrainings = groupTrainingsRepository.findFirstById(trainingId);
+        GroupTrainings groupTrainings = groupTrainingsRepository.findFirstByTrainingId(trainingId);
         List<String> participants = groupTrainings.getParticipants();
         participants.add(participantId);
         groupTrainings.setParticipants(participants);
@@ -114,7 +112,7 @@ public class GroupTrainingsDbRepository {
     }
 
     public void addToReserveList(String trainingId, String clientId){
-        GroupTrainings groupTrainings = groupTrainingsRepository.findFirstById(trainingId);
+        GroupTrainings groupTrainings = groupTrainingsRepository.findFirstByTrainingId(trainingId);
         List<String> reserveList = groupTrainings.getReserveList();
         reserveList.add(clientId);
         groupTrainings.setReserveList(reserveList);
@@ -122,7 +120,7 @@ public class GroupTrainingsDbRepository {
     }
 
     public void removeFromParticipants(String trainingId, String participantId){
-        GroupTrainings groupTrainings = groupTrainingsRepository.findFirstById(trainingId);
+        GroupTrainings groupTrainings = groupTrainingsRepository.findFirstByTrainingId(trainingId);
         List<String> participants = groupTrainings.getParticipants();
         participants.remove(participantId);
         groupTrainings.setParticipants(participants);
@@ -130,7 +128,7 @@ public class GroupTrainingsDbRepository {
     }
 
     public void removeFromReserveList(String trainingId, String clientId){
-        GroupTrainings groupTrainings = groupTrainingsRepository.findFirstById(trainingId);
+        GroupTrainings groupTrainings = groupTrainingsRepository.findFirstByTrainingId(trainingId);
         List<String> reserveList = groupTrainings.getReserveList();
         reserveList.remove(clientId);
         groupTrainings.setReserveList(reserveList);
@@ -181,8 +179,9 @@ public class GroupTrainingsDbRepository {
     }
 
     public GroupTrainings createTraining(GroupTrainingRequest groupTrainingModel) throws InvalidHourException {
-        GroupTrainings response = groupTrainingsRepository.insert(new GroupTrainings(
-                groupTrainingModel.getTrainingName(),
+        String trainingId = UUID.randomUUID().toString();
+        GroupTrainings response = groupTrainingsRepository.insert(new GroupTrainings(trainingId,
+                groupTrainingModel.getTrainingTypeId(),
                 groupTrainingModel.getTrainerId(),
                 groupTrainingModel.getDate(),
                 groupTrainingModel.getStartTime(),
@@ -196,8 +195,8 @@ public class GroupTrainingsDbRepository {
     }
 
     public GroupTrainings removeTraining(String trainingId){
-        GroupTrainings groupTrainings = groupTrainingsRepository.findFirstById(trainingId);
-        groupTrainingsRepository.removeById(trainingId);
+        GroupTrainings groupTrainings = groupTrainingsRepository.findFirstByTrainingId(trainingId);
+        groupTrainingsRepository.removeByTrainingId(trainingId);
         return groupTrainings;
     }
 
@@ -206,8 +205,8 @@ public class GroupTrainingsDbRepository {
 
         GroupTrainings groupTrainings = null;
         if(ifExistGroupTraining){
-            groupTrainings = groupTrainingsRepository.findFirstById(trainingId);
-            groupTrainings.setTrainingName(groupTrainingModelRequest.getTrainingName());
+            groupTrainings = groupTrainingsRepository.findFirstByTrainingId(trainingId);
+            groupTrainings.setTrainingTypeId(groupTrainingModelRequest.getTrainingTypeId());
             groupTrainings.setTrainerId(groupTrainingModelRequest.getTrainerId());
             groupTrainings.setDate(groupTrainingModelRequest.getDate());
             groupTrainings.setStartTime(groupTrainingModelRequest.getStartTime());

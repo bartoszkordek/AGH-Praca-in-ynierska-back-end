@@ -15,8 +15,10 @@ public class GroupTrainings {
     @JsonProperty("_id")
     private String id;
 
-    @JsonProperty("trainingName")
-    private String trainingName;
+    @JsonProperty("trainingId")
+    private String trainingId;
+    @JsonProperty("trainingTypeId")
+    private String trainingTypeId;
     @JsonProperty("trainerId")
     private String trainerId;
     @JsonProperty("date")
@@ -38,10 +40,12 @@ public class GroupTrainings {
 
     }
 
-    public GroupTrainings(String trainingName, String trainerId, String date, String startTime, String endTime,
-                          int hallNo, int limit, List<String> participants, List<String> reserveList) throws InvalidHourException {
+    public GroupTrainings(String trainingId, String trainingTypeId, String trainerId, String date, String startTime,
+                          String endTime, int hallNo, int limit, List<String> participants, List<String> reserveList)
+            throws InvalidHourException {
         Time24HoursValidator time24HoursValidator = new Time24HoursValidator();
-        this.trainingName = trainingName;
+        this.trainingId = trainingId;
+        this.trainingTypeId = trainingTypeId;
         this.trainerId = trainerId;
         this.date = date;
         if(time24HoursValidator.validate(startTime)){
@@ -64,7 +68,8 @@ public class GroupTrainings {
     public String toString() {
         return "GroupTrainings{" +
                 "id='" + id + '\'' +
-                ", trainingName='" + trainingName + '\'' +
+                ", trainingId='" + trainingId + '\'' +
+                ", trainingTypeId='" + trainingTypeId + '\'' +
                 ", trainerId='" + trainerId + '\'' +
                 ", date='" + date + '\'' +
                 ", startTime='" + startTime + '\'' +
@@ -80,8 +85,10 @@ public class GroupTrainings {
         return id;
     }
 
-    public String getTrainingName() {
-        return trainingName;
+    public String getTrainingId() { return trainingId; }
+
+    public String geTrainingTypeId() {
+        return trainingTypeId;
     }
 
     public String getTrainerId() {
@@ -120,8 +127,10 @@ public class GroupTrainings {
         this.id = id;
     }
 
-    public void setTrainingName(String trainingName) {
-        this.trainingName = trainingName;
+    public void setTrainingId(String trainingId) { this.trainingId = trainingId; }
+
+    public void setTrainingTypeId(String trainingTypeId) {
+        this.trainingTypeId = trainingTypeId;
     }
 
     public void setTrainerId(String trainerId) {

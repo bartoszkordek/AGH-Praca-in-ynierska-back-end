@@ -118,7 +118,7 @@ public class GroupTrainingServiceImpl implements GroupTrainingService {
         return groupTrainingsDbRepository.getGroupTrainingById(trainingId);
     }
 
-    public List<GroupTrainings> getMyAllTrainings(String clientId) {
+    public List<GroupTrainingPublicResponse> getMyAllTrainings(String clientId) throws InvalidHourException, InvalidDateException {
         //add if Client Exists validation
         return groupTrainingsDbRepository.getMyAllGroupTrainings(clientId);
     }

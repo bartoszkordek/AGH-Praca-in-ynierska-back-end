@@ -91,7 +91,8 @@ public class GroupTrainingController {
 
     // TODO only logged in users and ADMIN, dodać po ID
     @GetMapping("/trainings/{userId}")
-    public List<GroupTrainings> getAllGroupTrainingsByUserId(@PathVariable final String userId) {
+    public List<GroupTrainingPublicResponse> getAllGroupTrainingsByUserId(@PathVariable final String userId)
+            throws InvalidDateException, InvalidHourException {
         return groupTrainingsService.getMyAllTrainings(userId);
     }
 

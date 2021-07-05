@@ -91,8 +91,21 @@ public class GroupTrainingsDbRepository {
         return result;
     }
 
-    public List<GroupTrainings> getMyAllGroupTrainings(String clientId){
-        return groupTrainingsRepository.findGroupTrainingsByParticipantsContains(clientId);
+    public List<GroupTrainingPublicResponse> getMyAllGroupTrainings(String clientId) throws InvalidDateException, InvalidHourException {
+        List<GroupTrainingPublicResponse> publicResponse = new ArrayList<>();
+        List<GroupTrainings> groupTrainings = groupTrainingsRepository.findGroupTrainingsByParticipantsContains(clientId);
+        for(GroupTrainings groupTraining : groupTrainings){
+            publicResponse.add(new GroupTrainingPublicResponse(groupTraining.getTrainingId(),
+                    groupTraining.geTrainingTypeId(),
+                    groupTraining.getTrainerId(),
+                    groupTraining.getDate(),
+                    groupTraining.getStartTime(),
+                    groupTraining.getEndTime(),
+                    groupTraining.getHallNo(),
+                    groupTraining.getLimit()));
+        }
+
+        return publicResponse;
     }
 
     public List<String> getTrainingParticipants(String trainingId){

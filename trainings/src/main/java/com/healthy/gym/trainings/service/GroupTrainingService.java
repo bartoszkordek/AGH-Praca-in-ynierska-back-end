@@ -19,7 +19,7 @@ public interface GroupTrainingService {
     GroupTrainingResponse getGroupTrainingById(String trainingId)
             throws NotExistingGroupTrainingException, InvalidHourException;
 
-    List<GroupTrainings> getMyAllTrainings(String clientId);
+    List<GroupTrainingPublicResponse> getMyAllTrainings(String clientId) throws InvalidHourException, InvalidDateException;
 
     List<String> getTrainingParticipants(String trainingId)
             throws NotExistingGroupTrainingException;

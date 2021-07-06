@@ -1,6 +1,8 @@
 package com.healthy.gym.trainings.model.response;
 
+import com.healthy.gym.trainings.exception.InvalidDateException;
 import com.healthy.gym.trainings.exception.InvalidHourException;
+import com.healthy.gym.trainings.validation.DateValidator;
 import com.healthy.gym.trainings.validation.Time24HoursValidator;
 import org.springframework.format.annotation.DateTimeFormat;
 
@@ -33,12 +35,17 @@ public class GroupTrainingResponse {
 
     public GroupTrainingResponse(String trainingId, String trainingTypeId, String trainerId, String date,
                                  String startTime, String endTime, int hallNo, int limit, List<String> participants,
-                                 List<String> reserveList) throws InvalidHourException {
+                                 List<String> reserveList) throws InvalidHourException, InvalidDateException {
+        DateValidator dateValidator = new DateValidator();
         Time24HoursValidator time24HoursValidator = new Time24HoursValidator();
         this.trainingId = trainingId;
         this.trainingTypeId = trainingTypeId;
         this.trainerId = trainerId;
-        this.date = date;
+        if (dateValidator.validate(date)) {
+            this.date = date;
+        } else {
+            throw new InvalidDateException("Wrong date");
+        }
         if(time24HoursValidator.validate(startTime)){
             this.startTime = startTime;
         } else {

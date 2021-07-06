@@ -42,24 +42,30 @@ public class GroupTrainingController {
     public List<GroupTrainingResponse> getGroupTrainings(
             @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") final String startDate,
             @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") final String endDate)
-            throws ParseException, RestException {
+            throws ParseException, InvalidHourException, RestException {
         try {
             return groupTrainingsService.getGroupTrainings(startDate, endDate);
-        } catch (InvalidHourException | StartDateAfterEndDateException e){
+        } catch (InvalidDateException | StartDateAfterEndDateException e){
             throw new RestException(e.getMessage(), HttpStatus.BAD_REQUEST, e);
         }
     }
 
     @GetMapping("/public")
-    public List<GroupTrainingPublicResponse> getPublicGroupTrainings()
-            throws InvalidHourException, InvalidDateException {
-        return groupTrainingsService.getPublicGroupTrainings();
+    public List<GroupTrainingPublicResponse> getPublicGroupTrainings(
+            @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") final String startDate,
+            @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") final String endDate)
+            throws ParseException, InvalidHourException, RestException {
+        try {
+            return groupTrainingsService.getPublicGroupTrainings(startDate, endDate);
+        } catch (InvalidDateException |  StartDateAfterEndDateException e) {
+            throw new RestException(e.getMessage(), HttpStatus.BAD_REQUEST, e);
+        }
     }
 
     @GetMapping("/{trainingId}")
     public GroupTrainingResponse getGroupTrainingById(
             @PathVariable("trainingId") final String trainingId
-    ) throws NotExistingGroupTrainingException, InvalidHourException {
+    ) throws NotExistingGroupTrainingException, InvalidHourException, InvalidDateException {
         return groupTrainingsService.getGroupTrainingById(trainingId);
     }
 

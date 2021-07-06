@@ -45,7 +45,7 @@ public class GroupTrainingsDbRepository {
     private String defaultEndDate = "2099-12-31";
 
 
-    public List<GroupTrainingResponse> getGroupTrainings(String startDate, String endDate) throws InvalidHourException, StartDateAfterEndDateException, ParseException {
+    public List<GroupTrainingResponse> getGroupTrainings(String startDate, String endDate) throws InvalidHourException, StartDateAfterEndDateException, ParseException, InvalidDateException {
         if(startDate == null)
             startDate = defaultStartDate;
 
@@ -68,7 +68,7 @@ public class GroupTrainingsDbRepository {
         List<GroupTrainingResponse> result = new ArrayList<>();
         for(GroupTrainings training : dbResponse){
             GroupTrainingResponse groupTraining = new GroupTrainingResponse(training.getTrainingId(),
-                    training.geTrainingTypeId(),
+                    training.getTrainingTypeId(),
                     training.getTrainerId(),
                     training.getDate(),
                     training.getStartTime(),
@@ -82,12 +82,32 @@ public class GroupTrainingsDbRepository {
         return result;
     }
 
-    public List<GroupTrainingPublicResponse> getPublicGroupTrainings() throws InvalidHourException, InvalidDateException {
+    public List<GroupTrainingPublicResponse> getPublicGroupTrainings(String startDate, String endDate) throws InvalidHourException, InvalidDateException, StartDateAfterEndDateException, ParseException {
         List<GroupTrainingPublicResponse> publicResponse = new ArrayList<>();
-        List<GroupTrainings> groupTrainings = groupTrainingsRepository.findAll();
+
+        if(startDate == null)
+            startDate = defaultStartDate;
+
+        if(endDate == null)
+            endDate = defaultEndDate;
+
+        Date startDateParsed = sdfDate.parse(startDate);
+        Date startDateMinusOneDay = new Date(startDateParsed.getTime() - (1000 * 60 * 60 * 24));
+        Date endDateParsed = sdfDate.parse(endDate);
+        Date endDatePlusOneDay = new Date(endDateParsed.getTime() + (1000 * 60 * 60 * 24));
+        if(startDateParsed.after(endDateParsed)){
+            throw new StartDateAfterEndDateException("Start date after end date");
+        }
+
+        String startDateMinusOneDayFormatted = sdfDate.format(startDateMinusOneDay);
+        String endDatePlusOneDayFormatted = sdfDate.format(endDatePlusOneDay);
+
+        List<GroupTrainings> groupTrainings = groupTrainingsRepository.findByDateBetween(startDateMinusOneDayFormatted,
+                endDatePlusOneDayFormatted);
+
         for(GroupTrainings groupTraining : groupTrainings){
             publicResponse.add(new GroupTrainingPublicResponse(groupTraining.getTrainingId(),
-                    groupTraining.geTrainingTypeId(),
+                    groupTraining.getTrainingTypeId(),
                     groupTraining.getTrainerId(),
                     groupTraining.getDate(),
                     groupTraining.getStartTime(),
@@ -99,10 +119,10 @@ public class GroupTrainingsDbRepository {
         return publicResponse;
     }
 
-    public GroupTrainingResponse getGroupTrainingById(String trainingId) throws InvalidHourException {
+    public GroupTrainingResponse getGroupTrainingById(String trainingId) throws InvalidHourException, InvalidDateException {
         GroupTrainings dbResponse = groupTrainingsRepository.findFirstByTrainingId(trainingId);
         GroupTrainingResponse result = new GroupTrainingResponse(dbResponse.getTrainingId(),
-                dbResponse.geTrainingTypeId(),
+                dbResponse.getTrainingTypeId(),
                 dbResponse.getTrainerId(),
                 dbResponse.getDate(),
                 dbResponse.getStartTime(),
@@ -119,7 +139,7 @@ public class GroupTrainingsDbRepository {
         List<GroupTrainings> groupTrainings = groupTrainingsRepository.findGroupTrainingsByParticipantsContains(clientId);
         for(GroupTrainings groupTraining : groupTrainings){
             publicResponse.add(new GroupTrainingPublicResponse(groupTraining.getTrainingId(),
-                    groupTraining.geTrainingTypeId(),
+                    groupTraining.getTrainingTypeId(),
                     groupTraining.getTrainerId(),
                     groupTraining.getDate(),
                     groupTraining.getStartTime(),

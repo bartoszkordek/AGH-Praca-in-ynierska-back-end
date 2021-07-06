@@ -104,16 +104,16 @@ public class GroupTrainingServiceImpl implements GroupTrainingService {
     }
 
     public List<GroupTrainingResponse> getGroupTrainings(String startDate, String endDate)
-            throws InvalidHourException, StartDateAfterEndDateException, ParseException {
+            throws InvalidHourException, StartDateAfterEndDateException, ParseException, InvalidDateException {
         return groupTrainingsDbRepository.getGroupTrainings(startDate, endDate);
     }
 
-    public List<GroupTrainingPublicResponse> getPublicGroupTrainings()
-            throws InvalidHourException, InvalidDateException {
-        return groupTrainingsDbRepository.getPublicGroupTrainings();
+    public List<GroupTrainingPublicResponse> getPublicGroupTrainings(String startDate, String endDate)
+            throws InvalidHourException, InvalidDateException, StartDateAfterEndDateException, ParseException {
+        return groupTrainingsDbRepository.getPublicGroupTrainings(startDate, endDate);
     }
 
-    public GroupTrainingResponse getGroupTrainingById(String trainingId) throws NotExistingGroupTrainingException, InvalidHourException {
+    public GroupTrainingResponse getGroupTrainingById(String trainingId) throws NotExistingGroupTrainingException, InvalidHourException, InvalidDateException {
         if (!groupTrainingsDbRepository.isGroupTrainingExist(trainingId))
             throw new NotExistingGroupTrainingException("Training with ID " + trainingId + " does not exist");
         return groupTrainingsDbRepository.getGroupTrainingById(trainingId);

@@ -11,13 +11,13 @@ import java.util.List;
 
 public interface GroupTrainingService {
 
-    List<GroupTrainingResponse> getGroupTrainings(String startDate, String endDate) throws InvalidHourException, StartDateAfterEndDateException, ParseException;
+    List<GroupTrainingResponse> getGroupTrainings(String startDate, String endDate) throws InvalidHourException, StartDateAfterEndDateException, ParseException, InvalidDateException;
 
-    List<GroupTrainingPublicResponse> getPublicGroupTrainings()
-            throws InvalidHourException, InvalidDateException;
+    List<GroupTrainingPublicResponse> getPublicGroupTrainings(String startDate, String endDate)
+            throws InvalidHourException, InvalidDateException, StartDateAfterEndDateException, ParseException;
 
     GroupTrainingResponse getGroupTrainingById(String trainingId)
-            throws NotExistingGroupTrainingException, InvalidHourException;
+            throws NotExistingGroupTrainingException, InvalidHourException, InvalidDateException;
 
     List<GroupTrainingPublicResponse> getMyAllTrainings(String clientId) throws InvalidHourException, InvalidDateException;
 

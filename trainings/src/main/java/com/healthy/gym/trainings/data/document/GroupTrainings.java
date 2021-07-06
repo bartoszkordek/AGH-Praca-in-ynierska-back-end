@@ -87,7 +87,7 @@ public class GroupTrainings {
 
     public String getTrainingId() { return trainingId; }
 
-    public String geTrainingTypeId() {
+    public String getTrainingTypeId() {
         return trainingTypeId;
     }
 

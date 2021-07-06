@@ -13,7 +13,7 @@ public interface GroupTrainingsRepository extends MongoRepository<GroupTrainings
     public List<GroupTrainings> findGroupTrainingsByParticipantsContains(String clientId);
     public boolean existsByTrainingId(String trainingId);
     public boolean existsByDateAfter(String date);
-    public boolean existsTrainingIdAndDateAfter(String trainingId, String date);
+    public boolean existsByTrainingIdAndDateAfter(String trainingId, String date);
     public boolean existsByLimitGreaterThan(int participantsCount);
     public boolean existsByTrainingIdAndDateAfterAndLimitGreaterThan(String trainingId, String date, int limit);
     public boolean existsByTrainingIdAndDateEqualsAndStartTimeAfterAndLimitGreaterThan(String trainingId, String date, String startTime, int limit);

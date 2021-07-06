@@ -36,8 +36,8 @@ public interface GroupTrainingService {
     GroupTrainingResponse createGroupTraining(GroupTrainingRequest groupTrainingModel)
             throws TrainingCreationException, ParseException, InvalidHourException, InvalidDateException;
 
-    GroupTrainings removeGroupTraining(String trainingId)
-            throws TrainingRemovalException, EmailSendingException;
+    GroupTrainingResponse removeGroupTraining(String trainingId)
+            throws TrainingRemovalException, EmailSendingException, InvalidDateException, InvalidHourException;
 
     GroupTrainings updateGroupTraining(String trainingId, GroupTrainingRequest groupTrainingModelRequest)
             throws TrainingUpdateException, EmailSendingException, InvalidHourException, ParseException;

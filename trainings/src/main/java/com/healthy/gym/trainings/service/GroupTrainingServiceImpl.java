@@ -210,25 +210,36 @@ public class GroupTrainingServiceImpl implements GroupTrainingService {
         return response;
     }
 
-    public GroupTrainings removeGroupTraining(String trainingId)
-            throws TrainingRemovalException, EmailSendingException {
+    public GroupTrainingResponse removeGroupTraining(String trainingId)
+            throws TrainingRemovalException, EmailSendingException, InvalidDateException, InvalidHourException {
 
         if (!groupTrainingsDbRepository.isGroupTrainingExist(trainingId))
             throw new TrainingRemovalException("Training with ID: " + trainingId + " doesn't exist");
 
-        GroupTrainings result = groupTrainingsDbRepository.removeTraining(trainingId);
+        GroupTrainings repositoryResponse = groupTrainingsDbRepository.removeTraining(trainingId);
 
-        List<String> toEmails = result.getParticipants();
+        List<String> toEmails = repositoryResponse.getParticipants();
         String subject = "Training has been deleted";
-        String body = "Training " + result.getTrainingId() + " on " + result.getDate() + " at "
-                + result.getStartTime() + " with " + result.getTrainerId() + " has been deleted.";
+        String body = "Training " + repositoryResponse.getTrainingId() + " on " + repositoryResponse.getDate() + " at "
+                + repositoryResponse.getStartTime() + " with " + repositoryResponse.getTrainerId() + " has been deleted.";
         try {
             sendEmailWithoutAttachment(toEmails, subject, body);
         } catch (Exception e) {
             throw new EmailSendingException("Cannot send email");
         }
 
-        return result;
+        GroupTrainingResponse response = new GroupTrainingResponse(
+                repositoryResponse.getTrainingId(),
+                repositoryResponse.getTrainingTypeId(),
+                repositoryResponse.getTrainerId(),
+                repositoryResponse.getDate(),
+                repositoryResponse.getStartTime(),
+                repositoryResponse.getEndTime(),
+                repositoryResponse.getHallNo(),
+                repositoryResponse.getLimit(),
+                repositoryResponse.getParticipants(),
+                repositoryResponse.getReserveList());
+        return response;
     }
 
     public GroupTrainings updateGroupTraining(String trainingId, GroupTrainingRequest groupTrainingModelRequest)

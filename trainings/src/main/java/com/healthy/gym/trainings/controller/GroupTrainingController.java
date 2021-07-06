@@ -145,7 +145,7 @@ public class GroupTrainingController {
 
     // TODO only manager
     @DeleteMapping("/{trainingId}")
-    public GroupTrainings removeGroupTraining(@PathVariable("trainingId") final String trainingId) {
+    public GroupTrainingResponse removeGroupTraining(@PathVariable("trainingId") final String trainingId) {
         try {
             return groupTrainingsService.removeGroupTraining(trainingId);
         } catch (TrainingRemovalException e) {

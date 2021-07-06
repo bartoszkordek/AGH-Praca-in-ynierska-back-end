@@ -171,8 +171,8 @@ public class GroupTrainingServiceImpl implements GroupTrainingService {
         }
     }
 
-    public GroupTrainings createGroupTraining(GroupTrainingRequest groupTrainingModel)
-            throws TrainingCreationException, ParseException, InvalidHourException {
+    public GroupTrainingResponse createGroupTraining(GroupTrainingRequest groupTrainingModel)
+            throws TrainingCreationException, ParseException, InvalidHourException, InvalidDateException {
 
         if (!isExistRequiredDataForGroupTraining(groupTrainingModel))
             throw new TrainingCreationException("Cannot create new group training. Missing required data.");
@@ -195,7 +195,19 @@ public class GroupTrainingServiceImpl implements GroupTrainingService {
         if (!groupTrainingsDbRepository.isAbilityToCreateTraining(groupTrainingModel))
             throw new TrainingCreationException("Cannot create new group training. Overlapping trainings.");
 
-        return groupTrainingsDbRepository.createTraining(groupTrainingModel);
+        GroupTrainings repositoryResponse = groupTrainingsDbRepository.createTraining(groupTrainingModel);
+        GroupTrainingResponse response = new GroupTrainingResponse(
+                repositoryResponse.getTrainingId(),
+                repositoryResponse.getTrainingTypeId(),
+                repositoryResponse.getTrainerId(),
+                repositoryResponse.getDate(),
+                repositoryResponse.getStartTime(),
+                repositoryResponse.getEndTime(),
+                repositoryResponse.getHallNo(),
+                repositoryResponse.getLimit(),
+                repositoryResponse.getParticipants(),
+                repositoryResponse.getReserveList());
+        return response;
     }
 
     public GroupTrainings removeGroupTraining(String trainingId)

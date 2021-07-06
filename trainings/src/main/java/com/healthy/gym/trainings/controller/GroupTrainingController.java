@@ -32,11 +32,11 @@ public class GroupTrainingController {
 
     // TODO only manager
     @PostMapping
-    public GroupTrainings createGroupTraining(
+    public GroupTrainingResponse createGroupTraining(
             @Valid @RequestBody GroupTrainingRequest groupTrainingModel){
         try {
             return groupTrainingsService.createGroupTraining(groupTrainingModel);
-        } catch (InvalidHourException | ParseException e) {
+        } catch (InvalidHourException | InvalidDateException | ParseException e) {
             String reason = translator.toLocale("exception.date.or.hour.parse");
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, e);
         } catch (TrainingCreationException e) {

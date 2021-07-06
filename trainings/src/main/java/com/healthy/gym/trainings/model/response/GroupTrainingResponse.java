@@ -8,6 +8,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.validation.constraints.NotNull;
 import java.util.List;
+import java.util.Objects;
 
 public class GroupTrainingResponse {
 
@@ -76,6 +77,28 @@ public class GroupTrainingResponse {
                 ", participants=" + participants +
                 ", reserveList=" + reserveList +
                 '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        GroupTrainingResponse that = (GroupTrainingResponse) o;
+        return hallNo == that.hallNo &&
+                limit == that.limit &&
+                Objects.equals(trainingId, that.trainingId) &&
+                Objects.equals(trainingTypeId, that.trainingTypeId) &&
+                Objects.equals(trainerId, that.trainerId) &&
+                Objects.equals(date, that.date) &&
+                Objects.equals(startTime, that.startTime) &&
+                Objects.equals(endTime, that.endTime) &&
+                Objects.equals(participants, that.participants) &&
+                Objects.equals(reserveList, that.reserveList);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(trainingId, trainingTypeId, trainerId, date, startTime, endTime, hallNo, limit, participants, reserveList);
     }
 
     public String getTrainingId() {

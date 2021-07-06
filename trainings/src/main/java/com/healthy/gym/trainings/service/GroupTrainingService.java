@@ -33,8 +33,8 @@ public interface GroupTrainingService {
     void removeGroupTrainingEnrollment(String trainingId, String clientId)
             throws NotExistingGroupTrainingException, TrainingEnrollmentException;
 
-    GroupTrainings createGroupTraining(GroupTrainingRequest groupTrainingModel)
-            throws TrainingCreationException, ParseException, InvalidHourException;
+    GroupTrainingResponse createGroupTraining(GroupTrainingRequest groupTrainingModel)
+            throws TrainingCreationException, ParseException, InvalidHourException, InvalidDateException;
 
     GroupTrainings removeGroupTraining(String trainingId)
             throws TrainingRemovalException, EmailSendingException;

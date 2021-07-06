@@ -9,6 +9,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.validation.constraints.NotNull;
 import java.util.List;
+import java.util.Objects;
 
 public class GroupTrainingRequest {
 
@@ -64,6 +65,42 @@ public class GroupTrainingRequest {
         this.limit = limit;
         this.participants = participants;
         this.reserveList = reserveList;
+    }
+
+    @Override
+    public String toString() {
+        return "GroupTrainingRequest{" +
+                "trainingTypeId='" + trainingTypeId + '\'' +
+                ", trainerId='" + trainerId + '\'' +
+                ", date='" + date + '\'' +
+                ", startTime='" + startTime + '\'' +
+                ", endTime='" + endTime + '\'' +
+                ", hallNo=" + hallNo +
+                ", limit=" + limit +
+                ", participants=" + participants +
+                ", reserveList=" + reserveList +
+                '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        GroupTrainingRequest that = (GroupTrainingRequest) o;
+        return hallNo == that.hallNo &&
+                limit == that.limit &&
+                Objects.equals(trainingTypeId, that.trainingTypeId) &&
+                Objects.equals(trainerId, that.trainerId) &&
+                Objects.equals(date, that.date) &&
+                Objects.equals(startTime, that.startTime) &&
+                Objects.equals(endTime, that.endTime) &&
+                Objects.equals(participants, that.participants) &&
+                Objects.equals(reserveList, that.reserveList);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(trainingTypeId, trainerId, date, startTime, endTime, hallNo, limit, participants, reserveList);
     }
 
     public String getTrainingTypeId() {

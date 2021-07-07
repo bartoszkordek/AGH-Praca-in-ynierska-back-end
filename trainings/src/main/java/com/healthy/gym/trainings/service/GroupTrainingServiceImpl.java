@@ -242,8 +242,8 @@ public class GroupTrainingServiceImpl implements GroupTrainingService {
         return response;
     }
 
-    public GroupTrainings updateGroupTraining(String trainingId, GroupTrainingRequest groupTrainingModelRequest)
-            throws TrainingUpdateException, EmailSendingException, InvalidHourException, ParseException {
+    public GroupTrainingResponse updateGroupTraining(String trainingId, GroupTrainingRequest groupTrainingModelRequest)
+            throws TrainingUpdateException, EmailSendingException, InvalidHourException, ParseException, InvalidDateException {
 
         if (!groupTrainingsDbRepository.isGroupTrainingExist(trainingId))
             throw new TrainingUpdateException("Training with ID: " + trainingId + " doesn't exist");
@@ -266,19 +266,30 @@ public class GroupTrainingServiceImpl implements GroupTrainingService {
         if (!groupTrainingsDbRepository.isAbilityToCreateTraining(groupTrainingModelRequest))
             throw new TrainingUpdateException("Cannot update group training. Overlapping trainings.");
 
-        GroupTrainings result = groupTrainingsDbRepository.updateTraining(trainingId, groupTrainingModelRequest);
+        GroupTrainings repositoryResponse = groupTrainingsDbRepository.updateTraining(trainingId, groupTrainingModelRequest);
 
-        List<String> toEmails = result.getParticipants();
+        List<String> toEmails = repositoryResponse.getParticipants();
         String subject = "Training has been updated";
-        String body = "Training " + result.getTrainingId() + " on " + result.getDate() + " at "
-                + result.getStartTime() + " with " + result.getTrainerId() + " has been updated.";
+        String body = "Training " + repositoryResponse.getTrainingId() + " on " + repositoryResponse.getDate() + " at "
+                + repositoryResponse.getStartTime() + " with " + repositoryResponse.getTrainerId() + " has been updated.";
         try {
             sendEmailWithoutAttachment(toEmails, subject, body);
         } catch (Exception e) {
             throw new EmailSendingException("Cannot send email");
         }
 
-        return result;
+        GroupTrainingResponse response = new GroupTrainingResponse(
+                repositoryResponse.getTrainingId(),
+                repositoryResponse.getTrainingTypeId(),
+                repositoryResponse.getTrainerId(),
+                repositoryResponse.getDate(),
+                repositoryResponse.getStartTime(),
+                repositoryResponse.getEndTime(),
+                repositoryResponse.getHallNo(),
+                repositoryResponse.getLimit(),
+                repositoryResponse.getParticipants(),
+                repositoryResponse.getReserveList());
+        return response;
     }
 
 }

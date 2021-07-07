@@ -122,7 +122,7 @@ public class GroupTrainingController {
 
     // TODO only manager
     @PutMapping("/{trainingId}")
-    public GroupTrainings updateGroupTraining(
+    public GroupTrainingResponse updateGroupTraining(
             @PathVariable("trainingId") final String trainingId,
             @Valid @RequestBody GroupTrainingRequest groupTrainingModelRequest ) {
         try {

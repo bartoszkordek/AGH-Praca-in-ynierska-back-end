@@ -38,6 +38,7 @@ public class CreateGroupTrainingService {
         GroupTrainingService groupTrainingService = new GroupTrainingServiceImpl(emailConfig, groupTrainingsDbRepository);
 
         //before
+        String id= "507f1f77bcf86cd799439011";
         String trainingId = "122ed953-e37f-435a-bd1e-9fb2a327c4d3";
         String trainingTypeId = "222ed952-es7f-435a-bd1e-9fb2a327c4dk";
         String trainerId = "Test Trainer";
@@ -52,6 +53,7 @@ public class CreateGroupTrainingService {
                 endTime, hallNo, limit, participants, reserveList);
         GroupTrainings groupTraining = new GroupTrainings(trainingId, trainingTypeId, trainerId,
                 date, startTime, endTime, hallNo, limit, participants, reserveList);
+        groupTraining.setId(id);
         GroupTrainingResponse groupTrainingResponse = new GroupTrainingResponse(trainingId, trainingTypeId, trainerId,
                 date, startTime,
                 endTime, hallNo, limit, participants, reserveList);
@@ -72,6 +74,7 @@ public class CreateGroupTrainingService {
         GroupTrainingService groupTrainingService = new GroupTrainingServiceImpl(emailConfig, groupTrainingsDbRepository);
 
         //before
+        String id= "507f1f77bcf86cd799439011";
         String trainingId = "122ed953-e37f-435a-bd1e-9fb2a327c4d3";
         String trainingTypeId = "222ed952-es7f-435a-bd1e-9fb2a327c4dk";
         String trainerId = "Test Trainer";
@@ -86,6 +89,7 @@ public class CreateGroupTrainingService {
                 endTime, hallNo, limit, participants, reserveList);
         GroupTrainings groupTraining = new GroupTrainings(trainingId, trainingTypeId, trainerId,
                 date, startTime, endTime, hallNo, limit, participants, reserveList);
+        groupTraining.setId(id);
 
         //when
         when(groupTrainingsDbRepository.isAbilityToCreateTraining(groupTrainingRequest)).thenReturn(false);
@@ -103,6 +107,7 @@ public class CreateGroupTrainingService {
         GroupTrainingService groupTrainingService = new GroupTrainingServiceImpl(emailConfig, groupTrainingsDbRepository);
 
         //before
+        String id= "507f1f77bcf86cd799439011";
         String trainingId = "122ed953-e37f-435a-bd1e-9fb2a327c4d3";
         String trainingTypeId = "222ed952-es7f-435a-bd1e-9fb2a327c4dk";
         String trainerId = "Test Trainer";
@@ -117,6 +122,7 @@ public class CreateGroupTrainingService {
                 endTime, hallNo, limit, participants, reserveList);
         GroupTrainings groupTraining = new GroupTrainings(trainingId, trainingTypeId, trainerId,
                 date, startTime, endTime, hallNo, limit, participants, reserveList);
+        groupTraining.setId(id);
 
         //when
         when(groupTrainingsDbRepository.isAbilityToCreateTraining(groupTrainingRequest)).thenReturn(true);
@@ -134,6 +140,7 @@ public class CreateGroupTrainingService {
         GroupTrainingService groupTrainingService = new GroupTrainingServiceImpl(emailConfig, groupTrainingsDbRepository);
 
         //before
+        String id= "507f1f77bcf86cd799439011";
         String trainingId = "122ed953-e37f-435a-bd1e-9fb2a327c4d3";
         String trainingTypeId = "222ed952-es7f-435a-bd1e-9fb2a327c4dk";
         String trainerId = "Test Trainer";
@@ -148,6 +155,7 @@ public class CreateGroupTrainingService {
                 endTime, hallNo, limit, participants, reserveList);
         GroupTrainings groupTraining = new GroupTrainings(trainingId, trainingTypeId, trainerId,
                 date, startTime, endTime, hallNo, limit, participants, reserveList);
+        groupTraining.setId(id);
 
         //when
         when(groupTrainingsDbRepository.isAbilityToCreateTraining(groupTrainingRequest)).thenReturn(true);
@@ -165,6 +173,7 @@ public class CreateGroupTrainingService {
         GroupTrainingService groupTrainingService = new GroupTrainingServiceImpl(emailConfig, groupTrainingsDbRepository);
 
         //before
+        String id= "507f1f77bcf86cd799439011";
         String trainingId = "122ed953-e37f-435a-bd1e-9fb2a327c4d3";
         String trainingTypeId = "222ed952-es7f-435a-bd1e-9fb2a327c4dk";
         String trainerId = "Test Trainer";
@@ -179,6 +188,7 @@ public class CreateGroupTrainingService {
                 endTime, hallNo, limit, participants, reserveList);
         GroupTrainings groupTraining = new GroupTrainings(trainingId, trainingTypeId, trainerId,
                 date, startTime, endTime, hallNo, limit, participants, reserveList);
+        groupTraining.setId(id);
 
         //when
         when(groupTrainingsDbRepository.isAbilityToCreateTraining(groupTrainingRequest)).thenReturn(true);
@@ -196,6 +206,7 @@ public class CreateGroupTrainingService {
         GroupTrainingService groupTrainingService = new GroupTrainingServiceImpl(emailConfig, groupTrainingsDbRepository);
 
         //before
+        String id= "507f1f77bcf86cd799439011";
         String trainingId = "122ed953-e37f-435a-bd1e-9fb2a327c4d3";
         String trainingTypeId = "222ed952-es7f-435a-bd1e-9fb2a327c4dk";
         String trainerId = "Test Trainer";
@@ -210,6 +221,7 @@ public class CreateGroupTrainingService {
                 endTime, hallNo, limit, participants, reserveList);
         GroupTrainings groupTraining = new GroupTrainings(trainingId, trainingTypeId, trainerId,
                 date, startTime, endTime, hallNo, limit, participants, reserveList);
+        groupTraining.setId(id);
 
         //when
         when(groupTrainingsDbRepository.isAbilityToCreateTraining(groupTrainingRequest)).thenReturn(true);

@@ -220,7 +220,6 @@ public class GroupTrainingsDbRepository {
 
     public boolean isAbilityToCreateTraining(GroupTrainingRequest groupTrainingModel) throws ParseException {
 
-        try {
             MongoClient mongoClient = MongoClients.create(environment.getProperty("spring.data.mongodb.uri"));
             mdb = mongoClient.getDatabase(environment.getProperty("spring.data.mongodb.database"));
             MongoCollection collection = mdb.getCollection(groupTrainingsCollectionName);
@@ -261,17 +260,10 @@ public class GroupTrainingsDbRepository {
             List<Document> pipeline = Arrays.asList(match);
 
             return !collection.aggregate(pipeline).cursor().hasNext();
-        } catch (Exception e){
-            e.printStackTrace();
-        } finally {
-            mongoClient.close();
-        }
-        return false;
     }
 
     public boolean isAbilityToUpdateTraining(String trainingId, GroupTrainingRequest groupTrainingModel) throws ParseException {
 
-        try {
             MongoClient mongoClient = MongoClients.create(environment.getProperty("spring.data.mongodb.uri"));
             mdb = mongoClient.getDatabase(environment.getProperty("spring.data.mongodb.database"));
             MongoCollection collection = mdb.getCollection(groupTrainingsCollectionName);
@@ -313,12 +305,6 @@ public class GroupTrainingsDbRepository {
             List<Document> pipeline = Arrays.asList(match);
 
             return !collection.aggregate(pipeline).cursor().hasNext();
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            mongoClient.close();
-        }
-        return false;
     }
 
     public GroupTrainings createTraining(GroupTrainingRequest groupTrainingModel) throws InvalidHourException {

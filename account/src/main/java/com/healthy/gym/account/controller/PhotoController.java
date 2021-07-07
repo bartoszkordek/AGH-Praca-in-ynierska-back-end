@@ -101,4 +101,32 @@ public class PhotoController {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, reason, exception);
         }
     }
+
+    @PreAuthorize("hasRole('ADMIN') or principal==#userId")
+    @DeleteMapping(
+            value = "/{id}/avatar",
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    public ResponseEntity<AvatarResponse> deleteAvatar(@PathVariable("id") String userId) {
+        try {
+            ImageDTO imageDTO = photoService.removeAvatar(userId);
+            String message = translator.toLocale("avatar.removed");
+            return ResponseEntity
+                    .status(HttpStatus.OK)
+                    .body(new AvatarResponse(message, imageDTO));
+
+        } catch (UserAvatarNotFoundException exception) {
+            String reason = translator.toLocale("avatar.not.found.exception");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, reason, exception);
+
+        } catch (UsernameNotFoundException exception) {
+            String reason = translator.toLocale("exception.account.not.found");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, reason, exception);
+
+        } catch (Exception exception) {
+            String reason = translator.toLocale("request.failure");
+            exception.printStackTrace();
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, reason, exception);
+        }
+    }
 }

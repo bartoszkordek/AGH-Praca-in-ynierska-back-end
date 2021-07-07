@@ -1,11 +1,10 @@
 package com.healthy.gym.account.controller.accountController.integrationTest;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.healthy.gym.account.component.TokenManager;
 import com.healthy.gym.account.configuration.tests.TestCountry;
+import com.healthy.gym.account.configuration.tests.TestRoleTokenFactory;
 import com.healthy.gym.account.data.document.UserDocument;
 import com.healthy.gym.account.pojo.request.ChangeUserDataRequest;
-import io.jsonwebtoken.Jwts;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -27,7 +26,9 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
 
 import java.net.URI;
-import java.util.*;
+import java.util.Locale;
+import java.util.Map;
+import java.util.UUID;
 
 import static com.healthy.gym.account.configuration.tests.LocaleConverter.convertEnumToLocale;
 import static com.healthy.gym.account.configuration.tests.Messages.getMessagesAccordingToLocale;
@@ -47,7 +48,7 @@ class WhenChangeUserDataIntegrationTest {
     @Autowired
     private TestRestTemplate restTemplate;
     @Autowired
-    private TokenManager tokenManager;
+    private TestRoleTokenFactory tokenFactory;
     @Autowired
     private MongoTemplate mongoTemplate;
     @Autowired
@@ -56,7 +57,6 @@ class WhenChangeUserDataIntegrationTest {
     private String userToken;
     private String adminToken;
     private String userId;
-    private UserDocument janKowalski;
     private ChangeUserDataRequest request;
 
     @LocalServerPort
@@ -67,38 +67,15 @@ class WhenChangeUserDataIntegrationTest {
         registry.add("spring.data.mongodb.uri", mongoDBContainer::getReplicaSetUrl);
     }
 
-    private Date setTokenExpirationTime() {
-        long currentTime = System.currentTimeMillis();
-        long expirationTime = tokenManager.getExpirationTimeInMillis();
-        return new Date(currentTime + expirationTime);
-    }
-
     @BeforeEach
     void setUp() {
         userId = UUID.randomUUID().toString();
         String adminId = UUID.randomUUID().toString();
 
-        userToken = tokenManager.getTokenPrefix() + " " + Jwts.builder()
-                .setSubject(userId)
-                .claim("roles", List.of("ROLE_USER"))
-                .setExpiration(setTokenExpirationTime())
-                .signWith(
-                        tokenManager.getSignatureAlgorithm(),
-                        tokenManager.getSigningKey()
-                )
-                .compact();
+        userToken = tokenFactory.getUserToken(userId);
+        adminToken = tokenFactory.getAdminToken(adminId);
 
-        adminToken = tokenManager.getTokenPrefix() + " " + Jwts.builder()
-                .setSubject(adminId)
-                .claim("roles", List.of("ROLE_USER", "ROLE_ADMIN"))
-                .setExpiration(setTokenExpirationTime())
-                .signWith(
-                        tokenManager.getSignatureAlgorithm(),
-                        tokenManager.getSigningKey()
-                )
-                .compact();
-
-        janKowalski = new UserDocument("Jan",
+        UserDocument janKowalski = new UserDocument("Jan",
                 "Kowalski",
                 "jan.kowalski@test.com",
                 "666 777 888",
@@ -106,9 +83,19 @@ class WhenChangeUserDataIntegrationTest {
                 userId
         );
 
+        UserDocument krzysztofNowak = new UserDocument(
+                "Krzysztof",
+                "Nowak",
+                "krzysztof.nowak@test.com",
+                "666 777 888",
+                bCryptPasswordEncoder.encode("password1234"),
+                UUID.randomUUID().toString()
+        );
+
         request = new ChangeUserDataRequest();
 
         mongoTemplate.save(janKowalski);
+        mongoTemplate.save(krzysztofNowak);
     }
 
     @AfterEach
@@ -179,6 +166,38 @@ class WhenChangeUserDataIntegrationTest {
             assertThat(responseEntity.getBody().get("phone").textValue()).isEqualTo("666 777 888");
             assertThat(responseEntity.getHeaders().getContentType()).isEqualTo(MediaType.APPLICATION_JSON);
         }
+
+        @ParameterizedTest
+        @EnumSource(TestCountry.class)
+        void shouldAcceptRequestAndShouldThrowExceptionWhenEmailAlreadyExists(TestCountry country) throws Exception {
+            Map<String, String> messages = getMessagesAccordingToLocale(country);
+            Locale testedLocale = convertEnumToLocale(country);
+
+            URI uri = new URI("http://localhost:" + port + "/changeUserData/" + userId);
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.set("Accept-Language", testedLocale.toString());
+            headers.set("Authorization", adminToken);
+            headers.set("Content-Type", MediaType.APPLICATION_JSON_VALUE);
+
+            request.setEmail("krzysztof.nowak@test.com");
+            request.setName("Krzysztof");
+
+            HttpEntity<Object> requestEntity = new HttpEntity<>(request, headers);
+            String expectedMessage = messages.get("exception.email.occupied");
+
+            ResponseEntity<JsonNode> responseEntity = restTemplate
+                    .exchange(uri, HttpMethod.PATCH, requestEntity, JsonNode.class);
+
+            JsonNode responseBody = responseEntity.getBody();
+
+            assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.CONFLICT);
+            assertThat(responseEntity.getHeaders().getContentType()).hasToString(MediaType.APPLICATION_JSON_VALUE);
+            assertThat(responseBody.get("message").textValue()).isEqualTo(expectedMessage);
+            assertThat(responseBody.get("error").textValue()).isEqualTo("Conflict");
+            assertThat(responseBody.get("status").numberValue()).isEqualTo(409);
+            assertThat(responseBody.get("timestamp")).isNotNull();
+        }
     }
 
     @Nested
@@ -189,7 +208,7 @@ class WhenChangeUserDataIntegrationTest {
             Map<String, String> messages = getMessagesAccordingToLocale(country);
             Locale testedLocale = convertEnumToLocale(country);
 
-            URI uri = new URI("http://localhost:" + port + "/changeUserData/" +UUID.randomUUID());
+            URI uri = new URI("http://localhost:" + port + "/changeUserData/" + UUID.randomUUID());
 
             HttpHeaders headers = new HttpHeaders();
             headers.set("Accept-Language", testedLocale.toString());

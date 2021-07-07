@@ -81,8 +81,20 @@ class WhenChangeUserDataTest {
     }
 
     @Test
+    void shouldThrowExceptionWhenProvidedExistingEmail() {
+        when(userDAO.findByUserId(userId)).thenReturn(andrzejNowak);
+        UserDocument existingUser = new UserDocument();
+        existingUser.setUserId(UUID.randomUUID().toString());
+        when(userDAO.findByEmail(any())).thenReturn(existingUser);
+        assertThatThrownBy(
+                () -> accountService.changeUserData(andrzejNowakDTO)
+        ).isInstanceOf(EmailOccupiedException.class);
+    }
+
+    @Test
     void shouldThrowExceptionWhenUpdatedUserDoesNotMatchProvidedUser() {
         when(userDAO.findByUserId(userId)).thenReturn(andrzejNowak);
+        when(userDAO.findByEmail(any())).thenReturn(andrzejNowak);
         UserDocument userNotUpdated = new UserDocument(
                 "Andrzej",
                 "Nowak",
@@ -104,6 +116,7 @@ class WhenChangeUserDataTest {
         @BeforeEach
         void setUp() {
             when(userDAO.findByUserId(userId)).thenReturn(andrzejNowak);
+            when(userDAO.findByEmail(any())).thenReturn(andrzejNowak);
             userNotUpdated = new UserDocument(
                     "Krzysztof",
                     "Kowalski",
@@ -155,6 +168,7 @@ class WhenChangeUserDataTest {
         @BeforeEach
         void setUp() throws UserDataNotUpdatedException, EmailOccupiedException {
             when(userDAO.findByUserId(userId)).thenReturn(andrzejNowak);
+            when(userDAO.findByEmail(any())).thenReturn(andrzejNowak);
             when(userDAO.save(any())).thenReturn(andrzejNowakUpdated);
             user = accountService.changeUserData(andrzejNowakDTO);
         }

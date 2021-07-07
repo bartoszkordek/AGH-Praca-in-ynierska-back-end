@@ -41,7 +41,11 @@ public class PhotoServiceImpl implements PhotoService {
 
     @Override
     public ImageDTO removeAvatar(String userId) throws UserAvatarNotFoundException {
-        return null;
+        PhotoDocument photoDocument = photoDAO.findByUserId(userId);
+        if (photoDocument == null) throw new UserAvatarNotFoundException();
+
+        photoDAO.delete(photoDocument);
+        return new ImageDTO();
     }
 
     private String getDataEncodeBase64(PhotoDocument photoDocument) {

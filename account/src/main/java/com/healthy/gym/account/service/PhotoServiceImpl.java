@@ -39,6 +39,11 @@ public class PhotoServiceImpl implements PhotoService {
         return new ImageDTO(data, format);
     }
 
+    @Override
+    public ImageDTO removeAvatar(String userId) throws UserAvatarNotFoundException {
+        return null;
+    }
+
     private String getDataEncodeBase64(PhotoDocument photoDocument) {
         Base64.Encoder encoder = Base64.getEncoder();
         Image image = photoDocument.getImage();

@@ -10,5 +10,7 @@ import java.io.IOException;
 public interface PhotoService {
     ImageDTO getAvatar(String userId) throws UserAvatarNotFoundException;
 
+    ImageDTO removeAvatar(String userId) throws UserAvatarNotFoundException;
+
     ImageDTO setAvatar(String userId, MultipartFile multipartFile) throws PhotoSavingException, IOException;
 }

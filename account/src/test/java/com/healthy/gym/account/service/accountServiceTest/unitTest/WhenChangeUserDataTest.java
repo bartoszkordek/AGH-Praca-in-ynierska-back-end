@@ -2,6 +2,7 @@ package com.healthy.gym.account.service.accountServiceTest.unitTest;
 
 import com.healthy.gym.account.data.document.UserDocument;
 import com.healthy.gym.account.data.repository.UserDAO;
+import com.healthy.gym.account.exception.EmailOccupiedException;
 import com.healthy.gym.account.exception.UserDataNotUpdatedException;
 import com.healthy.gym.account.service.AccountService;
 import com.healthy.gym.account.shared.UserDTO;
@@ -152,7 +153,7 @@ class WhenChangeUserDataTest {
         private UserDTO user;
 
         @BeforeEach
-        void setUp() throws UserDataNotUpdatedException {
+        void setUp() throws UserDataNotUpdatedException, EmailOccupiedException {
             when(userDAO.findByUserId(userId)).thenReturn(andrzejNowak);
             when(userDAO.save(any())).thenReturn(andrzejNowakUpdated);
             user = accountService.changeUserData(andrzejNowakDTO);

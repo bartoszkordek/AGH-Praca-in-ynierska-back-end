@@ -1,14 +1,14 @@
 package com.healthy.gym.account.controller.accountController.unitTest;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.healthy.gym.account.component.TokenManager;
 import com.healthy.gym.account.configuration.tests.TestCountry;
+import com.healthy.gym.account.configuration.tests.TestRoleTokenFactory;
 import com.healthy.gym.account.controller.AccountController;
+import com.healthy.gym.account.exception.EmailOccupiedException;
 import com.healthy.gym.account.exception.UserDataNotUpdatedException;
 import com.healthy.gym.account.service.AccountService;
 import com.healthy.gym.account.service.PhotoService;
 import com.healthy.gym.account.shared.UserDTO;
-import io.jsonwebtoken.Jwts;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
@@ -23,7 +23,10 @@ import org.springframework.test.web.servlet.RequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import java.net.URI;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.Map;
+import java.util.UUID;
 
 import static com.healthy.gym.account.configuration.tests.LocaleConverter.convertEnumToLocale;
 import static com.healthy.gym.account.configuration.tests.Messages.getMessagesAccordingToLocale;
@@ -41,7 +44,7 @@ class WhenChangeUserDataTest {
     private MockMvc mockMvc;
 
     @Autowired
-    private TokenManager tokenManager;
+    private TestRoleTokenFactory tokenFactory;
 
     @MockBean
     private AccountService accountService;
@@ -56,38 +59,17 @@ class WhenChangeUserDataTest {
     private Map<String, String> requestMap;
     private UserDTO updatedUser;
 
-    private Date setTokenExpirationTime() {
-        long currentTime = System.currentTimeMillis();
-        long expirationTime = tokenManager.getExpirationTimeInMillis();
-        return new Date(currentTime + expirationTime);
-    }
 
     @BeforeEach
     void setUp() {
         objectMapper = new ObjectMapper();
 
         userId = UUID.randomUUID().toString();
-        userToken = tokenManager.getTokenPrefix() + " " + Jwts.builder()
-                .setSubject(userId)
-                .claim("roles", List.of("ROLE_USER"))
-                .setExpiration(setTokenExpirationTime())
-                .signWith(
-                        tokenManager.getSignatureAlgorithm(),
-                        tokenManager.getSigningKey()
-                )
-                .compact();
+        userToken = tokenFactory.getUserToken(userId);
 
         String adminId = UUID.randomUUID().toString();
 
-        adminToken = tokenManager.getTokenPrefix() + " " + Jwts.builder()
-                .setSubject(adminId)
-                .claim("roles", List.of("ROLE_USER", "ROLE_ADMIN"))
-                .setExpiration(setTokenExpirationTime())
-                .signWith(
-                        tokenManager.getSignatureAlgorithm(),
-                        tokenManager.getSigningKey()
-                )
-                .compact();
+        adminToken = tokenFactory.getAdminToken(adminId);
 
         requestMap = new HashMap<>();
         requestMap.put("name", "Jan");
@@ -324,6 +306,36 @@ class WhenChangeUserDataTest {
                         .value(is(messages.get("field.email.failure"))))
                 .andExpect(jsonPath("$.errors.phoneNumber")
                         .value(is(messages.get("field.phone.number.failure"))));
+    }
+
+    @ParameterizedTest
+    @EnumSource(TestCountry.class)
+    void shouldThrowExceptionWhenProvidedEmailIsAlreadyOccupied(TestCountry country) throws Exception {
+        Map<String, String> messages = getMessagesAccordingToLocale(country);
+        Locale testedLocale = convertEnumToLocale(country);
+
+        URI uri = new URI("/changeUserData/" + userId);
+        String requestBody = objectMapper.writeValueAsString(requestMap);
+
+        RequestBuilder request = MockMvcRequestBuilders
+                .patch(uri)
+                .header("Accept-Language", testedLocale.toString())
+                .header("Authorization", userToken)
+                .content(requestBody)
+                .contentType(MediaType.APPLICATION_JSON);
+
+        String expectedMessage = messages.get("exception.email.occupied");
+
+        doThrow(EmailOccupiedException.class).when(accountService).changeUserData(any());
+
+        mockMvc.perform(request)
+                .andDo(print())
+                .andExpect(status().isConflict())
+                .andExpect(status().reason(is(expectedMessage)))
+                .andExpect(result ->
+                        assertThat(result.getResolvedException().getCause())
+                                .isInstanceOf(EmailOccupiedException.class)
+                );
     }
 
     @ParameterizedTest

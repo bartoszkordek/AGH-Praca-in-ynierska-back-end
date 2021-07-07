@@ -110,6 +110,9 @@ public class AccountController {
             return ResponseEntity
                     .status(HttpStatus.OK)
                     .body(response);
+        } catch (EmailOccupiedException exception) {
+            String reason = translator.toLocale("exception.email.occupied");
+            throw new ResponseStatusException(HttpStatus.CONFLICT, reason, exception);
 
         } catch (UsernameNotFoundException exception) {
             String reason = translator.toLocale("exception.account.not.found");

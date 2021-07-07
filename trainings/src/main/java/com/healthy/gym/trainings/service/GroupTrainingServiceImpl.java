@@ -131,7 +131,7 @@ public class GroupTrainingServiceImpl implements GroupTrainingService {
     }
 
     public void enrollToGroupTraining(String trainingId, String clientId) throws TrainingEnrollmentException {
-        if (trainingId.length() != 24 || !groupTrainingsDbRepository.isAbilityToGroupTrainingEnrollment(trainingId))
+        if (!groupTrainingsDbRepository.isAbilityToGroupTrainingEnrollment(trainingId))
             throw new TrainingEnrollmentException("Cannot enroll to this training");
         if (groupTrainingsDbRepository.isClientAlreadyEnrolledToGroupTraining(trainingId, clientId))
             throw new TrainingEnrollmentException("Client is already enrolled to this training");
@@ -263,7 +263,7 @@ public class GroupTrainingServiceImpl implements GroupTrainingService {
         if (!isValidLimit(limit))
             throw new TrainingUpdateException("Cannot update group training. Invalid limit.");
 
-        if (!groupTrainingsDbRepository.isAbilityToCreateTraining(groupTrainingModelRequest))
+        if (!groupTrainingsDbRepository.isAbilityToUpdateTraining(trainingId, groupTrainingModelRequest))
             throw new TrainingUpdateException("Cannot update group training. Overlapping trainings.");
 
         GroupTrainings repositoryResponse = groupTrainingsDbRepository.updateTraining(trainingId, groupTrainingModelRequest);

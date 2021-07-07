@@ -219,46 +219,106 @@ public class GroupTrainingsDbRepository {
     }
 
     public boolean isAbilityToCreateTraining(GroupTrainingRequest groupTrainingModel) throws ParseException {
-        MongoClient mongoClient = MongoClients.create(environment.getProperty("spring.data.mongodb.uri"));
-        mdb = mongoClient.getDatabase(environment.getProperty("spring.data.mongodb.database"));
-        MongoCollection collection = mdb.getCollection(groupTrainingsCollectionName);
 
-        String date = groupTrainingModel.getDate();
-        String startTime = groupTrainingModel.getStartTime();
-        String endTime = groupTrainingModel.getEndTime();
-        int hallNo = groupTrainingModel.getHallNo();
+        try {
+            MongoClient mongoClient = MongoClients.create(environment.getProperty("spring.data.mongodb.uri"));
+            mdb = mongoClient.getDatabase(environment.getProperty("spring.data.mongodb.database"));
+            MongoCollection collection = mdb.getCollection(groupTrainingsCollectionName);
 
-        Document eqDate = new Document("date", date);
+            String date = groupTrainingModel.getDate();
+            String startTime = groupTrainingModel.getStartTime();
+            String endTime = groupTrainingModel.getEndTime();
+            int hallNo = groupTrainingModel.getHallNo();
 
-        Document gtBeginning = new Document("$gt", startTime);
-        Document gteBeginning = new Document("$gte", startTime);
-        Document lteBeginning = new Document("$lte", startTime);
-        Document startGteBeginning = new Document("startTime", gteBeginning);
-        Document endGtBeginning = new Document("endTime", gtBeginning);
-        Document startLteBeginning = new Document("startTime",lteBeginning);
-        Document ltEnd = new Document("$lt", endTime);
-        Document lteEnd = new Document("$lte", endTime);
-        Document gteEnd = new Document("$gte", endTime);
-        Document startLtEnd = new Document("startTime", ltEnd);
-        Document endLtEnd = new Document("endTime", lteEnd);
-        Document endGteEnd = new Document("endTime", gteEnd);
+            Document eqDate = new Document("date", date);
 
-        Document eqHallNo = new Document("hallNo", hallNo);
+            Document gtBeginning = new Document("$gt", startTime);
+            Document gteBeginning = new Document("$gte", startTime);
+            Document lteBeginning = new Document("$lte", startTime);
+            Document startGteBeginning = new Document("startTime", gteBeginning);
+            Document endGtBeginning = new Document("endTime", gtBeginning);
+            Document startLteBeginning = new Document("startTime", lteBeginning);
+            Document ltEnd = new Document("$lt", endTime);
+            Document lteEnd = new Document("$lte", endTime);
+            Document gteEnd = new Document("$gte", endTime);
+            Document startLtEnd = new Document("startTime", ltEnd);
+            Document endLtEnd = new Document("endTime", lteEnd);
+            Document endGteEnd = new Document("endTime", gteEnd);
 
-        Document middleTimeEventValid = new Document("$and", Arrays.asList(
-                eqDate, startGteBeginning, startLtEnd, endGtBeginning, endLtEnd, eqHallNo));
-        Document startDateDuringEvent = new Document("$and", Arrays.asList(
-                eqDate, startGteBeginning, startLtEnd, eqHallNo));
-        Document endDateDuringEvent = new Document("$and", Arrays.asList(
-                eqDate, endGtBeginning, endLtEnd, eqHallNo));
-        Document longerThisTimeEvent = new Document("$and", Arrays.asList(
-                eqDate, startLteBeginning, endGteEnd, eqHallNo));
+            Document eqHallNo = new Document("hallNo", hallNo);
 
-        Document match = new Document("$match", new Document(
-                "$or", Arrays.asList(startDateDuringEvent, endDateDuringEvent, longerThisTimeEvent)));
-        List<Document> pipeline = Arrays.asList(match);
+            Document middleTimeEventValid = new Document("$and", Arrays.asList(
+                    eqDate, startGteBeginning, startLtEnd, endGtBeginning, endLtEnd, eqHallNo));
+            Document startDateDuringEvent = new Document("$and", Arrays.asList(
+                    eqDate, startGteBeginning, startLtEnd, eqHallNo));
+            Document endDateDuringEvent = new Document("$and", Arrays.asList(
+                    eqDate, endGtBeginning, endLtEnd, eqHallNo));
+            Document longerThisTimeEvent = new Document("$and", Arrays.asList(
+                    eqDate, startLteBeginning, endGteEnd, eqHallNo));
 
-        return !collection.aggregate(pipeline).cursor().hasNext();
+            Document match = new Document("$match", new Document(
+                    "$or", Arrays.asList(startDateDuringEvent, endDateDuringEvent, longerThisTimeEvent)));
+            List<Document> pipeline = Arrays.asList(match);
+
+            return !collection.aggregate(pipeline).cursor().hasNext();
+        } catch (Exception e){
+            e.printStackTrace();
+        } finally {
+            mongoClient.close();
+        }
+        return false;
+    }
+
+    public boolean isAbilityToUpdateTraining(String trainingId, GroupTrainingRequest groupTrainingModel) throws ParseException {
+
+        try {
+            MongoClient mongoClient = MongoClients.create(environment.getProperty("spring.data.mongodb.uri"));
+            mdb = mongoClient.getDatabase(environment.getProperty("spring.data.mongodb.database"));
+            MongoCollection collection = mdb.getCollection(groupTrainingsCollectionName);
+
+            String date = groupTrainingModel.getDate();
+            String startTime = groupTrainingModel.getStartTime();
+            String endTime = groupTrainingModel.getEndTime();
+            int hallNo = groupTrainingModel.getHallNo();
+
+            Document eqDate = new Document("date", date);
+
+            Document gtBeginning = new Document("$gt", startTime);
+            Document gteBeginning = new Document("$gte", startTime);
+            Document lteBeginning = new Document("$lte", startTime);
+            Document startGteBeginning = new Document("startTime", gteBeginning);
+            Document endGtBeginning = new Document("endTime", gtBeginning);
+            Document startLteBeginning = new Document("startTime", lteBeginning);
+            Document ltEnd = new Document("$lt", endTime);
+            Document lteEnd = new Document("$lte", endTime);
+            Document gteEnd = new Document("$gte", endTime);
+            Document startLtEnd = new Document("startTime", ltEnd);
+            Document endLtEnd = new Document("endTime", lteEnd);
+            Document endGteEnd = new Document("endTime", gteEnd);
+
+            Document eqHallNo = new Document("hallNo", hallNo);
+            Document notEqTrainingId = new Document("ne", new Document("trainingId", trainingId));
+
+            Document middleTimeEventValid = new Document("$and", Arrays.asList(
+                    eqDate, startGteBeginning, startLtEnd, endGtBeginning, endLtEnd, eqHallNo, notEqTrainingId));
+            Document startDateDuringEvent = new Document("$and", Arrays.asList(
+                    eqDate, startGteBeginning, startLtEnd, eqHallNo, notEqTrainingId));
+            Document endDateDuringEvent = new Document("$and", Arrays.asList(
+                    eqDate, endGtBeginning, endLtEnd, eqHallNo, notEqTrainingId));
+            Document longerThisTimeEvent = new Document("$and", Arrays.asList(
+                    eqDate, startLteBeginning, endGteEnd, eqHallNo, notEqTrainingId));
+
+            Document match = new Document("$match", new Document(
+                    "$or", Arrays.asList(startDateDuringEvent, endDateDuringEvent, longerThisTimeEvent)));
+            List<Document> pipeline = Arrays.asList(match);
+
+            return !collection.aggregate(pipeline).cursor().hasNext();
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            mongoClient.close();
+        }
+        return false;
     }
 
     public GroupTrainings createTraining(GroupTrainingRequest groupTrainingModel) throws InvalidHourException {

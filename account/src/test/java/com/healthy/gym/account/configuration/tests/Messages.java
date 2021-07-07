@@ -30,7 +30,8 @@ public class Messages {
                 {"avatar.update.failure", "Wystąpił błąd podczas aktualizacji zdjęcia profilowego."},
                 {"avatar.update.data.exception", "Błąd. Dopuszczalny format pliku to JPEG lub PNG."},
                 {"avatar.not.found.exception", "Nie znaleziono zdjęcie profilowe."},
-                {"avatar.get.found", "Zdjęcie profilowe znalezione."}
+                {"avatar.get.found", "Zdjęcie profilowe znalezione."},
+                {"avatar.removed", "Zdjęcie profilowe zostało usunięte."}
         }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
     }
 
@@ -59,7 +60,8 @@ public class Messages {
                 {"avatar.update.failure", "There was an error while updating your profile picture."},
                 {"avatar.update.data.exception", "Error. The acceptable file format is JPEG or PNG."},
                 {"avatar.not.found.exception", "Profile picture not found."},
-                {"avatar.get.found", "Profile picture found successfully."}
+                {"avatar.get.found", "Profile picture found successfully."},
+                {"avatar.removed", "Profile picture removed successfully."}
         }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
     }
 

@@ -38,7 +38,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"trainingName\": \"TestTraining1\",\r\n    \"trainerId\": \"Trainer1\",\r\n    \"date\": \"2021-10-01\",\r\n    \"startTime\": \"16:00\",\r\n    \"endTime\": \"17:00\",\r\n    \"hallNo\": 1,\r\n    \"limit\": 20,\r\n    \"participants\": [],\r\n    \"reserveList\": []\r\n}",
+							"raw": "{\r\n    \"trainingTypeId\": \"222ed952-es7f-435a-bd1e-9fb2a327c4dk\",\r\n    \"trainerId\": \"Trainer1\",\r\n    \"date\": \"2021-10-01\",\r\n    \"startTime\": \"16:00\",\r\n    \"endTime\": \"17:00\",\r\n    \"hallNo\": 1,\r\n    \"limit\": 20,\r\n    \"participants\": [],\r\n    \"reserveList\": []\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -190,7 +190,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"trainingName\": \"UpdatedTestTraining1\",\r\n    \"trainerId\": \"Trainer1\",\r\n    \"date\": \"2021-10-01\",\r\n    \"startTime\": \"16:00\",\r\n    \"endTime\": \"17:00\",\r\n    \"hallNo\": 1,\r\n    \"limit\": 20,\r\n    \"participants\": [],\r\n    \"reserveList\": []\r\n}",
+							"raw": "{\r\n    \"trainingTypeId\": \"123ed952-es7f-435a-bd1e-9fb2a327c4dk\",\r\n    \"trainerId\": \"Trainer1\",\r\n    \"date\": \"2021-10-01\",\r\n    \"startTime\": \"16:00\",\r\n    \"endTime\": \"17:00\",\r\n    \"hallNo\": 1,\r\n    \"limit\": 20,\r\n    \"participants\": [],\r\n    \"reserveList\": []\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -198,7 +198,7 @@
 							}
 						},
 						"url": {
-							"raw": "http://localhost:8020/trainings/group/{{validGroupTrainingId}}/update",
+							"raw": "http://localhost:8020/trainings/group/{{validGroupTrainingId}}",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -207,8 +207,7 @@
 							"path": [
 								"trainings",
 								"group",
-								"{{validGroupTrainingId}}",
-								"update"
+								"{{validGroupTrainingId}}"
 							]
 						}
 					},
@@ -242,7 +241,7 @@
 						"method": "DELETE",
 						"header": [],
 						"url": {
-							"raw": "http://localhost:8020/trainings/group/{{validGroupTrainingId}}/remove",
+							"raw": "http://localhost:8020/trainings/group/{{validGroupTrainingId}}",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -251,8 +250,7 @@
 							"path": [
 								"trainings",
 								"group",
-								"{{validGroupTrainingId}}",
-								"remove"
+								"{{validGroupTrainingId}}"
 							]
 						}
 					},
@@ -1693,7 +1691,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "http://localhost:8020/trainings/group/all/mytrainings/all?clientId={{validClientId}}",
+							"raw": "http://localhost:8020/trainings/group/trainings/{{validClientId}}",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -1702,15 +1700,8 @@
 							"path": [
 								"trainings",
 								"group",
-								"all",
-								"mytrainings",
-								"all"
-							],
-							"query": [
-								{
-									"key": "clientId",
-									"value": "{{validClientId}}"
-								}
+								"trainings",
+								"{{validClientId}}"
 							]
 						}
 					},
@@ -1744,7 +1735,7 @@
 						"method": "DELETE",
 						"header": [],
 						"url": {
-							"raw": "http://localhost:8020/trainings/group/{trainingId}/enroll?clientId={{validClientId}}",
+							"raw": "http://localhost:8020/trainings/group/{{validGroupTrainingId}}/enroll?clientId={{validClientId}}",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -1753,7 +1744,7 @@
 							"path": [
 								"trainings",
 								"group",
-								"{trainingId}",
+								"{{validGroupTrainingId}}",
 								"enroll"
 							],
 							"query": [
@@ -1794,7 +1785,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "http://localhost:8020/trainings/group/{{validClientId}}/participants",
+							"raw": "http://localhost:8020/trainings/group/{{validGroupTrainingId}}/participants",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -1803,7 +1794,7 @@
 							"path": [
 								"trainings",
 								"group",
-								"{{validClientId}}",
+								"{{validGroupTrainingId}}",
 								"participants"
 							]
 						}
@@ -1977,6 +1968,59 @@
 								"trainings",
 								"group",
 								"{{invalidGroupTrainingId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "View all group trainings - public view",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const { isEqual, isNull, isEmpty } = require('lodash');\r",
+									"\r",
+									"pm.test(\"Response status should be 200.\", () => {\r",
+									"    pm.expect(pm.response.code).equals(200);\r",
+									"});\r",
+									"\r",
+									"const resTime = Number.parseInt(pm.environment.get(\"responseTime\"));\r",
+									"\r",
+									"pm.test(`Response time should be less than ${resTime} ms.`, () => {\r",
+									"    pm.expect(pm.response.responseTime).to.be.lessThan(resTime);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8020/trainings/group/public?startDate={{startDate}}&endDate={{endDate}}",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8020",
+							"path": [
+								"trainings",
+								"group",
+								"public"
+							],
+							"query": [
+								{
+									"key": "startDate",
+									"value": "{{startDate}}"
+								},
+								{
+									"key": "endDate",
+									"value": "{{endDate}}"
+								}
 							]
 						}
 					},

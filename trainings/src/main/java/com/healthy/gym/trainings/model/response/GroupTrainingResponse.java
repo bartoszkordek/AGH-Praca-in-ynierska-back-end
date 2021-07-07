@@ -1,6 +1,5 @@
-package com.healthy.gym.trainings.model.request;
+package com.healthy.gym.trainings.model.response;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.healthy.gym.trainings.exception.InvalidDateException;
 import com.healthy.gym.trainings.exception.InvalidHourException;
 import com.healthy.gym.trainings.validation.DateValidator;
@@ -11,8 +10,10 @@ import javax.validation.constraints.NotNull;
 import java.util.List;
 import java.util.Objects;
 
-public class GroupTrainingRequest {
+public class GroupTrainingResponse {
 
+    @NotNull
+    private String trainingId;
     @NotNull
     private String trainingTypeId;
     @NotNull
@@ -28,22 +29,17 @@ public class GroupTrainingRequest {
     private int hallNo;
     @NotNull
     private int limit;
+    @NotNull
     private List<String> participants;
+    @NotNull
     private List<String> reserveList;
 
-    public GroupTrainingRequest(
-            @JsonProperty("trainingTypeId") String trainingTypeId,
-            @JsonProperty("trainerId") String trainerId,
-            @JsonProperty("date") String date,
-            @JsonProperty("startTime") String startTime,
-            @JsonProperty("endTime") String endTime,
-            @JsonProperty("hallNo") int hallNo,
-            @JsonProperty("limit") int limit,
-            @JsonProperty("participants") List<String> participants,
-            @JsonProperty("reserveList") List<String> reserveList
-    ) throws InvalidHourException, InvalidDateException {
+    public GroupTrainingResponse(String trainingId, String trainingTypeId, String trainerId, String date,
+                                 String startTime, String endTime, int hallNo, int limit, List<String> participants,
+                                 List<String> reserveList) throws InvalidHourException, InvalidDateException {
         DateValidator dateValidator = new DateValidator();
         Time24HoursValidator time24HoursValidator = new Time24HoursValidator();
+        this.trainingId = trainingId;
         this.trainingTypeId = trainingTypeId;
         this.trainerId = trainerId;
         if (dateValidator.validate(date)) {
@@ -51,12 +47,12 @@ public class GroupTrainingRequest {
         } else {
             throw new InvalidDateException("Wrong date");
         }
-        if (time24HoursValidator.validate(startTime)) {
+        if(time24HoursValidator.validate(startTime)){
             this.startTime = startTime;
         } else {
             throw new InvalidHourException("Wrong start time");
         }
-        if (time24HoursValidator.validate(endTime)) {
+        if(time24HoursValidator.validate(endTime)){
             this.endTime = endTime;
         } else {
             throw new InvalidHourException("Wrong end time");
@@ -69,8 +65,9 @@ public class GroupTrainingRequest {
 
     @Override
     public String toString() {
-        return "GroupTrainingRequest{" +
-                "trainingTypeId='" + trainingTypeId + '\'' +
+        return "GroupTrainingResponse{" +
+                "trainingId='" + trainingId + '\'' +
+                ", trainingTypeId='" + trainingTypeId + '\'' +
                 ", trainerId='" + trainerId + '\'' +
                 ", date='" + date + '\'' +
                 ", startTime='" + startTime + '\'' +
@@ -86,9 +83,10 @@ public class GroupTrainingRequest {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        GroupTrainingRequest that = (GroupTrainingRequest) o;
+        GroupTrainingResponse that = (GroupTrainingResponse) o;
         return hallNo == that.hallNo &&
                 limit == that.limit &&
+                Objects.equals(trainingId, that.trainingId) &&
                 Objects.equals(trainingTypeId, that.trainingTypeId) &&
                 Objects.equals(trainerId, that.trainerId) &&
                 Objects.equals(date, that.date) &&
@@ -100,7 +98,11 @@ public class GroupTrainingRequest {
 
     @Override
     public int hashCode() {
-        return Objects.hash(trainingTypeId, trainerId, date, startTime, endTime, hallNo, limit, participants, reserveList);
+        return Objects.hash(trainingId, trainingTypeId, trainerId, date, startTime, endTime, hallNo, limit, participants, reserveList);
+    }
+
+    public String getTrainingId() {
+        return trainingId;
     }
 
     public String getTrainingTypeId() {

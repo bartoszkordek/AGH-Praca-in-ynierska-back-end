@@ -7,6 +7,7 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.List;
+import java.util.Objects;
 
 @Document(collection = "GroupTrainings")
 public class GroupTrainings {
@@ -15,8 +16,10 @@ public class GroupTrainings {
     @JsonProperty("_id")
     private String id;
 
-    @JsonProperty("trainingName")
-    private String trainingName;
+    @JsonProperty("trainingId")
+    private String trainingId;
+    @JsonProperty("trainingTypeId")
+    private String trainingTypeId;
     @JsonProperty("trainerId")
     private String trainerId;
     @JsonProperty("date")
@@ -38,10 +41,12 @@ public class GroupTrainings {
 
     }
 
-    public GroupTrainings(String trainingName, String trainerId, String date, String startTime, String endTime,
-                          int hallNo, int limit, List<String> participants, List<String> reserveList) throws InvalidHourException {
+    public GroupTrainings(String trainingId, String trainingTypeId, String trainerId, String date, String startTime,
+                          String endTime, int hallNo, int limit, List<String> participants, List<String> reserveList)
+            throws InvalidHourException {
         Time24HoursValidator time24HoursValidator = new Time24HoursValidator();
-        this.trainingName = trainingName;
+        this.trainingId = trainingId;
+        this.trainingTypeId = trainingTypeId;
         this.trainerId = trainerId;
         this.date = date;
         if(time24HoursValidator.validate(startTime)){
@@ -64,7 +69,8 @@ public class GroupTrainings {
     public String toString() {
         return "GroupTrainings{" +
                 "id='" + id + '\'' +
-                ", trainingName='" + trainingName + '\'' +
+                ", trainingId='" + trainingId + '\'' +
+                ", trainingTypeId='" + trainingTypeId + '\'' +
                 ", trainerId='" + trainerId + '\'' +
                 ", date='" + date + '\'' +
                 ", startTime='" + startTime + '\'' +
@@ -76,12 +82,37 @@ public class GroupTrainings {
                 '}';
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        GroupTrainings that = (GroupTrainings) o;
+        return hallNo == that.hallNo &&
+                limit == that.limit &&
+                Objects.equals(id, that.id) &&
+                Objects.equals(trainingId, that.trainingId) &&
+                Objects.equals(trainingTypeId, that.trainingTypeId) &&
+                Objects.equals(trainerId, that.trainerId) &&
+                Objects.equals(date, that.date) &&
+                Objects.equals(startTime, that.startTime) &&
+                Objects.equals(endTime, that.endTime) &&
+                Objects.equals(participants, that.participants) &&
+                Objects.equals(reserveList, that.reserveList);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, trainingId, trainingTypeId, trainerId, date, startTime, endTime, hallNo, limit, participants, reserveList);
+    }
+
     public String getId() {
         return id;
     }
 
-    public String getTrainingName() {
-        return trainingName;
+    public String getTrainingId() { return trainingId; }
+
+    public String getTrainingTypeId() {
+        return trainingTypeId;
     }
 
     public String getTrainerId() {
@@ -120,8 +151,10 @@ public class GroupTrainings {
         this.id = id;
     }
 
-    public void setTrainingName(String trainingName) {
-        this.trainingName = trainingName;
+    public void setTrainingId(String trainingId) { this.trainingId = trainingId; }
+
+    public void setTrainingTypeId(String trainingTypeId) {
+        this.trainingTypeId = trainingTypeId;
     }
 
     public void setTrainerId(String trainerId) {

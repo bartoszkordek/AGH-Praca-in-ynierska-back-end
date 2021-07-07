@@ -8,9 +8,12 @@ import com.healthy.gym.trainings.validation.Time24HoursValidator;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.validation.constraints.NotNull;
+import java.util.Objects;
 
 public class GroupTrainingPublicResponse {
 
+    @NotNull
+    private String trainingId;
     @NotNull
     private String trainingTypeId;
     @NotNull
@@ -28,6 +31,7 @@ public class GroupTrainingPublicResponse {
     private int limit;
 
     public GroupTrainingPublicResponse(
+            @JsonProperty("trainingId") String  trainingId,
             @JsonProperty("trainingTypeId") String trainingTypeId,
             @JsonProperty("trainerId") String trainerId,
             @JsonProperty("date") String date,
@@ -39,6 +43,7 @@ public class GroupTrainingPublicResponse {
 
         DateValidator dateValidator = new DateValidator();
         Time24HoursValidator time24HoursValidator = new Time24HoursValidator();
+        this.trainingId = trainingId;
         this.trainingTypeId = trainingTypeId;
         this.trainerId = trainerId;
         if (dateValidator.validate(date)) {
@@ -59,6 +64,42 @@ public class GroupTrainingPublicResponse {
         this.hallNo = hallNo;
         this.limit = limit;
     }
+
+    @Override
+    public String toString() {
+        return "GroupTrainingPublicResponse{" +
+                "trainingId='" + trainingId + '\'' +
+                ", trainingTypeId='" + trainingTypeId + '\'' +
+                ", trainerId='" + trainerId + '\'' +
+                ", date='" + date + '\'' +
+                ", startTime='" + startTime + '\'' +
+                ", endTime='" + endTime + '\'' +
+                ", hallNo=" + hallNo +
+                ", limit=" + limit +
+                '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        GroupTrainingPublicResponse that = (GroupTrainingPublicResponse) o;
+        return hallNo == that.hallNo &&
+                limit == that.limit &&
+                Objects.equals(trainingId, that.trainingId) &&
+                Objects.equals(trainingTypeId, that.trainingTypeId) &&
+                Objects.equals(trainerId, that.trainerId) &&
+                Objects.equals(date, that.date) &&
+                Objects.equals(startTime, that.startTime) &&
+                Objects.equals(endTime, that.endTime);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(trainingId, trainingTypeId, trainerId, date, startTime, endTime, hallNo, limit);
+    }
+
+    public String getTrainingId() { return trainingId; }
 
     public String getTrainingTypeId() {
         return trainingTypeId;

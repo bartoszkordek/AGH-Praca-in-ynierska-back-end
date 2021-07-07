@@ -13,6 +13,14 @@ public class GroupTrainingReviewUpdateRequest {
         this.text = text;
     }
 
+    @Override
+    public String toString() {
+        return "GroupTrainingReviewUpdateRequest{" +
+                "stars=" + stars +
+                ", text='" + text + '\'' +
+                '}';
+    }
+
     public int getStars() {
         return stars;
     }

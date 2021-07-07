@@ -83,7 +83,7 @@ public class ReviewController {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, e);
         } catch (TrainingTypeNotFoundException e){
             String reason = translator.toLocale("exception.not.found.training.type");
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, e);
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, reason, e);
         } catch (Exception exception) {
             String reason = translator.toLocale("exception.internal.error");
             exception.printStackTrace();
@@ -113,7 +113,7 @@ public class ReviewController {
             String reason = translator.toLocale("exception.date.or.hour.parse");
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, e);
         } catch (StartDateAfterEndDateException e){
-            String reason = translator.toLocale("exception.review.stars.out.of.range");
+            String reason = translator.toLocale("exception.start.date.after.end.date");
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, e);
         } catch (Exception exception) {
             String reason = translator.toLocale("exception.internal.error");
@@ -144,7 +144,7 @@ public class ReviewController {
             String reason = translator.toLocale("exception.date.or.hour.parse");
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, e);
         } catch (StartDateAfterEndDateException e) {
-            String reason = translator.toLocale("exception.review.stars.out.of.range");
+            String reason = translator.toLocale("exception.start.date.after.end.date");
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, e);
         }  catch (InvalidUserIdException e){
             String reason = translator.toLocale("exception.not.found.user.id");
@@ -177,11 +177,11 @@ public class ReviewController {
             String reason = translator.toLocale("exception.date.or.hour.parse");
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, e);
         } catch (StartDateAfterEndDateException e) {
-            String reason = translator.toLocale("exception.review.stars.out.of.range");
+            String reason = translator.toLocale("exception.start.date.after.end.date");
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, e);
         } catch (TrainingTypeNotFoundException e){
             String reason = translator.toLocale("exception.not.found.training.type");
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, e);
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, reason, e);
         } catch (Exception exception) {
             String reason = translator.toLocale("exception.internal.error");
             exception.printStackTrace();
@@ -210,11 +210,11 @@ public class ReviewController {
             String reason = translator.toLocale("exception.date.or.hour.parse");
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, e);
         } catch (StartDateAfterEndDateException e) {
-            String reason = translator.toLocale("exception.review.stars.out.of.range");
+            String reason = translator.toLocale("exception.start.date.after.end.date");
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, e);
         } catch (TrainingTypeNotFoundException e){
             String reason = translator.toLocale("exception.not.found.training.type");
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, e);
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, reason, e);
         } catch (Exception exception) {
             String reason = translator.toLocale("exception.internal.error");
             exception.printStackTrace();
@@ -230,7 +230,7 @@ public class ReviewController {
             return reviewService.getReviewByReviewId(reviewId);
         } catch (NotExistingGroupTrainingReviewException e) {
             String reason = translator.toLocale("exception.not.found.review.id");
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, e);
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, reason, e);
         } catch (Exception exception) {
             String reason = translator.toLocale("exception.internal.error");
             exception.printStackTrace();
@@ -249,7 +249,7 @@ public class ReviewController {
             return reviewService.updateGroupTrainingReviewByReviewId(groupTrainingReviewUpdateRequestModel, reviewId, clientId);//groupTrainingsService.updateGroupTrainingReview(groupTrainingReviewUpdateRequestModel, reviewId, clientId);
         } catch (NotExistingGroupTrainingReviewException e) {
             String reason = translator.toLocale("exception.not.found.review.id");
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, e);
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, reason, e);
         } catch (StarsOutOfRangeException e) {
             String reason = translator.toLocale("exception.review.stars.out.of.range");
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, e);
@@ -273,10 +273,14 @@ public class ReviewController {
             return reviewService.removeGroupTrainingReviewByReviewId(reviewId, clientId);
         } catch (NotExistingGroupTrainingReviewException e) {
             String reason = translator.toLocale("exception.not.found.review.id");
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, e);
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, reason, e);
         } catch (NotAuthorizedClientException e) {
             String reason = translator.toLocale("exception.access.denied");
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, reason, e);
+        } catch (Exception exception) {
+            String reason = translator.toLocale("exception.internal.error");
+            exception.printStackTrace();
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, reason, exception);
         }
     }
 }

@@ -10,7 +10,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.util.UUID;
 
@@ -21,7 +20,7 @@ import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 
 @SpringBootTest
-class WhenDeleteAccountTest {
+class WhenGetAccountInfoTest {
 
     private UserDTO andrzejNowakDTO;
     private UserDocument andrzejNowak;
@@ -33,12 +32,8 @@ class WhenDeleteAccountTest {
     @MockBean
     private UserDAO userDAO;
 
-    @Autowired
-    private BCryptPasswordEncoder bCryptPasswordEncoder;
-
     @BeforeEach
     void setUp() {
-        String encryptedPassword = bCryptPasswordEncoder.encode("password4576");
         userId = UUID.randomUUID().toString();
 
         andrzejNowakDTO = new UserDTO(
@@ -48,7 +43,7 @@ class WhenDeleteAccountTest {
                 "andrzej.nowak@test.com",
                 "676 777 888",
                 null,
-                encryptedPassword
+                null
         );
 
         andrzejNowak = new UserDocument(
@@ -56,7 +51,7 @@ class WhenDeleteAccountTest {
                 "Nowak",
                 "andrzej.nowak@test.com",
                 "676 777 888",
-                encryptedPassword,
+                null,
                 userId
         );
 
@@ -64,15 +59,15 @@ class WhenDeleteAccountTest {
     }
 
     @Test
-    void shouldDeleteAccountWhenProvidedValidUserId() {
+    void shouldGetAccountInfoWhenProvidedValidUserId() {
         when(userDAO.findByUserId(userId)).thenReturn(andrzejNowak);
-        assertThat(accountService.deleteAccount(userId)).isEqualTo(andrzejNowakDTO);
+        assertThat(accountService.getAccountInfo(userId)).isEqualTo(andrzejNowakDTO);
     }
 
     @Test
     void shouldThrowExceptionWhenProvidedUserIdIsInvalidOrDoestNotExist() {
-        when(userDAO.findByUserId(userId)).thenReturn(null);
-        assertThatThrownBy(() -> accountService.deleteAccount(userId))
+        when(userDAO.findByUserId(userId)).thenThrow(UsernameNotFoundException.class);
+        assertThatThrownBy(() -> accountService.getAccountInfo(userId))
                 .isInstanceOf(UsernameNotFoundException.class);
 
     }

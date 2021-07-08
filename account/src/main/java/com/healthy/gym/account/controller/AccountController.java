@@ -5,10 +5,7 @@ import com.healthy.gym.account.exception.*;
 import com.healthy.gym.account.pojo.request.ChangePasswordRequest;
 import com.healthy.gym.account.pojo.request.ChangePrivacyRequest;
 import com.healthy.gym.account.pojo.request.ChangeUserDataRequest;
-import com.healthy.gym.account.pojo.response.ChangePasswordResponse;
-import com.healthy.gym.account.pojo.response.ChangePrivacyResponse;
-import com.healthy.gym.account.pojo.response.ChangeUserDataResponse;
-import com.healthy.gym.account.pojo.response.DeleteAccountResponse;
+import com.healthy.gym.account.pojo.response.*;
 import com.healthy.gym.account.service.AccountService;
 import com.healthy.gym.account.shared.UserDTO;
 import com.healthy.gym.account.shared.UserPrivacyDTO;
@@ -113,6 +110,9 @@ public class AccountController {
             return ResponseEntity
                     .status(HttpStatus.OK)
                     .body(response);
+        } catch (EmailOccupiedException exception) {
+            String reason = translator.toLocale("exception.email.occupied");
+            throw new ResponseStatusException(HttpStatus.CONFLICT, reason, exception);
 
         } catch (UsernameNotFoundException exception) {
             String reason = translator.toLocale("exception.account.not.found");
@@ -125,6 +125,28 @@ public class AccountController {
         } catch (UserDataNotUpdatedException exception) {
             String reason = translator.toLocale("account.change.user.data.failure");
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, reason, exception);
+
+        } catch (Exception exception) {
+            String reason = translator.toLocale("request.failure");
+            exception.printStackTrace();
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, reason, exception);
+        }
+    }
+
+    @PreAuthorize("hasRole('USER')")
+    @GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<AccountUserInfoResponse> getAccountInfo(@PathVariable("id") String userId) {
+        try {
+            UserDTO userInfo = accountService.getAccountInfo(userId);
+            AccountUserInfoResponse response = modelMapper.map(userInfo, AccountUserInfoResponse.class);
+
+            return ResponseEntity
+                    .status(HttpStatus.OK)
+                    .body(response);
+
+        } catch (UsernameNotFoundException exception) {
+            String reason = translator.toLocale("exception.account.not.found");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, reason, exception);
 
         } catch (Exception exception) {
             String reason = translator.toLocale("request.failure");

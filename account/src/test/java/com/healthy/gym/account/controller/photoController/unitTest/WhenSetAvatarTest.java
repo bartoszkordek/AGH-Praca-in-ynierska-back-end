@@ -1,14 +1,12 @@
 package com.healthy.gym.account.controller.photoController.unitTest;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.healthy.gym.account.component.TokenManager;
 import com.healthy.gym.account.configuration.tests.TestCountry;
+import com.healthy.gym.account.configuration.tests.TestRoleTokenFactory;
 import com.healthy.gym.account.controller.PhotoController;
 import com.healthy.gym.account.exception.PhotoSavingException;
 import com.healthy.gym.account.service.AccountService;
 import com.healthy.gym.account.service.PhotoService;
-import com.healthy.gym.account.shared.PhotoDTO;
-import io.jsonwebtoken.Jwts;
+import com.healthy.gym.account.shared.ImageDTO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -27,13 +25,15 @@ import javax.activation.UnsupportedDataTypeException;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.util.Base64;
+import java.util.Locale;
+import java.util.Map;
+import java.util.UUID;
 
 import static com.healthy.gym.account.configuration.tests.LocaleConverter.convertEnumToLocale;
 import static com.healthy.gym.account.configuration.tests.Messages.getMessagesAccordingToLocale;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -46,40 +46,26 @@ class WhenSetAvatarTest {
     private MockMvc mockMvc;
 
     @Autowired
-    private TokenManager tokenManager;
+    private TestRoleTokenFactory tokenFactory;
 
     @MockBean
-    private AccountService accountService;
+    private AccountService accountService; // do NOT remove - necessary to load application context
 
     @MockBean
     private PhotoService photoService;
 
     private String userToken;
     private String userId;
-    private ObjectMapper objectMapper;
-    private PhotoDTO photoDTO;
+    private ImageDTO imageDTO;
     private MockMultipartFile invalidFile;
     private MockMultipartFile validFile;
 
-    private Date setTokenExpirationTime() {
-        long currentTime = System.currentTimeMillis();
-        long expirationTime = tokenManager.getExpirationTimeInMillis();
-        return new Date(currentTime + expirationTime);
-    }
 
     @BeforeEach
     void setUp() throws IOException {
-        objectMapper = new ObjectMapper();
         userId = UUID.randomUUID().toString();
-        userToken = tokenManager.getTokenPrefix() + " " + Jwts.builder()
-                .setSubject(userId)
-                .claim("roles", List.of("ROLE_USER"))
-                .setExpiration(setTokenExpirationTime())
-                .signWith(
-                        tokenManager.getSignatureAlgorithm(),
-                        tokenManager.getSigningKey()
-                )
-                .compact();
+        userToken = tokenFactory.getUserToken(userId);
+
         invalidFile = new MockMultipartFile(
                 "avatar",
                 "hello.txt",
@@ -93,19 +79,20 @@ class WhenSetAvatarTest {
                 MediaType.IMAGE_PNG_VALUE,
                 "data".getBytes(StandardCharsets.UTF_8)
         );
-        photoDTO = new PhotoDTO(userId, "avatar", validFile.getBytes());
+        String encodedBase64Data = Base64.getEncoder().encodeToString(validFile.getBytes());
+        imageDTO = new ImageDTO(encodedBase64Data, MediaType.IMAGE_PNG_VALUE);
     }
 
     @ParameterizedTest
     @EnumSource(TestCountry.class)
-    void shouldAcceptRequestAndshouldSetUserAvatar(TestCountry country) throws Exception {
+    void shouldAcceptRequestAndShouldSetUserAvatar(TestCountry country) throws Exception {
         Map<String, String> messages = getMessagesAccordingToLocale(country);
         Locale testedLocale = convertEnumToLocale(country);
 
         URI uri = new URI("/photos/" + userId + "/avatar");
 
         String expectedMessage = messages.get("avatar.update.success");
-        when(photoService.setAvatar(any())).thenReturn(new PhotoDTO());
+        when(photoService.setAvatar(userId, validFile)).thenReturn(imageDTO);
 
         RequestBuilder request = MockMvcRequestBuilders
                 .multipart(uri)
@@ -118,19 +105,21 @@ class WhenSetAvatarTest {
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.message").value(is(expectedMessage)));
+                .andExpect(jsonPath("$.message").value(is(expectedMessage)))
+                .andExpect(jsonPath("$.avatar.data").value(is(imageDTO.getData())))
+                .andExpect(jsonPath("$.avatar.format").value(is(MediaType.IMAGE_PNG_VALUE)));
     }
 
     @ParameterizedTest
     @EnumSource(TestCountry.class)
-    void shouldAcceptRequestAndshouldThrowUsernameNotFoundExceptionWhenUserNotFound(TestCountry country) throws Exception {
+    void shouldAcceptRequestAndShouldThrowUsernameNotFoundExceptionWhenUserNotFound(TestCountry country) throws Exception {
         Map<String, String> messages = getMessagesAccordingToLocale(country);
         Locale testedLocale = convertEnumToLocale(country);
 
         URI uri = new URI("/photos/" + userId + "/avatar");
 
         String expectedMessage = messages.get("exception.account.not.found");
-        doThrow(UsernameNotFoundException.class).when(photoService).setAvatar(any());
+        doThrow(UsernameNotFoundException.class).when(photoService).setAvatar(userId, validFile);
 
         RequestBuilder request = MockMvcRequestBuilders
                 .multipart(uri)
@@ -151,14 +140,14 @@ class WhenSetAvatarTest {
 
     @ParameterizedTest
     @EnumSource(TestCountry.class)
-    void shouldAcceptRequestAndshouldThrowPhotoSavingExceptionWhenErrorHappens(TestCountry country) throws Exception {
+    void shouldAcceptRequestAndShouldThrowPhotoSavingExceptionWhenErrorHappens(TestCountry country) throws Exception {
         Map<String, String> messages = getMessagesAccordingToLocale(country);
         Locale testedLocale = convertEnumToLocale(country);
 
         URI uri = new URI("/photos/" + userId + "/avatar");
 
         String expectedMessage = messages.get("avatar.update.failure");
-        doThrow(PhotoSavingException.class).when(photoService).setAvatar(any());
+        doThrow(PhotoSavingException.class).when(photoService).setAvatar(userId, validFile);
 
         RequestBuilder request = MockMvcRequestBuilders
                 .multipart(uri)
@@ -179,14 +168,13 @@ class WhenSetAvatarTest {
 
     @ParameterizedTest
     @EnumSource(TestCountry.class)
-    void shouldAcceptRequestAndshouldThrowUnsupportedDataTypeExceptionWhenInvalidFileProvided(TestCountry country) throws Exception {
+    void shouldAcceptRequestAndShouldThrowUnsupportedDataTypeExceptionWhenInvalidFileProvided(TestCountry country) throws Exception {
         Map<String, String> messages = getMessagesAccordingToLocale(country);
         Locale testedLocale = convertEnumToLocale(country);
 
         URI uri = new URI("/photos/" + userId + "/avatar");
 
         String expectedMessage = messages.get("avatar.update.data.exception");
-        when(photoService.setAvatar(photoDTO)).thenReturn(photoDTO);
 
         RequestBuilder request = MockMvcRequestBuilders
                 .multipart(uri)
@@ -207,14 +195,14 @@ class WhenSetAvatarTest {
 
     @ParameterizedTest
     @EnumSource(TestCountry.class)
-    void shouldAcceptRequestAndshouldThrowWhenInternalErrorHappens(TestCountry country) throws Exception {
+    void shouldAcceptRequestAndShouldThrowWhenInternalErrorHappens(TestCountry country) throws Exception {
         Map<String, String> messages = getMessagesAccordingToLocale(country);
         Locale testedLocale = convertEnumToLocale(country);
 
         URI uri = new URI("/photos/" + userId + "/avatar");
 
         String expectedMessage = messages.get("request.failure");
-        doThrow(IllegalStateException.class).when(photoService).setAvatar(any());
+        doThrow(IllegalStateException.class).when(photoService).setAvatar(userId, validFile);
 
         RequestBuilder request = MockMvcRequestBuilders
                 .multipart(uri)

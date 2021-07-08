@@ -18,7 +18,7 @@ class DeleteAccountResponseTest {
 
     @Test
     void shouldAllFieldNotBeNullWhenCreated() {
-        assertThat(response).hasNoNullFieldsOrProperties();
+        assertThat(response).hasNoNullFieldsOrPropertiesExcept("errors");
     }
 
     @Test

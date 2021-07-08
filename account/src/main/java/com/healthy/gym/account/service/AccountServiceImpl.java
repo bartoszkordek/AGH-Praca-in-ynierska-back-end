@@ -4,10 +4,7 @@ import com.healthy.gym.account.data.document.UserDocument;
 import com.healthy.gym.account.data.document.UserPrivacyDocument;
 import com.healthy.gym.account.data.repository.UserDAO;
 import com.healthy.gym.account.data.repository.UserPrivacyDAO;
-import com.healthy.gym.account.exception.IdenticalOldAndNewPasswordException;
-import com.healthy.gym.account.exception.OldPasswordDoesNotMatchException;
-import com.healthy.gym.account.exception.UserDataNotUpdatedException;
-import com.healthy.gym.account.exception.UserPrivacyNotUpdatedException;
+import com.healthy.gym.account.exception.*;
 import com.healthy.gym.account.shared.UserDTO;
 import com.healthy.gym.account.shared.UserPrivacyDTO;
 import org.modelmapper.ModelMapper;
@@ -41,7 +38,7 @@ public class AccountServiceImpl implements AccountService {
     public UserDTO changePassword(String userId, String oldPassword, String newPassword)
             throws OldPasswordDoesNotMatchException, IdenticalOldAndNewPasswordException {
         UserDocument foundUser = userDAO.findByUserId(userId);
-        if (foundUser == null) throw new UsernameNotFoundException("User not found.");
+        if (foundUser == null) throw new UsernameNotFoundException(getExceptionMessage(userId));
         validateIfOldPasswordMatches(oldPassword, foundUser);
         validateIfNewPasswordIsNotEqualToOldPassword(newPassword, foundUser);
 
@@ -49,6 +46,10 @@ public class AccountServiceImpl implements AccountService {
         UserDocument updateUser = userDAO.save(foundUser);
 
         return modelMapper.map(updateUser, UserDTO.class);
+    }
+
+    private String getExceptionMessage(String userId) {
+        return "User with id: " + userId + "not found.";
     }
 
     private void validateIfOldPasswordMatches(String oldPassword, UserDocument foundUser)
@@ -70,10 +71,15 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public UserDTO changeUserData(UserDTO userDataToUpdate) throws UserDataNotUpdatedException {
+    public UserDTO changeUserData(UserDTO userDataToUpdate) throws UserDataNotUpdatedException, EmailOccupiedException {
         String userId = userDataToUpdate.getUserId();
         UserDocument foundUser = userDAO.findByUserId(userId);
-        if (foundUser == null) throw new UsernameNotFoundException("User not found.");
+        if (foundUser == null) throw new UsernameNotFoundException(getExceptionMessage(userId));
+
+        UserDocument foundSecondUser = userDAO.findByEmail(userDataToUpdate.getEmail());
+        if (foundSecondUser != null && !foundSecondUser.getUserId().equals(foundUser.getUserId())) {
+            throw new EmailOccupiedException();
+        }
 
         updateFoundUserExceptUserId(foundUser, userDataToUpdate);
         UserDocument userDocumentUpdated = userDAO.save(foundUser);
@@ -125,8 +131,15 @@ public class AccountServiceImpl implements AccountService {
     @Override
     public UserDTO deleteAccount(String userId) {
         UserDocument foundUser = userDAO.findByUserId(userId);
-        if (foundUser == null) throw new UsernameNotFoundException("User not found.");
+        if (foundUser == null) throw new UsernameNotFoundException(getExceptionMessage(userId));
         userDAO.delete(foundUser);
+        return modelMapper.map(foundUser, UserDTO.class);
+    }
+
+    @Override
+    public UserDTO getAccountInfo(String userId) {
+        UserDocument foundUser = userDAO.findByUserId(userId);
+        if (foundUser == null) throw new UsernameNotFoundException(getExceptionMessage(userId));
         return modelMapper.map(foundUser, UserDTO.class);
     }
 
@@ -135,7 +148,7 @@ public class AccountServiceImpl implements AccountService {
             throws UserPrivacyNotUpdatedException {
 
         UserDocument foundUser = userDAO.findByUserId(userId);
-        if (foundUser == null) throw new UsernameNotFoundException("User not found.");
+        if (foundUser == null) throw new UsernameNotFoundException(getExceptionMessage(userId));
 
         UserPrivacyDocument privacyDocument = userPrivacyDAO.findByUserDocument(foundUser);
 

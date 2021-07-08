@@ -1,11 +1,12 @@
 package com.healthy.gym.account.controller.photoController.integrationTest;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.healthy.gym.account.component.TokenManager;
 import com.healthy.gym.account.configuration.tests.TestCountry;
 import com.healthy.gym.account.configuration.tests.TestRoleTokenFactory;
 import com.healthy.gym.account.data.document.PhotoDocument;
+import com.healthy.gym.account.data.document.UserDocument;
 import com.healthy.gym.account.pojo.Image;
-import org.bson.types.Binary;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -27,11 +28,11 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.URI;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.Base64;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
@@ -46,13 +47,15 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
         "eureka.client.fetch-registry=false",
         "eureka.client.register-with-eureka=false"
 })
-class WhenGetAvatarIntegrationTest {
+class WhenDeleteAvatarIntegrationTest {
 
     @Container
     static MongoDBContainer mongoDBContainer =
             new MongoDBContainer(DockerImageName.parse("mongo:4.4.4-bionic"));
     @Autowired
     private TestRestTemplate restTemplate;
+    @Autowired
+    private TokenManager tokenManager;
     @Autowired
     private TestRoleTokenFactory tokenFactory;
     @Autowired
@@ -62,7 +65,7 @@ class WhenGetAvatarIntegrationTest {
 
     private String userToken;
     private String userId;
-    private byte[] imageBytes;
+    private String adminToken;
 
     @LocalServerPort
     private Integer port;
@@ -75,26 +78,50 @@ class WhenGetAvatarIntegrationTest {
     @BeforeEach
     void setUp() throws IOException {
         userId = UUID.randomUUID().toString();
-
         userToken = tokenFactory.getUserToken(userId);
 
-        Resource resource = new ClassPathResource("mem.jpg");
-        Path filePath = resource.getFile().toPath();
-        imageBytes = Files.readAllBytes(filePath);
-        Binary image = new Binary(imageBytes);
-        PhotoDocument avatar = new PhotoDocument(userId, "title", new Image(image, MediaType.IMAGE_JPEG_VALUE));
+        String adminId = UUID.randomUUID().toString();
+        adminToken = tokenFactory.getAdminToken(adminId);
 
+        Resource currentImageResource = new ClassPathResource("testImagess/shiba_inu_smile_1.jpg");
+
+        PhotoDocument avatar = new PhotoDocument(
+                userId,
+                currentImageResource.getFilename(),
+                new Image(getImageBytes(currentImageResource), MediaType.IMAGE_JPEG_VALUE)
+        );
+
+        UserDocument userDocument = new UserDocument(
+                "testName",
+                "testSurname",
+                "testEmail",
+                "testPhone",
+                "encryptedPassword",
+                userId
+        );
+
+        mongoTemplate.save(userDocument);
         mongoTemplate.save(avatar);
     }
 
     @AfterEach
     void tearDown() {
+        mongoTemplate.dropCollection(UserDocument.class);
         mongoTemplate.dropCollection(PhotoDocument.class);
+    }
+
+    private byte[] getImageBytes(Resource imageResource) throws IOException {
+        File imageFile = imageResource.getFile();
+        FileInputStream inputStream = new FileInputStream(imageFile);
+        return inputStream.readAllBytes();
     }
 
     @ParameterizedTest
     @EnumSource(TestCountry.class)
     void shouldAcceptRequestAndShouldReturnAvatar(TestCountry country) throws Exception {
+        List<PhotoDocument> avatars = mongoTemplate.findAll(PhotoDocument.class);
+        assertThat(avatars.size()).isEqualTo(1);
+
         Map<String, String> messages = getMessagesAccordingToLocale(country);
         Locale testedLocale = convertEnumToLocale(country);
 
@@ -106,19 +133,20 @@ class WhenGetAvatarIntegrationTest {
         headers.set("Content-Type", MediaType.APPLICATION_JSON_VALUE);
 
         HttpEntity<Object> requestEntity = new HttpEntity<>(null, headers);
-        String expectedMessage = messages.get("avatar.get.found");
+        String expectedMessage = messages.get("avatar.removed");
 
         ResponseEntity<JsonNode> responseEntity = restTemplate
-                .exchange(uri, HttpMethod.GET, requestEntity, JsonNode.class);
+                .exchange(uri, HttpMethod.DELETE, requestEntity, JsonNode.class);
 
-        String imageBase64 = Base64.getEncoder().encodeToString(imageBytes);
+        JsonNode responseBody = responseEntity.getBody();
 
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
-        assertThat(responseEntity.getBody().get("message").textValue()).isEqualTo(expectedMessage);
         assertThat(responseEntity.getHeaders().getContentType()).isEqualTo(MediaType.APPLICATION_JSON);
-        assertThat(responseEntity.getBody().get("avatar").get("format").textValue())
-                .isEqualTo(MediaType.IMAGE_JPEG_VALUE);
-        assertThat(responseEntity.getBody().get("avatar").get("data").textValue()).isEqualTo(imageBase64);
+        assertThat(responseBody.get("message").textValue()).isEqualTo(expectedMessage);
+        assertThat(responseBody.get("avatar").isEmpty()).isTrue();
+
+        avatars = mongoTemplate.findAll(PhotoDocument.class);
+        assertThat(avatars.isEmpty()).isTrue();
     }
 
     @ParameterizedTest
@@ -131,20 +159,22 @@ class WhenGetAvatarIntegrationTest {
 
         HttpHeaders headers = new HttpHeaders();
         headers.set("Accept-Language", testedLocale.toString());
-        headers.set("Authorization", userToken);
+        headers.set("Authorization", adminToken);
         headers.set("Content-Type", MediaType.APPLICATION_JSON_VALUE);
 
         HttpEntity<Object> requestEntity = new HttpEntity<>(null, headers);
         String expectedMessage = messages.get("avatar.not.found.exception");
 
         ResponseEntity<JsonNode> responseEntity = restTemplate
-                .exchange(uri, HttpMethod.GET, requestEntity, JsonNode.class);
+                .exchange(uri, HttpMethod.DELETE, requestEntity, JsonNode.class);
+
+        JsonNode responseBody = responseEntity.getBody();
 
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
         assertThat(responseEntity.getHeaders().getContentType()).hasToString(MediaType.APPLICATION_JSON_VALUE);
-        assertThat(responseEntity.getBody().get("message").textValue()).isEqualTo(expectedMessage);
-        assertThat(responseEntity.getBody().get("error").textValue()).isEqualTo("Not Found");
-        assertThat(responseEntity.getBody().get("status").numberValue()).isEqualTo(404);
-        assertThat(responseEntity.getBody().get("timestamp")).isNotNull();
+        assertThat(responseBody.get("message").textValue()).isEqualTo(expectedMessage);
+        assertThat(responseBody.get("error").textValue()).isEqualTo("Not Found");
+        assertThat(responseBody.get("status").numberValue()).isEqualTo(404);
+        assertThat(responseBody.get("timestamp")).isNotNull();
     }
 }

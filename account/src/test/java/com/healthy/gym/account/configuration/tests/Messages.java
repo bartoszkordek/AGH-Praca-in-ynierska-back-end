@@ -10,6 +10,7 @@ public class Messages {
                 {"delete.account.success", "Konto zostało pomyślnie usunięte."},
                 {"exception.account.not.found", "Nie ma w bazie takiego użytkownika."},
                 {"exception.access.denied", "Nie masz uprawnień do wykonania tej operacji."},
+                {"exception.email.occupied", "Podany adres e-mail jest już zajęty."},
                 {"field.name.failure", "Imię powinno mieć od 2 do 60 znaków."},
                 {"field.surname.failure", "Nazwisko powinno mieć od 2 do 60 znaków."},
                 {"field.email.failure", "Proszę podać poprawny adres email."},
@@ -30,7 +31,8 @@ public class Messages {
                 {"avatar.update.failure", "Wystąpił błąd podczas aktualizacji zdjęcia profilowego."},
                 {"avatar.update.data.exception", "Błąd. Dopuszczalny format pliku to JPEG lub PNG."},
                 {"avatar.not.found.exception", "Nie znaleziono zdjęcie profilowe."},
-                {"avatar.get.found", "Zdjęcie profilowe znalezione."}
+                {"avatar.get.found", "Zdjęcie profilowe znalezione."},
+                {"avatar.removed", "Zdjęcie profilowe zostało usunięte."}
         }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
     }
 
@@ -39,6 +41,7 @@ public class Messages {
                 {"delete.account.success", "Account has been removed successfully."},
                 {"exception.account.not.found", "There is no such user in the database."},
                 {"exception.access.denied", "You are not allowed to perform this operation."},
+                {"exception.email.occupied", "Provided email is already occupied."},
                 {"field.name.failure", "Name should have from 2 to 60 characters."},
                 {"field.surname.failure", "Surname should have from 2 to 60 characters."},
                 {"field.email.failure", "Provide valid email address."},
@@ -59,7 +62,8 @@ public class Messages {
                 {"avatar.update.failure", "There was an error while updating your profile picture."},
                 {"avatar.update.data.exception", "Error. The acceptable file format is JPEG or PNG."},
                 {"avatar.not.found.exception", "Profile picture not found."},
-                {"avatar.get.found", "Profile picture found successfully."}
+                {"avatar.get.found", "Profile picture found successfully."},
+                {"avatar.removed", "Profile picture removed successfully."}
         }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
     }
 

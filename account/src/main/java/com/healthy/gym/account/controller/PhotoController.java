@@ -4,13 +4,9 @@ import com.healthy.gym.account.component.ImageValidator;
 import com.healthy.gym.account.component.Translator;
 import com.healthy.gym.account.exception.PhotoSavingException;
 import com.healthy.gym.account.exception.UserAvatarNotFoundException;
-import com.healthy.gym.account.pojo.response.GetAvatarResponse;
-import com.healthy.gym.account.pojo.response.SetAvatarResponse;
-import com.healthy.gym.account.service.AccountService;
+import com.healthy.gym.account.pojo.response.AvatarResponse;
 import com.healthy.gym.account.service.PhotoService;
-import com.healthy.gym.account.shared.PhotoDTO;
-import org.modelmapper.ModelMapper;
-import org.modelmapper.convention.MatchingStrategies;
+import com.healthy.gym.account.shared.ImageDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -22,30 +18,23 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
 import javax.activation.UnsupportedDataTypeException;
-import java.util.Base64;
 
 @RestController
 @RequestMapping("/photos")
 public class PhotoController {
-    private final AccountService accountService;
     private final Translator translator;
-    private final ModelMapper modelMapper;
     private final PhotoService photoService;
     private final ImageValidator imageValidator;
 
     @Autowired
     public PhotoController(
-            AccountService accountService,
             Translator translator,
             PhotoService photoService,
             ImageValidator imageValidator
     ) {
-        this.accountService = accountService;
         this.translator = translator;
         this.photoService = photoService;
         this.imageValidator = imageValidator;
-        modelMapper = new ModelMapper();
-        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
     }
 
     @PreAuthorize("hasRole('ADMIN') or principal==#userId")
@@ -54,16 +43,17 @@ public class PhotoController {
             consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    public ResponseEntity<SetAvatarResponse> setAvatar(
+    public ResponseEntity<AvatarResponse> setAvatar(
             @PathVariable("id") String userId,
             @RequestParam("avatar") MultipartFile multipartFile
     ) {
         try {
             imageValidator.isFileSupported(multipartFile);
-            PhotoDTO photoDTO = new PhotoDTO(userId, multipartFile.getOriginalFilename(), multipartFile.getBytes());
-            photoService.setAvatar(photoDTO);
+            ImageDTO savedAvatar = photoService.setAvatar(userId, multipartFile);
             String message = translator.toLocale("avatar.update.success");
-            return ResponseEntity.status(HttpStatus.OK).body(new SetAvatarResponse(message));
+            return ResponseEntity
+                    .status(HttpStatus.OK)
+                    .body(new AvatarResponse(message, savedAvatar));
 
         } catch (UsernameNotFoundException exception) {
             String reason = translator.toLocale("exception.account.not.found");
@@ -87,16 +77,43 @@ public class PhotoController {
     @PreAuthorize("hasRole('USER')")
     @GetMapping(
             value = "/{id}/avatar",
-            consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    public ResponseEntity<GetAvatarResponse> getAvatar(@PathVariable("id") String userId) {
+    public ResponseEntity<AvatarResponse> getAvatar(@PathVariable("id") String userId) {
         try {
-            PhotoDTO photoDTO = photoService.getAvatar(userId);
-            String imageBase64 = Base64.getEncoder().encodeToString(photoDTO.getImage());
+            ImageDTO imageDTO = photoService.getAvatar(userId);
             String message = translator.toLocale("avatar.get.found");
-            GetAvatarResponse response = new GetAvatarResponse(message, imageBase64);
-            return ResponseEntity.status(HttpStatus.OK).body(response);
+            return ResponseEntity
+                    .status(HttpStatus.OK)
+                    .body(new AvatarResponse(message, imageDTO));
+
+        } catch (UserAvatarNotFoundException exception) {
+            String reason = translator.toLocale("avatar.not.found.exception");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, reason, exception);
+
+        } catch (UsernameNotFoundException exception) {
+            String reason = translator.toLocale("exception.account.not.found");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, reason, exception);
+
+        } catch (Exception exception) {
+            String reason = translator.toLocale("request.failure");
+            exception.printStackTrace();
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, reason, exception);
+        }
+    }
+
+    @PreAuthorize("hasRole('ADMIN') or principal==#userId")
+    @DeleteMapping(
+            value = "/{id}/avatar",
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    public ResponseEntity<AvatarResponse> deleteAvatar(@PathVariable("id") String userId) {
+        try {
+            ImageDTO imageDTO = photoService.removeAvatar(userId);
+            String message = translator.toLocale("avatar.removed");
+            return ResponseEntity
+                    .status(HttpStatus.OK)
+                    .body(new AvatarResponse(message, imageDTO));
 
         } catch (UserAvatarNotFoundException exception) {
             String reason = translator.toLocale("avatar.not.found.exception");

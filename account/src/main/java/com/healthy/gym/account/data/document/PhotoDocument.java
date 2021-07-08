@@ -1,6 +1,6 @@
 package com.healthy.gym.account.data.document;
 
-import org.bson.types.Binary;
+import com.healthy.gym.account.pojo.Image;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -13,12 +13,12 @@ public class PhotoDocument {
     private String id;
     private String userId;
     private String title;
-    private Binary image;
+    private Image image;
 
     public PhotoDocument() {
     }
 
-    public PhotoDocument(String userId, String title, Binary image) {
+    public PhotoDocument(String userId, String title, Image image) {
         this.userId = userId;
         this.title = title;
         this.image = image;
@@ -48,11 +48,11 @@ public class PhotoDocument {
         this.title = title;
     }
 
-    public Binary getImage() {
+    public Image getImage() {
         return image;
     }
 
-    public void setImage(Binary image) {
+    public void setImage(Image image) {
         this.image = image;
     }
 

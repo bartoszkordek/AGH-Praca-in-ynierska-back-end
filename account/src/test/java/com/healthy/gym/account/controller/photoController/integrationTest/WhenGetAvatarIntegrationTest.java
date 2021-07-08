@@ -1,11 +1,10 @@
 package com.healthy.gym.account.controller.photoController.integrationTest;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.healthy.gym.account.component.TokenManager;
 import com.healthy.gym.account.configuration.tests.TestCountry;
+import com.healthy.gym.account.configuration.tests.TestRoleTokenFactory;
 import com.healthy.gym.account.data.document.PhotoDocument;
 import com.healthy.gym.account.pojo.Image;
-import io.jsonwebtoken.Jwts;
 import org.bson.types.Binary;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -32,7 +31,10 @@ import java.io.IOException;
 import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.*;
+import java.util.Base64;
+import java.util.Locale;
+import java.util.Map;
+import java.util.UUID;
 
 import static com.healthy.gym.account.configuration.tests.LocaleConverter.convertEnumToLocale;
 import static com.healthy.gym.account.configuration.tests.Messages.getMessagesAccordingToLocale;
@@ -52,7 +54,7 @@ class WhenGetAvatarIntegrationTest {
     @Autowired
     private TestRestTemplate restTemplate;
     @Autowired
-    private TokenManager tokenManager;
+    private TestRoleTokenFactory tokenFactory;
     @Autowired
     private MongoTemplate mongoTemplate;
     @Autowired
@@ -60,7 +62,6 @@ class WhenGetAvatarIntegrationTest {
 
     private String userToken;
     private String userId;
-    private PhotoDocument avatar;
     private byte[] imageBytes;
 
     @LocalServerPort
@@ -71,30 +72,17 @@ class WhenGetAvatarIntegrationTest {
         registry.add("spring.data.mongodb.uri", mongoDBContainer::getReplicaSetUrl);
     }
 
-    private Date setTokenExpirationTime() {
-        long currentTime = System.currentTimeMillis();
-        long expirationTime = tokenManager.getExpirationTimeInMillis();
-        return new Date(currentTime + expirationTime);
-    }
-
     @BeforeEach
     void setUp() throws IOException {
         userId = UUID.randomUUID().toString();
 
-        userToken = tokenManager.getTokenPrefix() + " " + Jwts.builder()
-                .setSubject(userId)
-                .claim("roles", List.of("ROLE_USER"))
-                .setExpiration(setTokenExpirationTime())
-                .signWith(
-                        tokenManager.getSignatureAlgorithm(),
-                        tokenManager.getSigningKey()
-                )
-                .compact();
+        userToken = tokenFactory.getUserToken(userId);
+
         Resource resource = new ClassPathResource("mem.jpg");
         Path filePath = resource.getFile().toPath();
         imageBytes = Files.readAllBytes(filePath);
         Binary image = new Binary(imageBytes);
-        avatar = new PhotoDocument(userId, "title", new Image(image, MediaType.IMAGE_JPEG_VALUE));
+        PhotoDocument avatar = new PhotoDocument(userId, "title", new Image(image, MediaType.IMAGE_JPEG_VALUE));
 
         mongoTemplate.save(avatar);
     }
@@ -128,7 +116,9 @@ class WhenGetAvatarIntegrationTest {
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(responseEntity.getBody().get("message").textValue()).isEqualTo(expectedMessage);
         assertThat(responseEntity.getHeaders().getContentType()).isEqualTo(MediaType.APPLICATION_JSON);
-        assertThat(responseEntity.getBody().get("avatar").textValue()).isEqualTo(imageBase64);
+        assertThat(responseEntity.getBody().get("avatar").get("format").textValue())
+                .isEqualTo(MediaType.IMAGE_JPEG_VALUE);
+        assertThat(responseEntity.getBody().get("avatar").get("data").textValue()).isEqualTo(imageBase64);
     }
 
     @ParameterizedTest

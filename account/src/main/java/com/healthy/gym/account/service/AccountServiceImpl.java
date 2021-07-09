@@ -168,4 +168,15 @@ public class AccountServiceImpl implements AccountService {
         if (!userPrivacyDTOUpdated.equals(userPrivacyDTO)) throw new UserPrivacyNotUpdatedException();
         return userPrivacyDTOUpdated;
     }
+
+    @Override
+    public UserPrivacyDTO getUserPrivacy(String userId) throws UserPrivacyNotFoundException {
+        UserDocument foundUser = userDAO.findByUserId(userId);
+        if (foundUser == null) throw new UsernameNotFoundException(getExceptionMessage(userId));
+
+        UserPrivacyDocument privacyDocument = userPrivacyDAO.findByUserDocument(foundUser);
+        if (privacyDocument == null) throw new UserPrivacyNotFoundException();
+
+        return modelMapper.map(privacyDocument, UserPrivacyDTO.class);
+    }
 }

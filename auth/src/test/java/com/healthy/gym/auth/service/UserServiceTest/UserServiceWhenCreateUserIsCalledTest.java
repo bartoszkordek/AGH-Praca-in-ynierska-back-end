@@ -2,6 +2,7 @@ package com.healthy.gym.auth.service.UserServiceTest;
 
 import com.healthy.gym.auth.data.document.UserDocument;
 import com.healthy.gym.auth.data.repository.mongo.UserDAO;
+import com.healthy.gym.auth.data.repository.mongo.UserPrivacyDAO;
 import com.healthy.gym.auth.enums.GymRole;
 import com.healthy.gym.auth.service.UserService;
 import com.healthy.gym.auth.shared.UserDTO;
@@ -18,6 +19,7 @@ import java.util.Set;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 @SpringBootTest
@@ -34,6 +36,9 @@ class UserServiceWhenCreateUserIsCalledTest {
 
     @MockBean
     private UserDAO userDAO;
+
+    @MockBean
+    private UserPrivacyDAO userPrivacyDAO;
 
     @BeforeEach
     void setUp() {
@@ -65,6 +70,7 @@ class UserServiceWhenCreateUserIsCalledTest {
 
         when(userDAO.save(Mockito.any(UserDocument.class)))
                 .thenReturn(andrzejNowak);
+        when(userPrivacyDAO.save(any())).thenReturn(null);
 
         savedUserDTO = userService.createUser(andrzejNowakDTO);
     }

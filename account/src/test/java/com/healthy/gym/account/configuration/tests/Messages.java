@@ -9,6 +9,7 @@ public class Messages {
         return Stream.of(new String[][]{
                 {"delete.account.success", "Konto zostało pomyślnie usunięte."},
                 {"exception.account.not.found", "Nie ma w bazie takiego użytkownika."},
+                {"exception.account.privacy.not.found", "Nie znaleziono w bazie danych na temat pozwoleń użytkownika."},
                 {"exception.access.denied", "Nie masz uprawnień do wykonania tej operacji."},
                 {"exception.email.occupied", "Podany adres e-mail jest już zajęty."},
                 {"field.name.failure", "Imię powinno mieć od 2 do 60 znaków."},
@@ -40,6 +41,7 @@ public class Messages {
         return Stream.of(new String[][]{
                 {"delete.account.success", "Account has been removed successfully."},
                 {"exception.account.not.found", "There is no such user in the database."},
+                {"exception.account.privacy.not.found", "There is no user agreements in the database."},
                 {"exception.access.denied", "You are not allowed to perform this operation."},
                 {"exception.email.occupied", "Provided email is already occupied."},
                 {"field.name.failure", "Name should have from 2 to 60 characters."},

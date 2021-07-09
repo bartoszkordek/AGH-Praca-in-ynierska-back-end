@@ -1,15 +1,14 @@
-package com.healthy.gym.account.controller.accountController.unitTest;
+package com.healthy.gym.account.controller.privacyController.unitTest;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.healthy.gym.account.component.TokenManager;
 import com.healthy.gym.account.configuration.tests.TestCountry;
-import com.healthy.gym.account.controller.AccountController;
+import com.healthy.gym.account.configuration.tests.TestRoleTokenFactory;
+import com.healthy.gym.account.controller.PrivacyController;
 import com.healthy.gym.account.exception.UserPrivacyNotUpdatedException;
 import com.healthy.gym.account.service.AccountService;
 import com.healthy.gym.account.service.PhotoService;
 import com.healthy.gym.account.shared.UserDTO;
 import com.healthy.gym.account.shared.UserPrivacyDTO;
-import io.jsonwebtoken.Jwts;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
@@ -24,7 +23,10 @@ import org.springframework.test.web.servlet.RequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import java.net.URI;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.Map;
+import java.util.UUID;
 
 import static com.healthy.gym.account.configuration.tests.LocaleConverter.convertEnumToLocale;
 import static com.healthy.gym.account.configuration.tests.Messages.getMessagesAccordingToLocale;
@@ -35,13 +37,12 @@ import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@WebMvcTest(AccountController.class)
+@WebMvcTest(PrivacyController.class)
 class WhenChangeUserPrivacyTest {
     @Autowired
     private MockMvc mockMvc;
-
     @Autowired
-    private TokenManager tokenManager;
+    private TestRoleTokenFactory tokenFactory;
 
     @MockBean
     private AccountService accountService;
@@ -57,38 +58,15 @@ class WhenChangeUserPrivacyTest {
     private UserDTO updatedUser;
     private UserPrivacyDTO userPrivacyDTOToUpdate;
 
-    private Date setTokenExpirationTime() {
-        long currentTime = System.currentTimeMillis();
-        long expirationTime = tokenManager.getExpirationTimeInMillis();
-        return new Date(currentTime + expirationTime);
-    }
-
     @BeforeEach
     void setUp() {
         objectMapper = new ObjectMapper();
 
         userId = UUID.randomUUID().toString();
-        userToken = tokenManager.getTokenPrefix() + " " + Jwts.builder()
-                .setSubject(userId)
-                .claim("roles", List.of("ROLE_USER"))
-                .setExpiration(setTokenExpirationTime())
-                .signWith(
-                        tokenManager.getSignatureAlgorithm(),
-                        tokenManager.getSigningKey()
-                )
-                .compact();
+        userToken = tokenFactory.getUserToken(userId);
 
         String adminId = UUID.randomUUID().toString();
-
-        adminToken = tokenManager.getTokenPrefix() + " " + Jwts.builder()
-                .setSubject(adminId)
-                .claim("roles", List.of("ROLE_USER", "ROLE_ADMIN"))
-                .setExpiration(setTokenExpirationTime())
-                .signWith(
-                        tokenManager.getSignatureAlgorithm(),
-                        tokenManager.getSigningKey()
-                )
-                .compact();
+        adminToken = tokenFactory.getAdminToken(adminId);
 
         requestMap = new HashMap<>();
         requestMap.put("regulationsAccepted", String.valueOf(true));
@@ -120,7 +98,7 @@ class WhenChangeUserPrivacyTest {
         Map<String, String> messages = getMessagesAccordingToLocale(country);
         Locale testedLocale = convertEnumToLocale(country);
 
-        URI uri = new URI("/changePrivacy/" + userId);
+        URI uri = new URI("/" + userId + "/privacy");
         String requestBody = objectMapper.writeValueAsString(requestMap);
 
         RequestBuilder request = MockMvcRequestBuilders
@@ -162,7 +140,7 @@ class WhenChangeUserPrivacyTest {
         Map<String, String> messages = getMessagesAccordingToLocale(country);
         Locale testedLocale = convertEnumToLocale(country);
 
-        URI uri = new URI("/changePrivacy/" + UUID.randomUUID());
+        URI uri = new URI("/" + UUID.randomUUID() + "/privacy");
         String requestBody = objectMapper.writeValueAsString(requestMap);
 
         RequestBuilder request = MockMvcRequestBuilders
@@ -188,7 +166,7 @@ class WhenChangeUserPrivacyTest {
         Map<String, String> messages = getMessagesAccordingToLocale(country);
         Locale testedLocale = convertEnumToLocale(country);
 
-        URI uri = new URI("/changePrivacy/" + userId);
+        URI uri = new URI("/" + userId + "/privacy");
         String requestBody = objectMapper.writeValueAsString(requestMap);
 
         RequestBuilder request = MockMvcRequestBuilders
@@ -213,7 +191,7 @@ class WhenChangeUserPrivacyTest {
         Map<String, String> messages = getMessagesAccordingToLocale(country);
         Locale testedLocale = convertEnumToLocale(country);
 
-        URI uri = new URI("/changePrivacy/" + userId);
+        URI uri = new URI("/" + userId + "/privacy");
         String requestBody = objectMapper.writeValueAsString(requestMap);
 
         RequestBuilder request = MockMvcRequestBuilders
@@ -243,7 +221,7 @@ class WhenChangeUserPrivacyTest {
         Map<String, String> messages = getMessagesAccordingToLocale(country);
         Locale testedLocale = convertEnumToLocale(country);
 
-        URI uri = new URI("/changePrivacy/" + userId);
+        URI uri = new URI("/" + userId + "/privacy");
         String requestBody = objectMapper.writeValueAsString(requestMap);
 
         RequestBuilder request = MockMvcRequestBuilders
@@ -274,7 +252,7 @@ class WhenChangeUserPrivacyTest {
         Map<String, String> messages = getMessagesAccordingToLocale(country);
         Locale testedLocale = convertEnumToLocale(country);
 
-        URI uri = new URI("/changePrivacy/" + userId);
+        URI uri = new URI("/" + userId + "/privacy");
         String requestBody = objectMapper.writeValueAsString(requestMap);
 
         RequestBuilder request = MockMvcRequestBuilders
@@ -306,7 +284,7 @@ class WhenChangeUserPrivacyTest {
         Map<String, String> messages = getMessagesAccordingToLocale(country);
         Locale testedLocale = convertEnumToLocale(country);
 
-        URI uri = new URI("/changePrivacy/" + userId);
+        URI uri = new URI("/" + userId + "/privacy");
         String requestBody = objectMapper.writeValueAsString(new HashMap<>());
 
         RequestBuilder request = MockMvcRequestBuilders

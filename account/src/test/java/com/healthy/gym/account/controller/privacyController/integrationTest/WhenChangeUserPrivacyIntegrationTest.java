@@ -1,11 +1,11 @@
-package com.healthy.gym.account.controller.accountController.integrationTest;
+package com.healthy.gym.account.controller.privacyController.integrationTest;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.healthy.gym.account.component.TokenManager;
 import com.healthy.gym.account.configuration.tests.TestCountry;
+import com.healthy.gym.account.configuration.tests.TestRoleTokenFactory;
 import com.healthy.gym.account.data.document.UserDocument;
 import com.healthy.gym.account.pojo.request.ChangePrivacyRequest;
-import io.jsonwebtoken.Jwts;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
@@ -25,7 +25,9 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
 
 import java.net.URI;
-import java.util.*;
+import java.util.Locale;
+import java.util.Map;
+import java.util.UUID;
 
 import static com.healthy.gym.account.configuration.tests.LocaleConverter.convertEnumToLocale;
 import static com.healthy.gym.account.configuration.tests.Messages.getMessagesAccordingToLocale;
@@ -44,7 +46,7 @@ class WhenChangeUserPrivacyIntegrationTest {
     @Autowired
     private TestRestTemplate restTemplate;
     @Autowired
-    private TokenManager tokenManager;
+    private TestRoleTokenFactory tokenFactory;
     @Autowired
     private MongoTemplate mongoTemplate;
     @Autowired
@@ -53,8 +55,6 @@ class WhenChangeUserPrivacyIntegrationTest {
     private String userToken;
     private String adminToken;
     private String userId;
-    private UserDocument janKowalski;
-    private Map<String, String> requestMap;
     private ChangePrivacyRequest privacyRequest;
 
     @LocalServerPort
@@ -65,42 +65,14 @@ class WhenChangeUserPrivacyIntegrationTest {
         registry.add("spring.data.mongodb.uri", mongoDBContainer::getReplicaSetUrl);
     }
 
-    private Date setTokenExpirationTime() {
-        long currentTime = System.currentTimeMillis();
-        long expirationTime = tokenManager.getExpirationTimeInMillis();
-        return new Date(currentTime + expirationTime);
-    }
-
-    private void cleanUp() {
-        mongoTemplate.remove(janKowalski);
-    }
-
     @BeforeEach
     void setUp() {
         userId = UUID.randomUUID().toString();
         String adminId = UUID.randomUUID().toString();
 
-        userToken = tokenManager.getTokenPrefix() + " " + Jwts.builder()
-                .setSubject(userId)
-                .claim("roles", List.of("ROLE_USER"))
-                .setExpiration(setTokenExpirationTime())
-                .signWith(
-                        tokenManager.getSignatureAlgorithm(),
-                        tokenManager.getSigningKey()
-                )
-                .compact();
-
-        adminToken = tokenManager.getTokenPrefix() + " " + Jwts.builder()
-                .setSubject(adminId)
-                .claim("roles", List.of("ROLE_USER", "ROLE_ADMIN"))
-                .setExpiration(setTokenExpirationTime())
-                .signWith(
-                        tokenManager.getSignatureAlgorithm(),
-                        tokenManager.getSigningKey()
-                )
-                .compact();
-
-        janKowalski = new UserDocument("Jan",
+        userToken = tokenFactory.getUserToken(userId);
+        adminToken = tokenFactory.getAdminToken();
+        UserDocument janKowalski = new UserDocument("Jan",
                 "Kowalski",
                 "jan.kowalski@test.com",
                 "666 777 888",
@@ -118,13 +90,18 @@ class WhenChangeUserPrivacyIntegrationTest {
         mongoTemplate.save(janKowalski);
     }
 
+    @AfterEach
+    void tearDown() {
+        mongoTemplate.dropCollection(UserDocument.class);
+    }
+
     @ParameterizedTest
     @EnumSource(TestCountry.class)
     void shouldAcceptRequestWhenUserChangesItsOwnData(TestCountry country) throws Exception {
         Map<String, String> messages = getMessagesAccordingToLocale(country);
         Locale testedLocale = convertEnumToLocale(country);
 
-        URI uri = new URI("http://localhost:" + port + "/changePrivacy/" + userId);
+        URI uri = new URI("http://localhost:" + port + "/" + userId + "/privacy");
 
         HttpHeaders headers = new HttpHeaders();
         headers.set("Accept-Language", testedLocale.toString());
@@ -154,7 +131,7 @@ class WhenChangeUserPrivacyIntegrationTest {
         Map<String, String> messages = getMessagesAccordingToLocale(country);
         Locale testedLocale = convertEnumToLocale(country);
 
-        URI uri = new URI("http://localhost:" + port + "/changePrivacy/" + userId);
+        URI uri = new URI("http://localhost:" + port + "/" + userId + "/privacy");
 
         HttpHeaders headers = new HttpHeaders();
         headers.set("Accept-Language", testedLocale.toString());

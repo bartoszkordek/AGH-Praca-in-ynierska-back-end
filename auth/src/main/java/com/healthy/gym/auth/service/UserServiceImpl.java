@@ -2,7 +2,9 @@ package com.healthy.gym.auth.service;
 
 import com.healthy.gym.auth.data.document.ResetPasswordTokenDocument;
 import com.healthy.gym.auth.data.document.UserDocument;
+import com.healthy.gym.auth.data.document.UserPrivacyDocument;
 import com.healthy.gym.auth.data.repository.mongo.UserDAO;
+import com.healthy.gym.auth.data.repository.mongo.UserPrivacyDAO;
 import com.healthy.gym.auth.enums.GymRole;
 import com.healthy.gym.auth.events.OnResetPasswordEvent;
 import com.healthy.gym.auth.shared.UserDTO;
@@ -28,6 +30,7 @@ import java.util.UUID;
 public class UserServiceImpl implements UserService {
 
     private final UserDAO userDAO;
+    private final UserPrivacyDAO userPrivacyDAO;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final ModelMapper modelMapper;
     private final ApplicationEventPublisher applicationEventPublisher;
@@ -36,11 +39,13 @@ public class UserServiceImpl implements UserService {
     @Autowired
     public UserServiceImpl(
             UserDAO userDAO,
+            UserPrivacyDAO userPrivacyDAO,
             BCryptPasswordEncoder bCryptPasswordEncoder,
             ApplicationEventPublisher applicationEventPublisher,
             TokenService tokenService
     ) {
         this.userDAO = userDAO;
+        this.userPrivacyDAO = userPrivacyDAO;
         this.bCryptPasswordEncoder = bCryptPasswordEncoder;
         this.applicationEventPublisher = applicationEventPublisher;
         this.tokenService = tokenService;
@@ -66,6 +71,16 @@ public class UserServiceImpl implements UserService {
         userDocument.setGymRoles(getInitialUserRoles());
 
         UserDocument userDocumentSaved = userDAO.save(userDocument);
+
+        UserPrivacyDocument userPrivacyDocument = new UserPrivacyDocument(
+                true,
+                true,
+                false,
+                true,
+                userDocumentSaved
+        );
+
+        userPrivacyDAO.save(userPrivacyDocument);
 
         return modelMapper.map(userDocumentSaved, UserDTO.class);
     }

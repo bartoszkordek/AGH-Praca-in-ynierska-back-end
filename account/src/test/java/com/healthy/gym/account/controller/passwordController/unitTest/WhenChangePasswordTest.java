@@ -1,15 +1,14 @@
-package com.healthy.gym.account.controller.accountController.unitTest;
+package com.healthy.gym.account.controller.passwordController.unitTest;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.healthy.gym.account.component.TokenManager;
 import com.healthy.gym.account.configuration.tests.TestCountry;
-import com.healthy.gym.account.controller.AccountController;
+import com.healthy.gym.account.configuration.tests.TestRoleTokenFactory;
+import com.healthy.gym.account.controller.PasswordController;
 import com.healthy.gym.account.exception.IdenticalOldAndNewPasswordException;
 import com.healthy.gym.account.exception.OldPasswordDoesNotMatchException;
 import com.healthy.gym.account.service.AccountService;
 import com.healthy.gym.account.service.PhotoService;
 import com.healthy.gym.account.shared.UserDTO;
-import io.jsonwebtoken.Jwts;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
@@ -24,7 +23,10 @@ import org.springframework.test.web.servlet.RequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import java.net.URI;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.Map;
+import java.util.UUID;
 
 import static com.healthy.gym.account.configuration.tests.LocaleConverter.convertEnumToLocale;
 import static com.healthy.gym.account.configuration.tests.Messages.getMessagesAccordingToLocale;
@@ -35,44 +37,30 @@ import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@WebMvcTest(AccountController.class)
+@WebMvcTest(PasswordController.class)
 class WhenChangePasswordTest {
     @Autowired
     private MockMvc mockMvc;
 
     @Autowired
-    private TokenManager tokenManager;
+    private TestRoleTokenFactory tokenFactory;
 
     @MockBean
     private AccountService accountService;
 
     @MockBean
-    private PhotoService photoService;
+    private PhotoService photoService; // necessary to load application context
 
     private String userToken;
     private String userId;
     private ObjectMapper objectMapper;
     private Map<String, String> requestMap;
 
-    private Date setTokenExpirationTime() {
-        long currentTime = System.currentTimeMillis();
-        long expirationTime = tokenManager.getExpirationTimeInMillis();
-        return new Date(currentTime + expirationTime);
-    }
-
     @BeforeEach
     void setUp() {
         objectMapper = new ObjectMapper();
         userId = UUID.randomUUID().toString();
-        userToken = tokenManager.getTokenPrefix() + " " + Jwts.builder()
-                .setSubject(userId)
-                .claim("roles", List.of("ROLE_USER"))
-                .setExpiration(setTokenExpirationTime())
-                .signWith(
-                        tokenManager.getSignatureAlgorithm(),
-                        tokenManager.getSigningKey()
-                )
-                .compact();
+        userToken = tokenFactory.getUserToken(userId);
         requestMap = new HashMap<>();
         requestMap.put("oldPassword", "test1234");
         requestMap.put("newPassword", "test12345");

@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 
 @Component
 public class TestRoleTokenFactory {
@@ -24,7 +25,13 @@ public class TestRoleTokenFactory {
         return getToken(adminId, roles);
     }
 
-    private String getToken(String userId, List<String> roles) {
+    public String getAdminToken() {
+        String adminId = UUID.randomUUID().toString();
+        List<String> roles = List.of(GymRole.USER.getRole(), GymRole.ADMIN.getRole());
+        return getToken(adminId, roles);
+    }
+
+    public String getToken(String userId, List<String> roles) {
         return tokenManager.getTokenPrefix() + " " + Jwts.builder()
                 .setSubject(userId)
                 .claim("roles", roles)
@@ -44,7 +51,19 @@ public class TestRoleTokenFactory {
         return getToken(employeeId, roles);
     }
 
+    public String getEmployeeToken() {
+        String employeeId = UUID.randomUUID().toString();
+        List<String> roles = List.of(GymRole.USER.getRole(), GymRole.EMPLOYEE.getRole());
+        return getToken(employeeId, roles);
+    }
+
     public String getMangerToken(String managerId) {
+        List<String> roles = List.of(GymRole.USER.getRole(), GymRole.MANAGER.getRole());
+        return getToken(managerId, roles);
+    }
+
+    public String getMangerToken() {
+        String managerId = UUID.randomUUID().toString();
         List<String> roles = List.of(GymRole.USER.getRole(), GymRole.MANAGER.getRole());
         return getToken(managerId, roles);
     }
@@ -54,7 +73,19 @@ public class TestRoleTokenFactory {
         return getToken(trainerId, roles);
     }
 
+    public String getTrainerToken() {
+        String trainerId = UUID.randomUUID().toString();
+        List<String> roles = List.of(GymRole.USER.getRole(), GymRole.TRAINER.getRole());
+        return getToken(trainerId, roles);
+    }
+
     public String getUserToken(String userId) {
+        List<String> roles = List.of(GymRole.USER.getRole());
+        return getToken(userId, roles);
+    }
+
+    public String getUserToken() {
+        String userId = UUID.randomUUID().toString();
         List<String> roles = List.of(GymRole.USER.getRole());
         return getToken(userId, roles);
     }

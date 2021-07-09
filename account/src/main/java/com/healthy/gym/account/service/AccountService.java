@@ -17,5 +17,5 @@ public interface AccountService {
     UserPrivacyDTO changeUserPrivacy(UserPrivacyDTO userPrivacyDTO, String userId)
             throws UserPrivacyNotUpdatedException;
 
-    UserPrivacyDTO getUserPrivacy(String userId);
+    UserPrivacyDTO getUserPrivacy(String userId) throws UserPrivacyNotFoundException;
 }

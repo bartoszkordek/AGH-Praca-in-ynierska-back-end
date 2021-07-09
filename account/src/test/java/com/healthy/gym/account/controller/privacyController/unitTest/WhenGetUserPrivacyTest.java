@@ -3,6 +3,7 @@ package com.healthy.gym.account.controller.privacyController.unitTest;
 import com.healthy.gym.account.configuration.tests.TestCountry;
 import com.healthy.gym.account.configuration.tests.TestRoleTokenFactory;
 import com.healthy.gym.account.controller.PrivacyController;
+import com.healthy.gym.account.exception.UserPrivacyNotFoundException;
 import com.healthy.gym.account.service.AccountService;
 import com.healthy.gym.account.service.PhotoService;
 import com.healthy.gym.account.shared.UserPrivacyDTO;
@@ -125,6 +126,33 @@ class WhenGetUserPrivacyTest {
                     .andExpect(result ->
                             assertThat(result.getResolvedException().getCause())
                                     .isInstanceOf(UsernameNotFoundException.class)
+                    );
+        }
+
+        @ParameterizedTest
+        @EnumSource(TestCountry.class)
+        void whenUserPrivacyNotFound(TestCountry country) throws Exception {
+            Map<String, String> messages = getMessagesAccordingToLocale(country);
+            Locale testedLocale = convertEnumToLocale(country);
+
+            URI uri = new URI("/" + userId + "/privacy");
+
+            String expectedMessage = messages.get("exception.account.privacy.not.found");
+            doThrow(UserPrivacyNotFoundException.class).when(accountService).getUserPrivacy(userId);
+
+            RequestBuilder request = MockMvcRequestBuilders
+                    .get(uri)
+                    .header("Accept-Language", testedLocale.toString())
+                    .header("Authorization", adminToken)
+                    .contentType(MediaType.APPLICATION_JSON_VALUE);
+
+            mockMvc.perform(request)
+                    .andDo(print())
+                    .andExpect(status().isNotFound())
+                    .andExpect(status().reason(is(expectedMessage)))
+                    .andExpect(result ->
+                            assertThat(result.getResolvedException().getCause())
+                                    .isInstanceOf(UserPrivacyNotFoundException.class)
                     );
         }
 

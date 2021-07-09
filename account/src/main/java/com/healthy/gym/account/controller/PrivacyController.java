@@ -2,6 +2,7 @@ package com.healthy.gym.account.controller;
 
 import com.healthy.gym.account.component.Translator;
 import com.healthy.gym.account.exception.ResponseBindException;
+import com.healthy.gym.account.exception.UserPrivacyNotFoundException;
 import com.healthy.gym.account.exception.UserPrivacyNotUpdatedException;
 import com.healthy.gym.account.pojo.request.ChangePrivacyRequest;
 import com.healthy.gym.account.pojo.response.ChangePrivacyResponse;
@@ -47,6 +48,10 @@ public class PrivacyController {
             return ResponseEntity
                     .status(HttpStatus.OK)
                     .body(response);
+
+        } catch (UserPrivacyNotFoundException exception) {
+            String reason = translator.toLocale("exception.account.privacy.not.found");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, reason, exception);
 
         } catch (UsernameNotFoundException exception) {
             String reason = translator.toLocale("exception.account.not.found");

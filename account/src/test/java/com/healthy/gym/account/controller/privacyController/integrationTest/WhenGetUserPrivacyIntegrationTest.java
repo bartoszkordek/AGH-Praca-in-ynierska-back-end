@@ -4,8 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.healthy.gym.account.configuration.tests.TestCountry;
 import com.healthy.gym.account.configuration.tests.TestRoleTokenFactory;
 import com.healthy.gym.account.data.document.UserDocument;
-import com.healthy.gym.account.pojo.request.ChangePrivacyRequest;
-import org.junit.jupiter.api.AfterEach;
+import com.healthy.gym.account.data.document.UserPrivacyDocument;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
@@ -39,7 +38,7 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
         "eureka.client.fetch-registry=false",
         "eureka.client.register-with-eureka=false"
 })
-class WhenChangeUserPrivacyIntegrationTest {
+class WhenGetUserPrivacyIntegrationTest {
     @Container
     static MongoDBContainer mongoDBContainer =
             new MongoDBContainer(DockerImageName.parse("mongo:4.4.4-bionic"));
@@ -55,7 +54,7 @@ class WhenChangeUserPrivacyIntegrationTest {
     private String userToken;
     private String adminToken;
     private String userId;
-    private ChangePrivacyRequest privacyRequest;
+    private UserDocument janKowalski;
 
     @LocalServerPort
     private Integer port;
@@ -68,11 +67,10 @@ class WhenChangeUserPrivacyIntegrationTest {
     @BeforeEach
     void setUp() {
         userId = UUID.randomUUID().toString();
-        String adminId = UUID.randomUUID().toString();
-
         userToken = tokenFactory.getUserToken(userId);
         adminToken = tokenFactory.getAdminToken();
-        UserDocument janKowalski = new UserDocument("Jan",
+
+        janKowalski = new UserDocument("Jan",
                 "Kowalski",
                 "jan.kowalski@test.com",
                 "666 777 888",
@@ -80,25 +78,22 @@ class WhenChangeUserPrivacyIntegrationTest {
                 userId
         );
 
-        privacyRequest = new ChangePrivacyRequest(
+        janKowalski = mongoTemplate.save(janKowalski);
+
+        UserPrivacyDocument privacyDocument = new UserPrivacyDocument(
                 true,
                 false,
                 true,
-                false
+                false,
+                janKowalski
         );
 
-        mongoTemplate.save(janKowalski);
-    }
-
-    @AfterEach
-    void tearDown() {
-        mongoTemplate.dropCollection(UserDocument.class);
+        mongoTemplate.save(privacyDocument);
     }
 
     @ParameterizedTest
     @EnumSource(TestCountry.class)
     void shouldAcceptRequestWhenUserChangesItsOwnData(TestCountry country) throws Exception {
-        Map<String, String> messages = getMessagesAccordingToLocale(country);
         Locale testedLocale = convertEnumToLocale(country);
 
         URI uri = new URI("http://localhost:" + port + "/" + userId + "/privacy");
@@ -107,15 +102,13 @@ class WhenChangeUserPrivacyIntegrationTest {
         headers.set("Accept-Language", testedLocale.toString());
         headers.set("Authorization", userToken);
 
-        HttpEntity<Object> request = new HttpEntity<>(privacyRequest, headers);
-        String expectedMessage = messages.get("account.change.user.data.success");
+        HttpEntity<Object> request = new HttpEntity<>(null, headers);
 
         ResponseEntity<JsonNode> responseEntity = restTemplate
-                .exchange(uri, HttpMethod.PUT, request, JsonNode.class);
+                .exchange(uri, HttpMethod.GET, request, JsonNode.class);
 
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
-        assertThat(responseEntity.getBody().get("message").textValue())
-                .isEqualTo(expectedMessage);
+        assertThat(responseEntity.getBody().get("message")).isNull();
         assertThat(responseEntity.getBody().get("regulationsAccepted").asBoolean()).isTrue();
         assertThat(responseEntity.getBody().get("allowShowingTrainingsParticipation").asBoolean()).isFalse();
         assertThat(responseEntity.getBody().get("allowShowingUserStatistics").asBoolean()).isTrue();
@@ -124,26 +117,25 @@ class WhenChangeUserPrivacyIntegrationTest {
                 .isEqualTo(MediaType.APPLICATION_JSON);
     }
 
-
     @ParameterizedTest
     @EnumSource(TestCountry.class)
-    void shouldRejectRequestWhenAdminChangesUserData(TestCountry country) throws Exception {
+    void shouldThrowErrorWhenUserIsNotFound(TestCountry country) throws Exception {
         Map<String, String> messages = getMessagesAccordingToLocale(country);
         Locale testedLocale = convertEnumToLocale(country);
 
-        URI uri = new URI("http://localhost:" + port + "/" + userId + "/privacy");
+        URI uri = new URI("http://localhost:" + port + "/" + UUID.randomUUID() + "/privacy");
 
         HttpHeaders headers = new HttpHeaders();
         headers.set("Accept-Language", testedLocale.toString());
         headers.set("Authorization", adminToken);
 
-        HttpEntity<Object> request = new HttpEntity<>(privacyRequest, headers);
-        String expectedMessage = messages.get("exception.access.denied");
+        HttpEntity<Object> request = new HttpEntity<>(null, headers);
+        String expectedMessage = messages.get("exception.account.not.found");
 
         ResponseEntity<JsonNode> responseEntity = restTemplate
-                .exchange(uri, HttpMethod.PUT, request, JsonNode.class);
+                .exchange(uri, HttpMethod.GET, request, JsonNode.class);
 
-        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
         assertThat(responseEntity.getBody().get("message").textValue()).isEqualTo(expectedMessage);
         assertThat(responseEntity.getHeaders().getContentType()).isEqualTo(MediaType.APPLICATION_JSON);
     }

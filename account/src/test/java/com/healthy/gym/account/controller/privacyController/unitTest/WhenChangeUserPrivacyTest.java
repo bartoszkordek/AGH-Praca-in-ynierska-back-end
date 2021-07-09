@@ -1,9 +1,10 @@
-package com.healthy.gym.account.controller.accountController.unitTest;
+package com.healthy.gym.account.controller.privacyController.unitTest;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.healthy.gym.account.component.TokenManager;
 import com.healthy.gym.account.configuration.tests.TestCountry;
 import com.healthy.gym.account.controller.AccountController;
+import com.healthy.gym.account.controller.PrivacyController;
 import com.healthy.gym.account.exception.UserPrivacyNotUpdatedException;
 import com.healthy.gym.account.service.AccountService;
 import com.healthy.gym.account.service.PhotoService;
@@ -35,7 +36,7 @@ import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@WebMvcTest(AccountController.class)
+@WebMvcTest(PrivacyController.class)
 class WhenChangeUserPrivacyTest {
     @Autowired
     private MockMvc mockMvc;
@@ -120,7 +121,7 @@ class WhenChangeUserPrivacyTest {
         Map<String, String> messages = getMessagesAccordingToLocale(country);
         Locale testedLocale = convertEnumToLocale(country);
 
-        URI uri = new URI("/changePrivacy/" + userId);
+        URI uri = new URI("/privacy/" + userId);
         String requestBody = objectMapper.writeValueAsString(requestMap);
 
         RequestBuilder request = MockMvcRequestBuilders
@@ -162,7 +163,7 @@ class WhenChangeUserPrivacyTest {
         Map<String, String> messages = getMessagesAccordingToLocale(country);
         Locale testedLocale = convertEnumToLocale(country);
 
-        URI uri = new URI("/changePrivacy/" + UUID.randomUUID());
+        URI uri = new URI("/privacy/" + UUID.randomUUID());
         String requestBody = objectMapper.writeValueAsString(requestMap);
 
         RequestBuilder request = MockMvcRequestBuilders
@@ -188,7 +189,7 @@ class WhenChangeUserPrivacyTest {
         Map<String, String> messages = getMessagesAccordingToLocale(country);
         Locale testedLocale = convertEnumToLocale(country);
 
-        URI uri = new URI("/changePrivacy/" + userId);
+        URI uri = new URI("/privacy/" + userId);
         String requestBody = objectMapper.writeValueAsString(requestMap);
 
         RequestBuilder request = MockMvcRequestBuilders
@@ -213,7 +214,7 @@ class WhenChangeUserPrivacyTest {
         Map<String, String> messages = getMessagesAccordingToLocale(country);
         Locale testedLocale = convertEnumToLocale(country);
 
-        URI uri = new URI("/changePrivacy/" + userId);
+        URI uri = new URI("/privacy/" + userId);
         String requestBody = objectMapper.writeValueAsString(requestMap);
 
         RequestBuilder request = MockMvcRequestBuilders
@@ -243,7 +244,7 @@ class WhenChangeUserPrivacyTest {
         Map<String, String> messages = getMessagesAccordingToLocale(country);
         Locale testedLocale = convertEnumToLocale(country);
 
-        URI uri = new URI("/changePrivacy/" + userId);
+        URI uri = new URI("/privacy/" + userId);
         String requestBody = objectMapper.writeValueAsString(requestMap);
 
         RequestBuilder request = MockMvcRequestBuilders
@@ -274,7 +275,7 @@ class WhenChangeUserPrivacyTest {
         Map<String, String> messages = getMessagesAccordingToLocale(country);
         Locale testedLocale = convertEnumToLocale(country);
 
-        URI uri = new URI("/changePrivacy/" + userId);
+        URI uri = new URI("/privacy/" + userId);
         String requestBody = objectMapper.writeValueAsString(requestMap);
 
         RequestBuilder request = MockMvcRequestBuilders
@@ -306,7 +307,7 @@ class WhenChangeUserPrivacyTest {
         Map<String, String> messages = getMessagesAccordingToLocale(country);
         Locale testedLocale = convertEnumToLocale(country);
 
-        URI uri = new URI("/changePrivacy/" + userId);
+        URI uri = new URI("/privacy/" + userId);
         String requestBody = objectMapper.writeValueAsString(new HashMap<>());
 
         RequestBuilder request = MockMvcRequestBuilders

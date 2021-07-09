@@ -87,7 +87,7 @@ class WhenChangePasswordTest {
 
         String invalidId = UUID.randomUUID().toString();
 
-        URI uri = new URI("/changePassword/" + invalidId);
+        URI uri = new URI("/password/" + invalidId);
 
         String requestBody = objectMapper.writeValueAsString(requestMap);
 
@@ -118,7 +118,7 @@ class WhenChangePasswordTest {
         Map<String, String> messages = getMessagesAccordingToLocale(country);
         Locale testedLocale = convertEnumToLocale(country);
 
-        URI uri = new URI("/changePassword/" + userId);
+        URI uri = new URI("/password/" + userId);
 
         String requestBody = objectMapper.writeValueAsString(requestMap);
 
@@ -146,7 +146,7 @@ class WhenChangePasswordTest {
         Map<String, String> messages = getMessagesAccordingToLocale(country);
         Locale testedLocale = convertEnumToLocale(country);
 
-        URI uri = new URI("/changePassword/" + userId);
+        URI uri = new URI("/password/" + userId);
         String requestBody = objectMapper.writeValueAsString(requestMap);
 
         RequestBuilder request = MockMvcRequestBuilders
@@ -176,7 +176,7 @@ class WhenChangePasswordTest {
         Map<String, String> messages = getMessagesAccordingToLocale(country);
         Locale testedLocale = convertEnumToLocale(country);
 
-        URI uri = new URI("/changePassword/" + userId);
+        URI uri = new URI("/password/" + userId);
 
         requestMap.put("oldPassword", "test12345");
         String requestBody = objectMapper.writeValueAsString(requestMap);
@@ -208,7 +208,7 @@ class WhenChangePasswordTest {
         Map<String, String> messages = getMessagesAccordingToLocale(country);
         Locale testedLocale = convertEnumToLocale(country);
 
-        URI uri = new URI("/changePassword/" + userId);
+        URI uri = new URI("/password/" + userId);
         String requestBody = objectMapper.writeValueAsString(requestMap);
 
         RequestBuilder request = MockMvcRequestBuilders
@@ -238,7 +238,7 @@ class WhenChangePasswordTest {
         Map<String, String> messages = getMessagesAccordingToLocale(country);
         Locale testedLocale = convertEnumToLocale(country);
 
-        URI uri = new URI("/changePassword/" + userId);
+        URI uri = new URI("/password/" + userId);
 
         requestMap.put("oldPassword", "test123");
         String requestBody = objectMapper.writeValueAsString(requestMap);
@@ -269,7 +269,7 @@ class WhenChangePasswordTest {
         Map<String, String> messages = getMessagesAccordingToLocale(country);
         Locale testedLocale = convertEnumToLocale(country);
 
-        URI uri = new URI("/changePassword/" + userId);
+        URI uri = new URI("/password/" + userId);
         String requestBody = objectMapper.writeValueAsString(requestMap);
 
         RequestBuilder request = MockMvcRequestBuilders

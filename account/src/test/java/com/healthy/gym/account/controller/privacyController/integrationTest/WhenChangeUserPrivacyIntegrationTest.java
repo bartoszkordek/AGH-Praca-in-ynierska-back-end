@@ -1,4 +1,4 @@
-package com.healthy.gym.account.controller.accountController.integrationTest;
+package com.healthy.gym.account.controller.privacyController.integrationTest;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.healthy.gym.account.component.TokenManager;
@@ -124,7 +124,7 @@ class WhenChangeUserPrivacyIntegrationTest {
         Map<String, String> messages = getMessagesAccordingToLocale(country);
         Locale testedLocale = convertEnumToLocale(country);
 
-        URI uri = new URI("http://localhost:" + port + "/changePrivacy/" + userId);
+        URI uri = new URI("http://localhost:" + port + "/privacy/" + userId);
 
         HttpHeaders headers = new HttpHeaders();
         headers.set("Accept-Language", testedLocale.toString());
@@ -154,7 +154,7 @@ class WhenChangeUserPrivacyIntegrationTest {
         Map<String, String> messages = getMessagesAccordingToLocale(country);
         Locale testedLocale = convertEnumToLocale(country);
 
-        URI uri = new URI("http://localhost:" + port + "/changePrivacy/" + userId);
+        URI uri = new URI("http://localhost:" + port + "/privacy/" + userId);
 
         HttpHeaders headers = new HttpHeaders();
         headers.set("Accept-Language", testedLocale.toString());

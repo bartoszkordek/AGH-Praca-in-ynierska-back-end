@@ -168,4 +168,9 @@ public class AccountServiceImpl implements AccountService {
         if (!userPrivacyDTOUpdated.equals(userPrivacyDTO)) throw new UserPrivacyNotUpdatedException();
         return userPrivacyDTOUpdated;
     }
+
+    @Override
+    public UserPrivacyDTO getUserPrivacy(String userId) {
+        return null;
+    }
 }

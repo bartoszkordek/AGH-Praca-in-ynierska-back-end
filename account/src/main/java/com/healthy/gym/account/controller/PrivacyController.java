@@ -23,7 +23,7 @@ import org.springframework.web.server.ResponseStatusException;
 import javax.validation.Valid;
 
 @RestController
-@RequestMapping("/privacy")
+@RequestMapping(value = "/{id}/privacy", produces = MediaType.APPLICATION_JSON_VALUE)
 public class PrivacyController {
 
     private final AccountService accountService;
@@ -38,12 +38,29 @@ public class PrivacyController {
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
     }
 
+    @PreAuthorize("hasRole('ADMIN') or hasRole('MANAGER') or principal==#userId")
+    @GetMapping
+    public ResponseEntity<ChangePrivacyResponse> getUserPrivacy(@PathVariable("id") String userId) {
+        try {
+            UserPrivacyDTO userPrivacyDTO = accountService.getUserPrivacy(userId);
+            ChangePrivacyResponse response = modelMapper.map(userPrivacyDTO, ChangePrivacyResponse.class);
+            return ResponseEntity
+                    .status(HttpStatus.OK)
+                    .body(response);
+
+        } catch (UsernameNotFoundException exception) {
+            String reason = translator.toLocale("exception.account.not.found");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, reason, exception);
+
+        } catch (Exception exception) {
+            String reason = translator.toLocale("request.failure");
+            exception.printStackTrace();
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, reason, exception);
+        }
+    }
+
     @PreAuthorize("principal==#userId")
-    @PutMapping(
-            value = "/{id}",
-            consumes = MediaType.APPLICATION_JSON_VALUE,
-            produces = MediaType.APPLICATION_JSON_VALUE
-    )
+    @PutMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ChangePrivacyResponse> changeUserPrivacy(
             @PathVariable("id") String userId,
             @Valid @RequestBody ChangePrivacyRequest request,

@@ -32,6 +32,7 @@ zuul:
     connect-timeout-millis: 60000
     socket-timeout-millis: 60000
   sensitive-headers:
+  ignore-security-headers: false
 
 #custom settings
 token:

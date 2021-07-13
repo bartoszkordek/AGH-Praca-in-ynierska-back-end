@@ -1,14 +1,15 @@
 package com.healthy.gym.trainings.service;
 
-import com.healthy.gym.trainings.data.document.GroupTrainings;
 import com.healthy.gym.trainings.exception.*;
 import com.healthy.gym.trainings.model.request.GroupTrainingRequest;
 import com.healthy.gym.trainings.model.response.GroupTrainingPublicResponse;
 import com.healthy.gym.trainings.model.response.GroupTrainingResponse;
+import org.springframework.stereotype.Service;
 
 import java.text.ParseException;
 import java.util.List;
 
+@Service
 public interface GroupTrainingService {
 
     List<GroupTrainingResponse> getGroupTrainings(String startDate, String endDate) throws InvalidHourException, StartDateAfterEndDateException, ParseException, InvalidDateException;
@@ -18,6 +19,8 @@ public interface GroupTrainingService {
 
     GroupTrainingResponse getGroupTrainingById(String trainingId)
             throws NotExistingGroupTrainingException, InvalidHourException, InvalidDateException;
+
+    List<GroupTrainingResponse> getGroupTrainingsByType(String trainingTypeId, String startDate, String endDate) throws NotExistingGroupTrainingException, InvalidDateException, InvalidHourException, StartDateAfterEndDateException, ParseException, TrainingTypeNotFoundException;
 
     List<GroupTrainingPublicResponse> getMyAllTrainings(String clientId) throws InvalidHourException, InvalidDateException;
 

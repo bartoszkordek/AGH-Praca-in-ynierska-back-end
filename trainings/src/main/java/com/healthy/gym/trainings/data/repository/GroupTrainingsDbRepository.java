@@ -134,6 +134,44 @@ public class GroupTrainingsDbRepository {
         return result;
     }
 
+    public List<GroupTrainingResponse> getGroupTrainingsByTrainingTypeId(String trainingTypeId, String startDate, String endDate) throws ParseException, StartDateAfterEndDateException, InvalidDateException, InvalidHourException {
+        if(startDate == null)
+            startDate = defaultStartDate;
+
+        if(endDate == null)
+            endDate = defaultEndDate;
+
+        Date startDateParsed = sdfDate.parse(startDate);
+        Date startDateMinusOneDay = new Date(startDateParsed.getTime() - (1000 * 60 * 60 * 24));
+        Date endDateParsed = sdfDate.parse(endDate);
+        Date endDatePlusOneDay = new Date(endDateParsed.getTime() + (1000 * 60 * 60 * 24));
+        if(startDateParsed.after(endDateParsed)){
+            throw new StartDateAfterEndDateException("Start date after end date");
+        }
+
+        String startDateMinusOneDayFormatted = sdfDate.format(startDateMinusOneDay);
+        String endDatePlusOneDayFormatted = sdfDate.format(endDatePlusOneDay);
+
+        List<GroupTrainings> dbResponse = groupTrainingsRepository.findAllByTrainingTypeIdAndByDateBetween(
+                trainingTypeId, startDate, endDate);
+
+        List<GroupTrainingResponse> result = new ArrayList<>();
+        for(GroupTrainings training : dbResponse){
+            GroupTrainingResponse groupTraining = new GroupTrainingResponse(training.getTrainingId(),
+                    training.getTrainingTypeId(),
+                    training.getTrainerId(),
+                    training.getDate(),
+                    training.getStartTime(),
+                    training.getEndTime(),
+                    training.getHallNo(),
+                    training.getLimit(),
+                    training.getParticipants(),
+                    training.getReserveList());
+            result.add(groupTraining);
+        }
+        return result;
+    }
+
     public List<GroupTrainingPublicResponse> getMyAllGroupTrainings(String clientId) throws InvalidDateException, InvalidHourException {
         List<GroupTrainingPublicResponse> publicResponse = new ArrayList<>();
         List<GroupTrainings> groupTrainings = groupTrainingsRepository.findGroupTrainingsByParticipantsContains(clientId);
@@ -157,6 +195,10 @@ public class GroupTrainingsDbRepository {
 
     public boolean isGroupTrainingExist(String trainingId){
         return groupTrainingsRepository.existsByTrainingId(trainingId);
+    }
+
+    public boolean isGroupTrainingExistByType(String trainingTypeId){
+        return groupTrainingsRepository.existsByTrainingTypeId(trainingTypeId);
     }
 
     public boolean isAbilityToGroupTrainingEnrollment(String trainingId){

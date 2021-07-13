@@ -20,7 +20,7 @@ import java.time.LocalTime;
 import java.util.Date;
 import java.util.List;
 
-
+@Service
 public class GroupTrainingServiceImpl implements GroupTrainingService {
 
     private final EmailConfig emailConfig;

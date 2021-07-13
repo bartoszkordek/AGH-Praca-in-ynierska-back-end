@@ -152,7 +152,7 @@ public class GroupTrainingsDbRepository {
         String startDateMinusOneDayFormatted = sdfDate.format(startDateMinusOneDay);
         String endDatePlusOneDayFormatted = sdfDate.format(endDatePlusOneDay);
 
-        List<GroupTrainings> dbResponse = groupTrainingsRepository.findAllByTrainingTypeIdAndByDateBetween(
+        List<GroupTrainings> dbResponse = groupTrainingsRepository.findAllByTrainingTypeIdAndDateBetween(
                 trainingTypeId, startDateMinusOneDayFormatted, endDatePlusOneDayFormatted);
 
         List<GroupTrainingResponse> result = new ArrayList<>();
@@ -190,7 +190,7 @@ public class GroupTrainingsDbRepository {
         String startDateMinusOneDayFormatted = sdfDate.format(startDateMinusOneDay);
         String endDatePlusOneDayFormatted = sdfDate.format(endDatePlusOneDay);
 
-        List<GroupTrainings> dbResponse = groupTrainingsRepository.findAllByTrainingTypeIdAndByDateBetween(
+        List<GroupTrainings> dbResponse = groupTrainingsRepository.findAllByTrainingTypeIdAndDateBetween(
                 trainingTypeId, startDateMinusOneDayFormatted, endDatePlusOneDayFormatted);
 
         List<GroupTrainingPublicResponse> result = new ArrayList<>();

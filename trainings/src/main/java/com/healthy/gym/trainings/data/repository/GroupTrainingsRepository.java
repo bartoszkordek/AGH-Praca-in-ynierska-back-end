@@ -10,7 +10,7 @@ public interface GroupTrainingsRepository extends MongoRepository<GroupTrainings
     public List<GroupTrainings> findAll();
     public List<GroupTrainings> findByDateBetween(String startDate, String endDate);
     public List<GroupTrainings> findGroupTrainingsByParticipantsContains(String clientId);
-    public List<GroupTrainings> findAllByTrainingTypeIdAndByDateBetween(String trainingTypeId, String startDate, String endDate);
+    public List<GroupTrainings> findAllByTrainingTypeIdAndDateBetween(String trainingTypeId, String startDate, String endDate);
     public boolean existsByTrainingId(String trainingId);
     public boolean existsByTrainingTypeId(String trainingTypeId);
     public boolean existsByDateAfter(String date);

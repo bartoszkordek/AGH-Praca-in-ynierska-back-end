@@ -22,6 +22,8 @@ public interface GroupTrainingService {
 
     List<GroupTrainingResponse> getGroupTrainingsByType(String trainingTypeId, String startDate, String endDate) throws NotExistingGroupTrainingException, InvalidDateException, InvalidHourException, StartDateAfterEndDateException, ParseException, TrainingTypeNotFoundException;
 
+    List<GroupTrainingPublicResponse> getGroupTrainingsPublicByType(String trainingTypeId, String startDate, String endDate) throws TrainingTypeNotFoundException, NotExistingGroupTrainingException, InvalidDateException, InvalidHourException, StartDateAfterEndDateException, ParseException;
+
     List<GroupTrainingPublicResponse> getMyAllTrainings(String clientId) throws InvalidHourException, InvalidDateException;
 
     List<String> getTrainingParticipants(String trainingId)

@@ -153,7 +153,7 @@ public class GroupTrainingsDbRepository {
         String endDatePlusOneDayFormatted = sdfDate.format(endDatePlusOneDay);
 
         List<GroupTrainings> dbResponse = groupTrainingsRepository.findAllByTrainingTypeIdAndByDateBetween(
-                trainingTypeId, startDate, endDate);
+                trainingTypeId, startDateMinusOneDayFormatted, endDatePlusOneDayFormatted);
 
         List<GroupTrainingResponse> result = new ArrayList<>();
         for(GroupTrainings training : dbResponse){
@@ -167,6 +167,42 @@ public class GroupTrainingsDbRepository {
                     training.getLimit(),
                     training.getParticipants(),
                     training.getReserveList());
+            result.add(groupTraining);
+        }
+        return result;
+    }
+
+    public List<GroupTrainingPublicResponse> getGroupTrainingsPublicByTrainingTypeId(String trainingTypeId, String startDate, String endDate) throws ParseException, StartDateAfterEndDateException, InvalidDateException, InvalidHourException {
+        if(startDate == null)
+            startDate = defaultStartDate;
+
+        if(endDate == null)
+            endDate = defaultEndDate;
+
+        Date startDateParsed = sdfDate.parse(startDate);
+        Date startDateMinusOneDay = new Date(startDateParsed.getTime() - (1000 * 60 * 60 * 24));
+        Date endDateParsed = sdfDate.parse(endDate);
+        Date endDatePlusOneDay = new Date(endDateParsed.getTime() + (1000 * 60 * 60 * 24));
+        if(startDateParsed.after(endDateParsed)){
+            throw new StartDateAfterEndDateException("Start date after end date");
+        }
+
+        String startDateMinusOneDayFormatted = sdfDate.format(startDateMinusOneDay);
+        String endDatePlusOneDayFormatted = sdfDate.format(endDatePlusOneDay);
+
+        List<GroupTrainings> dbResponse = groupTrainingsRepository.findAllByTrainingTypeIdAndByDateBetween(
+                trainingTypeId, startDateMinusOneDayFormatted, endDatePlusOneDayFormatted);
+
+        List<GroupTrainingPublicResponse> result = new ArrayList<>();
+        for(GroupTrainings training : dbResponse){
+            GroupTrainingPublicResponse groupTraining = new GroupTrainingPublicResponse(training.getTrainingId(),
+                    training.getTrainingTypeId(),
+                    training.getTrainerId(),
+                    training.getDate(),
+                    training.getStartTime(),
+                    training.getEndTime(),
+                    training.getHallNo(),
+                    training.getLimit());
             result.add(groupTraining);
         }
         return result;

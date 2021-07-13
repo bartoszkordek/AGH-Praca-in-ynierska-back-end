@@ -142,6 +142,17 @@ public class GroupTrainingServiceImpl implements GroupTrainingService {
     }
 
     @Override
+    public List<GroupTrainingPublicResponse> getGroupTrainingsPublicByType(String trainingTypeId, String startDate, String endDate) throws TrainingTypeNotFoundException, NotExistingGroupTrainingException, InvalidDateException, InvalidHourException, StartDateAfterEndDateException, ParseException {
+        if(!trainingTypeRepository.existsByTrainingTypeId(trainingTypeId)){
+            throw new TrainingTypeNotFoundException("Training type does not exist");
+        }
+        if(!groupTrainingsDbRepository.isGroupTrainingExistByType(trainingTypeId)){
+            throw new NotExistingGroupTrainingException("Trainings with type ID " + trainingTypeId + " does not exist");
+        }
+        return groupTrainingsDbRepository.getGroupTrainingsPublicByTrainingTypeId(trainingTypeId, startDate, endDate);
+    }
+
+    @Override
     public List<GroupTrainingPublicResponse> getMyAllTrainings(String clientId) throws InvalidHourException, InvalidDateException {
         //add if Client Exists validation
         return groupTrainingsDbRepository.getMyAllGroupTrainings(clientId);

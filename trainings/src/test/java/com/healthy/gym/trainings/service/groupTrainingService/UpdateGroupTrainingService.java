@@ -3,6 +3,7 @@ package com.healthy.gym.trainings.service.groupTrainingService;
 import com.healthy.gym.trainings.configuration.EmailConfig;
 import com.healthy.gym.trainings.data.document.GroupTrainings;
 import com.healthy.gym.trainings.data.repository.GroupTrainingsDbRepository;
+import com.healthy.gym.trainings.data.repository.TrainingTypeDAO;
 import com.healthy.gym.trainings.exception.*;
 import com.healthy.gym.trainings.model.request.GroupTrainingRequest;
 import com.healthy.gym.trainings.model.response.GroupTrainingResponse;
@@ -33,7 +34,9 @@ public class UpdateGroupTrainingService {
         //mocks
         EmailConfig emailConfig = Mockito.mock(EmailConfig.class);
         GroupTrainingsDbRepository groupTrainingsDbRepository = Mockito.mock(GroupTrainingsDbRepository.class);
-        GroupTrainingService groupTrainingService = new GroupTrainingServiceImpl(emailConfig, groupTrainingsDbRepository);
+        TrainingTypeDAO trainingTypeRepository = Mockito.mock(TrainingTypeDAO.class);
+        GroupTrainingService groupTrainingService = new GroupTrainingServiceImpl(emailConfig, groupTrainingsDbRepository,
+                trainingTypeRepository);
 
         //before
         String id= "507f1f77bcf86cd799439011";
@@ -68,7 +71,7 @@ public class UpdateGroupTrainingService {
 
         //when
         when(groupTrainingsDbRepository.isGroupTrainingExist(trainingId)).thenReturn(true);
-        when(groupTrainingsDbRepository.isAbilityToCreateTraining(groupTrainingUpdateRequest)).thenReturn(true);
+        when(groupTrainingsDbRepository.isAbilityToUpdateTraining(trainingId, groupTrainingUpdateRequest)).thenReturn(true);
         when(groupTrainingsDbRepository.updateTraining(trainingId,groupTrainingUpdateRequest))
                 .thenReturn(groupTrainingAfterUpdate);
 
@@ -82,7 +85,9 @@ public class UpdateGroupTrainingService {
         //mocks
         EmailConfig emailConfig = Mockito.mock(EmailConfig.class);
         GroupTrainingsDbRepository groupTrainingsDbRepository = Mockito.mock(GroupTrainingsDbRepository.class);
-        GroupTrainingService groupTrainingService = new GroupTrainingServiceImpl(emailConfig, groupTrainingsDbRepository);
+        TrainingTypeDAO trainingTypeRepository = Mockito.mock(TrainingTypeDAO.class);
+        GroupTrainingService groupTrainingService = new GroupTrainingServiceImpl(emailConfig, groupTrainingsDbRepository,
+                trainingTypeRepository);
 
         //before
         String id= "507f1f77bcf86cd799439011";
@@ -117,7 +122,7 @@ public class UpdateGroupTrainingService {
 
         //when
         when(groupTrainingsDbRepository.isGroupTrainingExist(trainingId)).thenReturn(false);
-        when(groupTrainingsDbRepository.isAbilityToCreateTraining(groupTrainingUpdateRequest)).thenReturn(true);
+        when(groupTrainingsDbRepository.isAbilityToUpdateTraining(trainingId, groupTrainingUpdateRequest)).thenReturn(true);
         when(groupTrainingsDbRepository.updateTraining(trainingId,groupTrainingUpdateRequest))
                 .thenReturn(groupTrainingAfterUpdate);
 
@@ -130,7 +135,9 @@ public class UpdateGroupTrainingService {
         //mocks
         EmailConfig emailConfig = Mockito.mock(EmailConfig.class);
         GroupTrainingsDbRepository groupTrainingsDbRepository = Mockito.mock(GroupTrainingsDbRepository.class);
-        GroupTrainingService groupTrainingService = new GroupTrainingServiceImpl(emailConfig, groupTrainingsDbRepository);
+        TrainingTypeDAO trainingTypeRepository = Mockito.mock(TrainingTypeDAO.class);
+        GroupTrainingService groupTrainingService = new GroupTrainingServiceImpl(emailConfig, groupTrainingsDbRepository,
+                trainingTypeRepository);
 
         //before
         String id= "507f1f77bcf86cd799439011";
@@ -165,7 +172,7 @@ public class UpdateGroupTrainingService {
 
         //when
         when(groupTrainingsDbRepository.isGroupTrainingExist(trainingId)).thenReturn(true);
-        when(groupTrainingsDbRepository.isAbilityToCreateTraining(groupTrainingUpdateRequest)).thenReturn(false);
+        when(groupTrainingsDbRepository.isAbilityToUpdateTraining(trainingId, groupTrainingUpdateRequest)).thenReturn(false);
         when(groupTrainingsDbRepository.updateTraining(trainingId,groupTrainingUpdateRequest))
                 .thenReturn(groupTrainingAfterUpdate);
 

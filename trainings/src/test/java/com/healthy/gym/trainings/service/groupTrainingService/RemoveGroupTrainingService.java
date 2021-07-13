@@ -3,6 +3,7 @@ package com.healthy.gym.trainings.service.groupTrainingService;
 import com.healthy.gym.trainings.configuration.EmailConfig;
 import com.healthy.gym.trainings.data.document.GroupTrainings;
 import com.healthy.gym.trainings.data.repository.GroupTrainingsDbRepository;
+import com.healthy.gym.trainings.data.repository.TrainingTypeDAO;
 import com.healthy.gym.trainings.exception.EmailSendingException;
 import com.healthy.gym.trainings.exception.InvalidDateException;
 import com.healthy.gym.trainings.exception.InvalidHourException;
@@ -35,7 +36,9 @@ public class RemoveGroupTrainingService {
         //mocks
         EmailConfig emailConfig = Mockito.mock(EmailConfig.class);
         GroupTrainingsDbRepository groupTrainingsDbRepository = Mockito.mock(GroupTrainingsDbRepository.class);
-        GroupTrainingService groupTrainingService = new GroupTrainingServiceImpl(emailConfig, groupTrainingsDbRepository);
+        TrainingTypeDAO trainingTypeRepository = Mockito.mock(TrainingTypeDAO.class);
+        GroupTrainingService groupTrainingService = new GroupTrainingServiceImpl(emailConfig, groupTrainingsDbRepository,
+                trainingTypeRepository);
 
         //before
         String id= "507f1f77bcf86cd799439011";
@@ -69,7 +72,9 @@ public class RemoveGroupTrainingService {
         //mocks
         EmailConfig emailConfig = Mockito.mock(EmailConfig.class);
         GroupTrainingsDbRepository groupTrainingsDbRepository = Mockito.mock(GroupTrainingsDbRepository.class);
-        GroupTrainingService groupTrainingService = new GroupTrainingServiceImpl(emailConfig, groupTrainingsDbRepository);
+        TrainingTypeDAO trainingTypeRepository = Mockito.mock(TrainingTypeDAO.class);
+        GroupTrainingService groupTrainingService = new GroupTrainingServiceImpl(emailConfig, groupTrainingsDbRepository,
+                trainingTypeRepository);
 
         //before
         String id= "507f1f77bcf86cd799439011";

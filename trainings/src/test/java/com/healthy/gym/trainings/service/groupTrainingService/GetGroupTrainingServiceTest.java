@@ -2,6 +2,7 @@ package com.healthy.gym.trainings.service.groupTrainingService;
 
 import com.healthy.gym.trainings.configuration.EmailConfig;
 import com.healthy.gym.trainings.data.repository.GroupTrainingsDbRepository;
+import com.healthy.gym.trainings.data.repository.TrainingTypeDAO;
 import com.healthy.gym.trainings.exception.InvalidDateException;
 import com.healthy.gym.trainings.exception.InvalidHourException;
 import com.healthy.gym.trainings.exception.NotExistingGroupTrainingException;
@@ -35,7 +36,9 @@ public class GetGroupTrainingServiceTest {
         //mocks
         EmailConfig emailConfig = Mockito.mock(EmailConfig.class);
         GroupTrainingsDbRepository groupTrainingsDbRepository = Mockito.mock(GroupTrainingsDbRepository.class);
-        GroupTrainingService groupTrainingService = new GroupTrainingServiceImpl(emailConfig, groupTrainingsDbRepository);
+        TrainingTypeDAO trainingTypeRepository = Mockito.mock(TrainingTypeDAO.class);
+        GroupTrainingService groupTrainingService = new GroupTrainingServiceImpl(emailConfig, groupTrainingsDbRepository,
+                trainingTypeRepository);
 
         //before
         String startDate = "2000-01-01";
@@ -68,7 +71,9 @@ public class GetGroupTrainingServiceTest {
         //mocks
         EmailConfig emailConfig = Mockito.mock(EmailConfig.class);
         GroupTrainingsDbRepository groupTrainingsDbRepository = Mockito.mock(GroupTrainingsDbRepository.class);
-        GroupTrainingService groupTrainingService = new GroupTrainingServiceImpl(emailConfig, groupTrainingsDbRepository);
+        TrainingTypeDAO trainingTypeRepository = Mockito.mock(TrainingTypeDAO.class);
+        GroupTrainingService groupTrainingService = new GroupTrainingServiceImpl(emailConfig, groupTrainingsDbRepository,
+                trainingTypeRepository);
 
         //before
         String startDate = "2000-01-01";
@@ -100,7 +105,9 @@ public class GetGroupTrainingServiceTest {
         //mocks
         EmailConfig emailConfig = Mockito.mock(EmailConfig.class);
         GroupTrainingsDbRepository groupTrainingsDbRepository = Mockito.mock(GroupTrainingsDbRepository.class);
-        GroupTrainingService groupTrainingService = new GroupTrainingServiceImpl(emailConfig, groupTrainingsDbRepository);
+        TrainingTypeDAO trainingTypeRepository = Mockito.mock(TrainingTypeDAO.class);
+        GroupTrainingService groupTrainingService = new GroupTrainingServiceImpl(emailConfig, groupTrainingsDbRepository,
+                trainingTypeRepository);
 
         //before
         String trainingId = "122ed953-e37f-435a-bd1e-9fb2a327c4d3";
@@ -132,7 +139,9 @@ public class GetGroupTrainingServiceTest {
         //mocks
         EmailConfig emailConfig = Mockito.mock(EmailConfig.class);
         GroupTrainingsDbRepository groupTrainingsDbRepository = Mockito.mock(GroupTrainingsDbRepository.class);
-        GroupTrainingService groupTrainingService = new GroupTrainingServiceImpl(emailConfig, groupTrainingsDbRepository);
+        TrainingTypeDAO trainingTypeRepository = Mockito.mock(TrainingTypeDAO.class);
+        GroupTrainingService groupTrainingService = new GroupTrainingServiceImpl(emailConfig, groupTrainingsDbRepository,
+                trainingTypeRepository);
 
         //before
         String invalidTrainingId = "122ed953-e37f-435a-bd1e-9fb2a327c4d3";
@@ -149,7 +158,9 @@ public class GetGroupTrainingServiceTest {
         //mocks
         EmailConfig emailConfig = Mockito.mock(EmailConfig.class);
         GroupTrainingsDbRepository groupTrainingsDbRepository = Mockito.mock(GroupTrainingsDbRepository.class);
-        GroupTrainingService groupTrainingService = new GroupTrainingServiceImpl(emailConfig, groupTrainingsDbRepository);
+        TrainingTypeDAO trainingTypeRepository = Mockito.mock(TrainingTypeDAO.class);
+        GroupTrainingService groupTrainingService = new GroupTrainingServiceImpl(emailConfig, groupTrainingsDbRepository,
+                trainingTypeRepository);
 
         //before
         String trainingId = "122ed953-e37f-435a-bd1e-9fb2a327c4d3";
@@ -172,7 +183,9 @@ public class GetGroupTrainingServiceTest {
         //mocks
         EmailConfig emailConfig = Mockito.mock(EmailConfig.class);
         GroupTrainingsDbRepository groupTrainingsDbRepository = Mockito.mock(GroupTrainingsDbRepository.class);
-        GroupTrainingService groupTrainingService = new GroupTrainingServiceImpl(emailConfig, groupTrainingsDbRepository);
+        TrainingTypeDAO trainingTypeRepository = Mockito.mock(TrainingTypeDAO.class);
+        GroupTrainingService groupTrainingService = new GroupTrainingServiceImpl(emailConfig, groupTrainingsDbRepository,
+                trainingTypeRepository);
 
         //before
         String invalidTrainingId = "122ed953-e37f-435a-bd1e-9fb2a327c4d3";

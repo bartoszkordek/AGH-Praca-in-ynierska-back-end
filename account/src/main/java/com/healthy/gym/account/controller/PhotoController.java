@@ -20,7 +20,7 @@ import org.springframework.web.server.ResponseStatusException;
 import javax.activation.UnsupportedDataTypeException;
 
 @RestController
-@RequestMapping("/photos")
+@RequestMapping("/photos/{id}/avatar")
 public class PhotoController {
     private final Translator translator;
     private final PhotoService photoService;
@@ -38,11 +38,7 @@ public class PhotoController {
     }
 
     @PreAuthorize("hasRole('ADMIN') or principal==#userId")
-    @PostMapping(
-            value = "/{id}/avatar",
-            consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
-            produces = MediaType.APPLICATION_JSON_VALUE
-    )
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<AvatarResponse> setAvatar(
             @PathVariable("id") String userId,
             @RequestParam("avatar") MultipartFile multipartFile
@@ -75,10 +71,7 @@ public class PhotoController {
     }
 
     @PreAuthorize("hasRole('USER')")
-    @GetMapping(
-            value = "/{id}/avatar",
-            produces = MediaType.APPLICATION_JSON_VALUE
-    )
+    @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<AvatarResponse> getAvatar(@PathVariable("id") String userId) {
         try {
             ImageDTO imageDTO = photoService.getAvatar(userId);
@@ -103,10 +96,7 @@ public class PhotoController {
     }
 
     @PreAuthorize("hasRole('ADMIN') or principal==#userId")
-    @DeleteMapping(
-            value = "/{id}/avatar",
-            produces = MediaType.APPLICATION_JSON_VALUE
-    )
+    @DeleteMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<AvatarResponse> deleteAvatar(@PathVariable("id") String userId) {
         try {
             ImageDTO imageDTO = photoService.removeAvatar(userId);

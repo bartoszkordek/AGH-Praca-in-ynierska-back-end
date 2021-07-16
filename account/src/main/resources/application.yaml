@@ -38,6 +38,8 @@ authorization:
       name: Authorization
       prefix: Bearer
 
+gateway: http://localhost:8020
+
 front-end:
   protocol: http
   host: localhost

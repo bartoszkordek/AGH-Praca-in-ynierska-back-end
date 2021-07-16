@@ -3,10 +3,11 @@ package com.healthy.gym.account.controller.photoController.unitTest;
 import com.healthy.gym.account.configuration.tests.TestCountry;
 import com.healthy.gym.account.configuration.tests.TestRoleTokenFactory;
 import com.healthy.gym.account.controller.PhotoController;
+import com.healthy.gym.account.data.document.PhotoDocument;
 import com.healthy.gym.account.exception.PhotoSavingException;
+import com.healthy.gym.account.pojo.Image;
 import com.healthy.gym.account.service.AccountService;
 import com.healthy.gym.account.service.PhotoService;
-import com.healthy.gym.account.shared.ImageDTO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -25,7 +26,6 @@ import javax.activation.UnsupportedDataTypeException;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
-import java.util.Base64;
 import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
@@ -56,7 +56,7 @@ class WhenSetAvatarTest {
 
     private String userToken;
     private String userId;
-    private ImageDTO imageDTO;
+    private PhotoDocument photoDocument;
     private MockMultipartFile invalidFile;
     private MockMultipartFile validFile;
 
@@ -79,8 +79,8 @@ class WhenSetAvatarTest {
                 MediaType.IMAGE_PNG_VALUE,
                 "data".getBytes(StandardCharsets.UTF_8)
         );
-        String encodedBase64Data = Base64.getEncoder().encodeToString(validFile.getBytes());
-        imageDTO = new ImageDTO(encodedBase64Data, MediaType.IMAGE_PNG_VALUE);
+        photoDocument = new PhotoDocument(userId, "avatar",
+                new Image("data".getBytes(StandardCharsets.UTF_8), MediaType.IMAGE_PNG_VALUE));
     }
 
     @ParameterizedTest
@@ -92,7 +92,7 @@ class WhenSetAvatarTest {
         URI uri = new URI("/photos/" + userId + "/avatar");
 
         String expectedMessage = messages.get("avatar.update.success");
-        when(photoService.setAvatar(userId, validFile)).thenReturn(imageDTO);
+        when(photoService.setAvatar(userId, validFile)).thenReturn(photoDocument);
 
         RequestBuilder request = MockMvcRequestBuilders
                 .multipart(uri)
@@ -106,8 +106,8 @@ class WhenSetAvatarTest {
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.message").value(is(expectedMessage)))
-                .andExpect(jsonPath("$.avatar.data").value(is(imageDTO.getData())))
-                .andExpect(jsonPath("$.avatar.format").value(is(MediaType.IMAGE_PNG_VALUE)));
+                .andExpect(jsonPath("$.avatar")
+                        .value(is("http://localhost:8020/account/photos/" + userId + "/avatar")));
     }
 
     @ParameterizedTest

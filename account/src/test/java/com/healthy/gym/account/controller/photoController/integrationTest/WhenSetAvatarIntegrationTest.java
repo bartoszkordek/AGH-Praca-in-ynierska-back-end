@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.web.server.LocalServerPort;
+import org.springframework.core.env.Environment;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -61,6 +62,8 @@ class WhenSetAvatarIntegrationTest {
     private MongoTemplate mongoTemplate;
     @Autowired
     private BCryptPasswordEncoder bCryptPasswordEncoder;
+    @Autowired
+    private Environment environment;
 
     private String userToken;
     private String userId;
@@ -120,6 +123,12 @@ class WhenSetAvatarIntegrationTest {
         return new HttpEntity<>(updatedImageResource, imageHeaders);
     }
 
+    private String getExpectedAvatarLocation(String userId) {
+        String gateway = environment.getProperty("gateway");
+        String microservice = environment.getProperty("spring.application.name");
+        return gateway + "/" + microservice + "/photos/" + userId + "/avatar";
+    }
+
     @ParameterizedTest
     @EnumSource(TestCountry.class)
     void shouldAcceptRequestAndShouldSetAvatar(TestCountry country) throws Exception {
@@ -142,19 +151,20 @@ class WhenSetAvatarIntegrationTest {
 
         HttpEntity<Object> requestEntity = new HttpEntity<>(multipartRequest, headers);
         String expectedMessage = messages.get("avatar.update.success");
+        String expectedAvatarLocation = getExpectedAvatarLocation(userId);
 
         ResponseEntity<JsonNode> responseEntity = restTemplate
                 .exchange(uri, HttpMethod.POST, requestEntity, JsonNode.class);
 
-        String imageBase64 = Base64.getEncoder().encodeToString(getImageBytes(updatedImageResource));
+        HttpStatus httpStatus = responseEntity.getStatusCode();
+        assertThat(httpStatus).isEqualTo(HttpStatus.OK);
+
+        HttpHeaders httpHeaders = responseEntity.getHeaders();
+        assertThat(httpHeaders.getContentType()).isEqualTo(MediaType.APPLICATION_JSON);
 
         JsonNode responseBody = responseEntity.getBody();
-
-        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
-        assertThat(responseEntity.getHeaders().getContentType()).isEqualTo(MediaType.APPLICATION_JSON);
         assertThat(responseBody.get("message").textValue()).isEqualTo(expectedMessage);
-        assertThat(responseBody.get("avatar").get("data").textValue()).isEqualTo(imageBase64);
-        assertThat(responseBody.get("avatar").get("format").textValue()).isEqualTo(MediaType.IMAGE_JPEG_VALUE);
+        assertThat(responseBody.get("avatar").textValue()).isEqualTo(expectedAvatarLocation);
 
         avatarList = mongoTemplate.findAll(PhotoDocument.class);
         assertThat(avatarList.size()).isEqualTo(1);
@@ -183,19 +193,20 @@ class WhenSetAvatarIntegrationTest {
 
         HttpEntity<Object> requestEntity = new HttpEntity<>(multipartRequest, headers);
         String expectedMessage = messages.get("avatar.update.success");
+        String expectedAvatarLocation = getExpectedAvatarLocation(userId);
 
         ResponseEntity<JsonNode> responseEntity = restTemplate
                 .exchange(uri, HttpMethod.POST, requestEntity, JsonNode.class);
 
-        String imageBase64 = Base64.getEncoder().encodeToString(getImageBytes(updatedImageResource));
+        HttpStatus httpStatus = responseEntity.getStatusCode();
+        assertThat(httpStatus).isEqualTo(HttpStatus.OK);
+
+        HttpHeaders httpHeaders = responseEntity.getHeaders();
+        assertThat(httpHeaders.getContentType()).isEqualTo(MediaType.APPLICATION_JSON);
 
         JsonNode responseBody = responseEntity.getBody();
-
-        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
-        assertThat(responseEntity.getHeaders().getContentType()).isEqualTo(MediaType.APPLICATION_JSON);
         assertThat(responseBody.get("message").textValue()).isEqualTo(expectedMessage);
-        assertThat(responseBody.get("avatar").get("data").textValue()).isEqualTo(imageBase64);
-        assertThat(responseBody.get("avatar").get("format").textValue()).isEqualTo(MediaType.IMAGE_JPEG_VALUE);
+        assertThat(responseBody.get("avatar").textValue()).isEqualTo(expectedAvatarLocation);
 
         avatarList = mongoTemplate.findAll(PhotoDocument.class);
         assertThat(avatarList.size()).isEqualTo(1);

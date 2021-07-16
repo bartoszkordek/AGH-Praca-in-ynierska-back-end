@@ -140,10 +140,12 @@ class WhenDeleteAvatarIntegrationTest {
 
         JsonNode responseBody = responseEntity.getBody();
 
+        System.out.println(responseBody.toString());
+
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(responseEntity.getHeaders().getContentType()).isEqualTo(MediaType.APPLICATION_JSON);
         assertThat(responseBody.get("message").textValue()).isEqualTo(expectedMessage);
-        assertThat(responseBody.get("avatar").isEmpty()).isTrue();
+        assertThat(responseBody.get("avatar")).isNull();
 
         avatars = mongoTemplate.findAll(PhotoDocument.class);
         assertThat(avatars.isEmpty()).isTrue();

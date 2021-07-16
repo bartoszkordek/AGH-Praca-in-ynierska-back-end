@@ -6,7 +6,6 @@ import com.healthy.gym.account.controller.PhotoController;
 import com.healthy.gym.account.exception.UserAvatarNotFoundException;
 import com.healthy.gym.account.service.AccountService;
 import com.healthy.gym.account.service.PhotoService;
-import com.healthy.gym.account.shared.ImageDTO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
@@ -21,7 +20,6 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
-import java.util.Base64;
 import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
@@ -61,45 +59,12 @@ class WhenGetAvatarTest {
 
     @ParameterizedTest
     @EnumSource(TestCountry.class)
-    void shouldRejectRequestWhenUserIsNotLogIn(TestCountry country) throws Exception {
-        Map<String, String> messages = getMessagesAccordingToLocale(country);
-        Locale testedLocale = convertEnumToLocale(country);
-
-        String invalidId = UUID.randomUUID().toString();
-        URI uri = new URI("/photos/" + invalidId + "/avatar");
-
-        RequestBuilder request = MockMvcRequestBuilders
-                .get(uri)
-                .header("Accept-Language", testedLocale.toString())
-                .contentType(MediaType.APPLICATION_JSON_VALUE);
-
-        String expectedMessage = messages.get("exception.access.denied");
-
-        mockMvc.perform(request)
-                .andDo(print())
-                .andExpect(status().isForbidden())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.message").value(is(expectedMessage)))
-                .andExpect(jsonPath("$.error").value(is("Forbidden")))
-                .andExpect(jsonPath("$.status").value(403))
-                .andExpect(jsonPath("$.timestamp").exists());
-    }
-
-    @ParameterizedTest
-    @EnumSource(TestCountry.class)
     void shouldAcceptRequestAndShouldReturnAvatar(TestCountry country) throws Exception {
-        Map<String, String> messages = getMessagesAccordingToLocale(country);
         Locale testedLocale = convertEnumToLocale(country);
 
         URI uri = new URI("/photos/" + userId + "/avatar");
 
-        byte[] data = "data".getBytes(StandardCharsets.UTF_8);
-        String dataBase64 = Base64.getEncoder().encodeToString(data);
-
-        String expectedMessage = messages.get("avatar.get.found");
-        when(photoService.getAvatar(userId)).thenReturn(
-                new ImageDTO(dataBase64, MediaType.IMAGE_JPEG_VALUE)
-        );
+        when(photoService.getAvatar(userId)).thenReturn("data".getBytes(StandardCharsets.UTF_8));
 
         RequestBuilder request = MockMvcRequestBuilders
                 .get(uri)
@@ -110,10 +75,11 @@ class WhenGetAvatarTest {
         mockMvc.perform(request)
                 .andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.message").value(is(expectedMessage)))
-                .andExpect(jsonPath("$.avatar.data").value(is(dataBase64)))
-                .andExpect(jsonPath("$.avatar.format").value(is(MediaType.IMAGE_JPEG_VALUE)));
+                .andExpect(content().contentType(MediaType.IMAGE_JPEG_VALUE))
+                .andExpect(content().bytes("data".getBytes(StandardCharsets.UTF_8)))
+                .andExpect(header().exists("Content-Length"))
+                .andExpect(header().exists("Cache-Control"))
+                .andExpect(header().exists("ETag"));
     }
 
     @ParameterizedTest

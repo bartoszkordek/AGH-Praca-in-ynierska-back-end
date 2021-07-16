@@ -5,4 +5,6 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 
 public interface PhotoDAO extends MongoRepository<PhotoDocument, String> {
     PhotoDocument findByUserId(String userId);
+
+    PhotoDocument findPhotoDocumentById(String id);
 }

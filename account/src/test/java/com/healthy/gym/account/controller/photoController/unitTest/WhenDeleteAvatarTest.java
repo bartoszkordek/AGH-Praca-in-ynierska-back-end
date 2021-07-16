@@ -3,10 +3,10 @@ package com.healthy.gym.account.controller.photoController.unitTest;
 import com.healthy.gym.account.configuration.tests.TestCountry;
 import com.healthy.gym.account.configuration.tests.TestRoleTokenFactory;
 import com.healthy.gym.account.controller.PhotoController;
+import com.healthy.gym.account.data.document.PhotoDocument;
 import com.healthy.gym.account.exception.UserAvatarNotFoundException;
 import com.healthy.gym.account.service.AccountService;
 import com.healthy.gym.account.service.PhotoService;
-import com.healthy.gym.account.shared.ImageDTO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -70,7 +70,7 @@ class WhenDeleteAvatarTest {
         URI uri = new URI("/photos/" + userId + "/avatar");
 
         String expectedMessage = messages.get("avatar.removed");
-        when(photoService.removeAvatar(userId)).thenReturn(new ImageDTO());
+        when(photoService.removeAvatar(userId)).thenReturn(new PhotoDocument());
 
         RequestBuilder request = MockMvcRequestBuilders
                 .delete(uri)
@@ -83,9 +83,7 @@ class WhenDeleteAvatarTest {
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.message").value(is(expectedMessage)))
-                .andExpect(jsonPath("$.avatar.data").doesNotExist())
-                .andExpect(jsonPath("$.avatar.format").doesNotExist())
-                .andExpect(jsonPath("$.avatar").isEmpty());
+                .andExpect(jsonPath("$.avatar").doesNotExist());
     }
 
     @ParameterizedTest

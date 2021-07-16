@@ -6,7 +6,6 @@ import com.healthy.gym.account.data.repository.UserDAO;
 import com.healthy.gym.account.exception.UserAvatarNotFoundException;
 import com.healthy.gym.account.pojo.Image;
 import com.healthy.gym.account.service.PhotoService;
-import com.healthy.gym.account.shared.ImageDTO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +18,7 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 @SpringBootTest
@@ -53,9 +53,10 @@ class WhenRemoveAvatarTest {
     @Test
     void shouldReturnAvatarWhenProvidedUserIdValid() throws UserAvatarNotFoundException {
         when(photoDAO.findByUserId(userId)).thenReturn(photoDocument);
-        ImageDTO imageDTO = photoService.removeAvatar(userId);
+        when(photoDAO.findPhotoDocumentById(any())).thenReturn(null);
 
-        assertThat(imageDTO.getFormat()).isNull();
-        assertThat(imageDTO.getData()).isNull();
+        PhotoDocument photoDocument = photoService.removeAvatar(userId);
+
+        assertThat(photoDocument).isNull();
     }
 }

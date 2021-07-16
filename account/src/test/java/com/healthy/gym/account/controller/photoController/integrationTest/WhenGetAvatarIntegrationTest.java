@@ -2,7 +2,6 @@ package com.healthy.gym.account.controller.photoController.integrationTest;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.healthy.gym.account.configuration.tests.TestCountry;
-import com.healthy.gym.account.configuration.tests.TestRoleTokenFactory;
 import com.healthy.gym.account.data.document.PhotoDocument;
 import com.healthy.gym.account.pojo.Image;
 import org.bson.types.Binary;
@@ -31,7 +30,6 @@ import java.io.IOException;
 import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Base64;
 import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
@@ -54,13 +52,10 @@ class WhenGetAvatarIntegrationTest {
     @Autowired
     private TestRestTemplate restTemplate;
     @Autowired
-    private TestRoleTokenFactory tokenFactory;
-    @Autowired
     private MongoTemplate mongoTemplate;
     @Autowired
     private BCryptPasswordEncoder bCryptPasswordEncoder;
 
-    private String userToken;
     private String userId;
     private byte[] imageBytes;
 
@@ -75,8 +70,6 @@ class WhenGetAvatarIntegrationTest {
     @BeforeEach
     void setUp() throws IOException {
         userId = UUID.randomUUID().toString();
-
-        userToken = tokenFactory.getUserToken(userId);
 
         Resource resource = new ClassPathResource("mem.jpg");
         Path filePath = resource.getFile().toPath();
@@ -102,23 +95,25 @@ class WhenGetAvatarIntegrationTest {
 
         HttpHeaders headers = new HttpHeaders();
         headers.set("Accept-Language", testedLocale.toString());
-        headers.set("Authorization", userToken);
         headers.set("Content-Type", MediaType.APPLICATION_JSON_VALUE);
 
         HttpEntity<Object> requestEntity = new HttpEntity<>(null, headers);
-        String expectedMessage = messages.get("avatar.get.found");
 
-        ResponseEntity<JsonNode> responseEntity = restTemplate
-                .exchange(uri, HttpMethod.GET, requestEntity, JsonNode.class);
+        ResponseEntity<byte[]> responseEntity = restTemplate
+                .exchange(uri, HttpMethod.GET, requestEntity, byte[].class);
 
-        String imageBase64 = Base64.getEncoder().encodeToString(imageBytes);
+        System.out.println(responseEntity);
 
-        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
-        assertThat(responseEntity.getBody().get("message").textValue()).isEqualTo(expectedMessage);
-        assertThat(responseEntity.getHeaders().getContentType()).isEqualTo(MediaType.APPLICATION_JSON);
-        assertThat(responseEntity.getBody().get("avatar").get("format").textValue())
-                .isEqualTo(MediaType.IMAGE_JPEG_VALUE);
-        assertThat(responseEntity.getBody().get("avatar").get("data").textValue()).isEqualTo(imageBase64);
+        HttpStatus httpStatus = responseEntity.getStatusCode();
+        assertThat(httpStatus).isEqualTo(HttpStatus.OK);
+
+        byte[] returnData = responseEntity.getBody();
+        assertThat(returnData).isEqualTo(imageBytes);
+
+        HttpHeaders httpHeaders = responseEntity.getHeaders();
+        assertThat(httpHeaders.getContentType().toString()).isEqualTo(MediaType.IMAGE_JPEG_VALUE);
+        assertThat(httpHeaders.getETag()).isNotNull();
+        assertThat(httpHeaders.getCacheControl()).isEqualTo("max-age=600, private");
     }
 
     @ParameterizedTest
@@ -131,7 +126,6 @@ class WhenGetAvatarIntegrationTest {
 
         HttpHeaders headers = new HttpHeaders();
         headers.set("Accept-Language", testedLocale.toString());
-        headers.set("Authorization", userToken);
         headers.set("Content-Type", MediaType.APPLICATION_JSON_VALUE);
 
         HttpEntity<Object> requestEntity = new HttpEntity<>(null, headers);

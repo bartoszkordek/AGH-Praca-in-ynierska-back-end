@@ -7,7 +7,6 @@ import com.healthy.gym.account.data.repository.UserDAO;
 import com.healthy.gym.account.exception.PhotoSavingException;
 import com.healthy.gym.account.pojo.Image;
 import com.healthy.gym.account.service.PhotoService;
-import com.healthy.gym.account.shared.ImageDTO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,7 +18,6 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.Base64;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -96,11 +94,11 @@ class WhenSetAvatarTest {
         when(photoDAO.findByUserId(userId)).thenReturn(currentPhotoDocument);
         when(photoDAO.save(any())).thenReturn(savedDocument);
 
-        ImageDTO avatarImageDTO = photoService.setAvatar(userId, multipartFile);
+        PhotoDocument avatar = photoService.setAvatar(userId, multipartFile);
 
-        String expectedData = Base64.getEncoder().encodeToString(multipartFile.getBytes());
-        assertThat(avatarImageDTO.getData()).isEqualTo(expectedData);
-        assertThat(avatarImageDTO.getFormat()).isEqualTo(MediaType.IMAGE_PNG_VALUE);
+        assertThat(avatar.getImage().getData().getData()).isEqualTo(multipartFile.getBytes());
+        assertThat(avatar.getImage().getFormat()).isEqualTo(MediaType.IMAGE_PNG_VALUE);
+        assertThat(avatar.getUserId()).isEqualTo(userId);
     }
 
     @Test
@@ -109,10 +107,10 @@ class WhenSetAvatarTest {
         when(photoDAO.findByUserId(userId)).thenReturn(null);
         when(photoDAO.save(any())).thenReturn(savedDocument);
 
-        ImageDTO avatarImageDTO = photoService.setAvatar(userId, multipartFile);
+        PhotoDocument avatar = photoService.setAvatar(userId, multipartFile);
 
-        String expectedData = Base64.getEncoder().encodeToString(multipartFile.getBytes());
-        assertThat(avatarImageDTO.getData()).isEqualTo(expectedData);
-        assertThat(avatarImageDTO.getFormat()).isEqualTo(MediaType.IMAGE_PNG_VALUE);
+        assertThat(avatar.getImage().getData().getData()).isEqualTo(multipartFile.getBytes());
+        assertThat(avatar.getImage().getFormat()).isEqualTo(MediaType.IMAGE_PNG_VALUE);
+        assertThat(avatar.getUserId()).isEqualTo(userId);
     }
 }

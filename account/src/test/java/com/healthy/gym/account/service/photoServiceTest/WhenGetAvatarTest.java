@@ -6,7 +6,6 @@ import com.healthy.gym.account.data.repository.UserDAO;
 import com.healthy.gym.account.exception.UserAvatarNotFoundException;
 import com.healthy.gym.account.pojo.Image;
 import com.healthy.gym.account.service.PhotoService;
-import com.healthy.gym.account.shared.ImageDTO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,7 +14,6 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 
 import java.nio.charset.StandardCharsets;
-import java.util.Base64;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -55,10 +53,8 @@ class WhenGetAvatarTest {
     @Test
     void shouldReturnAvatarWhenProvidedUserIdValid() throws UserAvatarNotFoundException {
         when(photoDAO.findByUserId(userId)).thenReturn(photoDocument);
-        ImageDTO imageDTO = photoService.getAvatar(userId);
+        byte[] avatar = photoService.getAvatar(userId);
 
-        String expectedData = Base64.getEncoder().encodeToString("testData".getBytes(StandardCharsets.UTF_8));
-        assertThat(imageDTO.getFormat()).isEqualTo(MediaType.IMAGE_JPEG_VALUE);
-        assertThat(imageDTO.getData()).isEqualTo(expectedData);
+        assertThat(avatar).isEqualTo("testData".getBytes(StandardCharsets.UTF_8));
     }
 }

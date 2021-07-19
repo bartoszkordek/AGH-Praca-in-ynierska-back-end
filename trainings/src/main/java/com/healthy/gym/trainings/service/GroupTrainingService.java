@@ -1,6 +1,5 @@
 package com.healthy.gym.trainings.service;
 
-import com.healthy.gym.trainings.data.document.GroupTrainings;
 import com.healthy.gym.trainings.exception.*;
 import com.healthy.gym.trainings.model.request.GroupTrainingRequest;
 import com.healthy.gym.trainings.model.response.GroupTrainingPublicResponse;
@@ -18,6 +17,10 @@ public interface GroupTrainingService {
 
     GroupTrainingResponse getGroupTrainingById(String trainingId)
             throws NotExistingGroupTrainingException, InvalidHourException, InvalidDateException;
+
+    List<GroupTrainingResponse> getGroupTrainingsByType(String trainingTypeId, String startDate, String endDate) throws NotExistingGroupTrainingException, InvalidDateException, InvalidHourException, StartDateAfterEndDateException, ParseException, TrainingTypeNotFoundException;
+
+    List<GroupTrainingPublicResponse> getGroupTrainingsPublicByType(String trainingTypeId, String startDate, String endDate) throws TrainingTypeNotFoundException, NotExistingGroupTrainingException, InvalidDateException, InvalidHourException, StartDateAfterEndDateException, ParseException;
 
     List<GroupTrainingPublicResponse> getMyAllTrainings(String clientId) throws InvalidHourException, InvalidDateException;
 

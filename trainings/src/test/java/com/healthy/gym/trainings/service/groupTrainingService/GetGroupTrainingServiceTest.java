@@ -2,10 +2,8 @@ package com.healthy.gym.trainings.service.groupTrainingService;
 
 import com.healthy.gym.trainings.configuration.EmailConfig;
 import com.healthy.gym.trainings.data.repository.GroupTrainingsDbRepository;
-import com.healthy.gym.trainings.exception.InvalidDateException;
-import com.healthy.gym.trainings.exception.InvalidHourException;
-import com.healthy.gym.trainings.exception.NotExistingGroupTrainingException;
-import com.healthy.gym.trainings.exception.StartDateAfterEndDateException;
+import com.healthy.gym.trainings.data.repository.TrainingTypeDAO;
+import com.healthy.gym.trainings.exception.*;
 import com.healthy.gym.trainings.model.response.GroupTrainingPublicResponse;
 import com.healthy.gym.trainings.model.response.GroupTrainingResponse;
 import com.healthy.gym.trainings.service.GroupTrainingService;
@@ -35,7 +33,9 @@ public class GetGroupTrainingServiceTest {
         //mocks
         EmailConfig emailConfig = Mockito.mock(EmailConfig.class);
         GroupTrainingsDbRepository groupTrainingsDbRepository = Mockito.mock(GroupTrainingsDbRepository.class);
-        GroupTrainingService groupTrainingService = new GroupTrainingServiceImpl(emailConfig, groupTrainingsDbRepository);
+        TrainingTypeDAO trainingTypeRepository = Mockito.mock(TrainingTypeDAO.class);
+        GroupTrainingService groupTrainingService = new GroupTrainingServiceImpl(emailConfig, groupTrainingsDbRepository,
+                trainingTypeRepository);
 
         //before
         String startDate = "2000-01-01";
@@ -68,7 +68,9 @@ public class GetGroupTrainingServiceTest {
         //mocks
         EmailConfig emailConfig = Mockito.mock(EmailConfig.class);
         GroupTrainingsDbRepository groupTrainingsDbRepository = Mockito.mock(GroupTrainingsDbRepository.class);
-        GroupTrainingService groupTrainingService = new GroupTrainingServiceImpl(emailConfig, groupTrainingsDbRepository);
+        TrainingTypeDAO trainingTypeRepository = Mockito.mock(TrainingTypeDAO.class);
+        GroupTrainingService groupTrainingService = new GroupTrainingServiceImpl(emailConfig, groupTrainingsDbRepository,
+                trainingTypeRepository);
 
         //before
         String startDate = "2000-01-01";
@@ -100,7 +102,9 @@ public class GetGroupTrainingServiceTest {
         //mocks
         EmailConfig emailConfig = Mockito.mock(EmailConfig.class);
         GroupTrainingsDbRepository groupTrainingsDbRepository = Mockito.mock(GroupTrainingsDbRepository.class);
-        GroupTrainingService groupTrainingService = new GroupTrainingServiceImpl(emailConfig, groupTrainingsDbRepository);
+        TrainingTypeDAO trainingTypeRepository = Mockito.mock(TrainingTypeDAO.class);
+        GroupTrainingService groupTrainingService = new GroupTrainingServiceImpl(emailConfig, groupTrainingsDbRepository,
+                trainingTypeRepository);
 
         //before
         String trainingId = "122ed953-e37f-435a-bd1e-9fb2a327c4d3";
@@ -132,7 +136,9 @@ public class GetGroupTrainingServiceTest {
         //mocks
         EmailConfig emailConfig = Mockito.mock(EmailConfig.class);
         GroupTrainingsDbRepository groupTrainingsDbRepository = Mockito.mock(GroupTrainingsDbRepository.class);
-        GroupTrainingService groupTrainingService = new GroupTrainingServiceImpl(emailConfig, groupTrainingsDbRepository);
+        TrainingTypeDAO trainingTypeRepository = Mockito.mock(TrainingTypeDAO.class);
+        GroupTrainingService groupTrainingService = new GroupTrainingServiceImpl(emailConfig, groupTrainingsDbRepository,
+                trainingTypeRepository);
 
         //before
         String invalidTrainingId = "122ed953-e37f-435a-bd1e-9fb2a327c4d3";
@@ -149,7 +155,9 @@ public class GetGroupTrainingServiceTest {
         //mocks
         EmailConfig emailConfig = Mockito.mock(EmailConfig.class);
         GroupTrainingsDbRepository groupTrainingsDbRepository = Mockito.mock(GroupTrainingsDbRepository.class);
-        GroupTrainingService groupTrainingService = new GroupTrainingServiceImpl(emailConfig, groupTrainingsDbRepository);
+        TrainingTypeDAO trainingTypeRepository = Mockito.mock(TrainingTypeDAO.class);
+        GroupTrainingService groupTrainingService = new GroupTrainingServiceImpl(emailConfig, groupTrainingsDbRepository,
+                trainingTypeRepository);
 
         //before
         String trainingId = "122ed953-e37f-435a-bd1e-9fb2a327c4d3";
@@ -172,7 +180,9 @@ public class GetGroupTrainingServiceTest {
         //mocks
         EmailConfig emailConfig = Mockito.mock(EmailConfig.class);
         GroupTrainingsDbRepository groupTrainingsDbRepository = Mockito.mock(GroupTrainingsDbRepository.class);
-        GroupTrainingService groupTrainingService = new GroupTrainingServiceImpl(emailConfig, groupTrainingsDbRepository);
+        TrainingTypeDAO trainingTypeRepository = Mockito.mock(TrainingTypeDAO.class);
+        GroupTrainingService groupTrainingService = new GroupTrainingServiceImpl(emailConfig, groupTrainingsDbRepository,
+                trainingTypeRepository);
 
         //before
         String invalidTrainingId = "122ed953-e37f-435a-bd1e-9fb2a327c4d3";
@@ -182,6 +192,80 @@ public class GetGroupTrainingServiceTest {
 
         //then
         groupTrainingService.getTrainingParticipants(invalidTrainingId);
+    }
+
+    @Test
+    public void shouldReturnGroupTrainingsByTrainingTypeId_whenValidRequest() throws InvalidDateException, InvalidHourException, ParseException, StartDateAfterEndDateException, NotExistingGroupTrainingException, TrainingTypeNotFoundException {
+        //mocks
+        EmailConfig emailConfig = Mockito.mock(EmailConfig.class);
+        GroupTrainingsDbRepository groupTrainingsDbRepository = Mockito.mock(GroupTrainingsDbRepository.class);
+        TrainingTypeDAO trainingTypeRepository = Mockito.mock(TrainingTypeDAO.class);
+        GroupTrainingService groupTrainingService = new GroupTrainingServiceImpl(emailConfig, groupTrainingsDbRepository,
+                trainingTypeRepository);
+
+        //before
+        String startDate = "2000-01-01";
+        String endDate = "2030-12-31";
+        String trainingId = "122ed953-e37f-435a-bd1e-9fb2a327c4d3";
+        String trainingTypeId = "222ed952-es7f-435a-bd1e-9fb2a327c4dk";
+        String trainerId = "Test Trainer";
+        String date = "2020-07-01";
+        String startTime = "18:00";
+        String endTime = "19:00";
+        int hallNo = 1;
+        int limit = 15;
+        List<String> participants = new ArrayList<>();
+        List<String> reserveList = new ArrayList<>();
+        GroupTrainingResponse groupTraining = new GroupTrainingResponse(trainingId, trainingTypeId, trainerId, date, startTime,
+                endTime, hallNo, limit, participants, reserveList);
+
+        List<GroupTrainingResponse> groupTrainings = new ArrayList<>();
+        groupTrainings.add(groupTraining);
+
+        //when
+        when(trainingTypeRepository.existsByTrainingTypeId(trainingTypeId)).thenReturn(true);
+        when(groupTrainingsDbRepository.isGroupTrainingExistByType(trainingTypeId)).thenReturn(true);
+        when(groupTrainingsDbRepository.getGroupTrainingsByTrainingTypeId(trainingTypeId, startDate, endDate)).thenReturn(groupTrainings);
+
+        //then
+        assertThat(groupTrainingService.getGroupTrainingsByType(trainingTypeId, startDate, endDate)).isEqualTo(groupTrainings);
+    }
+
+    @Test(expected = TrainingTypeNotFoundException.class)
+    public void shouldNotReturnGroupTrainings_whenInvalidTrainingTypeId() throws InvalidDateException, InvalidHourException, StartDateAfterEndDateException, ParseException, NotExistingGroupTrainingException, TrainingTypeNotFoundException {
+        //mocks
+        EmailConfig emailConfig = Mockito.mock(EmailConfig.class);
+        GroupTrainingsDbRepository groupTrainingsDbRepository = Mockito.mock(GroupTrainingsDbRepository.class);
+        TrainingTypeDAO trainingTypeRepository = Mockito.mock(TrainingTypeDAO.class);
+        GroupTrainingService groupTrainingService = new GroupTrainingServiceImpl(emailConfig, groupTrainingsDbRepository,
+                trainingTypeRepository);
+
+        //before
+        String startDate = "2000-01-01";
+        String endDate = "2030-12-31";
+        String trainingId = "122ed953-e37f-435a-bd1e-9fb2a327c4d3";
+        String trainingTypeId = "222ed952-es7f-435a-bd1e-9fb2a327c4dk";
+        String trainerId = "Test Trainer";
+        String date = "2020-07-01";
+        String startTime = "18:00";
+        String endTime = "19:00";
+        int hallNo = 1;
+        int limit = 15;
+        List<String> participants = new ArrayList<>();
+        List<String> reserveList = new ArrayList<>();
+        GroupTrainingResponse groupTraining = new GroupTrainingResponse(trainingId, trainingTypeId, trainerId, date, startTime,
+                endTime, hallNo, limit, participants, reserveList);
+
+        List<GroupTrainingResponse> groupTrainings = new ArrayList<>();
+        groupTrainings.add(groupTraining);
+
+        //when
+        when(trainingTypeRepository.existsByTrainingTypeId(trainingTypeId)).thenReturn(false);
+        when(groupTrainingsDbRepository.isGroupTrainingExistByType(trainingTypeId)).thenReturn(false);
+        when(groupTrainingsDbRepository.getGroupTrainingsByTrainingTypeId(trainingTypeId, startDate, endDate)).thenReturn(groupTrainings);
+
+        //then
+        groupTrainingService.getGroupTrainingsByType(trainingTypeId, startDate, endDate);
     }
 
 }

@@ -3,6 +3,7 @@ package com.healthy.gym.trainings.service;
 import com.healthy.gym.trainings.configuration.EmailConfig;
 import com.healthy.gym.trainings.data.document.GroupTrainings;
 import com.healthy.gym.trainings.data.repository.GroupTrainingsDbRepository;
+import com.healthy.gym.trainings.data.repository.TrainingTypeDAO;
 import com.healthy.gym.trainings.exception.*;
 import com.healthy.gym.trainings.model.other.EmailSendModel;
 import com.healthy.gym.trainings.model.request.GroupTrainingRequest;
@@ -24,14 +25,17 @@ public class GroupTrainingServiceImpl implements GroupTrainingService {
 
     private final EmailConfig emailConfig;
     private final GroupTrainingsDbRepository groupTrainingsDbRepository;
+    private final TrainingTypeDAO trainingTypeRepository;
 
     @Autowired
     public GroupTrainingServiceImpl(
             EmailConfig emailConfig,
-            GroupTrainingsDbRepository groupTrainingsDbRepository
+            GroupTrainingsDbRepository groupTrainingsDbRepository,
+            TrainingTypeDAO trainingTypeRepository
     ) {
         this.emailConfig = emailConfig;
         this.groupTrainingsDbRepository = groupTrainingsDbRepository;
+        this.trainingTypeRepository = trainingTypeRepository;
     }
 
     private void sendEmailWithoutAttachment(List<String> recipients, String subject, String body) {
@@ -103,33 +107,65 @@ public class GroupTrainingServiceImpl implements GroupTrainingService {
         return false;
     }
 
+    @Override
     public List<GroupTrainingResponse> getGroupTrainings(String startDate, String endDate)
             throws InvalidHourException, StartDateAfterEndDateException, ParseException, InvalidDateException {
         return groupTrainingsDbRepository.getGroupTrainings(startDate, endDate);
     }
 
+    @Override
     public List<GroupTrainingPublicResponse> getPublicGroupTrainings(String startDate, String endDate)
             throws InvalidHourException, InvalidDateException, StartDateAfterEndDateException, ParseException {
         return groupTrainingsDbRepository.getPublicGroupTrainings(startDate, endDate);
     }
 
-    public GroupTrainingResponse getGroupTrainingById(String trainingId) throws NotExistingGroupTrainingException, InvalidHourException, InvalidDateException {
+    @Override
+    public GroupTrainingResponse getGroupTrainingById(String trainingId) throws NotExistingGroupTrainingException,
+            InvalidHourException, InvalidDateException {
         if (!groupTrainingsDbRepository.isGroupTrainingExist(trainingId))
             throw new NotExistingGroupTrainingException("Training with ID " + trainingId + " does not exist");
         return groupTrainingsDbRepository.getGroupTrainingById(trainingId);
     }
 
+    @Override
+    public List<GroupTrainingResponse> getGroupTrainingsByType(String trainingTypeId, String startDate, String endDate)
+            throws NotExistingGroupTrainingException, InvalidHourException, StartDateAfterEndDateException,
+            ParseException, InvalidDateException, TrainingTypeNotFoundException {
+        if(!trainingTypeRepository.existsByTrainingTypeId(trainingTypeId)){
+            throw new TrainingTypeNotFoundException("Training type does not exist");
+        }
+        if(!groupTrainingsDbRepository.isGroupTrainingExistByType(trainingTypeId)){
+            throw new NotExistingGroupTrainingException("Trainings with type ID " + trainingTypeId + " does not exist");
+        }
+
+        return groupTrainingsDbRepository.getGroupTrainingsByTrainingTypeId(trainingTypeId, startDate, endDate);
+    }
+
+    @Override
+    public List<GroupTrainingPublicResponse> getGroupTrainingsPublicByType(String trainingTypeId, String startDate, String endDate) throws TrainingTypeNotFoundException, NotExistingGroupTrainingException, InvalidDateException, InvalidHourException, StartDateAfterEndDateException, ParseException {
+        if(!trainingTypeRepository.existsByTrainingTypeId(trainingTypeId)){
+            throw new TrainingTypeNotFoundException("Training type does not exist");
+        }
+        if(!groupTrainingsDbRepository.isGroupTrainingExistByType(trainingTypeId)){
+            throw new NotExistingGroupTrainingException("Trainings with type ID " + trainingTypeId + " does not exist");
+        }
+        return groupTrainingsDbRepository.getGroupTrainingsPublicByTrainingTypeId(trainingTypeId, startDate, endDate);
+    }
+
+    @Override
     public List<GroupTrainingPublicResponse> getMyAllTrainings(String clientId) throws InvalidHourException, InvalidDateException {
         //add if Client Exists validation
         return groupTrainingsDbRepository.getMyAllGroupTrainings(clientId);
     }
 
+    @Override
     public List<String> getTrainingParticipants(String trainingId) throws NotExistingGroupTrainingException {
         if (!groupTrainingsDbRepository.isGroupTrainingExist(trainingId))
             throw new NotExistingGroupTrainingException("Training with ID " + trainingId + " does not exist");
         return groupTrainingsDbRepository.getTrainingParticipants(trainingId);
     }
 
+    @Override
     public void enrollToGroupTraining(String trainingId, String clientId) throws TrainingEnrollmentException {
         if (!groupTrainingsDbRepository.isAbilityToGroupTrainingEnrollment(trainingId))
             throw new TrainingEnrollmentException("Cannot enroll to this training");
@@ -142,6 +178,7 @@ public class GroupTrainingServiceImpl implements GroupTrainingService {
             groupTrainingsDbRepository.removeFromReserveList(trainingId, clientId);
     }
 
+    @Override
     public void addToReserveList(String trainingId, String clientId)
             throws NotExistingGroupTrainingException, TrainingEnrollmentException {
 
@@ -155,6 +192,7 @@ public class GroupTrainingServiceImpl implements GroupTrainingService {
         groupTrainingsDbRepository.addToReserveList(trainingId, clientId);
     }
 
+    @Override
     public void removeGroupTrainingEnrollment(String trainingId, String clientId)
             throws NotExistingGroupTrainingException, TrainingEnrollmentException {
 
@@ -171,6 +209,7 @@ public class GroupTrainingServiceImpl implements GroupTrainingService {
         }
     }
 
+    @Override
     public GroupTrainingResponse createGroupTraining(GroupTrainingRequest groupTrainingModel)
             throws TrainingCreationException, ParseException, InvalidHourException, InvalidDateException {
 
@@ -210,6 +249,7 @@ public class GroupTrainingServiceImpl implements GroupTrainingService {
         return response;
     }
 
+    @Override
     public GroupTrainingResponse removeGroupTraining(String trainingId)
             throws TrainingRemovalException, EmailSendingException, InvalidDateException, InvalidHourException {
 
@@ -242,6 +282,7 @@ public class GroupTrainingServiceImpl implements GroupTrainingService {
         return response;
     }
 
+    @Override
     public GroupTrainingResponse updateGroupTraining(String trainingId, GroupTrainingRequest groupTrainingModelRequest)
             throws TrainingUpdateException, EmailSendingException, InvalidHourException, ParseException, InvalidDateException {
 

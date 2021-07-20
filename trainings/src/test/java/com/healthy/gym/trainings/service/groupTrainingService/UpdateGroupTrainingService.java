@@ -2,6 +2,7 @@ package com.healthy.gym.trainings.service.groupTrainingService;
 
 import com.healthy.gym.trainings.configuration.EmailConfig;
 import com.healthy.gym.trainings.data.document.GroupTrainings;
+import com.healthy.gym.trainings.data.document.TrainingTypeDocument;
 import com.healthy.gym.trainings.data.repository.GroupTrainingsDbRepository;
 import com.healthy.gym.trainings.data.repository.TrainingTypeDAO;
 import com.healthy.gym.trainings.exception.*;
@@ -17,6 +18,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.text.ParseException;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -57,15 +59,23 @@ public class UpdateGroupTrainingService {
         GroupTrainingRequest groupTrainingUpdateRequest = new GroupTrainingRequest(trainingTypeId, trainerId, date,
                 startTimeAfterUpdate, endTimeAfterUpdate, hallNoAfterUpdate, limitAfterUpdate, participants,
                 reserveList);
-        GroupTrainings groupTrainingBeforeUpdate = new GroupTrainings(trainingId, trainingTypeId, trainerId,
+
+        String trainingName = "Test Training";
+        String trainingDescription = "Sample description";
+        LocalTime trainingDuration = LocalTime.of(1,0,0,0);
+        TrainingTypeDocument trainingType = new TrainingTypeDocument(trainingTypeId, trainingName, trainingDescription,
+                trainingDuration, null);
+
+        GroupTrainings groupTrainingBeforeUpdate = new GroupTrainings(trainingId, trainingType, trainerId,
                 date, startTimeBeforeUpdate, endTimeBeforeUpdate, hallNoBeforeUpdate, limitBeforeUpdate, participants,
                 reserveList);
         groupTrainingBeforeUpdate.setId(id);
-        GroupTrainings groupTrainingAfterUpdate = new GroupTrainings(trainingId, trainingTypeId, trainerId,
+
+        GroupTrainings groupTrainingAfterUpdate = new GroupTrainings(trainingId, trainingType, trainerId,
                 date, startTimeAfterUpdate, endTimeAfterUpdate, hallNoAfterUpdate, limitAfterUpdate, participants,
                 reserveList);
         groupTrainingAfterUpdate.setId(id);
-        GroupTrainingResponse groupTrainingResponseAfterUpdate = new GroupTrainingResponse(trainingId, trainingTypeId,
+        GroupTrainingResponse groupTrainingResponseAfterUpdate = new GroupTrainingResponse(trainingId, trainingName,
                 trainerId, date, startTimeAfterUpdate, endTimeAfterUpdate, hallNoAfterUpdate, limitAfterUpdate,
                 participants, reserveList);
 
@@ -108,15 +118,22 @@ public class UpdateGroupTrainingService {
         GroupTrainingRequest groupTrainingUpdateRequest = new GroupTrainingRequest(trainingTypeId, trainerId, date,
                 startTimeAfterUpdate, endTimeAfterUpdate, hallNoAfterUpdate, limitAfterUpdate, participants,
                 reserveList);
-        GroupTrainings groupTrainingBeforeUpdate = new GroupTrainings(trainingId, trainingTypeId, trainerId,
+
+        String trainingName = "Test Training";
+        String trainingDescription = "Sample description";
+        LocalTime trainingDuration = LocalTime.of(1,0,0,0);
+        TrainingTypeDocument trainingType = new TrainingTypeDocument(trainingTypeId, trainingName, trainingDescription,
+                trainingDuration, null);
+
+        GroupTrainings groupTrainingBeforeUpdate = new GroupTrainings(trainingId, trainingType, trainerId,
                 date, startTimeBeforeUpdate, endTimeBeforeUpdate, hallNoBeforeUpdate, limitBeforeUpdate, participants,
                 reserveList);
         groupTrainingBeforeUpdate.setId(id);
-        GroupTrainings groupTrainingAfterUpdate = new GroupTrainings(trainingId, trainingTypeId, trainerId,
+        GroupTrainings groupTrainingAfterUpdate = new GroupTrainings(trainingId, trainingType, trainerId,
                 date, startTimeAfterUpdate, endTimeAfterUpdate, hallNoAfterUpdate, limitAfterUpdate, participants,
                 reserveList);
         groupTrainingAfterUpdate.setId(id);
-        GroupTrainingResponse groupTrainingResponseAfterUpdate = new GroupTrainingResponse(trainingId, trainingTypeId,
+        GroupTrainingResponse groupTrainingResponseAfterUpdate = new GroupTrainingResponse(trainingId, trainingName,
                 trainerId, date, startTimeAfterUpdate, endTimeAfterUpdate, hallNoAfterUpdate, limitAfterUpdate,
                 participants, reserveList);
 
@@ -158,15 +175,22 @@ public class UpdateGroupTrainingService {
         GroupTrainingRequest groupTrainingUpdateRequest = new GroupTrainingRequest(trainingTypeId, trainerId, date,
                 startTimeAfterUpdate, endTimeAfterUpdate, hallNoAfterUpdate, limitAfterUpdate, participants,
                 reserveList);
-        GroupTrainings groupTrainingBeforeUpdate = new GroupTrainings(trainingId, trainingTypeId, trainerId,
+
+        String trainingName = "Test Training";
+        String trainingDescription = "Sample description";
+        LocalTime trainingDuration = LocalTime.of(1,0,0,0);
+        TrainingTypeDocument trainingType = new TrainingTypeDocument(trainingTypeId, trainingName, trainingDescription,
+                trainingDuration, null);
+
+        GroupTrainings groupTrainingBeforeUpdate = new GroupTrainings(trainingId, trainingType, trainerId,
                 date, startTimeBeforeUpdate, endTimeBeforeUpdate, hallNoBeforeUpdate, limitBeforeUpdate, participants,
                 reserveList);
         groupTrainingBeforeUpdate.setId(id);
-        GroupTrainings groupTrainingAfterUpdate = new GroupTrainings(trainingId, trainingTypeId, trainerId,
+        GroupTrainings groupTrainingAfterUpdate = new GroupTrainings(trainingId, trainingType, trainerId,
                 date, startTimeAfterUpdate, endTimeAfterUpdate, hallNoAfterUpdate, limitAfterUpdate, participants,
                 reserveList);
         groupTrainingAfterUpdate.setId(id);
-        GroupTrainingResponse groupTrainingResponseAfterUpdate = new GroupTrainingResponse(trainingId, trainingTypeId,
+        GroupTrainingResponse groupTrainingResponseAfterUpdate = new GroupTrainingResponse(trainingId, trainingName,
                 trainerId, date, startTimeAfterUpdate, endTimeAfterUpdate, hallNoAfterUpdate, limitAfterUpdate,
                 participants, reserveList);
 

@@ -237,7 +237,7 @@ public class GroupTrainingServiceImpl implements GroupTrainingService {
         GroupTrainings repositoryResponse = groupTrainingsDbRepository.createTraining(groupTrainingModel);
         GroupTrainingResponse response = new GroupTrainingResponse(
                 repositoryResponse.getTrainingId(),
-                repositoryResponse.getTrainingTypeId(),
+                repositoryResponse.getTrainingType().getName(),
                 repositoryResponse.getTrainerId(),
                 repositoryResponse.getDate(),
                 repositoryResponse.getStartTime(),
@@ -270,7 +270,7 @@ public class GroupTrainingServiceImpl implements GroupTrainingService {
 
         GroupTrainingResponse response = new GroupTrainingResponse(
                 repositoryResponse.getTrainingId(),
-                repositoryResponse.getTrainingTypeId(),
+                repositoryResponse.getTrainingType().getName(),
                 repositoryResponse.getTrainerId(),
                 repositoryResponse.getDate(),
                 repositoryResponse.getStartTime(),
@@ -321,7 +321,7 @@ public class GroupTrainingServiceImpl implements GroupTrainingService {
 
         GroupTrainingResponse response = new GroupTrainingResponse(
                 repositoryResponse.getTrainingId(),
-                repositoryResponse.getTrainingTypeId(),
+                repositoryResponse.getTrainingType().getName(),
                 repositoryResponse.getTrainerId(),
                 repositoryResponse.getDate(),
                 repositoryResponse.getStartTime(),

@@ -15,7 +15,7 @@ public class GroupTrainingPublicResponse {
     @NotNull
     private String trainingId;
     @NotNull
-    private String trainingTypeId;
+    private String trainingName;
     @NotNull
     private String trainerId;
     @NotNull
@@ -32,7 +32,7 @@ public class GroupTrainingPublicResponse {
 
     public GroupTrainingPublicResponse(
             @JsonProperty("trainingId") String  trainingId,
-            @JsonProperty("trainingTypeId") String trainingTypeId,
+            @JsonProperty("trainingName") String trainingName,
             @JsonProperty("trainerId") String trainerId,
             @JsonProperty("date") String date,
             @JsonProperty("startTime") String startTime,
@@ -44,7 +44,7 @@ public class GroupTrainingPublicResponse {
         DateValidator dateValidator = new DateValidator();
         Time24HoursValidator time24HoursValidator = new Time24HoursValidator();
         this.trainingId = trainingId;
-        this.trainingTypeId = trainingTypeId;
+        this.trainingName = trainingName;
         this.trainerId = trainerId;
         if (dateValidator.validate(date)) {
             this.date = date;
@@ -69,7 +69,7 @@ public class GroupTrainingPublicResponse {
     public String toString() {
         return "GroupTrainingPublicResponse{" +
                 "trainingId='" + trainingId + '\'' +
-                ", trainingTypeId='" + trainingTypeId + '\'' +
+                ", trainingName='" + trainingName + '\'' +
                 ", trainerId='" + trainerId + '\'' +
                 ", date='" + date + '\'' +
                 ", startTime='" + startTime + '\'' +
@@ -87,7 +87,7 @@ public class GroupTrainingPublicResponse {
         return hallNo == that.hallNo &&
                 limit == that.limit &&
                 Objects.equals(trainingId, that.trainingId) &&
-                Objects.equals(trainingTypeId, that.trainingTypeId) &&
+                Objects.equals(trainingName, that.trainingName) &&
                 Objects.equals(trainerId, that.trainerId) &&
                 Objects.equals(date, that.date) &&
                 Objects.equals(startTime, that.startTime) &&
@@ -96,13 +96,13 @@ public class GroupTrainingPublicResponse {
 
     @Override
     public int hashCode() {
-        return Objects.hash(trainingId, trainingTypeId, trainerId, date, startTime, endTime, hallNo, limit);
+        return Objects.hash(trainingId, trainingName, trainerId, date, startTime, endTime, hallNo, limit);
     }
 
     public String getTrainingId() { return trainingId; }
 
-    public String getTrainingTypeId() {
-        return trainingTypeId;
+    public String getTrainingName() {
+        return trainingName;
     }
 
     public String getTrainerId() {

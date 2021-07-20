@@ -2,6 +2,7 @@ package com.healthy.gym.trainings.service.groupTrainingService;
 
 import com.healthy.gym.trainings.configuration.EmailConfig;
 import com.healthy.gym.trainings.data.document.GroupTrainings;
+import com.healthy.gym.trainings.data.document.TrainingTypeDocument;
 import com.healthy.gym.trainings.data.repository.GroupTrainingsDbRepository;
 import com.healthy.gym.trainings.data.repository.TrainingTypeDAO;
 import com.healthy.gym.trainings.exception.EmailSendingException;
@@ -19,6 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -52,10 +54,18 @@ public class RemoveGroupTrainingService {
         int limit = 15;
         List<String> participants = new ArrayList<>();
         List<String> reserveList = new ArrayList<>();
-        GroupTrainings groupTraining = new GroupTrainings(trainingId, trainingTypeId, trainerId,
+
+        String trainingName = "Test Training";
+        String trainingDescription = "Sample description";
+        LocalTime trainingDuration = LocalTime.of(1,0,0,0);
+        TrainingTypeDocument trainingType = new TrainingTypeDocument(trainingTypeId, trainingName, trainingDescription,
+                trainingDuration, null);
+
+        GroupTrainings groupTraining = new GroupTrainings(trainingId, trainingType, trainerId,
                 date, startTime, endTime, hallNo, limit, participants, reserveList);
         groupTraining.setId(id);
-        GroupTrainingResponse groupTrainingResponse = new GroupTrainingResponse(trainingId, trainingTypeId, trainerId,
+
+        GroupTrainingResponse groupTrainingResponse = new GroupTrainingResponse(trainingId, trainingName, trainerId,
                 date, startTime,
                 endTime, hallNo, limit, participants, reserveList);
 
@@ -90,12 +100,18 @@ public class RemoveGroupTrainingService {
         List<String> reserveList = new ArrayList<>();
         GroupTrainingRequest groupTrainingRequest = new GroupTrainingRequest(trainingTypeId, trainerId, date, startTime,
                 endTime, hallNo, limit, participants, reserveList);
-        GroupTrainings groupTraining = new GroupTrainings(trainingId, trainingTypeId, trainerId,
+
+        String trainingName = "Test Training";
+        String trainingDescription = "Sample description";
+        LocalTime trainingDuration = LocalTime.of(1,0,0,0);
+        TrainingTypeDocument trainingType = new TrainingTypeDocument(trainingTypeId, trainingName, trainingDescription,
+                trainingDuration, null);
+
+        GroupTrainings groupTraining = new GroupTrainings(trainingId, trainingType, trainerId,
                 date, startTime, endTime, hallNo, limit, participants, reserveList);
         groupTraining.setId(id);
-        GroupTrainingResponse groupTrainingResponse = new GroupTrainingResponse(trainingId, trainingTypeId, trainerId,
-                date, startTime,
-                endTime, hallNo, limit, participants, reserveList);
+        GroupTrainingResponse groupTrainingResponse = new GroupTrainingResponse(trainingId, trainingName, trainerId,
+                date, startTime, endTime, hallNo, limit, participants, reserveList);
 
         //when
         when(groupTrainingsDbRepository.isGroupTrainingExist(trainingId)).thenReturn(false);

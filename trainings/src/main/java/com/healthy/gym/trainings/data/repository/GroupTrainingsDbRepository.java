@@ -2,6 +2,7 @@ package com.healthy.gym.trainings.data.repository;
 
 import com.healthy.gym.trainings.configuration.MongoConfig;
 import com.healthy.gym.trainings.data.document.GroupTrainings;
+import com.healthy.gym.trainings.data.document.TrainingTypeDocument;
 import com.healthy.gym.trainings.exception.InvalidDateException;
 import com.healthy.gym.trainings.exception.InvalidHourException;
 import com.healthy.gym.trainings.exception.StartDateAfterEndDateException;
@@ -30,6 +31,7 @@ public class GroupTrainingsDbRepository {
 
     @Autowired
     private GroupTrainingsRepository groupTrainingsRepository;
+    private TrainingTypeDAO trainingTypeRepository;
 
     @Autowired
     private MongoTemplate mongoTemplate;
@@ -68,7 +70,7 @@ public class GroupTrainingsDbRepository {
         List<GroupTrainingResponse> result = new ArrayList<>();
         for(GroupTrainings training : dbResponse){
             GroupTrainingResponse groupTraining = new GroupTrainingResponse(training.getTrainingId(),
-                    training.getTrainingTypeId(),
+                    training.getTrainingType().getName(),
                     training.getTrainerId(),
                     training.getDate(),
                     training.getStartTime(),
@@ -107,7 +109,7 @@ public class GroupTrainingsDbRepository {
 
         for(GroupTrainings groupTraining : groupTrainings){
             publicResponse.add(new GroupTrainingPublicResponse(groupTraining.getTrainingId(),
-                    groupTraining.getTrainingTypeId(),
+                    groupTraining.getTrainingType().getName(),
                     groupTraining.getTrainerId(),
                     groupTraining.getDate(),
                     groupTraining.getStartTime(),
@@ -122,7 +124,7 @@ public class GroupTrainingsDbRepository {
     public GroupTrainingResponse getGroupTrainingById(String trainingId) throws InvalidHourException, InvalidDateException {
         GroupTrainings dbResponse = groupTrainingsRepository.findFirstByTrainingId(trainingId);
         GroupTrainingResponse result = new GroupTrainingResponse(dbResponse.getTrainingId(),
-                dbResponse.getTrainingTypeId(),
+                dbResponse.getTrainingType().getName(),
                 dbResponse.getTrainerId(),
                 dbResponse.getDate(),
                 dbResponse.getStartTime(),
@@ -158,7 +160,7 @@ public class GroupTrainingsDbRepository {
         List<GroupTrainingResponse> result = new ArrayList<>();
         for(GroupTrainings training : dbResponse){
             GroupTrainingResponse groupTraining = new GroupTrainingResponse(training.getTrainingId(),
-                    training.getTrainingTypeId(),
+                    training.getTrainingType().getName(),
                     training.getTrainerId(),
                     training.getDate(),
                     training.getStartTime(),
@@ -196,7 +198,7 @@ public class GroupTrainingsDbRepository {
         List<GroupTrainingPublicResponse> result = new ArrayList<>();
         for(GroupTrainings training : dbResponse){
             GroupTrainingPublicResponse groupTraining = new GroupTrainingPublicResponse(training.getTrainingId(),
-                    training.getTrainingTypeId(),
+                    training.getTrainingType().getName(),
                     training.getTrainerId(),
                     training.getDate(),
                     training.getStartTime(),
@@ -213,7 +215,7 @@ public class GroupTrainingsDbRepository {
         List<GroupTrainings> groupTrainings = groupTrainingsRepository.findGroupTrainingsByParticipantsContains(clientId);
         for(GroupTrainings groupTraining : groupTrainings){
             publicResponse.add(new GroupTrainingPublicResponse(groupTraining.getTrainingId(),
-                    groupTraining.getTrainingTypeId(),
+                    groupTraining.getTrainingType().getName(),
                     groupTraining.getTrainerId(),
                     groupTraining.getDate(),
                     groupTraining.getStartTime(),
@@ -387,8 +389,10 @@ public class GroupTrainingsDbRepository {
 
     public GroupTrainings createTraining(GroupTrainingRequest groupTrainingModel) throws InvalidHourException {
         String trainingId = UUID.randomUUID().toString();
+        TrainingTypeDocument trainingType = trainingTypeRepository.findByTrainingTypeId(
+                groupTrainingModel.getTrainingTypeId());
         GroupTrainings response = groupTrainingsRepository.insert(new GroupTrainings(trainingId,
-                groupTrainingModel.getTrainingTypeId(),
+                trainingType,
                 groupTrainingModel.getTrainerId(),
                 groupTrainingModel.getDate(),
                 groupTrainingModel.getStartTime(),
@@ -413,7 +417,9 @@ public class GroupTrainingsDbRepository {
         GroupTrainings groupTrainings = null;
         if(ifExistGroupTraining){
             groupTrainings = groupTrainingsRepository.findFirstByTrainingId(trainingId);
-            groupTrainings.setTrainingTypeId(groupTrainingModelRequest.getTrainingTypeId());
+            TrainingTypeDocument trainingType = trainingTypeRepository.findByTrainingTypeId(
+                    groupTrainingModelRequest.getTrainingTypeId());
+            groupTrainings.setTrainingType(trainingType);
             groupTrainings.setTrainerId(groupTrainingModelRequest.getTrainerId());
             groupTrainings.setDate(groupTrainingModelRequest.getDate());
             groupTrainings.setStartTime(groupTrainingModelRequest.getStartTime());

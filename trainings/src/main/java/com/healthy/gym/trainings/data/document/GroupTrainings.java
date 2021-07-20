@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.healthy.gym.trainings.exception.InvalidHourException;
 import com.healthy.gym.trainings.validation.Time24HoursValidator;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.List;
@@ -18,8 +19,10 @@ public class GroupTrainings {
 
     @JsonProperty("trainingId")
     private String trainingId;
-    @JsonProperty("trainingTypeId")
-    private String trainingTypeId;
+
+    @DBRef
+    @JsonProperty("trainingType")
+    private TrainingTypeDocument trainingType;
     @JsonProperty("trainerId")
     private String trainerId;
     @JsonProperty("date")
@@ -41,12 +44,13 @@ public class GroupTrainings {
 
     }
 
-    public GroupTrainings(String trainingId, String trainingTypeId, String trainerId, String date, String startTime,
-                          String endTime, int hallNo, int limit, List<String> participants, List<String> reserveList)
+    public GroupTrainings(String trainingId, TrainingTypeDocument trainingType, String trainerId, String date,
+                          String startTime, String endTime, int hallNo, int limit, List<String> participants,
+                          List<String> reserveList)
             throws InvalidHourException {
         Time24HoursValidator time24HoursValidator = new Time24HoursValidator();
         this.trainingId = trainingId;
-        this.trainingTypeId = trainingTypeId;
+        this.trainingType = trainingType;
         this.trainerId = trainerId;
         this.date = date;
         if(time24HoursValidator.validate(startTime)){
@@ -70,7 +74,7 @@ public class GroupTrainings {
         return "GroupTrainings{" +
                 "id='" + id + '\'' +
                 ", trainingId='" + trainingId + '\'' +
-                ", trainingTypeId='" + trainingTypeId + '\'' +
+                ", trainingType='" + trainingType + '\'' +
                 ", trainerId='" + trainerId + '\'' +
                 ", date='" + date + '\'' +
                 ", startTime='" + startTime + '\'' +
@@ -91,7 +95,7 @@ public class GroupTrainings {
                 limit == that.limit &&
                 Objects.equals(id, that.id) &&
                 Objects.equals(trainingId, that.trainingId) &&
-                Objects.equals(trainingTypeId, that.trainingTypeId) &&
+                Objects.equals(trainingType, that.trainingType) &&
                 Objects.equals(trainerId, that.trainerId) &&
                 Objects.equals(date, that.date) &&
                 Objects.equals(startTime, that.startTime) &&
@@ -102,7 +106,7 @@ public class GroupTrainings {
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, trainingId, trainingTypeId, trainerId, date, startTime, endTime, hallNo, limit, participants, reserveList);
+        return Objects.hash(id, trainingId, trainingType, trainerId, date, startTime, endTime, hallNo, limit, participants, reserveList);
     }
 
     public String getId() {
@@ -111,8 +115,8 @@ public class GroupTrainings {
 
     public String getTrainingId() { return trainingId; }
 
-    public String getTrainingTypeId() {
-        return trainingTypeId;
+    public TrainingTypeDocument getTrainingType() {
+        return trainingType;
     }
 
     public String getTrainerId() {
@@ -153,8 +157,8 @@ public class GroupTrainings {
 
     public void setTrainingId(String trainingId) { this.trainingId = trainingId; }
 
-    public void setTrainingTypeId(String trainingTypeId) {
-        this.trainingTypeId = trainingTypeId;
+    public void setTrainingType(TrainingTypeDocument trainingType) {
+        this.trainingType = trainingType;
     }
 
     public void setTrainerId(String trainerId) {

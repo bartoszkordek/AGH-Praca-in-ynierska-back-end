@@ -443,11 +443,21 @@ public class GroupTrainingsDbRepository {
     }
 
     public boolean isClientAlreadyEnrolledToGroupTraining(String trainingId, String clientId){
-        return groupTrainingsRepository.getFirstByTrainingId(trainingId).getParticipants().contains(clientId);
+        List<UserDocument> participantsUsers = groupTrainingsRepository.getFirstByTrainingId(trainingId).getParticipants();
+        List<String> usersIds = new ArrayList<>();
+        for(UserDocument userDocument : participantsUsers){
+            usersIds.add(userDocument.getUserId());
+        }
+        return usersIds.contains(clientId);
     }
 
     public boolean isClientAlreadyExistInReserveList(String trainingId, String clientId){
-        return groupTrainingsRepository.getFirstByTrainingId(trainingId).getReserveList().contains(clientId);
+        List<UserDocument> reserveListUsers = groupTrainingsRepository.getFirstByTrainingId(trainingId).getReserveList();
+        List<String> usersIds = new ArrayList<>();
+        for(UserDocument userDocument : reserveListUsers){
+            usersIds.add(userDocument.getUserId());
+        }
+        return usersIds.contains(clientId);
     }
 
     public void enrollToGroupTraining(String trainingId, String clientId){

@@ -3,12 +3,14 @@ package com.healthy.gym.trainings.data.repository;
 import com.healthy.gym.trainings.configuration.MongoConfig;
 import com.healthy.gym.trainings.data.document.GroupTrainings;
 import com.healthy.gym.trainings.data.document.TrainingTypeDocument;
+import com.healthy.gym.trainings.data.document.UserDocument;
 import com.healthy.gym.trainings.exception.InvalidDateException;
 import com.healthy.gym.trainings.exception.InvalidHourException;
 import com.healthy.gym.trainings.exception.StartDateAfterEndDateException;
 import com.healthy.gym.trainings.model.request.GroupTrainingRequest;
 import com.healthy.gym.trainings.model.response.GroupTrainingPublicResponse;
 import com.healthy.gym.trainings.model.response.GroupTrainingResponse;
+import com.healthy.gym.trainings.model.response.ParticipantsResponse;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoCollection;
@@ -31,7 +33,12 @@ public class GroupTrainingsDbRepository {
 
     @Autowired
     private GroupTrainingsRepository groupTrainingsRepository;
+
+    @Autowired
     private TrainingTypeDAO trainingTypeRepository;
+
+    @Autowired
+    private UserDAO userRepository;
 
     @Autowired
     private MongoTemplate mongoTemplate;
@@ -65,10 +72,28 @@ public class GroupTrainingsDbRepository {
         String startDateMinusOneDayFormatted = sdfDate.format(startDateMinusOneDay);
         String endDatePlusOneDayFormatted = sdfDate.format(endDatePlusOneDay);
 
-        List<GroupTrainings> dbResponse = groupTrainingsRepository.findByDateBetween(startDateMinusOneDayFormatted,
+        List<GroupTrainings> groupTrainingsDbResponse = groupTrainingsRepository.findByDateBetween(startDateMinusOneDayFormatted,
                 endDatePlusOneDayFormatted);
+
         List<GroupTrainingResponse> result = new ArrayList<>();
-        for(GroupTrainings training : dbResponse){
+        for(GroupTrainings training : groupTrainingsDbResponse){
+
+            List<UserDocument> participants = training.getParticipants();
+            List<ParticipantsResponse> participantsResponses = new ArrayList<>();
+            for(UserDocument userDocument : participants){
+                ParticipantsResponse participantsResponse = new ParticipantsResponse(userDocument.getUserId(),
+                        userDocument.getName(), userDocument.getSurname());
+                participantsResponses.add(participantsResponse);
+            }
+
+            List<UserDocument> reserveList = training.getReserveList();
+            List<ParticipantsResponse> reserveListResponses = new ArrayList<>();
+            for(UserDocument userDocument : reserveList){
+                ParticipantsResponse reserveListResponse = new ParticipantsResponse(userDocument.getUserId(),
+                        userDocument.getName(), userDocument.getSurname());
+                reserveListResponses.add(reserveListResponse);
+            }
+
             GroupTrainingResponse groupTraining = new GroupTrainingResponse(training.getTrainingId(),
                     training.getTrainingType().getName(),
                     training.getTrainerId(),
@@ -77,8 +102,8 @@ public class GroupTrainingsDbRepository {
                     training.getEndTime(),
                     training.getHallNo(),
                     training.getLimit(),
-                    training.getParticipants(),
-                    training.getReserveList());
+                    participantsResponses,
+                    reserveListResponses);
             result.add(groupTraining);
         }
         return result;
@@ -122,17 +147,34 @@ public class GroupTrainingsDbRepository {
     }
 
     public GroupTrainingResponse getGroupTrainingById(String trainingId) throws InvalidHourException, InvalidDateException {
-        GroupTrainings dbResponse = groupTrainingsRepository.findFirstByTrainingId(trainingId);
-        GroupTrainingResponse result = new GroupTrainingResponse(dbResponse.getTrainingId(),
-                dbResponse.getTrainingType().getName(),
-                dbResponse.getTrainerId(),
-                dbResponse.getDate(),
-                dbResponse.getStartTime(),
-                dbResponse.getEndTime(),
-                dbResponse.getHallNo(),
-                dbResponse.getLimit(),
-                dbResponse.getParticipants(),
-                dbResponse.getReserveList());
+        GroupTrainings groupTrainingsDbResponse = groupTrainingsRepository.findFirstByTrainingId(trainingId);
+
+        List<UserDocument> participants = groupTrainingsDbResponse.getParticipants();
+        List<ParticipantsResponse> participantsResponses = new ArrayList<>();
+        for(UserDocument userDocument : participants){
+            ParticipantsResponse participantsResponse = new ParticipantsResponse(userDocument.getUserId(),
+                    userDocument.getName(), userDocument.getSurname());
+            participantsResponses.add(participantsResponse);
+        }
+
+        List<UserDocument> reserveList = groupTrainingsDbResponse.getReserveList();
+        List<ParticipantsResponse> reserveListResponses = new ArrayList<>();
+        for(UserDocument userDocument : reserveList){
+            ParticipantsResponse reserveListResponse = new ParticipantsResponse(userDocument.getUserId(),
+                    userDocument.getName(), userDocument.getSurname());
+            reserveListResponses.add(reserveListResponse);
+        }
+
+        GroupTrainingResponse result = new GroupTrainingResponse(groupTrainingsDbResponse.getTrainingId(),
+                groupTrainingsDbResponse.getTrainingType().getName(),
+                groupTrainingsDbResponse.getTrainerId(),
+                groupTrainingsDbResponse.getDate(),
+                groupTrainingsDbResponse.getStartTime(),
+                groupTrainingsDbResponse.getEndTime(),
+                groupTrainingsDbResponse.getHallNo(),
+                groupTrainingsDbResponse.getLimit(),
+                participantsResponses,
+                reserveListResponses);
         return result;
     }
 
@@ -154,11 +196,28 @@ public class GroupTrainingsDbRepository {
         String startDateMinusOneDayFormatted = sdfDate.format(startDateMinusOneDay);
         String endDatePlusOneDayFormatted = sdfDate.format(endDatePlusOneDay);
 
-        List<GroupTrainings> dbResponse = groupTrainingsRepository.findAllByTrainingTypeIdAndDateBetween(
+        List<GroupTrainings> groupTrainingsDbResponse = groupTrainingsRepository.findAllByTrainingTypeIdAndDateBetween(
                 trainingTypeId, startDateMinusOneDayFormatted, endDatePlusOneDayFormatted);
 
         List<GroupTrainingResponse> result = new ArrayList<>();
-        for(GroupTrainings training : dbResponse){
+        for(GroupTrainings training : groupTrainingsDbResponse){
+
+            List<ParticipantsResponse> participantsResponses = new ArrayList<>();
+            List<UserDocument> participants = training.getParticipants();
+            for(UserDocument userDocument : participants){
+                ParticipantsResponse participantsResponse = new ParticipantsResponse(userDocument.getUserId(),
+                        userDocument.getName(), userDocument.getSurname());
+                participantsResponses.add(participantsResponse);
+            }
+
+            List<UserDocument> reserveList = training.getReserveList();
+            List<ParticipantsResponse> reserveListResponses = new ArrayList<>();
+            for(UserDocument userDocument : reserveList){
+                ParticipantsResponse reserveListResponse = new ParticipantsResponse(userDocument.getUserId(),
+                        userDocument.getName(), userDocument.getSurname());
+                reserveListResponses.add(reserveListResponse);
+            }
+
             GroupTrainingResponse groupTraining = new GroupTrainingResponse(training.getTrainingId(),
                     training.getTrainingType().getName(),
                     training.getTrainerId(),
@@ -167,8 +226,8 @@ public class GroupTrainingsDbRepository {
                     training.getEndTime(),
                     training.getHallNo(),
                     training.getLimit(),
-                    training.getParticipants(),
-                    training.getReserveList());
+                    participantsResponses,
+                    reserveListResponses);
             result.add(groupTraining);
         }
         return result;
@@ -227,8 +286,17 @@ public class GroupTrainingsDbRepository {
         return publicResponse;
     }
 
-    public List<String> getTrainingParticipants(String trainingId){
-        return groupTrainingsRepository.getFirstByTrainingId(trainingId).getParticipants();
+    public List<ParticipantsResponse> getTrainingParticipants(String trainingId){
+
+        List<ParticipantsResponse> participantsResponses = new ArrayList<>();
+        List<UserDocument> participants = groupTrainingsRepository.getFirstByTrainingId(trainingId).getParticipants();
+        for(UserDocument userDocument : participants){
+            ParticipantsResponse participantsResponse = new ParticipantsResponse(userDocument.getUserId(),
+                    userDocument.getName(), userDocument.getSurname());
+            participantsResponses.add(participantsResponse);
+        }
+
+        return participantsResponses;
     }
 
     public boolean isGroupTrainingExist(String trainingId){
@@ -266,34 +334,38 @@ public class GroupTrainingsDbRepository {
         return groupTrainingsRepository.getFirstByTrainingId(trainingId).getReserveList().contains(clientId);
     }
 
-    public void enrollToGroupTraining(String trainingId, String participantId){
+    public void enrollToGroupTraining(String trainingId, String clientId){
         GroupTrainings groupTrainings = groupTrainingsRepository.findFirstByTrainingId(trainingId);
-        List<String> participants = groupTrainings.getParticipants();
-        participants.add(participantId);
+        UserDocument newParticipant = userRepository.findByUserId(clientId);
+        List<UserDocument> participants = groupTrainings.getParticipants();
+        participants.add(newParticipant);
         groupTrainings.setParticipants(participants);
         groupTrainingsRepository.save(groupTrainings);
     }
 
     public void addToReserveList(String trainingId, String clientId){
         GroupTrainings groupTrainings = groupTrainingsRepository.findFirstByTrainingId(trainingId);
-        List<String> reserveList = groupTrainings.getReserveList();
-        reserveList.add(clientId);
+        UserDocument newReserveListParticipant = userRepository.findByUserId(clientId);
+        List<UserDocument> reserveList = groupTrainings.getReserveList();
+        reserveList.add(newReserveListParticipant);
         groupTrainings.setReserveList(reserveList);
         groupTrainingsRepository.save(groupTrainings);
     }
 
-    public void removeFromParticipants(String trainingId, String participantId){
+    public void removeFromParticipants(String trainingId, String clientId){
         GroupTrainings groupTrainings = groupTrainingsRepository.findFirstByTrainingId(trainingId);
-        List<String> participants = groupTrainings.getParticipants();
-        participants.remove(participantId);
+        UserDocument participantToRemove = userRepository.findByUserId(clientId);
+        List<UserDocument> participants = groupTrainings.getParticipants();
+        participants.remove(participantToRemove);
         groupTrainings.setParticipants(participants);
         groupTrainingsRepository.save(groupTrainings);
     }
 
     public void removeFromReserveList(String trainingId, String clientId){
         GroupTrainings groupTrainings = groupTrainingsRepository.findFirstByTrainingId(trainingId);
-        List<String> reserveList = groupTrainings.getReserveList();
-        reserveList.remove(clientId);
+        UserDocument reserveListParticipantToRemove = userRepository.findByUserId(clientId);
+        List<UserDocument> reserveList = groupTrainings.getReserveList();
+        reserveList.remove(reserveListParticipantToRemove);
         groupTrainings.setReserveList(reserveList);
         groupTrainingsRepository.save(groupTrainings);
     }
@@ -391,6 +463,21 @@ public class GroupTrainingsDbRepository {
         String trainingId = UUID.randomUUID().toString();
         TrainingTypeDocument trainingType = trainingTypeRepository.findByTrainingTypeId(
                 groupTrainingModel.getTrainingTypeId());
+
+        List<String> participantsIds = groupTrainingModel.getParticipants();
+        List<UserDocument> participants = new ArrayList<>();
+        for(String participantId : participantsIds){
+            UserDocument participant = userRepository.findByUserId(participantId);
+            participants.add(participant);
+        }
+
+        List<String> reserveListParticipantsIds = groupTrainingModel.getReserveList();
+        List<UserDocument> reserveList = new ArrayList<>();
+        for(String reserveListParticipantId : reserveListParticipantsIds){
+            UserDocument reserveListParticipant = userRepository.findByUserId(reserveListParticipantId);
+            reserveList.add(reserveListParticipant);
+        }
+
         GroupTrainings response = groupTrainingsRepository.insert(new GroupTrainings(trainingId,
                 trainingType,
                 groupTrainingModel.getTrainerId(),
@@ -399,8 +486,8 @@ public class GroupTrainingsDbRepository {
                 groupTrainingModel.getEndTime(),
                 groupTrainingModel.getHallNo(),
                 groupTrainingModel.getLimit(),
-                groupTrainingModel.getParticipants(),
-                groupTrainingModel.getReserveList()
+                participants,
+                reserveList
         ));
         return response;
     }

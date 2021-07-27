@@ -2,6 +2,7 @@ package com.healthy.gym.trainings.service;
 
 import com.healthy.gym.trainings.configuration.EmailConfig;
 import com.healthy.gym.trainings.data.document.GroupTrainings;
+import com.healthy.gym.trainings.data.document.UserDocument;
 import com.healthy.gym.trainings.data.repository.GroupTrainingsDbRepository;
 import com.healthy.gym.trainings.data.repository.TrainingTypeDAO;
 import com.healthy.gym.trainings.exception.*;
@@ -9,6 +10,7 @@ import com.healthy.gym.trainings.model.other.EmailSendModel;
 import com.healthy.gym.trainings.model.request.GroupTrainingRequest;
 import com.healthy.gym.trainings.model.response.GroupTrainingPublicResponse;
 import com.healthy.gym.trainings.model.response.GroupTrainingResponse;
+import com.healthy.gym.trainings.model.response.ParticipantsResponse;
 import com.healthy.gym.trainings.service.email.EmailService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -17,6 +19,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.Duration;
 import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -159,7 +162,7 @@ public class GroupTrainingServiceImpl implements GroupTrainingService {
     }
 
     @Override
-    public List<String> getTrainingParticipants(String trainingId) throws NotExistingGroupTrainingException {
+    public List<ParticipantsResponse> getTrainingParticipants(String trainingId) throws NotExistingGroupTrainingException {
         if (!groupTrainingsDbRepository.isGroupTrainingExist(trainingId))
             throw new NotExistingGroupTrainingException("Training with ID " + trainingId + " does not exist");
         return groupTrainingsDbRepository.getTrainingParticipants(trainingId);
@@ -235,6 +238,25 @@ public class GroupTrainingServiceImpl implements GroupTrainingService {
             throw new TrainingCreationException("Cannot create new group training. Overlapping trainings.");
 
         GroupTrainings repositoryResponse = groupTrainingsDbRepository.createTraining(groupTrainingModel);
+
+        List<UserDocument> participants = repositoryResponse.getParticipants();
+        List<ParticipantsResponse> participantsResponses = new ArrayList<>();
+        for(UserDocument participant : participants){
+            ParticipantsResponse participantsResponse = new ParticipantsResponse(participant.getUserId(),
+                    participant.getName(), participant.getSurname());
+            participantsResponses.add(participantsResponse);
+        }
+
+        List<UserDocument> reserveList = repositoryResponse.getReserveList();
+        List<ParticipantsResponse> reserveListResponses = new ArrayList<>();
+        for(UserDocument reserveListParticipant : reserveList){
+            ParticipantsResponse reserveListParticipantsResponse = new ParticipantsResponse(
+                    reserveListParticipant.getUserId(),
+                    reserveListParticipant.getName(),
+                    reserveListParticipant.getSurname());
+            reserveListResponses.add(reserveListParticipantsResponse);
+        }
+
         GroupTrainingResponse response = new GroupTrainingResponse(
                 repositoryResponse.getTrainingId(),
                 repositoryResponse.getTrainingType().getName(),
@@ -244,8 +266,8 @@ public class GroupTrainingServiceImpl implements GroupTrainingService {
                 repositoryResponse.getEndTime(),
                 repositoryResponse.getHallNo(),
                 repositoryResponse.getLimit(),
-                repositoryResponse.getParticipants(),
-                repositoryResponse.getReserveList());
+                participantsResponses,
+                reserveListResponses);
         return response;
     }
 
@@ -257,8 +279,25 @@ public class GroupTrainingServiceImpl implements GroupTrainingService {
             throw new TrainingRemovalException("Training with ID: " + trainingId + " doesn't exist");
 
         GroupTrainings repositoryResponse = groupTrainingsDbRepository.removeTraining(trainingId);
+        List<UserDocument> participants = repositoryResponse.getParticipants();
+        List<ParticipantsResponse> participantsResponses = new ArrayList<>();
+        List<String> toEmails = new ArrayList<>();
+        for(UserDocument document : participants){
+            ParticipantsResponse participantsResponse = new ParticipantsResponse(document.getUserId(),
+                    document.getName(),document.getSurname());
+            participantsResponses.add(participantsResponse);
+            String email = document.getEmail();
+            toEmails.add(email);
+        }
 
-        List<String> toEmails = repositoryResponse.getParticipants();
+        List<UserDocument> reserveList = repositoryResponse.getReserveList();
+        List<ParticipantsResponse> reserveListResponses = new ArrayList<>();
+        for(UserDocument document : reserveList){
+            ParticipantsResponse reserveListResponse = new ParticipantsResponse(document.getUserId(),
+                    document.getName(), document.getSurname());
+            reserveListResponses.add(reserveListResponse);
+        }
+
         String subject = "Training has been deleted";
         String body = "Training " + repositoryResponse.getTrainingId() + " on " + repositoryResponse.getDate() + " at "
                 + repositoryResponse.getStartTime() + " with " + repositoryResponse.getTrainerId() + " has been deleted.";
@@ -277,8 +316,8 @@ public class GroupTrainingServiceImpl implements GroupTrainingService {
                 repositoryResponse.getEndTime(),
                 repositoryResponse.getHallNo(),
                 repositoryResponse.getLimit(),
-                repositoryResponse.getParticipants(),
-                repositoryResponse.getReserveList());
+                participantsResponses,
+                reserveListResponses);
         return response;
     }
 
@@ -309,7 +348,25 @@ public class GroupTrainingServiceImpl implements GroupTrainingService {
 
         GroupTrainings repositoryResponse = groupTrainingsDbRepository.updateTraining(trainingId, groupTrainingModelRequest);
 
-        List<String> toEmails = repositoryResponse.getParticipants();
+        List<UserDocument> participants = repositoryResponse.getParticipants();
+        List<ParticipantsResponse> participantsResponses = new ArrayList<>();
+        List<String> toEmails = new ArrayList<>();
+        for(UserDocument document : participants){
+            ParticipantsResponse participantsResponse = new ParticipantsResponse(document.getUserId(),
+                    document.getName(),document.getSurname());
+            participantsResponses.add(participantsResponse);
+            String email = document.getEmail();
+            toEmails.add(email);
+        }
+
+        List<UserDocument> reserveList = repositoryResponse.getReserveList();
+        List<ParticipantsResponse> reserveListResponses = new ArrayList<>();
+        for(UserDocument document : reserveList){
+            ParticipantsResponse reserveListResponse = new ParticipantsResponse(document.getUserId(),
+                    document.getName(), document.getSurname());
+            reserveListResponses.add(reserveListResponse);
+        }
+
         String subject = "Training has been updated";
         String body = "Training " + repositoryResponse.getTrainingId() + " on " + repositoryResponse.getDate() + " at "
                 + repositoryResponse.getStartTime() + " with " + repositoryResponse.getTrainerId() + " has been updated.";
@@ -328,8 +385,8 @@ public class GroupTrainingServiceImpl implements GroupTrainingService {
                 repositoryResponse.getEndTime(),
                 repositoryResponse.getHallNo(),
                 repositoryResponse.getLimit(),
-                repositoryResponse.getParticipants(),
-                repositoryResponse.getReserveList());
+                participantsResponses,
+                reserveListResponses);
         return response;
     }
 

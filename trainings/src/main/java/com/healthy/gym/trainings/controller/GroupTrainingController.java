@@ -6,6 +6,7 @@ import com.healthy.gym.trainings.exception.*;
 import com.healthy.gym.trainings.model.request.GroupTrainingRequest;
 import com.healthy.gym.trainings.model.response.GroupTrainingPublicResponse;
 import com.healthy.gym.trainings.model.response.GroupTrainingResponse;
+import com.healthy.gym.trainings.model.response.ParticipantsResponse;
 import com.healthy.gym.trainings.service.GroupTrainingService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -159,7 +160,7 @@ public class GroupTrainingController {
     }
 
     @GetMapping("/{trainingId}/participants")
-    public List<String> getTrainingParticipants(@PathVariable("trainingId") final String trainingId) {
+    public List<ParticipantsResponse> getTrainingParticipants(@PathVariable("trainingId") final String trainingId) {
         try {
             return groupTrainingsService.getTrainingParticipants(trainingId);
         } catch (NotExistingGroupTrainingException e) {

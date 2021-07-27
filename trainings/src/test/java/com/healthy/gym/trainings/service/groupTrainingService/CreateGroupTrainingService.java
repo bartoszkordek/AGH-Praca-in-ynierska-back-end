@@ -3,6 +3,7 @@ package com.healthy.gym.trainings.service.groupTrainingService;
 import com.healthy.gym.trainings.configuration.EmailConfig;
 import com.healthy.gym.trainings.data.document.GroupTrainings;
 import com.healthy.gym.trainings.data.document.TrainingTypeDocument;
+import com.healthy.gym.trainings.data.document.UserDocument;
 import com.healthy.gym.trainings.data.repository.GroupTrainingsDbRepository;
 import com.healthy.gym.trainings.data.repository.TrainingTypeDAO;
 import com.healthy.gym.trainings.exception.InvalidDateException;
@@ -10,6 +11,7 @@ import com.healthy.gym.trainings.exception.InvalidHourException;
 import com.healthy.gym.trainings.exception.TrainingCreationException;
 import com.healthy.gym.trainings.model.request.GroupTrainingRequest;
 import com.healthy.gym.trainings.model.response.GroupTrainingResponse;
+import com.healthy.gym.trainings.model.response.ParticipantsResponse;
 import com.healthy.gym.trainings.service.GroupTrainingService;
 import com.healthy.gym.trainings.service.GroupTrainingServiceImpl;
 import org.junit.Test;
@@ -63,11 +65,16 @@ public class CreateGroupTrainingService {
         TrainingTypeDocument trainingType = new TrainingTypeDocument(trainingTypeId, trainingName, trainingDescription,
                 trainingDuration, null);
 
+        List<UserDocument> participantDocuments = new ArrayList<>();
+        List<UserDocument> reserveListDocuments = new ArrayList<>();
         GroupTrainings groupTraining = new GroupTrainings(trainingId, trainingType, trainerId,
-                date, startTime, endTime, hallNo, limit, participants, reserveList);
+                date, startTime, endTime, hallNo, limit, participantDocuments, reserveListDocuments);
         groupTraining.setId(id);
+
+        List<ParticipantsResponse> participantsResponses = new ArrayList<>();
+        List<ParticipantsResponse> reserveListResponses = new ArrayList<>();
         GroupTrainingResponse groupTrainingResponse = new GroupTrainingResponse(trainingId, trainingName, trainerId,
-                date, startTime, endTime, hallNo, limit, participants, reserveList);
+                date, startTime, endTime, hallNo, limit, participantsResponses, reserveListResponses);
 
         //when
         when(groupTrainingsDbRepository.isAbilityToCreateTraining(groupTrainingRequest)).thenReturn(true);
@@ -106,8 +113,10 @@ public class CreateGroupTrainingService {
         TrainingTypeDocument trainingType = new TrainingTypeDocument(trainingTypeId, trainingName, trainingDescription,
                 trainingDuration, null);
 
+        List<UserDocument> participantDocuments = new ArrayList<>();
+        List<UserDocument> reserveListDocuments = new ArrayList<>();
         GroupTrainings groupTraining = new GroupTrainings(trainingId, trainingType, trainerId,
-                date, startTime, endTime, hallNo, limit, participants, reserveList);
+                date, startTime, endTime, hallNo, limit, participantDocuments, reserveListDocuments);
         groupTraining.setId(id);
 
         //when
@@ -148,8 +157,10 @@ public class CreateGroupTrainingService {
         TrainingTypeDocument trainingType = new TrainingTypeDocument(trainingTypeId, trainingName, trainingDescription,
                 trainingDuration, null);
 
+        List<UserDocument> participantDocuments = new ArrayList<>();
+        List<UserDocument> reserveListDocuments = new ArrayList<>();
         GroupTrainings groupTraining = new GroupTrainings(trainingId, trainingType, trainerId,
-                date, startTime, endTime, hallNo, limit, participants, reserveList);
+                date, startTime, endTime, hallNo, limit, participantDocuments, reserveListDocuments);
         groupTraining.setId(id);
 
         //when
@@ -190,8 +201,10 @@ public class CreateGroupTrainingService {
         TrainingTypeDocument trainingType = new TrainingTypeDocument(trainingTypeId, trainingName, trainingDescription,
                 trainingDuration, null);
 
+        List<UserDocument> participantDocuments = new ArrayList<>();
+        List<UserDocument> reserveListDocuments = new ArrayList<>();
         GroupTrainings groupTraining = new GroupTrainings(trainingId, trainingType, trainerId,
-                date, startTime, endTime, hallNo, limit, participants, reserveList);
+                date, startTime, endTime, hallNo, limit, participantDocuments, reserveListDocuments);
         groupTraining.setId(id);
 
         //when
@@ -232,8 +245,10 @@ public class CreateGroupTrainingService {
         TrainingTypeDocument trainingType = new TrainingTypeDocument(trainingTypeId, trainingName, trainingDescription,
                 trainingDuration, null);
 
+        List<UserDocument> participantDocuments = new ArrayList<>();
+        List<UserDocument> reserveListDocuments = new ArrayList<>();
         GroupTrainings groupTraining = new GroupTrainings(trainingId, trainingType, trainerId,
-                date, startTime, endTime, hallNo, limit, participants, reserveList);
+                date, startTime, endTime, hallNo, limit, participantDocuments, reserveListDocuments);
         groupTraining.setId(id);
 
         //when
@@ -274,8 +289,10 @@ public class CreateGroupTrainingService {
         TrainingTypeDocument trainingType = new TrainingTypeDocument(trainingTypeId, trainingName, trainingDescription,
                 trainingDuration, null);
 
+        List<UserDocument> participantDocuments = new ArrayList<>();
+        List<UserDocument> reserveListDocuments = new ArrayList<>();
         GroupTrainings groupTraining = new GroupTrainings(trainingId, trainingType, trainerId,
-                date, startTime, endTime, hallNo, limit, participants, reserveList);
+                date, startTime, endTime, hallNo, limit, participantDocuments, reserveListDocuments);
         groupTraining.setId(id);
 
         //when

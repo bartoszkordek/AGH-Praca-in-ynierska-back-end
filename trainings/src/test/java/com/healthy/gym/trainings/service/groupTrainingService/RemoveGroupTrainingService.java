@@ -3,6 +3,7 @@ package com.healthy.gym.trainings.service.groupTrainingService;
 import com.healthy.gym.trainings.configuration.EmailConfig;
 import com.healthy.gym.trainings.data.document.GroupTrainings;
 import com.healthy.gym.trainings.data.document.TrainingTypeDocument;
+import com.healthy.gym.trainings.data.document.UserDocument;
 import com.healthy.gym.trainings.data.repository.GroupTrainingsDbRepository;
 import com.healthy.gym.trainings.data.repository.TrainingTypeDAO;
 import com.healthy.gym.trainings.exception.EmailSendingException;
@@ -11,6 +12,7 @@ import com.healthy.gym.trainings.exception.InvalidHourException;
 import com.healthy.gym.trainings.exception.TrainingRemovalException;
 import com.healthy.gym.trainings.model.request.GroupTrainingRequest;
 import com.healthy.gym.trainings.model.response.GroupTrainingResponse;
+import com.healthy.gym.trainings.model.response.ParticipantsResponse;
 import com.healthy.gym.trainings.service.GroupTrainingService;
 import com.healthy.gym.trainings.service.GroupTrainingServiceImpl;
 import org.junit.Test;
@@ -52,8 +54,8 @@ public class RemoveGroupTrainingService {
         String endTime = "19:00";
         int hallNo = 1;
         int limit = 15;
-        List<String> participants = new ArrayList<>();
-        List<String> reserveList = new ArrayList<>();
+        List<UserDocument> participantDocuments = new ArrayList<>();
+        List<UserDocument> reserveListDocuments = new ArrayList<>();
 
         String trainingName = "Test Training";
         String trainingDescription = "Sample description";
@@ -62,12 +64,14 @@ public class RemoveGroupTrainingService {
                 trainingDuration, null);
 
         GroupTrainings groupTraining = new GroupTrainings(trainingId, trainingType, trainerId,
-                date, startTime, endTime, hallNo, limit, participants, reserveList);
+                date, startTime, endTime, hallNo, limit, participantDocuments, reserveListDocuments);
         groupTraining.setId(id);
 
+        List<ParticipantsResponse> participantsResponses = new ArrayList<>();
+        List<ParticipantsResponse> reserveListResponses = new ArrayList<>();
         GroupTrainingResponse groupTrainingResponse = new GroupTrainingResponse(trainingId, trainingName, trainerId,
                 date, startTime,
-                endTime, hallNo, limit, participants, reserveList);
+                endTime, hallNo, limit, participantsResponses, reserveListResponses);
 
         //when
         when(groupTrainingsDbRepository.isGroupTrainingExist(trainingId)).thenReturn(true);
@@ -107,11 +111,16 @@ public class RemoveGroupTrainingService {
         TrainingTypeDocument trainingType = new TrainingTypeDocument(trainingTypeId, trainingName, trainingDescription,
                 trainingDuration, null);
 
+        List<UserDocument> participantDocuments = new ArrayList<>();
+        List<UserDocument> reserveListDocuments = new ArrayList<>();
         GroupTrainings groupTraining = new GroupTrainings(trainingId, trainingType, trainerId,
-                date, startTime, endTime, hallNo, limit, participants, reserveList);
+                date, startTime, endTime, hallNo, limit, participantDocuments, reserveListDocuments);
         groupTraining.setId(id);
+
+        List<ParticipantsResponse> participantsResponses = new ArrayList<>();
+        List<ParticipantsResponse> reserveListResponses = new ArrayList<>();
         GroupTrainingResponse groupTrainingResponse = new GroupTrainingResponse(trainingId, trainingName, trainerId,
-                date, startTime, endTime, hallNo, limit, participants, reserveList);
+                date, startTime, endTime, hallNo, limit, participantsResponses, reserveListResponses);
 
         //when
         when(groupTrainingsDbRepository.isGroupTrainingExist(trainingId)).thenReturn(false);

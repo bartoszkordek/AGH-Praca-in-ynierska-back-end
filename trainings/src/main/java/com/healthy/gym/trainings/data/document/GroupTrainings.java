@@ -35,18 +35,20 @@ public class GroupTrainings {
     private int hallNo;
     @JsonProperty("limit")
     private int limit;
+    @DBRef
     @JsonProperty("participants")
-    private List<String> participants;
+    private List<UserDocument> participants;
+    @DBRef
     @JsonProperty("reserveList")
-    private List<String> reserveList;
+    private List<UserDocument> reserveList;
 
     public GroupTrainings(){
 
     }
 
     public GroupTrainings(String trainingId, TrainingTypeDocument trainingType, String trainerId, String date,
-                          String startTime, String endTime, int hallNo, int limit, List<String> participants,
-                          List<String> reserveList)
+                          String startTime, String endTime, int hallNo, int limit, List<UserDocument> participants,
+                          List<UserDocument> reserveList)
             throws InvalidHourException {
         Time24HoursValidator time24HoursValidator = new Time24HoursValidator();
         this.trainingId = trainingId;
@@ -143,11 +145,11 @@ public class GroupTrainings {
         return limit;
     }
 
-    public List<String> getParticipants() {
+    public List<UserDocument> getParticipants() {
         return participants;
     }
 
-    public List<String> getReserveList() {
+    public List<UserDocument> getReserveList() {
         return reserveList;
     }
 
@@ -196,11 +198,11 @@ public class GroupTrainings {
         this.limit = limit;
     }
 
-    public void setParticipants(List<String> participants) {
+    public void setParticipants(List<UserDocument> participants) {
         this.participants = participants;
     }
 
-    public void setReserveList(List<String> reserveList) {
+    public void setReserveList(List<UserDocument> reserveList) {
         this.reserveList = reserveList;
     }
 }

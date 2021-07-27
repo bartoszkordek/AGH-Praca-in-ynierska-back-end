@@ -30,13 +30,15 @@ public class GroupTrainingResponse {
     @NotNull
     private int limit;
     @NotNull
-    private List<String> participants;
+    private List<ParticipantsResponse> participants;
     @NotNull
-    private List<String> reserveList;
+    private List<ParticipantsResponse> reserveList;
 
     public GroupTrainingResponse(String trainingId, String trainingName, String trainerId, String date,
-                                 String startTime, String endTime, int hallNo, int limit, List<String> participants,
-                                 List<String> reserveList) throws InvalidHourException, InvalidDateException {
+                                 String startTime, String endTime, int hallNo, int limit, List<ParticipantsResponse> participants,
+                                 List<ParticipantsResponse> reserveList)
+            throws InvalidHourException, InvalidDateException {
+
         DateValidator dateValidator = new DateValidator();
         Time24HoursValidator time24HoursValidator = new Time24HoursValidator();
         this.trainingId = trainingId;
@@ -133,11 +135,11 @@ public class GroupTrainingResponse {
         return limit;
     }
 
-    public List<String> getParticipants() {
+    public List<ParticipantsResponse> getParticipants() {
         return participants;
     }
 
-    public List<String> getReserveList() {
+    public List<ParticipantsResponse> getReserveList() {
         return reserveList;
     }
 }

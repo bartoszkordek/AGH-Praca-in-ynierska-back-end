@@ -19,12 +19,11 @@ public class GroupTrainingResponse {
     @NotNull
     private String trainerId;
     @NotNull
-    @DateTimeFormat(pattern = "yyyy-MM-dd")
-    private String date;
+    private String startDate;
     @NotNull
-    private String startTime;
+    private String endDate;
     @NotNull
-    private String endTime;
+    private boolean allDay;
     @NotNull
     private int hallNo;
     @NotNull
@@ -34,8 +33,15 @@ public class GroupTrainingResponse {
     @NotNull
     private List<ParticipantsResponse> reserveList;
 
-    public GroupTrainingResponse(String trainingId, String trainingName, String trainerId, String date,
-                                 String startTime, String endTime, int hallNo, int limit, List<ParticipantsResponse> participants,
+    public GroupTrainingResponse(String trainingId,
+                                 String trainingName,
+                                 String trainerId,
+                                 @DateTimeFormat(pattern = "yyyy-MM-dd") String date,
+                                 String startTime,
+                                 String endTime,
+                                 int hallNo,
+                                 int limit,
+                                 List<ParticipantsResponse> participants,
                                  List<ParticipantsResponse> reserveList)
             throws InvalidHourException, InvalidDateException {
 
@@ -44,21 +50,17 @@ public class GroupTrainingResponse {
         this.trainingId = trainingId;
         this.trainingName = trainingName;
         this.trainerId = trainerId;
-        if (dateValidator.validate(date)) {
-            this.date = date;
+        if (dateValidator.validate(date) && time24HoursValidator.validate(startTime)) {
+            this.startDate = date.concat("T").concat(startTime);
         } else {
-            throw new InvalidDateException("Wrong date");
+            throw new InvalidDateException("Wrong start date or time");
         }
-        if(time24HoursValidator.validate(startTime)){
-            this.startTime = startTime;
+        if(dateValidator.validate(date) && time24HoursValidator.validate(endTime)){
+            this.endDate = date.concat("T").concat(endTime);
         } else {
-            throw new InvalidHourException("Wrong start time");
+            throw new InvalidHourException("Wrong end date or time");
         }
-        if(time24HoursValidator.validate(endTime)){
-            this.endTime = endTime;
-        } else {
-            throw new InvalidHourException("Wrong end time");
-        }
+        this.allDay = false;
         this.hallNo = hallNo;
         this.limit = limit;
         this.participants = participants;
@@ -71,9 +73,9 @@ public class GroupTrainingResponse {
                 "trainingId='" + trainingId + '\'' +
                 ", trainingName='" + trainingName + '\'' +
                 ", trainerId='" + trainerId + '\'' +
-                ", date='" + date + '\'' +
-                ", startTime='" + startTime + '\'' +
-                ", endTime='" + endTime + '\'' +
+                ", startDate='" + startDate + '\'' +
+                ", endDate='" + endDate + '\'' +
+                ", allDay=" + allDay +
                 ", hallNo=" + hallNo +
                 ", limit=" + limit +
                 ", participants=" + participants +
@@ -86,21 +88,22 @@ public class GroupTrainingResponse {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         GroupTrainingResponse that = (GroupTrainingResponse) o;
-        return hallNo == that.hallNo &&
+        return allDay == that.allDay &&
+                hallNo == that.hallNo &&
                 limit == that.limit &&
                 Objects.equals(trainingId, that.trainingId) &&
                 Objects.equals(trainingName, that.trainingName) &&
                 Objects.equals(trainerId, that.trainerId) &&
-                Objects.equals(date, that.date) &&
-                Objects.equals(startTime, that.startTime) &&
-                Objects.equals(endTime, that.endTime) &&
+                Objects.equals(startDate, that.startDate) &&
+                Objects.equals(endDate, that.endDate) &&
                 Objects.equals(participants, that.participants) &&
                 Objects.equals(reserveList, that.reserveList);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(trainingId, trainingName, trainerId, date, startTime, endTime, hallNo, limit, participants, reserveList);
+        return Objects.hash(trainingId, trainingName, trainerId, startDate, endDate, allDay, hallNo, limit,
+                participants, reserveList);
     }
 
     public String getTrainingId() {
@@ -115,16 +118,16 @@ public class GroupTrainingResponse {
         return trainerId;
     }
 
-    public String getDate() {
-        return date;
-    }
-
     public String getStartTime() {
-        return startTime;
+        return startDate;
     }
 
     public String getEndTime() {
-        return endTime;
+        return endDate;
+    }
+
+    public boolean isAllDay() {
+        return allDay;
     }
 
     public int getHallNo() {

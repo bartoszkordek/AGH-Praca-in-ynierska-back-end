@@ -106,7 +106,7 @@ public class GroupTrainingsDbRepository {
                 sum += review.getStars();
                 counter++;
             }
-            rating = sum/counter;
+            if(counter !=0 ) rating = sum/counter;
 
             List<UserDocument> participants = training.getParticipants();
             List<ParticipantsResponse> participantsResponses = new ArrayList<>();
@@ -178,7 +178,7 @@ public class GroupTrainingsDbRepository {
                 sum += review.getStars();
                 counter++;
             }
-            rating = sum/counter;
+            if(counter !=0 ) rating = sum/counter;
 
             publicResponse.add(new GroupTrainingPublicResponse(groupTraining.getTrainingId(),
                     groupTraining.getTrainingType().getName(),
@@ -209,7 +209,7 @@ public class GroupTrainingsDbRepository {
             sum += review.getStars();
             counter++;
         }
-        rating = sum/counter;
+        if(counter !=0 ) rating = sum/counter;
 
         List<UserDocument> participants = groupTrainingsDbResponse.getParticipants();
         List<ParticipantsResponse> participantsResponses = new ArrayList<>();
@@ -275,9 +275,8 @@ public class GroupTrainingsDbRepository {
                 sum += review.getStars();
                 counter++;
             }
-            rating = sum/counter;
+            if(counter !=0 ) rating = sum/counter;
         }
-
 
         List<GroupTrainingResponse> result = new ArrayList<>();
         for(GroupTrainings training : groupTrainingsDbResponse){
@@ -348,7 +347,7 @@ public class GroupTrainingsDbRepository {
                 sum += review.getStars();
                 counter++;
             }
-            rating = sum/counter;
+            if(counter !=0 ) rating = sum/counter;
         }
 
         List<GroupTrainingPublicResponse> result = new ArrayList<>();
@@ -386,7 +385,7 @@ public class GroupTrainingsDbRepository {
                     sum += review.getStars();
                     counter++;
                 }
-                rating = sum/counter;
+                if(counter !=0 ) rating = sum/counter;
             }
 
             publicResponse.add(new GroupTrainingPublicResponse(groupTraining.getTrainingId(),

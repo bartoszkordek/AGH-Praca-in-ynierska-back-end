@@ -65,6 +65,7 @@ public class CreateGroupTrainingService {
         TrainingTypeDocument trainingType = new TrainingTypeDocument(trainingTypeId, trainingName, trainingDescription,
                 trainingDuration, null);
 
+        double rating = 0.0;
         List<UserDocument> participantDocuments = new ArrayList<>();
         List<UserDocument> reserveListDocuments = new ArrayList<>();
         GroupTrainings groupTraining = new GroupTrainings(trainingId, trainingType, trainerId,
@@ -74,7 +75,7 @@ public class CreateGroupTrainingService {
         List<ParticipantsResponse> participantsResponses = new ArrayList<>();
         List<ParticipantsResponse> reserveListResponses = new ArrayList<>();
         GroupTrainingResponse groupTrainingResponse = new GroupTrainingResponse(trainingId, trainingName, trainerId,
-                date, startTime, endTime, hallNo, limit, participantsResponses, reserveListResponses);
+                date, startTime, endTime, hallNo, limit, rating, participantsResponses, reserveListResponses);
 
         //when
         when(groupTrainingsDbRepository.isAbilityToCreateTraining(groupTrainingRequest)).thenReturn(true);

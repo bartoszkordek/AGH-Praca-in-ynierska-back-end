@@ -67,11 +67,11 @@ public class RemoveGroupTrainingService {
                 date, startTime, endTime, hallNo, limit, participantDocuments, reserveListDocuments);
         groupTraining.setId(id);
 
+        double rating = 0.0;
         List<ParticipantsResponse> participantsResponses = new ArrayList<>();
         List<ParticipantsResponse> reserveListResponses = new ArrayList<>();
         GroupTrainingResponse groupTrainingResponse = new GroupTrainingResponse(trainingId, trainingName, trainerId,
-                date, startTime,
-                endTime, hallNo, limit, participantsResponses, reserveListResponses);
+                date, startTime, endTime, hallNo, limit, rating, participantsResponses, reserveListResponses);
 
         //when
         when(groupTrainingsDbRepository.isGroupTrainingExist(trainingId)).thenReturn(true);
@@ -117,10 +117,11 @@ public class RemoveGroupTrainingService {
                 date, startTime, endTime, hallNo, limit, participantDocuments, reserveListDocuments);
         groupTraining.setId(id);
 
+        double rating = 0.0;
         List<ParticipantsResponse> participantsResponses = new ArrayList<>();
         List<ParticipantsResponse> reserveListResponses = new ArrayList<>();
         GroupTrainingResponse groupTrainingResponse = new GroupTrainingResponse(trainingId, trainingName, trainerId,
-                date, startTime, endTime, hallNo, limit, participantsResponses, reserveListResponses);
+                date, startTime, endTime, hallNo, limit, rating, participantsResponses, reserveListResponses);
 
         //when
         when(groupTrainingsDbRepository.isGroupTrainingExist(trainingId)).thenReturn(false);

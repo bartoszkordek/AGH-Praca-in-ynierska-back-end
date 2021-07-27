@@ -29,6 +29,8 @@ public class GroupTrainingResponse {
     @NotNull
     private int limit;
     @NotNull
+    private double rating;
+    @NotNull
     private List<ParticipantsResponse> participants;
     @NotNull
     private List<ParticipantsResponse> reserveList;
@@ -41,6 +43,7 @@ public class GroupTrainingResponse {
                                  String endTime,
                                  int hallNo,
                                  int limit,
+                                 double rating,
                                  List<ParticipantsResponse> participants,
                                  List<ParticipantsResponse> reserveList)
             throws InvalidHourException, InvalidDateException {
@@ -63,6 +66,7 @@ public class GroupTrainingResponse {
         this.allDay = false;
         this.hallNo = hallNo;
         this.limit = limit;
+        this.rating = rating;
         this.participants = participants;
         this.reserveList = reserveList;
     }
@@ -78,6 +82,7 @@ public class GroupTrainingResponse {
                 ", allDay=" + allDay +
                 ", hallNo=" + hallNo +
                 ", limit=" + limit +
+                ", rating=" + rating +
                 ", participants=" + participants +
                 ", reserveList=" + reserveList +
                 '}';
@@ -91,6 +96,7 @@ public class GroupTrainingResponse {
         return allDay == that.allDay &&
                 hallNo == that.hallNo &&
                 limit == that.limit &&
+                Double.compare(that.rating, rating) == 0 &&
                 Objects.equals(trainingId, that.trainingId) &&
                 Objects.equals(trainingName, that.trainingName) &&
                 Objects.equals(trainerId, that.trainerId) &&
@@ -102,8 +108,7 @@ public class GroupTrainingResponse {
 
     @Override
     public int hashCode() {
-        return Objects.hash(trainingId, trainingName, trainerId, startDate, endDate, allDay, hallNo, limit,
-                participants, reserveList);
+        return Objects.hash(trainingId, trainingName, trainerId, startDate, endDate, allDay, hallNo, limit, rating, participants, reserveList);
     }
 
     public String getTrainingId() {
@@ -136,6 +141,10 @@ public class GroupTrainingResponse {
 
     public int getLimit() {
         return limit;
+    }
+
+    public double getRating() {
+        return rating;
     }
 
     public List<ParticipantsResponse> getParticipants() {

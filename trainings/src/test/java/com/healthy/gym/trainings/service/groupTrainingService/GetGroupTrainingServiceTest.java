@@ -6,6 +6,7 @@ import com.healthy.gym.trainings.data.repository.TrainingTypeDAO;
 import com.healthy.gym.trainings.exception.*;
 import com.healthy.gym.trainings.model.response.GroupTrainingPublicResponse;
 import com.healthy.gym.trainings.model.response.GroupTrainingResponse;
+import com.healthy.gym.trainings.model.response.ParticipantsResponse;
 import com.healthy.gym.trainings.service.GroupTrainingService;
 import com.healthy.gym.trainings.service.GroupTrainingServiceImpl;
 import org.junit.Test;
@@ -42,16 +43,18 @@ public class GetGroupTrainingServiceTest {
         String endDate = "2030-12-31";
         String trainingId = "122ed953-e37f-435a-bd1e-9fb2a327c4d3";
         String trainingTypeId = "222ed952-es7f-435a-bd1e-9fb2a327c4dk";
+        String trainingName = "Test Training";
         String trainerId = "Test Trainer";
         String date = "2020-07-01";
         String startTime = "18:00";
         String endTime = "19:00";
         int hallNo = 1;
         int limit = 15;
-        List<String> participants = new ArrayList<>();
-        List<String> reserveList = new ArrayList<>();
-        GroupTrainingResponse groupTraining = new GroupTrainingResponse(trainingId, trainingTypeId, trainerId, date, startTime,
-                endTime, hallNo, limit, participants, reserveList);
+
+        List<ParticipantsResponse> participantsResponses = new ArrayList<>();
+        List<ParticipantsResponse> reserveListResponses = new ArrayList<>();
+        GroupTrainingResponse groupTraining = new GroupTrainingResponse(trainingId, trainingName, trainerId, date, startTime,
+                endTime, hallNo, limit, participantsResponses, reserveListResponses);
 
         List<GroupTrainingResponse> groupTrainings = new ArrayList<>();
         groupTrainings.add(groupTraining);
@@ -77,6 +80,7 @@ public class GetGroupTrainingServiceTest {
         String endDate = "2030-12-31";
         String trainingId = "122ed953-e37f-435a-bd1e-9fb2a327c4d3";
         String trainingTypeId = "222ed952-es7f-435a-bd1e-9fb2a327c4dk";
+        String trainingName = "Test Training";
         String trainerId = "Test Trainer";
         String date = "2020-07-01";
         String startTime = "18:00";
@@ -85,7 +89,7 @@ public class GetGroupTrainingServiceTest {
         int limit = 15;
 
         GroupTrainingPublicResponse groupTrainingPublicResponse = new GroupTrainingPublicResponse(trainingId,
-                trainingTypeId, trainerId, date, startTime, endTime, hallNo, limit);
+                trainingName, trainerId, date, startTime, endTime, hallNo, limit);
 
         List<GroupTrainingPublicResponse> groupTrainings = new ArrayList<>();
         groupTrainings.add(groupTrainingPublicResponse);
@@ -109,16 +113,18 @@ public class GetGroupTrainingServiceTest {
         //before
         String trainingId = "122ed953-e37f-435a-bd1e-9fb2a327c4d3";
         String trainingTypeId = "222ed952-es7f-435a-bd1e-9fb2a327c4dk";
+        String trainingName = "Test Training";
         String trainerId = "Test Trainer";
         String date = "2020-07-01";
         String startTime = "18:00";
         String endTime = "19:00";
         int hallNo = 1;
         int limit = 15;
-        List<String> participants = new ArrayList<>();
-        List<String> reserveList = new ArrayList<>();
-        GroupTrainingResponse groupTraining = new GroupTrainingResponse(trainingId, trainingTypeId, trainerId, date, startTime,
-                endTime, hallNo, limit, participants, reserveList);
+
+        List<ParticipantsResponse> participantsResponses = new ArrayList<>();
+        List<ParticipantsResponse> reserveListResponses = new ArrayList<>();
+        GroupTrainingResponse groupTraining = new GroupTrainingResponse(trainingId, trainingName, trainerId, date, startTime,
+                endTime, hallNo, limit, participantsResponses, reserveListResponses);
 
         List<GroupTrainingResponse> groupTrainings = new ArrayList<>();
         groupTrainings.add(groupTraining);
@@ -161,15 +167,23 @@ public class GetGroupTrainingServiceTest {
 
         //before
         String trainingId = "122ed953-e37f-435a-bd1e-9fb2a327c4d3";
-        String participant1 = "Participant 1";
-        String participant2 = "Participant 2";
-        List<String> participants = new ArrayList<>();
-        participants.add(participant1);
-        participants.add(participant2);
+        String participant1UserId = "222ed953-e37f-435a-bd1e-9fb2a327c4d3";
+        String participant1Name = "John";
+        String participant1Surname = "Smith";
+        String participant2UserId = "222ed953-e37f-435a-bd1e-9fb2a327c4d4";
+        String participant2Name = "Max";
+        String participant2Surname = "Adams";
+        List<ParticipantsResponse> participantsResponses = new ArrayList<>();
+        ParticipantsResponse participants1Response = new ParticipantsResponse(participant1UserId, participant1Name,
+                participant1Surname);
+        ParticipantsResponse participants2Response = new ParticipantsResponse(participant2UserId, participant2Name,
+                participant2Surname);
+        participantsResponses.add(participants1Response);
+        participantsResponses.add(participants2Response);
 
         //when
         when(groupTrainingsDbRepository.isGroupTrainingExist(trainingId)).thenReturn(true);
-        when(groupTrainingsDbRepository.getTrainingParticipants(trainingId)).thenReturn(participants);
+        when(groupTrainingsDbRepository.getTrainingParticipants(trainingId)).thenReturn(participantsResponses);
 
         //then
         assertThat(groupTrainingService.getTrainingParticipants(trainingId));
@@ -208,16 +222,17 @@ public class GetGroupTrainingServiceTest {
         String endDate = "2030-12-31";
         String trainingId = "122ed953-e37f-435a-bd1e-9fb2a327c4d3";
         String trainingTypeId = "222ed952-es7f-435a-bd1e-9fb2a327c4dk";
+        String trainingName = "Test Training";
         String trainerId = "Test Trainer";
         String date = "2020-07-01";
         String startTime = "18:00";
         String endTime = "19:00";
         int hallNo = 1;
         int limit = 15;
-        List<String> participants = new ArrayList<>();
-        List<String> reserveList = new ArrayList<>();
-        GroupTrainingResponse groupTraining = new GroupTrainingResponse(trainingId, trainingTypeId, trainerId, date, startTime,
-                endTime, hallNo, limit, participants, reserveList);
+        List<ParticipantsResponse> participantsResponses = new ArrayList<>();
+        List<ParticipantsResponse> reserveListResponses = new ArrayList<>();
+        GroupTrainingResponse groupTraining = new GroupTrainingResponse(trainingId, trainingName, trainerId, date, startTime,
+                endTime, hallNo, limit, participantsResponses, reserveListResponses);
 
         List<GroupTrainingResponse> groupTrainings = new ArrayList<>();
         groupTrainings.add(groupTraining);
@@ -245,16 +260,17 @@ public class GetGroupTrainingServiceTest {
         String endDate = "2030-12-31";
         String trainingId = "122ed953-e37f-435a-bd1e-9fb2a327c4d3";
         String trainingTypeId = "222ed952-es7f-435a-bd1e-9fb2a327c4dk";
+        String trainingName = "Test Training";
         String trainerId = "Test Trainer";
         String date = "2020-07-01";
         String startTime = "18:00";
         String endTime = "19:00";
         int hallNo = 1;
         int limit = 15;
-        List<String> participants = new ArrayList<>();
-        List<String> reserveList = new ArrayList<>();
-        GroupTrainingResponse groupTraining = new GroupTrainingResponse(trainingId, trainingTypeId, trainerId, date, startTime,
-                endTime, hallNo, limit, participants, reserveList);
+        List<ParticipantsResponse> participantsResponses = new ArrayList<>();
+        List<ParticipantsResponse> reserveListResponses = new ArrayList<>();
+        GroupTrainingResponse groupTraining = new GroupTrainingResponse(trainingId, trainingName, trainerId, date, startTime,
+                endTime, hallNo, limit, participantsResponses, reserveListResponses);
 
         List<GroupTrainingResponse> groupTrainings = new ArrayList<>();
         groupTrainings.add(groupTraining);

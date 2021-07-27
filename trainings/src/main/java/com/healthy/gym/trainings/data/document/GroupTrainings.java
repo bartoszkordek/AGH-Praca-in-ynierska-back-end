@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.healthy.gym.trainings.exception.InvalidHourException;
 import com.healthy.gym.trainings.validation.Time24HoursValidator;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.List;
@@ -18,8 +19,10 @@ public class GroupTrainings {
 
     @JsonProperty("trainingId")
     private String trainingId;
-    @JsonProperty("trainingTypeId")
-    private String trainingTypeId;
+
+    @DBRef
+    @JsonProperty("trainingType")
+    private TrainingTypeDocument trainingType;
     @JsonProperty("trainerId")
     private String trainerId;
     @JsonProperty("date")
@@ -32,21 +35,24 @@ public class GroupTrainings {
     private int hallNo;
     @JsonProperty("limit")
     private int limit;
+    @DBRef
     @JsonProperty("participants")
-    private List<String> participants;
+    private List<UserDocument> participants;
+    @DBRef
     @JsonProperty("reserveList")
-    private List<String> reserveList;
+    private List<UserDocument> reserveList;
 
     public GroupTrainings(){
 
     }
 
-    public GroupTrainings(String trainingId, String trainingTypeId, String trainerId, String date, String startTime,
-                          String endTime, int hallNo, int limit, List<String> participants, List<String> reserveList)
+    public GroupTrainings(String trainingId, TrainingTypeDocument trainingType, String trainerId, String date,
+                          String startTime, String endTime, int hallNo, int limit, List<UserDocument> participants,
+                          List<UserDocument> reserveList)
             throws InvalidHourException {
         Time24HoursValidator time24HoursValidator = new Time24HoursValidator();
         this.trainingId = trainingId;
-        this.trainingTypeId = trainingTypeId;
+        this.trainingType = trainingType;
         this.trainerId = trainerId;
         this.date = date;
         if(time24HoursValidator.validate(startTime)){
@@ -70,7 +76,7 @@ public class GroupTrainings {
         return "GroupTrainings{" +
                 "id='" + id + '\'' +
                 ", trainingId='" + trainingId + '\'' +
-                ", trainingTypeId='" + trainingTypeId + '\'' +
+                ", trainingType='" + trainingType + '\'' +
                 ", trainerId='" + trainerId + '\'' +
                 ", date='" + date + '\'' +
                 ", startTime='" + startTime + '\'' +
@@ -91,7 +97,7 @@ public class GroupTrainings {
                 limit == that.limit &&
                 Objects.equals(id, that.id) &&
                 Objects.equals(trainingId, that.trainingId) &&
-                Objects.equals(trainingTypeId, that.trainingTypeId) &&
+                Objects.equals(trainingType, that.trainingType) &&
                 Objects.equals(trainerId, that.trainerId) &&
                 Objects.equals(date, that.date) &&
                 Objects.equals(startTime, that.startTime) &&
@@ -102,7 +108,7 @@ public class GroupTrainings {
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, trainingId, trainingTypeId, trainerId, date, startTime, endTime, hallNo, limit, participants, reserveList);
+        return Objects.hash(id, trainingId, trainingType, trainerId, date, startTime, endTime, hallNo, limit, participants, reserveList);
     }
 
     public String getId() {
@@ -111,8 +117,8 @@ public class GroupTrainings {
 
     public String getTrainingId() { return trainingId; }
 
-    public String getTrainingTypeId() {
-        return trainingTypeId;
+    public TrainingTypeDocument getTrainingType() {
+        return trainingType;
     }
 
     public String getTrainerId() {
@@ -139,11 +145,11 @@ public class GroupTrainings {
         return limit;
     }
 
-    public List<String> getParticipants() {
+    public List<UserDocument> getParticipants() {
         return participants;
     }
 
-    public List<String> getReserveList() {
+    public List<UserDocument> getReserveList() {
         return reserveList;
     }
 
@@ -153,8 +159,8 @@ public class GroupTrainings {
 
     public void setTrainingId(String trainingId) { this.trainingId = trainingId; }
 
-    public void setTrainingTypeId(String trainingTypeId) {
-        this.trainingTypeId = trainingTypeId;
+    public void setTrainingType(TrainingTypeDocument trainingType) {
+        this.trainingType = trainingType;
     }
 
     public void setTrainerId(String trainerId) {
@@ -192,11 +198,11 @@ public class GroupTrainings {
         this.limit = limit;
     }
 
-    public void setParticipants(List<String> participants) {
+    public void setParticipants(List<UserDocument> participants) {
         this.participants = participants;
     }
 
-    public void setReserveList(List<String> reserveList) {
+    public void setReserveList(List<UserDocument> reserveList) {
         this.reserveList = reserveList;
     }
 }

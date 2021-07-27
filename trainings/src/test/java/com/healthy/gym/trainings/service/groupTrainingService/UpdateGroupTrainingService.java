@@ -2,11 +2,14 @@ package com.healthy.gym.trainings.service.groupTrainingService;
 
 import com.healthy.gym.trainings.configuration.EmailConfig;
 import com.healthy.gym.trainings.data.document.GroupTrainings;
+import com.healthy.gym.trainings.data.document.TrainingTypeDocument;
+import com.healthy.gym.trainings.data.document.UserDocument;
 import com.healthy.gym.trainings.data.repository.GroupTrainingsDbRepository;
 import com.healthy.gym.trainings.data.repository.TrainingTypeDAO;
 import com.healthy.gym.trainings.exception.*;
 import com.healthy.gym.trainings.model.request.GroupTrainingRequest;
 import com.healthy.gym.trainings.model.response.GroupTrainingResponse;
+import com.healthy.gym.trainings.model.response.ParticipantsResponse;
 import com.healthy.gym.trainings.service.GroupTrainingService;
 import com.healthy.gym.trainings.service.GroupTrainingServiceImpl;
 import org.junit.Test;
@@ -17,6 +20,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.text.ParseException;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -57,17 +61,30 @@ public class UpdateGroupTrainingService {
         GroupTrainingRequest groupTrainingUpdateRequest = new GroupTrainingRequest(trainingTypeId, trainerId, date,
                 startTimeAfterUpdate, endTimeAfterUpdate, hallNoAfterUpdate, limitAfterUpdate, participants,
                 reserveList);
-        GroupTrainings groupTrainingBeforeUpdate = new GroupTrainings(trainingId, trainingTypeId, trainerId,
-                date, startTimeBeforeUpdate, endTimeBeforeUpdate, hallNoBeforeUpdate, limitBeforeUpdate, participants,
-                reserveList);
+
+        String trainingName = "Test Training";
+        String trainingDescription = "Sample description";
+        LocalTime trainingDuration = LocalTime.of(1,0,0,0);
+        TrainingTypeDocument trainingType = new TrainingTypeDocument(trainingTypeId, trainingName, trainingDescription,
+                trainingDuration, null);
+
+        List<UserDocument> participantDocuments = new ArrayList<>();
+        List<UserDocument> reserveListDocuments = new ArrayList<>();
+        GroupTrainings groupTrainingBeforeUpdate = new GroupTrainings(trainingId, trainingType, trainerId,
+                date, startTimeBeforeUpdate, endTimeBeforeUpdate, hallNoBeforeUpdate, limitBeforeUpdate,
+                participantDocuments, reserveListDocuments);
         groupTrainingBeforeUpdate.setId(id);
-        GroupTrainings groupTrainingAfterUpdate = new GroupTrainings(trainingId, trainingTypeId, trainerId,
-                date, startTimeAfterUpdate, endTimeAfterUpdate, hallNoAfterUpdate, limitAfterUpdate, participants,
-                reserveList);
+
+        GroupTrainings groupTrainingAfterUpdate = new GroupTrainings(trainingId, trainingType, trainerId,
+                date, startTimeAfterUpdate, endTimeAfterUpdate, hallNoAfterUpdate, limitAfterUpdate,
+                participantDocuments, reserveListDocuments);
         groupTrainingAfterUpdate.setId(id);
-        GroupTrainingResponse groupTrainingResponseAfterUpdate = new GroupTrainingResponse(trainingId, trainingTypeId,
+
+        List<ParticipantsResponse> participantsResponses = new ArrayList<>();
+        List<ParticipantsResponse> reserveListResponses = new ArrayList<>();
+        GroupTrainingResponse groupTrainingResponseAfterUpdate = new GroupTrainingResponse(trainingId, trainingName,
                 trainerId, date, startTimeAfterUpdate, endTimeAfterUpdate, hallNoAfterUpdate, limitAfterUpdate,
-                participants, reserveList);
+                participantsResponses, reserveListResponses);
 
         //when
         when(groupTrainingsDbRepository.isGroupTrainingExist(trainingId)).thenReturn(true);
@@ -108,17 +125,29 @@ public class UpdateGroupTrainingService {
         GroupTrainingRequest groupTrainingUpdateRequest = new GroupTrainingRequest(trainingTypeId, trainerId, date,
                 startTimeAfterUpdate, endTimeAfterUpdate, hallNoAfterUpdate, limitAfterUpdate, participants,
                 reserveList);
-        GroupTrainings groupTrainingBeforeUpdate = new GroupTrainings(trainingId, trainingTypeId, trainerId,
-                date, startTimeBeforeUpdate, endTimeBeforeUpdate, hallNoBeforeUpdate, limitBeforeUpdate, participants,
-                reserveList);
+
+        String trainingName = "Test Training";
+        String trainingDescription = "Sample description";
+        LocalTime trainingDuration = LocalTime.of(1,0,0,0);
+        TrainingTypeDocument trainingType = new TrainingTypeDocument(trainingTypeId, trainingName, trainingDescription,
+                trainingDuration, null);
+
+        List<UserDocument> participantDocuments = new ArrayList<>();
+        List<UserDocument> reserveListDocuments = new ArrayList<>();
+        GroupTrainings groupTrainingBeforeUpdate = new GroupTrainings(trainingId, trainingType, trainerId,
+                date, startTimeBeforeUpdate, endTimeBeforeUpdate, hallNoBeforeUpdate, limitBeforeUpdate,
+                participantDocuments, reserveListDocuments);
         groupTrainingBeforeUpdate.setId(id);
-        GroupTrainings groupTrainingAfterUpdate = new GroupTrainings(trainingId, trainingTypeId, trainerId,
-                date, startTimeAfterUpdate, endTimeAfterUpdate, hallNoAfterUpdate, limitAfterUpdate, participants,
-                reserveList);
+        GroupTrainings groupTrainingAfterUpdate = new GroupTrainings(trainingId, trainingType, trainerId,
+                date, startTimeAfterUpdate, endTimeAfterUpdate, hallNoAfterUpdate, limitAfterUpdate,
+                participantDocuments, reserveListDocuments);
         groupTrainingAfterUpdate.setId(id);
-        GroupTrainingResponse groupTrainingResponseAfterUpdate = new GroupTrainingResponse(trainingId, trainingTypeId,
+
+        List<ParticipantsResponse> participantsResponses = new ArrayList<>();
+        List<ParticipantsResponse> reserveListResponses = new ArrayList<>();
+        GroupTrainingResponse groupTrainingResponseAfterUpdate = new GroupTrainingResponse(trainingId, trainingName,
                 trainerId, date, startTimeAfterUpdate, endTimeAfterUpdate, hallNoAfterUpdate, limitAfterUpdate,
-                participants, reserveList);
+                participantsResponses, reserveListResponses);
 
         //when
         when(groupTrainingsDbRepository.isGroupTrainingExist(trainingId)).thenReturn(false);
@@ -158,17 +187,29 @@ public class UpdateGroupTrainingService {
         GroupTrainingRequest groupTrainingUpdateRequest = new GroupTrainingRequest(trainingTypeId, trainerId, date,
                 startTimeAfterUpdate, endTimeAfterUpdate, hallNoAfterUpdate, limitAfterUpdate, participants,
                 reserveList);
-        GroupTrainings groupTrainingBeforeUpdate = new GroupTrainings(trainingId, trainingTypeId, trainerId,
-                date, startTimeBeforeUpdate, endTimeBeforeUpdate, hallNoBeforeUpdate, limitBeforeUpdate, participants,
-                reserveList);
+
+        String trainingName = "Test Training";
+        String trainingDescription = "Sample description";
+        LocalTime trainingDuration = LocalTime.of(1,0,0,0);
+        TrainingTypeDocument trainingType = new TrainingTypeDocument(trainingTypeId, trainingName, trainingDescription,
+                trainingDuration, null);
+
+        List<UserDocument> participantDocuments = new ArrayList<>();
+        List<UserDocument> reserveListDocuments = new ArrayList<>();
+        GroupTrainings groupTrainingBeforeUpdate = new GroupTrainings(trainingId, trainingType, trainerId,
+                date, startTimeBeforeUpdate, endTimeBeforeUpdate, hallNoBeforeUpdate, limitBeforeUpdate,
+                participantDocuments, reserveListDocuments);
         groupTrainingBeforeUpdate.setId(id);
-        GroupTrainings groupTrainingAfterUpdate = new GroupTrainings(trainingId, trainingTypeId, trainerId,
-                date, startTimeAfterUpdate, endTimeAfterUpdate, hallNoAfterUpdate, limitAfterUpdate, participants,
-                reserveList);
+        GroupTrainings groupTrainingAfterUpdate = new GroupTrainings(trainingId, trainingType, trainerId,
+                date, startTimeAfterUpdate, endTimeAfterUpdate, hallNoAfterUpdate, limitAfterUpdate,
+                participantDocuments, reserveListDocuments);
         groupTrainingAfterUpdate.setId(id);
-        GroupTrainingResponse groupTrainingResponseAfterUpdate = new GroupTrainingResponse(trainingId, trainingTypeId,
+
+        List<ParticipantsResponse> participantsResponses = new ArrayList<>();
+        List<ParticipantsResponse> reserveListResponses = new ArrayList<>();
+        GroupTrainingResponse groupTrainingResponseAfterUpdate = new GroupTrainingResponse(trainingId, trainingName,
                 trainerId, date, startTimeAfterUpdate, endTimeAfterUpdate, hallNoAfterUpdate, limitAfterUpdate,
-                participants, reserveList);
+                participantsResponses, reserveListResponses);
 
         //when
         when(groupTrainingsDbRepository.isGroupTrainingExist(trainingId)).thenReturn(true);

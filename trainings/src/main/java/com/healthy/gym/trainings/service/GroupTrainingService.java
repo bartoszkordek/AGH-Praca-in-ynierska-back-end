@@ -4,6 +4,7 @@ import com.healthy.gym.trainings.exception.*;
 import com.healthy.gym.trainings.model.request.GroupTrainingRequest;
 import com.healthy.gym.trainings.model.response.GroupTrainingPublicResponse;
 import com.healthy.gym.trainings.model.response.GroupTrainingResponse;
+import com.healthy.gym.trainings.model.response.ParticipantsResponse;
 
 import java.text.ParseException;
 import java.util.List;
@@ -24,7 +25,7 @@ public interface GroupTrainingService {
 
     List<GroupTrainingPublicResponse> getMyAllTrainings(String clientId) throws InvalidHourException, InvalidDateException;
 
-    List<String> getTrainingParticipants(String trainingId)
+    List<ParticipantsResponse> getTrainingParticipants(String trainingId)
             throws NotExistingGroupTrainingException;
 
     void enrollToGroupTraining(String trainingId, String clientId)

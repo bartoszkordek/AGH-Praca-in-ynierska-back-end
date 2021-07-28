@@ -80,11 +80,12 @@ public class UpdateGroupTrainingService {
                 participantDocuments, reserveListDocuments);
         groupTrainingAfterUpdate.setId(id);
 
+        double rating = 0.0;
         List<ParticipantsResponse> participantsResponses = new ArrayList<>();
         List<ParticipantsResponse> reserveListResponses = new ArrayList<>();
         GroupTrainingResponse groupTrainingResponseAfterUpdate = new GroupTrainingResponse(trainingId, trainingName,
                 trainerId, date, startTimeAfterUpdate, endTimeAfterUpdate, hallNoAfterUpdate, limitAfterUpdate,
-                participantsResponses, reserveListResponses);
+                rating, participantsResponses, reserveListResponses);
 
         //when
         when(groupTrainingsDbRepository.isGroupTrainingExist(trainingId)).thenReturn(true);
@@ -143,11 +144,12 @@ public class UpdateGroupTrainingService {
                 participantDocuments, reserveListDocuments);
         groupTrainingAfterUpdate.setId(id);
 
+        double rating = 0.0;
         List<ParticipantsResponse> participantsResponses = new ArrayList<>();
         List<ParticipantsResponse> reserveListResponses = new ArrayList<>();
         GroupTrainingResponse groupTrainingResponseAfterUpdate = new GroupTrainingResponse(trainingId, trainingName,
                 trainerId, date, startTimeAfterUpdate, endTimeAfterUpdate, hallNoAfterUpdate, limitAfterUpdate,
-                participantsResponses, reserveListResponses);
+                rating, participantsResponses, reserveListResponses);
 
         //when
         when(groupTrainingsDbRepository.isGroupTrainingExist(trainingId)).thenReturn(false);
@@ -205,11 +207,12 @@ public class UpdateGroupTrainingService {
                 participantDocuments, reserveListDocuments);
         groupTrainingAfterUpdate.setId(id);
 
+        double rating = 0.0;
         List<ParticipantsResponse> participantsResponses = new ArrayList<>();
         List<ParticipantsResponse> reserveListResponses = new ArrayList<>();
         GroupTrainingResponse groupTrainingResponseAfterUpdate = new GroupTrainingResponse(trainingId, trainingName,
                 trainerId, date, startTimeAfterUpdate, endTimeAfterUpdate, hallNoAfterUpdate, limitAfterUpdate,
-                participantsResponses, reserveListResponses);
+                rating, participantsResponses, reserveListResponses);
 
         //when
         when(groupTrainingsDbRepository.isGroupTrainingExist(trainingId)).thenReturn(true);

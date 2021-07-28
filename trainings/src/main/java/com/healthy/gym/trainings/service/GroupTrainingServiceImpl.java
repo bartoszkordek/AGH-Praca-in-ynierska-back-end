@@ -2,17 +2,19 @@ package com.healthy.gym.trainings.service;
 
 import com.healthy.gym.trainings.configuration.EmailConfig;
 import com.healthy.gym.trainings.data.document.GroupTrainings;
+import com.healthy.gym.trainings.data.document.GroupTrainingsReviews;
 import com.healthy.gym.trainings.data.document.UserDocument;
 import com.healthy.gym.trainings.data.repository.GroupTrainingsDbRepository;
+import com.healthy.gym.trainings.data.repository.ReviewDAO;
 import com.healthy.gym.trainings.data.repository.TrainingTypeDAO;
 import com.healthy.gym.trainings.exception.*;
 import com.healthy.gym.trainings.model.other.EmailSendModel;
 import com.healthy.gym.trainings.model.request.GroupTrainingRequest;
-import com.healthy.gym.trainings.model.response.GroupTrainingPublicResponse;
-import com.healthy.gym.trainings.model.response.GroupTrainingResponse;
-import com.healthy.gym.trainings.model.response.ParticipantsResponse;
+import com.healthy.gym.trainings.model.response.*;
 import com.healthy.gym.trainings.service.email.EmailService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.text.ParseException;
@@ -29,6 +31,7 @@ public class GroupTrainingServiceImpl implements GroupTrainingService {
     private final EmailConfig emailConfig;
     private final GroupTrainingsDbRepository groupTrainingsDbRepository;
     private final TrainingTypeDAO trainingTypeRepository;
+    private double initialRating = 0.0;
 
     @Autowired
     public GroupTrainingServiceImpl(
@@ -266,6 +269,7 @@ public class GroupTrainingServiceImpl implements GroupTrainingService {
                 repositoryResponse.getEndTime(),
                 repositoryResponse.getHallNo(),
                 repositoryResponse.getLimit(),
+                initialRating,
                 participantsResponses,
                 reserveListResponses);
         return response;
@@ -279,6 +283,7 @@ public class GroupTrainingServiceImpl implements GroupTrainingService {
             throw new TrainingRemovalException("Training with ID: " + trainingId + " doesn't exist");
 
         GroupTrainings repositoryResponse = groupTrainingsDbRepository.removeTraining(trainingId);
+
         List<UserDocument> participants = repositoryResponse.getParticipants();
         List<ParticipantsResponse> participantsResponses = new ArrayList<>();
         List<String> toEmails = new ArrayList<>();
@@ -316,6 +321,7 @@ public class GroupTrainingServiceImpl implements GroupTrainingService {
                 repositoryResponse.getEndTime(),
                 repositoryResponse.getHallNo(),
                 repositoryResponse.getLimit(),
+                initialRating,
                 participantsResponses,
                 reserveListResponses);
         return response;
@@ -385,6 +391,7 @@ public class GroupTrainingServiceImpl implements GroupTrainingService {
                 repositoryResponse.getEndTime(),
                 repositoryResponse.getHallNo(),
                 repositoryResponse.getLimit(),
+                initialRating,
                 participantsResponses,
                 reserveListResponses);
         return response;

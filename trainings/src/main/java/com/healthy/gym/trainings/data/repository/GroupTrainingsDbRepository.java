@@ -2,6 +2,7 @@ package com.healthy.gym.trainings.data.repository;
 
 import com.healthy.gym.trainings.configuration.MongoConfig;
 import com.healthy.gym.trainings.data.document.GroupTrainings;
+import com.healthy.gym.trainings.data.document.GroupTrainingsReviews;
 import com.healthy.gym.trainings.data.document.TrainingTypeDocument;
 import com.healthy.gym.trainings.data.document.UserDocument;
 import com.healthy.gym.trainings.exception.InvalidDateException;
@@ -10,6 +11,7 @@ import com.healthy.gym.trainings.exception.StartDateAfterEndDateException;
 import com.healthy.gym.trainings.model.request.GroupTrainingRequest;
 import com.healthy.gym.trainings.model.response.GroupTrainingPublicResponse;
 import com.healthy.gym.trainings.model.response.GroupTrainingResponse;
+import com.healthy.gym.trainings.model.response.GroupTrainingReviewResponse;
 import com.healthy.gym.trainings.model.response.ParticipantsResponse;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
@@ -18,6 +20,8 @@ import com.mongodb.client.MongoDatabase;
 import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.stereotype.Repository;
 
@@ -33,6 +37,9 @@ public class GroupTrainingsDbRepository {
 
     @Autowired
     private GroupTrainingsRepository groupTrainingsRepository;
+
+    @Autowired
+    private ReviewDAO groupTrainingsReviewsRepository;
 
     @Autowired
     private TrainingTypeDAO trainingTypeRepository;
@@ -52,6 +59,14 @@ public class GroupTrainingsDbRepository {
     private SimpleDateFormat sdfDate = new SimpleDateFormat("yyyy-MM-dd");
     private String defaultStartDate = "1900-01-01";
     private String defaultEndDate = "2099-12-31";
+    private int page = 0;
+    private int size = 1000000;
+    private Pageable paging;
+    private double initialRating = 0.0;
+
+    public GroupTrainingsDbRepository(){
+        paging = PageRequest.of(page, size);
+    }
 
 
     public List<GroupTrainingResponse> getGroupTrainings(String startDate, String endDate) throws InvalidHourException, StartDateAfterEndDateException, ParseException, InvalidDateException {
@@ -78,6 +93,21 @@ public class GroupTrainingsDbRepository {
         List<GroupTrainingResponse> result = new ArrayList<>();
         for(GroupTrainings training : groupTrainingsDbResponse){
 
+            List<GroupTrainingReviewResponse> groupTrainingsReviews = groupTrainingsReviewsRepository.findByDateBetweenAndTrainingTypeId(
+                    null,
+                    null,
+                    training.getTrainingType().getTrainingTypeId(),
+                    paging).getContent();
+
+            double rating = 0.0;
+            int sum = 0;
+            int counter = 0;
+            for(GroupTrainingReviewResponse review : groupTrainingsReviews){
+                sum += review.getStars();
+                counter++;
+            }
+            if(counter !=0 ) rating = sum/counter;
+
             List<UserDocument> participants = training.getParticipants();
             List<ParticipantsResponse> participantsResponses = new ArrayList<>();
             for(UserDocument userDocument : participants){
@@ -102,6 +132,7 @@ public class GroupTrainingsDbRepository {
                     training.getEndTime(),
                     training.getHallNo(),
                     training.getLimit(),
+                    rating,
                     participantsResponses,
                     reserveListResponses);
             result.add(groupTraining);
@@ -133,6 +164,22 @@ public class GroupTrainingsDbRepository {
                 endDatePlusOneDayFormatted);
 
         for(GroupTrainings groupTraining : groupTrainings){
+
+            List<GroupTrainingReviewResponse> groupTrainingsReviews = groupTrainingsReviewsRepository.findByDateBetweenAndTrainingTypeId(
+                    null,
+                    null,
+                    groupTraining.getTrainingType().getTrainingTypeId(),
+                    paging).getContent();
+
+            double rating = 0.0;
+            int sum = 0;
+            int counter = 0;
+            for(GroupTrainingReviewResponse review : groupTrainingsReviews){
+                sum += review.getStars();
+                counter++;
+            }
+            if(counter !=0 ) rating = sum/counter;
+
             publicResponse.add(new GroupTrainingPublicResponse(groupTraining.getTrainingId(),
                     groupTraining.getTrainingType().getName(),
                     groupTraining.getTrainerId(),
@@ -140,7 +187,8 @@ public class GroupTrainingsDbRepository {
                     groupTraining.getStartTime(),
                     groupTraining.getEndTime(),
                     groupTraining.getHallNo(),
-                    groupTraining.getLimit()));
+                    groupTraining.getLimit(),
+                    rating));
         }
 
         return publicResponse;
@@ -148,6 +196,20 @@ public class GroupTrainingsDbRepository {
 
     public GroupTrainingResponse getGroupTrainingById(String trainingId) throws InvalidHourException, InvalidDateException {
         GroupTrainings groupTrainingsDbResponse = groupTrainingsRepository.findFirstByTrainingId(trainingId);
+
+        List<GroupTrainingReviewResponse> groupTrainingsReviews = groupTrainingsReviewsRepository.findByDateBetweenAndTrainingTypeId(
+                null,
+                null,
+                groupTrainingsDbResponse.getTrainingType().getTrainingTypeId(), paging).getContent();
+
+        double rating = 0.0;
+        int sum = 0;
+        int counter = 0;
+        for(GroupTrainingReviewResponse review : groupTrainingsReviews){
+            sum += review.getStars();
+            counter++;
+        }
+        if(counter !=0 ) rating = sum/counter;
 
         List<UserDocument> participants = groupTrainingsDbResponse.getParticipants();
         List<ParticipantsResponse> participantsResponses = new ArrayList<>();
@@ -173,6 +235,7 @@ public class GroupTrainingsDbRepository {
                 groupTrainingsDbResponse.getEndTime(),
                 groupTrainingsDbResponse.getHallNo(),
                 groupTrainingsDbResponse.getLimit(),
+                rating,
                 participantsResponses,
                 reserveListResponses);
         return result;
@@ -198,6 +261,22 @@ public class GroupTrainingsDbRepository {
 
         List<GroupTrainings> groupTrainingsDbResponse = groupTrainingsRepository.findAllByTrainingTypeIdAndDateBetween(
                 trainingTypeId, startDateMinusOneDayFormatted, endDatePlusOneDayFormatted);
+
+        double rating = 0.0;
+        int sum = 0;
+        int counter = 0;
+        if(groupTrainingsDbResponse.size() > 0){
+            List<GroupTrainingReviewResponse> groupTrainingsReviews = groupTrainingsReviewsRepository.findByDateBetweenAndTrainingTypeId(
+                    null,
+                    null,
+                    groupTrainingsDbResponse.get(0).getTrainingType().getTrainingTypeId(), paging).getContent();
+
+            for(GroupTrainingReviewResponse review : groupTrainingsReviews){
+                sum += review.getStars();
+                counter++;
+            }
+            if(counter !=0 ) rating = sum/counter;
+        }
 
         List<GroupTrainingResponse> result = new ArrayList<>();
         for(GroupTrainings training : groupTrainingsDbResponse){
@@ -226,6 +305,7 @@ public class GroupTrainingsDbRepository {
                     training.getEndTime(),
                     training.getHallNo(),
                     training.getLimit(),
+                    rating,
                     participantsResponses,
                     reserveListResponses);
             result.add(groupTraining);
@@ -254,6 +334,22 @@ public class GroupTrainingsDbRepository {
         List<GroupTrainings> dbResponse = groupTrainingsRepository.findAllByTrainingTypeIdAndDateBetween(
                 trainingTypeId, startDateMinusOneDayFormatted, endDatePlusOneDayFormatted);
 
+        double rating = 0.0;
+        int sum = 0;
+        int counter = 0;
+        if(dbResponse.size() > 0){
+            List<GroupTrainingReviewResponse> groupTrainingsReviews = groupTrainingsReviewsRepository.findByDateBetweenAndTrainingTypeId(
+                    null,
+                    null,
+                    dbResponse.get(0).getTrainingType().getTrainingTypeId(), paging).getContent();
+
+            for(GroupTrainingReviewResponse review : groupTrainingsReviews){
+                sum += review.getStars();
+                counter++;
+            }
+            if(counter !=0 ) rating = sum/counter;
+        }
+
         List<GroupTrainingPublicResponse> result = new ArrayList<>();
         for(GroupTrainings training : dbResponse){
             GroupTrainingPublicResponse groupTraining = new GroupTrainingPublicResponse(training.getTrainingId(),
@@ -263,7 +359,8 @@ public class GroupTrainingsDbRepository {
                     training.getStartTime(),
                     training.getEndTime(),
                     training.getHallNo(),
-                    training.getLimit());
+                    training.getLimit(),
+                    rating);
             result.add(groupTraining);
         }
         return result;
@@ -272,7 +369,25 @@ public class GroupTrainingsDbRepository {
     public List<GroupTrainingPublicResponse> getMyAllGroupTrainings(String clientId) throws InvalidDateException, InvalidHourException {
         List<GroupTrainingPublicResponse> publicResponse = new ArrayList<>();
         List<GroupTrainings> groupTrainings = groupTrainingsRepository.findGroupTrainingsByParticipantsContains(clientId);
+
         for(GroupTrainings groupTraining : groupTrainings){
+
+            double rating = 0.0;
+            int sum = 0;
+            int counter = 0;
+            if(groupTrainings.size() > 0){
+                List<GroupTrainingReviewResponse> groupTrainingsReviews = groupTrainingsReviewsRepository.findByDateBetweenAndTrainingTypeId(
+                        null,
+                        null,
+                        groupTraining.getTrainingType().getTrainingTypeId(), paging).getContent();
+
+                for(GroupTrainingReviewResponse review : groupTrainingsReviews){
+                    sum += review.getStars();
+                    counter++;
+                }
+                if(counter !=0 ) rating = sum/counter;
+            }
+
             publicResponse.add(new GroupTrainingPublicResponse(groupTraining.getTrainingId(),
                     groupTraining.getTrainingType().getName(),
                     groupTraining.getTrainerId(),
@@ -280,7 +395,8 @@ public class GroupTrainingsDbRepository {
                     groupTraining.getStartTime(),
                     groupTraining.getEndTime(),
                     groupTraining.getHallNo(),
-                    groupTraining.getLimit()));
+                    groupTraining.getLimit(),
+                    rating));
         }
 
         return publicResponse;
@@ -327,11 +443,21 @@ public class GroupTrainingsDbRepository {
     }
 
     public boolean isClientAlreadyEnrolledToGroupTraining(String trainingId, String clientId){
-        return groupTrainingsRepository.getFirstByTrainingId(trainingId).getParticipants().contains(clientId);
+        List<UserDocument> participantsUsers = groupTrainingsRepository.getFirstByTrainingId(trainingId).getParticipants();
+        List<String> usersIds = new ArrayList<>();
+        for(UserDocument userDocument : participantsUsers){
+            usersIds.add(userDocument.getUserId());
+        }
+        return usersIds.contains(clientId);
     }
 
     public boolean isClientAlreadyExistInReserveList(String trainingId, String clientId){
-        return groupTrainingsRepository.getFirstByTrainingId(trainingId).getReserveList().contains(clientId);
+        List<UserDocument> reserveListUsers = groupTrainingsRepository.getFirstByTrainingId(trainingId).getReserveList();
+        List<String> usersIds = new ArrayList<>();
+        for(UserDocument userDocument : reserveListUsers){
+            usersIds.add(userDocument.getUserId());
+        }
+        return usersIds.contains(clientId);
     }
 
     public void enrollToGroupTraining(String trainingId, String clientId){

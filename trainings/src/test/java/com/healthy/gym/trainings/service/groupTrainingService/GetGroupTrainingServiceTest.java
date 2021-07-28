@@ -51,10 +51,11 @@ public class GetGroupTrainingServiceTest {
         int hallNo = 1;
         int limit = 15;
 
+        double rating = 0.0;
         List<ParticipantsResponse> participantsResponses = new ArrayList<>();
         List<ParticipantsResponse> reserveListResponses = new ArrayList<>();
         GroupTrainingResponse groupTraining = new GroupTrainingResponse(trainingId, trainingName, trainerId, date, startTime,
-                endTime, hallNo, limit, participantsResponses, reserveListResponses);
+                endTime, hallNo, limit, rating, participantsResponses, reserveListResponses);
 
         List<GroupTrainingResponse> groupTrainings = new ArrayList<>();
         groupTrainings.add(groupTraining);
@@ -87,9 +88,10 @@ public class GetGroupTrainingServiceTest {
         String endTime = "19:00";
         int hallNo = 1;
         int limit = 15;
+        double rating = 0.0;
 
         GroupTrainingPublicResponse groupTrainingPublicResponse = new GroupTrainingPublicResponse(trainingId,
-                trainingName, trainerId, date, startTime, endTime, hallNo, limit);
+                trainingName, trainerId, date, startTime, endTime, hallNo, limit, rating);
 
         List<GroupTrainingPublicResponse> groupTrainings = new ArrayList<>();
         groupTrainings.add(groupTrainingPublicResponse);
@@ -120,11 +122,12 @@ public class GetGroupTrainingServiceTest {
         String endTime = "19:00";
         int hallNo = 1;
         int limit = 15;
+        double rating = 0.0;
 
         List<ParticipantsResponse> participantsResponses = new ArrayList<>();
         List<ParticipantsResponse> reserveListResponses = new ArrayList<>();
         GroupTrainingResponse groupTraining = new GroupTrainingResponse(trainingId, trainingName, trainerId, date, startTime,
-                endTime, hallNo, limit, participantsResponses, reserveListResponses);
+                endTime, hallNo, limit, rating, participantsResponses, reserveListResponses);
 
         List<GroupTrainingResponse> groupTrainings = new ArrayList<>();
         groupTrainings.add(groupTraining);
@@ -229,10 +232,12 @@ public class GetGroupTrainingServiceTest {
         String endTime = "19:00";
         int hallNo = 1;
         int limit = 15;
+        double rating = 0.0;
+
         List<ParticipantsResponse> participantsResponses = new ArrayList<>();
         List<ParticipantsResponse> reserveListResponses = new ArrayList<>();
         GroupTrainingResponse groupTraining = new GroupTrainingResponse(trainingId, trainingName, trainerId, date, startTime,
-                endTime, hallNo, limit, participantsResponses, reserveListResponses);
+                endTime, hallNo, limit, rating, participantsResponses, reserveListResponses);
 
         List<GroupTrainingResponse> groupTrainings = new ArrayList<>();
         groupTrainings.add(groupTraining);
@@ -267,10 +272,12 @@ public class GetGroupTrainingServiceTest {
         String endTime = "19:00";
         int hallNo = 1;
         int limit = 15;
+        double rating = 0.0;
+
         List<ParticipantsResponse> participantsResponses = new ArrayList<>();
         List<ParticipantsResponse> reserveListResponses = new ArrayList<>();
         GroupTrainingResponse groupTraining = new GroupTrainingResponse(trainingId, trainingName, trainerId, date, startTime,
-                endTime, hallNo, limit, participantsResponses, reserveListResponses);
+                endTime, hallNo, limit, rating, participantsResponses, reserveListResponses);
 
         List<GroupTrainingResponse> groupTrainings = new ArrayList<>();
         groupTrainings.add(groupTraining);

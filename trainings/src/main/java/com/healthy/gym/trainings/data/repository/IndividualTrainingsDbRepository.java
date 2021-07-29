@@ -1,7 +1,7 @@
 package com.healthy.gym.trainings.data.repository;
 
 import com.healthy.gym.trainings.data.document.IndividualTrainings;
-import com.healthy.gym.trainings.exception.InvalidHourException;
+import com.healthy.gym.trainings.exception.invalid.InvalidHourException;
 import com.healthy.gym.trainings.model.request.IndividualTrainingAcceptanceRequest;
 import com.healthy.gym.trainings.model.request.IndividualTrainingRequest;
 import org.springframework.beans.factory.annotation.Autowired;

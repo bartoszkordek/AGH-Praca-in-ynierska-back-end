@@ -22,7 +22,13 @@ public class Messages {
                 {"training.type.removed", "Typ treningu został usunięty."},
                 {"training.type.failure", "Wystąpił błąd podczas tworzenia treningu."},
                 {"exception.invalid.id.format", "Nieprawidłowy format id."},
-                {"request.bind.exception", "Podano nieprawidłowy format danych."}
+                {"request.bind.exception", "Podano nieprawidłowy format danych."},
+                {"exception.create.group.training.trainer.occupied", "Trener jest niedostępny we wskazanym czasie."},
+                {"exception.create.group.training.location.occupied", "Sala jest niedostępna we wskazanym czasie."},
+                {"exception.create.group.training.trainingType.not.found", "Nie znaleziono określonego typu treningu."},
+                {"exception.create.group.training.location.not.found", "Nie znaleziono określonej lokalizacji."},
+                {"exception.create.group.training.trainer.not.found", "Nie znaleziono wskazanego trenera."},
+                {"request.create.training.success", "Pomyślnie dodano nowy trening do grafiku."}
         }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
     }
 
@@ -43,7 +49,13 @@ public class Messages {
                 {"training.type.removed", "Training type has been removed."},
                 {"training.type.failure", "An error occurred while creating new training type."},
                 {"exception.invalid.id.format", "Invalid id format."},
-                {"request.bind.exception", "An invalid data format has been provided."}
+                {"request.bind.exception", "An invalid data format has been provided."},
+                {"exception.create.group.training.trainer.occupied", "The trainer is unavailable at the indicated time."},
+                {"exception.create.group.training.location.occupied", "The location is unavailable at the indicated time."},
+                {"exception.create.group.training.trainingType.not.found", "Specified training type is not found."},
+                {"exception.create.group.training.location.not.found", "Specified location is not found."},
+                {"exception.create.group.training.trainer.not.found", "Specified trainer is not found."},
+                {"request.create.training.success", "New training has been successfully added to the timetable."}
         }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
     }
 

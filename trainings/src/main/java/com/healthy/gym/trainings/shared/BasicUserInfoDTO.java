@@ -1,9 +1,11 @@
 package com.healthy.gym.trainings.shared;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.Objects;
 
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class BasicUserInfoDTO {
     private String userId;
     private String name;

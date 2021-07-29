@@ -1,4 +1,4 @@
-package com.healthy.gym.trainings.controller.groupTrainingControler;
+package com.healthy.gym.trainings.controller.group.training;
 
 import com.healthy.gym.trainings.component.Translator;
 import com.healthy.gym.trainings.exception.*;

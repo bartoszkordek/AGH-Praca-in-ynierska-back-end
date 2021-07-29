@@ -7,12 +7,14 @@ import com.healthy.gym.trainings.exception.notexisting.NotExistingGroupTrainingE
 import com.healthy.gym.trainings.exception.notfound.LocationNotFoundException;
 import com.healthy.gym.trainings.exception.notfound.TrainerNotFoundException;
 import com.healthy.gym.trainings.exception.notfound.TrainingTypeNotFoundException;
+import com.healthy.gym.trainings.exception.occupied.LocationOccupiedException;
+import com.healthy.gym.trainings.exception.occupied.TrainerOccupiedException;
 import com.healthy.gym.trainings.model.request.CreateGroupTrainingRequest;
 import com.healthy.gym.trainings.model.request.GroupTrainingRequest;
-import com.healthy.gym.trainings.model.response.CreateGroupTrainingResponse;
 import com.healthy.gym.trainings.model.response.GroupTrainingPublicResponse;
 import com.healthy.gym.trainings.model.response.GroupTrainingResponse;
 import com.healthy.gym.trainings.model.response.ParticipantsResponse;
+import com.healthy.gym.trainings.shared.GroupTrainingDTO;
 
 import java.text.ParseException;
 import java.util.List;
@@ -58,9 +60,13 @@ public interface GroupTrainingService {
     GroupTrainingResponse createGroupTraining(GroupTrainingRequest groupTrainingModel)
             throws TrainingCreationException, ParseException, InvalidHourException, InvalidDateException;
 
-    CreateGroupTrainingResponse createGroupTraining(CreateGroupTrainingRequest createGroupTrainingRequest)
-            throws StartDateAfterEndDateException, TrainerNotFoundException,
-            LocationNotFoundException, TrainingTypeNotFoundException;
+    GroupTrainingDTO createGroupTraining(CreateGroupTrainingRequest createGroupTrainingRequest)
+            throws StartDateAfterEndDateException,
+            TrainerNotFoundException,
+            LocationNotFoundException,
+            TrainingTypeNotFoundException,
+            LocationOccupiedException,
+            TrainerOccupiedException;
 
     GroupTrainingResponse removeGroupTraining(String trainingId)
             throws TrainingRemovalException, EmailSendingException, InvalidDateException, InvalidHourException;

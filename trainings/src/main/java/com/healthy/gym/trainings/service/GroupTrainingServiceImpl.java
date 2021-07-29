@@ -15,11 +15,11 @@ import com.healthy.gym.trainings.exception.notfound.TrainingTypeNotFoundExceptio
 import com.healthy.gym.trainings.model.other.EmailSendModel;
 import com.healthy.gym.trainings.model.request.CreateGroupTrainingRequest;
 import com.healthy.gym.trainings.model.request.GroupTrainingRequest;
-import com.healthy.gym.trainings.model.response.CreateGroupTrainingResponse;
 import com.healthy.gym.trainings.model.response.GroupTrainingPublicResponse;
 import com.healthy.gym.trainings.model.response.GroupTrainingResponse;
 import com.healthy.gym.trainings.model.response.ParticipantsResponse;
 import com.healthy.gym.trainings.service.email.EmailService;
+import com.healthy.gym.trainings.shared.GroupTrainingDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -291,7 +291,7 @@ public class GroupTrainingServiceImpl implements GroupTrainingService {
     }
 
     @Override
-    public CreateGroupTrainingResponse createGroupTraining(CreateGroupTrainingRequest createGroupTrainingRequest)
+    public GroupTrainingDTO createGroupTraining(CreateGroupTrainingRequest createGroupTrainingRequest)
             throws StartDateAfterEndDateException,
             TrainerNotFoundException,
             LocationNotFoundException,

@@ -21,7 +21,8 @@ public class Messages {
                 {"training.type.updated", "Typ treningu został zaktualizowany."},
                 {"training.type.removed", "Typ treningu został usunięty."},
                 {"training.type.failure", "Wystąpił błąd podczas tworzenia treningu."},
-                {"exception.invalid.id.format", "Nieprawidłowy format id."}
+                {"exception.invalid.id.format", "Nieprawidłowy format id."},
+                {"request.bind.exception", "Podano nieprawidłowy format danych."}
         }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
     }
 
@@ -41,7 +42,8 @@ public class Messages {
                 {"training.type.updated", "Training type has been updated."},
                 {"training.type.removed", "Training type has been removed."},
                 {"training.type.failure", "An error occurred while creating new training type."},
-                {"exception.invalid.id.format", "Invalid id format."}
+                {"exception.invalid.id.format", "Invalid id format."},
+                {"request.bind.exception", "An invalid data format has been provided."}
         }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
     }
 

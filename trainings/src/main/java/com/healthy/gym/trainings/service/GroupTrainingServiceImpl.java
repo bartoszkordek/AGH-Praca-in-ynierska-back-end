@@ -9,10 +9,16 @@ import com.healthy.gym.trainings.exception.*;
 import com.healthy.gym.trainings.exception.invalid.InvalidDateException;
 import com.healthy.gym.trainings.exception.invalid.InvalidHourException;
 import com.healthy.gym.trainings.exception.notexisting.NotExistingGroupTrainingException;
+import com.healthy.gym.trainings.exception.notfound.LocationNotFoundException;
+import com.healthy.gym.trainings.exception.notfound.TrainerNotFoundException;
 import com.healthy.gym.trainings.exception.notfound.TrainingTypeNotFoundException;
 import com.healthy.gym.trainings.model.other.EmailSendModel;
+import com.healthy.gym.trainings.model.request.CreateGroupTrainingRequest;
 import com.healthy.gym.trainings.model.request.GroupTrainingRequest;
-import com.healthy.gym.trainings.model.response.*;
+import com.healthy.gym.trainings.model.response.CreateGroupTrainingResponse;
+import com.healthy.gym.trainings.model.response.GroupTrainingPublicResponse;
+import com.healthy.gym.trainings.model.response.GroupTrainingResponse;
+import com.healthy.gym.trainings.model.response.ParticipantsResponse;
 import com.healthy.gym.trainings.service.email.EmailService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -137,10 +143,10 @@ public class GroupTrainingServiceImpl implements GroupTrainingService {
     public List<GroupTrainingResponse> getGroupTrainingsByType(String trainingTypeId, String startDate, String endDate)
             throws NotExistingGroupTrainingException, InvalidHourException, StartDateAfterEndDateException,
             ParseException, InvalidDateException, TrainingTypeNotFoundException {
-        if(!trainingTypeRepository.existsByTrainingTypeId(trainingTypeId)){
+        if (!trainingTypeRepository.existsByTrainingTypeId(trainingTypeId)) {
             throw new TrainingTypeNotFoundException("Training type does not exist");
         }
-        if(!groupTrainingsDbRepository.isGroupTrainingExistByType(trainingTypeId)){
+        if (!groupTrainingsDbRepository.isGroupTrainingExistByType(trainingTypeId)) {
             throw new NotExistingGroupTrainingException("Trainings with type ID " + trainingTypeId + " does not exist");
         }
 
@@ -148,11 +154,20 @@ public class GroupTrainingServiceImpl implements GroupTrainingService {
     }
 
     @Override
-    public List<GroupTrainingPublicResponse> getGroupTrainingsPublicByType(String trainingTypeId, String startDate, String endDate) throws TrainingTypeNotFoundException, NotExistingGroupTrainingException, InvalidDateException, InvalidHourException, StartDateAfterEndDateException, ParseException {
-        if(!trainingTypeRepository.existsByTrainingTypeId(trainingTypeId)){
+    public List<GroupTrainingPublicResponse> getGroupTrainingsPublicByType(
+            String trainingTypeId,
+            String startDate,
+            String endDate
+    ) throws TrainingTypeNotFoundException,
+            NotExistingGroupTrainingException,
+            InvalidDateException,
+            InvalidHourException,
+            StartDateAfterEndDateException,
+            ParseException {
+        if (!trainingTypeRepository.existsByTrainingTypeId(trainingTypeId)) {
             throw new TrainingTypeNotFoundException("Training type does not exist");
         }
-        if(!groupTrainingsDbRepository.isGroupTrainingExistByType(trainingTypeId)){
+        if (!groupTrainingsDbRepository.isGroupTrainingExistByType(trainingTypeId)) {
             throw new NotExistingGroupTrainingException("Trainings with type ID " + trainingTypeId + " does not exist");
         }
         return groupTrainingsDbRepository.getGroupTrainingsPublicByTrainingTypeId(trainingTypeId, startDate, endDate);
@@ -244,7 +259,7 @@ public class GroupTrainingServiceImpl implements GroupTrainingService {
 
         List<UserDocument> participants = repositoryResponse.getParticipants();
         List<ParticipantsResponse> participantsResponses = new ArrayList<>();
-        for(UserDocument participant : participants){
+        for (UserDocument participant : participants) {
             ParticipantsResponse participantsResponse = new ParticipantsResponse(participant.getUserId(),
                     participant.getName(), participant.getSurname());
             participantsResponses.add(participantsResponse);
@@ -252,7 +267,7 @@ public class GroupTrainingServiceImpl implements GroupTrainingService {
 
         List<UserDocument> reserveList = repositoryResponse.getReserveList();
         List<ParticipantsResponse> reserveListResponses = new ArrayList<>();
-        for(UserDocument reserveListParticipant : reserveList){
+        for (UserDocument reserveListParticipant : reserveList) {
             ParticipantsResponse reserveListParticipantsResponse = new ParticipantsResponse(
                     reserveListParticipant.getUserId(),
                     reserveListParticipant.getName(),
@@ -276,6 +291,15 @@ public class GroupTrainingServiceImpl implements GroupTrainingService {
     }
 
     @Override
+    public CreateGroupTrainingResponse createGroupTraining(CreateGroupTrainingRequest createGroupTrainingRequest)
+            throws StartDateAfterEndDateException,
+            TrainerNotFoundException,
+            LocationNotFoundException,
+            TrainingTypeNotFoundException {
+        return null;
+    }
+
+    @Override
     public GroupTrainingResponse removeGroupTraining(String trainingId)
             throws TrainingRemovalException, EmailSendingException, InvalidDateException, InvalidHourException {
 
@@ -287,9 +311,9 @@ public class GroupTrainingServiceImpl implements GroupTrainingService {
         List<UserDocument> participants = repositoryResponse.getParticipants();
         List<ParticipantsResponse> participantsResponses = new ArrayList<>();
         List<String> toEmails = new ArrayList<>();
-        for(UserDocument document : participants){
+        for (UserDocument document : participants) {
             ParticipantsResponse participantsResponse = new ParticipantsResponse(document.getUserId(),
-                    document.getName(),document.getSurname());
+                    document.getName(), document.getSurname());
             participantsResponses.add(participantsResponse);
             String email = document.getEmail();
             toEmails.add(email);
@@ -297,7 +321,7 @@ public class GroupTrainingServiceImpl implements GroupTrainingService {
 
         List<UserDocument> reserveList = repositoryResponse.getReserveList();
         List<ParticipantsResponse> reserveListResponses = new ArrayList<>();
-        for(UserDocument document : reserveList){
+        for (UserDocument document : reserveList) {
             ParticipantsResponse reserveListResponse = new ParticipantsResponse(document.getUserId(),
                     document.getName(), document.getSurname());
             reserveListResponses.add(reserveListResponse);
@@ -357,9 +381,9 @@ public class GroupTrainingServiceImpl implements GroupTrainingService {
         List<UserDocument> participants = repositoryResponse.getParticipants();
         List<ParticipantsResponse> participantsResponses = new ArrayList<>();
         List<String> toEmails = new ArrayList<>();
-        for(UserDocument document : participants){
+        for (UserDocument document : participants) {
             ParticipantsResponse participantsResponse = new ParticipantsResponse(document.getUserId(),
-                    document.getName(),document.getSurname());
+                    document.getName(), document.getSurname());
             participantsResponses.add(participantsResponse);
             String email = document.getEmail();
             toEmails.add(email);
@@ -367,7 +391,7 @@ public class GroupTrainingServiceImpl implements GroupTrainingService {
 
         List<UserDocument> reserveList = repositoryResponse.getReserveList();
         List<ParticipantsResponse> reserveListResponses = new ArrayList<>();
-        for(UserDocument document : reserveList){
+        for (UserDocument document : reserveList) {
             ParticipantsResponse reserveListResponse = new ParticipantsResponse(document.getUserId(),
                     document.getName(), document.getSurname());
             reserveListResponses.add(reserveListResponse);

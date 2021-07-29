@@ -1,6 +1,7 @@
 package com.healthy.gym.trainings.service;
 
 import com.healthy.gym.trainings.exception.*;
+import com.healthy.gym.trainings.exception.notfound.TrainingTypeNotFoundException;
 import com.healthy.gym.trainings.model.request.GroupTrainingReviewRequest;
 import com.healthy.gym.trainings.model.request.GroupTrainingReviewUpdateRequest;
 import com.healthy.gym.trainings.model.response.GroupTrainingReviewPublicResponse;

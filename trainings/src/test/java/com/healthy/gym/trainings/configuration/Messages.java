@@ -16,10 +16,12 @@ public class Messages {
                 {"exception.unsupported.data.type", "Błąd. Dopuszczalny format pliku to JPEG lub PNG."},
                 {"exception.internal.error", "Podczas przetwarzania żądania wystąpił błąd."},
                 {"field.required", "Pole jest wymagane."},
+                {"field.training.limit.min.value", "The minimum number of people in training is 1."},
                 {"training.type.created", "Nowy typ treningu został stworzony."},
                 {"training.type.updated", "Typ treningu został zaktualizowany."},
                 {"training.type.removed", "Typ treningu został usunięty."},
-                {"training.type.failure", "Wystąpił błąd podczas tworzenia treningu."}
+                {"training.type.failure", "Wystąpił błąd podczas tworzenia treningu."},
+                {"exception.invalid.id.format", "Nieprawidłowy format id."}
         }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
     }
 
@@ -34,10 +36,12 @@ public class Messages {
                 {"exception.unsupported.data.type", "Error. The acceptable file format is JPEG or PNG."},
                 {"exception.internal.error", "An error occurred while processing your request."},
                 {"field.required", "Field is required."},
+                {"field.training.limit.min.value", "Minimalny limit osób na treningu to 1."},
                 {"training.type.created", "New training type has been created."},
                 {"training.type.updated", "Training type has been updated."},
                 {"training.type.removed", "Training type has been removed."},
-                {"training.type.failure", "An error occurred while creating new training type."}
+                {"training.type.failure", "An error occurred while creating new training type."},
+                {"exception.invalid.id.format", "Invalid id format."}
         }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
     }
 

@@ -5,7 +5,7 @@ import com.healthy.gym.trainings.data.document.TrainingTypeDocument;
 import com.healthy.gym.trainings.data.repository.ImageDAO;
 import com.healthy.gym.trainings.data.repository.TrainingTypeDAO;
 import com.healthy.gym.trainings.exception.DuplicatedTrainingTypeException;
-import com.healthy.gym.trainings.exception.TrainingTypeNotFoundException;
+import com.healthy.gym.trainings.exception.notfound.TrainingTypeNotFoundException;
 import com.healthy.gym.trainings.model.request.TrainingTypeRequest;
 import org.bson.types.Binary;
 import org.springframework.beans.factory.annotation.Autowired;

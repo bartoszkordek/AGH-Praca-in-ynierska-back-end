@@ -4,7 +4,7 @@ import com.healthy.gym.trainings.configuration.TestCountry;
 import com.healthy.gym.trainings.configuration.TestRoleTokenFactory;
 import com.healthy.gym.trainings.controller.TrainingTypeController;
 import com.healthy.gym.trainings.data.document.TrainingTypeDocument;
-import com.healthy.gym.trainings.exception.TrainingTypeNotFoundException;
+import com.healthy.gym.trainings.exception.notfound.TrainingTypeNotFoundException;
 import com.healthy.gym.trainings.service.TrainingTypeService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;

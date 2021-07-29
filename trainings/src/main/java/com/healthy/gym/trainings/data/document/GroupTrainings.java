@@ -1,7 +1,7 @@
 package com.healthy.gym.trainings.data.document;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.healthy.gym.trainings.exception.InvalidHourException;
+import com.healthy.gym.trainings.exception.invalid.InvalidHourException;
 import com.healthy.gym.trainings.validation.Time24HoursValidator;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.DBRef;

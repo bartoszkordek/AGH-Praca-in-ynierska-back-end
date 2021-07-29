@@ -4,7 +4,7 @@ import com.healthy.gym.trainings.configuration.TestCountry;
 import com.healthy.gym.trainings.controller.TrainingTypeController;
 import com.healthy.gym.trainings.data.document.ImageDocument;
 import com.healthy.gym.trainings.data.document.TrainingTypeDocument;
-import com.healthy.gym.trainings.exception.TrainingTypeNotFoundException;
+import com.healthy.gym.trainings.exception.notfound.TrainingTypeNotFoundException;
 import com.healthy.gym.trainings.service.TrainingTypeService;
 import org.bson.types.Binary;
 import org.junit.jupiter.api.BeforeEach;

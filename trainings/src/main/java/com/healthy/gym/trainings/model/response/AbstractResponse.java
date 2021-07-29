@@ -14,6 +14,10 @@ public abstract class AbstractResponse implements Serializable {
     protected AbstractResponse() {
     }
 
+    protected AbstractResponse(String message) {
+        this.message = message;
+    }
+
     protected AbstractResponse(String message, Map<String, String> errors) {
         this.message = message;
         this.errors = errors;

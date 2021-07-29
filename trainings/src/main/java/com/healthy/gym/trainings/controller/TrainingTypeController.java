@@ -7,7 +7,7 @@ import com.healthy.gym.trainings.data.document.ImageDocument;
 import com.healthy.gym.trainings.data.document.TrainingTypeDocument;
 import com.healthy.gym.trainings.exception.DuplicatedTrainingTypeException;
 import com.healthy.gym.trainings.exception.MultipartBodyException;
-import com.healthy.gym.trainings.exception.TrainingTypeNotFoundException;
+import com.healthy.gym.trainings.exception.notfound.TrainingTypeNotFoundException;
 import com.healthy.gym.trainings.model.request.TrainingTypeRequest;
 import com.healthy.gym.trainings.model.response.TrainingTypeResponse;
 import com.healthy.gym.trainings.service.TrainingTypeService;

@@ -1,7 +1,11 @@
-package com.healthy.gym.trainings.controller.groupTrainingControler;
+package com.healthy.gym.trainings.controller.group.training;
 
 import com.healthy.gym.trainings.component.Translator;
 import com.healthy.gym.trainings.exception.*;
+import com.healthy.gym.trainings.exception.invalid.InvalidDateException;
+import com.healthy.gym.trainings.exception.invalid.InvalidHourException;
+import com.healthy.gym.trainings.exception.notexisting.NotExistingGroupTrainingException;
+import com.healthy.gym.trainings.exception.notfound.TrainingTypeNotFoundException;
 import com.healthy.gym.trainings.model.response.GroupTrainingPublicResponse;
 import com.healthy.gym.trainings.service.GroupTrainingService;
 import org.springframework.beans.factory.annotation.Autowired;

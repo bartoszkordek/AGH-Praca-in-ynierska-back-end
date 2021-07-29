@@ -1,13 +1,14 @@
 package com.healthy.gym.trainings.controller;
 
 import com.healthy.gym.trainings.component.Translator;
-import com.healthy.gym.trainings.data.document.GroupTrainingsReviews;
 import com.healthy.gym.trainings.exception.*;
+import com.healthy.gym.trainings.exception.invalid.InvalidUserIdException;
+import com.healthy.gym.trainings.exception.notexisting.NotExistingGroupTrainingReviewException;
+import com.healthy.gym.trainings.exception.notfound.TrainingTypeNotFoundException;
 import com.healthy.gym.trainings.model.request.GroupTrainingReviewRequest;
 import com.healthy.gym.trainings.model.request.GroupTrainingReviewUpdateRequest;
 import com.healthy.gym.trainings.model.response.GroupTrainingReviewPublicResponse;
 import com.healthy.gym.trainings.model.response.GroupTrainingReviewResponse;
-import com.healthy.gym.trainings.service.GroupTrainingService;
 import com.healthy.gym.trainings.service.ReviewService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;

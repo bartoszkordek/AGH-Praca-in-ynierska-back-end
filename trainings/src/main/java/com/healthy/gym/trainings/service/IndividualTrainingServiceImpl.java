@@ -4,6 +4,8 @@ import com.healthy.gym.trainings.configuration.EmailConfig;
 import com.healthy.gym.trainings.data.document.IndividualTrainings;
 import com.healthy.gym.trainings.data.repository.IndividualTrainingsDbRepository;
 import com.healthy.gym.trainings.exception.*;
+import com.healthy.gym.trainings.exception.invalid.InvalidHourException;
+import com.healthy.gym.trainings.exception.notexisting.NotExistingIndividualTrainingException;
 import com.healthy.gym.trainings.model.other.EmailSendModel;
 import com.healthy.gym.trainings.model.request.IndividualTrainingAcceptanceRequest;
 import com.healthy.gym.trainings.model.request.IndividualTrainingRequest;

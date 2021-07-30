@@ -1,25 +1,28 @@
 package com.healthy.gym.trainings.shared;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.util.Objects;
 
 public class LocationDTO {
-    private String id;
+    @JsonProperty("id")
+    private String locationId;
     private String name;
 
     public LocationDTO() {
     }
 
     public LocationDTO(String id, String name) {
-        this.id = id;
+        this.locationId = id;
         this.name = name;
     }
 
-    public String getId() {
-        return id;
+    public String getLocationId() {
+        return locationId;
     }
 
-    public void setId(String id) {
-        this.id = id;
+    public void setLocationId(String locationId) {
+        this.locationId = locationId;
     }
 
     public String getName() {
@@ -35,18 +38,18 @@ public class LocationDTO {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         LocationDTO that = (LocationDTO) o;
-        return Objects.equals(id, that.id) && Objects.equals(name, that.name);
+        return Objects.equals(locationId, that.locationId) && Objects.equals(name, that.name);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, name);
+        return Objects.hash(locationId, name);
     }
 
     @Override
     public String toString() {
         return "LocationDTO{" +
-                "id='" + id + '\'' +
+                "id='" + locationId + '\'' +
                 ", name='" + name + '\'' +
                 '}';
     }

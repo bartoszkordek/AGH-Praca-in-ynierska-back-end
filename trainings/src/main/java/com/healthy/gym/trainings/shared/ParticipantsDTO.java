@@ -8,14 +8,14 @@ import java.util.Objects;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class ParticipantsDTO {
     private List<BasicUserInfoDTO> basicList;
-    private List<BasicUserInfoDTO> reservationList;
+    private List<BasicUserInfoDTO> reserveList;
 
     public ParticipantsDTO() {
     }
 
     public ParticipantsDTO(List<BasicUserInfoDTO> basicList, List<BasicUserInfoDTO> reservationList) {
         this.basicList = basicList;
-        this.reservationList = reservationList;
+        this.reserveList = reservationList;
     }
 
     public List<BasicUserInfoDTO> getBasicList() {
@@ -26,12 +26,12 @@ public class ParticipantsDTO {
         this.basicList = basicList;
     }
 
-    public List<BasicUserInfoDTO> getReservationList() {
-        return reservationList;
+    public List<BasicUserInfoDTO> getReserveList() {
+        return reserveList;
     }
 
-    public void setReservationList(List<BasicUserInfoDTO> reservationList) {
-        this.reservationList = reservationList;
+    public void setReserveList(List<BasicUserInfoDTO> reserveList) {
+        this.reserveList = reserveList;
     }
 
     @Override
@@ -40,19 +40,19 @@ public class ParticipantsDTO {
         if (o == null || getClass() != o.getClass()) return false;
         ParticipantsDTO that = (ParticipantsDTO) o;
         return Objects.equals(basicList, that.basicList)
-                && Objects.equals(reservationList, that.reservationList);
+                && Objects.equals(reserveList, that.reserveList);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(basicList, reservationList);
+        return Objects.hash(basicList, reserveList);
     }
 
     @Override
     public String toString() {
         return "ParticipantsDTO{" +
                 "basicList=" + basicList +
-                ", reservationList=" + reservationList +
+                ", reserveList=" + reserveList +
                 '}';
     }
 }

@@ -13,6 +13,7 @@ import com.healthy.gym.trainings.model.request.GroupTrainingRequest;
 import com.healthy.gym.trainings.model.response.CreateGroupTrainingResponse;
 import com.healthy.gym.trainings.model.response.GroupTrainingResponse;
 import com.healthy.gym.trainings.service.GroupTrainingService;
+import com.healthy.gym.trainings.service.group.training.ManagerGroupTrainingService;
 import com.healthy.gym.trainings.shared.GroupTrainingDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -33,11 +34,17 @@ public class GroupTrainingManagerController {
     private static final String INTERNAL_ERROR_EXCEPTION = "exception.internal.error";
     private final Translator translator;
     private final GroupTrainingService groupTrainingsService;
+    private final ManagerGroupTrainingService managerGroupTrainingService;
 
     @Autowired
-    public GroupTrainingManagerController(Translator translator, GroupTrainingService groupTrainingsService) {
+    public GroupTrainingManagerController(
+            Translator translator,
+            GroupTrainingService groupTrainingsService,
+            ManagerGroupTrainingService managerGroupTrainingService
+    ) {
         this.translator = translator;
         this.groupTrainingsService = groupTrainingsService;
+        this.managerGroupTrainingService = managerGroupTrainingService;
     }
 
     @PreAuthorize("hasRole('MANAGER') or hasRole('ADMIN')")
@@ -49,12 +56,12 @@ public class GroupTrainingManagerController {
         try {
             if (bindingResult.hasErrors()) throw new BindException(bindingResult);
 
-            GroupTrainingDTO createdTraining = groupTrainingsService
+            GroupTrainingDTO createdTraining = managerGroupTrainingService
                     .createGroupTraining(createGroupTrainingRequest);
             String message = translator.toLocale("request.create.training.success");
 
             return ResponseEntity
-                    .status(HttpStatus.OK)
+                    .status(HttpStatus.CREATED)
                     .body(new CreateGroupTrainingResponse(message, createdTraining));
 
         } catch (BindException exception) {

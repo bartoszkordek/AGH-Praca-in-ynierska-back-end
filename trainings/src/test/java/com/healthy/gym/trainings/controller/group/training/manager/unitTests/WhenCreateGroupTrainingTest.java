@@ -104,8 +104,7 @@ class WhenCreateGroupTrainingTest {
                                 "TestSurname",
                                 "testAvatarUrl"
                         )
-                ),
-                null
+                )
         );
     }
 

@@ -8,7 +8,7 @@ public class Messages {
     private static Map<String, String> getMessagesPL() {
         return Stream.of(new String[][]{
                 {"exception.access.denied", "Nie masz uprawnień do wykonania tej operacji."},
-                {"exception.create.group.training.location.not.found", "Nie znaleziono określonej lokalizacji."},
+                {"exception.location.not.found", "Nie znaleziono określonej lokalizacji."},
                 {"exception.create.group.training.location.occupied", "Sala jest niedostępna we wskazanym czasie."},
                 {"exception.create.group.training.trainer.not.found", "Nie znaleziono wskazanego trenera."},
                 {"exception.create.group.training.trainer.occupied", "Trener jest niedostępny we wskazanym czasie."},
@@ -37,6 +37,8 @@ public class Messages {
                 {"field.required", "Pole jest wymagane."},
                 {"field.training.limit.min.value", "Minimalny limit osób na treningu to 1."},
                 {"location.created", "Nowa lokalizacja została stworzona."},
+                {"location.updated", "Lokalizacja została uaktualniona."},
+                {"location.removed", "Lokalizacja została usunięta."},
                 {"request.bind.exception", "Podano nieprawidłowy format danych."},
                 {"request.create.training.success", "Pomyślnie dodano nowy trening do grafiku."},
                 {"training.type.created", "Nowy typ treningu został stworzony."},
@@ -49,7 +51,7 @@ public class Messages {
     private static Map<String, String> getMessagesEN() {
         return Stream.of(new String[][]{
                 {"exception.access.denied", "You are not allowed to perform this operation."},
-                {"exception.create.group.training.location.not.found", "Specified location is not found."},
+                {"exception.location.not.found", "Specified location is not found."},
                 {"exception.create.group.training.location.occupied", "The location is unavailable at the indicated time."},
                 {"exception.create.group.training.trainer.not.found", "Specified trainer is not found."},
                 {"exception.create.group.training.trainer.occupied", "The trainer is unavailable at the indicated time."},
@@ -78,6 +80,8 @@ public class Messages {
                 {"field.required", "Field is required."},
                 {"field.training.limit.min.value", "The minimum number of people in training is 1."},
                 {"location.created", "New location has been created."},
+                {"location.updated", "The location has been updated."},
+                {"location.removed", "The location has been removed."},
                 {"request.bind.exception", "An invalid data format has been provided."},
                 {"request.create.training.success", "New training has been successfully added to the timetable."},
                 {"training.type.created", "New training type has been created."},

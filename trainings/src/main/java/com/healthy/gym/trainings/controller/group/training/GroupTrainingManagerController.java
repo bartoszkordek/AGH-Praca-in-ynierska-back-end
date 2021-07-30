@@ -70,7 +70,7 @@ public class GroupTrainingManagerController {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, exception);
 
         } catch (LocationNotFoundException exception) {
-            String reason = translator.toLocale("exception.create.group.training.location.not.found");
+            String reason = translator.toLocale("exception.location.not.found");
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, exception);
 
         } catch (TrainingTypeNotFoundException exception) {

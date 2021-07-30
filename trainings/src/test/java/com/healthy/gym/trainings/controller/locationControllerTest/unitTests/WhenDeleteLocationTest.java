@@ -1,8 +1,9 @@
-package com.healthy.gym.trainings.controller.locationControllerTest;
+package com.healthy.gym.trainings.controller.locationControllerTest.unitTests;
 
 import com.healthy.gym.trainings.configuration.TestCountry;
 import com.healthy.gym.trainings.configuration.TestRoleTokenFactory;
 import com.healthy.gym.trainings.controller.LocationController;
+import com.healthy.gym.trainings.exception.notfound.LocationNotFoundException;
 import com.healthy.gym.trainings.service.LocationService;
 import com.healthy.gym.trainings.shared.LocationDTO;
 import org.junit.jupiter.api.BeforeEach;
@@ -19,18 +20,23 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.*;
+import java.util.Locale;
+import java.util.Map;
+import java.util.UUID;
 
 import static com.healthy.gym.trainings.configuration.LocaleConverter.convertEnumToLocale;
 import static com.healthy.gym.trainings.configuration.Messages.getMessagesAccordingToLocale;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.is;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.ResultMatcher.matchAll;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(LocationController.class)
-class WhenGetLocationsTest {
+class WhenDeleteLocationTest {
 
     @Autowired
     private MockMvc mockMvc;
@@ -57,70 +63,104 @@ class WhenGetLocationsTest {
         String adminId = UUID.randomUUID().toString();
         adminToken = tokenFactory.getAdminToken(adminId);
 
-        uri = new URI("/location");
+        uri = new URI("/location/" + UUID.randomUUID());
     }
 
     @ParameterizedTest
     @EnumSource(TestCountry.class)
-    void shouldReturnAllLocations(TestCountry country) throws Exception {
+    void shouldRemoveLocation(TestCountry country) throws Exception {
+        Map<String, String> messages = getMessagesAccordingToLocale(country);
         Locale testedLocale = convertEnumToLocale(country);
 
         RequestBuilder request = MockMvcRequestBuilders
-                .get(uri)
+                .delete(uri)
                 .header("Accept-Language", testedLocale.toString())
                 .header("Authorization", managerToken)
                 .contentType(MediaType.APPLICATION_JSON);
 
-        String locationID1 = UUID.randomUUID().toString();
-        String locationID2 = UUID.randomUUID().toString();
+        String locationID = UUID.randomUUID().toString();
 
-        List<LocationDTO> returnedList = List.of(
-                new LocationDTO(
-                        locationID1,
-                        "Sala nr 1"
-                ),
-                new LocationDTO(
-                        locationID2,
-                        "Sala nr 2"
-                )
-        );
+        when(locationService.removeLocationById(any()))
+                .thenReturn(
+                        new LocationDTO(
+                                locationID,
+                                "Sala nr 1"
+                        )
+                );
 
-        when(locationService.getAllLocations()).thenReturn(returnedList);
+        String expectedMessage = messages.get("location.removed");
 
         mockMvc.perform(request)
                 .andDo(print())
                 .andExpect(matchAll(
                         status().isOk(),
                         content().contentType(MediaType.APPLICATION_JSON),
-                        jsonPath("$.message").doesNotHaveJsonPath(),
-                        jsonPath("$.[0].id").value(is(locationID1)),
-                        jsonPath("$.[0].name").value(is("Sala nr 1")),
-                        jsonPath("$.[1].id").value(is(locationID2)),
-                        jsonPath("$.[1].name").value(is("Sala nr 2"))
+                        jsonPath("$.message").value(is(expectedMessage)),
+                        jsonPath("$.location").exists(),
+                        jsonPath("$.location.id").value(is(locationID)),
+                        jsonPath("$.location.name").value(is("Sala nr 1"))
                 ));
     }
 
-    @ParameterizedTest
-    @EnumSource(TestCountry.class)
-    void shouldReturnEmptyLocationList(TestCountry country) throws Exception {
-        Locale testedLocale = convertEnumToLocale(country);
+    @Nested
+    class ShouldAcceptRequestWhenUserHasAdminOrManagerRoleAndThrowException {
 
-        RequestBuilder request = MockMvcRequestBuilders
-                .get(uri)
-                .header("Accept-Language", testedLocale.toString())
-                .header("Authorization", adminToken)
-                .contentType(MediaType.APPLICATION_JSON);
+        @ParameterizedTest
+        @EnumSource(TestCountry.class)
+        void shouldThrowLocationNotFoundException(TestCountry country) throws Exception {
+            Map<String, String> messages = getMessagesAccordingToLocale(country);
+            Locale testedLocale = convertEnumToLocale(country);
 
-        when(locationService.getAllLocations()).thenReturn(new ArrayList<>());
+            RequestBuilder request = MockMvcRequestBuilders
+                    .delete(uri)
+                    .header("Accept-Language", testedLocale.toString())
+                    .header("Authorization", adminToken)
+                    .contentType(MediaType.APPLICATION_JSON);
 
-        mockMvc.perform(request)
-                .andDo(print())
-                .andExpect(matchAll(
-                        status().isOk(),
-                        content().contentType(MediaType.APPLICATION_JSON),
-                        jsonPath("$.message").doesNotHaveJsonPath(),
-                        jsonPath("$").isEmpty()
-                ));
+            doThrow(LocationNotFoundException.class)
+                    .when(locationService)
+                    .removeLocationById(any());
+
+            String expectedMessage = messages.get("exception.location.not.found");
+
+            mockMvc.perform(request)
+                    .andDo(print())
+                    .andExpect(status().isBadRequest())
+                    .andExpect(status().reason(is(expectedMessage)))
+                    .andExpect(result ->
+                            assertThat(result.getResolvedException().getCause())
+                                    .isInstanceOf(LocationNotFoundException.class)
+                    );
+        }
+
+        @ParameterizedTest
+        @EnumSource(TestCountry.class)
+        void shouldThrowIllegalStateExceptionWhenInternalErrorOccurs(TestCountry country)
+                throws Exception {
+            Map<String, String> messages = getMessagesAccordingToLocale(country);
+            Locale testedLocale = convertEnumToLocale(country);
+
+            RequestBuilder request = MockMvcRequestBuilders
+                    .delete(uri)
+                    .header("Accept-Language", testedLocale.toString())
+                    .header("Authorization", managerToken)
+                    .contentType(MediaType.APPLICATION_JSON);
+
+            doThrow(IllegalStateException.class)
+                    .when(locationService)
+                    .removeLocationById(any());
+
+            String expectedMessage = messages.get("exception.internal.error");
+
+            mockMvc.perform(request)
+                    .andDo(print())
+                    .andExpect(status().isInternalServerError())
+                    .andExpect(status().reason(is(expectedMessage)))
+                    .andExpect(result ->
+                            assertThat(result.getResolvedException().getCause())
+                                    .isInstanceOf(IllegalStateException.class)
+                    );
+        }
     }
 
     @Nested
@@ -132,7 +172,7 @@ class WhenGetLocationsTest {
             Locale testedLocale = convertEnumToLocale(country);
 
             RequestBuilder request = MockMvcRequestBuilders
-                    .get(uri)
+                    .delete(uri)
                     .header("Accept-Language", testedLocale.toString())
                     .header("Authorization", userToken)
                     .contentType(MediaType.APPLICATION_JSON);
@@ -155,7 +195,7 @@ class WhenGetLocationsTest {
             Locale testedLocale = convertEnumToLocale(country);
 
             RequestBuilder request = MockMvcRequestBuilders
-                    .get(uri)
+                    .delete(uri)
                     .header("Accept-Language", testedLocale.toString());
 
             mockMvc.perform(request)

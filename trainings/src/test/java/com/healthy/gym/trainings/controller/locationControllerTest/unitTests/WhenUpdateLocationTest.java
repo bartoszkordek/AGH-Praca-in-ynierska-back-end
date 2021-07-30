@@ -1,4 +1,4 @@
-package com.healthy.gym.trainings.controller.locationControllerTest;
+package com.healthy.gym.trainings.controller.locationControllerTest.unitTests;
 
 import com.healthy.gym.trainings.configuration.TestCountry;
 import com.healthy.gym.trainings.configuration.TestRoleTokenFactory;

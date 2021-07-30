@@ -1,6 +1,7 @@
 package com.healthy.gym.trainings.service;
 
 import com.healthy.gym.trainings.exception.duplicated.DuplicatedLocationNameException;
+import com.healthy.gym.trainings.exception.notfound.LocationNotFoundException;
 import com.healthy.gym.trainings.model.request.CreateLocationRequest;
 import com.healthy.gym.trainings.shared.LocationDTO;
 
@@ -11,10 +12,9 @@ public interface LocationService {
 
     List<LocationDTO> getAllLocations();
 
-    LocationDTO getLocationById(String id);
+    LocationDTO updateLocationById(String id, CreateLocationRequest request)
+            throws DuplicatedLocationNameException, LocationNotFoundException;
 
-    LocationDTO updateLocationById(String id);
-
-    LocationDTO removeLocationById(String id);
+    LocationDTO removeLocationById(String id) throws LocationNotFoundException;
 
 }

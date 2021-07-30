@@ -280,7 +280,7 @@ class WhenCreateGroupTrainingTest {
                     .content(requestContent)
                     .contentType(MediaType.APPLICATION_JSON);
 
-            String expectedMessage = messages.get("exception.create.group.training.location.not.found");
+            String expectedMessage = messages.get("exception.location.not.found");
 
             mockMvc.perform(request)
                     .andDo(print())

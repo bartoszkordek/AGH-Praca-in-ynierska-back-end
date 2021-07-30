@@ -4,6 +4,7 @@ import com.healthy.gym.trainings.model.request.CreateLocationRequest;
 import com.healthy.gym.trainings.shared.LocationDTO;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -15,16 +16,11 @@ public class LocationServiceImpl implements LocationService {
 
     @Override
     public List<LocationDTO> getAllLocations() {
-        return null;
+        return new ArrayList<>();
     }
 
     @Override
-    public LocationDTO getLocationById(String id) {
-        return null;
-    }
-
-    @Override
-    public LocationDTO updateLocationById(String id) {
+    public LocationDTO updateLocationById(String id, CreateLocationRequest request) {
         return null;
     }
 

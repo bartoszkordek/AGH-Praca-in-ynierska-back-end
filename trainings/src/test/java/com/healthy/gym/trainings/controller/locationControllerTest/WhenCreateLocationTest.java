@@ -1,7 +1,8 @@
-package com.healthy.gym.trainings.controller;
+package com.healthy.gym.trainings.controller.locationControllerTest;
 
 import com.healthy.gym.trainings.configuration.TestCountry;
 import com.healthy.gym.trainings.configuration.TestRoleTokenFactory;
+import com.healthy.gym.trainings.controller.LocationController;
 import com.healthy.gym.trainings.exception.duplicated.DuplicatedLocationNameException;
 import com.healthy.gym.trainings.model.request.CreateLocationRequest;
 import com.healthy.gym.trainings.service.LocationService;
@@ -40,7 +41,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(LocationController.class)
-class LocationControllerTest {
+class WhenCreateLocationTest {
 
     @Autowired
     private MockMvc mockMvc;

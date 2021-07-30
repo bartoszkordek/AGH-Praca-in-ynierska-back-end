@@ -12,7 +12,7 @@ import com.healthy.gym.trainings.exception.notfound.TrainingTypeNotFoundExceptio
 import com.healthy.gym.trainings.exception.occupied.LocationOccupiedException;
 import com.healthy.gym.trainings.exception.occupied.TrainerOccupiedException;
 import com.healthy.gym.trainings.model.request.CreateGroupTrainingRequest;
-import com.healthy.gym.trainings.service.GroupTrainingService;
+import com.healthy.gym.trainings.service.group.training.ManagerGroupTrainingService;
 import com.healthy.gym.trainings.shared.BasicUserInfoDTO;
 import com.healthy.gym.trainings.shared.GroupTrainingDTO;
 import org.junit.jupiter.api.BeforeEach;
@@ -57,7 +57,7 @@ class WhenCreateGroupTrainingTest {
     private TestRoleTokenFactory tokenFactory;
 
     @MockBean
-    private GroupTrainingService groupTrainingService;
+    private ManagerGroupTrainingService managerGroupTrainingService;
 
     private String managerToken;
     private String adminToken;
@@ -146,7 +146,7 @@ class WhenCreateGroupTrainingTest {
                     .content(requestContent)
                     .contentType(MediaType.APPLICATION_JSON);
 
-            when(groupTrainingService.createGroupTraining((CreateGroupTrainingRequest) any()))
+            when(managerGroupTrainingService.createGroupTraining((CreateGroupTrainingRequest) any()))
                     .thenReturn(validResponse);
 
             String expectedMessage = messages.get("request.create.training.success");
@@ -154,7 +154,7 @@ class WhenCreateGroupTrainingTest {
             mockMvc.perform(request)
                     .andDo(print())
                     .andExpect(matchAll(
-                            status().isOk(),
+                            status().isCreated(),
                             content().contentType(MediaType.APPLICATION_JSON),
                             jsonPath("$.message").value(is(expectedMessage)),
                             jsonPath("$.training.id").value(is(trainingID)),
@@ -210,7 +210,7 @@ class WhenCreateGroupTrainingTest {
             Locale testedLocale = convertEnumToLocale(country);
 
             doThrow(StartDateAfterEndDateException.class)
-                    .when(groupTrainingService)
+                    .when(managerGroupTrainingService)
                     .createGroupTraining((CreateGroupTrainingRequest) any());
 
             RequestBuilder request = MockMvcRequestBuilders
@@ -239,7 +239,7 @@ class WhenCreateGroupTrainingTest {
             Locale testedLocale = convertEnumToLocale(country);
 
             doThrow(TrainerNotFoundException.class)
-                    .when(groupTrainingService)
+                    .when(managerGroupTrainingService)
                     .createGroupTraining((CreateGroupTrainingRequest) any());
 
             RequestBuilder request = MockMvcRequestBuilders
@@ -269,7 +269,7 @@ class WhenCreateGroupTrainingTest {
             Locale testedLocale = convertEnumToLocale(country);
 
             doThrow(LocationNotFoundException.class)
-                    .when(groupTrainingService)
+                    .when(managerGroupTrainingService)
                     .createGroupTraining((CreateGroupTrainingRequest) any());
 
             RequestBuilder request = MockMvcRequestBuilders
@@ -298,7 +298,7 @@ class WhenCreateGroupTrainingTest {
             Locale testedLocale = convertEnumToLocale(country);
 
             doThrow(TrainingTypeNotFoundException.class)
-                    .when(groupTrainingService)
+                    .when(managerGroupTrainingService)
                     .createGroupTraining((CreateGroupTrainingRequest) any());
 
             RequestBuilder request = MockMvcRequestBuilders
@@ -327,7 +327,7 @@ class WhenCreateGroupTrainingTest {
             Locale testedLocale = convertEnumToLocale(country);
 
             doThrow(LocationOccupiedException.class)
-                    .when(groupTrainingService)
+                    .when(managerGroupTrainingService)
                     .createGroupTraining((CreateGroupTrainingRequest) any());
 
             RequestBuilder request = MockMvcRequestBuilders
@@ -356,7 +356,7 @@ class WhenCreateGroupTrainingTest {
             Locale testedLocale = convertEnumToLocale(country);
 
             doThrow(TrainerOccupiedException.class)
-                    .when(groupTrainingService)
+                    .when(managerGroupTrainingService)
                     .createGroupTraining((CreateGroupTrainingRequest) any());
 
             RequestBuilder request = MockMvcRequestBuilders
@@ -385,7 +385,7 @@ class WhenCreateGroupTrainingTest {
             Locale testedLocale = convertEnumToLocale(country);
 
             doThrow(IllegalStateException.class)
-                    .when(groupTrainingService)
+                    .when(managerGroupTrainingService)
                     .createGroupTraining((CreateGroupTrainingRequest) any());
 
 

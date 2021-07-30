@@ -4,6 +4,7 @@ import com.healthy.gym.trainings.configuration.TestCountry;
 import com.healthy.gym.trainings.configuration.TestRoleTokenFactory;
 import com.healthy.gym.trainings.controller.LocationController;
 import com.healthy.gym.trainings.exception.duplicated.DuplicatedLocationNameException;
+import com.healthy.gym.trainings.exception.notfound.LocationNotFoundException;
 import com.healthy.gym.trainings.model.request.CreateLocationRequest;
 import com.healthy.gym.trainings.service.LocationService;
 import com.healthy.gym.trainings.shared.LocationDTO;
@@ -41,7 +42,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(LocationController.class)
-class WhenCreateLocationTest {
+class WhenUpdateLocationTest {
 
     @Autowired
     private MockMvc mockMvc;
@@ -55,12 +56,13 @@ class WhenCreateLocationTest {
     private String managerToken;
     private String adminToken;
     private String userToken;
+    private URI uri;
     private String requestContent;
     private String invalidRequestContent;
-    private URI uri;
+    private String locationID;
 
     @BeforeEach
-    void setUp() throws JsonProcessingException, URISyntaxException {
+    void setUp() throws URISyntaxException, JsonProcessingException {
         String userId = UUID.randomUUID().toString();
         userToken = tokenFactory.getUserToken(userId);
 
@@ -72,15 +74,16 @@ class WhenCreateLocationTest {
 
         ObjectMapper objectMapper = new ObjectMapper();
         CreateLocationRequest locationRequest = new CreateLocationRequest();
-        locationRequest.setName("Sala nr1");
-
+        locationRequest.setName("Sala nr2");
         requestContent = objectMapper.writeValueAsString(locationRequest);
 
         CreateLocationRequest invalidLocationRequest = new CreateLocationRequest();
         invalidLocationRequest.setName("S");
         invalidRequestContent = objectMapper.writeValueAsString(invalidLocationRequest);
 
-        uri = new URI("/location");
+        locationID = UUID.randomUUID().toString();
+
+        uri = new URI("/location/" + locationID);
     }
 
     @ParameterizedTest
@@ -90,7 +93,7 @@ class WhenCreateLocationTest {
         Locale testedLocale = convertEnumToLocale(country);
 
         RequestBuilder request = MockMvcRequestBuilders
-                .post(uri)
+                .put(uri)
                 .header("Accept-Language", testedLocale.toString())
                 .header("Authorization", managerToken)
                 .content(requestContent)
@@ -98,25 +101,25 @@ class WhenCreateLocationTest {
 
         String locationID = UUID.randomUUID().toString();
 
-        when(locationService.createLocation(any()))
+        when(locationService.updateLocationById(any(), any()))
                 .thenReturn(
                         new LocationDTO(
                                 locationID,
-                                "Sala nr 1"
+                                "Sala nr 2"
                         )
                 );
 
-        String expectedMessage = messages.get("location.created");
+        String expectedMessage = messages.get("location.updated");
 
         mockMvc.perform(request)
                 .andDo(print())
                 .andExpect(matchAll(
-                        status().isCreated(),
+                        status().isOk(),
                         content().contentType(MediaType.APPLICATION_JSON),
                         jsonPath("$.message").value(is(expectedMessage)),
                         jsonPath("$.location").exists(),
                         jsonPath("$.location.id").value(is(locationID)),
-                        jsonPath("$.location.name").value(is("Sala nr 1"))
+                        jsonPath("$.location.name").value(is("Sala nr 2"))
                 ));
     }
 
@@ -125,12 +128,41 @@ class WhenCreateLocationTest {
 
         @ParameterizedTest
         @EnumSource(TestCountry.class)
+        void shouldThrowLocationNotFoundException(TestCountry country) throws Exception {
+            Map<String, String> messages = getMessagesAccordingToLocale(country);
+            Locale testedLocale = convertEnumToLocale(country);
+
+            RequestBuilder request = MockMvcRequestBuilders
+                    .put(uri)
+                    .header("Accept-Language", testedLocale.toString())
+                    .header("Authorization", adminToken)
+                    .content(requestContent)
+                    .contentType(MediaType.APPLICATION_JSON);
+
+            doThrow(LocationNotFoundException.class)
+                    .when(locationService)
+                    .updateLocationById(any(), any());
+
+            String expectedMessage = messages.get("exception.location.not.found");
+
+            mockMvc.perform(request)
+                    .andDo(print())
+                    .andExpect(status().isBadRequest())
+                    .andExpect(status().reason(is(expectedMessage)))
+                    .andExpect(result ->
+                            assertThat(result.getResolvedException().getCause())
+                                    .isInstanceOf(LocationNotFoundException.class)
+                    );
+        }
+
+        @ParameterizedTest
+        @EnumSource(TestCountry.class)
         void shouldThrowBindException(TestCountry country) throws Exception {
             Map<String, String> messages = getMessagesAccordingToLocale(country);
             Locale testedLocale = convertEnumToLocale(country);
 
             RequestBuilder request = MockMvcRequestBuilders
-                    .post(uri)
+                    .put(uri)
                     .header("Accept-Language", testedLocale.toString())
                     .header("Authorization", managerToken)
                     .content(invalidRequestContent)
@@ -158,7 +190,7 @@ class WhenCreateLocationTest {
             Locale testedLocale = convertEnumToLocale(country);
 
             RequestBuilder request = MockMvcRequestBuilders
-                    .post(uri)
+                    .put(uri)
                     .header("Accept-Language", testedLocale.toString())
                     .header("Authorization", adminToken)
                     .content(requestContent)
@@ -166,7 +198,7 @@ class WhenCreateLocationTest {
 
             doThrow(DuplicatedLocationNameException.class)
                     .when(locationService)
-                    .createLocation(any());
+                    .updateLocationById(any(), any());
 
             String expectedMessage = messages.get("exception.duplicated.location.name");
 
@@ -188,7 +220,7 @@ class WhenCreateLocationTest {
             Locale testedLocale = convertEnumToLocale(country);
 
             RequestBuilder request = MockMvcRequestBuilders
-                    .post(uri)
+                    .put(uri)
                     .header("Accept-Language", testedLocale.toString())
                     .header("Authorization", managerToken)
                     .content(requestContent)
@@ -196,7 +228,7 @@ class WhenCreateLocationTest {
 
             doThrow(IllegalStateException.class)
                     .when(locationService)
-                    .createLocation(any());
+                    .updateLocationById(any(), any());
 
             String expectedMessage = messages.get("exception.internal.error");
 
@@ -220,7 +252,7 @@ class WhenCreateLocationTest {
             Locale testedLocale = convertEnumToLocale(country);
 
             RequestBuilder request = MockMvcRequestBuilders
-                    .post(uri)
+                    .put(uri)
                     .header("Accept-Language", testedLocale.toString())
                     .header("Authorization", userToken)
                     .content(requestContent)
@@ -244,8 +276,9 @@ class WhenCreateLocationTest {
             Locale testedLocale = convertEnumToLocale(country);
 
             RequestBuilder request = MockMvcRequestBuilders
-                    .post(uri)
+                    .put(uri)
                     .header("Accept-Language", testedLocale.toString())
+                    .content(requestContent)
                     .contentType(MediaType.APPLICATION_JSON);
 
             mockMvc.perform(request)

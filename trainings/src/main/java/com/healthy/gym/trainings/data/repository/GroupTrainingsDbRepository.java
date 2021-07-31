@@ -192,20 +192,6 @@ public class GroupTrainingsDbRepository {
             List<UserResponse> trainersResponse = getUserResponseList(trainers);
 
             double rating = getTrainingRating(groupTraining.getTrainingType().getTrainingTypeId());
-            /*List<GroupTrainingReviewResponse> groupTrainingsReviews = groupTrainingsReviewsRepository.findByDateBetweenAndTrainingTypeId(
-                    null,
-                    null,
-                    groupTraining.getTrainingType().getTrainingTypeId(),
-                    paging).getContent();
-
-            double rating = 0.0;
-            int sum = 0;
-            int counter = 0;
-            for(GroupTrainingReviewResponse review : groupTrainingsReviews){
-                sum += review.getStars();
-                counter++;
-            }
-            if(counter !=0 ) rating = sum/counter;*/
 
             publicResponse.add(new GroupTrainingPublicResponse(groupTraining.getTrainingId(),
                     groupTraining.getTrainingType().getName(),
@@ -225,20 +211,6 @@ public class GroupTrainingsDbRepository {
         GroupTrainings groupTrainingsDbResponse = groupTrainingsRepository.findFirstByTrainingId(trainingId);
 
         double rating = getTrainingRating(groupTrainingsDbResponse.getTrainingType().getTrainingTypeId());
-        /*List<GroupTrainingReviewResponse> groupTrainingsReviews =
-                groupTrainingsReviewsRepository.findByDateBetweenAndTrainingTypeId(
-                null,
-                null,
-                groupTrainingsDbResponse.getTrainingType().getTrainingTypeId(), paging).getContent();
-
-        double rating = 0.0;
-        int sum = 0;
-        int counter = 0;
-        for(GroupTrainingReviewResponse review : groupTrainingsReviews){
-            sum += review.getStars();
-            counter++;
-        }
-        if(counter !=0 ) rating = sum/counter;*/
 
         List<UserDocument> trainers = groupTrainingsDbResponse.getTrainers();
         List<UserResponse> trainersResponse = getUserResponseList(trainers);
@@ -288,20 +260,6 @@ public class GroupTrainingsDbRepository {
         if(groupTrainingsDbResponse.size() > 0){
             rating = getTrainingRating(groupTrainingsDbResponse.get(0).getTrainingType().getTrainingTypeId());
         }
-        /*int sum = 0;
-        int counter = 0;
-        if(groupTrainingsDbResponse.size() > 0){
-            List<GroupTrainingReviewResponse> groupTrainingsReviews = groupTrainingsReviewsRepository.findByDateBetweenAndTrainingTypeId(
-                    null,
-                    null,
-                    groupTrainingsDbResponse.get(0).getTrainingType().getTrainingTypeId(), paging).getContent();
-
-            for(GroupTrainingReviewResponse review : groupTrainingsReviews){
-                sum += review.getStars();
-                counter++;
-            }
-            if(counter !=0 ) rating = sum/counter;
-        }*/
 
         List<GroupTrainingResponse> result = new ArrayList<>();
         for(GroupTrainings training : groupTrainingsDbResponse){
@@ -360,22 +318,6 @@ public class GroupTrainingsDbRepository {
             rating = getTrainingRating(dbResponse.get(0).getTrainingType().getTrainingTypeId());
         }
 
-        /*double rating = 0.0;
-        int sum = 0;
-        int counter = 0;
-        if(dbResponse.size() > 0){
-            List<GroupTrainingReviewResponse> groupTrainingsReviews = groupTrainingsReviewsRepository.findByDateBetweenAndTrainingTypeId(
-                    null,
-                    null,
-                    dbResponse.get(0).getTrainingType().getTrainingTypeId(), paging).getContent();
-
-            for(GroupTrainingReviewResponse review : groupTrainingsReviews){
-                sum += review.getStars();
-                counter++;
-            }
-            if(counter !=0 ) rating = sum/counter;
-        }*/
-
         List<GroupTrainingPublicResponse> result = new ArrayList<>();
         for(GroupTrainings training : dbResponse){
             GroupTrainingPublicResponse groupTraining = new GroupTrainingPublicResponse(training.getTrainingId(),
@@ -402,22 +344,6 @@ public class GroupTrainingsDbRepository {
             List<UserResponse> trainersResponse = getUserResponseList(trainers);
 
             double rating = getTrainingRating(groupTraining.getTrainingType().getTrainingTypeId());
-
-            /*double rating = 0.0;
-            int sum = 0;
-            int counter = 0;
-            if(groupTrainings.size() > 0){
-                List<GroupTrainingReviewResponse> groupTrainingsReviews = groupTrainingsReviewsRepository.findByDateBetweenAndTrainingTypeId(
-                        null,
-                        null,
-                        groupTraining.getTrainingType().getTrainingTypeId(), paging).getContent();
-
-                for(GroupTrainingReviewResponse review : groupTrainingsReviews){
-                    sum += review.getStars();
-                    counter++;
-                }
-                if(counter !=0 ) rating = sum/counter;
-            }*/
 
             publicResponse.add(new GroupTrainingPublicResponse(groupTraining.getTrainingId(),
                     groupTraining.getTrainingType().getName(),

@@ -18,6 +18,8 @@ import java.util.List;
 public class UserGroupTrainingController {
 
     private static final String EXCEPTION_INTERNAL_ERROR = "exception.internal.error";
+    private static final String EXCEPTION_GROUP_TRAINING_ENROLLMENT = "exception.group.training.enrollment";
+    private static final String EXCEPTION_NOT_FOUND_TRAINING_ID = "exception.not.found.training.id";
     private final Translator translator;
     private final UserGroupTrainingService userGroupTrainingService;
 
@@ -53,7 +55,7 @@ public class UserGroupTrainingController {
             userGroupTrainingService.enrollToGroupTraining(trainingId, userId);
 
         } catch (TrainingEnrollmentException e) {
-            String reason = translator.toLocale("exception.group.training.enrollment");
+            String reason = translator.toLocale(EXCEPTION_GROUP_TRAINING_ENROLLMENT);
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, e);
 
         } catch (Exception exception) {
@@ -73,11 +75,11 @@ public class UserGroupTrainingController {
             userGroupTrainingService.addToReserveList(trainingId, userId);
 
         } catch (NotExistingGroupTrainingException e) {
-            String reason = translator.toLocale("exception.not.found.training.id");
+            String reason = translator.toLocale(EXCEPTION_NOT_FOUND_TRAINING_ID);
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, reason, e);
 
         } catch (TrainingEnrollmentException e) {
-            String reason = translator.toLocale("exception.group.training.enrollment");
+            String reason = translator.toLocale(EXCEPTION_GROUP_TRAINING_ENROLLMENT);
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, e);
 
         } catch (Exception exception) {
@@ -97,11 +99,11 @@ public class UserGroupTrainingController {
             userGroupTrainingService.removeGroupTrainingEnrollment(trainingId, userId);
 
         } catch (NotExistingGroupTrainingException e) {
-            String reason = translator.toLocale("exception.not.found.training.id");
+            String reason = translator.toLocale(EXCEPTION_NOT_FOUND_TRAINING_ID);
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, reason, e);
 
         } catch (TrainingEnrollmentException e) {
-            String reason = translator.toLocale("exception.group.training.enrollment");
+            String reason = translator.toLocale(EXCEPTION_GROUP_TRAINING_ENROLLMENT);
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, e);
 
         } catch (Exception exception) {

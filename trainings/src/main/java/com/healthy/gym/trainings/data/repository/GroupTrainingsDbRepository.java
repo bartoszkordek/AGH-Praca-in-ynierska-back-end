@@ -67,6 +67,37 @@ public class GroupTrainingsDbRepository {
         paging = PageRequest.of(page, size);
     }
 
+    private List<UserResponse> getUserResponseList(List<UserDocument> usersDocuments){
+        List<UserResponse> usersResponse = new ArrayList<>();
+        for(UserDocument userDocument : usersDocuments){
+            UserResponse userResponse = new UserResponse(
+                    userDocument.getUserId(),
+                    userDocument.getName(),
+                    userDocument.getSurname());
+            usersResponse.add(userResponse);
+        }
+        return usersResponse;
+    }
+
+    private double getTrainingRating(String trainingTypeId){
+        List<GroupTrainingReviewResponse> groupTrainingsReviews = groupTrainingsReviewsRepository.findByDateBetweenAndTrainingTypeId(
+                null,
+                null,
+                trainingTypeId,
+                paging).getContent();
+
+        double rating = 0.0;
+        int sum = 0;
+        int counter = 0;
+        for(GroupTrainingReviewResponse review : groupTrainingsReviews){
+            sum += review.getStars();
+            counter++;
+        }
+        if(counter !=0 ) rating = sum/counter;
+
+        return rating;
+    }
+
 
     public List<GroupTrainingResponse> getGroupTrainings(String startDate, String endDate) throws InvalidHourException, StartDateAfterEndDateException, ParseException, InvalidDateException {
         if(startDate == null)
@@ -107,25 +138,18 @@ public class GroupTrainingsDbRepository {
             }
             if(counter !=0 ) rating = sum/counter;
 
+            List<UserDocument> trainers = training.getTrainers();
+            List<UserResponse> trainersResponse = getUserResponseList(trainers);
+
             List<UserDocument> participants = training.getParticipants();
-            List<UserResponse> participantsResponses = new ArrayList<>();
-            for(UserDocument userDocument : participants){
-                UserResponse participantsResponse = new UserResponse(userDocument.getUserId(),
-                        userDocument.getName(), userDocument.getSurname());
-                participantsResponses.add(participantsResponse);
-            }
+            List<UserResponse> participantsResponses = getUserResponseList(participants);
 
             List<UserDocument> reserveList = training.getReserveList();
-            List<UserResponse> reserveListResponses = new ArrayList<>();
-            for(UserDocument userDocument : reserveList){
-                UserResponse reserveListResponse = new UserResponse(userDocument.getUserId(),
-                        userDocument.getName(), userDocument.getSurname());
-                reserveListResponses.add(reserveListResponse);
-            }
+            List<UserResponse> reserveListResponses = getUserResponseList(reserveList);
 
             GroupTrainingResponse groupTraining = new GroupTrainingResponse(training.getTrainingId(),
                     training.getTrainingType().getName(),
-                    training.getTrainerId(),
+                    trainersResponse,
                     training.getDate(),
                     training.getStartTime(),
                     training.getEndTime(),
@@ -164,7 +188,11 @@ public class GroupTrainingsDbRepository {
 
         for(GroupTrainings groupTraining : groupTrainings){
 
-            List<GroupTrainingReviewResponse> groupTrainingsReviews = groupTrainingsReviewsRepository.findByDateBetweenAndTrainingTypeId(
+            List<UserDocument> trainers = groupTraining.getTrainers();
+            List<UserResponse> trainersResponse = getUserResponseList(trainers);
+
+            double rating = getTrainingRating(groupTraining.getTrainingType().getTrainingTypeId());
+            /*List<GroupTrainingReviewResponse> groupTrainingsReviews = groupTrainingsReviewsRepository.findByDateBetweenAndTrainingTypeId(
                     null,
                     null,
                     groupTraining.getTrainingType().getTrainingTypeId(),
@@ -177,11 +205,11 @@ public class GroupTrainingsDbRepository {
                 sum += review.getStars();
                 counter++;
             }
-            if(counter !=0 ) rating = sum/counter;
+            if(counter !=0 ) rating = sum/counter;*/
 
             publicResponse.add(new GroupTrainingPublicResponse(groupTraining.getTrainingId(),
                     groupTraining.getTrainingType().getName(),
-                    groupTraining.getTrainerId(),
+                    trainersResponse,
                     groupTraining.getDate(),
                     groupTraining.getStartTime(),
                     groupTraining.getEndTime(),
@@ -196,7 +224,9 @@ public class GroupTrainingsDbRepository {
     public GroupTrainingResponse getGroupTrainingById(String trainingId) throws InvalidHourException, InvalidDateException {
         GroupTrainings groupTrainingsDbResponse = groupTrainingsRepository.findFirstByTrainingId(trainingId);
 
-        List<GroupTrainingReviewResponse> groupTrainingsReviews = groupTrainingsReviewsRepository.findByDateBetweenAndTrainingTypeId(
+        double rating = getTrainingRating(groupTrainingsDbResponse.getTrainingType().getTrainingTypeId());
+        /*List<GroupTrainingReviewResponse> groupTrainingsReviews =
+                groupTrainingsReviewsRepository.findByDateBetweenAndTrainingTypeId(
                 null,
                 null,
                 groupTrainingsDbResponse.getTrainingType().getTrainingTypeId(), paging).getContent();
@@ -208,27 +238,20 @@ public class GroupTrainingsDbRepository {
             sum += review.getStars();
             counter++;
         }
-        if(counter !=0 ) rating = sum/counter;
+        if(counter !=0 ) rating = sum/counter;*/
+
+        List<UserDocument> trainers = groupTrainingsDbResponse.getTrainers();
+        List<UserResponse> trainersResponse = getUserResponseList(trainers);
 
         List<UserDocument> participants = groupTrainingsDbResponse.getParticipants();
-        List<UserResponse> participantsResponses = new ArrayList<>();
-        for(UserDocument userDocument : participants){
-            UserResponse participantsResponse = new UserResponse(userDocument.getUserId(),
-                    userDocument.getName(), userDocument.getSurname());
-            participantsResponses.add(participantsResponse);
-        }
+        List<UserResponse> participantsResponses = getUserResponseList(participants);
 
         List<UserDocument> reserveList = groupTrainingsDbResponse.getReserveList();
-        List<UserResponse> reserveListResponses = new ArrayList<>();
-        for(UserDocument userDocument : reserveList){
-            UserResponse reserveListResponse = new UserResponse(userDocument.getUserId(),
-                    userDocument.getName(), userDocument.getSurname());
-            reserveListResponses.add(reserveListResponse);
-        }
+        List<UserResponse> reserveListResponses = getUserResponseList(reserveList);
 
         GroupTrainingResponse result = new GroupTrainingResponse(groupTrainingsDbResponse.getTrainingId(),
                 groupTrainingsDbResponse.getTrainingType().getName(),
-                groupTrainingsDbResponse.getTrainerId(),
+                trainersResponse,
                 groupTrainingsDbResponse.getDate(),
                 groupTrainingsDbResponse.getStartTime(),
                 groupTrainingsDbResponse.getEndTime(),
@@ -262,7 +285,10 @@ public class GroupTrainingsDbRepository {
                 trainingTypeId, startDateMinusOneDayFormatted, endDatePlusOneDayFormatted);
 
         double rating = 0.0;
-        int sum = 0;
+        if(groupTrainingsDbResponse.size() > 0){
+            rating = getTrainingRating(groupTrainingsDbResponse.get(0).getTrainingType().getTrainingTypeId());
+        }
+        /*int sum = 0;
         int counter = 0;
         if(groupTrainingsDbResponse.size() > 0){
             List<GroupTrainingReviewResponse> groupTrainingsReviews = groupTrainingsReviewsRepository.findByDateBetweenAndTrainingTypeId(
@@ -275,30 +301,23 @@ public class GroupTrainingsDbRepository {
                 counter++;
             }
             if(counter !=0 ) rating = sum/counter;
-        }
+        }*/
 
         List<GroupTrainingResponse> result = new ArrayList<>();
         for(GroupTrainings training : groupTrainingsDbResponse){
 
-            List<UserResponse> participantsResponses = new ArrayList<>();
+            List<UserDocument> trainers = training.getTrainers();
+            List<UserResponse> trainersResponse = getUserResponseList(trainers);
+
             List<UserDocument> participants = training.getParticipants();
-            for(UserDocument userDocument : participants){
-                UserResponse participantsResponse = new UserResponse(userDocument.getUserId(),
-                        userDocument.getName(), userDocument.getSurname());
-                participantsResponses.add(participantsResponse);
-            }
+            List<UserResponse> participantsResponses = getUserResponseList(participants);
 
             List<UserDocument> reserveList = training.getReserveList();
-            List<UserResponse> reserveListResponses = new ArrayList<>();
-            for(UserDocument userDocument : reserveList){
-                UserResponse reserveListResponse = new UserResponse(userDocument.getUserId(),
-                        userDocument.getName(), userDocument.getSurname());
-                reserveListResponses.add(reserveListResponse);
-            }
+            List<UserResponse> reserveListResponses = getUserResponseList(reserveList);
 
             GroupTrainingResponse groupTraining = new GroupTrainingResponse(training.getTrainingId(),
                     training.getTrainingType().getName(),
-                    training.getTrainerId(),
+                    trainersResponse,
                     training.getDate(),
                     training.getStartTime(),
                     training.getEndTime(),
@@ -333,7 +352,15 @@ public class GroupTrainingsDbRepository {
         List<GroupTrainings> dbResponse = groupTrainingsRepository.findAllByTrainingTypeIdAndDateBetween(
                 trainingTypeId, startDateMinusOneDayFormatted, endDatePlusOneDayFormatted);
 
+        List<UserDocument> trainers = dbResponse.get(0).getTrainers();
+        List<UserResponse> trainersResponse = getUserResponseList(trainers);
+
         double rating = 0.0;
+        if(dbResponse.size() > 0){
+            rating = getTrainingRating(dbResponse.get(0).getTrainingType().getTrainingTypeId());
+        }
+
+        /*double rating = 0.0;
         int sum = 0;
         int counter = 0;
         if(dbResponse.size() > 0){
@@ -347,13 +374,13 @@ public class GroupTrainingsDbRepository {
                 counter++;
             }
             if(counter !=0 ) rating = sum/counter;
-        }
+        }*/
 
         List<GroupTrainingPublicResponse> result = new ArrayList<>();
         for(GroupTrainings training : dbResponse){
             GroupTrainingPublicResponse groupTraining = new GroupTrainingPublicResponse(training.getTrainingId(),
                     training.getTrainingType().getName(),
-                    training.getTrainerId(),
+                    trainersResponse,
                     training.getDate(),
                     training.getStartTime(),
                     training.getEndTime(),
@@ -371,7 +398,12 @@ public class GroupTrainingsDbRepository {
 
         for(GroupTrainings groupTraining : groupTrainings){
 
-            double rating = 0.0;
+            List<UserDocument> trainers = groupTraining.getTrainers();
+            List<UserResponse> trainersResponse = getUserResponseList(trainers);
+
+            double rating = getTrainingRating(groupTraining.getTrainingType().getTrainingTypeId());
+
+            /*double rating = 0.0;
             int sum = 0;
             int counter = 0;
             if(groupTrainings.size() > 0){
@@ -385,11 +417,11 @@ public class GroupTrainingsDbRepository {
                     counter++;
                 }
                 if(counter !=0 ) rating = sum/counter;
-            }
+            }*/
 
             publicResponse.add(new GroupTrainingPublicResponse(groupTraining.getTrainingId(),
                     groupTraining.getTrainingType().getName(),
-                    groupTraining.getTrainerId(),
+                    trainersResponse,
                     groupTraining.getDate(),
                     groupTraining.getStartTime(),
                     groupTraining.getEndTime(),
@@ -589,6 +621,13 @@ public class GroupTrainingsDbRepository {
         TrainingTypeDocument trainingType = trainingTypeRepository.findByTrainingTypeId(
                 groupTrainingModel.getTrainingTypeId());
 
+        List<String> trainersIds = groupTrainingModel.getParticipants();
+        List<UserDocument> trainers = new ArrayList<>();
+        for(String participantId : trainersIds){
+            UserDocument participant = userRepository.findByUserId(participantId);
+            trainers.add(participant);
+        }
+
         List<String> participantsIds = groupTrainingModel.getParticipants();
         List<UserDocument> participants = new ArrayList<>();
         for(String participantId : participantsIds){
@@ -605,7 +644,7 @@ public class GroupTrainingsDbRepository {
 
         GroupTrainings response = groupTrainingsRepository.insert(new GroupTrainings(trainingId,
                 trainingType,
-                groupTrainingModel.getTrainerId(),
+                trainers,
                 groupTrainingModel.getDate(),
                 groupTrainingModel.getStartTime(),
                 groupTrainingModel.getEndTime(),
@@ -631,8 +670,14 @@ public class GroupTrainingsDbRepository {
             groupTrainings = groupTrainingsRepository.findFirstByTrainingId(trainingId);
             TrainingTypeDocument trainingType = trainingTypeRepository.findByTrainingTypeId(
                     groupTrainingModelRequest.getTrainingTypeId());
+
+            List<UserDocument> trainersDocuments = new ArrayList<>();
+            for(String trainerId : groupTrainingModelRequest.getTrainers()){
+                UserDocument trainerDocument = userRepository.findByUserId(trainerId);
+                trainersDocuments.add(trainerDocument);
+            }
             groupTrainings.setTrainingType(trainingType);
-            groupTrainings.setTrainerId(groupTrainingModelRequest.getTrainerId());
+            groupTrainings.setTrainers(trainersDocuments);
             groupTrainings.setDate(groupTrainingModelRequest.getDate());
             groupTrainings.setStartTime(groupTrainingModelRequest.getStartTime());
             groupTrainings.setEndTime(groupTrainingModelRequest.getEndTime());

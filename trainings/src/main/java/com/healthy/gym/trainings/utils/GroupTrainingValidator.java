@@ -7,6 +7,7 @@ import java.text.SimpleDateFormat;
 import java.time.Duration;
 import java.time.LocalTime;
 import java.util.Date;
+import java.util.List;
 
 public class GroupTrainingValidator {
 
@@ -16,13 +17,13 @@ public class GroupTrainingValidator {
 
     public static boolean isExistRequiredDataForGroupTraining(GroupTrainingRequest groupTrainingModel) {
         String trainingName = groupTrainingModel.getTrainingTypeId();
-        String trainerId = groupTrainingModel.getTrainerId();
+        List<String> trainers = groupTrainingModel.getTrainers();
         String date = groupTrainingModel.getDate();
         String startTime = groupTrainingModel.getStartTime();
         String endTime = groupTrainingModel.getEndTime();
 
         return !trainingName.isEmpty()
-                && !trainerId.isEmpty()
+                && !trainers.isEmpty()
                 && !date.isEmpty()
                 && !startTime.isEmpty()
                 && !endTime.isEmpty();

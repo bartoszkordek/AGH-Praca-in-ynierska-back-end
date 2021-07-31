@@ -29,13 +29,13 @@ import java.text.ParseException;
 
 @RestController
 @RequestMapping(value = "/group", consumes = MediaType.APPLICATION_JSON_VALUE)
-public class GroupTrainingManagerController {
+public class ManagerGroupTrainingController {
     private static final String INTERNAL_ERROR_EXCEPTION = "exception.internal.error";
     private final Translator translator;
     private final ManagerGroupTrainingService managerGroupTrainingService;
 
     @Autowired
-    public GroupTrainingManagerController(
+    public ManagerGroupTrainingController(
             Translator translator,
             ManagerGroupTrainingService managerGroupTrainingService
     ) {

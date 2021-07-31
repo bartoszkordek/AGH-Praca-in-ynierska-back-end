@@ -21,14 +21,14 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/group")
-public class GroupTrainingUserController {
+public class UserGroupTrainingController {
 
     private final Translator translator;
     private final GroupTrainingService groupTrainingsService;
     private final UserGroupTrainingService userGroupTrainingService;
 
     @Autowired
-    public GroupTrainingUserController(
+    public UserGroupTrainingController(
             Translator translator,
             GroupTrainingService groupTrainingsService,
             UserGroupTrainingService userGroupTrainingService

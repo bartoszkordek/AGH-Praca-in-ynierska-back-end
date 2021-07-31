@@ -20,13 +20,13 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/group")
-public class GroupTrainingStaffController {
+public class GroupTrainingController {
 
     private final Translator translator;
     private final GroupTrainingService groupTrainingsService;
 
     @Autowired
-    public GroupTrainingStaffController(Translator translator, GroupTrainingService groupTrainingsService) {
+    public GroupTrainingController(Translator translator, GroupTrainingService groupTrainingsService) {
         this.translator = translator;
         this.groupTrainingsService = groupTrainingsService;
     }

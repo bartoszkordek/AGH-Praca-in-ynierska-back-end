@@ -1,5 +1,6 @@
 package com.healthy.gym.trainings.model.response;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.healthy.gym.trainings.exception.invalid.InvalidDateException;
 import com.healthy.gym.trainings.exception.invalid.InvalidHourException;
 import com.healthy.gym.trainings.utils.DateValidator;
@@ -13,9 +14,11 @@ import java.util.Objects;
 public class GroupTrainingResponse {
 
     @NotNull
-    private final String id;
+    @JsonProperty("id")
+    private final String trainingId;
     @NotNull
-    private final String title;
+    @JsonProperty("title")
+    private final String trainingName;
     @NotNull
     private final List<UserResponse> trainers;
     @NotNull
@@ -36,8 +39,8 @@ public class GroupTrainingResponse {
     private final List<UserResponse> reserveList;
 
     public GroupTrainingResponse(
-            String trainingId,
-            String trainingName,
+            @JsonProperty("id") String trainingId,
+            @JsonProperty("title") String trainingName,
             List<UserResponse> trainers,
             @DateTimeFormat(pattern = "yyyy-MM-dd") String date,
             String startTime,
@@ -55,8 +58,8 @@ public class GroupTrainingResponse {
         if (!DateValidator.validate(date) || !Time24HoursValidator.validate(endTime))
             throw new InvalidHourException("Wrong end date or time");
 
-        this.id = trainingId;
-        this.title = trainingName;
+        this.trainingId = trainingId;
+        this.trainingName = trainingName;
         this.trainers = trainers;
         this.startDate = date.concat("T").concat(startTime);
         this.endDate = date.concat("T").concat(endTime);
@@ -71,8 +74,8 @@ public class GroupTrainingResponse {
     @Override
     public String toString() {
         return "GroupTrainingResponse{" +
-                "trainingId='" + id + '\'' +
-                ", trainingName='" + title + '\'' +
+                "trainingId='" + trainingId + '\'' +
+                ", trainingName='" + trainingName + '\'' +
                 ", trainers='" + trainers + '\'' +
                 ", startDate='" + startDate + '\'' +
                 ", endDate='" + endDate + '\'' +
@@ -94,8 +97,8 @@ public class GroupTrainingResponse {
                 hallNo == that.hallNo &&
                 limit == that.limit &&
                 Double.compare(that.rating, rating) == 0 &&
-                Objects.equals(id, that.id) &&
-                Objects.equals(title, that.title) &&
+                Objects.equals(trainingId, that.trainingId) &&
+                Objects.equals(trainingName, that.trainingName) &&
                 Objects.equals(trainers, that.trainers) &&
                 Objects.equals(startDate, that.startDate) &&
                 Objects.equals(endDate, that.endDate) &&
@@ -106,8 +109,8 @@ public class GroupTrainingResponse {
     @Override
     public int hashCode() {
         return Objects.hash(
-                id,
-                title,
+                trainingId,
+                trainingName,
                 trainers,
                 startDate,
                 endDate,
@@ -121,11 +124,11 @@ public class GroupTrainingResponse {
     }
 
     public String getTrainingId() {
-        return id;
+        return trainingId;
     }
 
     public String getTrainingName() {
-        return title;
+        return trainingName;
     }
 
     public List<UserResponse> getTrainers() {

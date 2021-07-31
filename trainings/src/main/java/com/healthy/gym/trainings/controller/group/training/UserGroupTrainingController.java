@@ -1,138 +1,76 @@
 package com.healthy.gym.trainings.controller.group.training;
 
 import com.healthy.gym.trainings.component.Translator;
-import com.healthy.gym.trainings.exception.StartDateAfterEndDateException;
 import com.healthy.gym.trainings.exception.TrainingEnrollmentException;
-import com.healthy.gym.trainings.exception.invalid.InvalidDateException;
-import com.healthy.gym.trainings.exception.invalid.InvalidHourException;
 import com.healthy.gym.trainings.exception.notexisting.NotExistingGroupTrainingException;
-import com.healthy.gym.trainings.exception.notfound.TrainingTypeNotFoundException;
 import com.healthy.gym.trainings.model.response.GroupTrainingPublicResponse;
-import com.healthy.gym.trainings.service.group.training.GroupTrainingService;
 import com.healthy.gym.trainings.service.group.training.UserGroupTrainingService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.text.ParseException;
 import java.util.List;
 
 @RestController
 @RequestMapping("/group")
 public class UserGroupTrainingController {
 
+    private static final String EXCEPTION_INTERNAL_ERROR = "exception.internal.error";
     private final Translator translator;
-    private final GroupTrainingService groupTrainingsService;
     private final UserGroupTrainingService userGroupTrainingService;
 
     @Autowired
     public UserGroupTrainingController(
             Translator translator,
-            GroupTrainingService groupTrainingsService,
             UserGroupTrainingService userGroupTrainingService
     ) {
         this.translator = translator;
-        this.groupTrainingsService = groupTrainingsService;
         this.userGroupTrainingService = userGroupTrainingService;
     }
 
-    @GetMapping("/public")
-    public List<GroupTrainingPublicResponse> getPublicGroupTrainings(
-            @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") final String startDate,
-            @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") final String endDate) {
-
-        try {
-            return groupTrainingsService.getPublicGroupTrainings(startDate, endDate);
-
-        } catch (InvalidDateException | InvalidHourException | ParseException e) {
-            String reason = translator.toLocale("exception.date.or.hour.parse");
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, e);
-
-        } catch (StartDateAfterEndDateException e) {
-            String reason = translator.toLocale("exception.start.date.after.end.date");
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, e);
-
-        } catch (Exception exception) {
-            String reason = translator.toLocale("exception.internal.error");
-            exception.printStackTrace();
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, reason, exception);
-        }
-    }
-
-    @GetMapping("/public/type/{trainingTypeId}")
-    public List<GroupTrainingPublicResponse> getPublicGroupTrainingsByType(
-            @PathVariable("trainingTypeId") final String trainingTypeId,
-            @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") final String startDate,
-            @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") final String endDate
-    ) {
-        try {
-            return groupTrainingsService.getGroupTrainingsPublicByType(trainingTypeId, startDate, endDate);
-
-        } catch (InvalidHourException | InvalidDateException | ParseException e) {
-            String reason = translator.toLocale("exception.date.or.hour.parse");
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, e);
-
-        } catch (TrainingTypeNotFoundException e) {
-            String reason = translator.toLocale("exception.not.found.training.type");
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, reason, e);
-
-        } catch (NotExistingGroupTrainingException e) {
-            String reason = translator.toLocale("exception.not.found.training.type.id");
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, reason, e);
-
-        } catch (StartDateAfterEndDateException e) {
-            String reason = translator.toLocale("exception.start.date.after.end.date");
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, e);
-
-        } catch (Exception exception) {
-            String reason = translator.toLocale("exception.internal.error");
-            exception.printStackTrace();
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, reason, exception);
-        }
-    }
-
-    // TODO only logged in users and ADMIN, dodać po ID
+    @PreAuthorize("hasRole('ADMIN') or principal==#userId")
     @GetMapping("/trainings/{userId}")
     public List<GroupTrainingPublicResponse> getAllGroupTrainingsByUserId(@PathVariable final String userId) {
         try {
             return userGroupTrainingService.getMyAllTrainings(userId);
 
         } catch (Exception exception) {
-            String reason = translator.toLocale("exception.internal.error");
+            String reason = translator.toLocale(EXCEPTION_INTERNAL_ERROR);
             exception.printStackTrace();
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, reason, exception);
         }
     }
 
-    //TODO only with USER ROLE
+    @PreAuthorize("hasRole('ADMIN') or hasRole('EMPLOYEE') or principal==#userId")
     @PostMapping("/{trainingId}/enroll")
     public void enrollToGroupTraining(
             @PathVariable("trainingId") final String trainingId,
-            @RequestParam final String clientId
+            @RequestParam("clientId") final String userId
     ) {
         try {
-            userGroupTrainingService.enrollToGroupTraining(trainingId, clientId);
+            userGroupTrainingService.enrollToGroupTraining(trainingId, userId);
 
         } catch (TrainingEnrollmentException e) {
             String reason = translator.toLocale("exception.group.training.enrollment");
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, e);
 
         } catch (Exception exception) {
-            String reason = translator.toLocale("exception.internal.error");
+            String reason = translator.toLocale(EXCEPTION_INTERNAL_ERROR);
             exception.printStackTrace();
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, reason, exception);
         }
     }
 
+    @PreAuthorize("hasRole('ADMIN') or hasRole('EMPLOYEE') or principal==#userId")
     @PostMapping("/{trainingId}/reservelist/add")
     public void addToReserveList(
             @PathVariable("trainingId") final String trainingId,
-            @RequestParam final String clientId
+            @RequestParam("clientId") final String userId
     ) {
         try {
-            userGroupTrainingService.addToReserveList(trainingId, clientId);
+            userGroupTrainingService.addToReserveList(trainingId, userId);
 
         } catch (NotExistingGroupTrainingException e) {
             String reason = translator.toLocale("exception.not.found.training.id");
@@ -143,20 +81,20 @@ public class UserGroupTrainingController {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, e);
 
         } catch (Exception exception) {
-            String reason = translator.toLocale("exception.internal.error");
+            String reason = translator.toLocale(EXCEPTION_INTERNAL_ERROR);
             exception.printStackTrace();
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, reason, exception);
         }
     }
 
-    //TODO aktualizacja listy podstawowej i listy rezerwowej
+    @PreAuthorize("hasRole('ADMIN') or hasRole('EMPLOYEE') or principal==#userId")
     @DeleteMapping("/{trainingId}/enroll")
     public void removeGroupTrainingEnrollment(
             @PathVariable("trainingId") final String trainingId,
-            @RequestParam final String clientId
+            @RequestParam("clientId") final String userId
     ) {
         try {
-            userGroupTrainingService.removeGroupTrainingEnrollment(trainingId, clientId);
+            userGroupTrainingService.removeGroupTrainingEnrollment(trainingId, userId);
 
         } catch (NotExistingGroupTrainingException e) {
             String reason = translator.toLocale("exception.not.found.training.id");
@@ -167,7 +105,7 @@ public class UserGroupTrainingController {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, e);
 
         } catch (Exception exception) {
-            String reason = translator.toLocale("exception.internal.error");
+            String reason = translator.toLocale(EXCEPTION_INTERNAL_ERROR);
             exception.printStackTrace();
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, reason, exception);
         }

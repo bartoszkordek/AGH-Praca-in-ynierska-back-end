@@ -27,6 +27,7 @@ import org.springframework.web.server.ResponseStatusException;
 import javax.validation.Valid;
 import java.text.ParseException;
 
+@PreAuthorize("hasRole('MANAGER') or hasRole('ADMIN')")
 @RestController
 @RequestMapping(value = "/group", consumes = MediaType.APPLICATION_JSON_VALUE)
 public class ManagerGroupTrainingController {
@@ -43,7 +44,6 @@ public class ManagerGroupTrainingController {
         this.managerGroupTrainingService = managerGroupTrainingService;
     }
 
-    @PreAuthorize("hasRole('MANAGER') or hasRole('ADMIN')")
     @PostMapping
     public ResponseEntity<CreateGroupTrainingResponse> createGroupTraining(
             @Valid @RequestBody CreateGroupTrainingRequest createGroupTrainingRequest,
@@ -95,12 +95,11 @@ public class ManagerGroupTrainingController {
         }
     }
 
-    @PreAuthorize("hasRole('MANAGER') or hasRole('ADMIN')")
     @PutMapping("/{trainingId}")
     public GroupTrainingResponse updateGroupTraining(
             @PathVariable("trainingId") final String trainingId,
-            @Valid @RequestBody GroupTrainingRequest groupTrainingModelRequest) {
-
+            @Valid @RequestBody GroupTrainingRequest groupTrainingModelRequest
+    ) {
         try {
             return managerGroupTrainingService.updateGroupTraining(trainingId, groupTrainingModelRequest);
 
@@ -123,10 +122,10 @@ public class ManagerGroupTrainingController {
         }
     }
 
-    @PreAuthorize("hasRole('MANAGER') or hasRole('ADMIN')")
     @DeleteMapping("/{trainingId}")
-    public GroupTrainingResponse removeGroupTraining(@PathVariable("trainingId") final String trainingId) {
-
+    public GroupTrainingResponse removeGroupTraining(
+            @PathVariable("trainingId") final String trainingId
+    ) {
         try {
             return managerGroupTrainingService.removeGroupTraining(trainingId);
 

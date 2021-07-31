@@ -1,17 +1,15 @@
 package com.healthy.gym.trainings.service;
 
 import com.healthy.gym.trainings.configuration.EmailConfig;
-import com.healthy.gym.trainings.data.document.GroupTrainings;
-import com.healthy.gym.trainings.data.document.UserDocument;
 import com.healthy.gym.trainings.data.repository.GroupTrainingsDbRepository;
 import com.healthy.gym.trainings.data.repository.TrainingTypeDAO;
-import com.healthy.gym.trainings.exception.*;
+import com.healthy.gym.trainings.exception.StartDateAfterEndDateException;
+import com.healthy.gym.trainings.exception.TrainingEnrollmentException;
 import com.healthy.gym.trainings.exception.invalid.InvalidDateException;
 import com.healthy.gym.trainings.exception.invalid.InvalidHourException;
 import com.healthy.gym.trainings.exception.notexisting.NotExistingGroupTrainingException;
 import com.healthy.gym.trainings.exception.notfound.TrainingTypeNotFoundException;
 import com.healthy.gym.trainings.model.other.EmailSendModel;
-import com.healthy.gym.trainings.model.request.GroupTrainingRequest;
 import com.healthy.gym.trainings.model.response.GroupTrainingPublicResponse;
 import com.healthy.gym.trainings.model.response.GroupTrainingResponse;
 import com.healthy.gym.trainings.model.response.ParticipantsResponse;
@@ -20,15 +18,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.text.ParseException;
-import java.util.ArrayList;
 import java.util.List;
-
-import static com.healthy.gym.trainings.utils.GroupTrainingValidator.*;
 
 @Service
 public class GroupTrainingServiceImpl implements GroupTrainingService {
 
-    private static final double INITIAL_RATING = 0.0;
     private final EmailConfig emailConfig;
     private final GroupTrainingsDbRepository groupTrainingsDbRepository;
     private final TrainingTypeDAO trainingTypeRepository;
@@ -195,189 +189,4 @@ public class GroupTrainingServiceImpl implements GroupTrainingService {
             groupTrainingsDbRepository.removeFromReserveList(trainingId, clientId);
         }
     }
-
-    @Override
-    public GroupTrainingResponse createGroupTraining(GroupTrainingRequest groupTrainingModel)
-            throws TrainingCreationException, ParseException, InvalidHourException, InvalidDateException {
-
-        if (!isExistRequiredDataForGroupTraining(groupTrainingModel))
-            throw new TrainingCreationException("Cannot create new group training. Missing required data.");
-
-        String date = groupTrainingModel.getDate();
-        String startTime = groupTrainingModel.getStartTime();
-        String endTime = groupTrainingModel.getEndTime();
-        int hallNo = groupTrainingModel.getHallNo();
-        int limit = groupTrainingModel.getLimit();
-
-        if (isTrainingRetroDate(date))
-            throw new TrainingCreationException("Cannot create new group training. Training retro date.");
-
-        if (isStartTimeAfterEndTime(startTime, endTime))
-            throw new TrainingCreationException("Cannot create new group training. Start time after end time.");
-
-        if (isHallNoInvalid(hallNo))
-            throw new TrainingCreationException("Cannot create new group training. Invalid hall no.");
-
-        if (isLimitInvalid(limit))
-            throw new TrainingCreationException("Cannot create new group training. Invalid limit.");
-
-        if (!groupTrainingsDbRepository.isAbilityToCreateTraining(groupTrainingModel))
-            throw new TrainingCreationException("Cannot create new group training. Overlapping trainings.");
-
-        GroupTrainings repositoryResponse = groupTrainingsDbRepository.createTraining(groupTrainingModel);
-
-        List<UserDocument> participants = repositoryResponse.getParticipants();
-        List<ParticipantsResponse> participantsResponses = new ArrayList<>();
-        for (UserDocument participant : participants) {
-            ParticipantsResponse participantsResponse = new ParticipantsResponse(participant.getUserId(),
-                    participant.getName(), participant.getSurname());
-            participantsResponses.add(participantsResponse);
-        }
-
-        List<UserDocument> reserveList = repositoryResponse.getReserveList();
-        List<ParticipantsResponse> reserveListResponses = new ArrayList<>();
-        for (UserDocument reserveListParticipant : reserveList) {
-            ParticipantsResponse reserveListParticipantsResponse = new ParticipantsResponse(
-                    reserveListParticipant.getUserId(),
-                    reserveListParticipant.getName(),
-                    reserveListParticipant.getSurname());
-            reserveListResponses.add(reserveListParticipantsResponse);
-        }
-
-        return new GroupTrainingResponse(
-                repositoryResponse.getTrainingId(),
-                repositoryResponse.getTrainingType().getName(),
-                repositoryResponse.getTrainerId(),
-                repositoryResponse.getDate(),
-                repositoryResponse.getStartTime(),
-                repositoryResponse.getEndTime(),
-                repositoryResponse.getHallNo(),
-                repositoryResponse.getLimit(),
-                INITIAL_RATING,
-                participantsResponses,
-                reserveListResponses);
-    }
-
-    @Override
-    public GroupTrainingResponse removeGroupTraining(String trainingId)
-            throws TrainingRemovalException, EmailSendingException, InvalidDateException, InvalidHourException {
-
-        if (!groupTrainingsDbRepository.isGroupTrainingExist(trainingId))
-            throw new TrainingRemovalException("Training with ID: " + trainingId + " doesn't exist");
-
-        GroupTrainings repositoryResponse = groupTrainingsDbRepository.removeTraining(trainingId);
-
-        List<UserDocument> participants = repositoryResponse.getParticipants();
-        List<ParticipantsResponse> participantsResponses = new ArrayList<>();
-        List<String> toEmails = new ArrayList<>();
-        for (UserDocument document : participants) {
-            ParticipantsResponse participantsResponse = new ParticipantsResponse(document.getUserId(),
-                    document.getName(), document.getSurname());
-            participantsResponses.add(participantsResponse);
-            String email = document.getEmail();
-            toEmails.add(email);
-        }
-
-        List<UserDocument> reserveList = repositoryResponse.getReserveList();
-        List<ParticipantsResponse> reserveListResponses = new ArrayList<>();
-        for (UserDocument document : reserveList) {
-            ParticipantsResponse reserveListResponse = new ParticipantsResponse(document.getUserId(),
-                    document.getName(), document.getSurname());
-            reserveListResponses.add(reserveListResponse);
-        }
-
-        String subject = "Training has been deleted";
-        String body = "Training " + repositoryResponse.getTrainingId() + " on " + repositoryResponse.getDate() + " at "
-                + repositoryResponse.getStartTime() + " with " + repositoryResponse.getTrainerId() + " has been deleted.";
-        try {
-            sendEmailWithoutAttachment(toEmails, subject, body);
-        } catch (Exception e) {
-            throw new EmailSendingException("Cannot send email");
-        }
-
-        return new GroupTrainingResponse(
-                repositoryResponse.getTrainingId(),
-                repositoryResponse.getTrainingType().getName(),
-                repositoryResponse.getTrainerId(),
-                repositoryResponse.getDate(),
-                repositoryResponse.getStartTime(),
-                repositoryResponse.getEndTime(),
-                repositoryResponse.getHallNo(),
-                repositoryResponse.getLimit(),
-                INITIAL_RATING,
-                participantsResponses,
-                reserveListResponses);
-    }
-
-    @Override
-    public GroupTrainingResponse updateGroupTraining(String trainingId, GroupTrainingRequest groupTrainingModelRequest)
-            throws TrainingUpdateException, EmailSendingException,
-            InvalidHourException, ParseException, InvalidDateException {
-
-        if (!groupTrainingsDbRepository.isGroupTrainingExist(trainingId))
-            throw new TrainingUpdateException("Training with ID: " + trainingId + " doesn't exist");
-
-        String date = groupTrainingModelRequest.getDate();
-        String startTime = groupTrainingModelRequest.getStartTime();
-        String endTime = groupTrainingModelRequest.getEndTime();
-        int hallNo = groupTrainingModelRequest.getHallNo();
-        int limit = groupTrainingModelRequest.getLimit();
-
-        if (isTrainingRetroDate(date))
-            throw new TrainingUpdateException("Cannot update group training. Training retro date.");
-        if (isStartTimeAfterEndTime(startTime, endTime))
-            throw new TrainingUpdateException("Cannot update group training. Start time after end time.");
-        if (isHallNoInvalid(hallNo))
-            throw new TrainingUpdateException("Cannot update group training. Invalid hall no.");
-        if (isLimitInvalid(limit))
-            throw new TrainingUpdateException("Cannot update group training. Invalid limit.");
-
-        if (!groupTrainingsDbRepository.isAbilityToUpdateTraining(trainingId, groupTrainingModelRequest))
-            throw new TrainingUpdateException("Cannot update group training. Overlapping trainings.");
-
-        GroupTrainings repositoryResponse = groupTrainingsDbRepository
-                .updateTraining(trainingId, groupTrainingModelRequest);
-
-        List<UserDocument> participants = repositoryResponse.getParticipants();
-        List<ParticipantsResponse> participantsResponses = new ArrayList<>();
-        List<String> toEmails = new ArrayList<>();
-        for (UserDocument document : participants) {
-            ParticipantsResponse participantsResponse = new ParticipantsResponse(document.getUserId(),
-                    document.getName(), document.getSurname());
-            participantsResponses.add(participantsResponse);
-            String email = document.getEmail();
-            toEmails.add(email);
-        }
-
-        List<UserDocument> reserveList = repositoryResponse.getReserveList();
-        List<ParticipantsResponse> reserveListResponses = new ArrayList<>();
-        for (UserDocument document : reserveList) {
-            ParticipantsResponse reserveListResponse = new ParticipantsResponse(document.getUserId(),
-                    document.getName(), document.getSurname());
-            reserveListResponses.add(reserveListResponse);
-        }
-
-        String subject = "Training has been updated";
-        String body = "Training " + repositoryResponse.getTrainingId() + " on " + repositoryResponse.getDate() + " at "
-                + repositoryResponse.getStartTime() + " with " + repositoryResponse.getTrainerId() + " has been updated.";
-        try {
-            sendEmailWithoutAttachment(toEmails, subject, body);
-        } catch (Exception e) {
-            throw new EmailSendingException("Cannot send email");
-        }
-
-        return new GroupTrainingResponse(
-                repositoryResponse.getTrainingId(),
-                repositoryResponse.getTrainingType().getName(),
-                repositoryResponse.getTrainerId(),
-                repositoryResponse.getDate(),
-                repositoryResponse.getStartTime(),
-                repositoryResponse.getEndTime(),
-                repositoryResponse.getHallNo(),
-                repositoryResponse.getLimit(),
-                INITIAL_RATING,
-                participantsResponses,
-                reserveListResponses);
-    }
-
 }

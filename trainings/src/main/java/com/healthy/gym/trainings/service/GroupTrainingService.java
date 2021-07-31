@@ -1,11 +1,11 @@
 package com.healthy.gym.trainings.service;
 
-import com.healthy.gym.trainings.exception.*;
+import com.healthy.gym.trainings.exception.StartDateAfterEndDateException;
+import com.healthy.gym.trainings.exception.TrainingEnrollmentException;
 import com.healthy.gym.trainings.exception.invalid.InvalidDateException;
 import com.healthy.gym.trainings.exception.invalid.InvalidHourException;
 import com.healthy.gym.trainings.exception.notexisting.NotExistingGroupTrainingException;
 import com.healthy.gym.trainings.exception.notfound.TrainingTypeNotFoundException;
-import com.healthy.gym.trainings.model.request.GroupTrainingRequest;
 import com.healthy.gym.trainings.model.response.GroupTrainingPublicResponse;
 import com.healthy.gym.trainings.model.response.GroupTrainingResponse;
 import com.healthy.gym.trainings.model.response.ParticipantsResponse;
@@ -50,15 +50,4 @@ public interface GroupTrainingService {
 
     void removeGroupTrainingEnrollment(String trainingId, String clientId)
             throws NotExistingGroupTrainingException, TrainingEnrollmentException;
-
-    GroupTrainingResponse createGroupTraining(GroupTrainingRequest groupTrainingModel)
-            throws TrainingCreationException, ParseException, InvalidHourException, InvalidDateException;
-
-    GroupTrainingResponse removeGroupTraining(String trainingId)
-            throws TrainingRemovalException, EmailSendingException, InvalidDateException, InvalidHourException;
-
-    GroupTrainingResponse updateGroupTraining(String trainingId, GroupTrainingRequest groupTrainingModelRequest)
-            throws TrainingUpdateException, EmailSendingException, InvalidHourException,
-            ParseException, InvalidDateException;
-
 }

@@ -20,12 +20,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.time.Duration;
-import java.time.LocalTime;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
+
+import static com.healthy.gym.trainings.utils.GroupTrainingValidator.*;
 
 @Service
 public class GroupTrainingServiceImpl implements GroupTrainingService {
@@ -65,46 +63,6 @@ public class GroupTrainingServiceImpl implements GroupTrainingService {
         String port = emailConfig.getSmtpPort();
         emailService.overrideDefaultSmptCredentials(host, port);
         emailService.sendEmailTLS(emailSendModel);
-    }
-
-    private boolean isExistRequiredDataForGroupTraining(GroupTrainingRequest groupTrainingModel) {
-        String trainingName = groupTrainingModel.getTrainingTypeId();
-        String trainerId = groupTrainingModel.getTrainerId();
-        String date = groupTrainingModel.getDate();
-        String startTime = groupTrainingModel.getStartTime();
-        String endTime = groupTrainingModel.getEndTime();
-
-        return !trainingName.isEmpty()
-                && !trainerId.isEmpty()
-                && !date.isEmpty()
-                && !startTime.isEmpty()
-                && !endTime.isEmpty();
-    }
-
-    private boolean isHallNoInvalid(int hallNo) {
-        return hallNo <= 0;
-    }
-
-    private boolean isLimitInvalid(int limit) {
-        return limit <= 0;
-    }
-
-    private boolean isTrainingRetroDate(String date) throws ParseException {
-        SimpleDateFormat sdfDate = new SimpleDateFormat("yyyy-MM-dd");
-        Date requestDateParsed = sdfDate.parse(date);
-        Date now = new Date();
-        String todayDateFormatted = sdfDate.format(now);
-        Date todayDateParsed = sdfDate.parse(todayDateFormatted);
-
-        return requestDateParsed.before(todayDateParsed);
-    }
-
-    private boolean isStartTimeAfterEndTime(String startTime, String endTime) {
-        LocalTime start = LocalTime.parse(startTime);
-        LocalTime stop = LocalTime.parse(endTime);
-        Duration duration = Duration.between(start, stop);
-
-        return duration.toMinutes() <= 0;
     }
 
     @Override

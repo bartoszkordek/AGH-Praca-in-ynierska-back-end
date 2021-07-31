@@ -1,7 +1,7 @@
 package com.healthy.gym.trainings.service.group.training;
 
 import com.healthy.gym.trainings.data.repository.GroupTrainingsDbRepository;
-import com.healthy.gym.trainings.exception.TrainingEnrollmentException;
+import com.healthy.gym.trainings.exception.training.TrainingEnrollmentException;
 import com.healthy.gym.trainings.exception.invalid.InvalidDateException;
 import com.healthy.gym.trainings.exception.invalid.InvalidHourException;
 import com.healthy.gym.trainings.exception.notexisting.NotExistingGroupTrainingException;

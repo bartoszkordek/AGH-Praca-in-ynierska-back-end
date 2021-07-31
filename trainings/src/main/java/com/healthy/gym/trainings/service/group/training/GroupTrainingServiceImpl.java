@@ -1,4 +1,4 @@
-package com.healthy.gym.trainings.service;
+package com.healthy.gym.trainings.service.group.training;
 
 import com.healthy.gym.trainings.configuration.EmailConfig;
 import com.healthy.gym.trainings.data.repository.GroupTrainingsDbRepository;

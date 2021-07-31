@@ -2,8 +2,8 @@ package com.healthy.gym.trainings.model.request;
 
 import com.healthy.gym.trainings.exception.invalid.InvalidDateException;
 import com.healthy.gym.trainings.exception.invalid.InvalidHourException;
-import com.healthy.gym.trainings.validation.DateValidator;
-import com.healthy.gym.trainings.validation.Time24HoursValidator;
+import com.healthy.gym.trainings.utils.DateValidator;
+import com.healthy.gym.trainings.utils.Time24HoursValidator;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.validation.constraints.NotNull;

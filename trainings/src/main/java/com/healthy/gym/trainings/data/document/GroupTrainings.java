@@ -8,7 +8,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import java.util.List;
 import java.util.Objects;
 
-import static com.healthy.gym.trainings.validation.Time24HoursValidator.validate;
+import static com.healthy.gym.trainings.utils.Time24HoursValidator.validate;
 
 @Document(collection = "GroupTrainings")
 public class GroupTrainings {

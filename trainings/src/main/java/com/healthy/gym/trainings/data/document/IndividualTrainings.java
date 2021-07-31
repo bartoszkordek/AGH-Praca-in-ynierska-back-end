@@ -4,7 +4,7 @@ import com.healthy.gym.trainings.exception.invalid.InvalidHourException;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import static com.healthy.gym.trainings.validation.Time24HoursValidator.validate;
+import static com.healthy.gym.trainings.utils.Time24HoursValidator.validate;
 
 @Document(collection = "IndividualTrainings")
 public class IndividualTrainings {

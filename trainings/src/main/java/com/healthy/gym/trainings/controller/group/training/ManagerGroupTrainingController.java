@@ -68,6 +68,10 @@ public class ManagerGroupTrainingController {
             String reason = translator.toLocale("exception.start.date.after.end.date");
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, exception);
 
+        } catch (PastDateException exception) {
+            String reason = translator.toLocale("exception.past.date");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, exception);
+
         } catch (TrainerNotFoundException exception) {
             String reason = translator.toLocale("exception.create.group.training.trainer.not.found");
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, exception);

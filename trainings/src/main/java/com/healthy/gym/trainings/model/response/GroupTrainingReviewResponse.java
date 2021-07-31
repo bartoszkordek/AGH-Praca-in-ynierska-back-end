@@ -1,37 +1,30 @@
 package com.healthy.gym.trainings.model.response;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-
 import javax.validation.constraints.NotNull;
 import java.util.Objects;
 
 public class GroupTrainingReviewResponse {
 
     @NotNull
-    @JsonProperty("reviewId")
     private final String reviewId;
     @NotNull
-    @JsonProperty("trainingTypeId")
     private final String trainingTypeId;
     @NotNull
-    @JsonProperty("clientId")
     private final String clientId;
     @NotNull
-    @JsonProperty("date")
     private final String date;
-    @NotNull
-    @JsonProperty("stars")
     private final int stars;
     @NotNull
-    @JsonProperty("text")
     private final String text;
 
-    public GroupTrainingReviewResponse(@NotNull @JsonProperty("reviewId") final String reviewId,
-                                       @NotNull @JsonProperty("trainingTypeId") final String trainingTypeId,
-                                       @NotNull @JsonProperty("clientId") final String clientId,
-                                       @NotNull @JsonProperty("date") final String date,
-                                       @NotNull @JsonProperty("stars") final int stars,
-                                       @NotNull @JsonProperty("text") final String text){
+    public GroupTrainingReviewResponse(
+            @NotNull final String reviewId,
+            @NotNull final String trainingTypeId,
+            @NotNull final String clientId,
+            @NotNull final String date,
+            @NotNull final int stars,
+            @NotNull final String text
+    ) {
         this.reviewId = reviewId;
         this.trainingTypeId = trainingTypeId;
         this.clientId = clientId;
@@ -52,18 +45,17 @@ public class GroupTrainingReviewResponse {
                 '}';
     }
 
-    //for testing purposes reviewId as UUID excluded from checking
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         GroupTrainingReviewResponse that = (GroupTrainingReviewResponse) o;
-        return stars == that.stars &&
-//                Objects.equals(reviewId, that.reviewId) &&
-                Objects.equals(trainingTypeId, that.trainingTypeId) &&
-                Objects.equals(clientId, that.clientId) &&
-                Objects.equals(date, that.date) &&
-                Objects.equals(text, that.text);
+        return stars == that.stars
+                && Objects.equals(reviewId, that.reviewId)
+                && Objects.equals(trainingTypeId, that.trainingTypeId)
+                && Objects.equals(clientId, that.clientId)
+                && Objects.equals(date, that.date)
+                && Objects.equals(text, that.text);
     }
 
     @Override

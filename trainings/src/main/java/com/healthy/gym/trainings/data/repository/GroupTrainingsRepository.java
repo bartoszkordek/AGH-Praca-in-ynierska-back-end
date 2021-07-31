@@ -7,22 +7,23 @@ import java.util.List;
 
 public interface GroupTrainingsRepository extends MongoRepository<GroupTrainings, String> {
 
-    public List<GroupTrainings> findAll();
-    public List<GroupTrainings> findByDateBetween(String startDate, String endDate);
-    public List<GroupTrainings> findGroupTrainingsByParticipantsContains(String clientId);
-    public List<GroupTrainings> findAllByTrainingTypeIdAndDateBetween(String trainingTypeId, String startDate, String endDate);
-    public boolean existsByTrainingId(String trainingId);
-    public boolean existsByTrainingTypeId(String trainingTypeId);
-    public boolean existsByDateAfter(String date);
-    public boolean existsByTrainingIdAndDateAfter(String trainingId, String date);
-    public boolean existsByLimitGreaterThan(int participantsCount);
-    public boolean existsByTrainingIdAndDateAfterAndLimitGreaterThan(String trainingId, String date, int limit);
-    public boolean existsByTrainingIdAndDateEqualsAndStartTimeAfterAndLimitGreaterThan(String trainingId, String date, String startTime, int limit);
-    //public boolean existsByStart_time(int date);\\\between
-    public boolean existsByStartTimeBetween(String beginning, String end);
+    List<GroupTrainings> findByDateBetween(String startDate, String endDate);
 
-    public GroupTrainings getFirstByTrainingId(String trainingId);
-    public GroupTrainings findFirstByTrainingId(String trainingId);
+    List<GroupTrainings> findGroupTrainingsByParticipantsContains(String clientId);
 
-    public void removeByTrainingId(String trainingId);
+    List<GroupTrainings> findAllByTrainingTypeIdAndDateBetween(String trainingTypeId, String startDate, String endDate);
+
+    boolean existsByTrainingId(String trainingId);
+
+    boolean existsByTrainingTypeId(String trainingTypeId);
+
+    boolean existsByTrainingIdAndDateAfterAndLimitGreaterThan(String trainingId, String date, int limit);
+
+    boolean existsByTrainingIdAndDateEqualsAndStartTimeAfterAndLimitGreaterThan(String trainingId, String date, String startTime, int limit);
+
+    GroupTrainings getFirstByTrainingId(String trainingId);
+
+    GroupTrainings findFirstByTrainingId(String trainingId);
+
+    void removeByTrainingId(String trainingId);
 }

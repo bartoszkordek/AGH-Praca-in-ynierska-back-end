@@ -12,25 +12,26 @@ public class GroupTrainingsReviews {
     @Id
     @JsonProperty("_id")
     private String id;
-
-    @JsonProperty("reviewId")
     private String reviewId;
-    @JsonProperty("trainingTypeId")
     private String trainingTypeId;
-    @JsonProperty("clientId") // + Avatar TBC
+    // + Avatar TBC
     private String clientId;
-    @JsonProperty("date")
     private String date;
-    @JsonProperty("stars")
     private int stars;
-    @JsonProperty("text")
     private String text;
 
-    public GroupTrainingsReviews(){
+    public GroupTrainingsReviews() {
 
     }
 
-    public GroupTrainingsReviews(String reviewId, String trainingTypeId, String clientId, String date, int stars, String text){
+    public GroupTrainingsReviews(
+            String reviewId,
+            String trainingTypeId,
+            String clientId,
+            String date,
+            int stars,
+            String text
+    ) {
         this.reviewId = reviewId;
         this.trainingTypeId = trainingTypeId;
         this.clientId = clientId;
@@ -52,19 +53,18 @@ public class GroupTrainingsReviews {
                 '}';
     }
 
-    //for testing purposes reviewId as UUID excluded from checking
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         GroupTrainingsReviews that = (GroupTrainingsReviews) o;
-        return stars == that.stars &&
-                Objects.equals(id, that.id) &&
-//                Objects.equals(reviewId, that.reviewId) &&
-                Objects.equals(trainingTypeId, that.trainingTypeId) &&
-                Objects.equals(clientId, that.clientId) &&
-                Objects.equals(date, that.date) &&
-                Objects.equals(text, that.text);
+        return stars == that.stars
+                && Objects.equals(id, that.id)
+                && Objects.equals(reviewId, that.reviewId)
+                && Objects.equals(trainingTypeId, that.trainingTypeId)
+                && Objects.equals(clientId, that.clientId)
+                && Objects.equals(date, that.date)
+                && Objects.equals(text, that.text);
     }
 
     @Override
@@ -76,48 +76,52 @@ public class GroupTrainingsReviews {
         return id;
     }
 
-    public String getReviewId() { return reviewId; }
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public String getReviewId() {
+        return reviewId;
+    }
+
+    public void setReviewId(String reviewId) {
+        this.reviewId = reviewId;
+    }
 
     public String getTrainingTypeId() {
         return trainingTypeId;
+    }
+
+    public void setTrainingTypeId(String trainingTypeId) {
+        this.trainingTypeId = trainingTypeId;
     }
 
     public String getClientId() {
         return clientId;
     }
 
-    public String getDate() {
-        return date;
-    }
-
-    public int getStars() {
-        return stars;
-    }
-
-    public String getText() {
-        return text;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    public void setReviewId(String reviewId) { this.reviewId = reviewId; }
-
-    public void setTrainingTypeId(String trainingTypeId) {
-        this.trainingTypeId = trainingTypeId;
-    }
-
     public void setClientId(String clientId) {
         this.clientId = clientId;
+    }
+
+    public String getDate() {
+        return date;
     }
 
     public void setDate(String date) {
         this.date = date;
     }
 
+    public int getStars() {
+        return stars;
+    }
+
     public void setStars(int stars) {
         this.stars = stars;
+    }
+
+    public String getText() {
+        return text;
     }
 
     public void setText(String text) {

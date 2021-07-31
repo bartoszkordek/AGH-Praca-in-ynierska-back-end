@@ -1,33 +1,27 @@
 package com.healthy.gym.trainings.model.response;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-
 import javax.validation.constraints.NotNull;
 import java.util.Objects;
 
 public class GroupTrainingReviewPublicResponse {
 
     @NotNull
-    @JsonProperty("reviewId")
     private final String reviewId;
     @NotNull
-    @JsonProperty("trainingTypeId")
     private final String trainingTypeId;
     @NotNull
-    @JsonProperty("date")
     private final String date;
-    @NotNull
-    @JsonProperty("stars")
     private final int stars;
     @NotNull
-    @JsonProperty("text")
     private final String text;
 
-    public GroupTrainingReviewPublicResponse(@NotNull @JsonProperty("reviewId") final String reviewId,
-                                             @NotNull @JsonProperty("trainingTypeId") final String trainingTypeId,
-                                             @NotNull @JsonProperty("date") final String date,
-                                             @NotNull @JsonProperty("stars") final int stars,
-                                             @NotNull @JsonProperty("text") final String text) {
+    public GroupTrainingReviewPublicResponse(
+            @NotNull final String reviewId,
+            @NotNull final String trainingTypeId,
+            @NotNull final String date,
+            @NotNull final int stars,
+            @NotNull final String text
+    ) {
         this.reviewId = reviewId;
         this.trainingTypeId = trainingTypeId;
         this.date = date;

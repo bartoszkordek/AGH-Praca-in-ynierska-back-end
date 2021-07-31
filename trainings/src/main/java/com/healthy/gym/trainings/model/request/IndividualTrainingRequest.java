@@ -1,10 +1,9 @@
 package com.healthy.gym.trainings.model.request;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.healthy.gym.trainings.exception.invalid.InvalidDateException;
 import com.healthy.gym.trainings.exception.invalid.InvalidHourException;
-import com.healthy.gym.trainings.validation.DateValidator;
-import com.healthy.gym.trainings.validation.Time24HoursValidator;
+import com.healthy.gym.trainings.utils.DateValidator;
+import com.healthy.gym.trainings.utils.Time24HoursValidator;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.validation.constraints.NotNull;
@@ -12,39 +11,32 @@ import javax.validation.constraints.NotNull;
 public class IndividualTrainingRequest {
 
     @NotNull
-    private String trainerId;
+    private final String trainerId;
     @NotNull
-    @DateTimeFormat(pattern="yyyy-MM-dd")
-    private String date;
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    private final String date;
     @NotNull
-    private String startTime;
+    private final String startTime;
     @NotNull
-    private String endTime;
-    private String remarks;
+    private final String endTime;
+    private final String remarks;
 
-    public IndividualTrainingRequest(@JsonProperty("trainerId") String trainerId,
-                                     @JsonProperty("date") String date,
-                                     @JsonProperty("startTime") String startTime,
-                                     @JsonProperty("endTime") String endTime,
-                                     @JsonProperty("remarks") String remarks) throws InvalidDateException, InvalidHourException {
-        DateValidator dateValidator = new DateValidator();
-        Time24HoursValidator time24HoursValidator = new Time24HoursValidator();
+    public IndividualTrainingRequest(
+            String trainerId,
+            String date,
+            String startTime,
+            String endTime,
+            String remarks
+    ) throws InvalidDateException, InvalidHourException {
+
+        if (!DateValidator.validate(date)) throw new InvalidDateException("Wrong date");
+        if (!Time24HoursValidator.validate(startTime)) throw new InvalidDateException("Wrong date");
+        if (!Time24HoursValidator.validate(endTime)) throw new InvalidHourException("Wrong end time");
+
         this.trainerId = trainerId;
-        if(dateValidator.validate(date)){
-            this.date = date;
-        } else {
-            throw new InvalidDateException("Wrong date");
-        }
-        if(time24HoursValidator.validate(startTime)){
-            this.startTime = startTime;
-        } else {
-            throw new InvalidHourException("Wrong start time");
-        }
-        if(time24HoursValidator.validate(endTime)){
-            this.endTime = endTime;
-        } else {
-            throw new InvalidHourException("Wrong end time");
-        }
+        this.date = date;
+        this.startTime = startTime;
+        this.endTime = endTime;
         this.remarks = remarks;
     }
 

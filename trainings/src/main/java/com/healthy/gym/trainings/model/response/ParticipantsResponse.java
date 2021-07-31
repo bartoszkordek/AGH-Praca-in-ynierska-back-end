@@ -1,27 +1,24 @@
 package com.healthy.gym.trainings.model.response;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import javax.validation.constraints.NotNull;
+import java.util.Objects;
 
 public class ParticipantsResponse {
 
     @NotNull
-    @JsonProperty("userId")
     private String userId;
 
     @NotNull
-    @JsonProperty("name")
+
     private String name;
 
     @NotNull
-    @JsonProperty("surname")
+
     private String surname;
 
     //TODO ADD Avatar
 
-    public ParticipantsResponse(@JsonProperty("userId") String userId,
-                                @JsonProperty("name") String name,
-                                @JsonProperty("surname") String surname){
+    public ParticipantsResponse(String userId, String name, String surname) {
         this.userId = userId;
         this.name = name;
         this.surname = surname;
@@ -31,11 +28,47 @@ public class ParticipantsResponse {
         return userId;
     }
 
+    public void setUserId(String userId) {
+        this.userId = userId;
+    }
+
     public String getName() {
         return name;
     }
 
+    public void setName(String name) {
+        this.name = name;
+    }
+
     public String getSurname() {
         return surname;
+    }
+
+    public void setSurname(String surname) {
+        this.surname = surname;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ParticipantsResponse that = (ParticipantsResponse) o;
+        return Objects.equals(userId, that.userId)
+                && Objects.equals(name, that.name)
+                && Objects.equals(surname, that.surname);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(userId, name, surname);
+    }
+
+    @Override
+    public String toString() {
+        return "ParticipantsResponse{" +
+                "userId='" + userId + '\'' +
+                ", name='" + name + '\'' +
+                ", surname='" + surname + '\'' +
+                '}';
     }
 }

@@ -8,26 +8,44 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.repository.MongoRepository;
 
-import java.util.List;
-
 public interface ReviewDAO extends MongoRepository<GroupTrainingsReviews, String> {
 
-    public List<GroupTrainingsReviews> findAll();
+    boolean existsById(String id);
 
-    public boolean existsById(String id);
-    public boolean existsByReviewId(String reviewId);
-    public boolean existsByReviewIdAndAndClientId(String reviewId, String clientId);
+    boolean existsByReviewId(String reviewId);
 
-    public GroupTrainingReviewResponse getFirstByReviewId(String reviewId);
-    public GroupTrainingsReviews getFirstBy(String id);
-    public GroupTrainingsReviews findGroupTrainingsReviewsByReviewId(String id);
+    boolean existsByReviewIdAndAndClientId(String reviewId, String clientId);
 
-    public void removeById(String id);
-    public void removeByReviewId(String reviewId);
+    GroupTrainingReviewResponse getFirstByReviewId(String reviewId);
 
-    Page<GroupTrainingReviewResponse> findByDateBetween(String startDate, String endDate, Pageable pageable);
-    Page<GroupTrainingReviewResponse> findByDateBetweenAndClientId(String startDate, String endDate, String clientId, Pageable pageable);
+    GroupTrainingsReviews findGroupTrainingsReviewsByReviewId(String id);
 
-    Page<GroupTrainingReviewResponse> findByDateBetweenAndTrainingTypeId(String startDate, String endDate, String trainingTypeId, Pageable pageable);
-    Page<GroupTrainingReviewPublicResponse> getAllByDateBetweenAndTrainingTypeId(String startDate, String endDate, String trainingTypeId, Pageable pageable);
+    void removeByReviewId(String reviewId);
+
+    Page<GroupTrainingReviewResponse> findByDateBetween(
+            String startDate,
+            String endDate,
+            Pageable pageable
+    );
+
+    Page<GroupTrainingReviewResponse> findByDateBetweenAndClientId(
+            String startDate,
+            String endDate,
+            String clientId,
+            Pageable pageable
+    );
+
+    Page<GroupTrainingReviewResponse> findByDateBetweenAndTrainingTypeId(
+            String startDate,
+            String endDate,
+            String trainingTypeId,
+            Pageable pageable
+    );
+
+    Page<GroupTrainingReviewPublicResponse> getAllByDateBetweenAndTrainingTypeId(
+            String startDate,
+            String endDate,
+            String trainingTypeId,
+            Pageable pageable
+    );
 }

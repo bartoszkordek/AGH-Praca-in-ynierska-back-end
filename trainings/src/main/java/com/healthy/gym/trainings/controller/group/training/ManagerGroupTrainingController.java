@@ -8,6 +8,8 @@ import com.healthy.gym.trainings.exception.notfound.TrainerNotFoundException;
 import com.healthy.gym.trainings.exception.notfound.TrainingTypeNotFoundException;
 import com.healthy.gym.trainings.exception.occupied.LocationOccupiedException;
 import com.healthy.gym.trainings.exception.occupied.TrainerOccupiedException;
+import com.healthy.gym.trainings.exception.training.TrainingRemovalException;
+import com.healthy.gym.trainings.exception.training.TrainingUpdateException;
 import com.healthy.gym.trainings.model.request.CreateGroupTrainingRequest;
 import com.healthy.gym.trainings.model.request.GroupTrainingRequest;
 import com.healthy.gym.trainings.model.response.CreateGroupTrainingResponse;
@@ -66,6 +68,10 @@ public class ManagerGroupTrainingController {
 
         } catch (StartDateAfterEndDateException exception) {
             String reason = translator.toLocale("exception.start.date.after.end.date");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, exception);
+
+        } catch (PastDateException exception) {
+            String reason = translator.toLocale("exception.past.date");
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, exception);
 
         } catch (TrainerNotFoundException exception) {

@@ -1,6 +1,7 @@
 package com.healthy.gym.trainings.controller.group.training.manager.integrationTests;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.healthy.gym.trainings.configuration.FixedClockConfig;
 import com.healthy.gym.trainings.configuration.TestCountry;
 import com.healthy.gym.trainings.configuration.TestRoleTokenFactory;
 import com.healthy.gym.trainings.data.document.GroupTrainingDocument;
@@ -40,12 +41,12 @@ import static com.healthy.gym.trainings.configuration.Messages.getMessagesAccord
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 @Testcontainers
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, classes = FixedClockConfig.class)
 @TestPropertySource(properties = {
         "eureka.client.fetch-registry=false",
         "eureka.client.register-with-eureka=false"
 })
-class WhenCreateGroupTrainingIntegretionTest {
+class WhenCreateGroupTrainingIntegrationTest {
 
     @Container
     static MongoDBContainer mongoDBContainer =

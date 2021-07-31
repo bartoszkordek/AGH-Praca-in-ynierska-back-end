@@ -4,7 +4,9 @@ import com.healthy.gym.trainings.component.EmailSender;
 import com.healthy.gym.trainings.data.document.*;
 import com.healthy.gym.trainings.data.repository.*;
 import com.healthy.gym.trainings.enums.GymRole;
-import com.healthy.gym.trainings.exception.*;
+import com.healthy.gym.trainings.exception.EmailSendingException;
+import com.healthy.gym.trainings.exception.PastDateException;
+import com.healthy.gym.trainings.exception.StartDateAfterEndDateException;
 import com.healthy.gym.trainings.exception.invalid.InvalidDateException;
 import com.healthy.gym.trainings.exception.invalid.InvalidHourException;
 import com.healthy.gym.trainings.exception.notfound.LocationNotFoundException;
@@ -12,6 +14,9 @@ import com.healthy.gym.trainings.exception.notfound.TrainerNotFoundException;
 import com.healthy.gym.trainings.exception.notfound.TrainingTypeNotFoundException;
 import com.healthy.gym.trainings.exception.occupied.LocationOccupiedException;
 import com.healthy.gym.trainings.exception.occupied.TrainerOccupiedException;
+import com.healthy.gym.trainings.exception.training.TrainingCreationException;
+import com.healthy.gym.trainings.exception.training.TrainingRemovalException;
+import com.healthy.gym.trainings.exception.training.TrainingUpdateException;
 import com.healthy.gym.trainings.model.request.CreateGroupTrainingRequest;
 import com.healthy.gym.trainings.model.request.GroupTrainingRequest;
 import com.healthy.gym.trainings.model.response.GroupTrainingResponse;
@@ -21,6 +26,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.text.ParseException;
+import java.time.Clock;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -40,6 +46,7 @@ public class ManagerGroupTrainingServiceImpl implements ManagerGroupTrainingServ
     private final UserDAO userDAO;
     private final GroupTrainingsDbRepository groupTrainingsDbRepository;
     private final EmailSender emailSender;
+    private final Clock clock;
 
     @Autowired
     public ManagerGroupTrainingServiceImpl(
@@ -48,7 +55,8 @@ public class ManagerGroupTrainingServiceImpl implements ManagerGroupTrainingServ
             LocationDAO locationDAO,
             UserDAO userDAO,
             GroupTrainingsDbRepository groupTrainingsDbRepository,
-            EmailSender emailSender
+            EmailSender emailSender,
+            Clock clock
     ) {
         this.groupTrainingsDAO = groupTrainingsDAO;
         this.trainingTypeDAO = trainingTypeDAO;
@@ -56,13 +64,14 @@ public class ManagerGroupTrainingServiceImpl implements ManagerGroupTrainingServ
         this.userDAO = userDAO;
         this.groupTrainingsDbRepository = groupTrainingsDbRepository;
         this.emailSender = emailSender;
+        this.clock = clock;
     }
 
     @Override
     public GroupTrainingDTO createGroupTraining(CreateGroupTrainingRequest createGroupTrainingRequest)
             throws StartDateAfterEndDateException, TrainerNotFoundException,
             LocationNotFoundException, TrainingTypeNotFoundException,
-            LocationOccupiedException, TrainerOccupiedException {
+            LocationOccupiedException, TrainerOccupiedException, PastDateException {
 
         String trainingTypeId = createGroupTrainingRequest.getTrainingTypeId();
         TrainingTypeDocument trainingType = trainingTypeDAO.findByTrainingTypeId(trainingTypeId);
@@ -83,6 +92,8 @@ public class ManagerGroupTrainingServiceImpl implements ManagerGroupTrainingServ
 
         String startDateStr = createGroupTrainingRequest.getStartDate();
         LocalDateTime startDate = LocalDateTime.parse(startDateStr, DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+        if (startDate.isBefore(LocalDateTime.now(clock))) throw new PastDateException();
+
         String endDateStr = createGroupTrainingRequest.getEndDate();
         LocalDateTime endDate = LocalDateTime.parse(endDateStr, DateTimeFormatter.ISO_LOCAL_DATE_TIME);
         if (endDate.isBefore(startDate)) throw new StartDateAfterEndDateException();

@@ -1,7 +1,6 @@
 package com.healthy.gym.trainings.service;
 
 import com.healthy.gym.trainings.exception.StartDateAfterEndDateException;
-import com.healthy.gym.trainings.exception.TrainingEnrollmentException;
 import com.healthy.gym.trainings.exception.invalid.InvalidDateException;
 import com.healthy.gym.trainings.exception.invalid.InvalidHourException;
 import com.healthy.gym.trainings.exception.notexisting.NotExistingGroupTrainingException;
@@ -36,18 +35,6 @@ public interface GroupTrainingService {
             NotExistingGroupTrainingException, InvalidDateException, InvalidHourException,
             StartDateAfterEndDateException, ParseException;
 
-    List<GroupTrainingPublicResponse> getMyAllTrainings(String clientId)
-            throws InvalidHourException, InvalidDateException;
-
     List<ParticipantsResponse> getTrainingParticipants(String trainingId)
             throws NotExistingGroupTrainingException;
-
-    void enrollToGroupTraining(String trainingId, String clientId)
-            throws TrainingEnrollmentException;
-
-    void addToReserveList(String trainingId, String clientId)
-            throws NotExistingGroupTrainingException, TrainingEnrollmentException;
-
-    void removeGroupTrainingEnrollment(String trainingId, String clientId)
-            throws NotExistingGroupTrainingException, TrainingEnrollmentException;
 }

@@ -1,13 +1,15 @@
 package com.healthy.gym.trainings.controller.group.training;
 
 import com.healthy.gym.trainings.component.Translator;
-import com.healthy.gym.trainings.exception.*;
+import com.healthy.gym.trainings.exception.StartDateAfterEndDateException;
+import com.healthy.gym.trainings.exception.TrainingEnrollmentException;
 import com.healthy.gym.trainings.exception.invalid.InvalidDateException;
 import com.healthy.gym.trainings.exception.invalid.InvalidHourException;
 import com.healthy.gym.trainings.exception.notexisting.NotExistingGroupTrainingException;
 import com.healthy.gym.trainings.exception.notfound.TrainingTypeNotFoundException;
 import com.healthy.gym.trainings.model.response.GroupTrainingPublicResponse;
 import com.healthy.gym.trainings.service.GroupTrainingService;
+import com.healthy.gym.trainings.service.group.training.UserGroupTrainingService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
@@ -23,17 +25,23 @@ public class GroupTrainingUserController {
 
     private final Translator translator;
     private final GroupTrainingService groupTrainingsService;
+    private final UserGroupTrainingService userGroupTrainingService;
 
     @Autowired
-    public GroupTrainingUserController(Translator translator, GroupTrainingService groupTrainingsService) {
+    public GroupTrainingUserController(
+            Translator translator,
+            GroupTrainingService groupTrainingsService,
+            UserGroupTrainingService userGroupTrainingService
+    ) {
         this.translator = translator;
         this.groupTrainingsService = groupTrainingsService;
+        this.userGroupTrainingService = userGroupTrainingService;
     }
 
     @GetMapping("/public")
     public List<GroupTrainingPublicResponse> getPublicGroupTrainings(
-            @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") final String startDate,
-            @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") final String endDate) {
+            @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") final String startDate,
+            @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") final String endDate) {
 
         try {
             return groupTrainingsService.getPublicGroupTrainings(startDate, endDate);
@@ -56,9 +64,9 @@ public class GroupTrainingUserController {
     @GetMapping("/public/type/{trainingTypeId}")
     public List<GroupTrainingPublicResponse> getPublicGroupTrainingsByType(
             @PathVariable("trainingTypeId") final String trainingTypeId,
-            @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") final String startDate,
-            @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") final String endDate) throws InvalidDateException, NotExistingGroupTrainingException, StartDateAfterEndDateException, InvalidHourException, ParseException {
-
+            @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") final String startDate,
+            @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") final String endDate
+    ) {
         try {
             return groupTrainingsService.getGroupTrainingsPublicByType(trainingTypeId, startDate, endDate);
 
@@ -66,7 +74,7 @@ public class GroupTrainingUserController {
             String reason = translator.toLocale("exception.date.or.hour.parse");
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, e);
 
-        } catch (TrainingTypeNotFoundException e){
+        } catch (TrainingTypeNotFoundException e) {
             String reason = translator.toLocale("exception.not.found.training.type");
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, reason, e);
 
@@ -85,13 +93,11 @@ public class GroupTrainingUserController {
         }
     }
 
-
     // TODO only logged in users and ADMIN, dodać po ID
     @GetMapping("/trainings/{userId}")
     public List<GroupTrainingPublicResponse> getAllGroupTrainingsByUserId(@PathVariable final String userId) {
-
         try {
-            return groupTrainingsService.getMyAllTrainings(userId);
+            return userGroupTrainingService.getMyAllTrainings(userId);
 
         } catch (Exception exception) {
             String reason = translator.toLocale("exception.internal.error");
@@ -104,10 +110,10 @@ public class GroupTrainingUserController {
     @PostMapping("/{trainingId}/enroll")
     public void enrollToGroupTraining(
             @PathVariable("trainingId") final String trainingId,
-            @RequestParam final String clientId) {
-
+            @RequestParam final String clientId
+    ) {
         try {
-            groupTrainingsService.enrollToGroupTraining(trainingId, clientId);
+            userGroupTrainingService.enrollToGroupTraining(trainingId, clientId);
 
         } catch (TrainingEnrollmentException e) {
             String reason = translator.toLocale("exception.group.training.enrollment");
@@ -118,16 +124,15 @@ public class GroupTrainingUserController {
             exception.printStackTrace();
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, reason, exception);
         }
-
     }
 
     @PostMapping("/{trainingId}/reservelist/add")
     public void addToReserveList(
             @PathVariable("trainingId") final String trainingId,
-            @RequestParam(required = true) final String clientId) {
-
+            @RequestParam final String clientId
+    ) {
         try {
-            groupTrainingsService.addToReserveList(trainingId, clientId);
+            userGroupTrainingService.addToReserveList(trainingId, clientId);
 
         } catch (NotExistingGroupTrainingException e) {
             String reason = translator.toLocale("exception.not.found.training.id");
@@ -148,10 +153,10 @@ public class GroupTrainingUserController {
     @DeleteMapping("/{trainingId}/enroll")
     public void removeGroupTrainingEnrollment(
             @PathVariable("trainingId") final String trainingId,
-            @RequestParam final String clientId) {
-
+            @RequestParam final String clientId
+    ) {
         try {
-            groupTrainingsService.removeGroupTrainingEnrollment(trainingId, clientId);
+            userGroupTrainingService.removeGroupTrainingEnrollment(trainingId, clientId);
 
         } catch (NotExistingGroupTrainingException e) {
             String reason = translator.toLocale("exception.not.found.training.id");

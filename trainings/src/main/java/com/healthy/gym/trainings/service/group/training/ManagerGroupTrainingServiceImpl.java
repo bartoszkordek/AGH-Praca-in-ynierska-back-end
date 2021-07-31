@@ -62,7 +62,7 @@ public class ManagerGroupTrainingServiceImpl implements ManagerGroupTrainingServ
     public GroupTrainingDTO createGroupTraining(CreateGroupTrainingRequest createGroupTrainingRequest)
             throws StartDateAfterEndDateException, TrainerNotFoundException,
             LocationNotFoundException, TrainingTypeNotFoundException,
-            LocationOccupiedException, TrainerOccupiedException {
+            LocationOccupiedException, TrainerOccupiedException, PastDateException {
 
         String trainingTypeId = createGroupTrainingRequest.getTrainingTypeId();
         TrainingTypeDocument trainingType = trainingTypeDAO.findByTrainingTypeId(trainingTypeId);
@@ -83,6 +83,8 @@ public class ManagerGroupTrainingServiceImpl implements ManagerGroupTrainingServ
 
         String startDateStr = createGroupTrainingRequest.getStartDate();
         LocalDateTime startDate = LocalDateTime.parse(startDateStr, DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+        if (startDate.isBefore(LocalDateTime.now())) throw new PastDateException();
+
         String endDateStr = createGroupTrainingRequest.getEndDate();
         LocalDateTime endDate = LocalDateTime.parse(endDateStr, DateTimeFormatter.ISO_LOCAL_DATE_TIME);
         if (endDate.isBefore(startDate)) throw new StartDateAfterEndDateException();

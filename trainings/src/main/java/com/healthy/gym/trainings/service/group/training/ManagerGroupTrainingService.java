@@ -23,7 +23,7 @@ public interface ManagerGroupTrainingService {
             LocationNotFoundException,
             TrainingTypeNotFoundException,
             LocationOccupiedException,
-            TrainerOccupiedException;
+            TrainerOccupiedException, PastDateException;
 
     GroupTrainingResponse createGroupTraining(GroupTrainingRequest groupTrainingModel)
             throws TrainingCreationException, ParseException, InvalidHourException, InvalidDateException;

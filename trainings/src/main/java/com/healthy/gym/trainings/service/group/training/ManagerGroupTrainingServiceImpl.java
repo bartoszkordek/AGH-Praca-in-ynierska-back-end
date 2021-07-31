@@ -67,6 +67,18 @@ public class ManagerGroupTrainingServiceImpl implements ManagerGroupTrainingServ
         this.clock = clock;
     }
 
+    private List<UserResponse> getUserResponseList(List<UserDocument> usersDocuments){
+        List<UserResponse> usersResponse = new ArrayList<>();
+        for(UserDocument userDocument : usersDocuments){
+            UserResponse userResponse = new UserResponse(
+                    userDocument.getUserId(),
+                    userDocument.getName(),
+                    userDocument.getSurname());
+            usersResponse.add(userResponse);
+        }
+        return usersResponse;
+    }
+
     @Override
     public GroupTrainingDTO createGroupTraining(CreateGroupTrainingRequest createGroupTrainingRequest)
             throws StartDateAfterEndDateException, TrainerNotFoundException,
@@ -151,32 +163,13 @@ public class ManagerGroupTrainingServiceImpl implements ManagerGroupTrainingServ
         GroupTrainings repositoryResponse = groupTrainingsDbRepository.createTraining(groupTrainingModel);
 
         List<UserDocument> trainers = repositoryResponse.getParticipants();
-        List<UserResponse> trainersResponses = new ArrayList<>();
-        for (UserDocument trainer : trainers) {
-            UserResponse participantsResponse = new UserResponse(
-                    trainer.getUserId(),
-                    trainer.getName(),
-                    trainer.getSurname());
-            trainersResponses.add(participantsResponse);
-        }
+        List<UserResponse> trainersResponses = getUserResponseList(trainers);
 
         List<UserDocument> participants = repositoryResponse.getParticipants();
-        List<UserResponse> participantsResponses = new ArrayList<>();
-        for (UserDocument participant : participants) {
-            UserResponse participantsResponse = new UserResponse(participant.getUserId(),
-                    participant.getName(), participant.getSurname());
-            participantsResponses.add(participantsResponse);
-        }
+        List<UserResponse> participantsResponses = getUserResponseList(participants);
 
         List<UserDocument> reserveList = repositoryResponse.getReserveList();
-        List<UserResponse> reserveListResponses = new ArrayList<>();
-        for (UserDocument reserveListParticipant : reserveList) {
-            UserResponse reserveListParticipantsResponse = new UserResponse(
-                    reserveListParticipant.getUserId(),
-                    reserveListParticipant.getName(),
-                    reserveListParticipant.getSurname());
-            reserveListResponses.add(reserveListParticipantsResponse);
-        }
+        List<UserResponse> reserveListResponses = getUserResponseList(reserveList);
 
         return new GroupTrainingResponse(
                 repositoryResponse.getTrainingId(),
@@ -225,14 +218,7 @@ public class ManagerGroupTrainingServiceImpl implements ManagerGroupTrainingServ
                 .updateTraining(trainingId, groupTrainingModelRequest);
 
         List<UserDocument> trainers = repositoryResponse.getParticipants();
-        List<UserResponse> trainersResponses = new ArrayList<>();
-        for (UserDocument trainer : trainers) {
-            UserResponse participantsResponse = new UserResponse(
-                    trainer.getUserId(),
-                    trainer.getName(),
-                    trainer.getSurname());
-            trainersResponses.add(participantsResponse);
-        }
+        List<UserResponse> trainersResponses = getUserResponseList(trainers);
 
         List<UserDocument> participants = repositoryResponse.getParticipants();
         List<UserResponse> participantsResponses = new ArrayList<>();
@@ -246,12 +232,7 @@ public class ManagerGroupTrainingServiceImpl implements ManagerGroupTrainingServ
         }
 
         List<UserDocument> reserveList = repositoryResponse.getReserveList();
-        List<UserResponse> reserveListResponses = new ArrayList<>();
-        for (UserDocument document : reserveList) {
-            UserResponse reserveListResponse = new UserResponse(document.getUserId(),
-                    document.getName(), document.getSurname());
-            reserveListResponses.add(reserveListResponse);
-        }
+        List<UserResponse> reserveListResponses = getUserResponseList(reserveList);
 
         String subject = "Training has been updated";
         String body = "Training " + repositoryResponse.getTrainingId() + " on " + repositoryResponse.getDate() + " at "
@@ -286,14 +267,7 @@ public class ManagerGroupTrainingServiceImpl implements ManagerGroupTrainingServ
         GroupTrainings repositoryResponse = groupTrainingsDbRepository.removeTraining(trainingId);
 
         List<UserDocument> trainers = repositoryResponse.getParticipants();
-        List<UserResponse> trainersResponses = new ArrayList<>();
-        for (UserDocument trainer : trainers) {
-            UserResponse participantsResponse = new UserResponse(
-                    trainer.getUserId(),
-                    trainer.getName(),
-                    trainer.getSurname());
-            trainersResponses.add(participantsResponse);
-        }
+        List<UserResponse> trainersResponses = getUserResponseList(trainers);
 
         List<UserDocument> participants = repositoryResponse.getParticipants();
         List<UserResponse> participantsResponses = new ArrayList<>();
@@ -307,12 +281,7 @@ public class ManagerGroupTrainingServiceImpl implements ManagerGroupTrainingServ
         }
 
         List<UserDocument> reserveList = repositoryResponse.getReserveList();
-        List<UserResponse> reserveListResponses = new ArrayList<>();
-        for (UserDocument document : reserveList) {
-            UserResponse reserveListResponse = new UserResponse(document.getUserId(),
-                    document.getName(), document.getSurname());
-            reserveListResponses.add(reserveListResponse);
-        }
+        List<UserResponse> reserveListResponses = getUserResponseList(reserveList);
 
         String subject = "Training has been deleted";
         String body = "Training " + repositoryResponse.getTrainingId() + " on " + repositoryResponse.getDate() + " at "

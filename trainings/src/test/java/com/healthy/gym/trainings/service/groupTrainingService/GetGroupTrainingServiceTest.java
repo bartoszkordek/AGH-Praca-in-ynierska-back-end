@@ -11,8 +11,8 @@ import com.healthy.gym.trainings.exception.notfound.TrainingTypeNotFoundExceptio
 import com.healthy.gym.trainings.model.response.GroupTrainingPublicResponse;
 import com.healthy.gym.trainings.model.response.GroupTrainingResponse;
 import com.healthy.gym.trainings.model.response.ParticipantsResponse;
-import com.healthy.gym.trainings.service.GroupTrainingService;
-import com.healthy.gym.trainings.service.GroupTrainingServiceImpl;
+import com.healthy.gym.trainings.service.group.training.GroupTrainingService;
+import com.healthy.gym.trainings.service.group.training.GroupTrainingServiceImpl;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;

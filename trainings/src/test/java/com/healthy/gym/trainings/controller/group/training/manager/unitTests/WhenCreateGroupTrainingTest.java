@@ -4,7 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.healthy.gym.trainings.configuration.TestCountry;
 import com.healthy.gym.trainings.configuration.TestRoleTokenFactory;
-import com.healthy.gym.trainings.controller.group.training.GroupTrainingManagerController;
+import com.healthy.gym.trainings.controller.group.training.ManagerGroupTrainingController;
 import com.healthy.gym.trainings.exception.StartDateAfterEndDateException;
 import com.healthy.gym.trainings.exception.notfound.LocationNotFoundException;
 import com.healthy.gym.trainings.exception.notfound.TrainerNotFoundException;
@@ -47,7 +47,7 @@ import static org.springframework.test.web.servlet.ResultMatcher.matchAll;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@WebMvcTest(GroupTrainingManagerController.class)
+@WebMvcTest(ManagerGroupTrainingController.class)
 class WhenCreateGroupTrainingTest {
 
     @Autowired

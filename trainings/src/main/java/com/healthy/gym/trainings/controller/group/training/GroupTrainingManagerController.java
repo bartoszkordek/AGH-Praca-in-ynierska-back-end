@@ -12,7 +12,6 @@ import com.healthy.gym.trainings.model.request.CreateGroupTrainingRequest;
 import com.healthy.gym.trainings.model.request.GroupTrainingRequest;
 import com.healthy.gym.trainings.model.response.CreateGroupTrainingResponse;
 import com.healthy.gym.trainings.model.response.GroupTrainingResponse;
-import com.healthy.gym.trainings.service.GroupTrainingService;
 import com.healthy.gym.trainings.service.group.training.ManagerGroupTrainingService;
 import com.healthy.gym.trainings.shared.GroupTrainingDTO;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,17 +32,14 @@ import java.text.ParseException;
 public class GroupTrainingManagerController {
     private static final String INTERNAL_ERROR_EXCEPTION = "exception.internal.error";
     private final Translator translator;
-    private final GroupTrainingService groupTrainingsService;
     private final ManagerGroupTrainingService managerGroupTrainingService;
 
     @Autowired
     public GroupTrainingManagerController(
             Translator translator,
-            GroupTrainingService groupTrainingsService,
             ManagerGroupTrainingService managerGroupTrainingService
     ) {
         this.translator = translator;
-        this.groupTrainingsService = groupTrainingsService;
         this.managerGroupTrainingService = managerGroupTrainingService;
     }
 
@@ -106,7 +102,7 @@ public class GroupTrainingManagerController {
             @Valid @RequestBody GroupTrainingRequest groupTrainingModelRequest) {
 
         try {
-            return groupTrainingsService.updateGroupTraining(trainingId, groupTrainingModelRequest);
+            return managerGroupTrainingService.updateGroupTraining(trainingId, groupTrainingModelRequest);
 
         } catch (InvalidHourException | ParseException e) {
             String reason = translator.toLocale("exception.date.or.hour.parse");
@@ -132,7 +128,7 @@ public class GroupTrainingManagerController {
     public GroupTrainingResponse removeGroupTraining(@PathVariable("trainingId") final String trainingId) {
 
         try {
-            return groupTrainingsService.removeGroupTraining(trainingId);
+            return managerGroupTrainingService.removeGroupTraining(trainingId);
 
         } catch (TrainingRemovalException e) {
             String reason = translator.toLocale("exception.group.training.remove");

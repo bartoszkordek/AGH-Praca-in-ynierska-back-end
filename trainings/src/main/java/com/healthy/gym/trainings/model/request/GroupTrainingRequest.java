@@ -1,6 +1,5 @@
 package com.healthy.gym.trainings.model.request;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.healthy.gym.trainings.exception.invalid.InvalidDateException;
 import com.healthy.gym.trainings.exception.invalid.InvalidHourException;
 import com.healthy.gym.trainings.validation.DateValidator;
@@ -14,53 +13,44 @@ import java.util.Objects;
 public class GroupTrainingRequest {
 
     @NotNull
-    private String trainingTypeId;
+    private final String trainingTypeId;
     @NotNull
-    private String trainerId;
+    private final String trainerId;
     @NotNull
     @DateTimeFormat(pattern = "yyyy-MM-dd")
-    private String date;
+    private final String date;
     @NotNull
-    private String startTime;
+    private final String startTime;
     @NotNull
-    private String endTime;
+    private final String endTime;
     @NotNull
-    private int hallNo;
+    private final int hallNo;
     @NotNull
-    private int limit;
-    private List<String> participants;
-    private List<String> reserveList;
+    private final int limit;
+    private final List<String> participants;
+    private final List<String> reserveList;
 
     public GroupTrainingRequest(
-            @JsonProperty("trainingTypeId") String trainingTypeId,
-            @JsonProperty("trainerId") String trainerId,
-            @JsonProperty("date") String date,
-            @JsonProperty("startTime") String startTime,
-            @JsonProperty("endTime") String endTime,
-            @JsonProperty("hallNo") int hallNo,
-            @JsonProperty("limit") int limit,
-            @JsonProperty("participants") List<String> participants,
-            @JsonProperty("reserveList") List<String> reserveList
+            String trainingTypeId,
+            String trainerId,
+            String date,
+            String startTime,
+            String endTime,
+            int hallNo,
+            int limit,
+            List<String> participants,
+            List<String> reserveList
     ) throws InvalidHourException, InvalidDateException {
-        DateValidator dateValidator = new DateValidator();
-        Time24HoursValidator time24HoursValidator = new Time24HoursValidator();
+
+        if (!DateValidator.validate(date)) throw new InvalidDateException("Wrong date");
+        if (!Time24HoursValidator.validate(startTime)) throw new InvalidDateException("Wrong date");
+        if (!Time24HoursValidator.validate(endTime)) throw new InvalidHourException("Wrong end time");
+
         this.trainingTypeId = trainingTypeId;
         this.trainerId = trainerId;
-        if (dateValidator.validate(date)) {
-            this.date = date;
-        } else {
-            throw new InvalidDateException("Wrong date");
-        }
-        if (time24HoursValidator.validate(startTime)) {
-            this.startTime = startTime;
-        } else {
-            throw new InvalidHourException("Wrong start time");
-        }
-        if (time24HoursValidator.validate(endTime)) {
-            this.endTime = endTime;
-        } else {
-            throw new InvalidHourException("Wrong end time");
-        }
+        this.date = date;
+        this.startTime = startTime;
+        this.endTime = endTime;
         this.hallNo = hallNo;
         this.limit = limit;
         this.participants = participants;
@@ -100,7 +90,17 @@ public class GroupTrainingRequest {
 
     @Override
     public int hashCode() {
-        return Objects.hash(trainingTypeId, trainerId, date, startTime, endTime, hallNo, limit, participants, reserveList);
+        return Objects.hash(
+                trainingTypeId,
+                trainerId,
+                date,
+                startTime,
+                endTime,
+                hallNo,
+                limit,
+                participants,
+                reserveList
+        );
     }
 
     public String getTrainingTypeId() {

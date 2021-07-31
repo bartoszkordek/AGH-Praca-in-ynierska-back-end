@@ -5,19 +5,16 @@ import java.util.regex.Pattern;
 
 public class Time24HoursValidator {
 
-    private Pattern pattern;
-    private Matcher matcher;
+    private static final String TIME24HOURS_PATTERN = "([01]?[0-9]|2[0-3]):[0-5][0-9]";
 
-    private static final String TIME24HOURS_PATTERN =
-            "([01]?[0-9]|2[0-3]):[0-5][0-9]";
-
-    public Time24HoursValidator(){
-        pattern = Pattern.compile(TIME24HOURS_PATTERN);
+    private Time24HoursValidator() {
+        throw new IllegalStateException("Utility class");
     }
 
-    public boolean validate(final String time){
+    public static boolean validate(final String time) {
+        Pattern pattern = Pattern.compile(TIME24HOURS_PATTERN);
 
-        matcher = pattern.matcher(time);
+        Matcher matcher = pattern.matcher(time);
         return matcher.matches();
 
     }

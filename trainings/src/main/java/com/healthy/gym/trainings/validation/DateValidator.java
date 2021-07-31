@@ -4,19 +4,17 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class DateValidator {
-    private Pattern pattern;
-    private Matcher matcher;
 
-    private static final String DATE_PATTERN =
-            "^((19|20)\\d\\d)-(0?[1-9]|1[012])-(0?[1-9]|[12][0-9]|3[01])$";;
+    private static final String DATE_PATTERN = "^((19|20)\\d\\d)-(0?[1-9]|1[012])-(0?[1-9]|[12][0-9]|3[01])$";
 
-    public DateValidator(){
-        pattern = Pattern.compile(DATE_PATTERN);
+    private DateValidator() {
+        throw new IllegalStateException("Utility class");
     }
 
-    public boolean validate(final String time){
+    public static boolean validate(final String time) {
+        Pattern pattern = Pattern.compile(DATE_PATTERN);
 
-        matcher = pattern.matcher(time);
+        Matcher matcher = pattern.matcher(time);
         return matcher.matches();
 
     }

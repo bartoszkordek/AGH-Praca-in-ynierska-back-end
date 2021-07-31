@@ -1,61 +1,50 @@
 package com.healthy.gym.trainings.data.document;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.healthy.gym.trainings.exception.invalid.InvalidHourException;
-import com.healthy.gym.trainings.validation.Time24HoursValidator;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
+
+import static com.healthy.gym.trainings.validation.Time24HoursValidator.validate;
 
 @Document(collection = "IndividualTrainings")
 public class IndividualTrainings {
 
     @Id
-    @JsonProperty("_id")
     private String id;
-
-    @JsonProperty("clientId")
     private String clientId;
-    @JsonProperty("trainerId")
     private String trainerId;
-    @JsonProperty("date")
     private String date;
-    @JsonProperty("startTime")
     private String startTime;
-    @JsonProperty("endTime")
     private String endTime;
-    @JsonProperty("hallNo")
     private int hallNo;
-    @JsonProperty("remarks")
     private String remarks;
-    @JsonProperty("accepted")
     private boolean accepted;
-    @JsonProperty("declined")
     private boolean declined;
 
-    public IndividualTrainings(){
+    public IndividualTrainings() {
 
     }
 
-    public IndividualTrainings(String clientId, String trainerId, String date,
-                               String startTime, String endTime, int hallNo, String remarks,
-                               boolean accepted, boolean declined) throws InvalidHourException {
+    public IndividualTrainings(
+            String clientId,
+            String trainerId,
+            String date,
+            String startTime,
+            String endTime,
+            int hallNo,
+            String remarks,
+            boolean accepted,
+            boolean declined
+    ) throws InvalidHourException {
 
-        Time24HoursValidator time24HoursValidator = new Time24HoursValidator();
+        if (!validate(startTime)) throw new InvalidHourException("Wrong start time");
+        if (!validate(endTime)) throw new InvalidHourException("Wrong end time");
 
         this.clientId = clientId;
         this.trainerId = trainerId;
         this.date = date;
-        if(time24HoursValidator.validate(startTime)){
-            this.startTime = startTime;
-        } else {
-            throw new InvalidHourException("Wrong start time");
-        }
-        if(time24HoursValidator.validate(endTime)){
-            this.endTime = endTime;
-        } else {
-            throw new InvalidHourException("Wrong end time");
-        }
-
+        this.startTime = startTime;
+        this.endTime = endTime;
         this.hallNo = hallNo;
         this.remarks = remarks;
         this.accepted = accepted;
@@ -82,86 +71,81 @@ public class IndividualTrainings {
         return id;
     }
 
-    public String getClientId() {
-        return clientId;
-    }
-
-    public String getTrainerId() {
-        return trainerId;
-    }
-
-    public String getDate() {
-        return date;
-    }
-
-    public String getStartTime() {
-        return startTime;
-    }
-
-    public String getEndTime() {
-        return endTime;
-    }
-
-    public int getHallNo() {
-        return hallNo;
-    }
-
-    public String getRemarks() {
-        return remarks;
-    }
-
-    public boolean isAccepted() {
-        return accepted;
-    }
-
-    public boolean isDeclined(){ return declined; }
-
     public void setId(String id) {
         this.id = id;
+    }
+
+    public String getClientId() {
+        return clientId;
     }
 
     public void setClientId(String clientId) {
         this.clientId = clientId;
     }
 
+    public String getTrainerId() {
+        return trainerId;
+    }
+
     public void setTrainerId(String trainerId) {
         this.trainerId = trainerId;
+    }
+
+    public String getDate() {
+        return date;
     }
 
     public void setDate(String date) {
         this.date = date;
     }
 
+    public String getStartTime() {
+        return startTime;
+    }
+
     public void setStartTime(String startTime) throws InvalidHourException {
-        Time24HoursValidator time24HoursValidator = new Time24HoursValidator();
-        if(time24HoursValidator.validate(startTime)){
-            this.startTime = startTime;
-        } else {
-            throw new InvalidHourException("Wrong start time");
-        }
+        if (!validate(startTime)) throw new InvalidHourException("Wrong start time");
+        this.startTime = startTime;
+    }
+
+    public String getEndTime() {
+        return endTime;
     }
 
     public void setEndTime(String endTime) throws InvalidHourException {
+        if (!validate(endTime)) throw new InvalidHourException("Wrong end time");
+        this.endTime = endTime;
+    }
 
-        Time24HoursValidator time24HoursValidator = new Time24HoursValidator();
-        if(time24HoursValidator.validate(endTime)){
-            this.endTime = endTime;
-        } else {
-            throw new InvalidHourException("Wrong end time");
-        }
+    public int getHallNo() {
+        return hallNo;
     }
 
     public void setHallNo(int hallNo) {
         this.hallNo = hallNo;
     }
 
+    public String getRemarks() {
+        return remarks;
+    }
+
     public void setRemarks(String remarks) {
         this.remarks = remarks;
+    }
+
+    public boolean isAccepted() {
+        return accepted;
     }
 
     public void setAccepted(boolean accepted) {
         this.accepted = accepted;
     }
 
-    public void setDeclined(boolean declined) { this.declined = declined; }
+    public boolean isDeclined() {
+        return declined;
+    }
+
+    public void setDeclined(boolean declined) {
+        this.declined = declined;
+    }
 }

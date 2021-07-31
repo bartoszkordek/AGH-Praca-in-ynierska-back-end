@@ -13,9 +13,9 @@ import java.util.Objects;
 public class GroupTrainingPublicResponse {
 
     @NotNull
-    private final String trainingId;
+    private final String id;
     @NotNull
-    private final String trainingName;
+    private final String title;
     @NotNull
     private final List<UserResponse> trainers;
     @NotNull
@@ -47,8 +47,8 @@ public class GroupTrainingPublicResponse {
         if (!DateValidator.validate(date) || !Time24HoursValidator.validate(endTime))
             throw new InvalidHourException("Wrong end date or time");
 
-        this.trainingId = trainingId;
-        this.trainingName = trainingName;
+        this.id = trainingId;
+        this.title = trainingName;
         this.trainers = trainers;
         this.startDate = date.concat("T").concat(startTime);
         this.endDate = date.concat("T").concat(endTime);
@@ -61,8 +61,8 @@ public class GroupTrainingPublicResponse {
     @Override
     public String toString() {
         return "GroupTrainingPublicResponse{" +
-                "trainingId='" + trainingId + '\'' +
-                ", trainingName='" + trainingName + '\'' +
+                "trainingId='" + id + '\'' +
+                ", trainingName='" + title + '\'' +
                 ", trainers='" + trainers + '\'' +
                 ", startDate='" + startDate + '\'' +
                 ", endDate='" + endDate + '\'' +
@@ -82,8 +82,8 @@ public class GroupTrainingPublicResponse {
                 hallNo == that.hallNo &&
                 limit == that.limit &&
                 Double.compare(that.rating, rating) == 0 &&
-                Objects.equals(trainingId, that.trainingId) &&
-                Objects.equals(trainingName, that.trainingName) &&
+                Objects.equals(id, that.id) &&
+                Objects.equals(title, that.title) &&
                 Objects.equals(trainers, that.trainers) &&
                 Objects.equals(startDate, that.startDate) &&
                 Objects.equals(endDate, that.endDate);
@@ -92,8 +92,8 @@ public class GroupTrainingPublicResponse {
     @Override
     public int hashCode() {
         return Objects.hash(
-                trainingId,
-                trainingName,
+                id,
+                title,
                 trainers,
                 startDate,
                 endDate,
@@ -105,11 +105,11 @@ public class GroupTrainingPublicResponse {
     }
 
     public String getTrainingId() {
-        return trainingId;
+        return id;
     }
 
     public String getTrainingName() {
-        return trainingName;
+        return title;
     }
 
     public List<UserResponse> getTrainers() {

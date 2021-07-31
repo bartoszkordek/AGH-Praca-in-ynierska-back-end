@@ -11,7 +11,7 @@ import com.healthy.gym.trainings.exception.invalid.InvalidHourException;
 import com.healthy.gym.trainings.exception.training.TrainingCreationException;
 import com.healthy.gym.trainings.model.request.GroupTrainingRequest;
 import com.healthy.gym.trainings.model.response.GroupTrainingResponse;
-import com.healthy.gym.trainings.model.response.ParticipantsResponse;
+import com.healthy.gym.trainings.model.response.UserResponse;
 import com.healthy.gym.trainings.service.group.training.GroupTrainingService;
 import com.healthy.gym.trainings.service.group.training.GroupTrainingServiceImpl;
 import org.junit.Ignore;
@@ -73,8 +73,8 @@ public class CreateGroupTrainingService {
                 date, startTime, endTime, hallNo, limit, participantDocuments, reserveListDocuments);
         groupTraining.setId(id);
 
-        List<ParticipantsResponse> participantsResponses = new ArrayList<>();
-        List<ParticipantsResponse> reserveListResponses = new ArrayList<>();
+        List<UserResponse> participantsResponses = new ArrayList<>();
+        List<UserResponse> reserveListResponses = new ArrayList<>();
         GroupTrainingResponse groupTrainingResponse = new GroupTrainingResponse(trainingId, trainingName, trainerId,
                 date, startTime, endTime, hallNo, limit, rating, participantsResponses, reserveListResponses);
 

@@ -13,7 +13,7 @@ import com.healthy.gym.trainings.exception.training.TrainingCreationException;
 import com.healthy.gym.trainings.exception.training.TrainingUpdateException;
 import com.healthy.gym.trainings.model.request.GroupTrainingRequest;
 import com.healthy.gym.trainings.model.response.GroupTrainingResponse;
-import com.healthy.gym.trainings.model.response.ParticipantsResponse;
+import com.healthy.gym.trainings.model.response.UserResponse;
 import com.healthy.gym.trainings.service.group.training.GroupTrainingService;
 import com.healthy.gym.trainings.service.group.training.GroupTrainingServiceImpl;
 import org.junit.Ignore;
@@ -86,8 +86,8 @@ public class UpdateGroupTrainingService {
         groupTrainingAfterUpdate.setId(id);
 
         double rating = 0.0;
-        List<ParticipantsResponse> participantsResponses = new ArrayList<>();
-        List<ParticipantsResponse> reserveListResponses = new ArrayList<>();
+        List<UserResponse> participantsResponses = new ArrayList<>();
+        List<UserResponse> reserveListResponses = new ArrayList<>();
         GroupTrainingResponse groupTrainingResponseAfterUpdate = new GroupTrainingResponse(trainingId, trainingName,
                 trainerId, date, startTimeAfterUpdate, endTimeAfterUpdate, hallNoAfterUpdate, limitAfterUpdate,
                 rating, participantsResponses, reserveListResponses);
@@ -151,8 +151,8 @@ public class UpdateGroupTrainingService {
         groupTrainingAfterUpdate.setId(id);
 
         double rating = 0.0;
-        List<ParticipantsResponse> participantsResponses = new ArrayList<>();
-        List<ParticipantsResponse> reserveListResponses = new ArrayList<>();
+        List<UserResponse> participantsResponses = new ArrayList<>();
+        List<UserResponse> reserveListResponses = new ArrayList<>();
         GroupTrainingResponse groupTrainingResponseAfterUpdate = new GroupTrainingResponse(trainingId, trainingName,
                 trainerId, date, startTimeAfterUpdate, endTimeAfterUpdate, hallNoAfterUpdate, limitAfterUpdate,
                 rating, participantsResponses, reserveListResponses);
@@ -216,8 +216,8 @@ public class UpdateGroupTrainingService {
         groupTrainingAfterUpdate.setId(id);
 
         double rating = 0.0;
-        List<ParticipantsResponse> participantsResponses = new ArrayList<>();
-        List<ParticipantsResponse> reserveListResponses = new ArrayList<>();
+        List<UserResponse> participantsResponses = new ArrayList<>();
+        List<UserResponse> reserveListResponses = new ArrayList<>();
         GroupTrainingResponse groupTrainingResponseAfterUpdate = new GroupTrainingResponse(trainingId, trainingName,
                 trainerId, date, startTimeAfterUpdate, endTimeAfterUpdate, hallNoAfterUpdate, limitAfterUpdate,
                 rating, participantsResponses, reserveListResponses);

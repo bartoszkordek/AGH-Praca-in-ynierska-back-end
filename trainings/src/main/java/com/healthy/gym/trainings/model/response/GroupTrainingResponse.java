@@ -31,9 +31,9 @@ public class GroupTrainingResponse {
     @NotNull
     private final double rating;
     @NotNull
-    private final List<ParticipantsResponse> participants;
+    private final List<UserResponse> participants;
     @NotNull
-    private final List<ParticipantsResponse> reserveList;
+    private final List<UserResponse> reserveList;
 
     public GroupTrainingResponse(
             String trainingId,
@@ -45,8 +45,8 @@ public class GroupTrainingResponse {
             int hallNo,
             int limit,
             double rating,
-            List<ParticipantsResponse> participants,
-            List<ParticipantsResponse> reserveList
+            List<UserResponse> participants,
+            List<UserResponse> reserveList
     ) throws InvalidHourException, InvalidDateException {
 
         if (!DateValidator.validate(date) || !Time24HoursValidator.validate(startTime))
@@ -156,11 +156,11 @@ public class GroupTrainingResponse {
         return rating;
     }
 
-    public List<ParticipantsResponse> getParticipants() {
+    public List<UserResponse> getParticipants() {
         return participants;
     }
 
-    public List<ParticipantsResponse> getReserveList() {
+    public List<UserResponse> getReserveList() {
         return reserveList;
     }
 }

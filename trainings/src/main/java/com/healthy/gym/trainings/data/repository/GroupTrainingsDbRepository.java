@@ -11,7 +11,7 @@ import com.healthy.gym.trainings.model.request.GroupTrainingRequest;
 import com.healthy.gym.trainings.model.response.GroupTrainingPublicResponse;
 import com.healthy.gym.trainings.model.response.GroupTrainingResponse;
 import com.healthy.gym.trainings.model.response.GroupTrainingReviewResponse;
-import com.healthy.gym.trainings.model.response.ParticipantsResponse;
+import com.healthy.gym.trainings.model.response.UserResponse;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoCollection;
@@ -108,17 +108,17 @@ public class GroupTrainingsDbRepository {
             if(counter !=0 ) rating = sum/counter;
 
             List<UserDocument> participants = training.getParticipants();
-            List<ParticipantsResponse> participantsResponses = new ArrayList<>();
+            List<UserResponse> participantsResponses = new ArrayList<>();
             for(UserDocument userDocument : participants){
-                ParticipantsResponse participantsResponse = new ParticipantsResponse(userDocument.getUserId(),
+                UserResponse participantsResponse = new UserResponse(userDocument.getUserId(),
                         userDocument.getName(), userDocument.getSurname());
                 participantsResponses.add(participantsResponse);
             }
 
             List<UserDocument> reserveList = training.getReserveList();
-            List<ParticipantsResponse> reserveListResponses = new ArrayList<>();
+            List<UserResponse> reserveListResponses = new ArrayList<>();
             for(UserDocument userDocument : reserveList){
-                ParticipantsResponse reserveListResponse = new ParticipantsResponse(userDocument.getUserId(),
+                UserResponse reserveListResponse = new UserResponse(userDocument.getUserId(),
                         userDocument.getName(), userDocument.getSurname());
                 reserveListResponses.add(reserveListResponse);
             }
@@ -211,17 +211,17 @@ public class GroupTrainingsDbRepository {
         if(counter !=0 ) rating = sum/counter;
 
         List<UserDocument> participants = groupTrainingsDbResponse.getParticipants();
-        List<ParticipantsResponse> participantsResponses = new ArrayList<>();
+        List<UserResponse> participantsResponses = new ArrayList<>();
         for(UserDocument userDocument : participants){
-            ParticipantsResponse participantsResponse = new ParticipantsResponse(userDocument.getUserId(),
+            UserResponse participantsResponse = new UserResponse(userDocument.getUserId(),
                     userDocument.getName(), userDocument.getSurname());
             participantsResponses.add(participantsResponse);
         }
 
         List<UserDocument> reserveList = groupTrainingsDbResponse.getReserveList();
-        List<ParticipantsResponse> reserveListResponses = new ArrayList<>();
+        List<UserResponse> reserveListResponses = new ArrayList<>();
         for(UserDocument userDocument : reserveList){
-            ParticipantsResponse reserveListResponse = new ParticipantsResponse(userDocument.getUserId(),
+            UserResponse reserveListResponse = new UserResponse(userDocument.getUserId(),
                     userDocument.getName(), userDocument.getSurname());
             reserveListResponses.add(reserveListResponse);
         }
@@ -280,18 +280,18 @@ public class GroupTrainingsDbRepository {
         List<GroupTrainingResponse> result = new ArrayList<>();
         for(GroupTrainings training : groupTrainingsDbResponse){
 
-            List<ParticipantsResponse> participantsResponses = new ArrayList<>();
+            List<UserResponse> participantsResponses = new ArrayList<>();
             List<UserDocument> participants = training.getParticipants();
             for(UserDocument userDocument : participants){
-                ParticipantsResponse participantsResponse = new ParticipantsResponse(userDocument.getUserId(),
+                UserResponse participantsResponse = new UserResponse(userDocument.getUserId(),
                         userDocument.getName(), userDocument.getSurname());
                 participantsResponses.add(participantsResponse);
             }
 
             List<UserDocument> reserveList = training.getReserveList();
-            List<ParticipantsResponse> reserveListResponses = new ArrayList<>();
+            List<UserResponse> reserveListResponses = new ArrayList<>();
             for(UserDocument userDocument : reserveList){
-                ParticipantsResponse reserveListResponse = new ParticipantsResponse(userDocument.getUserId(),
+                UserResponse reserveListResponse = new UserResponse(userDocument.getUserId(),
                         userDocument.getName(), userDocument.getSurname());
                 reserveListResponses.add(reserveListResponse);
             }
@@ -401,12 +401,12 @@ public class GroupTrainingsDbRepository {
         return publicResponse;
     }
 
-    public List<ParticipantsResponse> getTrainingParticipants(String trainingId){
+    public List<UserResponse> getTrainingParticipants(String trainingId){
 
-        List<ParticipantsResponse> participantsResponses = new ArrayList<>();
+        List<UserResponse> participantsResponses = new ArrayList<>();
         List<UserDocument> participants = groupTrainingsRepository.getFirstByTrainingId(trainingId).getParticipants();
         for(UserDocument userDocument : participants){
-            ParticipantsResponse participantsResponse = new ParticipantsResponse(userDocument.getUserId(),
+            UserResponse participantsResponse = new UserResponse(userDocument.getUserId(),
                     userDocument.getName(), userDocument.getSurname());
             participantsResponses.add(participantsResponse);
         }

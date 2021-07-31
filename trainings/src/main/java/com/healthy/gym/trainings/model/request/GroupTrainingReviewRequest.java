@@ -1,8 +1,6 @@
 package com.healthy.gym.trainings.model.request;
 
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-
 import java.util.Objects;
 
 public class GroupTrainingReviewRequest {
@@ -11,9 +9,10 @@ public class GroupTrainingReviewRequest {
     private int stars;
     private String text;
 
-    public GroupTrainingReviewRequest(@JsonProperty("trainingTypeId") String trainingTypeId,
-                                      @JsonProperty("stars") int stars,
-                                      @JsonProperty("text") String text){
+    public GroupTrainingReviewRequest() {
+    }
+
+    public GroupTrainingReviewRequest(String trainingTypeId, int stars, String text) {
         this.trainingTypeId = trainingTypeId;
         this.stars = stars;
         this.text = text;
@@ -53,5 +52,21 @@ public class GroupTrainingReviewRequest {
 
     public String getText() {
         return text;
+    }
+
+    public String getTrainingTypeId() {
+        return trainingTypeId;
+    }
+
+    public void setTrainingTypeId(String trainingTypeId) {
+        this.trainingTypeId = trainingTypeId;
+    }
+
+    public void setStars(int stars) {
+        this.stars = stars;
+    }
+
+    public void setText(String text) {
+        this.text = text;
     }
 }

@@ -23,6 +23,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
+import javax.validation.constraints.NotNull;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -69,45 +70,6 @@ public class GroupTrainingsDbRepositoryImpl implements GroupTrainingsDbRepositor
         List<GroupTrainingResponse> result = new ArrayList<>();
         for (GroupTrainings training : groupTrainingsDbResponse) {
 
-            List<GroupTrainingReviewResponse> groupTrainingsReviews = groupTrainingsReviewsRepository
-                    .findByDateBetweenAndTrainingTypeId(
-                            null,
-                            null,
-                            training.getTrainingType().getTrainingTypeId(),
-                            paging
-                    ).getContent();
-
-            double rating = 0.0;
-            int sum = 0;
-            int counter = 0;
-            for (GroupTrainingReviewResponse review : groupTrainingsReviews) {
-                sum += review.getStars();
-                counter++;
-            }
-            if (counter != 0) rating = sum / counter;
-
-            List<UserDocument> participants = training.getParticipants();
-            List<ParticipantsResponse> participantsResponses = new ArrayList<>();
-            for (UserDocument userDocument : participants) {
-                ParticipantsResponse participantsResponse = new ParticipantsResponse(
-                        userDocument.getUserId(),
-                        userDocument.getName(),
-                        userDocument.getSurname()
-                );
-                participantsResponses.add(participantsResponse);
-            }
-
-            List<UserDocument> reserveList = training.getReserveList();
-            List<ParticipantsResponse> reserveListResponses = new ArrayList<>();
-            for (UserDocument userDocument : reserveList) {
-                ParticipantsResponse reserveListResponse = new ParticipantsResponse(
-                        userDocument.getUserId(),
-                        userDocument.getName(),
-                        userDocument.getSurname()
-                );
-                reserveListResponses.add(reserveListResponse);
-            }
-
             GroupTrainingResponse groupTraining = new GroupTrainingResponse(
                     training.getTrainingId(),
                     training.getTrainingType().getName(),
@@ -117,12 +79,37 @@ public class GroupTrainingsDbRepositoryImpl implements GroupTrainingsDbRepositor
                     training.getEndTime(),
                     training.getHallNo(),
                     training.getLimit(),
-                    rating,
-                    participantsResponses,
-                    reserveListResponses);
+                    getRatingForGroupTrainings(training),
+                    getBasicList(training),
+                    getReserveList(training)
+            );
             result.add(groupTraining);
         }
         return result;
+    }
+
+    private List<ParticipantsResponse> getBasicList(GroupTrainings training) {
+        List<UserDocument> participants = training.getParticipants();
+        return getParticipants(participants);
+    }
+
+    private List<ParticipantsResponse> getParticipants(List<UserDocument> participants) {
+        List<ParticipantsResponse> participantsResponses = new ArrayList<>();
+        for (UserDocument userDocument : participants) {
+            ParticipantsResponse participantsResponse = new ParticipantsResponse(
+                    userDocument.getUserId(),
+                    userDocument.getName(),
+                    userDocument.getSurname()
+            );
+            participantsResponses.add(participantsResponse);
+        }
+
+        return participantsResponses;
+    }
+
+    private List<ParticipantsResponse> getReserveList(GroupTrainings training) {
+        List<UserDocument> reserveList = training.getReserveList();
+        return getParticipants(reserveList);
     }
 
     @Override
@@ -139,53 +126,35 @@ public class GroupTrainingsDbRepositoryImpl implements GroupTrainingsDbRepositor
         List<GroupTrainingPublicResponse> publicResponse = new ArrayList<>();
         for (GroupTrainings groupTraining : groupTrainings) {
 
-            List<GroupTrainingReviewResponse> groupTrainingsReviews = groupTrainingsReviewsRepository
-                    .findByDateBetweenAndTrainingTypeId(
-                            null,
-                            null,
-                            groupTraining.getTrainingType().getTrainingTypeId(),
-                            paging
-                    ).getContent();
-
-            double rating = 0.0;
-            int sum = 0;
-            int counter = 0;
-            for (GroupTrainingReviewResponse review : groupTrainingsReviews) {
-                sum += review.getStars();
-                counter++;
-            }
-            if (counter != 0) rating = sum / counter;
-
-            publicResponse.add(new GroupTrainingPublicResponse(groupTraining.getTrainingId(),
-                    groupTraining.getTrainingType().getName(),
-                    groupTraining.getTrainerId(),
-                    groupTraining.getDate(),
-                    groupTraining.getStartTime(),
-                    groupTraining.getEndTime(),
-                    groupTraining.getHallNo(),
-                    groupTraining.getLimit(),
-                    rating));
+            publicResponse.add(
+                    new GroupTrainingPublicResponse(
+                            groupTraining.getTrainingId(),
+                            groupTraining.getTrainingType().getName(),
+                            groupTraining.getTrainerId(),
+                            groupTraining.getDate(),
+                            groupTraining.getStartTime(),
+                            groupTraining.getEndTime(),
+                            groupTraining.getHallNo(),
+                            groupTraining.getLimit(),
+                            getRatingForGroupTrainings(groupTraining)
+                    )
+            );
         }
 
         return publicResponse;
     }
 
-    @Override
-    public GroupTrainingResponse getGroupTrainingById(String trainingId)
-            throws InvalidHourException, InvalidDateException {
-
-        GroupTrainings groupTrainingsDbResponse = groupTrainingsRepository.findFirstByTrainingId(trainingId);
-
+    private double getRatingForGroupTrainings(GroupTrainings groupTraining) {
         List<GroupTrainingReviewResponse> groupTrainingsReviews = groupTrainingsReviewsRepository
                 .findByDateBetweenAndTrainingTypeId(
                         null,
                         null,
-                        groupTrainingsDbResponse.getTrainingType().getTrainingTypeId(),
+                        groupTraining.getTrainingType().getTrainingTypeId(),
                         paging
                 ).getContent();
 
         double rating = 0.0;
-        int sum = 0;
+        double sum = 0;
         int counter = 0;
         for (GroupTrainingReviewResponse review : groupTrainingsReviews) {
             sum += review.getStars();
@@ -193,27 +162,15 @@ public class GroupTrainingsDbRepositoryImpl implements GroupTrainingsDbRepositor
         }
         if (counter != 0) rating = sum / counter;
 
-        List<UserDocument> participants = groupTrainingsDbResponse.getParticipants();
-        List<ParticipantsResponse> participantsResponses = new ArrayList<>();
-        for (UserDocument userDocument : participants) {
-            ParticipantsResponse participantsResponse = new ParticipantsResponse(
-                    userDocument.getUserId(),
-                    userDocument.getName(),
-                    userDocument.getSurname()
-            );
-            participantsResponses.add(participantsResponse);
-        }
+        return rating;
+    }
 
-        List<UserDocument> reserveList = groupTrainingsDbResponse.getReserveList();
-        List<ParticipantsResponse> reserveListResponses = new ArrayList<>();
-        for (UserDocument userDocument : reserveList) {
-            ParticipantsResponse reserveListResponse = new ParticipantsResponse(
-                    userDocument.getUserId(),
-                    userDocument.getName(),
-                    userDocument.getSurname()
-            );
-            reserveListResponses.add(reserveListResponse);
-        }
+
+    @Override
+    public GroupTrainingResponse getGroupTrainingById(String trainingId)
+            throws InvalidHourException, InvalidDateException {
+
+        GroupTrainings groupTrainingsDbResponse = groupTrainingsRepository.findFirstByTrainingId(trainingId);
 
         return new GroupTrainingResponse(
                 groupTrainingsDbResponse.getTrainingId(),
@@ -224,9 +181,9 @@ public class GroupTrainingsDbRepositoryImpl implements GroupTrainingsDbRepositor
                 groupTrainingsDbResponse.getEndTime(),
                 groupTrainingsDbResponse.getHallNo(),
                 groupTrainingsDbResponse.getLimit(),
-                rating,
-                participantsResponses,
-                reserveListResponses
+                getRatingForGroupTrainings(groupTrainingsDbResponse),
+                getBasicList(groupTrainingsDbResponse),
+                getReserveList(groupTrainingsDbResponse)
         );
     }
 
@@ -237,60 +194,12 @@ public class GroupTrainingsDbRepositoryImpl implements GroupTrainingsDbRepositor
             String endDate
     ) throws ParseException, StartDateAfterEndDateException, InvalidDateException, InvalidHourException {
 
-        var dates = new DateFormatter(startDate, endDate);
-        String dayBeforeStartDate = dates.getFormattedDayDateBeforeStartDate();
-        String dayAfterEndDate = dates.getFormattedDayDateAfterEndDate();
-
-        List<GroupTrainings> groupTrainingsDbResponse = groupTrainingsRepository
-                .findAllByTrainingTypeIdAndDateBetween(
-                        trainingTypeId,
-                        dayBeforeStartDate,
-                        dayAfterEndDate
-                );
-
-        double rating = 0.0;
-        int sum = 0;
-        int counter = 0;
-        if (!groupTrainingsDbResponse.isEmpty()) {
-            List<GroupTrainingReviewResponse> groupTrainingsReviews = groupTrainingsReviewsRepository
-                    .findByDateBetweenAndTrainingTypeId(
-                            null,
-                            null,
-                            groupTrainingsDbResponse.get(0).getTrainingType().getTrainingTypeId(),
-                            paging
-                    ).getContent();
-
-            for (GroupTrainingReviewResponse review : groupTrainingsReviews) {
-                sum += review.getStars();
-                counter++;
-            }
-            if (counter != 0) rating = sum / counter;
-        }
+        List<GroupTrainings> groupTrainingsList =
+                getGroupTrainingsByTrainingTypeIdAndDates(trainingTypeId, startDate, endDate);
+        double rating = getRatingForGroupTrainingList(groupTrainingsList);
 
         List<GroupTrainingResponse> result = new ArrayList<>();
-        for (GroupTrainings training : groupTrainingsDbResponse) {
-
-            List<ParticipantsResponse> participantsResponses = new ArrayList<>();
-            List<UserDocument> participants = training.getParticipants();
-            for (UserDocument userDocument : participants) {
-                ParticipantsResponse participantsResponse = new ParticipantsResponse(
-                        userDocument.getUserId(),
-                        userDocument.getName(),
-                        userDocument.getSurname()
-                );
-                participantsResponses.add(participantsResponse);
-            }
-
-            List<UserDocument> reserveList = training.getReserveList();
-            List<ParticipantsResponse> reserveListResponses = new ArrayList<>();
-            for (UserDocument userDocument : reserveList) {
-                ParticipantsResponse reserveListResponse = new ParticipantsResponse(
-                        userDocument.getUserId(),
-                        userDocument.getName(),
-                        userDocument.getSurname()
-                );
-                reserveListResponses.add(reserveListResponse);
-            }
+        for (GroupTrainings training : groupTrainingsList) {
 
             GroupTrainingResponse groupTraining = new GroupTrainingResponse(
                     training.getTrainingId(),
@@ -302,13 +211,54 @@ public class GroupTrainingsDbRepositoryImpl implements GroupTrainingsDbRepositor
                     training.getHallNo(),
                     training.getLimit(),
                     rating,
-                    participantsResponses,
-                    reserveListResponses
+                    getBasicList(training),
+                    getReserveList(training)
             );
             result.add(groupTraining);
         }
         return result;
     }
+
+    private List<GroupTrainings> getGroupTrainingsByTrainingTypeIdAndDates(
+            String trainingTypeId,
+            String startDate,
+            String endDate
+    ) throws ParseException, StartDateAfterEndDateException {
+
+        var dates = new DateFormatter(startDate, endDate);
+        String dayBeforeStartDate = dates.getFormattedDayDateBeforeStartDate();
+        String dayAfterEndDate = dates.getFormattedDayDateAfterEndDate();
+
+        return groupTrainingsRepository
+                .findAllByTrainingTypeIdAndDateBetween(
+                        trainingTypeId,
+                        dayBeforeStartDate,
+                        dayAfterEndDate
+                );
+    }
+
+    private double getRatingForGroupTrainingList(@NotNull List<GroupTrainings> groupTrainingsList) {
+        double rating = 0.0;
+        if (!groupTrainingsList.isEmpty()) {
+            List<GroupTrainingReviewResponse> groupTrainingsReviews = groupTrainingsReviewsRepository
+                    .findByDateBetweenAndTrainingTypeId(
+                            null,
+                            null,
+                            groupTrainingsList.get(0).getTrainingType().getTrainingTypeId(),
+                            paging
+                    ).getContent();
+
+            double sum = 0;
+            int counter = 0;
+            for (GroupTrainingReviewResponse review : groupTrainingsReviews) {
+                sum += review.getStars();
+                counter++;
+            }
+            if (counter != 0) rating = sum / counter;
+        }
+        return rating;
+    }
+
 
     @Override
     public List<GroupTrainingPublicResponse> getGroupTrainingsPublicByTrainingTypeId(
@@ -317,38 +267,12 @@ public class GroupTrainingsDbRepositoryImpl implements GroupTrainingsDbRepositor
             String endDate
     ) throws ParseException, StartDateAfterEndDateException, InvalidDateException, InvalidHourException {
 
-        var dates = new DateFormatter(startDate, endDate);
-        String dayBeforeStartDate = dates.getFormattedDayDateBeforeStartDate();
-        String dayAfterEndDate = dates.getFormattedDayDateAfterEndDate();
-
-        List<GroupTrainings> dbResponse = groupTrainingsRepository
-                .findAllByTrainingTypeIdAndDateBetween(
-                        trainingTypeId,
-                        dayBeforeStartDate,
-                        dayAfterEndDate
-                );
-
-        double rating = 0.0;
-        int sum = 0;
-        int counter = 0;
-        if (!dbResponse.isEmpty()) {
-            List<GroupTrainingReviewResponse> groupTrainingsReviews = groupTrainingsReviewsRepository
-                    .findByDateBetweenAndTrainingTypeId(
-                            null,
-                            null,
-                            dbResponse.get(0).getTrainingType().getTrainingTypeId(),
-                            paging
-                    ).getContent();
-
-            for (GroupTrainingReviewResponse review : groupTrainingsReviews) {
-                sum += review.getStars();
-                counter++;
-            }
-            if (counter != 0) rating = sum / counter;
-        }
+        List<GroupTrainings> groupTrainingsList =
+                getGroupTrainingsByTrainingTypeIdAndDates(trainingTypeId, startDate, endDate);
+        double rating = getRatingForGroupTrainingList(groupTrainingsList);
 
         List<GroupTrainingPublicResponse> result = new ArrayList<>();
-        for (GroupTrainings training : dbResponse) {
+        for (GroupTrainings training : groupTrainingsList) {
             GroupTrainingPublicResponse groupTraining = new GroupTrainingPublicResponse(
                     training.getTrainingId(),
                     training.getTrainingType().getName(),
@@ -376,8 +300,6 @@ public class GroupTrainingsDbRepositoryImpl implements GroupTrainingsDbRepositor
         for (GroupTrainings groupTraining : groupTrainings) {
 
             double rating = 0.0;
-            int sum = 0;
-            int counter = 0;
             if (!groupTrainings.isEmpty()) {
                 List<GroupTrainingReviewResponse> groupTrainingsReviews = groupTrainingsReviewsRepository
                         .findByDateBetweenAndTrainingTypeId(
@@ -387,6 +309,8 @@ public class GroupTrainingsDbRepositoryImpl implements GroupTrainingsDbRepositor
                                 paging
                         ).getContent();
 
+                double sum = 0;
+                int counter = 0;
                 for (GroupTrainingReviewResponse review : groupTrainingsReviews) {
                     sum += review.getStars();
                     counter++;

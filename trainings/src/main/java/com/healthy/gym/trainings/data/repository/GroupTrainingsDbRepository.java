@@ -31,7 +31,11 @@ import java.util.*;
 @Repository
 public class GroupTrainingsDbRepository {
 
-    private static String groupTrainingsCollectionName = "GroupTrainings";
+    private static final String DEFAULT_START_DATE = "1900-01-01";
+    private static final String DEFAULT_END_DATE = "2099-12-31";
+    private static final String GROUP_TRAININGS_COLLECTION_NAME = "GroupTrainings";
+    private final SimpleDateFormat sdfDate = new SimpleDateFormat("yyyy-MM-dd");
+    private final Pageable paging;
     @Autowired
     private Environment environment;
     @Autowired
@@ -46,29 +50,22 @@ public class GroupTrainingsDbRepository {
     private MongoTemplate mongoTemplate;
     @Autowired
     private MongoConfig mongoConfig;
-    private MongoClient mongoClient;
     private MongoDatabase mdb;
-    private SimpleDateFormat sdfDate = new SimpleDateFormat("yyyy-MM-dd");
-    private String defaultStartDate = "1900-01-01";
-    private String defaultEndDate = "2099-12-31";
-    private int page = 0;
-    private int size = 1000000;
-    private Pageable paging;
-    private double initialRating = 0.0;
 
     public GroupTrainingsDbRepository() {
+        int size = 1000000;
+        int page = 0;
         paging = PageRequest.of(page, size);
     }
-
 
     public List<GroupTrainingResponse> getGroupTrainings(String startDate, String endDate)
             throws InvalidHourException, StartDateAfterEndDateException, ParseException, InvalidDateException {
 
         if (startDate == null)
-            startDate = defaultStartDate;
+            startDate = DEFAULT_START_DATE;
 
         if (endDate == null)
-            endDate = defaultEndDate;
+            endDate = DEFAULT_END_DATE;
 
         Date startDateParsed = sdfDate.parse(startDate);
         Date startDateMinusOneDay = new Date(startDateParsed.getTime() - (1000 * 60 * 60 * 24));
@@ -148,10 +145,10 @@ public class GroupTrainingsDbRepository {
         List<GroupTrainingPublicResponse> publicResponse = new ArrayList<>();
 
         if (startDate == null)
-            startDate = defaultStartDate;
+            startDate = DEFAULT_START_DATE;
 
         if (endDate == null)
-            endDate = defaultEndDate;
+            endDate = DEFAULT_END_DATE;
 
         Date startDateParsed = sdfDate.parse(startDate);
         Date startDateMinusOneDay = new Date(startDateParsed.getTime() - (1000 * 60 * 60 * 24));
@@ -266,10 +263,10 @@ public class GroupTrainingsDbRepository {
     ) throws ParseException, StartDateAfterEndDateException, InvalidDateException, InvalidHourException {
 
         if (startDate == null)
-            startDate = defaultStartDate;
+            startDate = DEFAULT_START_DATE;
 
         if (endDate == null)
-            endDate = defaultEndDate;
+            endDate = DEFAULT_END_DATE;
 
         Date startDateParsed = sdfDate.parse(startDate);
         Date startDateMinusOneDay = new Date(startDateParsed.getTime() - (1000 * 60 * 60 * 24));
@@ -358,10 +355,10 @@ public class GroupTrainingsDbRepository {
     ) throws ParseException, StartDateAfterEndDateException, InvalidDateException, InvalidHourException {
 
         if (startDate == null)
-            startDate = defaultStartDate;
+            startDate = DEFAULT_START_DATE;
 
         if (endDate == null)
-            endDate = defaultEndDate;
+            endDate = DEFAULT_END_DATE;
 
         Date startDateParsed = sdfDate.parse(startDate);
         Date startDateMinusOneDay = new Date(startDateParsed.getTime() - (1000 * 60 * 60 * 24));
@@ -584,7 +581,7 @@ public class GroupTrainingsDbRepository {
 
         MongoClient mongoClient = MongoClients.create(environment.getProperty("spring.data.mongodb.uri"));
         mdb = mongoClient.getDatabase(environment.getProperty("spring.data.mongodb.database"));
-        MongoCollection collection = mdb.getCollection(groupTrainingsCollectionName);
+        MongoCollection collection = mdb.getCollection(GROUP_TRAININGS_COLLECTION_NAME);
 
         String date = groupTrainingModel.getDate();
         String startTime = groupTrainingModel.getStartTime();
@@ -628,7 +625,7 @@ public class GroupTrainingsDbRepository {
 
         MongoClient mongoClient = MongoClients.create(environment.getProperty("spring.data.mongodb.uri"));
         mdb = mongoClient.getDatabase(environment.getProperty("spring.data.mongodb.database"));
-        MongoCollection collection = mdb.getCollection(groupTrainingsCollectionName);
+        MongoCollection collection = mdb.getCollection(GROUP_TRAININGS_COLLECTION_NAME);
 
         String date = groupTrainingModel.getDate();
         String startTime = groupTrainingModel.getStartTime();

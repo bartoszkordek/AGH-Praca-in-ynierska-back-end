@@ -1,16 +1,6 @@
 package com.healthy.gym.trainings.data.repository;
 
-import com.healthy.gym.trainings.data.document.GroupTrainings;
-import com.healthy.gym.trainings.data.document.UserDocument;
-import com.healthy.gym.trainings.exception.StartDateAfterEndDateException;
-import com.healthy.gym.trainings.exception.invalid.InvalidDateException;
-import com.healthy.gym.trainings.exception.invalid.InvalidHourException;
 import com.healthy.gym.trainings.model.request.GroupTrainingRequest;
-import com.healthy.gym.trainings.model.response.GroupTrainingPublicResponse;
-import com.healthy.gym.trainings.model.response.GroupTrainingResponse;
-import com.healthy.gym.trainings.model.response.GroupTrainingReviewResponse;
-import com.healthy.gym.trainings.model.response.UserResponse;
-import com.healthy.gym.trainings.utils.DateFormatter;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoCollection;
@@ -18,317 +8,28 @@ import com.mongodb.client.MongoDatabase;
 import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
-import javax.validation.constraints.NotNull;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
-
-import static com.healthy.gym.trainings.utils.ParticipantsExtractor.getBasicList;
-import static com.healthy.gym.trainings.utils.ParticipantsExtractor.getReserveList;
 
 @Repository
 public class GroupTrainingsDbRepositoryImpl implements GroupTrainingsDbRepository {
 
     private static final String GROUP_TRAININGS_COLLECTION_NAME = "GroupTrainings";
 
-    private final Pageable paging;
     private final Environment environment;
     private final GroupTrainingsRepository groupTrainingsRepository;
-    private final ReviewDAO groupTrainingsReviewsRepository;
 
     @Autowired
     public GroupTrainingsDbRepositoryImpl(
             Environment environment,
-            GroupTrainingsRepository groupTrainingsRepository,
-            ReviewDAO groupTrainingsReviewsRepository
+            GroupTrainingsRepository groupTrainingsRepository
     ) {
         this.environment = environment;
         this.groupTrainingsRepository = groupTrainingsRepository;
-        this.groupTrainingsReviewsRepository = groupTrainingsReviewsRepository;
-        this.paging = PageRequest.of(0, 1000000);
-    }
-
-    @Override
-    public List<GroupTrainingResponse> getGroupTrainings(String startDate, String endDate)
-            throws InvalidHourException, StartDateAfterEndDateException, ParseException, InvalidDateException {
-
-        var dates = new DateFormatter(startDate, endDate);
-        String dayBeforeStartDate = dates.getFormattedDayDateBeforeStartDate();
-        String dayAfterEndDate = dates.getFormattedDayDateAfterEndDate();
-
-        List<GroupTrainings> groupTrainingsDbResponse = groupTrainingsRepository
-                .findByDateBetween(dayBeforeStartDate, dayAfterEndDate);
-
-        List<GroupTrainingResponse> result = new ArrayList<>();
-        for (GroupTrainings training : groupTrainingsDbResponse) {
-
-            GroupTrainingResponse groupTraining = new GroupTrainingResponse(
-                    training.getTrainingId(),
-                    training.getTrainingType().getName(),
-                    null, //TODO fix training.getTrainerId(),
-                    training.getDate(),
-                    training.getStartTime(),
-                    training.getEndTime(),
-                    training.getHallNo(),
-                    training.getLimit(),
-                    getRatingForGroupTrainings(training),
-                    getBasicList(training),
-                    getReserveList(training)
-            );
-            result.add(groupTraining);
-        }
-        return result;
-    }
-
-    @Override
-    public List<GroupTrainingPublicResponse> getPublicGroupTrainings(String startDate, String endDate)
-            throws InvalidHourException, InvalidDateException, StartDateAfterEndDateException, ParseException {
-
-        var dates = new DateFormatter(startDate, endDate);
-        String dayBeforeStartDate = dates.getFormattedDayDateBeforeStartDate();
-        String dayAfterEndDate = dates.getFormattedDayDateAfterEndDate();
-
-        List<GroupTrainings> groupTrainings = groupTrainingsRepository
-                .findByDateBetween(dayBeforeStartDate, dayAfterEndDate);
-
-        List<GroupTrainingPublicResponse> publicResponse = new ArrayList<>();
-        for (GroupTrainings groupTraining : groupTrainings) {
-
-            publicResponse.add(
-                    new GroupTrainingPublicResponse(
-                            groupTraining.getTrainingId(),
-                            groupTraining.getTrainingType().getName(),
-                            null, //TODO fix groupTraining.getTrainerId(),
-                            groupTraining.getDate(),
-                            groupTraining.getStartTime(),
-                            groupTraining.getEndTime(),
-                            groupTraining.getHallNo(),
-                            groupTraining.getLimit(),
-                            getRatingForGroupTrainings(groupTraining)
-                    )
-            );
-        }
-
-        return publicResponse;
-    }
-
-    private double getRatingForGroupTrainings(GroupTrainings groupTraining) {
-        List<GroupTrainingReviewResponse> groupTrainingsReviews = groupTrainingsReviewsRepository
-                .findByDateBetweenAndTrainingTypeId(
-                        null,
-                        null,
-                        groupTraining.getTrainingType().getTrainingTypeId(),
-                        paging
-                ).getContent();
-
-        double rating = 0.0;
-        double sum = 0;
-        int counter = 0;
-        for (GroupTrainingReviewResponse review : groupTrainingsReviews) {
-            sum += review.getStars();
-            counter++;
-        }
-        if (counter != 0) rating = sum / counter;
-
-        return rating;
-    }
-
-
-    @Override
-    public GroupTrainingResponse getGroupTrainingById(String trainingId)
-            throws InvalidHourException, InvalidDateException {
-
-        GroupTrainings groupTrainingsDbResponse = groupTrainingsRepository.findFirstByTrainingId(trainingId);
-
-        return new GroupTrainingResponse(
-                groupTrainingsDbResponse.getTrainingId(),
-                groupTrainingsDbResponse.getTrainingType().getName(),
-                null, //TODO fix groupTrainingsDbResponse.getTrainerId(),
-                groupTrainingsDbResponse.getDate(),
-                groupTrainingsDbResponse.getStartTime(),
-                groupTrainingsDbResponse.getEndTime(),
-                groupTrainingsDbResponse.getHallNo(),
-                groupTrainingsDbResponse.getLimit(),
-                getRatingForGroupTrainings(groupTrainingsDbResponse),
-                getBasicList(groupTrainingsDbResponse),
-                getReserveList(groupTrainingsDbResponse)
-        );
-    }
-
-    @Override
-    public List<GroupTrainingResponse> getGroupTrainingsByTrainingTypeId(
-            String trainingTypeId,
-            String startDate,
-            String endDate
-    ) throws ParseException, StartDateAfterEndDateException, InvalidDateException, InvalidHourException {
-
-        List<GroupTrainings> groupTrainingsList =
-                getGroupTrainingsByTrainingTypeIdAndDates(trainingTypeId, startDate, endDate);
-        double rating = getRatingForGroupTrainingList(groupTrainingsList);
-
-        List<GroupTrainingResponse> result = new ArrayList<>();
-        for (GroupTrainings training : groupTrainingsList) {
-
-            GroupTrainingResponse groupTraining = new GroupTrainingResponse(
-                    training.getTrainingId(),
-                    training.getTrainingType().getName(),
-                    null, //TODO fix training.getTrainerId(),
-                    training.getDate(),
-                    training.getStartTime(),
-                    training.getEndTime(),
-                    training.getHallNo(),
-                    training.getLimit(),
-                    rating,
-                    getBasicList(training),
-                    getReserveList(training)
-            );
-            result.add(groupTraining);
-        }
-        return result;
-    }
-
-    private List<GroupTrainings> getGroupTrainingsByTrainingTypeIdAndDates(
-            String trainingTypeId,
-            String startDate,
-            String endDate
-    ) throws ParseException, StartDateAfterEndDateException {
-
-        var dates = new DateFormatter(startDate, endDate);
-        String dayBeforeStartDate = dates.getFormattedDayDateBeforeStartDate();
-        String dayAfterEndDate = dates.getFormattedDayDateAfterEndDate();
-
-        return groupTrainingsRepository
-                .findAllByTrainingTypeIdAndDateBetween(
-                        trainingTypeId,
-                        dayBeforeStartDate,
-                        dayAfterEndDate
-                );
-    }
-
-    private double getRatingForGroupTrainingList(@NotNull List<GroupTrainings> groupTrainingsList) {
-        double rating = 0.0;
-        if (!groupTrainingsList.isEmpty()) {
-            List<GroupTrainingReviewResponse> groupTrainingsReviews = groupTrainingsReviewsRepository
-                    .findByDateBetweenAndTrainingTypeId(
-                            null,
-                            null,
-                            groupTrainingsList.get(0).getTrainingType().getTrainingTypeId(),
-                            paging
-                    ).getContent();
-
-            double sum = 0;
-            int counter = 0;
-            for (GroupTrainingReviewResponse review : groupTrainingsReviews) {
-                sum += review.getStars();
-                counter++;
-            }
-            if (counter != 0) rating = sum / counter;
-        }
-        return rating;
-    }
-
-
-    @Override
-    public List<GroupTrainingPublicResponse> getGroupTrainingsPublicByTrainingTypeId(
-            String trainingTypeId,
-            String startDate,
-            String endDate
-    ) throws ParseException, StartDateAfterEndDateException, InvalidDateException, InvalidHourException {
-
-        List<GroupTrainings> groupTrainingsList =
-                getGroupTrainingsByTrainingTypeIdAndDates(trainingTypeId, startDate, endDate);
-        double rating = getRatingForGroupTrainingList(groupTrainingsList);
-
-        List<GroupTrainingPublicResponse> result = new ArrayList<>();
-        for (GroupTrainings training : groupTrainingsList) {
-            GroupTrainingPublicResponse groupTraining = new GroupTrainingPublicResponse(
-                    training.getTrainingId(),
-                    training.getTrainingType().getName(),
-                    null, //TODO fix training.getTrainerId(),
-                    training.getDate(),
-                    training.getStartTime(),
-                    training.getEndTime(),
-                    training.getHallNo(),
-                    training.getLimit(),
-                    rating
-            );
-            result.add(groupTraining);
-        }
-        return result;
-    }
-
-    @Override
-    public List<GroupTrainingPublicResponse> getMyAllGroupTrainings(String clientId)
-            throws InvalidDateException, InvalidHourException {
-
-        List<GroupTrainingPublicResponse> publicResponse = new ArrayList<>();
-        List<GroupTrainings> groupTrainings = groupTrainingsRepository
-                .findGroupTrainingsByParticipantsContains(clientId);
-
-        for (GroupTrainings groupTraining : groupTrainings) {
-
-            double rating = 0.0;
-            if (!groupTrainings.isEmpty()) {
-                List<GroupTrainingReviewResponse> groupTrainingsReviews = groupTrainingsReviewsRepository
-                        .findByDateBetweenAndTrainingTypeId(
-                                null,
-                                null,
-                                groupTraining.getTrainingType().getTrainingTypeId(),
-                                paging
-                        ).getContent();
-
-                double sum = 0;
-                int counter = 0;
-                for (GroupTrainingReviewResponse review : groupTrainingsReviews) {
-                    sum += review.getStars();
-                    counter++;
-                }
-                if (counter != 0) rating = sum / counter;
-            }
-
-            publicResponse.add(
-                    new GroupTrainingPublicResponse(
-                            groupTraining.getTrainingId(),
-                            groupTraining.getTrainingType().getName(),
-                            null, //TODO fix groupTraining.getTrainerId(),
-                            groupTraining.getDate(),
-                            groupTraining.getStartTime(),
-                            groupTraining.getEndTime(),
-                            groupTraining.getHallNo(),
-                            groupTraining.getLimit(),
-                            rating
-                    )
-            );
-        }
-
-        return publicResponse;
-    }
-
-    @Override
-    public List<UserResponse> getTrainingParticipants(String trainingId) {
-
-        List<UserResponse> participantsResponses = new ArrayList<>();
-        List<UserDocument> participants = groupTrainingsRepository
-                .getFirstByTrainingId(trainingId)
-                .getParticipants();
-
-        for (UserDocument userDocument : participants) {
-            UserResponse participantsResponse = new UserResponse(
-                    userDocument.getUserId(),
-                    userDocument.getName(),
-                    userDocument.getSurname()
-            );
-            participantsResponses.add(participantsResponse);
-        }
-
-        return participantsResponses;
     }
 
     @Override

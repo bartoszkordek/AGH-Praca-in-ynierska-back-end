@@ -1,13 +1,11 @@
 package com.healthy.gym.trainings.service.groupTrainingService;
 
-import com.healthy.gym.trainings.configuration.EmailConfig;
 import com.healthy.gym.trainings.data.document.GroupTrainings;
 import com.healthy.gym.trainings.data.document.TrainingTypeDocument;
 import com.healthy.gym.trainings.data.document.UserDocument;
-import com.healthy.gym.trainings.data.repository.GroupTrainingsDbRepositoryImpl;
 import com.healthy.gym.trainings.data.repository.GroupTrainingsRepository;
+import com.healthy.gym.trainings.data.repository.ReviewDAO;
 import com.healthy.gym.trainings.data.repository.TrainingTypeDAO;
-import com.healthy.gym.trainings.exception.EmailSendingException;
 import com.healthy.gym.trainings.exception.invalid.InvalidDateException;
 import com.healthy.gym.trainings.exception.invalid.InvalidHourException;
 import com.healthy.gym.trainings.exception.training.TrainingRemovalException;
@@ -16,10 +14,10 @@ import com.healthy.gym.trainings.model.response.GroupTrainingResponse;
 import com.healthy.gym.trainings.model.response.UserResponse;
 import com.healthy.gym.trainings.service.group.training.GroupTrainingService;
 import com.healthy.gym.trainings.service.group.training.GroupTrainingServiceImpl;
+import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -28,27 +26,35 @@ import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @RunWith(SpringRunner.class)
 public class RemoveGroupTrainingService {
 
     @Autowired
-    ApplicationContext applicationContext;
+    private ApplicationContext applicationContext;
+
+    private TrainingTypeDAO trainingTypeRepository;
+    private GroupTrainingsRepository groupTrainingsRepository;
+    private ReviewDAO reviewDAO;
+    private GroupTrainingService groupTrainingService;
+
+    @Before
+    public void setUp() throws Exception {
+        trainingTypeRepository = mock(TrainingTypeDAO.class);
+        groupTrainingsRepository = mock(GroupTrainingsRepository.class);
+        reviewDAO = mock(ReviewDAO.class);
+        groupTrainingService = new GroupTrainingServiceImpl(
+                trainingTypeRepository,
+                groupTrainingsRepository,
+                reviewDAO
+        );
+    }
 
     @Test
-    public void shouldRemoveGroupTraining_whenTrainingExists() throws InvalidDateException, InvalidHourException, TrainingRemovalException, EmailSendingException {
-        //mocks
-        EmailConfig emailConfig = Mockito.mock(EmailConfig.class);
-        GroupTrainingsDbRepositoryImpl groupTrainingsDbRepositoryImpl = Mockito.mock(GroupTrainingsDbRepositoryImpl.class);
-        TrainingTypeDAO trainingTypeRepository = Mockito.mock(TrainingTypeDAO.class);
-        GroupTrainingsRepository groupTrainingsRepository = Mockito.mock(GroupTrainingsRepository.class);
-        GroupTrainingService groupTrainingService = new GroupTrainingServiceImpl(
-                emailConfig,
-                groupTrainingsDbRepositoryImpl,
-                trainingTypeRepository,
-                groupTrainingsRepository
-        );
+    public void shouldRemoveGroupTraining_whenTrainingExists()
+            throws InvalidDateException, InvalidHourException {
 
         //before
         String id = "507f1f77bcf86cd799439011";
@@ -112,18 +118,8 @@ public class RemoveGroupTrainingService {
 
     @Ignore
     @Test(expected = TrainingRemovalException.class)
-    public void shouldNotRemoveGroupTraining_whenInvalidTrainingId() throws InvalidDateException, InvalidHourException, TrainingRemovalException, EmailSendingException {
-        //mocks
-        EmailConfig emailConfig = Mockito.mock(EmailConfig.class);
-        GroupTrainingsDbRepositoryImpl groupTrainingsDbRepositoryImpl = Mockito.mock(GroupTrainingsDbRepositoryImpl.class);
-        TrainingTypeDAO trainingTypeRepository = Mockito.mock(TrainingTypeDAO.class);
-        GroupTrainingsRepository groupTrainingsRepository = Mockito.mock(GroupTrainingsRepository.class);
-        GroupTrainingService groupTrainingService = new GroupTrainingServiceImpl(
-                emailConfig,
-                groupTrainingsDbRepositoryImpl,
-                trainingTypeRepository,
-                groupTrainingsRepository
-        );
+    public void shouldNotRemoveGroupTraining_whenInvalidTrainingId()
+            throws InvalidDateException, InvalidHourException {
 
         //before
         String id = "507f1f77bcf86cd799439011";

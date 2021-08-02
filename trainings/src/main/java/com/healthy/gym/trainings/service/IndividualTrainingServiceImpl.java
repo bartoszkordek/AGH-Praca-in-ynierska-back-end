@@ -2,10 +2,13 @@ package com.healthy.gym.trainings.service;
 
 import com.healthy.gym.trainings.configuration.EmailConfig;
 import com.healthy.gym.trainings.data.document.IndividualTrainings;
+import com.healthy.gym.trainings.data.document.UserDocument;
 import com.healthy.gym.trainings.data.repository.IndividualTrainingsRepository;
+import com.healthy.gym.trainings.data.repository.UserDAO;
 import com.healthy.gym.trainings.exception.*;
 import com.healthy.gym.trainings.exception.invalid.InvalidHourException;
 import com.healthy.gym.trainings.exception.notexisting.NotExistingIndividualTrainingException;
+import com.healthy.gym.trainings.exception.notfound.UserNotFoundException;
 import com.healthy.gym.trainings.model.other.EmailSendModel;
 import com.healthy.gym.trainings.model.request.IndividualTrainingAcceptanceRequest;
 import com.healthy.gym.trainings.model.request.IndividualTrainingRequest;
@@ -24,15 +27,17 @@ public class IndividualTrainingServiceImpl implements IndividualTrainingService 
 
     private final EmailConfig emailConfig;
     private final IndividualTrainingsRepository individualTrainingsRepository;
+    private final UserDAO userDAO;
 
     @Autowired
     public IndividualTrainingServiceImpl(
             EmailConfig emailConfig,
-
-            IndividualTrainingsRepository individualTrainingsRepository
+            IndividualTrainingsRepository individualTrainingsRepository,
+            UserDAO userDAO
     ) {
         this.emailConfig = emailConfig;
         this.individualTrainingsRepository = individualTrainingsRepository;
+        this.userDAO = userDAO;
     }
 
     private void sendEmailWithoutAttachment(List<String> recipients, String subject, String body) {
@@ -65,17 +70,16 @@ public class IndividualTrainingServiceImpl implements IndividualTrainingService 
     public IndividualTrainings getIndividualTrainingById(String trainingId)
             throws NotExistingIndividualTrainingException {
 
-        boolean individualTrainingExists = individualTrainingsRepository
-                .existsIndividualTrainingsById(trainingId);
-
-        if (!individualTrainingExists) throw new NotExistingIndividualTrainingException();
-
-        return individualTrainingsRepository.findIndividualTrainingsById(trainingId);
+        IndividualTrainings individualTraining = individualTrainingsRepository
+                .findIndividualTrainingsById(trainingId);
+        if (individualTraining == null) throw new NotExistingIndividualTrainingException();
+        return individualTraining;
     }
 
     @Override
-    public List<IndividualTrainings> getMyAllTrainings(String clientId) {
-        //add if Client Exists validation
+    public List<IndividualTrainings> getMyAllTrainings(String clientId) throws UserNotFoundException {
+        UserDocument user = userDAO.findByUserId(clientId);
+        if (user == null) throw new UserNotFoundException();
         return individualTrainingsRepository.findIndividualTrainingsByClientIdEquals(clientId);
     }
 
@@ -204,7 +208,8 @@ public class IndividualTrainingServiceImpl implements IndividualTrainingService 
             ParseException,
             RetroIndividualTrainingException {
 
-        IndividualTrainings individualTraining = individualTrainingsRepository.findIndividualTrainingsById(trainingId);
+        IndividualTrainings individualTraining = individualTrainingsRepository
+                .findIndividualTrainingsById(trainingId);
 
         if (individualTraining == null) throw new NotExistingIndividualTrainingException();
 

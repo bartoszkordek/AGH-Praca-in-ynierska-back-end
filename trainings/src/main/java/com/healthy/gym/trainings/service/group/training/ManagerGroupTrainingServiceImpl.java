@@ -9,13 +9,13 @@ import com.healthy.gym.trainings.exception.PastDateException;
 import com.healthy.gym.trainings.exception.StartDateAfterEndDateException;
 import com.healthy.gym.trainings.exception.invalid.InvalidDateException;
 import com.healthy.gym.trainings.exception.invalid.InvalidHourException;
+import com.healthy.gym.trainings.exception.notexisting.NotExistingGroupTrainingException;
 import com.healthy.gym.trainings.exception.notfound.LocationNotFoundException;
 import com.healthy.gym.trainings.exception.notfound.TrainerNotFoundException;
 import com.healthy.gym.trainings.exception.notfound.TrainingTypeNotFoundException;
 import com.healthy.gym.trainings.exception.occupied.LocationOccupiedException;
 import com.healthy.gym.trainings.exception.occupied.TrainerOccupiedException;
 import com.healthy.gym.trainings.exception.training.TrainingCreationException;
-import com.healthy.gym.trainings.exception.training.TrainingRemovalException;
 import com.healthy.gym.trainings.exception.training.TrainingUpdateException;
 import com.healthy.gym.trainings.model.request.CreateGroupTrainingRequest;
 import com.healthy.gym.trainings.model.request.GroupTrainingRequest;
@@ -282,12 +282,12 @@ public class ManagerGroupTrainingServiceImpl implements ManagerGroupTrainingServ
 
     @Override
     public GroupTrainingResponse removeGroupTraining(String trainingId)
-            throws TrainingRemovalException, EmailSendingException, InvalidDateException, InvalidHourException {
+            throws EmailSendingException, InvalidDateException, InvalidHourException, NotExistingGroupTrainingException {
 
-        if (!groupTrainingsRepository.existsByTrainingId(trainingId))
-            throw new TrainingRemovalException("Training with ID: " + trainingId + " doesn't exist");
+        GroupTrainings repositoryResponse = groupTrainingsRepository.findFirstByTrainingId(trainingId);
 
-        GroupTrainings repositoryResponse = groupTrainingsDbRepositoryImpl.removeTraining(trainingId);
+        if (repositoryResponse == null) throw new NotExistingGroupTrainingException();
+        groupTrainingsRepository.removeByTrainingId(trainingId);
 
         List<UserDocument> participants = repositoryResponse.getParticipants();
         List<ParticipantsResponse> participantsResponses = new ArrayList<>();

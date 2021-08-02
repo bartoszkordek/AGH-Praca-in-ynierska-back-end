@@ -80,8 +80,7 @@ public class RemoveGroupTrainingService {
                 date, startTime, endTime, hallNo, limit, rating, participantsResponses, reserveListResponses);
 
         //when
-        when(groupTrainingsRepository.existsByTrainingId(trainingId)).thenReturn(true);
-        when(groupTrainingsDbRepositoryImpl.removeTraining(trainingId)).thenReturn(groupTraining);
+        when(groupTrainingsRepository.findFirstByTrainingId(trainingId)).thenReturn(groupTraining);
 
         //then
         //TODO
@@ -137,8 +136,7 @@ public class RemoveGroupTrainingService {
                 date, startTime, endTime, hallNo, limit, rating, participantsResponses, reserveListResponses);
 
         //when
-        when(groupTrainingsRepository.existsByTrainingId(trainingId)).thenReturn(false);
-        when(groupTrainingsDbRepositoryImpl.removeTraining(trainingId)).thenReturn(groupTraining);
+        when(groupTrainingsRepository.findFirstByTrainingId(trainingId)).thenReturn(groupTraining);
 
         //then
         //TODO

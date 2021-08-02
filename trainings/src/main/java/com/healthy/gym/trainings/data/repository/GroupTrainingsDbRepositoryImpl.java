@@ -487,11 +487,4 @@ public class GroupTrainingsDbRepositoryImpl implements GroupTrainingsDbRepositor
                 )
         );
     }
-
-    @Override
-    public GroupTrainings removeTraining(String trainingId) {
-        GroupTrainings groupTrainings = groupTrainingsRepository.findFirstByTrainingId(trainingId);
-        groupTrainingsRepository.removeByTrainingId(trainingId);
-        return groupTrainings;
-    }
 }

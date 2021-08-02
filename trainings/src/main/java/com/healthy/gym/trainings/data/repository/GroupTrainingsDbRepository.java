@@ -47,6 +47,4 @@ public interface GroupTrainingsDbRepository {
     boolean isAbilityToUpdateTraining(String trainingId, GroupTrainingRequest groupTrainingModel);
 
     GroupTrainings createTraining(GroupTrainingRequest groupTrainingModel) throws InvalidHourException;
-
-    GroupTrainings removeTraining(String trainingId);
 }

@@ -72,7 +72,7 @@ public class GroupTrainingsDbRepositoryImpl implements GroupTrainingsDbRepositor
             GroupTrainingResponse groupTraining = new GroupTrainingResponse(
                     training.getTrainingId(),
                     training.getTrainingType().getName(),
-                    training.getTrainerId(),
+                    null, //TODO fix training.getTrainerId(),
                     training.getDate(),
                     training.getStartTime(),
                     training.getEndTime(),
@@ -105,7 +105,7 @@ public class GroupTrainingsDbRepositoryImpl implements GroupTrainingsDbRepositor
                     new GroupTrainingPublicResponse(
                             groupTraining.getTrainingId(),
                             groupTraining.getTrainingType().getName(),
-                            groupTraining.getTrainerId(),
+                            null, //TODO fix groupTraining.getTrainerId(),
                             groupTraining.getDate(),
                             groupTraining.getStartTime(),
                             groupTraining.getEndTime(),
@@ -150,7 +150,7 @@ public class GroupTrainingsDbRepositoryImpl implements GroupTrainingsDbRepositor
         return new GroupTrainingResponse(
                 groupTrainingsDbResponse.getTrainingId(),
                 groupTrainingsDbResponse.getTrainingType().getName(),
-                groupTrainingsDbResponse.getTrainerId(),
+                null, //TODO fix groupTrainingsDbResponse.getTrainerId(),
                 groupTrainingsDbResponse.getDate(),
                 groupTrainingsDbResponse.getStartTime(),
                 groupTrainingsDbResponse.getEndTime(),
@@ -179,7 +179,7 @@ public class GroupTrainingsDbRepositoryImpl implements GroupTrainingsDbRepositor
             GroupTrainingResponse groupTraining = new GroupTrainingResponse(
                     training.getTrainingId(),
                     training.getTrainingType().getName(),
-                    training.getTrainerId(),
+                    null, //TODO fix training.getTrainerId(),
                     training.getDate(),
                     training.getStartTime(),
                     training.getEndTime(),
@@ -251,7 +251,7 @@ public class GroupTrainingsDbRepositoryImpl implements GroupTrainingsDbRepositor
             GroupTrainingPublicResponse groupTraining = new GroupTrainingPublicResponse(
                     training.getTrainingId(),
                     training.getTrainingType().getName(),
-                    training.getTrainerId(),
+                    null, //TODO fix training.getTrainerId(),
                     training.getDate(),
                     training.getStartTime(),
                     training.getEndTime(),
@@ -297,7 +297,7 @@ public class GroupTrainingsDbRepositoryImpl implements GroupTrainingsDbRepositor
                     new GroupTrainingPublicResponse(
                             groupTraining.getTrainingId(),
                             groupTraining.getTrainingType().getName(),
-                            groupTraining.getTrainerId(),
+                            null, //TODO fix groupTraining.getTrainerId(),
                             groupTraining.getDate(),
                             groupTraining.getStartTime(),
                             groupTraining.getEndTime(),

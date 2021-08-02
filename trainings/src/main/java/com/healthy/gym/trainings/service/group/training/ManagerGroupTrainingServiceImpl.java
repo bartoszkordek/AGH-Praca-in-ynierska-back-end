@@ -177,7 +177,7 @@ public class ManagerGroupTrainingServiceImpl implements ManagerGroupTrainingServ
                 new GroupTrainings(
                         trainingId,
                         trainingType,
-                        groupTrainingModel.getTrainerId(),
+                        null,//TODO fix groupTrainingModel.getTrainerId(),
                         groupTrainingModel.getDate(),
                         groupTrainingModel.getStartTime(),
                         groupTrainingModel.getEndTime(),
@@ -209,7 +209,7 @@ public class ManagerGroupTrainingServiceImpl implements ManagerGroupTrainingServ
         return new GroupTrainingResponse(
                 repositoryResponse.getTrainingId(),
                 repositoryResponse.getTrainingType().getName(),
-                repositoryResponse.getTrainerId(),
+                null,//TODO fix groupTrainingModel.getTrainerId(),,
                 repositoryResponse.getDate(),
                 repositoryResponse.getStartTime(),
                 repositoryResponse.getEndTime(),
@@ -261,7 +261,7 @@ public class ManagerGroupTrainingServiceImpl implements ManagerGroupTrainingServ
         );
 
         groupTrainings1.setTrainingType(trainingType);
-        groupTrainings1.setTrainerId(groupTrainingModelRequest.getTrainerId());
+        //TODO fix groupTrainings1.setTrainerId(groupTrainingModelRequest.getTrainerId());
         groupTrainings1.setDate(groupTrainingModelRequest.getDate());
         groupTrainings1.setStartTime(groupTrainingModelRequest.getStartTime());
         groupTrainings1.setEndTime(groupTrainingModelRequest.getEndTime());
@@ -291,7 +291,7 @@ public class ManagerGroupTrainingServiceImpl implements ManagerGroupTrainingServ
 
         String subject = "Training has been updated";
         String body = "Training " + groupTrainings1.getTrainingId() + " on " + groupTrainings1.getDate() + " at "
-                + groupTrainings1.getStartTime() + " with " + groupTrainings1.getTrainerId() + " has been updated.";
+                + groupTrainings1.getStartTime() + " with "; // //TODO fix + groupTrainings1.getTrainerId() + " has been updated.";
         try {
             emailSender.sendEmailWithoutAttachment(toEmails, subject, body);
         } catch (Exception e) {
@@ -301,7 +301,7 @@ public class ManagerGroupTrainingServiceImpl implements ManagerGroupTrainingServ
         return new GroupTrainingResponse(
                 groupTrainings1.getTrainingId(),
                 groupTrainings1.getTrainingType().getName(),
-                groupTrainings1.getTrainerId(),
+                null, //TODO fix groupTrainings1.getTrainerId(),
                 groupTrainings1.getDate(),
                 groupTrainings1.getStartTime(),
                 groupTrainings1.getEndTime(),
@@ -342,7 +342,7 @@ public class ManagerGroupTrainingServiceImpl implements ManagerGroupTrainingServ
 
         String subject = "Training has been deleted";
         String body = "Training " + repositoryResponse.getTrainingId() + " on " + repositoryResponse.getDate() + " at "
-                + repositoryResponse.getStartTime() + " with " + repositoryResponse.getTrainerId() + " has been deleted.";
+                + repositoryResponse.getStartTime() + " with "; //TODO fix + repositoryResponse.getTrainerId() + " has been deleted.";
         try {
             emailSender.sendEmailWithoutAttachment(toEmails, subject, body);
         } catch (Exception e) {
@@ -352,7 +352,7 @@ public class ManagerGroupTrainingServiceImpl implements ManagerGroupTrainingServ
         return new GroupTrainingResponse(
                 repositoryResponse.getTrainingId(),
                 repositoryResponse.getTrainingType().getName(),
-                repositoryResponse.getTrainerId(),
+                null, //TODO fix repositoryResponse.getTrainerId(),
                 repositoryResponse.getDate(),
                 repositoryResponse.getStartTime(),
                 repositoryResponse.getEndTime(),

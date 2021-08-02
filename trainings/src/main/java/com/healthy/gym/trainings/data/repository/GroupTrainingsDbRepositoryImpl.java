@@ -28,6 +28,9 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
+import static com.healthy.gym.trainings.utils.ParticipantsExtractor.getBasicList;
+import static com.healthy.gym.trainings.utils.ParticipantsExtractor.getReserveList;
+
 @Repository
 public class GroupTrainingsDbRepositoryImpl implements GroupTrainingsDbRepository {
 
@@ -86,30 +89,6 @@ public class GroupTrainingsDbRepositoryImpl implements GroupTrainingsDbRepositor
             result.add(groupTraining);
         }
         return result;
-    }
-
-    private List<ParticipantsResponse> getBasicList(GroupTrainings training) {
-        List<UserDocument> participants = training.getParticipants();
-        return getParticipants(participants);
-    }
-
-    private List<ParticipantsResponse> getParticipants(List<UserDocument> participants) {
-        List<ParticipantsResponse> participantsResponses = new ArrayList<>();
-        for (UserDocument userDocument : participants) {
-            ParticipantsResponse participantsResponse = new ParticipantsResponse(
-                    userDocument.getUserId(),
-                    userDocument.getName(),
-                    userDocument.getSurname()
-            );
-            participantsResponses.add(participantsResponse);
-        }
-
-        return participantsResponses;
-    }
-
-    private List<ParticipantsResponse> getReserveList(GroupTrainings training) {
-        List<UserDocument> reserveList = training.getReserveList();
-        return getParticipants(reserveList);
     }
 
     @Override

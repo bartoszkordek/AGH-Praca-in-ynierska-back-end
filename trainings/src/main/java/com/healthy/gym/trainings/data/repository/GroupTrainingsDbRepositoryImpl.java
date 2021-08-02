@@ -9,7 +9,7 @@ import com.healthy.gym.trainings.model.request.GroupTrainingRequest;
 import com.healthy.gym.trainings.model.response.GroupTrainingPublicResponse;
 import com.healthy.gym.trainings.model.response.GroupTrainingResponse;
 import com.healthy.gym.trainings.model.response.GroupTrainingReviewResponse;
-import com.healthy.gym.trainings.model.response.ParticipantsResponse;
+import com.healthy.gym.trainings.model.response.UserResponse;
 import com.healthy.gym.trainings.utils.DateFormatter;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
@@ -312,15 +312,15 @@ public class GroupTrainingsDbRepositoryImpl implements GroupTrainingsDbRepositor
     }
 
     @Override
-    public List<ParticipantsResponse> getTrainingParticipants(String trainingId) {
+    public List<UserResponse> getTrainingParticipants(String trainingId) {
 
-        List<ParticipantsResponse> participantsResponses = new ArrayList<>();
+        List<UserResponse> participantsResponses = new ArrayList<>();
         List<UserDocument> participants = groupTrainingsRepository
                 .getFirstByTrainingId(trainingId)
                 .getParticipants();
 
         for (UserDocument userDocument : participants) {
-            ParticipantsResponse participantsResponse = new ParticipantsResponse(
+            UserResponse participantsResponse = new UserResponse(
                     userDocument.getUserId(),
                     userDocument.getName(),
                     userDocument.getSurname()

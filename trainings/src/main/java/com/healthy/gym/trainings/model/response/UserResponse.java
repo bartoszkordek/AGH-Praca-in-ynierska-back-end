@@ -3,7 +3,7 @@ package com.healthy.gym.trainings.model.response;
 import javax.validation.constraints.NotNull;
 import java.util.Objects;
 
-public class ParticipantsResponse {
+public class UserResponse {
 
     @NotNull
     private String userId;
@@ -18,10 +18,10 @@ public class ParticipantsResponse {
 
     //TODO ADD Avatar
 
-    public ParticipantsResponse() {
+    public UserResponse() {
     }
 
-    public ParticipantsResponse(String userId, String name, String surname) {
+    public UserResponse(String userId, String name, String surname) {
         this.userId = userId;
         this.name = name;
         this.surname = surname;
@@ -55,7 +55,7 @@ public class ParticipantsResponse {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        ParticipantsResponse that = (ParticipantsResponse) o;
+        UserResponse that = (UserResponse) o;
         return Objects.equals(userId, that.userId)
                 && Objects.equals(name, that.name)
                 && Objects.equals(surname, that.surname);
@@ -68,7 +68,7 @@ public class ParticipantsResponse {
 
     @Override
     public String toString() {
-        return "ParticipantsResponse{" +
+        return "UserResponse{" +
                 "userId='" + userId + '\'' +
                 ", name='" + name + '\'' +
                 ", surname='" + surname + '\'' +

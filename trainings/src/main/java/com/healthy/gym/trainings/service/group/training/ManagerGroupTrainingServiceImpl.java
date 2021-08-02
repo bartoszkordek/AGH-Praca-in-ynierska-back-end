@@ -20,7 +20,7 @@ import com.healthy.gym.trainings.exception.training.TrainingUpdateException;
 import com.healthy.gym.trainings.model.request.CreateGroupTrainingRequest;
 import com.healthy.gym.trainings.model.request.GroupTrainingRequest;
 import com.healthy.gym.trainings.model.response.GroupTrainingResponse;
-import com.healthy.gym.trainings.model.response.ParticipantsResponse;
+import com.healthy.gym.trainings.model.response.UserResponse;
 import com.healthy.gym.trainings.shared.GroupTrainingDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -189,17 +189,17 @@ public class ManagerGroupTrainingServiceImpl implements ManagerGroupTrainingServ
         );
 
         List<UserDocument> participants = repositoryResponse.getParticipants();
-        List<ParticipantsResponse> participantsResponses = new ArrayList<>();
+        List<UserResponse> participantsResponses = new ArrayList<>();
         for (UserDocument participant : participants) {
-            ParticipantsResponse participantsResponse = new ParticipantsResponse(participant.getUserId(),
+            UserResponse participantsResponse = new UserResponse(participant.getUserId(),
                     participant.getName(), participant.getSurname());
             participantsResponses.add(participantsResponse);
         }
 
         List<UserDocument> reserveList = repositoryResponse.getReserveList();
-        List<ParticipantsResponse> reserveListResponses = new ArrayList<>();
+        List<UserResponse> reserveListResponses = new ArrayList<>();
         for (UserDocument reserveListParticipant : reserveList) {
-            ParticipantsResponse reserveListParticipantsResponse = new ParticipantsResponse(
+            UserResponse reserveListParticipantsResponse = new UserResponse(
                     reserveListParticipant.getUserId(),
                     reserveListParticipant.getName(),
                     reserveListParticipant.getSurname());
@@ -271,10 +271,10 @@ public class ManagerGroupTrainingServiceImpl implements ManagerGroupTrainingServ
         groupTrainingsRepository.save(groupTrainings1);
 
         List<UserDocument> participants = groupTrainings1.getParticipants();
-        List<ParticipantsResponse> participantsResponses = new ArrayList<>();
+        List<UserResponse> participantsResponses = new ArrayList<>();
         List<String> toEmails = new ArrayList<>();
         for (UserDocument document : participants) {
-            ParticipantsResponse participantsResponse = new ParticipantsResponse(document.getUserId(),
+            UserResponse participantsResponse = new UserResponse(document.getUserId(),
                     document.getName(), document.getSurname());
             participantsResponses.add(participantsResponse);
             String email = document.getEmail();
@@ -282,9 +282,9 @@ public class ManagerGroupTrainingServiceImpl implements ManagerGroupTrainingServ
         }
 
         List<UserDocument> reserveList = groupTrainings1.getReserveList();
-        List<ParticipantsResponse> reserveListResponses = new ArrayList<>();
+        List<UserResponse> reserveListResponses = new ArrayList<>();
         for (UserDocument document : reserveList) {
-            ParticipantsResponse reserveListResponse = new ParticipantsResponse(document.getUserId(),
+            UserResponse reserveListResponse = new UserResponse(document.getUserId(),
                     document.getName(), document.getSurname());
             reserveListResponses.add(reserveListResponse);
         }
@@ -322,10 +322,10 @@ public class ManagerGroupTrainingServiceImpl implements ManagerGroupTrainingServ
         groupTrainingsRepository.removeByTrainingId(trainingId);
 
         List<UserDocument> participants = repositoryResponse.getParticipants();
-        List<ParticipantsResponse> participantsResponses = new ArrayList<>();
+        List<UserResponse> participantsResponses = new ArrayList<>();
         List<String> toEmails = new ArrayList<>();
         for (UserDocument document : participants) {
-            ParticipantsResponse participantsResponse = new ParticipantsResponse(document.getUserId(),
+            UserResponse participantsResponse = new UserResponse(document.getUserId(),
                     document.getName(), document.getSurname());
             participantsResponses.add(participantsResponse);
             String email = document.getEmail();
@@ -333,9 +333,9 @@ public class ManagerGroupTrainingServiceImpl implements ManagerGroupTrainingServ
         }
 
         List<UserDocument> reserveList = repositoryResponse.getReserveList();
-        List<ParticipantsResponse> reserveListResponses = new ArrayList<>();
+        List<UserResponse> reserveListResponses = new ArrayList<>();
         for (UserDocument document : reserveList) {
-            ParticipantsResponse reserveListResponse = new ParticipantsResponse(document.getUserId(),
+            UserResponse reserveListResponse = new UserResponse(document.getUserId(),
                     document.getName(), document.getSurname());
             reserveListResponses.add(reserveListResponse);
         }

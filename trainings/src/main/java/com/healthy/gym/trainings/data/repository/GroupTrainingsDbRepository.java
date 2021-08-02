@@ -6,7 +6,7 @@ import com.healthy.gym.trainings.exception.invalid.InvalidHourException;
 import com.healthy.gym.trainings.model.request.GroupTrainingRequest;
 import com.healthy.gym.trainings.model.response.GroupTrainingPublicResponse;
 import com.healthy.gym.trainings.model.response.GroupTrainingResponse;
-import com.healthy.gym.trainings.model.response.ParticipantsResponse;
+import com.healthy.gym.trainings.model.response.UserResponse;
 
 import java.text.ParseException;
 import java.util.List;
@@ -37,7 +37,7 @@ public interface GroupTrainingsDbRepository {
     List<GroupTrainingPublicResponse> getMyAllGroupTrainings(String clientId)
             throws InvalidDateException, InvalidHourException;
 
-    List<ParticipantsResponse> getTrainingParticipants(String trainingId);
+    List<UserResponse> getTrainingParticipants(String trainingId);
 
     boolean isAbilityToGroupTrainingEnrollment(String trainingId);
 

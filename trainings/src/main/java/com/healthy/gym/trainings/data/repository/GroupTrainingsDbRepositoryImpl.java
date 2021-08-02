@@ -1,6 +1,5 @@
 package com.healthy.gym.trainings.data.repository;
 
-import com.healthy.gym.trainings.configuration.MongoConfig;
 import com.healthy.gym.trainings.data.document.GroupTrainings;
 import com.healthy.gym.trainings.data.document.TrainingTypeDocument;
 import com.healthy.gym.trainings.data.document.UserDocument;
@@ -21,7 +20,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.stereotype.Repository;
 
 import java.text.ParseException;
@@ -29,35 +27,42 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 @Repository
-public class GroupTrainingsDbRepositoryImpl {
+public class GroupTrainingsDbRepositoryImpl implements GroupTrainingsDbRepository {
 
     private static final String DEFAULT_START_DATE = "1900-01-01";
     private static final String DEFAULT_END_DATE = "2099-12-31";
     private static final String GROUP_TRAININGS_COLLECTION_NAME = "GroupTrainings";
-    private final SimpleDateFormat sdfDate = new SimpleDateFormat("yyyy-MM-dd");
-    private final Pageable paging;
-    @Autowired
-    private Environment environment;
-    @Autowired
-    private GroupTrainingsRepository groupTrainingsRepository;
-    @Autowired
-    private ReviewDAO groupTrainingsReviewsRepository;
-    @Autowired
-    private TrainingTypeDAO trainingTypeRepository;
-    @Autowired
-    private UserDAO userRepository;
-    @Autowired
-    private MongoTemplate mongoTemplate;
-    @Autowired
-    private MongoConfig mongoConfig;
-    private MongoDatabase mdb;
 
-    public GroupTrainingsDbRepositoryImpl() {
+    private final SimpleDateFormat simpleDateFormat;
+    private final Pageable paging;
+    private final Environment environment;
+    private final GroupTrainingsRepository groupTrainingsRepository;
+    private final ReviewDAO groupTrainingsReviewsRepository;
+    private final TrainingTypeDAO trainingTypeRepository;
+    private final UserDAO userRepository;
+
+    private MongoDatabase mongoDatabase;
+
+    @Autowired
+    public GroupTrainingsDbRepositoryImpl(
+            Environment environment,
+            GroupTrainingsRepository groupTrainingsRepository,
+            ReviewDAO groupTrainingsReviewsRepository,
+            TrainingTypeDAO trainingTypeRepository,
+            UserDAO userRepository
+    ) {
+        this.environment = environment;
+        this.groupTrainingsRepository = groupTrainingsRepository;
+        this.groupTrainingsReviewsRepository = groupTrainingsReviewsRepository;
+        this.trainingTypeRepository = trainingTypeRepository;
+        this.userRepository = userRepository;
         int size = 1000000;
         int page = 0;
-        paging = PageRequest.of(page, size);
+        this.paging = PageRequest.of(page, size);
+        this.simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
     }
 
+    @Override
     public List<GroupTrainingResponse> getGroupTrainings(String startDate, String endDate)
             throws InvalidHourException, StartDateAfterEndDateException, ParseException, InvalidDateException {
 
@@ -67,16 +72,16 @@ public class GroupTrainingsDbRepositoryImpl {
         if (endDate == null)
             endDate = DEFAULT_END_DATE;
 
-        Date startDateParsed = sdfDate.parse(startDate);
+        Date startDateParsed = simpleDateFormat.parse(startDate);
         Date startDateMinusOneDay = new Date(startDateParsed.getTime() - (1000 * 60 * 60 * 24));
-        Date endDateParsed = sdfDate.parse(endDate);
+        Date endDateParsed = simpleDateFormat.parse(endDate);
         Date endDatePlusOneDay = new Date(endDateParsed.getTime() + (1000 * 60 * 60 * 24));
         if (startDateParsed.after(endDateParsed)) {
             throw new StartDateAfterEndDateException("Start date after end date");
         }
 
-        String startDateMinusOneDayFormatted = sdfDate.format(startDateMinusOneDay);
-        String endDatePlusOneDayFormatted = sdfDate.format(endDatePlusOneDay);
+        String startDateMinusOneDayFormatted = simpleDateFormat.format(startDateMinusOneDay);
+        String endDatePlusOneDayFormatted = simpleDateFormat.format(endDatePlusOneDay);
 
         List<GroupTrainings> groupTrainingsDbResponse = groupTrainingsRepository
                 .findByDateBetween(startDateMinusOneDayFormatted, endDatePlusOneDayFormatted);
@@ -139,6 +144,7 @@ public class GroupTrainingsDbRepositoryImpl {
         return result;
     }
 
+    @Override
     public List<GroupTrainingPublicResponse> getPublicGroupTrainings(String startDate, String endDate)
             throws InvalidHourException, InvalidDateException, StartDateAfterEndDateException, ParseException {
 
@@ -150,16 +156,16 @@ public class GroupTrainingsDbRepositoryImpl {
         if (endDate == null)
             endDate = DEFAULT_END_DATE;
 
-        Date startDateParsed = sdfDate.parse(startDate);
+        Date startDateParsed = simpleDateFormat.parse(startDate);
         Date startDateMinusOneDay = new Date(startDateParsed.getTime() - (1000 * 60 * 60 * 24));
-        Date endDateParsed = sdfDate.parse(endDate);
+        Date endDateParsed = simpleDateFormat.parse(endDate);
         Date endDatePlusOneDay = new Date(endDateParsed.getTime() + (1000 * 60 * 60 * 24));
         if (startDateParsed.after(endDateParsed)) {
             throw new StartDateAfterEndDateException("Start date after end date");
         }
 
-        String startDateMinusOneDayFormatted = sdfDate.format(startDateMinusOneDay);
-        String endDatePlusOneDayFormatted = sdfDate.format(endDatePlusOneDay);
+        String startDateMinusOneDayFormatted = simpleDateFormat.format(startDateMinusOneDay);
+        String endDatePlusOneDayFormatted = simpleDateFormat.format(endDatePlusOneDay);
 
         List<GroupTrainings> groupTrainings = groupTrainingsRepository
                 .findByDateBetween(startDateMinusOneDayFormatted, endDatePlusOneDayFormatted);
@@ -197,6 +203,7 @@ public class GroupTrainingsDbRepositoryImpl {
         return publicResponse;
     }
 
+    @Override
     public GroupTrainingResponse getGroupTrainingById(String trainingId)
             throws InvalidHourException, InvalidDateException {
 
@@ -256,6 +263,7 @@ public class GroupTrainingsDbRepositoryImpl {
         );
     }
 
+    @Override
     public List<GroupTrainingResponse> getGroupTrainingsByTrainingTypeId(
             String trainingTypeId,
             String startDate,
@@ -268,16 +276,16 @@ public class GroupTrainingsDbRepositoryImpl {
         if (endDate == null)
             endDate = DEFAULT_END_DATE;
 
-        Date startDateParsed = sdfDate.parse(startDate);
+        Date startDateParsed = simpleDateFormat.parse(startDate);
         Date startDateMinusOneDay = new Date(startDateParsed.getTime() - (1000 * 60 * 60 * 24));
-        Date endDateParsed = sdfDate.parse(endDate);
+        Date endDateParsed = simpleDateFormat.parse(endDate);
         Date endDatePlusOneDay = new Date(endDateParsed.getTime() + (1000 * 60 * 60 * 24));
         if (startDateParsed.after(endDateParsed)) {
             throw new StartDateAfterEndDateException("Start date after end date");
         }
 
-        String startDateMinusOneDayFormatted = sdfDate.format(startDateMinusOneDay);
-        String endDatePlusOneDayFormatted = sdfDate.format(endDatePlusOneDay);
+        String startDateMinusOneDayFormatted = simpleDateFormat.format(startDateMinusOneDay);
+        String endDatePlusOneDayFormatted = simpleDateFormat.format(endDatePlusOneDay);
 
         List<GroupTrainings> groupTrainingsDbResponse = groupTrainingsRepository
                 .findAllByTrainingTypeIdAndDateBetween(
@@ -348,6 +356,7 @@ public class GroupTrainingsDbRepositoryImpl {
         return result;
     }
 
+    @Override
     public List<GroupTrainingPublicResponse> getGroupTrainingsPublicByTrainingTypeId(
             String trainingTypeId,
             String startDate,
@@ -360,16 +369,16 @@ public class GroupTrainingsDbRepositoryImpl {
         if (endDate == null)
             endDate = DEFAULT_END_DATE;
 
-        Date startDateParsed = sdfDate.parse(startDate);
+        Date startDateParsed = simpleDateFormat.parse(startDate);
         Date startDateMinusOneDay = new Date(startDateParsed.getTime() - (1000 * 60 * 60 * 24));
-        Date endDateParsed = sdfDate.parse(endDate);
+        Date endDateParsed = simpleDateFormat.parse(endDate);
         Date endDatePlusOneDay = new Date(endDateParsed.getTime() + (1000 * 60 * 60 * 24));
         if (startDateParsed.after(endDateParsed)) {
             throw new StartDateAfterEndDateException("Start date after end date");
         }
 
-        String startDateMinusOneDayFormatted = sdfDate.format(startDateMinusOneDay);
-        String endDatePlusOneDayFormatted = sdfDate.format(endDatePlusOneDay);
+        String startDateMinusOneDayFormatted = simpleDateFormat.format(startDateMinusOneDay);
+        String endDatePlusOneDayFormatted = simpleDateFormat.format(endDatePlusOneDay);
 
         List<GroupTrainings> dbResponse = groupTrainingsRepository
                 .findAllByTrainingTypeIdAndDateBetween(
@@ -415,6 +424,7 @@ public class GroupTrainingsDbRepositoryImpl {
         return result;
     }
 
+    @Override
     public List<GroupTrainingPublicResponse> getMyAllGroupTrainings(String clientId)
             throws InvalidDateException, InvalidHourException {
 
@@ -461,6 +471,7 @@ public class GroupTrainingsDbRepositoryImpl {
         return publicResponse;
     }
 
+    @Override
     public List<ParticipantsResponse> getTrainingParticipants(String trainingId) {
 
         List<ParticipantsResponse> participantsResponses = new ArrayList<>();
@@ -480,14 +491,17 @@ public class GroupTrainingsDbRepositoryImpl {
         return participantsResponses;
     }
 
+    @Override
     public boolean isGroupTrainingExist(String trainingId) {
         return groupTrainingsRepository.existsByTrainingId(trainingId);
     }
 
+    @Override
     public boolean isGroupTrainingExistByType(String trainingTypeId) {
         return groupTrainingsRepository.existsByTrainingTypeId(trainingTypeId);
     }
 
+    @Override
     public boolean isAbilityToGroupTrainingEnrollment(String trainingId) {
         SimpleDateFormat sdfDate = new SimpleDateFormat("yyyy-MM-dd");
         SimpleDateFormat sdfTime = new SimpleDateFormat("HH:mm");
@@ -519,6 +533,7 @@ public class GroupTrainingsDbRepositoryImpl {
         return isAbilityInTheFutureEvents || isAbilityInTheTodayEvents;
     }
 
+    @Override
     public boolean isClientAlreadyEnrolledToGroupTraining(String trainingId, String clientId) {
         List<UserDocument> participantsUsers = groupTrainingsRepository
                 .getFirstByTrainingId(trainingId)
@@ -530,6 +545,7 @@ public class GroupTrainingsDbRepositoryImpl {
         return usersIds.contains(clientId);
     }
 
+    @Override
     public boolean isClientAlreadyExistInReserveList(String trainingId, String clientId) {
         List<UserDocument> reserveListUsers = groupTrainingsRepository
                 .getFirstByTrainingId(trainingId)
@@ -541,6 +557,7 @@ public class GroupTrainingsDbRepositoryImpl {
         return usersIds.contains(clientId);
     }
 
+    @Override
     public void enrollToGroupTraining(String trainingId, String clientId) {
         GroupTrainings groupTrainings = groupTrainingsRepository.findFirstByTrainingId(trainingId);
         UserDocument newParticipant = userRepository.findByUserId(clientId);
@@ -550,6 +567,7 @@ public class GroupTrainingsDbRepositoryImpl {
         groupTrainingsRepository.save(groupTrainings);
     }
 
+    @Override
     public void addToReserveList(String trainingId, String clientId) {
         GroupTrainings groupTrainings = groupTrainingsRepository.findFirstByTrainingId(trainingId);
         UserDocument newReserveListParticipant = userRepository.findByUserId(clientId);
@@ -559,6 +577,7 @@ public class GroupTrainingsDbRepositoryImpl {
         groupTrainingsRepository.save(groupTrainings);
     }
 
+    @Override
     public void removeFromParticipants(String trainingId, String clientId) {
         GroupTrainings groupTrainings = groupTrainingsRepository.findFirstByTrainingId(trainingId);
         UserDocument participantToRemove = userRepository.findByUserId(clientId);
@@ -568,6 +587,7 @@ public class GroupTrainingsDbRepositoryImpl {
         groupTrainingsRepository.save(groupTrainings);
     }
 
+    @Override
     public void removeFromReserveList(String trainingId, String clientId) {
         GroupTrainings groupTrainings = groupTrainingsRepository.findFirstByTrainingId(trainingId);
         UserDocument reserveListParticipantToRemove = userRepository.findByUserId(clientId);
@@ -577,11 +597,12 @@ public class GroupTrainingsDbRepositoryImpl {
         groupTrainingsRepository.save(groupTrainings);
     }
 
+    @Override
     public boolean isAbilityToCreateTraining(GroupTrainingRequest groupTrainingModel) {
 
         MongoClient mongoClient = MongoClients.create(environment.getProperty("spring.data.mongodb.uri"));
-        mdb = mongoClient.getDatabase(environment.getProperty("spring.data.mongodb.database"));
-        MongoCollection collection = mdb.getCollection(GROUP_TRAININGS_COLLECTION_NAME);
+        mongoDatabase = mongoClient.getDatabase(environment.getProperty("spring.data.mongodb.database"));
+        MongoCollection collection = mongoDatabase.getCollection(GROUP_TRAININGS_COLLECTION_NAME);
 
         String date = groupTrainingModel.getDate();
         String startTime = groupTrainingModel.getStartTime();
@@ -621,11 +642,12 @@ public class GroupTrainingsDbRepositoryImpl {
         return !collection.aggregate(pipeline).cursor().hasNext();
     }
 
+    @Override
     public boolean isAbilityToUpdateTraining(String trainingId, GroupTrainingRequest groupTrainingModel) {
 
         MongoClient mongoClient = MongoClients.create(environment.getProperty("spring.data.mongodb.uri"));
-        mdb = mongoClient.getDatabase(environment.getProperty("spring.data.mongodb.database"));
-        MongoCollection collection = mdb.getCollection(GROUP_TRAININGS_COLLECTION_NAME);
+        mongoDatabase = mongoClient.getDatabase(environment.getProperty("spring.data.mongodb.database"));
+        MongoCollection collection = mongoDatabase.getCollection(GROUP_TRAININGS_COLLECTION_NAME);
 
         String date = groupTrainingModel.getDate();
         String startTime = groupTrainingModel.getStartTime();
@@ -666,6 +688,7 @@ public class GroupTrainingsDbRepositoryImpl {
         return !collection.aggregate(pipeline).cursor().hasNext();
     }
 
+    @Override
     public GroupTrainings createTraining(GroupTrainingRequest groupTrainingModel) throws InvalidHourException {
         String trainingId = UUID.randomUUID().toString();
         TrainingTypeDocument trainingType = trainingTypeRepository.findByTrainingTypeId(
@@ -701,12 +724,14 @@ public class GroupTrainingsDbRepositoryImpl {
         );
     }
 
+    @Override
     public GroupTrainings removeTraining(String trainingId) {
         GroupTrainings groupTrainings = groupTrainingsRepository.findFirstByTrainingId(trainingId);
         groupTrainingsRepository.removeByTrainingId(trainingId);
         return groupTrainings;
     }
 
+    @Override
     public GroupTrainings updateTraining(String trainingId, GroupTrainingRequest groupTrainingModelRequest)
             throws InvalidHourException {
 

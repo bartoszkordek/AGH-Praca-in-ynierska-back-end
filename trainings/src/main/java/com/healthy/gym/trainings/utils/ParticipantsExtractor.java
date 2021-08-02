@@ -1,5 +1,6 @@
 package com.healthy.gym.trainings.utils;
 
+import com.healthy.gym.trainings.data.document.GroupTrainingDocument;
 import com.healthy.gym.trainings.data.document.GroupTrainings;
 import com.healthy.gym.trainings.data.document.UserDocument;
 import com.healthy.gym.trainings.model.response.UserResponse;
@@ -17,12 +18,12 @@ public class ParticipantsExtractor {
         throw new IllegalStateException("Utility class");
     }
 
-    public static List<UserResponse> getBasicList(GroupTrainings training) {
-        List<UserDocument> participants = training.getParticipants();
+    public static List<UserResponse> getBasicList(GroupTrainingDocument training) {
+        List<UserDocument> participants = training.getBasicList();
         return getParticipants(participants);
     }
 
-    public static List<UserResponse> getReserveList(GroupTrainings training) {
+    public static List<UserResponse> getReserveList(GroupTrainingDocument training) {
         List<UserDocument> reserveList = training.getReserveList();
         return getParticipants(reserveList);
     }

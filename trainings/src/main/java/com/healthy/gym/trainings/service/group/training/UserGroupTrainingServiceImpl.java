@@ -84,10 +84,9 @@ public class UserGroupTrainingServiceImpl implements UserGroupTrainingService {
                             groupTraining.getTrainingId(),
                             groupTraining.getTrainingType().getName(),
                             null, //TODO fix groupTraining.getTrainerId(),
-                            groupTraining.getDate(),
-                            groupTraining.getStartTime(),
-                            groupTraining.getEndTime(),
-                            groupTraining.getHallNo(),
+                            null,//TODO fix groupTraining.getStartDate(),
+                            null,//TODO fix groupTraining.getEndDate(),
+                            null,//TODO fix groupTraining.getLocation().getName()
                             groupTraining.getLimit(),
                             rating
                     )

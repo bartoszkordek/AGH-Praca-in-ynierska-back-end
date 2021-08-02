@@ -126,99 +126,6 @@ public class ManagerGroupTrainingServiceImpl implements ManagerGroupTrainingServ
         return mapToGroupTrainingDTO(groupTrainingSaved);
     }
 
-    @Override
-    public GroupTrainingResponse createGroupTraining(GroupTrainingRequest groupTrainingModel)
-            throws TrainingCreationException, ParseException, InvalidHourException, InvalidDateException {
-
-        if (!isExistRequiredDataForGroupTraining(groupTrainingModel))
-            throw new TrainingCreationException("Cannot create new group training. Missing required data.");
-
-        String date = groupTrainingModel.getDate();
-        String startTime = groupTrainingModel.getStartTime();
-        String endTime = groupTrainingModel.getEndTime();
-        int hallNo = groupTrainingModel.getHallNo();
-        int limit = groupTrainingModel.getLimit();
-
-        if (isTrainingRetroDate(date))
-            throw new TrainingCreationException("Cannot create new group training. Training retro date.");
-
-        if (isStartTimeAfterEndTime(startTime, endTime))
-            throw new TrainingCreationException("Cannot create new group training. Start time after end time.");
-
-        if (isHallNoInvalid(hallNo))
-            throw new TrainingCreationException("Cannot create new group training. Invalid hall no.");
-
-        if (isLimitInvalid(limit))
-            throw new TrainingCreationException("Cannot create new group training. Invalid limit.");
-
-        if (!groupTrainingsDbRepositoryImpl.isAbilityToCreateTraining(groupTrainingModel))
-            throw new TrainingCreationException("Cannot create new group training. Overlapping trainings.");
-
-
-        String trainingId = UUID.randomUUID().toString();
-        TrainingTypeDocument trainingType = trainingTypeRepository.findByTrainingTypeId(
-                groupTrainingModel.getTrainingTypeId());
-
-        List<String> participantsIds = groupTrainingModel.getParticipants();
-        List<UserDocument> participants2 = new ArrayList<>();
-        for (String participantId : participantsIds) {
-            UserDocument participant = userDAO.findByUserId(participantId);
-            participants2.add(participant);
-        }
-
-        List<String> reserveListParticipantsIds = groupTrainingModel.getReserveList();
-        List<UserDocument> reserveList2 = new ArrayList<>();
-        for (String reserveListParticipantId : reserveListParticipantsIds) {
-            UserDocument reserveListParticipant = userDAO.findByUserId(reserveListParticipantId);
-            reserveList2.add(reserveListParticipant);
-        }
-
-        GroupTrainings repositoryResponse = groupTrainingsRepository.insert(
-                new GroupTrainings(
-                        trainingId,
-                        trainingType,
-                        null,//TODO fix groupTrainingModel.getTrainerId(),
-                        groupTrainingModel.getDate(),
-                        groupTrainingModel.getStartTime(),
-                        groupTrainingModel.getEndTime(),
-                        groupTrainingModel.getHallNo(),
-                        groupTrainingModel.getLimit(),
-                        participants2,
-                        reserveList2
-                )
-        );
-
-        List<UserDocument> participants = repositoryResponse.getParticipants();
-        List<UserResponse> participantsResponses = new ArrayList<>();
-        for (UserDocument participant : participants) {
-            UserResponse participantsResponse = new UserResponse(participant.getUserId(),
-                    participant.getName(), participant.getSurname());
-            participantsResponses.add(participantsResponse);
-        }
-
-        List<UserDocument> reserveList = repositoryResponse.getReserveList();
-        List<UserResponse> reserveListResponses = new ArrayList<>();
-        for (UserDocument reserveListParticipant : reserveList) {
-            UserResponse reserveListParticipantsResponse = new UserResponse(
-                    reserveListParticipant.getUserId(),
-                    reserveListParticipant.getName(),
-                    reserveListParticipant.getSurname());
-            reserveListResponses.add(reserveListParticipantsResponse);
-        }
-
-        return new GroupTrainingResponse(
-                repositoryResponse.getTrainingId(),
-                repositoryResponse.getTrainingType().getName(),
-                null,//TODO fix groupTrainingModel.getTrainerId(),,
-                repositoryResponse.getDate(),
-                repositoryResponse.getStartTime(),
-                repositoryResponse.getEndTime(),
-                repositoryResponse.getHallNo(),
-                repositoryResponse.getLimit(),
-                INITIAL_RATING,
-                participantsResponses,
-                reserveListResponses);
-    }
 
     @Override
     public GroupTrainingResponse updateGroupTraining(
@@ -299,13 +206,12 @@ public class ManagerGroupTrainingServiceImpl implements ManagerGroupTrainingServ
         }
 
         return new GroupTrainingResponse(
-                groupTrainings1.getTrainingId(),
-                groupTrainings1.getTrainingType().getName(),
+                null, //TODO fix groupTrainings1.getTrainingId(),
+                null, //TODO fix groupTrainings1.getTrainingType().getName(),
                 null, //TODO fix groupTrainings1.getTrainerId(),
-                groupTrainings1.getDate(),
-                groupTrainings1.getStartTime(),
-                groupTrainings1.getEndTime(),
-                groupTrainings1.getHallNo(),
+                null, //TODO fix groupTrainings1.getStartDate(),
+                null, //TODO fix groupTrainings1.getEndTime(),
+                null, //TODO fix groupTrainings1.getHallNo(),
                 groupTrainings1.getLimit(),
                 INITIAL_RATING,
                 participantsResponses,
@@ -350,13 +256,12 @@ public class ManagerGroupTrainingServiceImpl implements ManagerGroupTrainingServ
         }
 
         return new GroupTrainingResponse(
-                repositoryResponse.getTrainingId(),
-                repositoryResponse.getTrainingType().getName(),
-                null, //TODO fix repositoryResponse.getTrainerId(),
-                repositoryResponse.getDate(),
-                repositoryResponse.getStartTime(),
-                repositoryResponse.getEndTime(),
-                repositoryResponse.getHallNo(),
+                null, //TODO fix groupTrainings1.getTrainingId(),
+                null, //TODO fix groupTrainings1.getTrainingType().getName(),
+                null, //TODO fix groupTrainings1.getTrainerId(),
+                null, //TODO fix groupTrainings1.getStartDate(),
+                null, //TODO fix groupTrainings1.getEndTime(),
+                null, //TODO fix groupTrainings1.getHallNo(),
                 repositoryResponse.getLimit(),
                 INITIAL_RATING,
                 participantsResponses,

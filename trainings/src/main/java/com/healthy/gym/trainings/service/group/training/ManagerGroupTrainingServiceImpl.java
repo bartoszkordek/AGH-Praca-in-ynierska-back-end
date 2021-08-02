@@ -44,7 +44,7 @@ public class ManagerGroupTrainingServiceImpl implements ManagerGroupTrainingServ
     private final TrainingTypeDAO trainingTypeDAO;
     private final LocationDAO locationDAO;
     private final UserDAO userDAO;
-    private final GroupTrainingsDbRepository groupTrainingsDbRepository;
+    private final GroupTrainingsDbRepositoryImpl groupTrainingsDbRepositoryImpl;
     private final EmailSender emailSender;
     private final Clock clock;
 
@@ -54,7 +54,7 @@ public class ManagerGroupTrainingServiceImpl implements ManagerGroupTrainingServ
             TrainingTypeDAO trainingTypeDAO,
             LocationDAO locationDAO,
             UserDAO userDAO,
-            GroupTrainingsDbRepository groupTrainingsDbRepository,
+            GroupTrainingsDbRepositoryImpl groupTrainingsDbRepositoryImpl,
             EmailSender emailSender,
             Clock clock
     ) {
@@ -62,7 +62,7 @@ public class ManagerGroupTrainingServiceImpl implements ManagerGroupTrainingServ
         this.trainingTypeDAO = trainingTypeDAO;
         this.locationDAO = locationDAO;
         this.userDAO = userDAO;
-        this.groupTrainingsDbRepository = groupTrainingsDbRepository;
+        this.groupTrainingsDbRepositoryImpl = groupTrainingsDbRepositoryImpl;
         this.emailSender = emailSender;
         this.clock = clock;
     }
@@ -145,10 +145,10 @@ public class ManagerGroupTrainingServiceImpl implements ManagerGroupTrainingServ
         if (isLimitInvalid(limit))
             throw new TrainingCreationException("Cannot create new group training. Invalid limit.");
 
-        if (!groupTrainingsDbRepository.isAbilityToCreateTraining(groupTrainingModel))
+        if (!groupTrainingsDbRepositoryImpl.isAbilityToCreateTraining(groupTrainingModel))
             throw new TrainingCreationException("Cannot create new group training. Overlapping trainings.");
 
-        GroupTrainings repositoryResponse = groupTrainingsDbRepository.createTraining(groupTrainingModel);
+        GroupTrainings repositoryResponse = groupTrainingsDbRepositoryImpl.createTraining(groupTrainingModel);
 
         List<UserDocument> participants = repositoryResponse.getParticipants();
         List<ParticipantsResponse> participantsResponses = new ArrayList<>();
@@ -187,7 +187,7 @@ public class ManagerGroupTrainingServiceImpl implements ManagerGroupTrainingServ
             throws TrainingUpdateException, EmailSendingException,
             InvalidHourException, ParseException, InvalidDateException {
 
-        if (!groupTrainingsDbRepository.isGroupTrainingExist(trainingId))
+        if (!groupTrainingsDbRepositoryImpl.isGroupTrainingExist(trainingId))
             throw new TrainingUpdateException("Training with ID: " + trainingId + " doesn't exist");
 
         String date = groupTrainingModelRequest.getDate();
@@ -208,10 +208,10 @@ public class ManagerGroupTrainingServiceImpl implements ManagerGroupTrainingServ
         if (isLimitInvalid(limit))
             throw new TrainingUpdateException("Cannot update group training. Invalid limit.");
 
-        if (!groupTrainingsDbRepository.isAbilityToUpdateTraining(trainingId, groupTrainingModelRequest))
+        if (!groupTrainingsDbRepositoryImpl.isAbilityToUpdateTraining(trainingId, groupTrainingModelRequest))
             throw new TrainingUpdateException("Cannot update group training. Overlapping trainings.");
 
-        GroupTrainings repositoryResponse = groupTrainingsDbRepository
+        GroupTrainings repositoryResponse = groupTrainingsDbRepositoryImpl
                 .updateTraining(trainingId, groupTrainingModelRequest);
 
         List<UserDocument> participants = repositoryResponse.getParticipants();
@@ -260,10 +260,10 @@ public class ManagerGroupTrainingServiceImpl implements ManagerGroupTrainingServ
     public GroupTrainingResponse removeGroupTraining(String trainingId)
             throws TrainingRemovalException, EmailSendingException, InvalidDateException, InvalidHourException {
 
-        if (!groupTrainingsDbRepository.isGroupTrainingExist(trainingId))
+        if (!groupTrainingsDbRepositoryImpl.isGroupTrainingExist(trainingId))
             throw new TrainingRemovalException("Training with ID: " + trainingId + " doesn't exist");
 
-        GroupTrainings repositoryResponse = groupTrainingsDbRepository.removeTraining(trainingId);
+        GroupTrainings repositoryResponse = groupTrainingsDbRepositoryImpl.removeTraining(trainingId);
 
         List<UserDocument> participants = repositoryResponse.getParticipants();
         List<ParticipantsResponse> participantsResponses = new ArrayList<>();

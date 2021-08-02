@@ -29,7 +29,7 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 @Repository
-public class GroupTrainingsDbRepository {
+public class GroupTrainingsDbRepositoryImpl {
 
     private static final String DEFAULT_START_DATE = "1900-01-01";
     private static final String DEFAULT_END_DATE = "2099-12-31";
@@ -52,7 +52,7 @@ public class GroupTrainingsDbRepository {
     private MongoConfig mongoConfig;
     private MongoDatabase mdb;
 
-    public GroupTrainingsDbRepository() {
+    public GroupTrainingsDbRepositoryImpl() {
         int size = 1000000;
         int page = 0;
         paging = PageRequest.of(page, size);

@@ -4,7 +4,7 @@ import com.healthy.gym.trainings.configuration.EmailConfig;
 import com.healthy.gym.trainings.data.document.GroupTrainings;
 import com.healthy.gym.trainings.data.document.TrainingTypeDocument;
 import com.healthy.gym.trainings.data.document.UserDocument;
-import com.healthy.gym.trainings.data.repository.GroupTrainingsDbRepository;
+import com.healthy.gym.trainings.data.repository.GroupTrainingsDbRepositoryImpl;
 import com.healthy.gym.trainings.data.repository.TrainingTypeDAO;
 import com.healthy.gym.trainings.exception.EmailSendingException;
 import com.healthy.gym.trainings.exception.training.TrainingRemovalException;
@@ -39,9 +39,9 @@ public class RemoveGroupTrainingService {
     public void shouldRemoveGroupTraining_whenTrainingExists() throws InvalidDateException, InvalidHourException, TrainingRemovalException, EmailSendingException {
         //mocks
         EmailConfig emailConfig = Mockito.mock(EmailConfig.class);
-        GroupTrainingsDbRepository groupTrainingsDbRepository = Mockito.mock(GroupTrainingsDbRepository.class);
+        GroupTrainingsDbRepositoryImpl groupTrainingsDbRepositoryImpl = Mockito.mock(GroupTrainingsDbRepositoryImpl.class);
         TrainingTypeDAO trainingTypeRepository = Mockito.mock(TrainingTypeDAO.class);
-        GroupTrainingService groupTrainingService = new GroupTrainingServiceImpl(emailConfig, groupTrainingsDbRepository,
+        GroupTrainingService groupTrainingService = new GroupTrainingServiceImpl(emailConfig, groupTrainingsDbRepositoryImpl,
                 trainingTypeRepository);
 
         //before
@@ -74,8 +74,8 @@ public class RemoveGroupTrainingService {
                 date, startTime, endTime, hallNo, limit, rating, participantsResponses, reserveListResponses);
 
         //when
-        when(groupTrainingsDbRepository.isGroupTrainingExist(trainingId)).thenReturn(true);
-        when(groupTrainingsDbRepository.removeTraining(trainingId)).thenReturn(groupTraining);
+        when(groupTrainingsDbRepositoryImpl.isGroupTrainingExist(trainingId)).thenReturn(true);
+        when(groupTrainingsDbRepositoryImpl.removeTraining(trainingId)).thenReturn(groupTraining);
 
         //then
         //TODO
@@ -87,9 +87,9 @@ public class RemoveGroupTrainingService {
     public void shouldNotRemoveGroupTraining_whenInvalidTrainingId() throws InvalidDateException, InvalidHourException, TrainingRemovalException, EmailSendingException {
         //mocks
         EmailConfig emailConfig = Mockito.mock(EmailConfig.class);
-        GroupTrainingsDbRepository groupTrainingsDbRepository = Mockito.mock(GroupTrainingsDbRepository.class);
+        GroupTrainingsDbRepositoryImpl groupTrainingsDbRepositoryImpl = Mockito.mock(GroupTrainingsDbRepositoryImpl.class);
         TrainingTypeDAO trainingTypeRepository = Mockito.mock(TrainingTypeDAO.class);
-        GroupTrainingService groupTrainingService = new GroupTrainingServiceImpl(emailConfig, groupTrainingsDbRepository,
+        GroupTrainingService groupTrainingService = new GroupTrainingServiceImpl(emailConfig, groupTrainingsDbRepositoryImpl,
                 trainingTypeRepository);
 
         //before
@@ -126,8 +126,8 @@ public class RemoveGroupTrainingService {
                 date, startTime, endTime, hallNo, limit, rating, participantsResponses, reserveListResponses);
 
         //when
-        when(groupTrainingsDbRepository.isGroupTrainingExist(trainingId)).thenReturn(false);
-        when(groupTrainingsDbRepository.removeTraining(trainingId)).thenReturn(groupTraining);
+        when(groupTrainingsDbRepositoryImpl.isGroupTrainingExist(trainingId)).thenReturn(false);
+        when(groupTrainingsDbRepositoryImpl.removeTraining(trainingId)).thenReturn(groupTraining);
 
         //then
         //TODO

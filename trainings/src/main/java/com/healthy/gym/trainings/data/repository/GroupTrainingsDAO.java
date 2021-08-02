@@ -10,7 +10,6 @@ import java.util.List;
 
 public interface GroupTrainingsDAO extends MongoRepository<GroupTrainingDocument, String> {
 
-    //GroupTrainingDocument getFirstById(String trainingId);
     GroupTrainingDocument findFirstByGroupTrainingId(String trainingId);
 
     List<GroupTrainingDocument> findByStartDateAfterAndEndDateBefore(LocalDateTime startDate,

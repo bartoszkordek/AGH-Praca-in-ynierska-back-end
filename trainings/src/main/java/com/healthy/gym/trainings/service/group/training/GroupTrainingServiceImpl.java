@@ -24,6 +24,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import javax.validation.constraints.NotNull;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
@@ -197,7 +198,67 @@ public class GroupTrainingServiceImpl implements GroupTrainingService {
         if (!groupTrainingsRepository.existsByTrainingTypeId(trainingTypeId)) {
             throw new NotExistingGroupTrainingException("Trainings with type ID " + trainingTypeId + " does not exist");
         }
-        return groupTrainingsDbRepositoryImpl.getGroupTrainingsPublicByTrainingTypeId(trainingTypeId, startDate, endDate);
+
+        List<GroupTrainings> groupTrainingsList =
+                getGroupTrainingsByTrainingTypeIdAndDates(trainingTypeId, startDate, endDate);
+        double rating = getRatingForGroupTrainingList(groupTrainingsList);
+
+        List<GroupTrainingPublicResponse> result = new ArrayList<>();
+        for (GroupTrainings training : groupTrainingsList) {
+            GroupTrainingPublicResponse groupTraining = new GroupTrainingPublicResponse(
+                    training.getTrainingId(),
+                    training.getTrainingType().getName(),
+                    null, //TODO fix training.getTrainerId(),
+                    training.getDate(),
+                    training.getStartTime(),
+                    training.getEndTime(),
+                    training.getHallNo(),
+                    training.getLimit(),
+                    rating
+            );
+            result.add(groupTraining);
+        }
+        return result;
+    }
+
+    private List<GroupTrainings> getGroupTrainingsByTrainingTypeIdAndDates(
+            String trainingTypeId,
+            String startDate,
+            String endDate
+    ) throws ParseException, StartDateAfterEndDateException {
+
+        var dates = new DateFormatter(startDate, endDate);
+        String dayBeforeStartDate = dates.getFormattedDayDateBeforeStartDate();
+        String dayAfterEndDate = dates.getFormattedDayDateAfterEndDate();
+
+        return groupTrainingsRepository
+                .findAllByTrainingTypeIdAndDateBetween(
+                        trainingTypeId,
+                        dayBeforeStartDate,
+                        dayAfterEndDate
+                );
+    }
+
+    private double getRatingForGroupTrainingList(@NotNull List<GroupTrainings> groupTrainingsList) {
+        double rating = 0.0;
+        if (!groupTrainingsList.isEmpty()) {
+            List<GroupTrainingReviewResponse> groupTrainingsReviews = reviewDAO
+                    .findByDateBetweenAndTrainingTypeId(
+                            null,
+                            null,
+                            groupTrainingsList.get(0).getTrainingType().getTrainingTypeId(),
+                            paging
+                    ).getContent();
+
+            double sum = 0;
+            int counter = 0;
+            for (GroupTrainingReviewResponse review : groupTrainingsReviews) {
+                sum += review.getStars();
+                counter++;
+            }
+            if (counter != 0) rating = sum / counter;
+        }
+        return rating;
     }
 
     @Override

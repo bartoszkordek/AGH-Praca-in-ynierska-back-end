@@ -4,7 +4,6 @@ import com.healthy.gym.trainings.exception.StartDateAfterEndDateException;
 import com.healthy.gym.trainings.exception.invalid.InvalidDateException;
 import com.healthy.gym.trainings.exception.invalid.InvalidHourException;
 import com.healthy.gym.trainings.model.request.GroupTrainingRequest;
-import com.healthy.gym.trainings.model.response.GroupTrainingPublicResponse;
 import com.healthy.gym.trainings.model.response.GroupTrainingResponse;
 
 import java.text.ParseException;
@@ -15,16 +14,7 @@ public interface GroupTrainingsDbRepository {
     List<GroupTrainingResponse> getGroupTrainings(String startDate, String endDate)
             throws InvalidHourException, StartDateAfterEndDateException, ParseException, InvalidDateException;
 
-    GroupTrainingResponse getGroupTrainingById(String trainingId)
-            throws InvalidHourException, InvalidDateException;
-
     List<GroupTrainingResponse> getGroupTrainingsByTrainingTypeId(
-            String trainingTypeId,
-            String startDate,
-            String endDate
-    ) throws ParseException, StartDateAfterEndDateException, InvalidDateException, InvalidHourException;
-
-    List<GroupTrainingPublicResponse> getGroupTrainingsPublicByTrainingTypeId(
             String trainingTypeId,
             String startDate,
             String endDate

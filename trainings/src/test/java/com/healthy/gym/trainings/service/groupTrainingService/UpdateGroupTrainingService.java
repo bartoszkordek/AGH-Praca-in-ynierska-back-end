@@ -1,10 +1,8 @@
 package com.healthy.gym.trainings.service.groupTrainingService;
 
-import com.healthy.gym.trainings.configuration.EmailConfig;
 import com.healthy.gym.trainings.data.document.GroupTrainings;
 import com.healthy.gym.trainings.data.document.TrainingTypeDocument;
 import com.healthy.gym.trainings.data.document.UserDocument;
-import com.healthy.gym.trainings.data.repository.GroupTrainingsDbRepositoryImpl;
 import com.healthy.gym.trainings.data.repository.GroupTrainingsRepository;
 import com.healthy.gym.trainings.data.repository.ReviewDAO;
 import com.healthy.gym.trainings.data.repository.TrainingTypeDAO;
@@ -37,8 +35,6 @@ public class UpdateGroupTrainingService {
     @Autowired
     ApplicationContext applicationContext;
 
-    private EmailConfig emailConfig;
-    private GroupTrainingsDbRepositoryImpl groupTrainingsDbRepositoryImpl;
     private TrainingTypeDAO trainingTypeRepository;
     private GroupTrainingsRepository groupTrainingsRepository;
     private ReviewDAO reviewDAO;
@@ -46,14 +42,10 @@ public class UpdateGroupTrainingService {
 
     @Before
     public void setUp() throws Exception {
-        emailConfig = mock(EmailConfig.class);
-        groupTrainingsDbRepositoryImpl = mock(GroupTrainingsDbRepositoryImpl.class);
         trainingTypeRepository = mock(TrainingTypeDAO.class);
         groupTrainingsRepository = mock(GroupTrainingsRepository.class);
         reviewDAO = mock(ReviewDAO.class);
         groupTrainingService = new GroupTrainingServiceImpl(
-                emailConfig,
-                groupTrainingsDbRepositoryImpl,
                 trainingTypeRepository,
                 groupTrainingsRepository,
                 reviewDAO
@@ -136,8 +128,8 @@ public class UpdateGroupTrainingService {
 
         //when
         when(groupTrainingsRepository.existsByTrainingId(trainingId)).thenReturn(true);
-        when(groupTrainingsDbRepositoryImpl.isAbilityToUpdateTraining(trainingId, groupTrainingUpdateRequest))
-                .thenReturn(true);
+//        when(groupTrainingsDbRepositoryImpl.isAbilityToUpdateTraining(trainingId, groupTrainingUpdateRequest))
+//                .thenReturn(true);
         // TODO Fix Test
 //        when(groupTrainingsDbRepositoryImpl.updateTraining(trainingId, groupTrainingUpdateRequest))
 //                .thenReturn(groupTrainingAfterUpdate);
@@ -220,8 +212,8 @@ public class UpdateGroupTrainingService {
 
         //when
         when(groupTrainingsRepository.existsByTrainingId(trainingId)).thenReturn(false);
-        when(groupTrainingsDbRepositoryImpl.isAbilityToUpdateTraining(trainingId, groupTrainingUpdateRequest))
-                .thenReturn(true);
+//        when(groupTrainingsDbRepositoryImpl.isAbilityToUpdateTraining(trainingId, groupTrainingUpdateRequest))
+//                .thenReturn(true);
         // TODO fix test
 //        when(groupTrainingsDbRepositoryImpl.updateTraining(trainingId, groupTrainingUpdateRequest))
 //                .thenReturn(groupTrainingAfterUpdate);
@@ -304,8 +296,8 @@ public class UpdateGroupTrainingService {
 
         //when
         when(groupTrainingsRepository.existsByTrainingId(trainingId)).thenReturn(true);
-        when(groupTrainingsDbRepositoryImpl.isAbilityToUpdateTraining(trainingId, groupTrainingUpdateRequest))
-                .thenReturn(false);
+//        when(groupTrainingsDbRepositoryImpl.isAbilityToUpdateTraining(trainingId, groupTrainingUpdateRequest))
+//                .thenReturn(false);
 
         //TODO fix test
 //        when(groupTrainingsDbRepositoryImpl.updateTraining(trainingId, groupTrainingUpdateRequest))

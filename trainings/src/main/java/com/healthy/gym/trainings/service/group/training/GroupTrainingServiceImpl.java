@@ -1,9 +1,7 @@
 package com.healthy.gym.trainings.service.group.training;
 
-import com.healthy.gym.trainings.configuration.EmailConfig;
 import com.healthy.gym.trainings.data.document.GroupTrainings;
 import com.healthy.gym.trainings.data.document.UserDocument;
-import com.healthy.gym.trainings.data.repository.GroupTrainingsDbRepositoryImpl;
 import com.healthy.gym.trainings.data.repository.GroupTrainingsRepository;
 import com.healthy.gym.trainings.data.repository.ReviewDAO;
 import com.healthy.gym.trainings.data.repository.TrainingTypeDAO;
@@ -12,12 +10,10 @@ import com.healthy.gym.trainings.exception.invalid.InvalidDateException;
 import com.healthy.gym.trainings.exception.invalid.InvalidHourException;
 import com.healthy.gym.trainings.exception.notexisting.NotExistingGroupTrainingException;
 import com.healthy.gym.trainings.exception.notfound.TrainingTypeNotFoundException;
-import com.healthy.gym.trainings.model.other.EmailSendModel;
 import com.healthy.gym.trainings.model.response.GroupTrainingPublicResponse;
 import com.healthy.gym.trainings.model.response.GroupTrainingResponse;
 import com.healthy.gym.trainings.model.response.GroupTrainingReviewResponse;
 import com.healthy.gym.trainings.model.response.UserResponse;
-import com.healthy.gym.trainings.service.email.EmailService;
 import com.healthy.gym.trainings.utils.DateFormatter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
@@ -35,8 +31,6 @@ import static com.healthy.gym.trainings.utils.ParticipantsExtractor.getReserveLi
 @Service
 public class GroupTrainingServiceImpl implements GroupTrainingService {
 
-    private final EmailConfig emailConfig;
-    private final GroupTrainingsDbRepositoryImpl groupTrainingsDbRepositoryImpl;
     private final TrainingTypeDAO trainingTypeRepository;
     private final GroupTrainingsRepository groupTrainingsRepository;
     private final ReviewDAO reviewDAO;
@@ -44,45 +38,46 @@ public class GroupTrainingServiceImpl implements GroupTrainingService {
 
     @Autowired
     public GroupTrainingServiceImpl(
-            EmailConfig emailConfig,
-            GroupTrainingsDbRepositoryImpl groupTrainingsDbRepositoryImpl,
             TrainingTypeDAO trainingTypeRepository,
             GroupTrainingsRepository groupTrainingsRepository,
             ReviewDAO reviewDAO
     ) {
-        this.emailConfig = emailConfig;
-        this.groupTrainingsDbRepositoryImpl = groupTrainingsDbRepositoryImpl;
         this.trainingTypeRepository = trainingTypeRepository;
         this.groupTrainingsRepository = groupTrainingsRepository;
         this.reviewDAO = reviewDAO;
         this.paging = PageRequest.of(0, 1000000);
     }
 
-    private void sendEmailWithoutAttachment(List<String> recipients, String subject, String body) {
-        String fromEmail = emailConfig.getEmailName();
-        String personal = emailConfig.getEmailPersonal();
-        String password = emailConfig.getEmailPassword();
-        String filePath = null;
-        EmailSendModel emailSendModel = new EmailSendModel(
-                fromEmail,
-                personal,
-                recipients,
-                password,
-                subject,
-                body,
-                filePath
-        );
-        EmailService emailService = new EmailService();
-        String host = emailConfig.getSmtpHost();
-        String port = emailConfig.getSmtpPort();
-        emailService.overrideDefaultSmptCredentials(host, port);
-        emailService.sendEmailTLS(emailSendModel);
-    }
-
     @Override
     public List<GroupTrainingResponse> getGroupTrainings(String startDate, String endDate)
             throws InvalidHourException, StartDateAfterEndDateException, ParseException, InvalidDateException {
-        return groupTrainingsDbRepositoryImpl.getGroupTrainings(startDate, endDate);
+
+        var dates = new DateFormatter(startDate, endDate);
+        String dayBeforeStartDate = dates.getFormattedDayDateBeforeStartDate();
+        String dayAfterEndDate = dates.getFormattedDayDateAfterEndDate();
+
+        List<GroupTrainings> groupTrainingsDbResponse = groupTrainingsRepository
+                .findByDateBetween(dayBeforeStartDate, dayAfterEndDate);
+
+        List<GroupTrainingResponse> result = new ArrayList<>();
+        for (GroupTrainings training : groupTrainingsDbResponse) {
+
+            GroupTrainingResponse groupTraining = new GroupTrainingResponse(
+                    training.getTrainingId(),
+                    training.getTrainingType().getName(),
+                    null, //TODO fix training.getTrainerId(),
+                    training.getDate(),
+                    training.getStartTime(),
+                    training.getEndTime(),
+                    training.getHallNo(),
+                    training.getLimit(),
+                    getRatingForGroupTrainings(training),
+                    getBasicList(training),
+                    getReserveList(training)
+            );
+            result.add(groupTraining);
+        }
+        return result;
     }
 
     @Override
@@ -178,7 +173,29 @@ public class GroupTrainingServiceImpl implements GroupTrainingService {
             throw new NotExistingGroupTrainingException("Trainings with type ID " + trainingTypeId + " does not exist");
         }
 
-        return groupTrainingsDbRepositoryImpl.getGroupTrainingsByTrainingTypeId(trainingTypeId, startDate, endDate);
+        List<GroupTrainings> groupTrainingsList =
+                getGroupTrainingsByTrainingTypeIdAndDates(trainingTypeId, startDate, endDate);
+        double rating = getRatingForGroupTrainingList(groupTrainingsList);
+
+        List<GroupTrainingResponse> result = new ArrayList<>();
+        for (GroupTrainings training : groupTrainingsList) {
+
+            GroupTrainingResponse groupTraining = new GroupTrainingResponse(
+                    training.getTrainingId(),
+                    training.getTrainingType().getName(),
+                    null, //TODO fix training.getTrainerId(),
+                    training.getDate(),
+                    training.getStartTime(),
+                    training.getEndTime(),
+                    training.getHallNo(),
+                    training.getLimit(),
+                    rating,
+                    getBasicList(training),
+                    getReserveList(training)
+            );
+            result.add(groupTraining);
+        }
+        return result;
     }
 
     @Override

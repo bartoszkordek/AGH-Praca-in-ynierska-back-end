@@ -1,10 +1,8 @@
 package com.healthy.gym.trainings.service.groupTrainingService;
 
-import com.healthy.gym.trainings.configuration.EmailConfig;
 import com.healthy.gym.trainings.data.document.GroupTrainings;
 import com.healthy.gym.trainings.data.document.TrainingTypeDocument;
 import com.healthy.gym.trainings.data.document.UserDocument;
-import com.healthy.gym.trainings.data.repository.GroupTrainingsDbRepositoryImpl;
 import com.healthy.gym.trainings.data.repository.GroupTrainingsRepository;
 import com.healthy.gym.trainings.data.repository.ReviewDAO;
 import com.healthy.gym.trainings.data.repository.TrainingTypeDAO;
@@ -37,8 +35,6 @@ public class RemoveGroupTrainingService {
     @Autowired
     private ApplicationContext applicationContext;
 
-    private EmailConfig emailConfig;
-    private GroupTrainingsDbRepositoryImpl groupTrainingsDbRepositoryImpl;
     private TrainingTypeDAO trainingTypeRepository;
     private GroupTrainingsRepository groupTrainingsRepository;
     private ReviewDAO reviewDAO;
@@ -46,14 +42,10 @@ public class RemoveGroupTrainingService {
 
     @Before
     public void setUp() throws Exception {
-        emailConfig = mock(EmailConfig.class);
-        groupTrainingsDbRepositoryImpl = mock(GroupTrainingsDbRepositoryImpl.class);
         trainingTypeRepository = mock(TrainingTypeDAO.class);
         groupTrainingsRepository = mock(GroupTrainingsRepository.class);
         reviewDAO = mock(ReviewDAO.class);
         groupTrainingService = new GroupTrainingServiceImpl(
-                emailConfig,
-                groupTrainingsDbRepositoryImpl,
                 trainingTypeRepository,
                 groupTrainingsRepository,
                 reviewDAO

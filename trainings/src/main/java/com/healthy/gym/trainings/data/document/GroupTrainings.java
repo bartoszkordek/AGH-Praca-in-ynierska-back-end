@@ -18,7 +18,8 @@ public class GroupTrainings {
     private String trainingId;
     @DBRef
     private TrainingTypeDocument trainingType;
-    private String trainerId;
+    @DBRef
+    private List<UserDocument> trainers;
     private String date;
     private String startTime;
     private String endTime;
@@ -36,7 +37,7 @@ public class GroupTrainings {
     public GroupTrainings(
             String trainingId,
             TrainingTypeDocument trainingType,
-            String trainerId,
+            List<UserDocument> trainers,
             String date,
             String startTime,
             String endTime,
@@ -51,7 +52,7 @@ public class GroupTrainings {
 
         this.trainingId = trainingId;
         this.trainingType = trainingType;
-        this.trainerId = trainerId;
+        this.trainers = trainers;
         this.date = date;
         this.startTime = startTime;
         this.endTime = endTime;
@@ -67,7 +68,7 @@ public class GroupTrainings {
                 "id='" + id + '\'' +
                 ", trainingId='" + trainingId + '\'' +
                 ", trainingType='" + trainingType + '\'' +
-                ", trainerId='" + trainerId + '\'' +
+                ", trainers='" + trainers + '\'' +
                 ", date='" + date + '\'' +
                 ", startTime='" + startTime + '\'' +
                 ", endTime='" + endTime + '\'' +
@@ -88,7 +89,7 @@ public class GroupTrainings {
                 Objects.equals(id, that.id) &&
                 Objects.equals(trainingId, that.trainingId) &&
                 Objects.equals(trainingType, that.trainingType) &&
-                Objects.equals(trainerId, that.trainerId) &&
+                Objects.equals(trainers, that.trainers) &&
                 Objects.equals(date, that.date) &&
                 Objects.equals(startTime, that.startTime) &&
                 Objects.equals(endTime, that.endTime) &&
@@ -102,7 +103,7 @@ public class GroupTrainings {
                 id,
                 trainingId,
                 trainingType,
-                trainerId,
+                trainers,
                 date,
                 startTime,
                 endTime,
@@ -137,12 +138,12 @@ public class GroupTrainings {
         this.trainingType = trainingType;
     }
 
-    public String getTrainerId() {
-        return trainerId;
+    public List<UserDocument> getTrainers() {
+        return trainers;
     }
 
-    public void setTrainerId(String trainerId) {
-        this.trainerId = trainerId;
+    public void setTrainers(List<UserDocument> trainers) {
+        this.trainers = trainers;
     }
 
     public String getDate() {

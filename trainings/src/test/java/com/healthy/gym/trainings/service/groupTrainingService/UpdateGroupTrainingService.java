@@ -14,7 +14,7 @@ import com.healthy.gym.trainings.exception.training.TrainingCreationException;
 import com.healthy.gym.trainings.exception.training.TrainingUpdateException;
 import com.healthy.gym.trainings.model.request.GroupTrainingRequest;
 import com.healthy.gym.trainings.model.response.GroupTrainingResponse;
-import com.healthy.gym.trainings.model.response.ParticipantsResponse;
+import com.healthy.gym.trainings.model.response.UserResponse;
 import com.healthy.gym.trainings.service.group.training.GroupTrainingService;
 import com.healthy.gym.trainings.service.group.training.GroupTrainingServiceImpl;
 import org.junit.Ignore;
@@ -57,7 +57,9 @@ public class UpdateGroupTrainingService {
         String id = "507f1f77bcf86cd799439011";
         String trainingId = "122ed953-e37f-435a-bd1e-9fb2a327c4d3";
         String trainingTypeId = "222ed952-es7f-435a-bd1e-9fb2a327c4dk";
-        String trainerId = "Test Trainer";
+        String trainerId = "100ed952-es7f-435a-bd1e-9fb2a327c4dk";
+        List<String> trainersIds = new ArrayList<>();
+        trainersIds.add(trainerId);
         String date = "2030-07-01";
         String startTimeBeforeUpdate = "18:00";
         String endTimeBeforeUpdate = "19:00";
@@ -69,7 +71,7 @@ public class UpdateGroupTrainingService {
         int limitAfterUpdate = 20;
         List<String> participants = new ArrayList<>();
         List<String> reserveList = new ArrayList<>();
-        GroupTrainingRequest groupTrainingUpdateRequest = new GroupTrainingRequest(trainingTypeId, trainerId, date,
+        GroupTrainingRequest groupTrainingUpdateRequest = new GroupTrainingRequest(trainingTypeId, trainersIds, date,
                 startTimeAfterUpdate, endTimeAfterUpdate, hallNoAfterUpdate, limitAfterUpdate, participants,
                 reserveList);
 
@@ -79,23 +81,45 @@ public class UpdateGroupTrainingService {
         TrainingTypeDocument trainingType = new TrainingTypeDocument(trainingTypeId, trainingName, trainingDescription,
                 trainingDuration, null);
 
+        List<UserDocument> trainersDocuments = new ArrayList<>();
+        String trainer1Name = "John";
+        String trainer1Surname = "Smith";
+        String trainer1Email = "sample@trainer.com";
+        String trainer1PhoneNumber = "666222333";
+        String trainer1EncryptedPassword = "encrypted_password123!";
+        String trainer1UserId = "100ed952-es7f-435a-bd1e-9fb2a327c4dk";
+        UserDocument trainer1Document = new UserDocument(
+                trainer1Name,
+                trainer1Surname,
+                trainer1Email,
+                trainer1PhoneNumber,
+                trainer1EncryptedPassword,
+                trainer1UserId);
+        trainer1Document.setId("507f191e810c19729de860ea");
+        trainersDocuments.add(trainer1Document);
+
         List<UserDocument> participantDocuments = new ArrayList<>();
         List<UserDocument> reserveListDocuments = new ArrayList<>();
-        GroupTrainings groupTrainingBeforeUpdate = new GroupTrainings(trainingId, trainingType, trainerId,
+        GroupTrainings groupTrainingBeforeUpdate = new GroupTrainings(trainingId, trainingType, trainersDocuments,
                 date, startTimeBeforeUpdate, endTimeBeforeUpdate, hallNoBeforeUpdate, limitBeforeUpdate,
                 participantDocuments, reserveListDocuments);
         groupTrainingBeforeUpdate.setId(id);
 
-        GroupTrainings groupTrainingAfterUpdate = new GroupTrainings(trainingId, trainingType, trainerId,
+        GroupTrainings groupTrainingAfterUpdate = new GroupTrainings(trainingId, trainingType, trainersDocuments,
                 date, startTimeAfterUpdate, endTimeAfterUpdate, hallNoAfterUpdate, limitAfterUpdate,
                 participantDocuments, reserveListDocuments);
         groupTrainingAfterUpdate.setId(id);
 
         double rating = 0.0;
-        List<ParticipantsResponse> participantsResponses = new ArrayList<>();
-        List<ParticipantsResponse> reserveListResponses = new ArrayList<>();
+
+        List<UserResponse> trainersResponse = new ArrayList<>();
+        UserResponse trainer1Response = new UserResponse(trainer1UserId, trainer1Name, trainer1Surname);
+        trainersResponse.add(trainer1Response);
+
+        List<UserResponse> participantsResponses = new ArrayList<>();
+        List<UserResponse> reserveListResponses = new ArrayList<>();
         GroupTrainingResponse groupTrainingResponseAfterUpdate = new GroupTrainingResponse(trainingId, trainingName,
-                trainerId, date, startTimeAfterUpdate, endTimeAfterUpdate, hallNoAfterUpdate, limitAfterUpdate,
+                trainersResponse, date, startTimeAfterUpdate, endTimeAfterUpdate, hallNoAfterUpdate, limitAfterUpdate,
                 rating, participantsResponses, reserveListResponses);
 
         //when
@@ -129,7 +153,9 @@ public class UpdateGroupTrainingService {
         String id = "507f1f77bcf86cd799439011";
         String trainingId = "122ed953-e37f-435a-bd1e-9fb2a327c4d3";
         String trainingTypeId = "222ed952-es7f-435a-bd1e-9fb2a327c4dk";
-        String trainerId = "Test Trainer";
+        String trainerId = "100ed952-es7f-435a-bd1e-9fb2a327c4dk";
+        List<String> trainersIds = new ArrayList<>();
+        trainersIds.add(trainerId);
         String date = "2030-07-01";
         String startTimeBeforeUpdate = "18:00";
         String endTimeBeforeUpdate = "19:00";
@@ -141,7 +167,7 @@ public class UpdateGroupTrainingService {
         int limitAfterUpdate = 20;
         List<String> participants = new ArrayList<>();
         List<String> reserveList = new ArrayList<>();
-        GroupTrainingRequest groupTrainingUpdateRequest = new GroupTrainingRequest(trainingTypeId, trainerId, date,
+        GroupTrainingRequest groupTrainingUpdateRequest = new GroupTrainingRequest(trainingTypeId, trainersIds, date,
                 startTimeAfterUpdate, endTimeAfterUpdate, hallNoAfterUpdate, limitAfterUpdate, participants,
                 reserveList);
 
@@ -151,22 +177,42 @@ public class UpdateGroupTrainingService {
         TrainingTypeDocument trainingType = new TrainingTypeDocument(trainingTypeId, trainingName, trainingDescription,
                 trainingDuration, null);
 
+        List<UserDocument> trainersDocuments = new ArrayList<>();
+        String trainer1Name = "John";
+        String trainer1Surname = "Smith";
+        String trainer1Email = "sample@trainer.com";
+        String trainer1PhoneNumber = "666222333";
+        String trainer1EncryptedPassword = "encrypted_password123!";
+        String trainer1UserId = "100ed952-es7f-435a-bd1e-9fb2a327c4dk";
+        UserDocument trainer1Document = new UserDocument(
+                trainer1Name,
+                trainer1Surname,
+                trainer1Email,
+                trainer1PhoneNumber,
+                trainer1EncryptedPassword,
+                trainer1UserId);
+        trainer1Document.setId("507f191e810c19729de860ea");
+        trainersDocuments.add(trainer1Document);
+
         List<UserDocument> participantDocuments = new ArrayList<>();
         List<UserDocument> reserveListDocuments = new ArrayList<>();
-        GroupTrainings groupTrainingBeforeUpdate = new GroupTrainings(trainingId, trainingType, trainerId,
+        GroupTrainings groupTrainingBeforeUpdate = new GroupTrainings(trainingId, trainingType, trainersDocuments,
                 date, startTimeBeforeUpdate, endTimeBeforeUpdate, hallNoBeforeUpdate, limitBeforeUpdate,
                 participantDocuments, reserveListDocuments);
         groupTrainingBeforeUpdate.setId(id);
-        GroupTrainings groupTrainingAfterUpdate = new GroupTrainings(trainingId, trainingType, trainerId,
+        GroupTrainings groupTrainingAfterUpdate = new GroupTrainings(trainingId, trainingType, trainersDocuments,
                 date, startTimeAfterUpdate, endTimeAfterUpdate, hallNoAfterUpdate, limitAfterUpdate,
                 participantDocuments, reserveListDocuments);
         groupTrainingAfterUpdate.setId(id);
 
         double rating = 0.0;
-        List<ParticipantsResponse> participantsResponses = new ArrayList<>();
-        List<ParticipantsResponse> reserveListResponses = new ArrayList<>();
+        List<UserResponse> trainersResponse = new ArrayList<>();
+        UserResponse trainer1Response = new UserResponse(trainer1UserId, trainer1Name, trainer1Surname);
+        trainersResponse.add(trainer1Response);
+        List<UserResponse> participantsResponses = new ArrayList<>();
+        List<UserResponse> reserveListResponses = new ArrayList<>();
         GroupTrainingResponse groupTrainingResponseAfterUpdate = new GroupTrainingResponse(trainingId, trainingName,
-                trainerId, date, startTimeAfterUpdate, endTimeAfterUpdate, hallNoAfterUpdate, limitAfterUpdate,
+                trainersResponse, date, startTimeAfterUpdate, endTimeAfterUpdate, hallNoAfterUpdate, limitAfterUpdate,
                 rating, participantsResponses, reserveListResponses);
 
         //when
@@ -200,7 +246,9 @@ public class UpdateGroupTrainingService {
         String id = "507f1f77bcf86cd799439011";
         String trainingId = "122ed953-e37f-435a-bd1e-9fb2a327c4d3";
         String trainingTypeId = "222ed952-es7f-435a-bd1e-9fb2a327c4dk";
-        String trainerId = "Test Trainer";
+        String trainerId = "100ed952-es7f-435a-bd1e-9fb2a327c4dk";
+        List<String> trainersIds = new ArrayList<>();
+        trainersIds.add(trainerId);
         String date = "2030-07-01";
         String startTimeBeforeUpdate = "18:00";
         String endTimeBeforeUpdate = "19:00";
@@ -212,7 +260,7 @@ public class UpdateGroupTrainingService {
         int limitAfterUpdate = 20;
         List<String> participants = new ArrayList<>();
         List<String> reserveList = new ArrayList<>();
-        GroupTrainingRequest groupTrainingUpdateRequest = new GroupTrainingRequest(trainingTypeId, trainerId, date,
+        GroupTrainingRequest groupTrainingUpdateRequest = new GroupTrainingRequest(trainingTypeId, trainersIds, date,
                 startTimeAfterUpdate, endTimeAfterUpdate, hallNoAfterUpdate, limitAfterUpdate, participants,
                 reserveList);
 
@@ -222,22 +270,42 @@ public class UpdateGroupTrainingService {
         TrainingTypeDocument trainingType = new TrainingTypeDocument(trainingTypeId, trainingName, trainingDescription,
                 trainingDuration, null);
 
+        List<UserDocument> trainersDocuments = new ArrayList<>();
+        String trainer1Name = "John";
+        String trainer1Surname = "Smith";
+        String trainer1Email = "sample@trainer.com";
+        String trainer1PhoneNumber = "666222333";
+        String trainer1EncryptedPassword = "encrypted_password123!";
+        String trainer1UserId = "100ed952-es7f-435a-bd1e-9fb2a327c4dk";
+        UserDocument trainer1Document = new UserDocument(
+                trainer1Name,
+                trainer1Surname,
+                trainer1Email,
+                trainer1PhoneNumber,
+                trainer1EncryptedPassword,
+                trainer1UserId);
+        trainer1Document.setId("507f191e810c19729de860ea");
+        trainersDocuments.add(trainer1Document);
+
         List<UserDocument> participantDocuments = new ArrayList<>();
         List<UserDocument> reserveListDocuments = new ArrayList<>();
-        GroupTrainings groupTrainingBeforeUpdate = new GroupTrainings(trainingId, trainingType, trainerId,
+        GroupTrainings groupTrainingBeforeUpdate = new GroupTrainings(trainingId, trainingType, trainersDocuments,
                 date, startTimeBeforeUpdate, endTimeBeforeUpdate, hallNoBeforeUpdate, limitBeforeUpdate,
                 participantDocuments, reserveListDocuments);
         groupTrainingBeforeUpdate.setId(id);
-        GroupTrainings groupTrainingAfterUpdate = new GroupTrainings(trainingId, trainingType, trainerId,
+        GroupTrainings groupTrainingAfterUpdate = new GroupTrainings(trainingId, trainingType, trainersDocuments,
                 date, startTimeAfterUpdate, endTimeAfterUpdate, hallNoAfterUpdate, limitAfterUpdate,
                 participantDocuments, reserveListDocuments);
         groupTrainingAfterUpdate.setId(id);
 
         double rating = 0.0;
-        List<ParticipantsResponse> participantsResponses = new ArrayList<>();
-        List<ParticipantsResponse> reserveListResponses = new ArrayList<>();
+        List<UserResponse> trainersResponse = new ArrayList<>();
+        UserResponse trainer1Response = new UserResponse(trainer1UserId, trainer1Name, trainer1Surname);
+        trainersResponse.add(trainer1Response);
+        List<UserResponse> participantsResponses = new ArrayList<>();
+        List<UserResponse> reserveListResponses = new ArrayList<>();
         GroupTrainingResponse groupTrainingResponseAfterUpdate = new GroupTrainingResponse(trainingId, trainingName,
-                trainerId, date, startTimeAfterUpdate, endTimeAfterUpdate, hallNoAfterUpdate, limitAfterUpdate,
+                trainersResponse, date, startTimeAfterUpdate, endTimeAfterUpdate, hallNoAfterUpdate, limitAfterUpdate,
                 rating, participantsResponses, reserveListResponses);
 
         //when

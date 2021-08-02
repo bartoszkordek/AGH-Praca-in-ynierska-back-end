@@ -15,7 +15,7 @@ public class GroupTrainingRequest {
     @NotNull
     private final String trainingTypeId;
     @NotNull
-    private final String trainerId;
+    private final List<String> trainers;
     @NotNull
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private final String date;
@@ -32,7 +32,7 @@ public class GroupTrainingRequest {
 
     public GroupTrainingRequest(
             String trainingTypeId,
-            String trainerId,
+            List<String> trainers,
             String date,
             String startTime,
             String endTime,
@@ -47,7 +47,7 @@ public class GroupTrainingRequest {
         if (!Time24HoursValidator.validate(endTime)) throw new InvalidHourException("Wrong end time");
 
         this.trainingTypeId = trainingTypeId;
-        this.trainerId = trainerId;
+        this.trainers = trainers;
         this.date = date;
         this.startTime = startTime;
         this.endTime = endTime;
@@ -61,7 +61,7 @@ public class GroupTrainingRequest {
     public String toString() {
         return "GroupTrainingRequest{" +
                 "trainingTypeId='" + trainingTypeId + '\'' +
-                ", trainerId='" + trainerId + '\'' +
+                ", trainers='" + trainers + '\'' +
                 ", date='" + date + '\'' +
                 ", startTime='" + startTime + '\'' +
                 ", endTime='" + endTime + '\'' +
@@ -80,7 +80,7 @@ public class GroupTrainingRequest {
         return hallNo == that.hallNo &&
                 limit == that.limit &&
                 Objects.equals(trainingTypeId, that.trainingTypeId) &&
-                Objects.equals(trainerId, that.trainerId) &&
+                Objects.equals(trainers, that.trainers) &&
                 Objects.equals(date, that.date) &&
                 Objects.equals(startTime, that.startTime) &&
                 Objects.equals(endTime, that.endTime) &&
@@ -92,7 +92,7 @@ public class GroupTrainingRequest {
     public int hashCode() {
         return Objects.hash(
                 trainingTypeId,
-                trainerId,
+                trainers,
                 date,
                 startTime,
                 endTime,
@@ -107,8 +107,8 @@ public class GroupTrainingRequest {
         return trainingTypeId;
     }
 
-    public String getTrainerId() {
-        return trainerId;
+    public List<String> getTrainers() {
+        return trainers;
     }
 
     public String getDate() {

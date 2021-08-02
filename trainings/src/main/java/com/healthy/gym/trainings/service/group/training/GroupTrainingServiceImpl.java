@@ -12,7 +12,7 @@ import com.healthy.gym.trainings.exception.notfound.TrainingTypeNotFoundExceptio
 import com.healthy.gym.trainings.model.other.EmailSendModel;
 import com.healthy.gym.trainings.model.response.GroupTrainingPublicResponse;
 import com.healthy.gym.trainings.model.response.GroupTrainingResponse;
-import com.healthy.gym.trainings.model.response.ParticipantsResponse;
+import com.healthy.gym.trainings.model.response.UserResponse;
 import com.healthy.gym.trainings.service.email.EmailService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -124,7 +124,7 @@ public class GroupTrainingServiceImpl implements GroupTrainingService {
     }
 
     @Override
-    public List<ParticipantsResponse> getTrainingParticipants(String trainingId)
+    public List<UserResponse> getTrainingParticipants(String trainingId)
             throws NotExistingGroupTrainingException {
 
         if (!groupTrainingsRepository.existsByTrainingId(trainingId))

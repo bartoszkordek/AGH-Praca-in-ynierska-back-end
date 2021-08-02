@@ -4,12 +4,13 @@ import com.healthy.gym.trainings.configuration.EmailConfig;
 import com.healthy.gym.trainings.data.document.GroupTrainings;
 import com.healthy.gym.trainings.data.document.TrainingTypeDocument;
 import com.healthy.gym.trainings.data.document.UserDocument;
-import com.healthy.gym.trainings.data.repository.GroupTrainingsDbRepository;
+import com.healthy.gym.trainings.data.repository.GroupTrainingsDbRepositoryImpl;
+import com.healthy.gym.trainings.data.repository.GroupTrainingsRepository;
 import com.healthy.gym.trainings.data.repository.TrainingTypeDAO;
 import com.healthy.gym.trainings.exception.EmailSendingException;
-import com.healthy.gym.trainings.exception.training.TrainingRemovalException;
 import com.healthy.gym.trainings.exception.invalid.InvalidDateException;
 import com.healthy.gym.trainings.exception.invalid.InvalidHourException;
+import com.healthy.gym.trainings.exception.training.TrainingRemovalException;
 import com.healthy.gym.trainings.model.request.GroupTrainingRequest;
 import com.healthy.gym.trainings.model.response.GroupTrainingResponse;
 import com.healthy.gym.trainings.model.response.UserResponse;
@@ -39,10 +40,15 @@ public class RemoveGroupTrainingService {
     public void shouldRemoveGroupTraining_whenTrainingExists() throws InvalidDateException, InvalidHourException, TrainingRemovalException, EmailSendingException {
         //mocks
         EmailConfig emailConfig = Mockito.mock(EmailConfig.class);
-        GroupTrainingsDbRepository groupTrainingsDbRepository = Mockito.mock(GroupTrainingsDbRepository.class);
+        GroupTrainingsDbRepositoryImpl groupTrainingsDbRepositoryImpl = Mockito.mock(GroupTrainingsDbRepositoryImpl.class);
         TrainingTypeDAO trainingTypeRepository = Mockito.mock(TrainingTypeDAO.class);
-        GroupTrainingService groupTrainingService = new GroupTrainingServiceImpl(emailConfig, groupTrainingsDbRepository,
-                trainingTypeRepository);
+        GroupTrainingsRepository groupTrainingsRepository = Mockito.mock(GroupTrainingsRepository.class);
+        GroupTrainingService groupTrainingService = new GroupTrainingServiceImpl(
+                emailConfig,
+                groupTrainingsDbRepositoryImpl,
+                trainingTypeRepository,
+                groupTrainingsRepository
+        );
 
         //before
         String id = "507f1f77bcf86cd799439011";
@@ -97,8 +103,7 @@ public class RemoveGroupTrainingService {
                 reserveListResponses);
 
         //when
-        when(groupTrainingsDbRepository.isGroupTrainingExist(trainingId)).thenReturn(true);
-        when(groupTrainingsDbRepository.removeTraining(trainingId)).thenReturn(groupTraining);
+        when(groupTrainingsRepository.findFirstByTrainingId(trainingId)).thenReturn(groupTraining);
 
         //then
         //TODO
@@ -110,10 +115,15 @@ public class RemoveGroupTrainingService {
     public void shouldNotRemoveGroupTraining_whenInvalidTrainingId() throws InvalidDateException, InvalidHourException, TrainingRemovalException, EmailSendingException {
         //mocks
         EmailConfig emailConfig = Mockito.mock(EmailConfig.class);
-        GroupTrainingsDbRepository groupTrainingsDbRepository = Mockito.mock(GroupTrainingsDbRepository.class);
+        GroupTrainingsDbRepositoryImpl groupTrainingsDbRepositoryImpl = Mockito.mock(GroupTrainingsDbRepositoryImpl.class);
         TrainingTypeDAO trainingTypeRepository = Mockito.mock(TrainingTypeDAO.class);
-        GroupTrainingService groupTrainingService = new GroupTrainingServiceImpl(emailConfig, groupTrainingsDbRepository,
-                trainingTypeRepository);
+        GroupTrainingsRepository groupTrainingsRepository = Mockito.mock(GroupTrainingsRepository.class);
+        GroupTrainingService groupTrainingService = new GroupTrainingServiceImpl(
+                emailConfig,
+                groupTrainingsDbRepositoryImpl,
+                trainingTypeRepository,
+                groupTrainingsRepository
+        );
 
         //before
         String id = "507f1f77bcf86cd799439011";
@@ -175,8 +185,7 @@ public class RemoveGroupTrainingService {
                 reserveListResponses);
 
         //when
-        when(groupTrainingsDbRepository.isGroupTrainingExist(trainingId)).thenReturn(false);
-        when(groupTrainingsDbRepository.removeTraining(trainingId)).thenReturn(groupTraining);
+        when(groupTrainingsRepository.findFirstByTrainingId(trainingId)).thenReturn(groupTraining);
 
         //then
         //TODO

@@ -18,6 +18,9 @@ public class UserResponse {
 
     //TODO ADD Avatar
 
+    public UserResponse() {
+    }
+
     public UserResponse(String userId, String name, String surname) {
         this.userId = userId;
         this.name = name;
@@ -65,7 +68,7 @@ public class UserResponse {
 
     @Override
     public String toString() {
-        return "ParticipantsResponse{" +
+        return "UserResponse{" +
                 "userId='" + userId + '\'' +
                 ", name='" + name + '\'' +
                 ", surname='" + surname + '\'' +

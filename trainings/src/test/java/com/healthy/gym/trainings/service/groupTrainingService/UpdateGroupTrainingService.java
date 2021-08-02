@@ -4,7 +4,8 @@ import com.healthy.gym.trainings.configuration.EmailConfig;
 import com.healthy.gym.trainings.data.document.GroupTrainings;
 import com.healthy.gym.trainings.data.document.TrainingTypeDocument;
 import com.healthy.gym.trainings.data.document.UserDocument;
-import com.healthy.gym.trainings.data.repository.GroupTrainingsDbRepository;
+import com.healthy.gym.trainings.data.repository.GroupTrainingsDbRepositoryImpl;
+import com.healthy.gym.trainings.data.repository.GroupTrainingsRepository;
 import com.healthy.gym.trainings.data.repository.TrainingTypeDAO;
 import com.healthy.gym.trainings.exception.EmailSendingException;
 import com.healthy.gym.trainings.exception.invalid.InvalidDateException;
@@ -42,10 +43,15 @@ public class UpdateGroupTrainingService {
     public void shouldUpdateGroupTraining_whenValidRequest() throws InvalidDateException, InvalidHourException, TrainingCreationException, ParseException, TrainingUpdateException, EmailSendingException {
         //mocks
         EmailConfig emailConfig = Mockito.mock(EmailConfig.class);
-        GroupTrainingsDbRepository groupTrainingsDbRepository = Mockito.mock(GroupTrainingsDbRepository.class);
+        GroupTrainingsDbRepositoryImpl groupTrainingsDbRepositoryImpl = Mockito.mock(GroupTrainingsDbRepositoryImpl.class);
         TrainingTypeDAO trainingTypeRepository = Mockito.mock(TrainingTypeDAO.class);
-        GroupTrainingService groupTrainingService = new GroupTrainingServiceImpl(emailConfig, groupTrainingsDbRepository,
-                trainingTypeRepository);
+        GroupTrainingsRepository groupTrainingsRepository = Mockito.mock(GroupTrainingsRepository.class);
+        GroupTrainingService groupTrainingService = new GroupTrainingServiceImpl(
+                emailConfig,
+                groupTrainingsDbRepositoryImpl,
+                trainingTypeRepository,
+                groupTrainingsRepository
+        );
 
         //before
         String id = "507f1f77bcf86cd799439011";
@@ -117,10 +123,11 @@ public class UpdateGroupTrainingService {
                 rating, participantsResponses, reserveListResponses);
 
         //when
-        when(groupTrainingsDbRepository.isGroupTrainingExist(trainingId)).thenReturn(true);
-        when(groupTrainingsDbRepository.isAbilityToUpdateTraining(trainingId, groupTrainingUpdateRequest)).thenReturn(true);
-        when(groupTrainingsDbRepository.updateTraining(trainingId, groupTrainingUpdateRequest))
-                .thenReturn(groupTrainingAfterUpdate);
+        when(groupTrainingsRepository.existsByTrainingId(trainingId)).thenReturn(true);
+        when(groupTrainingsDbRepositoryImpl.isAbilityToUpdateTraining(trainingId, groupTrainingUpdateRequest)).thenReturn(true);
+        // TODO Fix Test
+//        when(groupTrainingsDbRepositoryImpl.updateTraining(trainingId, groupTrainingUpdateRequest))
+//                .thenReturn(groupTrainingAfterUpdate);
 
         //then
         //TODO
@@ -132,10 +139,15 @@ public class UpdateGroupTrainingService {
     public void shouldNotUpdateGroupTraining_whenInvalidTrainingId() throws InvalidDateException, InvalidHourException, TrainingCreationException, ParseException, TrainingUpdateException, EmailSendingException {
         //mocks
         EmailConfig emailConfig = Mockito.mock(EmailConfig.class);
-        GroupTrainingsDbRepository groupTrainingsDbRepository = Mockito.mock(GroupTrainingsDbRepository.class);
+        GroupTrainingsDbRepositoryImpl groupTrainingsDbRepositoryImpl = Mockito.mock(GroupTrainingsDbRepositoryImpl.class);
         TrainingTypeDAO trainingTypeRepository = Mockito.mock(TrainingTypeDAO.class);
-        GroupTrainingService groupTrainingService = new GroupTrainingServiceImpl(emailConfig, groupTrainingsDbRepository,
-                trainingTypeRepository);
+        GroupTrainingsRepository groupTrainingsRepository = Mockito.mock(GroupTrainingsRepository.class);
+        GroupTrainingService groupTrainingService = new GroupTrainingServiceImpl(
+                emailConfig,
+                groupTrainingsDbRepositoryImpl,
+                trainingTypeRepository,
+                groupTrainingsRepository
+        );
 
         //before
         String id = "507f1f77bcf86cd799439011";
@@ -204,10 +216,11 @@ public class UpdateGroupTrainingService {
                 rating, participantsResponses, reserveListResponses);
 
         //when
-        when(groupTrainingsDbRepository.isGroupTrainingExist(trainingId)).thenReturn(false);
-        when(groupTrainingsDbRepository.isAbilityToUpdateTraining(trainingId, groupTrainingUpdateRequest)).thenReturn(true);
-        when(groupTrainingsDbRepository.updateTraining(trainingId, groupTrainingUpdateRequest))
-                .thenReturn(groupTrainingAfterUpdate);
+        when(groupTrainingsRepository.existsByTrainingId(trainingId)).thenReturn(false);
+        when(groupTrainingsDbRepositoryImpl.isAbilityToUpdateTraining(trainingId, groupTrainingUpdateRequest)).thenReturn(true);
+        // TODO fix test
+//        when(groupTrainingsDbRepositoryImpl.updateTraining(trainingId, groupTrainingUpdateRequest))
+//                .thenReturn(groupTrainingAfterUpdate);
 
         //then
         //TODO
@@ -219,10 +232,15 @@ public class UpdateGroupTrainingService {
     public void shouldNotUpdateGroupTraining_whenConflictWithOtherEvent() throws InvalidDateException, InvalidHourException, TrainingCreationException, ParseException, TrainingUpdateException, EmailSendingException {
         //mocks
         EmailConfig emailConfig = Mockito.mock(EmailConfig.class);
-        GroupTrainingsDbRepository groupTrainingsDbRepository = Mockito.mock(GroupTrainingsDbRepository.class);
+        GroupTrainingsDbRepositoryImpl groupTrainingsDbRepositoryImpl = Mockito.mock(GroupTrainingsDbRepositoryImpl.class);
         TrainingTypeDAO trainingTypeRepository = Mockito.mock(TrainingTypeDAO.class);
-        GroupTrainingService groupTrainingService = new GroupTrainingServiceImpl(emailConfig, groupTrainingsDbRepository,
-                trainingTypeRepository);
+        GroupTrainingsRepository groupTrainingsRepository = Mockito.mock(GroupTrainingsRepository.class);
+        GroupTrainingService groupTrainingService = new GroupTrainingServiceImpl(
+                emailConfig,
+                groupTrainingsDbRepositoryImpl,
+                trainingTypeRepository,
+                groupTrainingsRepository
+        );
 
         //before
         String id = "507f1f77bcf86cd799439011";
@@ -291,10 +309,12 @@ public class UpdateGroupTrainingService {
                 rating, participantsResponses, reserveListResponses);
 
         //when
-        when(groupTrainingsDbRepository.isGroupTrainingExist(trainingId)).thenReturn(true);
-        when(groupTrainingsDbRepository.isAbilityToUpdateTraining(trainingId, groupTrainingUpdateRequest)).thenReturn(false);
-        when(groupTrainingsDbRepository.updateTraining(trainingId, groupTrainingUpdateRequest))
-                .thenReturn(groupTrainingAfterUpdate);
+        when(groupTrainingsRepository.existsByTrainingId(trainingId)).thenReturn(true);
+        when(groupTrainingsDbRepositoryImpl.isAbilityToUpdateTraining(trainingId, groupTrainingUpdateRequest)).thenReturn(false);
+
+        //TODO fix test
+//        when(groupTrainingsDbRepositoryImpl.updateTraining(trainingId, groupTrainingUpdateRequest))
+//                .thenReturn(groupTrainingAfterUpdate);
 
         //then
         //TODO

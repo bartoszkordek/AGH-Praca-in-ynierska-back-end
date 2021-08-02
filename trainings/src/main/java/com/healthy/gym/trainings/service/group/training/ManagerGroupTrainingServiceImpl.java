@@ -9,13 +9,13 @@ import com.healthy.gym.trainings.exception.PastDateException;
 import com.healthy.gym.trainings.exception.StartDateAfterEndDateException;
 import com.healthy.gym.trainings.exception.invalid.InvalidDateException;
 import com.healthy.gym.trainings.exception.invalid.InvalidHourException;
+import com.healthy.gym.trainings.exception.notexisting.NotExistingGroupTrainingException;
 import com.healthy.gym.trainings.exception.notfound.LocationNotFoundException;
 import com.healthy.gym.trainings.exception.notfound.TrainerNotFoundException;
 import com.healthy.gym.trainings.exception.notfound.TrainingTypeNotFoundException;
 import com.healthy.gym.trainings.exception.occupied.LocationOccupiedException;
 import com.healthy.gym.trainings.exception.occupied.TrainerOccupiedException;
 import com.healthy.gym.trainings.exception.training.TrainingCreationException;
-import com.healthy.gym.trainings.exception.training.TrainingRemovalException;
 import com.healthy.gym.trainings.exception.training.TrainingUpdateException;
 import com.healthy.gym.trainings.model.request.CreateGroupTrainingRequest;
 import com.healthy.gym.trainings.model.request.GroupTrainingRequest;
@@ -44,9 +44,11 @@ public class ManagerGroupTrainingServiceImpl implements ManagerGroupTrainingServ
     private final TrainingTypeDAO trainingTypeDAO;
     private final LocationDAO locationDAO;
     private final UserDAO userDAO;
-    private final GroupTrainingsDbRepository groupTrainingsDbRepository;
+    private final GroupTrainingsDbRepositoryImpl groupTrainingsDbRepositoryImpl;
     private final EmailSender emailSender;
     private final Clock clock;
+    private final GroupTrainingsRepository groupTrainingsRepository;
+    private final TrainingTypeDAO trainingTypeRepository;
 
     @Autowired
     public ManagerGroupTrainingServiceImpl(
@@ -54,29 +56,21 @@ public class ManagerGroupTrainingServiceImpl implements ManagerGroupTrainingServ
             TrainingTypeDAO trainingTypeDAO,
             LocationDAO locationDAO,
             UserDAO userDAO,
-            GroupTrainingsDbRepository groupTrainingsDbRepository,
+            GroupTrainingsDbRepositoryImpl groupTrainingsDbRepositoryImpl,
             EmailSender emailSender,
-            Clock clock
+            Clock clock,
+            GroupTrainingsRepository groupTrainingsRepository,
+            TrainingTypeDAO trainingTypeRepository
     ) {
         this.groupTrainingsDAO = groupTrainingsDAO;
         this.trainingTypeDAO = trainingTypeDAO;
         this.locationDAO = locationDAO;
         this.userDAO = userDAO;
-        this.groupTrainingsDbRepository = groupTrainingsDbRepository;
+        this.groupTrainingsDbRepositoryImpl = groupTrainingsDbRepositoryImpl;
         this.emailSender = emailSender;
         this.clock = clock;
-    }
-
-    private List<UserResponse> getUserResponseList(List<UserDocument> usersDocuments){
-        List<UserResponse> usersResponse = new ArrayList<>();
-        for(UserDocument userDocument : usersDocuments){
-            UserResponse userResponse = new UserResponse(
-                    userDocument.getUserId(),
-                    userDocument.getName(),
-                    userDocument.getSurname());
-            usersResponse.add(userResponse);
-        }
-        return usersResponse;
+        this.groupTrainingsRepository = groupTrainingsRepository;
+        this.trainingTypeRepository = trainingTypeRepository;
     }
 
     @Override
@@ -157,24 +151,65 @@ public class ManagerGroupTrainingServiceImpl implements ManagerGroupTrainingServ
         if (isLimitInvalid(limit))
             throw new TrainingCreationException("Cannot create new group training. Invalid limit.");
 
-        if (!groupTrainingsDbRepository.isAbilityToCreateTraining(groupTrainingModel))
+        if (!groupTrainingsDbRepositoryImpl.isAbilityToCreateTraining(groupTrainingModel))
             throw new TrainingCreationException("Cannot create new group training. Overlapping trainings.");
 
-        GroupTrainings repositoryResponse = groupTrainingsDbRepository.createTraining(groupTrainingModel);
 
-        List<UserDocument> trainers = repositoryResponse.getParticipants();
-        List<UserResponse> trainersResponses = getUserResponseList(trainers);
+        String trainingId = UUID.randomUUID().toString();
+        TrainingTypeDocument trainingType = trainingTypeRepository.findByTrainingTypeId(
+                groupTrainingModel.getTrainingTypeId());
+
+        List<String> participantsIds = groupTrainingModel.getParticipants();
+        List<UserDocument> participants2 = new ArrayList<>();
+        for (String participantId : participantsIds) {
+            UserDocument participant = userDAO.findByUserId(participantId);
+            participants2.add(participant);
+        }
+
+        List<String> reserveListParticipantsIds = groupTrainingModel.getReserveList();
+        List<UserDocument> reserveList2 = new ArrayList<>();
+        for (String reserveListParticipantId : reserveListParticipantsIds) {
+            UserDocument reserveListParticipant = userDAO.findByUserId(reserveListParticipantId);
+            reserveList2.add(reserveListParticipant);
+        }
+
+        GroupTrainings repositoryResponse = groupTrainingsRepository.insert(
+                new GroupTrainings(
+                        trainingId,
+                        trainingType,
+                        null,//TODO fix groupTrainingModel.getTrainerId(),
+                        groupTrainingModel.getDate(),
+                        groupTrainingModel.getStartTime(),
+                        groupTrainingModel.getEndTime(),
+                        groupTrainingModel.getHallNo(),
+                        groupTrainingModel.getLimit(),
+                        participants2,
+                        reserveList2
+                )
+        );
 
         List<UserDocument> participants = repositoryResponse.getParticipants();
-        List<UserResponse> participantsResponses = getUserResponseList(participants);
+        List<UserResponse> participantsResponses = new ArrayList<>();
+        for (UserDocument participant : participants) {
+            UserResponse participantsResponse = new UserResponse(participant.getUserId(),
+                    participant.getName(), participant.getSurname());
+            participantsResponses.add(participantsResponse);
+        }
 
         List<UserDocument> reserveList = repositoryResponse.getReserveList();
-        List<UserResponse> reserveListResponses = getUserResponseList(reserveList);
+        List<UserResponse> reserveListResponses = new ArrayList<>();
+        for (UserDocument reserveListParticipant : reserveList) {
+            UserResponse reserveListParticipantsResponse = new UserResponse(
+                    reserveListParticipant.getUserId(),
+                    reserveListParticipant.getName(),
+                    reserveListParticipant.getSurname());
+            reserveListResponses.add(reserveListParticipantsResponse);
+        }
 
         return new GroupTrainingResponse(
                 repositoryResponse.getTrainingId(),
                 repositoryResponse.getTrainingType().getName(),
-                trainersResponses,
+                null,//TODO fix groupTrainingModel.getTrainerId(),,
                 repositoryResponse.getDate(),
                 repositoryResponse.getStartTime(),
                 repositoryResponse.getEndTime(),
@@ -186,11 +221,16 @@ public class ManagerGroupTrainingServiceImpl implements ManagerGroupTrainingServ
     }
 
     @Override
-    public GroupTrainingResponse updateGroupTraining(String trainingId, GroupTrainingRequest groupTrainingModelRequest)
-            throws TrainingUpdateException, EmailSendingException,
-            InvalidHourException, ParseException, InvalidDateException {
+    public GroupTrainingResponse updateGroupTraining(
+            String trainingId,
+            GroupTrainingRequest groupTrainingModelRequest
+    ) throws TrainingUpdateException,
+            EmailSendingException,
+            InvalidHourException,
+            ParseException,
+            InvalidDateException {
 
-        if (!groupTrainingsDbRepository.isGroupTrainingExist(trainingId))
+        if (!groupTrainingsRepository.existsByTrainingId(trainingId))
             throw new TrainingUpdateException("Training with ID: " + trainingId + " doesn't exist");
 
         String date = groupTrainingModelRequest.getDate();
@@ -211,16 +251,26 @@ public class ManagerGroupTrainingServiceImpl implements ManagerGroupTrainingServ
         if (isLimitInvalid(limit))
             throw new TrainingUpdateException("Cannot update group training. Invalid limit.");
 
-        if (!groupTrainingsDbRepository.isAbilityToUpdateTraining(trainingId, groupTrainingModelRequest))
+        if (!groupTrainingsDbRepositoryImpl.isAbilityToUpdateTraining(trainingId, groupTrainingModelRequest))
             throw new TrainingUpdateException("Cannot update group training. Overlapping trainings.");
 
-        GroupTrainings repositoryResponse = groupTrainingsDbRepository
-                .updateTraining(trainingId, groupTrainingModelRequest);
+        GroupTrainings groupTrainings1 = groupTrainingsRepository.findFirstByTrainingId(trainingId);
 
-        List<UserDocument> trainers = repositoryResponse.getParticipants();
-        List<UserResponse> trainersResponses = getUserResponseList(trainers);
+        TrainingTypeDocument trainingType = trainingTypeRepository.findByTrainingTypeId(
+                groupTrainingModelRequest.getTrainingTypeId()
+        );
 
-        List<UserDocument> participants = repositoryResponse.getParticipants();
+        groupTrainings1.setTrainingType(trainingType);
+        //TODO fix groupTrainings1.setTrainerId(groupTrainingModelRequest.getTrainerId());
+        groupTrainings1.setDate(groupTrainingModelRequest.getDate());
+        groupTrainings1.setStartTime(groupTrainingModelRequest.getStartTime());
+        groupTrainings1.setEndTime(groupTrainingModelRequest.getEndTime());
+        groupTrainings1.setHallNo(groupTrainingModelRequest.getHallNo());
+        groupTrainings1.setLimit(groupTrainingModelRequest.getLimit());
+
+        groupTrainingsRepository.save(groupTrainings1);
+
+        List<UserDocument> participants = groupTrainings1.getParticipants();
         List<UserResponse> participantsResponses = new ArrayList<>();
         List<String> toEmails = new ArrayList<>();
         for (UserDocument document : participants) {
@@ -231,12 +281,17 @@ public class ManagerGroupTrainingServiceImpl implements ManagerGroupTrainingServ
             toEmails.add(email);
         }
 
-        List<UserDocument> reserveList = repositoryResponse.getReserveList();
-        List<UserResponse> reserveListResponses = getUserResponseList(reserveList);
+        List<UserDocument> reserveList = groupTrainings1.getReserveList();
+        List<UserResponse> reserveListResponses = new ArrayList<>();
+        for (UserDocument document : reserveList) {
+            UserResponse reserveListResponse = new UserResponse(document.getUserId(),
+                    document.getName(), document.getSurname());
+            reserveListResponses.add(reserveListResponse);
+        }
 
         String subject = "Training has been updated";
-        String body = "Training " + repositoryResponse.getTrainingId() + " on " + repositoryResponse.getDate() + " at "
-                + repositoryResponse.getStartTime() + " with " + repositoryResponse.getTrainers() + " has been updated.";
+        String body = "Training " + groupTrainings1.getTrainingId() + " on " + groupTrainings1.getDate() + " at "
+                + groupTrainings1.getStartTime() + " with "; // //TODO fix + groupTrainings1.getTrainerId() + " has been updated.";
         try {
             emailSender.sendEmailWithoutAttachment(toEmails, subject, body);
         } catch (Exception e) {
@@ -244,14 +299,14 @@ public class ManagerGroupTrainingServiceImpl implements ManagerGroupTrainingServ
         }
 
         return new GroupTrainingResponse(
-                repositoryResponse.getTrainingId(),
-                repositoryResponse.getTrainingType().getName(),
-                trainersResponses,
-                repositoryResponse.getDate(),
-                repositoryResponse.getStartTime(),
-                repositoryResponse.getEndTime(),
-                repositoryResponse.getHallNo(),
-                repositoryResponse.getLimit(),
+                groupTrainings1.getTrainingId(),
+                groupTrainings1.getTrainingType().getName(),
+                null, //TODO fix groupTrainings1.getTrainerId(),
+                groupTrainings1.getDate(),
+                groupTrainings1.getStartTime(),
+                groupTrainings1.getEndTime(),
+                groupTrainings1.getHallNo(),
+                groupTrainings1.getLimit(),
                 INITIAL_RATING,
                 participantsResponses,
                 reserveListResponses);
@@ -259,15 +314,12 @@ public class ManagerGroupTrainingServiceImpl implements ManagerGroupTrainingServ
 
     @Override
     public GroupTrainingResponse removeGroupTraining(String trainingId)
-            throws TrainingRemovalException, EmailSendingException, InvalidDateException, InvalidHourException {
+            throws EmailSendingException, InvalidDateException, InvalidHourException, NotExistingGroupTrainingException {
 
-        if (!groupTrainingsDbRepository.isGroupTrainingExist(trainingId))
-            throw new TrainingRemovalException("Training with ID: " + trainingId + " doesn't exist");
+        GroupTrainings repositoryResponse = groupTrainingsRepository.findFirstByTrainingId(trainingId);
 
-        GroupTrainings repositoryResponse = groupTrainingsDbRepository.removeTraining(trainingId);
-
-        List<UserDocument> trainers = repositoryResponse.getParticipants();
-        List<UserResponse> trainersResponses = getUserResponseList(trainers);
+        if (repositoryResponse == null) throw new NotExistingGroupTrainingException();
+        groupTrainingsRepository.removeByTrainingId(trainingId);
 
         List<UserDocument> participants = repositoryResponse.getParticipants();
         List<UserResponse> participantsResponses = new ArrayList<>();
@@ -281,11 +333,16 @@ public class ManagerGroupTrainingServiceImpl implements ManagerGroupTrainingServ
         }
 
         List<UserDocument> reserveList = repositoryResponse.getReserveList();
-        List<UserResponse> reserveListResponses = getUserResponseList(reserveList);
+        List<UserResponse> reserveListResponses = new ArrayList<>();
+        for (UserDocument document : reserveList) {
+            UserResponse reserveListResponse = new UserResponse(document.getUserId(),
+                    document.getName(), document.getSurname());
+            reserveListResponses.add(reserveListResponse);
+        }
 
         String subject = "Training has been deleted";
         String body = "Training " + repositoryResponse.getTrainingId() + " on " + repositoryResponse.getDate() + " at "
-                + repositoryResponse.getStartTime() + " with " + repositoryResponse.getTrainers() + " has been deleted.";
+                + repositoryResponse.getStartTime() + " with "; //TODO fix + repositoryResponse.getTrainerId() + " has been deleted.";
         try {
             emailSender.sendEmailWithoutAttachment(toEmails, subject, body);
         } catch (Exception e) {
@@ -295,7 +352,7 @@ public class ManagerGroupTrainingServiceImpl implements ManagerGroupTrainingServ
         return new GroupTrainingResponse(
                 repositoryResponse.getTrainingId(),
                 repositoryResponse.getTrainingType().getName(),
-                trainersResponses,
+                null, //TODO fix repositoryResponse.getTrainerId(),
                 repositoryResponse.getDate(),
                 repositoryResponse.getStartTime(),
                 repositoryResponse.getEndTime(),

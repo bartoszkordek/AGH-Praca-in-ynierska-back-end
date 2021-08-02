@@ -1,9 +1,10 @@
 package com.healthy.gym.trainings.service.groupTrainingService;
 
 import com.healthy.gym.trainings.configuration.EmailConfig;
-import com.healthy.gym.trainings.data.repository.GroupTrainingsDbRepository;
+import com.healthy.gym.trainings.data.repository.GroupTrainingsDbRepositoryImpl;
+import com.healthy.gym.trainings.data.repository.GroupTrainingsRepository;
 import com.healthy.gym.trainings.data.repository.TrainingTypeDAO;
-import com.healthy.gym.trainings.exception.*;
+import com.healthy.gym.trainings.exception.StartDateAfterEndDateException;
 import com.healthy.gym.trainings.exception.invalid.InvalidDateException;
 import com.healthy.gym.trainings.exception.invalid.InvalidHourException;
 import com.healthy.gym.trainings.exception.notexisting.NotExistingGroupTrainingException;
@@ -37,10 +38,15 @@ public class GetGroupTrainingServiceTest {
     public void shouldReturnAllGroupTrainings_whenValidRequest() throws InvalidHourException, StartDateAfterEndDateException, ParseException, InvalidDateException {
         //mocks
         EmailConfig emailConfig = Mockito.mock(EmailConfig.class);
-        GroupTrainingsDbRepository groupTrainingsDbRepository = Mockito.mock(GroupTrainingsDbRepository.class);
+        GroupTrainingsDbRepositoryImpl groupTrainingsDbRepositoryImpl = Mockito.mock(GroupTrainingsDbRepositoryImpl.class);
         TrainingTypeDAO trainingTypeRepository = Mockito.mock(TrainingTypeDAO.class);
-        GroupTrainingService groupTrainingService = new GroupTrainingServiceImpl(emailConfig, groupTrainingsDbRepository,
-                trainingTypeRepository);
+        GroupTrainingsRepository groupTrainingsRepository = Mockito.mock(GroupTrainingsRepository.class);
+        GroupTrainingService groupTrainingService = new GroupTrainingServiceImpl(
+                emailConfig,
+                groupTrainingsDbRepositoryImpl,
+                trainingTypeRepository,
+                groupTrainingsRepository
+        );
 
         //before
         String startDate = "2000-01-01";
@@ -73,7 +79,7 @@ public class GetGroupTrainingServiceTest {
         groupTrainings.add(groupTraining);
 
         //when
-        when(groupTrainingsDbRepository.getGroupTrainings(startDate, endDate)).thenReturn(groupTrainings);
+        when(groupTrainingsDbRepositoryImpl.getGroupTrainings(startDate, endDate)).thenReturn(groupTrainings);
 
         //then
         assertThat(groupTrainingService.getGroupTrainings(startDate, endDate)).isEqualTo(groupTrainings);
@@ -83,10 +89,15 @@ public class GetGroupTrainingServiceTest {
     public void shouldReturnAllGroupTrainingsPublicView_whenValidRequest() throws InvalidHourException, InvalidDateException, StartDateAfterEndDateException, ParseException {
         //mocks
         EmailConfig emailConfig = Mockito.mock(EmailConfig.class);
-        GroupTrainingsDbRepository groupTrainingsDbRepository = Mockito.mock(GroupTrainingsDbRepository.class);
+        GroupTrainingsDbRepositoryImpl groupTrainingsDbRepositoryImpl = Mockito.mock(GroupTrainingsDbRepositoryImpl.class);
         TrainingTypeDAO trainingTypeRepository = Mockito.mock(TrainingTypeDAO.class);
-        GroupTrainingService groupTrainingService = new GroupTrainingServiceImpl(emailConfig, groupTrainingsDbRepository,
-                trainingTypeRepository);
+        GroupTrainingsRepository groupTrainingsRepository = Mockito.mock(GroupTrainingsRepository.class);
+        GroupTrainingService groupTrainingService = new GroupTrainingServiceImpl(
+                emailConfig,
+                groupTrainingsDbRepositoryImpl,
+                trainingTypeRepository,
+                groupTrainingsRepository
+        );
 
         //before
         String startDate = "2000-01-01";
@@ -115,7 +126,7 @@ public class GetGroupTrainingServiceTest {
         groupTrainings.add(groupTrainingPublicResponse);
 
         //when
-        when(groupTrainingsDbRepository.getPublicGroupTrainings(startDate, endDate)).thenReturn(groupTrainings);
+        when(groupTrainingsDbRepositoryImpl.getPublicGroupTrainings(startDate, endDate)).thenReturn(groupTrainings);
 
         //then
         assertThat(groupTrainingService.getPublicGroupTrainings(startDate, endDate)).isEqualTo(groupTrainings);
@@ -125,10 +136,15 @@ public class GetGroupTrainingServiceTest {
     public void shouldReturnGroupTrainingByTrainingId_whenValidRequest() throws InvalidHourException, NotExistingGroupTrainingException, InvalidDateException {
         //mocks
         EmailConfig emailConfig = Mockito.mock(EmailConfig.class);
-        GroupTrainingsDbRepository groupTrainingsDbRepository = Mockito.mock(GroupTrainingsDbRepository.class);
+        GroupTrainingsDbRepositoryImpl groupTrainingsDbRepositoryImpl = Mockito.mock(GroupTrainingsDbRepositoryImpl.class);
         TrainingTypeDAO trainingTypeRepository = Mockito.mock(TrainingTypeDAO.class);
-        GroupTrainingService groupTrainingService = new GroupTrainingServiceImpl(emailConfig, groupTrainingsDbRepository,
-                trainingTypeRepository);
+        GroupTrainingsRepository groupTrainingsRepository = Mockito.mock(GroupTrainingsRepository.class);
+        GroupTrainingService groupTrainingService = new GroupTrainingServiceImpl(
+                emailConfig,
+                groupTrainingsDbRepositoryImpl,
+                trainingTypeRepository,
+                groupTrainingsRepository
+        );
 
         //before
         String trainingId = "122ed953-e37f-435a-bd1e-9fb2a327c4d3";
@@ -158,8 +174,8 @@ public class GetGroupTrainingServiceTest {
         groupTrainings.add(groupTraining);
 
         //when
-        when(groupTrainingsDbRepository.isGroupTrainingExist(trainingId)).thenReturn(true);
-        when(groupTrainingsDbRepository.getGroupTrainingById(trainingId)).thenReturn(groupTraining);
+        when(groupTrainingsRepository.existsByTrainingId(trainingId)).thenReturn(true);
+        when(groupTrainingsDbRepositoryImpl.getGroupTrainingById(trainingId)).thenReturn(groupTraining);
 
         //then
         assertThat(groupTrainingService.getGroupTrainingById(trainingId)).isEqualTo(groupTraining);
@@ -169,16 +185,21 @@ public class GetGroupTrainingServiceTest {
     public void shouldNotReturnGroupTrainingByTrainingId_whenInvalidTrainingId() throws InvalidHourException, NotExistingGroupTrainingException, InvalidDateException {
         //mocks
         EmailConfig emailConfig = Mockito.mock(EmailConfig.class);
-        GroupTrainingsDbRepository groupTrainingsDbRepository = Mockito.mock(GroupTrainingsDbRepository.class);
+        GroupTrainingsDbRepositoryImpl groupTrainingsDbRepositoryImpl = Mockito.mock(GroupTrainingsDbRepositoryImpl.class);
         TrainingTypeDAO trainingTypeRepository = Mockito.mock(TrainingTypeDAO.class);
-        GroupTrainingService groupTrainingService = new GroupTrainingServiceImpl(emailConfig, groupTrainingsDbRepository,
-                trainingTypeRepository);
+        GroupTrainingsRepository groupTrainingsRepository = Mockito.mock(GroupTrainingsRepository.class);
+        GroupTrainingService groupTrainingService = new GroupTrainingServiceImpl(
+                emailConfig,
+                groupTrainingsDbRepositoryImpl,
+                trainingTypeRepository,
+                groupTrainingsRepository
+        );
 
         //before
         String invalidTrainingId = "122ed953-e37f-435a-bd1e-9fb2a327c4d3";
 
         //when
-        when(groupTrainingsDbRepository.isGroupTrainingExist(invalidTrainingId)).thenReturn(false);
+        when(groupTrainingsRepository.existsByTrainingId(invalidTrainingId)).thenReturn(false);
 
         //then
         groupTrainingService.getGroupTrainingById(invalidTrainingId);
@@ -188,10 +209,15 @@ public class GetGroupTrainingServiceTest {
     public void shouldGetTrainingParticipants_whenValidTrainingId() throws NotExistingGroupTrainingException {
         //mocks
         EmailConfig emailConfig = Mockito.mock(EmailConfig.class);
-        GroupTrainingsDbRepository groupTrainingsDbRepository = Mockito.mock(GroupTrainingsDbRepository.class);
+        GroupTrainingsDbRepositoryImpl groupTrainingsDbRepositoryImpl = Mockito.mock(GroupTrainingsDbRepositoryImpl.class);
         TrainingTypeDAO trainingTypeRepository = Mockito.mock(TrainingTypeDAO.class);
-        GroupTrainingService groupTrainingService = new GroupTrainingServiceImpl(emailConfig, groupTrainingsDbRepository,
-                trainingTypeRepository);
+        GroupTrainingsRepository groupTrainingsRepository = Mockito.mock(GroupTrainingsRepository.class);
+        GroupTrainingService groupTrainingService = new GroupTrainingServiceImpl(
+                emailConfig,
+                groupTrainingsDbRepositoryImpl,
+                trainingTypeRepository,
+                groupTrainingsRepository
+        );
 
         //before
         String trainingId = "122ed953-e37f-435a-bd1e-9fb2a327c4d3";
@@ -210,8 +236,8 @@ public class GetGroupTrainingServiceTest {
         participantsResponses.add(participants2Response);
 
         //when
-        when(groupTrainingsDbRepository.isGroupTrainingExist(trainingId)).thenReturn(true);
-        when(groupTrainingsDbRepository.getTrainingParticipants(trainingId)).thenReturn(participantsResponses);
+        when(groupTrainingsRepository.existsByTrainingId(trainingId)).thenReturn(true);
+        when(groupTrainingsDbRepositoryImpl.getTrainingParticipants(trainingId)).thenReturn(participantsResponses);
 
         //then
         assertThat(groupTrainingService.getTrainingParticipants(trainingId));
@@ -221,16 +247,21 @@ public class GetGroupTrainingServiceTest {
     public void shouldNotGetTrainingParticipants_whenInvalidTrainingId() throws NotExistingGroupTrainingException {
         //mocks
         EmailConfig emailConfig = Mockito.mock(EmailConfig.class);
-        GroupTrainingsDbRepository groupTrainingsDbRepository = Mockito.mock(GroupTrainingsDbRepository.class);
+        GroupTrainingsDbRepositoryImpl groupTrainingsDbRepositoryImpl = Mockito.mock(GroupTrainingsDbRepositoryImpl.class);
         TrainingTypeDAO trainingTypeRepository = Mockito.mock(TrainingTypeDAO.class);
-        GroupTrainingService groupTrainingService = new GroupTrainingServiceImpl(emailConfig, groupTrainingsDbRepository,
-                trainingTypeRepository);
+        GroupTrainingsRepository groupTrainingsRepository = Mockito.mock(GroupTrainingsRepository.class);
+        GroupTrainingService groupTrainingService = new GroupTrainingServiceImpl(
+                emailConfig,
+                groupTrainingsDbRepositoryImpl,
+                trainingTypeRepository,
+                groupTrainingsRepository
+        );
 
         //before
         String invalidTrainingId = "122ed953-e37f-435a-bd1e-9fb2a327c4d3";
 
         //when
-        when(groupTrainingsDbRepository.isGroupTrainingExist(invalidTrainingId)).thenReturn(false);
+        when(groupTrainingsRepository.existsByTrainingId(invalidTrainingId)).thenReturn(false);
 
         //then
         groupTrainingService.getTrainingParticipants(invalidTrainingId);
@@ -240,10 +271,15 @@ public class GetGroupTrainingServiceTest {
     public void shouldReturnGroupTrainingsByTrainingTypeId_whenValidRequest() throws InvalidDateException, InvalidHourException, ParseException, StartDateAfterEndDateException, NotExistingGroupTrainingException, TrainingTypeNotFoundException {
         //mocks
         EmailConfig emailConfig = Mockito.mock(EmailConfig.class);
-        GroupTrainingsDbRepository groupTrainingsDbRepository = Mockito.mock(GroupTrainingsDbRepository.class);
+        GroupTrainingsDbRepositoryImpl groupTrainingsDbRepositoryImpl = Mockito.mock(GroupTrainingsDbRepositoryImpl.class);
         TrainingTypeDAO trainingTypeRepository = Mockito.mock(TrainingTypeDAO.class);
-        GroupTrainingService groupTrainingService = new GroupTrainingServiceImpl(emailConfig, groupTrainingsDbRepository,
-                trainingTypeRepository);
+        GroupTrainingsRepository groupTrainingsRepository = Mockito.mock(GroupTrainingsRepository.class);
+        GroupTrainingService groupTrainingService = new GroupTrainingServiceImpl(
+                emailConfig,
+                groupTrainingsDbRepositoryImpl,
+                trainingTypeRepository,
+                groupTrainingsRepository
+        );
 
         //before
         String startDate = "2000-01-01";
@@ -275,8 +311,8 @@ public class GetGroupTrainingServiceTest {
 
         //when
         when(trainingTypeRepository.existsByTrainingTypeId(trainingTypeId)).thenReturn(true);
-        when(groupTrainingsDbRepository.isGroupTrainingExistByType(trainingTypeId)).thenReturn(true);
-        when(groupTrainingsDbRepository.getGroupTrainingsByTrainingTypeId(trainingTypeId, startDate, endDate)).thenReturn(groupTrainings);
+        when(groupTrainingsRepository.existsByTrainingTypeId(trainingTypeId)).thenReturn(true);
+        when(groupTrainingsDbRepositoryImpl.getGroupTrainingsByTrainingTypeId(trainingTypeId, startDate, endDate)).thenReturn(groupTrainings);
 
         //then
         assertThat(groupTrainingService.getGroupTrainingsByType(trainingTypeId, startDate, endDate)).isEqualTo(groupTrainings);
@@ -286,10 +322,15 @@ public class GetGroupTrainingServiceTest {
     public void shouldNotReturnGroupTrainings_whenInvalidTrainingTypeId() throws InvalidDateException, InvalidHourException, StartDateAfterEndDateException, ParseException, NotExistingGroupTrainingException, TrainingTypeNotFoundException {
         //mocks
         EmailConfig emailConfig = Mockito.mock(EmailConfig.class);
-        GroupTrainingsDbRepository groupTrainingsDbRepository = Mockito.mock(GroupTrainingsDbRepository.class);
+        GroupTrainingsDbRepositoryImpl groupTrainingsDbRepositoryImpl = Mockito.mock(GroupTrainingsDbRepositoryImpl.class);
         TrainingTypeDAO trainingTypeRepository = Mockito.mock(TrainingTypeDAO.class);
-        GroupTrainingService groupTrainingService = new GroupTrainingServiceImpl(emailConfig, groupTrainingsDbRepository,
-                trainingTypeRepository);
+        GroupTrainingsRepository groupTrainingsRepository = Mockito.mock(GroupTrainingsRepository.class);
+        GroupTrainingService groupTrainingService = new GroupTrainingServiceImpl(
+                emailConfig,
+                groupTrainingsDbRepositoryImpl,
+                trainingTypeRepository,
+                groupTrainingsRepository
+        );
 
         //before
         String startDate = "2000-01-01";
@@ -322,8 +363,8 @@ public class GetGroupTrainingServiceTest {
 
         //when
         when(trainingTypeRepository.existsByTrainingTypeId(trainingTypeId)).thenReturn(false);
-        when(groupTrainingsDbRepository.isGroupTrainingExistByType(trainingTypeId)).thenReturn(false);
-        when(groupTrainingsDbRepository.getGroupTrainingsByTrainingTypeId(trainingTypeId, startDate, endDate)).thenReturn(groupTrainings);
+        when(groupTrainingsRepository.existsByTrainingTypeId(trainingTypeId)).thenReturn(true);
+        when(groupTrainingsDbRepositoryImpl.getGroupTrainingsByTrainingTypeId(trainingTypeId, startDate, endDate)).thenReturn(groupTrainings);
 
         //then
         groupTrainingService.getGroupTrainingsByType(trainingTypeId, startDate, endDate);

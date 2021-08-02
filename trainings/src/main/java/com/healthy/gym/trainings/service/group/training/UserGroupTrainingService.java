@@ -1,5 +1,6 @@
 package com.healthy.gym.trainings.service.group.training;
 
+import com.healthy.gym.trainings.exception.notfound.UserNotFoundException;
 import com.healthy.gym.trainings.exception.training.TrainingEnrollmentException;
 import com.healthy.gym.trainings.exception.invalid.InvalidDateException;
 import com.healthy.gym.trainings.exception.invalid.InvalidHourException;
@@ -14,11 +15,11 @@ public interface UserGroupTrainingService {
             throws InvalidHourException, InvalidDateException;
 
     void enrollToGroupTraining(String trainingId, String clientId)
-            throws TrainingEnrollmentException;
+            throws TrainingEnrollmentException, NotExistingGroupTrainingException, UserNotFoundException;
 
     void addToReserveList(String trainingId, String clientId)
-            throws NotExistingGroupTrainingException, TrainingEnrollmentException;
+            throws NotExistingGroupTrainingException, TrainingEnrollmentException, UserNotFoundException;
 
     void removeGroupTrainingEnrollment(String trainingId, String clientId)
-            throws NotExistingGroupTrainingException, TrainingEnrollmentException;
+            throws NotExistingGroupTrainingException, TrainingEnrollmentException, UserNotFoundException;
 }

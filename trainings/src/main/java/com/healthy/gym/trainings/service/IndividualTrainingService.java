@@ -4,6 +4,7 @@ import com.healthy.gym.trainings.data.document.IndividualTrainings;
 import com.healthy.gym.trainings.exception.*;
 import com.healthy.gym.trainings.exception.invalid.InvalidHourException;
 import com.healthy.gym.trainings.exception.notexisting.NotExistingIndividualTrainingException;
+import com.healthy.gym.trainings.exception.notfound.UserNotFoundException;
 import com.healthy.gym.trainings.model.request.IndividualTrainingAcceptanceRequest;
 import com.healthy.gym.trainings.model.request.IndividualTrainingRequest;
 
@@ -16,7 +17,7 @@ public interface IndividualTrainingService {
     IndividualTrainings getIndividualTrainingById(String trainingId)
             throws NotExistingIndividualTrainingException;
 
-    List<IndividualTrainings> getMyAllTrainings(String clientId);
+    List<IndividualTrainings> getMyAllTrainings(String clientId) throws UserNotFoundException;
 
     List<IndividualTrainings> getAllAcceptedIndividualTrainings();
 
@@ -25,6 +26,12 @@ public interface IndividualTrainingService {
             String clientId
     ) throws InvalidHourException, ParseException, RetroIndividualTrainingException;
 
+    IndividualTrainings cancelIndividualTrainingRequest(String trainingId, String clientId)
+            throws NotExistingIndividualTrainingException,
+            NotAuthorizedClientException,
+            ParseException,
+            RetroIndividualTrainingException;
+
     IndividualTrainings acceptIndividualTraining(
             String trainingId,
             IndividualTrainingAcceptanceRequest individualTrainingsAcceptModel
@@ -32,13 +39,7 @@ public interface IndividualTrainingService {
             HallNoOutOfRangeException, ParseException, RetroIndividualTrainingException,
             EmailSendingException;
 
-    IndividualTrainings cancelIndividualTrainingRequest(String trainingId, String clientId)
-            throws NotExistingIndividualTrainingException,
-            NotAuthorizedClientException,
-            ParseException,
-            RetroIndividualTrainingException;
-
-    IndividualTrainings declineIndividualTraining(String trainingId)
+    IndividualTrainings rejectIndividualTraining(String trainingId)
             throws NotExistingIndividualTrainingException,
             AlreadyDeclinedIndividualTrainingException,
             EmailSendingException;

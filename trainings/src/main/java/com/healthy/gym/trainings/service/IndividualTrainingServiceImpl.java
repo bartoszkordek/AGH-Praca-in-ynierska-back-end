@@ -2,10 +2,13 @@ package com.healthy.gym.trainings.service;
 
 import com.healthy.gym.trainings.configuration.EmailConfig;
 import com.healthy.gym.trainings.data.document.IndividualTrainings;
-import com.healthy.gym.trainings.data.repository.IndividualTrainingsDbRepository;
+import com.healthy.gym.trainings.data.document.UserDocument;
+import com.healthy.gym.trainings.data.repository.IndividualTrainingsRepository;
+import com.healthy.gym.trainings.data.repository.UserDAO;
 import com.healthy.gym.trainings.exception.*;
 import com.healthy.gym.trainings.exception.invalid.InvalidHourException;
 import com.healthy.gym.trainings.exception.notexisting.NotExistingIndividualTrainingException;
+import com.healthy.gym.trainings.exception.notfound.UserNotFoundException;
 import com.healthy.gym.trainings.model.other.EmailSendModel;
 import com.healthy.gym.trainings.model.request.IndividualTrainingAcceptanceRequest;
 import com.healthy.gym.trainings.model.request.IndividualTrainingRequest;
@@ -23,15 +26,18 @@ import java.util.List;
 public class IndividualTrainingServiceImpl implements IndividualTrainingService {
 
     private final EmailConfig emailConfig;
-    private final IndividualTrainingsDbRepository individualTrainingsDbRepository;
+    private final IndividualTrainingsRepository individualTrainingsRepository;
+    private final UserDAO userDAO;
 
     @Autowired
     public IndividualTrainingServiceImpl(
             EmailConfig emailConfig,
-            IndividualTrainingsDbRepository individualTrainingsDbRepository
+            IndividualTrainingsRepository individualTrainingsRepository,
+            UserDAO userDAO
     ) {
         this.emailConfig = emailConfig;
-        this.individualTrainingsDbRepository = individualTrainingsDbRepository;
+        this.individualTrainingsRepository = individualTrainingsRepository;
+        this.userDAO = userDAO;
     }
 
     private void sendEmailWithoutAttachment(List<String> recipients, String subject, String body) {
@@ -55,40 +61,34 @@ public class IndividualTrainingServiceImpl implements IndividualTrainingService 
         emailService.sendEmailTLS(emailSendModel);
     }
 
-    private boolean isTrainingRetroDateAndTime(String date, String startDate) throws ParseException {
-        String startDateAndTime = date.concat("-").concat(startDate);
-        SimpleDateFormat sdfDateAndTime = new SimpleDateFormat("yyyy-MM-dd-HH:mm");
-        Date requestDateParsed = sdfDateAndTime.parse(startDateAndTime);
-
-        Date now = new Date();
-
-        if (requestDateParsed.before(now)) return true;
-
-        return false;
-    }
-
+    @Override
     public List<IndividualTrainings> getAllIndividualTrainings() {
-        return individualTrainingsDbRepository.getIndividualTrainings();
+        return individualTrainingsRepository.findAll();
     }
 
+    @Override
     public IndividualTrainings getIndividualTrainingById(String trainingId)
             throws NotExistingIndividualTrainingException {
 
-        if (!individualTrainingsDbRepository.isIndividualTrainingExist(trainingId)) {
-            throw new NotExistingIndividualTrainingException("Training with ID: " + trainingId + " doesn't exist");
-        }
-        return individualTrainingsDbRepository.getIndividualTrainingById(trainingId);
+        IndividualTrainings individualTraining = individualTrainingsRepository
+                .findIndividualTrainingsById(trainingId);
+        if (individualTraining == null) throw new NotExistingIndividualTrainingException();
+        return individualTraining;
     }
 
-    public List<IndividualTrainings> getMyAllTrainings(String clientId) {
-        //add if Client Exists validation
-        return individualTrainingsDbRepository.getMyAllIndividualTrainings(clientId);
+    @Override
+    public List<IndividualTrainings> getMyAllTrainings(String clientId) throws UserNotFoundException {
+        UserDocument user = userDAO.findByUserId(clientId);
+        if (user == null) throw new UserNotFoundException();
+        return individualTrainingsRepository.findIndividualTrainingsByClientIdEquals(clientId);
     }
 
+    @Override
     public List<IndividualTrainings> getAllAcceptedIndividualTrainings() {
-        return individualTrainingsDbRepository.getAcceptedIndividualTrainings();
+        return individualTrainingsRepository.findAllByAccepted(true);
     }
 
+    @Override
     public IndividualTrainings createIndividualTrainingRequest(
             IndividualTrainingRequest individualTrainingsRequestModel,
             String clientId
@@ -99,10 +99,33 @@ public class IndividualTrainingServiceImpl implements IndividualTrainingService 
         if (isTrainingRetroDateAndTime(individualTrainingDate, individualTrainingStartTime)) {
             throw new RetroIndividualTrainingException("Retro date");
         }
-        return individualTrainingsDbRepository
-                .createIndividualTrainingRequest(individualTrainingsRequestModel, clientId);
+
+        return individualTrainingsRepository.insert(
+                new IndividualTrainings(
+                        clientId,
+                        individualTrainingsRequestModel.getTrainerId(),
+                        individualTrainingsRequestModel.getDate(),
+                        individualTrainingsRequestModel.getStartTime(),
+                        individualTrainingsRequestModel.getEndTime(),
+                        -1,
+                        individualTrainingsRequestModel.getRemarks(),
+                        false,
+                        false
+                )
+        );
     }
 
+    private boolean isTrainingRetroDateAndTime(String date, String startDate) throws ParseException {
+        String startDateAndTime = date.concat("-").concat(startDate);
+        SimpleDateFormat sdfDateAndTime = new SimpleDateFormat("yyyy-MM-dd-HH:mm");
+        Date requestDateParsed = sdfDateAndTime.parse(startDateAndTime);
+
+        Date now = new Date();
+
+        return requestDateParsed.before(now);
+    }
+
+    @Override
     public IndividualTrainings acceptIndividualTraining(
             String trainingId,
             IndividualTrainingAcceptanceRequest individualTrainingsAcceptModel
@@ -113,17 +136,15 @@ public class IndividualTrainingServiceImpl implements IndividualTrainingService 
             RetroIndividualTrainingException,
             EmailSendingException {
 
-        if (!individualTrainingsDbRepository.isIndividualTrainingExist(trainingId)) {
-            throw new NotExistingIndividualTrainingException("Training with ID: " + trainingId +
-                    " doesn't exist");
-        }
-        if (individualTrainingsDbRepository.isIndividualTrainingExistAndAccepted(trainingId)) {
-            throw new AlreadyAcceptedIndividualTrainingException("Training with ID: " + trainingId +
-                    " has been already accepted");
-        }
-        IndividualTrainings individualTraining = individualTrainingsDbRepository.getIndividualTrainingById(trainingId);
+        IndividualTrainings individualTraining = individualTrainingsRepository
+                .findIndividualTrainingsById(trainingId);
+
+        if (individualTraining == null) throw new NotExistingIndividualTrainingException();
+        if (individualTraining.isAccepted()) throw new AlreadyAcceptedIndividualTrainingException();
+
         String individualTrainingDate = individualTraining.getDate();
         String individualTrainingStartTime = individualTraining.getStartTime();
+
         if (isTrainingRetroDateAndTime(individualTrainingDate, individualTrainingStartTime)) {
             throw new RetroIndividualTrainingException("Retro date");
         }
@@ -131,8 +152,12 @@ public class IndividualTrainingServiceImpl implements IndividualTrainingService 
             throw new HallNoOutOfRangeException("Hall no: " + individualTrainingsAcceptModel.getHallNo() +
                     " does not exist");
         }
-        IndividualTrainings response = individualTrainingsDbRepository
-                .acceptIndividualTrainingRequest(trainingId, individualTrainingsAcceptModel);
+
+        individualTraining.setAccepted(true);
+        individualTraining.setHallNo(individualTrainingsAcceptModel.getHallNo());
+        IndividualTrainings response = individualTrainingsRepository.save(individualTraining);
+
+
         String clientId = response.getClientId();
         List<String> recipients = new ArrayList<>();
         recipients.add(clientId);
@@ -147,19 +172,20 @@ public class IndividualTrainingServiceImpl implements IndividualTrainingService 
         return response;
     }
 
-    public IndividualTrainings declineIndividualTraining(String trainingId)
+    @Override
+    public IndividualTrainings rejectIndividualTraining(String trainingId)
             throws NotExistingIndividualTrainingException,
             AlreadyDeclinedIndividualTrainingException,
             EmailSendingException {
 
-        if (!individualTrainingsDbRepository.isIndividualTrainingExist(trainingId)) {
-            throw new NotExistingIndividualTrainingException("Training with ID: " + trainingId + " doesn't exist");
-        }
-        if (individualTrainingsDbRepository.isIndividualTrainingExistAndDeclined(trainingId)) {
-            throw new AlreadyDeclinedIndividualTrainingException("Training with ID: " + trainingId +
-                    " has been already declined");
-        }
-        IndividualTrainings response = individualTrainingsDbRepository.declineIndividualTrainingRequest(trainingId);
+        IndividualTrainings individualTraining = individualTrainingsRepository
+                .findIndividualTrainingsById(trainingId);
+
+        if (individualTraining == null) throw new NotExistingIndividualTrainingException();
+        if (individualTraining.isDeclined()) throw new AlreadyDeclinedIndividualTrainingException();
+
+        individualTraining.setDeclined(true);
+        IndividualTrainings response = individualTrainingsRepository.save(individualTraining);
 
         String clientId = response.getClientId();
         List<String> recipients = new ArrayList<>();
@@ -175,24 +201,30 @@ public class IndividualTrainingServiceImpl implements IndividualTrainingService 
         return response;
     }
 
+    @Override
     public IndividualTrainings cancelIndividualTrainingRequest(String trainingId, String clientId)
             throws NotExistingIndividualTrainingException,
             NotAuthorizedClientException,
             ParseException,
             RetroIndividualTrainingException {
 
-        if (!individualTrainingsDbRepository.isIndividualTrainingExist(trainingId)) {
-            throw new NotExistingIndividualTrainingException("Training with ID: " + trainingId + " doesn't exist");
-        }
-        if (!individualTrainingsDbRepository.isIndividualTrainingExistAndRequestedByClient(trainingId, clientId)) {
-            throw new NotAuthorizedClientException("Training is not authorized by client");
-        }
-        IndividualTrainings individualTraining = individualTrainingsDbRepository.getIndividualTrainingById(trainingId);
+        IndividualTrainings individualTraining = individualTrainingsRepository
+                .findIndividualTrainingsById(trainingId);
+
+        if (individualTraining == null) throw new NotExistingIndividualTrainingException();
+
+        boolean clientIdEquals = individualTrainingsRepository
+                .existsIndividualTrainingsByIdAndClientIdEquals(trainingId, clientId);
+
+        if (!clientIdEquals) throw new NotAuthorizedClientException("Training is not authorized by client");
+
         String individualTrainingDate = individualTraining.getDate();
         String individualTrainingStartTime = individualTraining.getStartTime();
         if (isTrainingRetroDateAndTime(individualTrainingDate, individualTrainingStartTime)) {
             throw new RetroIndividualTrainingException("Retro date");
         }
-        return individualTrainingsDbRepository.cancelIndividualTrainingRequest(trainingId);
+
+        individualTrainingsRepository.deleteIndividualTrainingsById(trainingId);
+        return individualTraining;
     }
 }

@@ -4,6 +4,7 @@ import com.healthy.gym.trainings.data.document.IndividualTrainings;
 import com.healthy.gym.trainings.exception.*;
 import com.healthy.gym.trainings.exception.invalid.InvalidHourException;
 import com.healthy.gym.trainings.exception.notexisting.NotExistingIndividualTrainingException;
+import com.healthy.gym.trainings.exception.notfound.UserNotFoundException;
 import com.healthy.gym.trainings.model.request.IndividualTrainingAcceptanceRequest;
 import com.healthy.gym.trainings.model.request.IndividualTrainingRequest;
 import com.healthy.gym.trainings.service.IndividualTrainingService;
@@ -65,7 +66,7 @@ public class IndividualTrainingController {
     @GetMapping("/user/{userId}")
     public List<IndividualTrainings> getMyAllIndividualTrainings(
             @PathVariable final String userId
-    ) {
+    ) throws UserNotFoundException {
         return individualTrainingsService.getMyAllTrainings(userId);
     }
 
@@ -88,7 +89,7 @@ public class IndividualTrainingController {
             @PathVariable("trainingId") final String trainingId
     ) throws RestException {
         try {
-            return individualTrainingsService.declineIndividualTraining(trainingId);
+            return individualTrainingsService.rejectIndividualTraining(trainingId);
         } catch (NotExistingIndividualTrainingException
                 | AlreadyDeclinedIndividualTrainingException
                 | EmailSendingException e) {

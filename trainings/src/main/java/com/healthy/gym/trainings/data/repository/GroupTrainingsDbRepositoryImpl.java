@@ -251,7 +251,7 @@ public class GroupTrainingsDbRepositoryImpl implements GroupTrainingsDbRepositor
         double rating = 0.0;
         int sum = 0;
         int counter = 0;
-        if (groupTrainingsDbResponse.size() > 0) {
+        if (!groupTrainingsDbResponse.isEmpty()) {
             List<GroupTrainingReviewResponse> groupTrainingsReviews = groupTrainingsReviewsRepository
                     .findByDateBetweenAndTrainingTypeId(
                             null,
@@ -331,7 +331,7 @@ public class GroupTrainingsDbRepositoryImpl implements GroupTrainingsDbRepositor
         double rating = 0.0;
         int sum = 0;
         int counter = 0;
-        if (dbResponse.size() > 0) {
+        if (!dbResponse.isEmpty()) {
             List<GroupTrainingReviewResponse> groupTrainingsReviews = groupTrainingsReviewsRepository
                     .findByDateBetweenAndTrainingTypeId(
                             null,
@@ -378,7 +378,7 @@ public class GroupTrainingsDbRepositoryImpl implements GroupTrainingsDbRepositor
             double rating = 0.0;
             int sum = 0;
             int counter = 0;
-            if (groupTrainings.size() > 0) {
+            if (!groupTrainings.isEmpty()) {
                 List<GroupTrainingReviewResponse> groupTrainingsReviews = groupTrainingsReviewsRepository
                         .findByDateBetweenAndTrainingTypeId(
                                 null,
@@ -562,8 +562,6 @@ public class GroupTrainingsDbRepositoryImpl implements GroupTrainingsDbRepositor
         Document startLtEnd = new Document("startTime", ltEnd);
         Document eqHallNo = new Document("hallNo", hallNo);
 
-        Document middleTimeEventValid = new Document("$and", Arrays.asList(
-                eqDate, startGteBeginning, startLtEnd, endGtBeginning, endLtEnd, eqHallNo));
         Document startDateDuringEvent = new Document("$and", Arrays.asList(
                 eqDate, startGteBeginning, startLtEnd, eqHallNo));
         Document endDateDuringEvent = new Document("$and", Arrays.asList(
@@ -610,8 +608,6 @@ public class GroupTrainingsDbRepositoryImpl implements GroupTrainingsDbRepositor
         Document eqHallNo = new Document("hallNo", hallNo);
         Document notEqTrainingId = new Document("ne", new Document("trainingId", trainingId));
 
-        Document middleTimeEventValid = new Document("$and", Arrays.asList(
-                eqDate, startGteBeginning, startLtEnd, endGtBeginning, endLtEnd, eqHallNo, notEqTrainingId));
         Document startDateDuringEvent = new Document("$and", Arrays.asList(
                 eqDate, startGteBeginning, startLtEnd, eqHallNo, notEqTrainingId));
         Document endDateDuringEvent = new Document("$and", Arrays.asList(

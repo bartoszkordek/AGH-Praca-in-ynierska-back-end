@@ -16,6 +16,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -106,6 +107,14 @@ public class UserGroupTrainingServiceImpl implements UserGroupTrainingService {
         UserDocument newParticipant = userRepository.findByUserId(clientId);
         if (newParticipant == null) throw new UserNotFoundException();
 
+        if(groupTraining.getStartDate().isAfter(LocalDateTime.now())){
+            throw new TrainingEnrollmentException("Retro event");
+        }
+
+        if(groupTraining.getLimit()<=groupTraining.getBasicList().size()){
+            throw new TrainingEnrollmentException("Full participants list");
+        }
+
         //TODO przerobić pod GroupTrainingsDAO
         /*if (!groupTrainingsDbRepositoryImpl.isAbilityToGroupTrainingEnrollment(trainingId))
             throw new TrainingEnrollmentException("Cannot enroll to this training");*/
@@ -141,6 +150,14 @@ public class UserGroupTrainingServiceImpl implements UserGroupTrainingService {
         if (isClientAlreadyExistInReserveList(groupTraining, clientId))
             throw new TrainingEnrollmentException("Client already exists in reserve list");
 
+        if(groupTraining.getStartDate().isAfter(LocalDateTime.now())){
+            throw new TrainingEnrollmentException("Retro event");
+        }
+
+        if(groupTraining.getLimit()<=groupTraining.getBasicList().size()){
+            throw new TrainingEnrollmentException("Full participants list");
+        }
+
         List<UserDocument> reserveList = groupTraining.getReserveList();
         reserveList.add(newReserveListParticipant);
         groupTraining.setReserveList(reserveList);
@@ -156,6 +173,10 @@ public class UserGroupTrainingServiceImpl implements UserGroupTrainingService {
 
         UserDocument participantToRemove = userRepository.findByUserId(clientId);
         if (participantToRemove == null) throw new UserNotFoundException();
+
+        if(groupTraining.getStartDate().isAfter(LocalDateTime.now())){
+            throw new TrainingEnrollmentException("Retro event");
+        }
 
         boolean clientIsEnrolled = isClientAlreadyEnrolledToGroupTraining(groupTraining, clientId);
         boolean clientIsInReserveList = isClientAlreadyExistInReserveList(groupTraining, clientId);

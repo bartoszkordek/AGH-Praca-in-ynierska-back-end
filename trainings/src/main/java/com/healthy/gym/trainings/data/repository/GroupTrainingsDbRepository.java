@@ -16,9 +16,6 @@ public interface GroupTrainingsDbRepository {
     List<GroupTrainingResponse> getGroupTrainings(String startDate, String endDate)
             throws InvalidHourException, StartDateAfterEndDateException, ParseException, InvalidDateException;
 
-    List<GroupTrainingPublicResponse> getPublicGroupTrainings(String startDate, String endDate)
-            throws InvalidHourException, InvalidDateException, StartDateAfterEndDateException, ParseException;
-
     GroupTrainingResponse getGroupTrainingById(String trainingId)
             throws InvalidHourException, InvalidDateException;
 

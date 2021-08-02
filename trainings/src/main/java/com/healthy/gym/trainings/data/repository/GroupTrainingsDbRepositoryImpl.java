@@ -87,38 +87,6 @@ public class GroupTrainingsDbRepositoryImpl implements GroupTrainingsDbRepositor
         return result;
     }
 
-    @Override
-    public List<GroupTrainingPublicResponse> getPublicGroupTrainings(String startDate, String endDate)
-            throws InvalidHourException, InvalidDateException, StartDateAfterEndDateException, ParseException {
-
-        var dates = new DateFormatter(startDate, endDate);
-        String dayBeforeStartDate = dates.getFormattedDayDateBeforeStartDate();
-        String dayAfterEndDate = dates.getFormattedDayDateAfterEndDate();
-
-        List<GroupTrainings> groupTrainings = groupTrainingsRepository
-                .findByDateBetween(dayBeforeStartDate, dayAfterEndDate);
-
-        List<GroupTrainingPublicResponse> publicResponse = new ArrayList<>();
-        for (GroupTrainings groupTraining : groupTrainings) {
-
-            publicResponse.add(
-                    new GroupTrainingPublicResponse(
-                            groupTraining.getTrainingId(),
-                            groupTraining.getTrainingType().getName(),
-                            null, //TODO fix groupTraining.getTrainerId(),
-                            groupTraining.getDate(),
-                            groupTraining.getStartTime(),
-                            groupTraining.getEndTime(),
-                            groupTraining.getHallNo(),
-                            groupTraining.getLimit(),
-                            getRatingForGroupTrainings(groupTraining)
-                    )
-            );
-        }
-
-        return publicResponse;
-    }
-
     private double getRatingForGroupTrainings(GroupTrainings groupTraining) {
         List<GroupTrainingReviewResponse> groupTrainingsReviews = groupTrainingsReviewsRepository
                 .findByDateBetweenAndTrainingTypeId(

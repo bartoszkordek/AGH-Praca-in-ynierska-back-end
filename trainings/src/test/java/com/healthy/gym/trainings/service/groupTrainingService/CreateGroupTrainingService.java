@@ -86,7 +86,7 @@ public class CreateGroupTrainingService {
 
         //when
         when(groupTrainingsDbRepositoryImpl.isAbilityToCreateTraining(groupTrainingRequest)).thenReturn(true);
-        when(groupTrainingsDbRepositoryImpl.createTraining(groupTrainingRequest)).thenReturn(groupTraining);
+//        when(groupTrainingsDbRepositoryImpl.createTraining(groupTrainingRequest)).thenReturn(groupTraining);
 
         //then
         //TODO
@@ -137,7 +137,7 @@ public class CreateGroupTrainingService {
 
         //when
         when(groupTrainingsDbRepositoryImpl.isAbilityToCreateTraining(groupTrainingRequest)).thenReturn(false);
-        when(groupTrainingsDbRepositoryImpl.createTraining(groupTrainingRequest)).thenReturn(groupTraining);
+//        when(groupTrainingsDbRepositoryImpl.createTraining(groupTrainingRequest)).thenReturn(groupTraining);
 
         //then
         //TODO
@@ -189,7 +189,7 @@ public class CreateGroupTrainingService {
 
         //when
         when(groupTrainingsDbRepositoryImpl.isAbilityToCreateTraining(groupTrainingRequest)).thenReturn(true);
-        when(groupTrainingsDbRepositoryImpl.createTraining(groupTrainingRequest)).thenReturn(groupTraining);
+//        when(groupTrainingsDbRepositoryImpl.createTraining(groupTrainingRequest)).thenReturn(groupTraining);
 
         //then
         //TODO
@@ -240,7 +240,7 @@ public class CreateGroupTrainingService {
 
         //when
         when(groupTrainingsDbRepositoryImpl.isAbilityToCreateTraining(groupTrainingRequest)).thenReturn(true);
-        when(groupTrainingsDbRepositoryImpl.createTraining(groupTrainingRequest)).thenReturn(groupTraining);
+//        when(groupTrainingsDbRepositoryImpl.createTraining(groupTrainingRequest)).thenReturn(groupTraining);
 
         //then
         //TODO
@@ -291,7 +291,7 @@ public class CreateGroupTrainingService {
 
         //when
         when(groupTrainingsDbRepositoryImpl.isAbilityToCreateTraining(groupTrainingRequest)).thenReturn(true);
-        when(groupTrainingsDbRepositoryImpl.createTraining(groupTrainingRequest)).thenReturn(groupTraining);
+//        when(groupTrainingsDbRepositoryImpl.createTraining(groupTrainingRequest)).thenReturn(groupTraining);
 
         //then
         //TODO
@@ -343,7 +343,7 @@ public class CreateGroupTrainingService {
 
         //when
         when(groupTrainingsDbRepositoryImpl.isAbilityToCreateTraining(groupTrainingRequest)).thenReturn(true);
-        when(groupTrainingsDbRepositoryImpl.createTraining(groupTrainingRequest)).thenReturn(groupTraining);
+//        when(groupTrainingsDbRepositoryImpl.createTraining(groupTrainingRequest)).thenReturn(groupTraining);
 
         //then
         //TODO

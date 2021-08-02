@@ -1,6 +1,5 @@
 package com.healthy.gym.trainings.data.repository;
 
-import com.healthy.gym.trainings.data.document.GroupTrainings;
 import com.healthy.gym.trainings.exception.StartDateAfterEndDateException;
 import com.healthy.gym.trainings.exception.invalid.InvalidDateException;
 import com.healthy.gym.trainings.exception.invalid.InvalidHourException;
@@ -45,6 +44,4 @@ public interface GroupTrainingsDbRepository {
     boolean isAbilityToCreateTraining(GroupTrainingRequest groupTrainingModel);
 
     boolean isAbilityToUpdateTraining(String trainingId, GroupTrainingRequest groupTrainingModel);
-
-    GroupTrainings createTraining(GroupTrainingRequest groupTrainingModel) throws InvalidHourException;
 }

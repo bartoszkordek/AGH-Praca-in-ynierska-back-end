@@ -1,7 +1,6 @@
 package com.healthy.gym.trainings.data.repository;
 
 import com.healthy.gym.trainings.data.document.GroupTrainings;
-import com.healthy.gym.trainings.data.document.TrainingTypeDocument;
 import com.healthy.gym.trainings.data.document.UserDocument;
 import com.healthy.gym.trainings.exception.StartDateAfterEndDateException;
 import com.healthy.gym.trainings.exception.invalid.InvalidDateException;
@@ -26,7 +25,10 @@ import org.springframework.stereotype.Repository;
 import javax.validation.constraints.NotNull;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
 
 import static com.healthy.gym.trainings.utils.ParticipantsExtractor.getBasicList;
 import static com.healthy.gym.trainings.utils.ParticipantsExtractor.getReserveList;
@@ -40,22 +42,16 @@ public class GroupTrainingsDbRepositoryImpl implements GroupTrainingsDbRepositor
     private final Environment environment;
     private final GroupTrainingsRepository groupTrainingsRepository;
     private final ReviewDAO groupTrainingsReviewsRepository;
-    private final TrainingTypeDAO trainingTypeRepository;
-    private final UserDAO userRepository;
 
     @Autowired
     public GroupTrainingsDbRepositoryImpl(
             Environment environment,
             GroupTrainingsRepository groupTrainingsRepository,
-            ReviewDAO groupTrainingsReviewsRepository,
-            TrainingTypeDAO trainingTypeRepository,
-            UserDAO userRepository
+            ReviewDAO groupTrainingsReviewsRepository
     ) {
         this.environment = environment;
         this.groupTrainingsRepository = groupTrainingsRepository;
         this.groupTrainingsReviewsRepository = groupTrainingsReviewsRepository;
-        this.trainingTypeRepository = trainingTypeRepository;
-        this.userRepository = userRepository;
         this.paging = PageRequest.of(0, 1000000);
     }
 
@@ -450,41 +446,5 @@ public class GroupTrainingsDbRepositoryImpl implements GroupTrainingsDbRepositor
 
         MongoCollection collection = getGroupTrainingsCollection();
         return !collection.aggregate(pipeline).cursor().hasNext();
-    }
-
-    @Override
-    public GroupTrainings createTraining(GroupTrainingRequest groupTrainingModel) throws InvalidHourException {
-        String trainingId = UUID.randomUUID().toString();
-        TrainingTypeDocument trainingType = trainingTypeRepository.findByTrainingTypeId(
-                groupTrainingModel.getTrainingTypeId());
-
-        List<String> participantsIds = groupTrainingModel.getParticipants();
-        List<UserDocument> participants = new ArrayList<>();
-        for (String participantId : participantsIds) {
-            UserDocument participant = userRepository.findByUserId(participantId);
-            participants.add(participant);
-        }
-
-        List<String> reserveListParticipantsIds = groupTrainingModel.getReserveList();
-        List<UserDocument> reserveList = new ArrayList<>();
-        for (String reserveListParticipantId : reserveListParticipantsIds) {
-            UserDocument reserveListParticipant = userRepository.findByUserId(reserveListParticipantId);
-            reserveList.add(reserveListParticipant);
-        }
-
-        return groupTrainingsRepository.insert(
-                new GroupTrainings(
-                        trainingId,
-                        trainingType,
-                        groupTrainingModel.getTrainerId(),
-                        groupTrainingModel.getDate(),
-                        groupTrainingModel.getStartTime(),
-                        groupTrainingModel.getEndTime(),
-                        groupTrainingModel.getHallNo(),
-                        groupTrainingModel.getLimit(),
-                        participants,
-                        reserveList
-                )
-        );
     }
 }

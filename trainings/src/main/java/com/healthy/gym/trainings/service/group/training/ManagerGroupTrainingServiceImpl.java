@@ -154,7 +154,39 @@ public class ManagerGroupTrainingServiceImpl implements ManagerGroupTrainingServ
         if (!groupTrainingsDbRepositoryImpl.isAbilityToCreateTraining(groupTrainingModel))
             throw new TrainingCreationException("Cannot create new group training. Overlapping trainings.");
 
-        GroupTrainings repositoryResponse = groupTrainingsDbRepositoryImpl.createTraining(groupTrainingModel);
+
+        String trainingId = UUID.randomUUID().toString();
+        TrainingTypeDocument trainingType = trainingTypeRepository.findByTrainingTypeId(
+                groupTrainingModel.getTrainingTypeId());
+
+        List<String> participantsIds = groupTrainingModel.getParticipants();
+        List<UserDocument> participants2 = new ArrayList<>();
+        for (String participantId : participantsIds) {
+            UserDocument participant = userDAO.findByUserId(participantId);
+            participants2.add(participant);
+        }
+
+        List<String> reserveListParticipantsIds = groupTrainingModel.getReserveList();
+        List<UserDocument> reserveList2 = new ArrayList<>();
+        for (String reserveListParticipantId : reserveListParticipantsIds) {
+            UserDocument reserveListParticipant = userDAO.findByUserId(reserveListParticipantId);
+            reserveList2.add(reserveListParticipant);
+        }
+
+        GroupTrainings repositoryResponse = groupTrainingsRepository.insert(
+                new GroupTrainings(
+                        trainingId,
+                        trainingType,
+                        groupTrainingModel.getTrainerId(),
+                        groupTrainingModel.getDate(),
+                        groupTrainingModel.getStartTime(),
+                        groupTrainingModel.getEndTime(),
+                        groupTrainingModel.getHallNo(),
+                        groupTrainingModel.getLimit(),
+                        participants2,
+                        reserveList2
+                )
+        );
 
         List<UserDocument> participants = repositoryResponse.getParticipants();
         List<ParticipantsResponse> participantsResponses = new ArrayList<>();

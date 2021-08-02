@@ -423,26 +423,6 @@ public class GroupTrainingsDbRepositoryImpl implements GroupTrainingsDbRepositor
     }
 
     @Override
-    public void removeFromParticipants(String trainingId, String clientId) {
-        GroupTrainings groupTrainings = groupTrainingsRepository.findFirstByTrainingId(trainingId);
-        UserDocument participantToRemove = userRepository.findByUserId(clientId);
-        List<UserDocument> participants = groupTrainings.getParticipants();
-        participants.remove(participantToRemove);
-        groupTrainings.setParticipants(participants);
-        groupTrainingsRepository.save(groupTrainings);
-    }
-
-    @Override
-    public void removeFromReserveList(String trainingId, String clientId) {
-        GroupTrainings groupTrainings = groupTrainingsRepository.findFirstByTrainingId(trainingId);
-        UserDocument reserveListParticipantToRemove = userRepository.findByUserId(clientId);
-        List<UserDocument> reserveList = groupTrainings.getReserveList();
-        reserveList.remove(reserveListParticipantToRemove);
-        groupTrainings.setReserveList(reserveList);
-        groupTrainingsRepository.save(groupTrainings);
-    }
-
-    @Override
     public boolean isAbilityToCreateTraining(GroupTrainingRequest groupTrainingModel) {
         String date = groupTrainingModel.getDate();
         String startTime = groupTrainingModel.getStartTime();

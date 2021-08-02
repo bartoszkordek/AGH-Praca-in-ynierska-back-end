@@ -21,5 +21,5 @@ public interface UserGroupTrainingService {
             throws NotExistingGroupTrainingException, TrainingEnrollmentException, UserNotFoundException;
 
     void removeGroupTrainingEnrollment(String trainingId, String clientId)
-            throws NotExistingGroupTrainingException, TrainingEnrollmentException;
+            throws NotExistingGroupTrainingException, TrainingEnrollmentException, UserNotFoundException;
 }

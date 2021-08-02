@@ -50,10 +50,6 @@ public interface GroupTrainingsDbRepository {
 
     boolean isClientAlreadyExistInReserveList(String trainingId, String clientId);
 
-    void removeFromParticipants(String trainingId, String clientId);
-
-    void removeFromReserveList(String trainingId, String clientId);
-
     boolean isAbilityToCreateTraining(GroupTrainingRequest groupTrainingModel);
 
     boolean isAbilityToUpdateTraining(String trainingId, GroupTrainingRequest groupTrainingModel);

@@ -63,7 +63,7 @@ public class UserGroupTrainingServiceImpl implements UserGroupTrainingService {
 
         // TODO nie rozumiem tego kodu poniżej, czemu on tutaj jest?
         if (groupTrainingsDbRepositoryImpl.isClientAlreadyExistInReserveList(trainingId, clientId))
-            groupTrainingsDbRepositoryImpl.removeFromReserveList(trainingId, clientId);
+            removeFromReserveList(trainingId, clientId);
     }
 
     @Override
@@ -88,28 +88,37 @@ public class UserGroupTrainingServiceImpl implements UserGroupTrainingService {
         groupTrainingsRepository.save(groupTrainings);
     }
 
-    private String getNotExistingGroupTrainingExceptionMessage(String trainingId) {
-        return "Training with ID " + trainingId + " does not exist";
-    }
-
     @Override
     public void removeGroupTrainingEnrollment(String trainingId, String clientId)
-            throws NotExistingGroupTrainingException, TrainingEnrollmentException {
+            throws NotExistingGroupTrainingException, TrainingEnrollmentException, UserNotFoundException {
 
-        if (!groupTrainingsDbRepositoryImpl.isGroupTrainingExist(trainingId))
-            throw new NotExistingGroupTrainingException(
-                    getNotExistingGroupTrainingExceptionMessage(trainingId)
-            );
+        GroupTrainings groupTrainings = groupTrainingsRepository.findFirstByTrainingId(trainingId);
+        if (groupTrainings == null) throw new NotExistingGroupTrainingException();
+
+        UserDocument participantToRemove = userRepository.findByUserId(clientId);
+        if (participantToRemove == null) throw new UserNotFoundException();
 
         if (!groupTrainingsDbRepositoryImpl.isClientAlreadyEnrolledToGroupTraining(trainingId, clientId)
                 && !groupTrainingsDbRepositoryImpl.isClientAlreadyExistInReserveList(trainingId, clientId))
             throw new TrainingEnrollmentException("Client is not enrolled to this training");
 
         if (groupTrainingsDbRepositoryImpl.isClientAlreadyEnrolledToGroupTraining(trainingId, clientId)) {
-            groupTrainingsDbRepositoryImpl.removeFromParticipants(trainingId, clientId);
+            List<UserDocument> participants = groupTrainings.getParticipants();
+            participants.remove(participantToRemove);
+            groupTrainings.setParticipants(participants);
+            groupTrainingsRepository.save(groupTrainings);
         }
         if (groupTrainingsDbRepositoryImpl.isClientAlreadyExistInReserveList(trainingId, clientId)) {
-            groupTrainingsDbRepositoryImpl.removeFromReserveList(trainingId, clientId);
+            removeFromReserveList(trainingId, clientId);
         }
+    }
+
+    private void removeFromReserveList(String trainingId, String clientId) {
+        GroupTrainings groupTrainings = groupTrainingsRepository.findFirstByTrainingId(trainingId);
+        UserDocument reserveListParticipantToRemove = userRepository.findByUserId(clientId);
+        List<UserDocument> reserveList = groupTrainings.getReserveList();
+        reserveList.remove(reserveListParticipantToRemove);
+        groupTrainings.setReserveList(reserveList);
+        groupTrainingsRepository.save(groupTrainings);
     }
 }

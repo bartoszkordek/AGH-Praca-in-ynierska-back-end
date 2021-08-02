@@ -20,7 +20,7 @@ import com.healthy.gym.trainings.exception.training.TrainingUpdateException;
 import com.healthy.gym.trainings.model.request.CreateGroupTrainingRequest;
 import com.healthy.gym.trainings.model.request.GroupTrainingRequest;
 import com.healthy.gym.trainings.model.response.GroupTrainingResponse;
-import com.healthy.gym.trainings.model.response.ParticipantsResponse;
+import com.healthy.gym.trainings.model.response.UserResponse;
 import com.healthy.gym.trainings.shared.GroupTrainingDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -65,6 +65,18 @@ public class ManagerGroupTrainingServiceImpl implements ManagerGroupTrainingServ
         this.groupTrainingsDbRepository = groupTrainingsDbRepository;
         this.emailSender = emailSender;
         this.clock = clock;
+    }
+
+    private List<UserResponse> getUserResponseList(List<UserDocument> usersDocuments){
+        List<UserResponse> usersResponse = new ArrayList<>();
+        for(UserDocument userDocument : usersDocuments){
+            UserResponse userResponse = new UserResponse(
+                    userDocument.getUserId(),
+                    userDocument.getName(),
+                    userDocument.getSurname());
+            usersResponse.add(userResponse);
+        }
+        return usersResponse;
     }
 
     @Override
@@ -150,28 +162,19 @@ public class ManagerGroupTrainingServiceImpl implements ManagerGroupTrainingServ
 
         GroupTrainings repositoryResponse = groupTrainingsDbRepository.createTraining(groupTrainingModel);
 
+        List<UserDocument> trainers = repositoryResponse.getParticipants();
+        List<UserResponse> trainersResponses = getUserResponseList(trainers);
+
         List<UserDocument> participants = repositoryResponse.getParticipants();
-        List<ParticipantsResponse> participantsResponses = new ArrayList<>();
-        for (UserDocument participant : participants) {
-            ParticipantsResponse participantsResponse = new ParticipantsResponse(participant.getUserId(),
-                    participant.getName(), participant.getSurname());
-            participantsResponses.add(participantsResponse);
-        }
+        List<UserResponse> participantsResponses = getUserResponseList(participants);
 
         List<UserDocument> reserveList = repositoryResponse.getReserveList();
-        List<ParticipantsResponse> reserveListResponses = new ArrayList<>();
-        for (UserDocument reserveListParticipant : reserveList) {
-            ParticipantsResponse reserveListParticipantsResponse = new ParticipantsResponse(
-                    reserveListParticipant.getUserId(),
-                    reserveListParticipant.getName(),
-                    reserveListParticipant.getSurname());
-            reserveListResponses.add(reserveListParticipantsResponse);
-        }
+        List<UserResponse> reserveListResponses = getUserResponseList(reserveList);
 
         return new GroupTrainingResponse(
                 repositoryResponse.getTrainingId(),
                 repositoryResponse.getTrainingType().getName(),
-                repositoryResponse.getTrainerId(),
+                trainersResponses,
                 repositoryResponse.getDate(),
                 repositoryResponse.getStartTime(),
                 repositoryResponse.getEndTime(),
@@ -214,11 +217,14 @@ public class ManagerGroupTrainingServiceImpl implements ManagerGroupTrainingServ
         GroupTrainings repositoryResponse = groupTrainingsDbRepository
                 .updateTraining(trainingId, groupTrainingModelRequest);
 
+        List<UserDocument> trainers = repositoryResponse.getParticipants();
+        List<UserResponse> trainersResponses = getUserResponseList(trainers);
+
         List<UserDocument> participants = repositoryResponse.getParticipants();
-        List<ParticipantsResponse> participantsResponses = new ArrayList<>();
+        List<UserResponse> participantsResponses = new ArrayList<>();
         List<String> toEmails = new ArrayList<>();
         for (UserDocument document : participants) {
-            ParticipantsResponse participantsResponse = new ParticipantsResponse(document.getUserId(),
+            UserResponse participantsResponse = new UserResponse(document.getUserId(),
                     document.getName(), document.getSurname());
             participantsResponses.add(participantsResponse);
             String email = document.getEmail();
@@ -226,16 +232,11 @@ public class ManagerGroupTrainingServiceImpl implements ManagerGroupTrainingServ
         }
 
         List<UserDocument> reserveList = repositoryResponse.getReserveList();
-        List<ParticipantsResponse> reserveListResponses = new ArrayList<>();
-        for (UserDocument document : reserveList) {
-            ParticipantsResponse reserveListResponse = new ParticipantsResponse(document.getUserId(),
-                    document.getName(), document.getSurname());
-            reserveListResponses.add(reserveListResponse);
-        }
+        List<UserResponse> reserveListResponses = getUserResponseList(reserveList);
 
         String subject = "Training has been updated";
         String body = "Training " + repositoryResponse.getTrainingId() + " on " + repositoryResponse.getDate() + " at "
-                + repositoryResponse.getStartTime() + " with " + repositoryResponse.getTrainerId() + " has been updated.";
+                + repositoryResponse.getStartTime() + " with " + repositoryResponse.getTrainers() + " has been updated.";
         try {
             emailSender.sendEmailWithoutAttachment(toEmails, subject, body);
         } catch (Exception e) {
@@ -245,7 +246,7 @@ public class ManagerGroupTrainingServiceImpl implements ManagerGroupTrainingServ
         return new GroupTrainingResponse(
                 repositoryResponse.getTrainingId(),
                 repositoryResponse.getTrainingType().getName(),
-                repositoryResponse.getTrainerId(),
+                trainersResponses,
                 repositoryResponse.getDate(),
                 repositoryResponse.getStartTime(),
                 repositoryResponse.getEndTime(),
@@ -265,11 +266,14 @@ public class ManagerGroupTrainingServiceImpl implements ManagerGroupTrainingServ
 
         GroupTrainings repositoryResponse = groupTrainingsDbRepository.removeTraining(trainingId);
 
+        List<UserDocument> trainers = repositoryResponse.getParticipants();
+        List<UserResponse> trainersResponses = getUserResponseList(trainers);
+
         List<UserDocument> participants = repositoryResponse.getParticipants();
-        List<ParticipantsResponse> participantsResponses = new ArrayList<>();
+        List<UserResponse> participantsResponses = new ArrayList<>();
         List<String> toEmails = new ArrayList<>();
         for (UserDocument document : participants) {
-            ParticipantsResponse participantsResponse = new ParticipantsResponse(document.getUserId(),
+            UserResponse participantsResponse = new UserResponse(document.getUserId(),
                     document.getName(), document.getSurname());
             participantsResponses.add(participantsResponse);
             String email = document.getEmail();
@@ -277,16 +281,11 @@ public class ManagerGroupTrainingServiceImpl implements ManagerGroupTrainingServ
         }
 
         List<UserDocument> reserveList = repositoryResponse.getReserveList();
-        List<ParticipantsResponse> reserveListResponses = new ArrayList<>();
-        for (UserDocument document : reserveList) {
-            ParticipantsResponse reserveListResponse = new ParticipantsResponse(document.getUserId(),
-                    document.getName(), document.getSurname());
-            reserveListResponses.add(reserveListResponse);
-        }
+        List<UserResponse> reserveListResponses = getUserResponseList(reserveList);
 
         String subject = "Training has been deleted";
         String body = "Training " + repositoryResponse.getTrainingId() + " on " + repositoryResponse.getDate() + " at "
-                + repositoryResponse.getStartTime() + " with " + repositoryResponse.getTrainerId() + " has been deleted.";
+                + repositoryResponse.getStartTime() + " with " + repositoryResponse.getTrainers() + " has been deleted.";
         try {
             emailSender.sendEmailWithoutAttachment(toEmails, subject, body);
         } catch (Exception e) {
@@ -296,7 +295,7 @@ public class ManagerGroupTrainingServiceImpl implements ManagerGroupTrainingServ
         return new GroupTrainingResponse(
                 repositoryResponse.getTrainingId(),
                 repositoryResponse.getTrainingType().getName(),
-                repositoryResponse.getTrainerId(),
+                trainersResponses,
                 repositoryResponse.getDate(),
                 repositoryResponse.getStartTime(),
                 repositoryResponse.getEndTime(),

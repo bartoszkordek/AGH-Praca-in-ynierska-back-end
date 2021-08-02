@@ -10,7 +10,7 @@ import com.healthy.gym.trainings.exception.notexisting.NotExistingGroupTrainingE
 import com.healthy.gym.trainings.exception.notfound.TrainingTypeNotFoundException;
 import com.healthy.gym.trainings.model.response.GroupTrainingPublicResponse;
 import com.healthy.gym.trainings.model.response.GroupTrainingResponse;
-import com.healthy.gym.trainings.model.response.ParticipantsResponse;
+import com.healthy.gym.trainings.model.response.UserResponse;
 import com.healthy.gym.trainings.service.group.training.GroupTrainingService;
 import com.healthy.gym.trainings.service.group.training.GroupTrainingServiceImpl;
 import org.junit.Test;
@@ -56,10 +56,18 @@ public class GetGroupTrainingServiceTest {
         int limit = 15;
 
         double rating = 0.0;
-        List<ParticipantsResponse> participantsResponses = new ArrayList<>();
-        List<ParticipantsResponse> reserveListResponses = new ArrayList<>();
-        GroupTrainingResponse groupTraining = new GroupTrainingResponse(trainingId, trainingName, trainerId, date, startTime,
-                endTime, hallNo, limit, rating, participantsResponses, reserveListResponses);
+
+        List<UserResponse> trainersResponse = new ArrayList<>();
+        String trainer1Name = "John";
+        String trainer1Surname = "Smith";
+        String trainer1UserId = "100ed952-es7f-435a-bd1e-9fb2a327c4dk";
+        UserResponse trainer1Response = new UserResponse(trainer1UserId, trainer1Name, trainer1Surname);
+        trainersResponse.add(trainer1Response);
+
+        List<UserResponse> participantsResponses = new ArrayList<>();
+        List<UserResponse> reserveListResponses = new ArrayList<>();
+        GroupTrainingResponse groupTraining = new GroupTrainingResponse(trainingId, trainingName, trainersResponse,
+                date, startTime, endTime, hallNo, limit, rating, participantsResponses, reserveListResponses);
 
         List<GroupTrainingResponse> groupTrainings = new ArrayList<>();
         groupTrainings.add(groupTraining);
@@ -86,7 +94,6 @@ public class GetGroupTrainingServiceTest {
         String trainingId = "122ed953-e37f-435a-bd1e-9fb2a327c4d3";
         String trainingTypeId = "222ed952-es7f-435a-bd1e-9fb2a327c4dk";
         String trainingName = "Test Training";
-        String trainerId = "Test Trainer";
         String date = "2020-07-01";
         String startTime = "18:00";
         String endTime = "19:00";
@@ -94,8 +101,15 @@ public class GetGroupTrainingServiceTest {
         int limit = 15;
         double rating = 0.0;
 
+        List<UserResponse> trainersResponse = new ArrayList<>();
+        String trainer1Name = "John";
+        String trainer1Surname = "Smith";
+        String trainer1UserId = "100ed952-es7f-435a-bd1e-9fb2a327c4dk";
+        UserResponse trainer1Response = new UserResponse(trainer1UserId, trainer1Name, trainer1Surname);
+        trainersResponse.add(trainer1Response);
+
         GroupTrainingPublicResponse groupTrainingPublicResponse = new GroupTrainingPublicResponse(trainingId,
-                trainingName, trainerId, date, startTime, endTime, hallNo, limit, rating);
+                trainingName, trainersResponse, date, startTime, endTime, hallNo, limit, rating);
 
         List<GroupTrainingPublicResponse> groupTrainings = new ArrayList<>();
         groupTrainings.add(groupTrainingPublicResponse);
@@ -128,10 +142,17 @@ public class GetGroupTrainingServiceTest {
         int limit = 15;
         double rating = 0.0;
 
-        List<ParticipantsResponse> participantsResponses = new ArrayList<>();
-        List<ParticipantsResponse> reserveListResponses = new ArrayList<>();
-        GroupTrainingResponse groupTraining = new GroupTrainingResponse(trainingId, trainingName, trainerId, date, startTime,
-                endTime, hallNo, limit, rating, participantsResponses, reserveListResponses);
+        List<UserResponse> trainersResponse = new ArrayList<>();
+        String trainer1Name = "John";
+        String trainer1Surname = "Smith";
+        String trainer1UserId = "100ed952-es7f-435a-bd1e-9fb2a327c4dk";
+        UserResponse trainer1Response = new UserResponse(trainer1UserId, trainer1Name, trainer1Surname);
+        trainersResponse.add(trainer1Response);
+
+        List<UserResponse> participantsResponses = new ArrayList<>();
+        List<UserResponse> reserveListResponses = new ArrayList<>();
+        GroupTrainingResponse groupTraining = new GroupTrainingResponse(trainingId, trainingName, trainersResponse,
+                date, startTime, endTime, hallNo, limit, rating, participantsResponses, reserveListResponses);
 
         List<GroupTrainingResponse> groupTrainings = new ArrayList<>();
         groupTrainings.add(groupTraining);
@@ -180,10 +201,10 @@ public class GetGroupTrainingServiceTest {
         String participant2UserId = "222ed953-e37f-435a-bd1e-9fb2a327c4d4";
         String participant2Name = "Max";
         String participant2Surname = "Adams";
-        List<ParticipantsResponse> participantsResponses = new ArrayList<>();
-        ParticipantsResponse participants1Response = new ParticipantsResponse(participant1UserId, participant1Name,
+        List<UserResponse> participantsResponses = new ArrayList<>();
+        UserResponse participants1Response = new UserResponse(participant1UserId, participant1Name,
                 participant1Surname);
-        ParticipantsResponse participants2Response = new ParticipantsResponse(participant2UserId, participant2Name,
+        UserResponse participants2Response = new UserResponse(participant2UserId, participant2Name,
                 participant2Surname);
         participantsResponses.add(participants1Response);
         participantsResponses.add(participants2Response);
@@ -230,7 +251,6 @@ public class GetGroupTrainingServiceTest {
         String trainingId = "122ed953-e37f-435a-bd1e-9fb2a327c4d3";
         String trainingTypeId = "222ed952-es7f-435a-bd1e-9fb2a327c4dk";
         String trainingName = "Test Training";
-        String trainerId = "Test Trainer";
         String date = "2020-07-01";
         String startTime = "18:00";
         String endTime = "19:00";
@@ -238,10 +258,17 @@ public class GetGroupTrainingServiceTest {
         int limit = 15;
         double rating = 0.0;
 
-        List<ParticipantsResponse> participantsResponses = new ArrayList<>();
-        List<ParticipantsResponse> reserveListResponses = new ArrayList<>();
-        GroupTrainingResponse groupTraining = new GroupTrainingResponse(trainingId, trainingName, trainerId, date, startTime,
-                endTime, hallNo, limit, rating, participantsResponses, reserveListResponses);
+        List<UserResponse> trainersResponse = new ArrayList<>();
+        String trainer1Name = "John";
+        String trainer1Surname = "Smith";
+        String trainer1UserId = "100ed952-es7f-435a-bd1e-9fb2a327c4dk";
+        UserResponse trainer1Response = new UserResponse(trainer1UserId, trainer1Name, trainer1Surname);
+        trainersResponse.add(trainer1Response);
+
+        List<UserResponse> participantsResponses = new ArrayList<>();
+        List<UserResponse> reserveListResponses = new ArrayList<>();
+        GroupTrainingResponse groupTraining = new GroupTrainingResponse(trainingId, trainingName, trainersResponse,
+                date, startTime, endTime, hallNo, limit, rating, participantsResponses, reserveListResponses);
 
         List<GroupTrainingResponse> groupTrainings = new ArrayList<>();
         groupTrainings.add(groupTraining);
@@ -278,10 +305,17 @@ public class GetGroupTrainingServiceTest {
         int limit = 15;
         double rating = 0.0;
 
-        List<ParticipantsResponse> participantsResponses = new ArrayList<>();
-        List<ParticipantsResponse> reserveListResponses = new ArrayList<>();
-        GroupTrainingResponse groupTraining = new GroupTrainingResponse(trainingId, trainingName, trainerId, date, startTime,
-                endTime, hallNo, limit, rating, participantsResponses, reserveListResponses);
+        List<UserResponse> trainersResponse = new ArrayList<>();
+        String trainer1Name = "John";
+        String trainer1Surname = "Smith";
+        String trainer1UserId = "100ed952-es7f-435a-bd1e-9fb2a327c4dk";
+        UserResponse trainer1Response = new UserResponse(trainer1UserId, trainer1Name, trainer1Surname);
+        trainersResponse.add(trainer1Response);
+
+        List<UserResponse> participantsResponses = new ArrayList<>();
+        List<UserResponse> reserveListResponses = new ArrayList<>();
+        GroupTrainingResponse groupTraining = new GroupTrainingResponse(trainingId, trainingName, trainersResponse,
+                date, startTime, endTime, hallNo, limit, rating, participantsResponses, reserveListResponses);
 
         List<GroupTrainingResponse> groupTrainings = new ArrayList<>();
         groupTrainings.add(groupTraining);

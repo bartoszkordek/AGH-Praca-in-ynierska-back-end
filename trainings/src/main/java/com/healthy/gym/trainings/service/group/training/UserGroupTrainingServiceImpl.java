@@ -68,12 +68,13 @@ public class UserGroupTrainingServiceImpl implements UserGroupTrainingService {
 
     @Override
     public void addToReserveList(String trainingId, String clientId)
-            throws NotExistingGroupTrainingException, TrainingEnrollmentException {
+            throws NotExistingGroupTrainingException, TrainingEnrollmentException, UserNotFoundException {
 
-        if (!groupTrainingsDbRepositoryImpl.isGroupTrainingExist(trainingId))
-            throw new NotExistingGroupTrainingException(
-                    getNotExistingGroupTrainingExceptionMessage(trainingId)
-            );
+        GroupTrainings groupTrainings = groupTrainingsRepository.findFirstByTrainingId(trainingId);
+        if (groupTrainings == null) throw new NotExistingGroupTrainingException();
+
+        UserDocument newReserveListParticipant = userRepository.findByUserId(clientId);
+        if (newReserveListParticipant == null) throw new UserNotFoundException();
 
         if (groupTrainingsDbRepositoryImpl.isClientAlreadyEnrolledToGroupTraining(trainingId, clientId))
             throw new TrainingEnrollmentException("Client is already enrolled to this training");
@@ -81,7 +82,10 @@ public class UserGroupTrainingServiceImpl implements UserGroupTrainingService {
         if (groupTrainingsDbRepositoryImpl.isClientAlreadyExistInReserveList(trainingId, clientId))
             throw new TrainingEnrollmentException("Client already exists in reserve list");
 
-        groupTrainingsDbRepositoryImpl.addToReserveList(trainingId, clientId);
+        List<UserDocument> reserveList = groupTrainings.getReserveList();
+        reserveList.add(newReserveListParticipant);
+        groupTrainings.setReserveList(reserveList);
+        groupTrainingsRepository.save(groupTrainings);
     }
 
     private String getNotExistingGroupTrainingExceptionMessage(String trainingId) {

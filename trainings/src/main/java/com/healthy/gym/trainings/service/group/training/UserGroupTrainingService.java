@@ -18,7 +18,7 @@ public interface UserGroupTrainingService {
             throws TrainingEnrollmentException, NotExistingGroupTrainingException, UserNotFoundException;
 
     void addToReserveList(String trainingId, String clientId)
-            throws NotExistingGroupTrainingException, TrainingEnrollmentException;
+            throws NotExistingGroupTrainingException, TrainingEnrollmentException, UserNotFoundException;
 
     void removeGroupTrainingEnrollment(String trainingId, String clientId)
             throws NotExistingGroupTrainingException, TrainingEnrollmentException;

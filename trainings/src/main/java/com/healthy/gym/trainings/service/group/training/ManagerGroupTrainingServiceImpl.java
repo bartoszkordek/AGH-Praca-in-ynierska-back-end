@@ -48,6 +48,7 @@ public class ManagerGroupTrainingServiceImpl implements ManagerGroupTrainingServ
     private final EmailSender emailSender;
     private final Clock clock;
     private final GroupTrainingsRepository groupTrainingsRepository;
+    private final TrainingTypeDAO trainingTypeRepository;
 
     @Autowired
     public ManagerGroupTrainingServiceImpl(
@@ -58,7 +59,8 @@ public class ManagerGroupTrainingServiceImpl implements ManagerGroupTrainingServ
             GroupTrainingsDbRepositoryImpl groupTrainingsDbRepositoryImpl,
             EmailSender emailSender,
             Clock clock,
-            GroupTrainingsRepository groupTrainingsRepository
+            GroupTrainingsRepository groupTrainingsRepository,
+            TrainingTypeDAO trainingTypeRepository
     ) {
         this.groupTrainingsDAO = groupTrainingsDAO;
         this.trainingTypeDAO = trainingTypeDAO;
@@ -68,6 +70,7 @@ public class ManagerGroupTrainingServiceImpl implements ManagerGroupTrainingServ
         this.emailSender = emailSender;
         this.clock = clock;
         this.groupTrainingsRepository = groupTrainingsRepository;
+        this.trainingTypeRepository = trainingTypeRepository;
     }
 
     @Override
@@ -186,9 +189,14 @@ public class ManagerGroupTrainingServiceImpl implements ManagerGroupTrainingServ
     }
 
     @Override
-    public GroupTrainingResponse updateGroupTraining(String trainingId, GroupTrainingRequest groupTrainingModelRequest)
-            throws TrainingUpdateException, EmailSendingException,
-            InvalidHourException, ParseException, InvalidDateException {
+    public GroupTrainingResponse updateGroupTraining(
+            String trainingId,
+            GroupTrainingRequest groupTrainingModelRequest
+    ) throws TrainingUpdateException,
+            EmailSendingException,
+            InvalidHourException,
+            ParseException,
+            InvalidDateException {
 
         if (!groupTrainingsRepository.existsByTrainingId(trainingId))
             throw new TrainingUpdateException("Training with ID: " + trainingId + " doesn't exist");
@@ -214,10 +222,23 @@ public class ManagerGroupTrainingServiceImpl implements ManagerGroupTrainingServ
         if (!groupTrainingsDbRepositoryImpl.isAbilityToUpdateTraining(trainingId, groupTrainingModelRequest))
             throw new TrainingUpdateException("Cannot update group training. Overlapping trainings.");
 
-        GroupTrainings repositoryResponse = groupTrainingsDbRepositoryImpl
-                .updateTraining(trainingId, groupTrainingModelRequest);
+        GroupTrainings groupTrainings1 = groupTrainingsRepository.findFirstByTrainingId(trainingId);
 
-        List<UserDocument> participants = repositoryResponse.getParticipants();
+        TrainingTypeDocument trainingType = trainingTypeRepository.findByTrainingTypeId(
+                groupTrainingModelRequest.getTrainingTypeId()
+        );
+
+        groupTrainings1.setTrainingType(trainingType);
+        groupTrainings1.setTrainerId(groupTrainingModelRequest.getTrainerId());
+        groupTrainings1.setDate(groupTrainingModelRequest.getDate());
+        groupTrainings1.setStartTime(groupTrainingModelRequest.getStartTime());
+        groupTrainings1.setEndTime(groupTrainingModelRequest.getEndTime());
+        groupTrainings1.setHallNo(groupTrainingModelRequest.getHallNo());
+        groupTrainings1.setLimit(groupTrainingModelRequest.getLimit());
+
+        groupTrainingsRepository.save(groupTrainings1);
+
+        List<UserDocument> participants = groupTrainings1.getParticipants();
         List<ParticipantsResponse> participantsResponses = new ArrayList<>();
         List<String> toEmails = new ArrayList<>();
         for (UserDocument document : participants) {
@@ -228,7 +249,7 @@ public class ManagerGroupTrainingServiceImpl implements ManagerGroupTrainingServ
             toEmails.add(email);
         }
 
-        List<UserDocument> reserveList = repositoryResponse.getReserveList();
+        List<UserDocument> reserveList = groupTrainings1.getReserveList();
         List<ParticipantsResponse> reserveListResponses = new ArrayList<>();
         for (UserDocument document : reserveList) {
             ParticipantsResponse reserveListResponse = new ParticipantsResponse(document.getUserId(),
@@ -237,8 +258,8 @@ public class ManagerGroupTrainingServiceImpl implements ManagerGroupTrainingServ
         }
 
         String subject = "Training has been updated";
-        String body = "Training " + repositoryResponse.getTrainingId() + " on " + repositoryResponse.getDate() + " at "
-                + repositoryResponse.getStartTime() + " with " + repositoryResponse.getTrainerId() + " has been updated.";
+        String body = "Training " + groupTrainings1.getTrainingId() + " on " + groupTrainings1.getDate() + " at "
+                + groupTrainings1.getStartTime() + " with " + groupTrainings1.getTrainerId() + " has been updated.";
         try {
             emailSender.sendEmailWithoutAttachment(toEmails, subject, body);
         } catch (Exception e) {
@@ -246,14 +267,14 @@ public class ManagerGroupTrainingServiceImpl implements ManagerGroupTrainingServ
         }
 
         return new GroupTrainingResponse(
-                repositoryResponse.getTrainingId(),
-                repositoryResponse.getTrainingType().getName(),
-                repositoryResponse.getTrainerId(),
-                repositoryResponse.getDate(),
-                repositoryResponse.getStartTime(),
-                repositoryResponse.getEndTime(),
-                repositoryResponse.getHallNo(),
-                repositoryResponse.getLimit(),
+                groupTrainings1.getTrainingId(),
+                groupTrainings1.getTrainingType().getName(),
+                groupTrainings1.getTrainerId(),
+                groupTrainings1.getDate(),
+                groupTrainings1.getStartTime(),
+                groupTrainings1.getEndTime(),
+                groupTrainings1.getHallNo(),
+                groupTrainings1.getLimit(),
                 INITIAL_RATING,
                 participantsResponses,
                 reserveListResponses);

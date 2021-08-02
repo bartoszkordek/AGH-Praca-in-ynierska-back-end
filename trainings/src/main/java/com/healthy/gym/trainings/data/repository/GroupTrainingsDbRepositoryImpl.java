@@ -494,28 +494,4 @@ public class GroupTrainingsDbRepositoryImpl implements GroupTrainingsDbRepositor
         groupTrainingsRepository.removeByTrainingId(trainingId);
         return groupTrainings;
     }
-
-    @Override
-    public GroupTrainings updateTraining(String trainingId, GroupTrainingRequest groupTrainingModelRequest)
-            throws InvalidHourException {
-
-        boolean ifExistGroupTraining = groupTrainingsRepository.existsByTrainingId(trainingId);
-
-        GroupTrainings groupTrainings = null;
-        if (ifExistGroupTraining) {
-            groupTrainings = groupTrainingsRepository.findFirstByTrainingId(trainingId);
-            TrainingTypeDocument trainingType = trainingTypeRepository.findByTrainingTypeId(
-                    groupTrainingModelRequest.getTrainingTypeId());
-            groupTrainings.setTrainingType(trainingType);
-            groupTrainings.setTrainerId(groupTrainingModelRequest.getTrainerId());
-            groupTrainings.setDate(groupTrainingModelRequest.getDate());
-            groupTrainings.setStartTime(groupTrainingModelRequest.getStartTime());
-            groupTrainings.setEndTime(groupTrainingModelRequest.getEndTime());
-            groupTrainings.setHallNo(groupTrainingModelRequest.getHallNo());
-            groupTrainings.setLimit(groupTrainingModelRequest.getLimit());
-            GroupTrainings response = groupTrainingsRepository.save(groupTrainings);
-        }
-
-        return groupTrainings;
-    }
 }

@@ -49,7 +49,4 @@ public interface GroupTrainingsDbRepository {
     GroupTrainings createTraining(GroupTrainingRequest groupTrainingModel) throws InvalidHourException;
 
     GroupTrainings removeTraining(String trainingId);
-
-    GroupTrainings updateTraining(String trainingId, GroupTrainingRequest groupTrainingModelRequest)
-            throws InvalidHourException;
 }

@@ -378,30 +378,6 @@ public class GroupTrainingsDbRepositoryImpl implements GroupTrainingsDbRepositor
     }
 
     @Override
-    public boolean isClientAlreadyEnrolledToGroupTraining(String trainingId, String clientId) {
-        List<UserDocument> participantsUsers = groupTrainingsRepository
-                .getFirstByTrainingId(trainingId)
-                .getParticipants();
-        List<String> usersIds = new ArrayList<>();
-        for (UserDocument userDocument : participantsUsers) {
-            usersIds.add(userDocument.getUserId());
-        }
-        return usersIds.contains(clientId);
-    }
-
-    @Override
-    public boolean isClientAlreadyExistInReserveList(String trainingId, String clientId) {
-        List<UserDocument> reserveListUsers = groupTrainingsRepository
-                .getFirstByTrainingId(trainingId)
-                .getReserveList();
-        List<String> usersIds = new ArrayList<>();
-        for (UserDocument userDocument : reserveListUsers) {
-            usersIds.add(userDocument.getUserId());
-        }
-        return usersIds.contains(clientId);
-    }
-
-    @Override
     public boolean isAbilityToCreateTraining(GroupTrainingRequest groupTrainingModel) {
         String date = groupTrainingModel.getDate();
         String startTime = groupTrainingModel.getStartTime();

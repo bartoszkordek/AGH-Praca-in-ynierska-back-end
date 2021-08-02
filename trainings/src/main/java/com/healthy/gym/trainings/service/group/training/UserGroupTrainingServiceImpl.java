@@ -16,6 +16,9 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+import static com.healthy.gym.trainings.utils.ParticipantsExtractor.isClientAlreadyEnrolledToGroupTraining;
+import static com.healthy.gym.trainings.utils.ParticipantsExtractor.isClientAlreadyExistInReserveList;
+
 @Service
 public class UserGroupTrainingServiceImpl implements UserGroupTrainingService {
 
@@ -45,24 +48,25 @@ public class UserGroupTrainingServiceImpl implements UserGroupTrainingService {
     public void enrollToGroupTraining(String trainingId, String clientId)
             throws TrainingEnrollmentException, NotExistingGroupTrainingException, UserNotFoundException {
 
-        GroupTrainings groupTrainings = groupTrainingsRepository.findFirstByTrainingId(trainingId);
-        if (groupTrainings == null) throw new NotExistingGroupTrainingException();
+        GroupTrainings groupTraining = groupTrainingsRepository.findFirstByTrainingId(trainingId);
+        if (groupTraining == null) throw new NotExistingGroupTrainingException();
 
         UserDocument newParticipant = userRepository.findByUserId(clientId);
         if (newParticipant == null) throw new UserNotFoundException();
 
         if (!groupTrainingsDbRepositoryImpl.isAbilityToGroupTrainingEnrollment(trainingId))
             throw new TrainingEnrollmentException("Cannot enroll to this training");
-        if (groupTrainingsDbRepositoryImpl.isClientAlreadyEnrolledToGroupTraining(trainingId, clientId))
+
+        if (isClientAlreadyEnrolledToGroupTraining(groupTraining, clientId))
             throw new TrainingEnrollmentException("Client is already enrolled to this training");
 
-        List<UserDocument> participants = groupTrainings.getParticipants();
+        List<UserDocument> participants = groupTraining.getParticipants();
         participants.add(newParticipant);
-        groupTrainings.setParticipants(participants);
-        groupTrainingsRepository.save(groupTrainings);
+        groupTraining.setParticipants(participants);
+        groupTrainingsRepository.save(groupTraining);
 
         // TODO nie rozumiem tego kodu poniżej, czemu on tutaj jest?
-        if (groupTrainingsDbRepositoryImpl.isClientAlreadyExistInReserveList(trainingId, clientId))
+        if (isClientAlreadyExistInReserveList(groupTraining, clientId))
             removeFromReserveList(trainingId, clientId);
     }
 
@@ -70,47 +74,48 @@ public class UserGroupTrainingServiceImpl implements UserGroupTrainingService {
     public void addToReserveList(String trainingId, String clientId)
             throws NotExistingGroupTrainingException, TrainingEnrollmentException, UserNotFoundException {
 
-        GroupTrainings groupTrainings = groupTrainingsRepository.findFirstByTrainingId(trainingId);
-        if (groupTrainings == null) throw new NotExistingGroupTrainingException();
+        GroupTrainings groupTraining = groupTrainingsRepository.findFirstByTrainingId(trainingId);
+        if (groupTraining == null) throw new NotExistingGroupTrainingException();
 
         UserDocument newReserveListParticipant = userRepository.findByUserId(clientId);
         if (newReserveListParticipant == null) throw new UserNotFoundException();
 
-        if (groupTrainingsDbRepositoryImpl.isClientAlreadyEnrolledToGroupTraining(trainingId, clientId))
+        if (isClientAlreadyEnrolledToGroupTraining(groupTraining, clientId))
             throw new TrainingEnrollmentException("Client is already enrolled to this training");
 
-        if (groupTrainingsDbRepositoryImpl.isClientAlreadyExistInReserveList(trainingId, clientId))
+        if (isClientAlreadyExistInReserveList(groupTraining, clientId))
             throw new TrainingEnrollmentException("Client already exists in reserve list");
 
-        List<UserDocument> reserveList = groupTrainings.getReserveList();
+        List<UserDocument> reserveList = groupTraining.getReserveList();
         reserveList.add(newReserveListParticipant);
-        groupTrainings.setReserveList(reserveList);
-        groupTrainingsRepository.save(groupTrainings);
+        groupTraining.setReserveList(reserveList);
+        groupTrainingsRepository.save(groupTraining);
     }
 
     @Override
     public void removeGroupTrainingEnrollment(String trainingId, String clientId)
             throws NotExistingGroupTrainingException, TrainingEnrollmentException, UserNotFoundException {
 
-        GroupTrainings groupTrainings = groupTrainingsRepository.findFirstByTrainingId(trainingId);
-        if (groupTrainings == null) throw new NotExistingGroupTrainingException();
+        GroupTrainings groupTraining = groupTrainingsRepository.findFirstByTrainingId(trainingId);
+        if (groupTraining == null) throw new NotExistingGroupTrainingException();
 
         UserDocument participantToRemove = userRepository.findByUserId(clientId);
         if (participantToRemove == null) throw new UserNotFoundException();
 
-        if (!groupTrainingsDbRepositoryImpl.isClientAlreadyEnrolledToGroupTraining(trainingId, clientId)
-                && !groupTrainingsDbRepositoryImpl.isClientAlreadyExistInReserveList(trainingId, clientId))
+        boolean clientIsEnrolled = isClientAlreadyEnrolledToGroupTraining(groupTraining, clientId);
+        boolean clientIsInReserveList = isClientAlreadyExistInReserveList(groupTraining, clientId);
+
+        if (!clientIsEnrolled && !clientIsInReserveList)
             throw new TrainingEnrollmentException("Client is not enrolled to this training");
 
-        if (groupTrainingsDbRepositoryImpl.isClientAlreadyEnrolledToGroupTraining(trainingId, clientId)) {
-            List<UserDocument> participants = groupTrainings.getParticipants();
+        if (clientIsEnrolled) {
+            List<UserDocument> participants = groupTraining.getParticipants();
             participants.remove(participantToRemove);
-            groupTrainings.setParticipants(participants);
-            groupTrainingsRepository.save(groupTrainings);
+            groupTraining.setParticipants(participants);
+            groupTrainingsRepository.save(groupTraining);
         }
-        if (groupTrainingsDbRepositoryImpl.isClientAlreadyExistInReserveList(trainingId, clientId)) {
-            removeFromReserveList(trainingId, clientId);
-        }
+
+        if (clientIsInReserveList) removeFromReserveList(trainingId, clientId);
     }
 
     private void removeFromReserveList(String trainingId, String clientId) {

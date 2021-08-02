@@ -46,10 +46,6 @@ public interface GroupTrainingsDbRepository {
 
     boolean isAbilityToGroupTrainingEnrollment(String trainingId);
 
-    boolean isClientAlreadyEnrolledToGroupTraining(String trainingId, String clientId);
-
-    boolean isClientAlreadyExistInReserveList(String trainingId, String clientId);
-
     boolean isAbilityToCreateTraining(GroupTrainingRequest groupTrainingModel);
 
     boolean isAbilityToUpdateTraining(String trainingId, GroupTrainingRequest groupTrainingModel);

@@ -117,7 +117,7 @@ public class RemoveGroupTrainingService {
                 reserveListResponses);
 
         //when
-        when(groupTrainingsDAO.getFirstById(trainingId)).thenReturn(groupTraining);
+        when(groupTrainingsDAO.findFirstByGroupTrainingId(trainingId)).thenReturn(groupTraining);
 
         //then
         //TODO

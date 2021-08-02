@@ -195,7 +195,7 @@ public class GroupTrainingServiceImpl implements GroupTrainingService {
                     getNotExistingGroupTrainingExceptionMessage(trainingId)
             );
 
-        GroupTrainingDocument groupTrainingDocument = groupTrainingsDAO.getFirstById(trainingId);
+        GroupTrainingDocument groupTrainingDocument = groupTrainingsDAO.findFirstByGroupTrainingId(trainingId);
 
         return new GroupTrainingResponse(
                 groupTrainingDocument.getId(),

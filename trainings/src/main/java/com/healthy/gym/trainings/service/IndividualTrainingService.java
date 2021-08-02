@@ -25,6 +25,12 @@ public interface IndividualTrainingService {
             String clientId
     ) throws InvalidHourException, ParseException, RetroIndividualTrainingException;
 
+    IndividualTrainings cancelIndividualTrainingRequest(String trainingId, String clientId)
+            throws NotExistingIndividualTrainingException,
+            NotAuthorizedClientException,
+            ParseException,
+            RetroIndividualTrainingException;
+
     IndividualTrainings acceptIndividualTraining(
             String trainingId,
             IndividualTrainingAcceptanceRequest individualTrainingsAcceptModel
@@ -32,13 +38,7 @@ public interface IndividualTrainingService {
             HallNoOutOfRangeException, ParseException, RetroIndividualTrainingException,
             EmailSendingException;
 
-    IndividualTrainings cancelIndividualTrainingRequest(String trainingId, String clientId)
-            throws NotExistingIndividualTrainingException,
-            NotAuthorizedClientException,
-            ParseException,
-            RetroIndividualTrainingException;
-
-    IndividualTrainings declineIndividualTraining(String trainingId)
+    IndividualTrainings rejectIndividualTraining(String trainingId)
             throws NotExistingIndividualTrainingException,
             AlreadyDeclinedIndividualTrainingException,
             EmailSendingException;

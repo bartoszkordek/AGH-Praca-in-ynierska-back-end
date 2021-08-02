@@ -88,7 +88,7 @@ public class IndividualTrainingController {
             @PathVariable("trainingId") final String trainingId
     ) throws RestException {
         try {
-            return individualTrainingsService.declineIndividualTraining(trainingId);
+            return individualTrainingsService.rejectIndividualTraining(trainingId);
         } catch (NotExistingIndividualTrainingException
                 | AlreadyDeclinedIndividualTrainingException
                 | EmailSendingException e) {

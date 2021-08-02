@@ -3,6 +3,7 @@ package com.healthy.gym.trainings.service;
 import com.healthy.gym.trainings.configuration.EmailConfig;
 import com.healthy.gym.trainings.data.document.IndividualTrainings;
 import com.healthy.gym.trainings.data.repository.IndividualTrainingsDbRepository;
+import com.healthy.gym.trainings.data.repository.IndividualTrainingsRepository;
 import com.healthy.gym.trainings.exception.*;
 import com.healthy.gym.trainings.exception.invalid.InvalidHourException;
 import com.healthy.gym.trainings.exception.notexisting.NotExistingIndividualTrainingException;
@@ -24,14 +25,17 @@ public class IndividualTrainingServiceImpl implements IndividualTrainingService 
 
     private final EmailConfig emailConfig;
     private final IndividualTrainingsDbRepository individualTrainingsDbRepository;
+    private final IndividualTrainingsRepository individualTrainingsRepository;
 
     @Autowired
     public IndividualTrainingServiceImpl(
             EmailConfig emailConfig,
-            IndividualTrainingsDbRepository individualTrainingsDbRepository
+            IndividualTrainingsDbRepository individualTrainingsDbRepository,
+            IndividualTrainingsRepository individualTrainingsRepository
     ) {
         this.emailConfig = emailConfig;
         this.individualTrainingsDbRepository = individualTrainingsDbRepository;
+        this.individualTrainingsRepository = individualTrainingsRepository;
     }
 
     private void sendEmailWithoutAttachment(List<String> recipients, String subject, String body) {
@@ -55,22 +59,12 @@ public class IndividualTrainingServiceImpl implements IndividualTrainingService 
         emailService.sendEmailTLS(emailSendModel);
     }
 
-    private boolean isTrainingRetroDateAndTime(String date, String startDate) throws ParseException {
-        String startDateAndTime = date.concat("-").concat(startDate);
-        SimpleDateFormat sdfDateAndTime = new SimpleDateFormat("yyyy-MM-dd-HH:mm");
-        Date requestDateParsed = sdfDateAndTime.parse(startDateAndTime);
-
-        Date now = new Date();
-
-        if (requestDateParsed.before(now)) return true;
-
-        return false;
-    }
-
+    @Override
     public List<IndividualTrainings> getAllIndividualTrainings() {
         return individualTrainingsDbRepository.getIndividualTrainings();
     }
 
+    @Override
     public IndividualTrainings getIndividualTrainingById(String trainingId)
             throws NotExistingIndividualTrainingException {
 
@@ -80,15 +74,18 @@ public class IndividualTrainingServiceImpl implements IndividualTrainingService 
         return individualTrainingsDbRepository.getIndividualTrainingById(trainingId);
     }
 
+    @Override
     public List<IndividualTrainings> getMyAllTrainings(String clientId) {
         //add if Client Exists validation
         return individualTrainingsDbRepository.getMyAllIndividualTrainings(clientId);
     }
 
+    @Override
     public List<IndividualTrainings> getAllAcceptedIndividualTrainings() {
         return individualTrainingsDbRepository.getAcceptedIndividualTrainings();
     }
 
+    @Override
     public IndividualTrainings createIndividualTrainingRequest(
             IndividualTrainingRequest individualTrainingsRequestModel,
             String clientId
@@ -103,6 +100,19 @@ public class IndividualTrainingServiceImpl implements IndividualTrainingService 
                 .createIndividualTrainingRequest(individualTrainingsRequestModel, clientId);
     }
 
+    private boolean isTrainingRetroDateAndTime(String date, String startDate) throws ParseException {
+        String startDateAndTime = date.concat("-").concat(startDate);
+        SimpleDateFormat sdfDateAndTime = new SimpleDateFormat("yyyy-MM-dd-HH:mm");
+        Date requestDateParsed = sdfDateAndTime.parse(startDateAndTime);
+
+        Date now = new Date();
+
+        if (requestDateParsed.before(now)) return true;
+
+        return false;
+    }
+
+    @Override
     public IndividualTrainings acceptIndividualTraining(
             String trainingId,
             IndividualTrainingAcceptanceRequest individualTrainingsAcceptModel
@@ -147,7 +157,8 @@ public class IndividualTrainingServiceImpl implements IndividualTrainingService 
         return response;
     }
 
-    public IndividualTrainings declineIndividualTraining(String trainingId)
+    @Override
+    public IndividualTrainings rejectIndividualTraining(String trainingId)
             throws NotExistingIndividualTrainingException,
             AlreadyDeclinedIndividualTrainingException,
             EmailSendingException {
@@ -175,6 +186,7 @@ public class IndividualTrainingServiceImpl implements IndividualTrainingService 
         return response;
     }
 
+    @Override
     public IndividualTrainings cancelIndividualTrainingRequest(String trainingId, String clientId)
             throws NotExistingIndividualTrainingException,
             NotAuthorizedClientException,

@@ -18,6 +18,9 @@ public class ParticipantsResponse {
 
     //TODO ADD Avatar
 
+    public ParticipantsResponse() {
+    }
+
     public ParticipantsResponse(String userId, String name, String surname) {
         this.userId = userId;
         this.name = name;

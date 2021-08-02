@@ -39,7 +39,7 @@ public class ParticipantsExtractor {
     }
 
     public static boolean isClientAlreadyExistInReserveList(
-            @NotNull GroupTrainings groupTrainings,
+            @NotNull GroupTrainingDocument groupTrainings,
             String clientId
     ) {
         List<UserDocument> reserveListUsers = groupTrainings.getReserveList();
@@ -47,10 +47,10 @@ public class ParticipantsExtractor {
     }
 
     public static boolean isClientAlreadyEnrolledToGroupTraining(
-            @NotNull GroupTrainings groupTrainings,
+            @NotNull GroupTrainingDocument groupTrainings,
             String clientId
     ) {
-        List<UserDocument> participantsUsers = groupTrainings.getParticipants();
+        List<UserDocument> participantsUsers = groupTrainings.getBasicList();
         return checkByIdIfUserExistsInList(participantsUsers, clientId);
     }
 

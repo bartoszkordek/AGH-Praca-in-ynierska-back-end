@@ -3,6 +3,7 @@ package com.healthy.gym.trainings.service.groupTrainingService;
 import com.healthy.gym.trainings.data.document.GroupTrainings;
 import com.healthy.gym.trainings.data.document.TrainingTypeDocument;
 import com.healthy.gym.trainings.data.document.UserDocument;
+import com.healthy.gym.trainings.data.repository.GroupTrainingsDAO;
 import com.healthy.gym.trainings.data.repository.GroupTrainingsRepository;
 import com.healthy.gym.trainings.data.repository.ReviewDAO;
 import com.healthy.gym.trainings.data.repository.TrainingTypeDAO;
@@ -37,6 +38,8 @@ public class UpdateGroupTrainingService {
 
     private TrainingTypeDAO trainingTypeRepository;
     private GroupTrainingsRepository groupTrainingsRepository;
+    private GroupTrainingsDAO groupTrainingsDAO;
+    private TrainingTypeDAO trainingTypeDAO;
     private ReviewDAO reviewDAO;
     private GroupTrainingService groupTrainingService;
 
@@ -44,10 +47,14 @@ public class UpdateGroupTrainingService {
     public void setUp() throws Exception {
         trainingTypeRepository = mock(TrainingTypeDAO.class);
         groupTrainingsRepository = mock(GroupTrainingsRepository.class);
+        groupTrainingsDAO = mock(GroupTrainingsDAO.class);
+        trainingTypeDAO = mock(TrainingTypeDAO.class);
         reviewDAO = mock(ReviewDAO.class);
         groupTrainingService = new GroupTrainingServiceImpl(
                 trainingTypeRepository,
                 groupTrainingsRepository,
+                groupTrainingsDAO,
+                trainingTypeDAO,
                 reviewDAO
         );
     }
@@ -122,9 +129,9 @@ public class UpdateGroupTrainingService {
 
         List<UserResponse> participantsResponses = new ArrayList<>();
         List<UserResponse> reserveListResponses = new ArrayList<>();
-        GroupTrainingResponse groupTrainingResponseAfterUpdate = new GroupTrainingResponse(trainingId, trainingName,
+        /*GroupTrainingResponse groupTrainingResponseAfterUpdate = new GroupTrainingResponse(trainingId, trainingName,
                 trainersResponse, date, startTimeAfterUpdate, endTimeAfterUpdate, hallNoAfterUpdate, limitAfterUpdate,
-                rating, participantsResponses, reserveListResponses);
+                rating, participantsResponses, reserveListResponses);*/
 
         //when
         when(groupTrainingsRepository.existsByTrainingId(trainingId)).thenReturn(true);
@@ -206,9 +213,9 @@ public class UpdateGroupTrainingService {
         trainersResponse.add(trainer1Response);
         List<UserResponse> participantsResponses = new ArrayList<>();
         List<UserResponse> reserveListResponses = new ArrayList<>();
-        GroupTrainingResponse groupTrainingResponseAfterUpdate = new GroupTrainingResponse(trainingId, trainingName,
+        /*GroupTrainingResponse groupTrainingResponseAfterUpdate = new GroupTrainingResponse(trainingId, trainingName,
                 trainersResponse, date, startTimeAfterUpdate, endTimeAfterUpdate, hallNoAfterUpdate, limitAfterUpdate,
-                rating, participantsResponses, reserveListResponses);
+                rating, participantsResponses, reserveListResponses);*/
 
         //when
         when(groupTrainingsRepository.existsByTrainingId(trainingId)).thenReturn(false);
@@ -290,9 +297,9 @@ public class UpdateGroupTrainingService {
         trainersResponse.add(trainer1Response);
         List<UserResponse> participantsResponses = new ArrayList<>();
         List<UserResponse> reserveListResponses = new ArrayList<>();
-        GroupTrainingResponse groupTrainingResponseAfterUpdate = new GroupTrainingResponse(trainingId, trainingName,
+        /*GroupTrainingResponse groupTrainingResponseAfterUpdate = new GroupTrainingResponse(trainingId, trainingName,
                 trainersResponse, date, startTimeAfterUpdate, endTimeAfterUpdate, hallNoAfterUpdate, limitAfterUpdate,
-                rating, participantsResponses, reserveListResponses);
+                rating, participantsResponses, reserveListResponses);*/
 
         //when
         when(groupTrainingsRepository.existsByTrainingId(trainingId)).thenReturn(true);

@@ -109,8 +109,9 @@ public class UserGroupTrainingServiceImpl implements UserGroupTrainingService {
         if (!groupTrainingsDbRepositoryImpl.isAbilityToGroupTrainingEnrollment(trainingId))
             throw new TrainingEnrollmentException("Cannot enroll to this training");
 
-        if (isClientAlreadyEnrolledToGroupTraining(groupTraining, clientId))
-            throw new TrainingEnrollmentException("Client is already enrolled to this training");
+        //TODO przerobić powyżej na GroupTrainingDocument
+        /*if (isClientAlreadyEnrolledToGroupTraining(groupTraining, clientId))
+            throw new TrainingEnrollmentException("Client is already enrolled to this training");*/
 
         List<UserDocument> participants = groupTraining.getParticipants();
         participants.add(newParticipant);
@@ -118,8 +119,8 @@ public class UserGroupTrainingServiceImpl implements UserGroupTrainingService {
         groupTrainingsRepository.save(groupTraining);
 
         // TODO nie rozumiem tego kodu poniżej, czemu on tutaj jest?
-        if (isClientAlreadyExistInReserveList(groupTraining, clientId))
-            removeFromReserveList(trainingId, clientId);
+        /*if (isClientAlreadyExistInReserveList(groupTraining, clientId))
+            removeFromReserveList(trainingId, clientId);*/
     }
 
     @Override
@@ -132,11 +133,12 @@ public class UserGroupTrainingServiceImpl implements UserGroupTrainingService {
         UserDocument newReserveListParticipant = userRepository.findByUserId(clientId);
         if (newReserveListParticipant == null) throw new UserNotFoundException();
 
-        if (isClientAlreadyEnrolledToGroupTraining(groupTraining, clientId))
+        //TODO przerobić powyżej na GroupTrainingDocument
+        /*if (isClientAlreadyEnrolledToGroupTraining(groupTraining, clientId))
             throw new TrainingEnrollmentException("Client is already enrolled to this training");
 
         if (isClientAlreadyExistInReserveList(groupTraining, clientId))
-            throw new TrainingEnrollmentException("Client already exists in reserve list");
+            throw new TrainingEnrollmentException("Client already exists in reserve list");*/
 
         List<UserDocument> reserveList = groupTraining.getReserveList();
         reserveList.add(newReserveListParticipant);
@@ -154,10 +156,11 @@ public class UserGroupTrainingServiceImpl implements UserGroupTrainingService {
         UserDocument participantToRemove = userRepository.findByUserId(clientId);
         if (participantToRemove == null) throw new UserNotFoundException();
 
-        boolean clientIsEnrolled = isClientAlreadyEnrolledToGroupTraining(groupTraining, clientId);
-        boolean clientIsInReserveList = isClientAlreadyExistInReserveList(groupTraining, clientId);
+        //TODO przerobić powyżej na GroupTrainingDocument
+        /*boolean clientIsEnrolled = isClientAlreadyEnrolledToGroupTraining(groupTraining, clientId);
+        boolean clientIsInReserveList = isClientAlreadyExistInReserveList(groupTraining, clientId);*/
 
-        if (!clientIsEnrolled && !clientIsInReserveList)
+        /*if (!clientIsEnrolled && !clientIsInReserveList)
             throw new TrainingEnrollmentException("Client is not enrolled to this training");
 
         if (clientIsEnrolled) {
@@ -167,7 +170,7 @@ public class UserGroupTrainingServiceImpl implements UserGroupTrainingService {
             groupTrainingsRepository.save(groupTraining);
         }
 
-        if (clientIsInReserveList) removeFromReserveList(trainingId, clientId);
+        if (clientIsInReserveList) removeFromReserveList(trainingId, clientId);*/
     }
 
     private void removeFromReserveList(String trainingId, String clientId) {

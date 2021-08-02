@@ -423,16 +423,6 @@ public class GroupTrainingsDbRepositoryImpl implements GroupTrainingsDbRepositor
     }
 
     @Override
-    public void enrollToGroupTraining(String trainingId, String clientId) {
-        GroupTrainings groupTrainings = groupTrainingsRepository.findFirstByTrainingId(trainingId);
-        UserDocument newParticipant = userRepository.findByUserId(clientId);
-        List<UserDocument> participants = groupTrainings.getParticipants();
-        participants.add(newParticipant);
-        groupTrainings.setParticipants(participants);
-        groupTrainingsRepository.save(groupTrainings);
-    }
-
-    @Override
     public void addToReserveList(String trainingId, String clientId) {
         GroupTrainings groupTrainings = groupTrainingsRepository.findFirstByTrainingId(trainingId);
         UserDocument newReserveListParticipant = userRepository.findByUserId(clientId);

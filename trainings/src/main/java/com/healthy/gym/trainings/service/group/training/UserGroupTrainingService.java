@@ -12,7 +12,7 @@ import java.util.List;
 public interface UserGroupTrainingService {
 
     List<GroupTrainingPublicResponse> getMyAllTrainings(String clientId)
-            throws InvalidHourException, InvalidDateException;
+            throws InvalidHourException, InvalidDateException, UserNotFoundException;
 
     void enrollToGroupTraining(String trainingId, String clientId)
             throws TrainingEnrollmentException, NotExistingGroupTrainingException, UserNotFoundException;

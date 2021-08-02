@@ -1,7 +1,6 @@
 package com.healthy.gym.trainings.data.repository;
 
 import com.healthy.gym.trainings.data.document.GroupTrainings;
-import com.healthy.gym.trainings.data.document.UserDocument;
 import com.healthy.gym.trainings.exception.StartDateAfterEndDateException;
 import com.healthy.gym.trainings.exception.invalid.InvalidDateException;
 import com.healthy.gym.trainings.exception.invalid.InvalidHourException;
@@ -9,7 +8,6 @@ import com.healthy.gym.trainings.model.request.GroupTrainingRequest;
 import com.healthy.gym.trainings.model.response.GroupTrainingPublicResponse;
 import com.healthy.gym.trainings.model.response.GroupTrainingResponse;
 import com.healthy.gym.trainings.model.response.GroupTrainingReviewResponse;
-import com.healthy.gym.trainings.model.response.UserResponse;
 import com.healthy.gym.trainings.utils.DateFormatter;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
@@ -230,73 +228,6 @@ public class GroupTrainingsDbRepositoryImpl implements GroupTrainingsDbRepositor
             result.add(groupTraining);
         }
         return result;
-    }
-
-    @Override
-    public List<GroupTrainingPublicResponse> getMyAllGroupTrainings(String clientId)
-            throws InvalidDateException, InvalidHourException {
-
-        List<GroupTrainingPublicResponse> publicResponse = new ArrayList<>();
-        List<GroupTrainings> groupTrainings = groupTrainingsRepository
-                .findGroupTrainingsByParticipantsContains(clientId);
-
-        for (GroupTrainings groupTraining : groupTrainings) {
-
-            double rating = 0.0;
-            if (!groupTrainings.isEmpty()) {
-                List<GroupTrainingReviewResponse> groupTrainingsReviews = groupTrainingsReviewsRepository
-                        .findByDateBetweenAndTrainingTypeId(
-                                null,
-                                null,
-                                groupTraining.getTrainingType().getTrainingTypeId(),
-                                paging
-                        ).getContent();
-
-                double sum = 0;
-                int counter = 0;
-                for (GroupTrainingReviewResponse review : groupTrainingsReviews) {
-                    sum += review.getStars();
-                    counter++;
-                }
-                if (counter != 0) rating = sum / counter;
-            }
-
-            publicResponse.add(
-                    new GroupTrainingPublicResponse(
-                            groupTraining.getTrainingId(),
-                            groupTraining.getTrainingType().getName(),
-                            null, //TODO fix groupTraining.getTrainerId(),
-                            groupTraining.getDate(),
-                            groupTraining.getStartTime(),
-                            groupTraining.getEndTime(),
-                            groupTraining.getHallNo(),
-                            groupTraining.getLimit(),
-                            rating
-                    )
-            );
-        }
-
-        return publicResponse;
-    }
-
-    @Override
-    public List<UserResponse> getTrainingParticipants(String trainingId) {
-
-        List<UserResponse> participantsResponses = new ArrayList<>();
-        List<UserDocument> participants = groupTrainingsRepository
-                .getFirstByTrainingId(trainingId)
-                .getParticipants();
-
-        for (UserDocument userDocument : participants) {
-            UserResponse participantsResponse = new UserResponse(
-                    userDocument.getUserId(),
-                    userDocument.getName(),
-                    userDocument.getSurname()
-            );
-            participantsResponses.add(participantsResponse);
-        }
-
-        return participantsResponses;
     }
 
     @Override

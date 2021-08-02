@@ -2,6 +2,7 @@ package com.healthy.gym.trainings.service.group.training;
 
 import com.healthy.gym.trainings.configuration.EmailConfig;
 import com.healthy.gym.trainings.data.document.GroupTrainings;
+import com.healthy.gym.trainings.data.document.UserDocument;
 import com.healthy.gym.trainings.data.repository.GroupTrainingsDbRepositoryImpl;
 import com.healthy.gym.trainings.data.repository.GroupTrainingsRepository;
 import com.healthy.gym.trainings.data.repository.ReviewDAO;
@@ -207,6 +208,21 @@ public class GroupTrainingServiceImpl implements GroupTrainingService {
             throw new NotExistingGroupTrainingException(
                     getNotExistingGroupTrainingExceptionMessage(trainingId)
             );
-        return groupTrainingsDbRepositoryImpl.getTrainingParticipants(trainingId);
+
+        List<UserResponse> participantsResponses = new ArrayList<>();
+        List<UserDocument> participants = groupTrainingsRepository
+                .getFirstByTrainingId(trainingId)
+                .getParticipants();
+
+        for (UserDocument userDocument : participants) {
+            UserResponse participantsResponse = new UserResponse(
+                    userDocument.getUserId(),
+                    userDocument.getName(),
+                    userDocument.getSurname()
+            );
+            participantsResponses.add(participantsResponse);
+        }
+
+        return participantsResponses;
     }
 }

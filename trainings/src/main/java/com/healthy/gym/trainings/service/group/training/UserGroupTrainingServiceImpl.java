@@ -4,6 +4,7 @@ import com.healthy.gym.trainings.data.document.GroupTrainings;
 import com.healthy.gym.trainings.data.document.UserDocument;
 import com.healthy.gym.trainings.data.repository.GroupTrainingsDbRepositoryImpl;
 import com.healthy.gym.trainings.data.repository.GroupTrainingsRepository;
+import com.healthy.gym.trainings.data.repository.ReviewDAO;
 import com.healthy.gym.trainings.data.repository.UserDAO;
 import com.healthy.gym.trainings.exception.invalid.InvalidDateException;
 import com.healthy.gym.trainings.exception.invalid.InvalidHourException;
@@ -11,9 +12,13 @@ import com.healthy.gym.trainings.exception.notexisting.NotExistingGroupTrainingE
 import com.healthy.gym.trainings.exception.notfound.UserNotFoundException;
 import com.healthy.gym.trainings.exception.training.TrainingEnrollmentException;
 import com.healthy.gym.trainings.model.response.GroupTrainingPublicResponse;
+import com.healthy.gym.trainings.model.response.GroupTrainingReviewResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static com.healthy.gym.trainings.utils.ParticipantsExtractor.isClientAlreadyEnrolledToGroupTraining;
@@ -25,23 +30,71 @@ public class UserGroupTrainingServiceImpl implements UserGroupTrainingService {
     private final GroupTrainingsDbRepositoryImpl groupTrainingsDbRepositoryImpl;
     private final GroupTrainingsRepository groupTrainingsRepository;
     private final UserDAO userRepository;
+    private final Pageable paging;
+    private final ReviewDAO groupTrainingsReviewsRepository;
 
     @Autowired
     public UserGroupTrainingServiceImpl(
             GroupTrainingsDbRepositoryImpl groupTrainingsDbRepositoryImpl,
             GroupTrainingsRepository groupTrainingsRepository,
-            UserDAO userRepository
+            UserDAO userRepository,
+            ReviewDAO groupTrainingsReviewsRepository
     ) {
         this.groupTrainingsDbRepositoryImpl = groupTrainingsDbRepositoryImpl;
         this.groupTrainingsRepository = groupTrainingsRepository;
         this.userRepository = userRepository;
+        this.groupTrainingsReviewsRepository = groupTrainingsReviewsRepository;
+        this.paging = PageRequest.of(0, 1000000);
     }
 
     @Override
     public List<GroupTrainingPublicResponse> getMyAllTrainings(String clientId)
-            throws InvalidHourException, InvalidDateException {
-        //add if Client Exists validation
-        return groupTrainingsDbRepositoryImpl.getMyAllGroupTrainings(clientId);
+            throws InvalidHourException, InvalidDateException, UserNotFoundException {
+
+        UserDocument userDocument = userRepository.findByUserId(clientId);
+        if (userDocument == null) throw new UserNotFoundException();
+
+        List<GroupTrainingPublicResponse> publicResponse = new ArrayList<>();
+        List<GroupTrainings> groupTrainings = groupTrainingsRepository
+                .findGroupTrainingsByParticipantsContains(clientId);
+
+        for (GroupTrainings groupTraining : groupTrainings) {
+
+            double rating = 0.0;
+            if (!groupTrainings.isEmpty()) {
+                List<GroupTrainingReviewResponse> groupTrainingsReviews = groupTrainingsReviewsRepository
+                        .findByDateBetweenAndTrainingTypeId(
+                                null,
+                                null,
+                                groupTraining.getTrainingType().getTrainingTypeId(),
+                                paging
+                        ).getContent();
+
+                double sum = 0;
+                int counter = 0;
+                for (GroupTrainingReviewResponse review : groupTrainingsReviews) {
+                    sum += review.getStars();
+                    counter++;
+                }
+                if (counter != 0) rating = sum / counter;
+            }
+
+            publicResponse.add(
+                    new GroupTrainingPublicResponse(
+                            groupTraining.getTrainingId(),
+                            groupTraining.getTrainingType().getName(),
+                            null, //TODO fix groupTraining.getTrainerId(),
+                            groupTraining.getDate(),
+                            groupTraining.getStartTime(),
+                            groupTraining.getEndTime(),
+                            groupTraining.getHallNo(),
+                            groupTraining.getLimit(),
+                            rating
+                    )
+            );
+        }
+
+        return publicResponse;
     }
 
     @Override

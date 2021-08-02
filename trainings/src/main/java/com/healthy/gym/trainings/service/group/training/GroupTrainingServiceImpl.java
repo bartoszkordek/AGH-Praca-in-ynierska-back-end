@@ -2,6 +2,7 @@ package com.healthy.gym.trainings.service.group.training;
 
 import com.healthy.gym.trainings.configuration.EmailConfig;
 import com.healthy.gym.trainings.data.repository.GroupTrainingsDbRepositoryImpl;
+import com.healthy.gym.trainings.data.repository.GroupTrainingsRepository;
 import com.healthy.gym.trainings.data.repository.TrainingTypeDAO;
 import com.healthy.gym.trainings.exception.StartDateAfterEndDateException;
 import com.healthy.gym.trainings.exception.invalid.InvalidDateException;
@@ -25,16 +26,19 @@ public class GroupTrainingServiceImpl implements GroupTrainingService {
     private final EmailConfig emailConfig;
     private final GroupTrainingsDbRepositoryImpl groupTrainingsDbRepositoryImpl;
     private final TrainingTypeDAO trainingTypeRepository;
+    private final GroupTrainingsRepository groupTrainingsRepository;
 
     @Autowired
     public GroupTrainingServiceImpl(
             EmailConfig emailConfig,
             GroupTrainingsDbRepositoryImpl groupTrainingsDbRepositoryImpl,
-            TrainingTypeDAO trainingTypeRepository
+            TrainingTypeDAO trainingTypeRepository,
+            GroupTrainingsRepository groupTrainingsRepository
     ) {
         this.emailConfig = emailConfig;
         this.groupTrainingsDbRepositoryImpl = groupTrainingsDbRepositoryImpl;
         this.trainingTypeRepository = trainingTypeRepository;
+        this.groupTrainingsRepository = groupTrainingsRepository;
     }
 
     private void sendEmailWithoutAttachment(List<String> recipients, String subject, String body) {

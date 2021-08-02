@@ -40,10 +40,6 @@ public interface GroupTrainingsDbRepository {
 
     List<ParticipantsResponse> getTrainingParticipants(String trainingId);
 
-    boolean isGroupTrainingExist(String trainingId);
-
-    boolean isGroupTrainingExistByType(String trainingTypeId);
-
     boolean isAbilityToGroupTrainingEnrollment(String trainingId);
 
     boolean isAbilityToCreateTraining(GroupTrainingRequest groupTrainingModel);

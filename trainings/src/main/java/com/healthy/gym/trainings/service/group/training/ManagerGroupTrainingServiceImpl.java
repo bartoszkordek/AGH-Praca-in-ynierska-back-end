@@ -47,6 +47,7 @@ public class ManagerGroupTrainingServiceImpl implements ManagerGroupTrainingServ
     private final GroupTrainingsDbRepositoryImpl groupTrainingsDbRepositoryImpl;
     private final EmailSender emailSender;
     private final Clock clock;
+    private final GroupTrainingsRepository groupTrainingsRepository;
 
     @Autowired
     public ManagerGroupTrainingServiceImpl(
@@ -56,7 +57,8 @@ public class ManagerGroupTrainingServiceImpl implements ManagerGroupTrainingServ
             UserDAO userDAO,
             GroupTrainingsDbRepositoryImpl groupTrainingsDbRepositoryImpl,
             EmailSender emailSender,
-            Clock clock
+            Clock clock,
+            GroupTrainingsRepository groupTrainingsRepository
     ) {
         this.groupTrainingsDAO = groupTrainingsDAO;
         this.trainingTypeDAO = trainingTypeDAO;
@@ -65,6 +67,7 @@ public class ManagerGroupTrainingServiceImpl implements ManagerGroupTrainingServ
         this.groupTrainingsDbRepositoryImpl = groupTrainingsDbRepositoryImpl;
         this.emailSender = emailSender;
         this.clock = clock;
+        this.groupTrainingsRepository = groupTrainingsRepository;
     }
 
     @Override
@@ -187,7 +190,7 @@ public class ManagerGroupTrainingServiceImpl implements ManagerGroupTrainingServ
             throws TrainingUpdateException, EmailSendingException,
             InvalidHourException, ParseException, InvalidDateException {
 
-        if (!groupTrainingsDbRepositoryImpl.isGroupTrainingExist(trainingId))
+        if (!groupTrainingsRepository.existsByTrainingId(trainingId))
             throw new TrainingUpdateException("Training with ID: " + trainingId + " doesn't exist");
 
         String date = groupTrainingModelRequest.getDate();
@@ -260,7 +263,7 @@ public class ManagerGroupTrainingServiceImpl implements ManagerGroupTrainingServ
     public GroupTrainingResponse removeGroupTraining(String trainingId)
             throws TrainingRemovalException, EmailSendingException, InvalidDateException, InvalidHourException {
 
-        if (!groupTrainingsDbRepositoryImpl.isGroupTrainingExist(trainingId))
+        if (!groupTrainingsRepository.existsByTrainingId(trainingId))
             throw new TrainingRemovalException("Training with ID: " + trainingId + " doesn't exist");
 
         GroupTrainings repositoryResponse = groupTrainingsDbRepositoryImpl.removeTraining(trainingId);

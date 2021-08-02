@@ -4,7 +4,7 @@ import com.healthy.gym.trainings.configuration.EmailConfig;
 import com.healthy.gym.trainings.data.repository.GroupTrainingsDbRepositoryImpl;
 import com.healthy.gym.trainings.data.repository.GroupTrainingsRepository;
 import com.healthy.gym.trainings.data.repository.TrainingTypeDAO;
-import com.healthy.gym.trainings.exception.*;
+import com.healthy.gym.trainings.exception.StartDateAfterEndDateException;
 import com.healthy.gym.trainings.exception.invalid.InvalidDateException;
 import com.healthy.gym.trainings.exception.invalid.InvalidHourException;
 import com.healthy.gym.trainings.exception.notexisting.NotExistingGroupTrainingException;
@@ -153,7 +153,7 @@ public class GetGroupTrainingServiceTest {
         groupTrainings.add(groupTraining);
 
         //when
-        when(groupTrainingsDbRepositoryImpl.isGroupTrainingExist(trainingId)).thenReturn(true);
+        when(groupTrainingsRepository.existsByTrainingId(trainingId)).thenReturn(true);
         when(groupTrainingsDbRepositoryImpl.getGroupTrainingById(trainingId)).thenReturn(groupTraining);
 
         //then
@@ -178,7 +178,7 @@ public class GetGroupTrainingServiceTest {
         String invalidTrainingId = "122ed953-e37f-435a-bd1e-9fb2a327c4d3";
 
         //when
-        when(groupTrainingsDbRepositoryImpl.isGroupTrainingExist(invalidTrainingId)).thenReturn(false);
+        when(groupTrainingsRepository.existsByTrainingId(invalidTrainingId)).thenReturn(false);
 
         //then
         groupTrainingService.getGroupTrainingById(invalidTrainingId);
@@ -215,7 +215,7 @@ public class GetGroupTrainingServiceTest {
         participantsResponses.add(participants2Response);
 
         //when
-        when(groupTrainingsDbRepositoryImpl.isGroupTrainingExist(trainingId)).thenReturn(true);
+        when(groupTrainingsRepository.existsByTrainingId(trainingId)).thenReturn(true);
         when(groupTrainingsDbRepositoryImpl.getTrainingParticipants(trainingId)).thenReturn(participantsResponses);
 
         //then
@@ -240,7 +240,7 @@ public class GetGroupTrainingServiceTest {
         String invalidTrainingId = "122ed953-e37f-435a-bd1e-9fb2a327c4d3";
 
         //when
-        when(groupTrainingsDbRepositoryImpl.isGroupTrainingExist(invalidTrainingId)).thenReturn(false);
+        when(groupTrainingsRepository.existsByTrainingId(invalidTrainingId)).thenReturn(false);
 
         //then
         groupTrainingService.getTrainingParticipants(invalidTrainingId);
@@ -284,7 +284,7 @@ public class GetGroupTrainingServiceTest {
 
         //when
         when(trainingTypeRepository.existsByTrainingTypeId(trainingTypeId)).thenReturn(true);
-        when(groupTrainingsDbRepositoryImpl.isGroupTrainingExistByType(trainingTypeId)).thenReturn(true);
+        when(groupTrainingsRepository.existsByTrainingTypeId(trainingTypeId)).thenReturn(true);
         when(groupTrainingsDbRepositoryImpl.getGroupTrainingsByTrainingTypeId(trainingTypeId, startDate, endDate)).thenReturn(groupTrainings);
 
         //then
@@ -329,7 +329,7 @@ public class GetGroupTrainingServiceTest {
 
         //when
         when(trainingTypeRepository.existsByTrainingTypeId(trainingTypeId)).thenReturn(false);
-        when(groupTrainingsDbRepositoryImpl.isGroupTrainingExistByType(trainingTypeId)).thenReturn(false);
+        when(groupTrainingsRepository.existsByTrainingTypeId(trainingTypeId)).thenReturn(true);
         when(groupTrainingsDbRepositoryImpl.getGroupTrainingsByTrainingTypeId(trainingTypeId, startDate, endDate)).thenReturn(groupTrainings);
 
         //then

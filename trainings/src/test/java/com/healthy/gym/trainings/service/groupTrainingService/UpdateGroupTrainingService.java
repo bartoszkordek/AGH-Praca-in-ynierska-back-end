@@ -99,7 +99,7 @@ public class UpdateGroupTrainingService {
                 rating, participantsResponses, reserveListResponses);
 
         //when
-        when(groupTrainingsDbRepositoryImpl.isGroupTrainingExist(trainingId)).thenReturn(true);
+        when(groupTrainingsRepository.existsByTrainingId(trainingId)).thenReturn(true);
         when(groupTrainingsDbRepositoryImpl.isAbilityToUpdateTraining(trainingId, groupTrainingUpdateRequest)).thenReturn(true);
         when(groupTrainingsDbRepositoryImpl.updateTraining(trainingId, groupTrainingUpdateRequest))
                 .thenReturn(groupTrainingAfterUpdate);
@@ -169,7 +169,7 @@ public class UpdateGroupTrainingService {
                 rating, participantsResponses, reserveListResponses);
 
         //when
-        when(groupTrainingsDbRepositoryImpl.isGroupTrainingExist(trainingId)).thenReturn(false);
+        when(groupTrainingsRepository.existsByTrainingId(trainingId)).thenReturn(false);
         when(groupTrainingsDbRepositoryImpl.isAbilityToUpdateTraining(trainingId, groupTrainingUpdateRequest)).thenReturn(true);
         when(groupTrainingsDbRepositoryImpl.updateTraining(trainingId, groupTrainingUpdateRequest))
                 .thenReturn(groupTrainingAfterUpdate);
@@ -239,7 +239,7 @@ public class UpdateGroupTrainingService {
                 rating, participantsResponses, reserveListResponses);
 
         //when
-        when(groupTrainingsDbRepositoryImpl.isGroupTrainingExist(trainingId)).thenReturn(true);
+        when(groupTrainingsRepository.existsByTrainingId(trainingId)).thenReturn(true);
         when(groupTrainingsDbRepositoryImpl.isAbilityToUpdateTraining(trainingId, groupTrainingUpdateRequest)).thenReturn(false);
         when(groupTrainingsDbRepositoryImpl.updateTraining(trainingId, groupTrainingUpdateRequest))
                 .thenReturn(groupTrainingAfterUpdate);

@@ -77,7 +77,7 @@ public class GroupTrainingServiceImpl implements GroupTrainingService {
     @Override
     public GroupTrainingResponse getGroupTrainingById(String trainingId) throws NotExistingGroupTrainingException,
             InvalidHourException, InvalidDateException {
-        if (!groupTrainingsDbRepositoryImpl.isGroupTrainingExist(trainingId))
+        if (!groupTrainingsRepository.existsByTrainingId(trainingId))
             throw new NotExistingGroupTrainingException(
                     getNotExistingGroupTrainingExceptionMessage(trainingId)
             );
@@ -96,7 +96,7 @@ public class GroupTrainingServiceImpl implements GroupTrainingService {
         if (!trainingTypeRepository.existsByTrainingTypeId(trainingTypeId)) {
             throw new TrainingTypeNotFoundException("Training type does not exist");
         }
-        if (!groupTrainingsDbRepositoryImpl.isGroupTrainingExistByType(trainingTypeId)) {
+        if (!groupTrainingsRepository.existsByTrainingTypeId(trainingTypeId)) {
             throw new NotExistingGroupTrainingException("Trainings with type ID " + trainingTypeId + " does not exist");
         }
 
@@ -117,7 +117,7 @@ public class GroupTrainingServiceImpl implements GroupTrainingService {
         if (!trainingTypeRepository.existsByTrainingTypeId(trainingTypeId)) {
             throw new TrainingTypeNotFoundException("Training type does not exist");
         }
-        if (!groupTrainingsDbRepositoryImpl.isGroupTrainingExistByType(trainingTypeId)) {
+        if (!groupTrainingsRepository.existsByTrainingTypeId(trainingTypeId)) {
             throw new NotExistingGroupTrainingException("Trainings with type ID " + trainingTypeId + " does not exist");
         }
         return groupTrainingsDbRepositoryImpl.getGroupTrainingsPublicByTrainingTypeId(trainingTypeId, startDate, endDate);
@@ -127,7 +127,7 @@ public class GroupTrainingServiceImpl implements GroupTrainingService {
     public List<ParticipantsResponse> getTrainingParticipants(String trainingId)
             throws NotExistingGroupTrainingException {
 
-        if (!groupTrainingsDbRepositoryImpl.isGroupTrainingExist(trainingId))
+        if (!groupTrainingsRepository.existsByTrainingId(trainingId))
             throw new NotExistingGroupTrainingException(
                     getNotExistingGroupTrainingExceptionMessage(trainingId)
             );

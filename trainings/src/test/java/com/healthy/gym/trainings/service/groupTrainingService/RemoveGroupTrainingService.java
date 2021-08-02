@@ -8,9 +8,9 @@ import com.healthy.gym.trainings.data.repository.GroupTrainingsDbRepositoryImpl;
 import com.healthy.gym.trainings.data.repository.GroupTrainingsRepository;
 import com.healthy.gym.trainings.data.repository.TrainingTypeDAO;
 import com.healthy.gym.trainings.exception.EmailSendingException;
-import com.healthy.gym.trainings.exception.training.TrainingRemovalException;
 import com.healthy.gym.trainings.exception.invalid.InvalidDateException;
 import com.healthy.gym.trainings.exception.invalid.InvalidHourException;
+import com.healthy.gym.trainings.exception.training.TrainingRemovalException;
 import com.healthy.gym.trainings.model.request.GroupTrainingRequest;
 import com.healthy.gym.trainings.model.response.GroupTrainingResponse;
 import com.healthy.gym.trainings.model.response.ParticipantsResponse;
@@ -80,7 +80,7 @@ public class RemoveGroupTrainingService {
                 date, startTime, endTime, hallNo, limit, rating, participantsResponses, reserveListResponses);
 
         //when
-        when(groupTrainingsDbRepositoryImpl.isGroupTrainingExist(trainingId)).thenReturn(true);
+        when(groupTrainingsRepository.existsByTrainingId(trainingId)).thenReturn(true);
         when(groupTrainingsDbRepositoryImpl.removeTraining(trainingId)).thenReturn(groupTraining);
 
         //then
@@ -137,7 +137,7 @@ public class RemoveGroupTrainingService {
                 date, startTime, endTime, hallNo, limit, rating, participantsResponses, reserveListResponses);
 
         //when
-        when(groupTrainingsDbRepositoryImpl.isGroupTrainingExist(trainingId)).thenReturn(false);
+        when(groupTrainingsRepository.existsByTrainingId(trainingId)).thenReturn(false);
         when(groupTrainingsDbRepositoryImpl.removeTraining(trainingId)).thenReturn(groupTraining);
 
         //then

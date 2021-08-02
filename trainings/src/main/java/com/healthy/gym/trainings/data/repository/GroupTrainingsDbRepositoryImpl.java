@@ -336,16 +336,6 @@ public class GroupTrainingsDbRepositoryImpl implements GroupTrainingsDbRepositor
     }
 
     @Override
-    public boolean isGroupTrainingExist(String trainingId) {
-        return groupTrainingsRepository.existsByTrainingId(trainingId);
-    }
-
-    @Override
-    public boolean isGroupTrainingExistByType(String trainingTypeId) {
-        return groupTrainingsRepository.existsByTrainingTypeId(trainingTypeId);
-    }
-
-    @Override
     public boolean isAbilityToGroupTrainingEnrollment(String trainingId) {
         SimpleDateFormat sdfDate = new SimpleDateFormat("yyyy-MM-dd");
         SimpleDateFormat sdfTime = new SimpleDateFormat("HH:mm");

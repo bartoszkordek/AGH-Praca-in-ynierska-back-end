@@ -39,7 +39,6 @@ public class OfferController {
     }
 
 
-    @PreAuthorize("hasRole('ADMIN') or hasRole('MANAGER')")
     @GetMapping("/offer")
     public ResponseEntity<List<GymPassDTO>> getGymPassOffer() {
 
@@ -57,6 +56,7 @@ public class OfferController {
         }
     }
 
+    @PreAuthorize("hasRole('ADMIN') or hasRole('MANAGER')")
     @PostMapping("/offer")
     public ResponseEntity<GymPassOfferResponse> createGymPassOffer(
             @Valid @RequestBody GymPassOfferRequest request,

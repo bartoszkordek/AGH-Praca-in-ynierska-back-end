@@ -4,7 +4,7 @@ import com.healthy.gym.trainings.component.Translator;
 import com.healthy.gym.trainings.exception.ResponseBindException;
 import com.healthy.gym.trainings.exception.duplicated.DuplicatedLocationNameException;
 import com.healthy.gym.trainings.exception.notfound.LocationNotFoundException;
-import com.healthy.gym.trainings.model.request.CreateLocationRequest;
+import com.healthy.gym.trainings.model.request.LocationRequest;
 import com.healthy.gym.trainings.model.response.LocationResponse;
 import com.healthy.gym.trainings.service.LocationService;
 import com.healthy.gym.trainings.shared.LocationDTO;
@@ -39,7 +39,7 @@ public class LocationController {
 
     @PostMapping
     public ResponseEntity<LocationResponse> createLocation(
-            @Valid @RequestBody CreateLocationRequest request,
+            @Valid @RequestBody LocationRequest request,
             BindingResult bindingResult
     ) throws ResponseBindException {
 
@@ -77,7 +77,7 @@ public class LocationController {
     @PutMapping("/{locationId}")
     public ResponseEntity<LocationResponse> updateLocation(
             @PathVariable String locationId,
-            @Valid @RequestBody CreateLocationRequest locationRequest,
+            @Valid @RequestBody LocationRequest locationRequest,
             BindingResult bindingResult
     ) throws ResponseBindException {
         try {

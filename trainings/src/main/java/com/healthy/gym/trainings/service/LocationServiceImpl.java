@@ -4,7 +4,7 @@ import com.healthy.gym.trainings.data.document.LocationDocument;
 import com.healthy.gym.trainings.data.repository.LocationDAO;
 import com.healthy.gym.trainings.exception.duplicated.DuplicatedLocationNameException;
 import com.healthy.gym.trainings.exception.notfound.LocationNotFoundException;
-import com.healthy.gym.trainings.model.request.CreateLocationRequest;
+import com.healthy.gym.trainings.model.request.LocationRequest;
 import com.healthy.gym.trainings.shared.LocationDTO;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
@@ -29,7 +29,7 @@ public class LocationServiceImpl implements LocationService {
     }
 
     @Override
-    public LocationDTO createLocation(CreateLocationRequest request) throws DuplicatedLocationNameException {
+    public LocationDTO createLocation(LocationRequest request) throws DuplicatedLocationNameException {
         String name = request.getName();
         LocationDocument locationDocument = locationDAO.findByName(name);
         if (locationDocument != null) throw new DuplicatedLocationNameException();
@@ -51,7 +51,7 @@ public class LocationServiceImpl implements LocationService {
     }
 
     @Override
-    public LocationDTO updateLocationById(String id, CreateLocationRequest request)
+    public LocationDTO updateLocationById(String id, LocationRequest request)
             throws LocationNotFoundException, DuplicatedLocationNameException {
 
         LocationDocument locationDocument = locationDAO.findByLocationId(id);

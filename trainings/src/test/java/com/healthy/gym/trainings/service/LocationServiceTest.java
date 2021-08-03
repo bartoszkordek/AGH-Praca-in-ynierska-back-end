@@ -4,7 +4,7 @@ import com.healthy.gym.trainings.data.document.LocationDocument;
 import com.healthy.gym.trainings.data.repository.LocationDAO;
 import com.healthy.gym.trainings.exception.duplicated.DuplicatedLocationNameException;
 import com.healthy.gym.trainings.exception.notfound.LocationNotFoundException;
-import com.healthy.gym.trainings.model.request.CreateLocationRequest;
+import com.healthy.gym.trainings.model.request.LocationRequest;
 import com.healthy.gym.trainings.shared.LocationDTO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -38,7 +38,7 @@ class LocationServiceTest {
             when(locationDAO.findByName("Sala nr2"))
                     .thenReturn(new LocationDocument(null, "Sala nr2"));
 
-            CreateLocationRequest request = new CreateLocationRequest();
+            LocationRequest request = new LocationRequest();
             request.setName("Sala nr2");
 
             assertThatThrownBy(() ->
@@ -54,7 +54,7 @@ class LocationServiceTest {
                     new LocationDocument(locationId, "Sala nr 2")
             );
 
-            CreateLocationRequest request = new CreateLocationRequest();
+            LocationRequest request = new LocationRequest();
             request.setName("Sala nr2");
 
             LocationDTO createdLocation = locationService.createLocation(request);
@@ -99,11 +99,11 @@ class LocationServiceTest {
 
     @Nested
     class WhenUpdateLocationById {
-        private CreateLocationRequest request;
+        private LocationRequest request;
 
         @BeforeEach
         void setUp() {
-            request = new CreateLocationRequest();
+            request = new LocationRequest();
             request.setName("Sala nr2");
         }
 

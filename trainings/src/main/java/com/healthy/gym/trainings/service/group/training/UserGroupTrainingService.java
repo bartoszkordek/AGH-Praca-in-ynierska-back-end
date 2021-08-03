@@ -5,6 +5,7 @@ import com.healthy.gym.trainings.exception.training.TrainingEnrollmentException;
 import com.healthy.gym.trainings.exception.invalid.InvalidDateException;
 import com.healthy.gym.trainings.exception.invalid.InvalidHourException;
 import com.healthy.gym.trainings.exception.notexisting.NotExistingGroupTrainingException;
+import com.healthy.gym.trainings.shared.GroupTrainingEnrollmentDTO;
 import com.healthy.gym.trainings.model.response.GroupTrainingPublicResponse;
 
 import java.util.List;
@@ -14,8 +15,8 @@ public interface UserGroupTrainingService {
     List<GroupTrainingPublicResponse> getMyAllTrainings(String clientId)
             throws InvalidHourException, InvalidDateException, UserNotFoundException;
 
-    void enrollToGroupTraining(String trainingId, String clientId)
-            throws TrainingEnrollmentException, NotExistingGroupTrainingException, UserNotFoundException;
+    GroupTrainingEnrollmentDTO enrollToGroupTraining(String trainingId, String clientId)
+            throws TrainingEnrollmentException, NotExistingGroupTrainingException, UserNotFoundException, InvalidHourException, InvalidDateException;
 
     void addToReserveList(String trainingId, String clientId)
             throws NotExistingGroupTrainingException, TrainingEnrollmentException, UserNotFoundException;

@@ -1,8 +1,7 @@
 package com.healthy.gym.trainings.service.groupTrainingService;
 
-import com.healthy.gym.trainings.data.document.GroupTrainings;
-import com.healthy.gym.trainings.data.document.TrainingTypeDocument;
-import com.healthy.gym.trainings.data.document.UserDocument;
+import com.healthy.gym.trainings.data.document.*;
+import com.healthy.gym.trainings.data.repository.GroupTrainingsDAO;
 import com.healthy.gym.trainings.data.repository.GroupTrainingsRepository;
 import com.healthy.gym.trainings.data.repository.ReviewDAO;
 import com.healthy.gym.trainings.data.repository.TrainingTypeDAO;
@@ -22,6 +21,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -37,6 +37,8 @@ public class RemoveGroupTrainingService {
 
     private TrainingTypeDAO trainingTypeRepository;
     private GroupTrainingsRepository groupTrainingsRepository;
+    private GroupTrainingsDAO groupTrainingsDAO;
+    private TrainingTypeDAO trainingTypeDAO;
     private ReviewDAO reviewDAO;
     private GroupTrainingService groupTrainingService;
 
@@ -44,10 +46,14 @@ public class RemoveGroupTrainingService {
     public void setUp() throws Exception {
         trainingTypeRepository = mock(TrainingTypeDAO.class);
         groupTrainingsRepository = mock(GroupTrainingsRepository.class);
+        groupTrainingsDAO = mock(GroupTrainingsDAO.class);
+        trainingTypeDAO = mock(TrainingTypeDAO.class);
         reviewDAO = mock(ReviewDAO.class);
         groupTrainingService = new GroupTrainingServiceImpl(
                 trainingTypeRepository,
                 groupTrainingsRepository,
+                groupTrainingsDAO,
+                trainingTypeDAO,
                 reviewDAO
         );
     }
@@ -60,10 +66,12 @@ public class RemoveGroupTrainingService {
         String id = "507f1f77bcf86cd799439011";
         String trainingId = "122ed953-e37f-435a-bd1e-9fb2a327c4d3";
         String trainingTypeId = "222ed952-es7f-435a-bd1e-9fb2a327c4dk";
-        String date = "2030-07-01";
-        String startTime = "18:00";
-        String endTime = "19:00";
-        int hallNo = 1;
+        LocalDateTime trainingStartDate = LocalDateTime.of(2021,7,1,18,0);
+        LocalDateTime trainingEndDate = LocalDateTime.of(2021,7,1,19,0);
+        LocationDocument location = new LocationDocument();
+        location.setId("507f1f77bcf86cd799439019");
+        location.setLocationId("xdded952-es7f-435a-bd1e-9fb2a327c4dk");
+        location.setName("Location 1");
         int limit = 15;
 
         List<UserDocument> trainersDocuments = new ArrayList<>();
@@ -92,8 +100,8 @@ public class RemoveGroupTrainingService {
         TrainingTypeDocument trainingType = new TrainingTypeDocument(trainingTypeId, trainingName, trainingDescription,
                 trainingDuration, null);
 
-        GroupTrainings groupTraining = new GroupTrainings(trainingId, trainingType, trainersDocuments,
-                date, startTime, endTime, hallNo, limit, participantDocuments, reserveListDocuments);
+        GroupTrainingDocument groupTraining = new GroupTrainingDocument(trainingId, trainingType, trainersDocuments,
+                trainingStartDate, trainingEndDate, location, limit, participantDocuments, reserveListDocuments);
         groupTraining.setId(id);
 
         double rating = 0.0;
@@ -105,11 +113,11 @@ public class RemoveGroupTrainingService {
         List<UserResponse> participantsResponses = new ArrayList<>();
         List<UserResponse> reserveListResponses = new ArrayList<>();
         GroupTrainingResponse groupTrainingResponse = new GroupTrainingResponse(trainingId, trainingName,
-                trainersResponse, date, startTime, endTime, hallNo, limit, rating, participantsResponses,
+                trainersResponse, trainingStartDate, trainingEndDate, location.getName(), limit, rating, participantsResponses,
                 reserveListResponses);
 
         //when
-        when(groupTrainingsRepository.findFirstByTrainingId(trainingId)).thenReturn(groupTraining);
+        when(groupTrainingsDAO.findFirstByGroupTrainingId(trainingId)).thenReturn(groupTraining);
 
         //then
         //TODO
@@ -128,16 +136,18 @@ public class RemoveGroupTrainingService {
         String trainerId = "100ed952-es7f-435a-bd1e-9fb2a327c4dk";
         List<String> trainersIds = new ArrayList<>();
         trainersIds.add(trainerId);
-        String date = "2030-07-01";
-        String startTime = "18:00";
-        String endTime = "19:00";
-        int hallNo = 1;
+        LocalDateTime trainingStartDate = LocalDateTime.of(2021,7,1,18,0);
+        LocalDateTime trainingEndDate = LocalDateTime.of(2021,7,1,19,0);
+        LocationDocument location = new LocationDocument();
+        location.setId("507f1f77bcf86cd799439019");
+        location.setLocationId("xdded952-es7f-435a-bd1e-9fb2a327c4dk");
+        location.setName("Location 1");
         int limit = 15;
 
         List<String> participants = new ArrayList<>();
         List<String> reserveList = new ArrayList<>();
-        GroupTrainingRequest groupTrainingRequest = new GroupTrainingRequest(trainingTypeId, trainersIds, date, startTime,
-                endTime, hallNo, limit, participants, reserveList);
+        /*GroupTrainingRequest groupTrainingRequest = new GroupTrainingRequest(trainingTypeId, trainersIds, date, startTime,
+                endTime, hallNo, limit, participants, reserveList);*/
 
         String trainingName = "Test Training";
         String trainingDescription = "Sample description";
@@ -164,9 +174,9 @@ public class RemoveGroupTrainingService {
 
         List<UserDocument> participantDocuments = new ArrayList<>();
         List<UserDocument> reserveListDocuments = new ArrayList<>();
-        GroupTrainings groupTraining = new GroupTrainings(trainingId, trainingType, trainersDocuments,
+        /*GroupTrainings groupTraining = new GroupTrainings(trainingId, trainingType, trainersDocuments,
                 date, startTime, endTime, hallNo, limit, participantDocuments, reserveListDocuments);
-        groupTraining.setId(id);
+        groupTraining.setId(id);*/
 
         double rating = 0.0;
 
@@ -176,12 +186,12 @@ public class RemoveGroupTrainingService {
 
         List<UserResponse> participantsResponses = new ArrayList<>();
         List<UserResponse> reserveListResponses = new ArrayList<>();
-        GroupTrainingResponse groupTrainingResponse = new GroupTrainingResponse(trainingId, trainingName,
+        /*GroupTrainingResponse groupTrainingResponse = new GroupTrainingResponse(trainingId, trainingName,
                 trainersResponse, date, startTime, endTime, hallNo, limit, rating, participantsResponses,
-                reserveListResponses);
+                reserveListResponses);*/
 
         //when
-        when(groupTrainingsRepository.findFirstByTrainingId(trainingId)).thenReturn(groupTraining);
+        /*when(groupTrainingsRepository.findFirstByTrainingId(trainingId)).thenReturn(groupTraining);*/
 
         //then
         //TODO

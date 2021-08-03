@@ -1,8 +1,11 @@
-package com.healthy.gym.trainings.model.response;
+package com.healthy.gym.trainings.shared;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.healthy.gym.trainings.exception.invalid.InvalidDateException;
 import com.healthy.gym.trainings.exception.invalid.InvalidHourException;
+import com.healthy.gym.trainings.model.response.AbstractResponse;
+import com.healthy.gym.trainings.model.response.UserResponse;
 import com.healthy.gym.trainings.utils.DateValidator;
 import com.healthy.gym.trainings.utils.Time24HoursValidator;
 
@@ -12,7 +15,8 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Objects;
 
-public class GroupTrainingPublicResponse {
+@JsonInclude(JsonInclude.Include.NON_NULL)
+public class GroupTrainingEnrollmentDTO extends AbstractResponse {
 
     @NotNull
     @JsonProperty("id")
@@ -30,21 +34,19 @@ public class GroupTrainingPublicResponse {
     private final boolean allDay;
     @NotNull
     private final String location;
-    @NotNull
-    private final int limit;
-    private final double rating;
 
-    public GroupTrainingPublicResponse(
+    public GroupTrainingEnrollmentDTO(
+
             @JsonProperty("id") String trainingId,
             @JsonProperty("title") String trainingName,
             List<UserResponse> trainers,
             LocalDateTime startDate,
             LocalDateTime endDate,
-            String location,
-            int limit,
-            double rating
-    ) throws InvalidHourException, InvalidDateException {
-
+            String location
+    ) throws InvalidDateException, InvalidHourException {
+        this.trainingId = trainingId;
+        this.trainingName = trainingName;
+        this.trainers = trainers;
         DateTimeFormatter dateFormatter = DateTimeFormatter.ISO_LOCAL_DATE;
         DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
 
@@ -56,61 +58,10 @@ public class GroupTrainingPublicResponse {
                 || !Time24HoursValidator.validate(endDate.format(timeFormatter)))
             throw new InvalidHourException("Wrong end date or time");
 
-        this.trainingId = trainingId;
-        this.trainingName = trainingName;
-        this.trainers = trainers;
         this.startDate = startDate.format(dateFormatter).concat("T").concat(startDate.format(timeFormatter));
         this.endDate = endDate.format(dateFormatter).concat("T").concat(endDate.format(timeFormatter));
         this.allDay = false;
         this.location = location;
-        this.limit = limit;
-        this.rating = rating;
-    }
-
-    @Override
-    public String toString() {
-        return "GroupTrainingPublicResponse{" +
-                "trainingId='" + trainingId + '\'' +
-                ", trainingName='" + trainingName + '\'' +
-                ", trainers=" + trainers +
-                ", startDate='" + startDate + '\'' +
-                ", endDate='" + endDate + '\'' +
-                ", allDay=" + allDay +
-                ", location='" + location + '\'' +
-                ", limit=" + limit +
-                ", rating=" + rating +
-                '}';
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        GroupTrainingPublicResponse that = (GroupTrainingPublicResponse) o;
-        return allDay == that.allDay &&
-                limit == that.limit &&
-                Double.compare(that.rating, rating) == 0 &&
-                Objects.equals(trainingId, that.trainingId) &&
-                Objects.equals(trainingName, that.trainingName) &&
-                Objects.equals(trainers, that.trainers) &&
-                Objects.equals(startDate, that.startDate) &&
-                Objects.equals(endDate, that.endDate) &&
-                Objects.equals(location, that.location);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(
-                trainingId,
-                trainingName,
-                trainers,
-                startDate,
-                endDate,
-                allDay,
-                location,
-                limit,
-                rating
-        );
     }
 
     public String getTrainingId() {
@@ -125,11 +76,11 @@ public class GroupTrainingPublicResponse {
         return trainers;
     }
 
-    public String getStartTime() {
+    public String getStartDate() {
         return startDate;
     }
 
-    public String getEndTime() {
+    public String getEndDate() {
         return endDate;
     }
 
@@ -137,11 +88,45 @@ public class GroupTrainingPublicResponse {
         return location;
     }
 
-    public int getLimit() {
-        return limit;
+    @Override
+    public String
+    toString() {
+        return "GroupTrainingEnrollmentResponse{" +
+                "trainingId='" + trainingId + '\'' +
+                ", trainingName='" + trainingName + '\'' +
+                ", trainers=" + trainers +
+                ", startDate='" + startDate + '\'' +
+                ", endDate='" + endDate + '\'' +
+                ", allDay=" + allDay +
+                ", location='" + location + '\'' +
+                '}';
     }
 
-    public double getRating() {
-        return rating;
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
+        GroupTrainingEnrollmentDTO that = (GroupTrainingEnrollmentDTO) o;
+        return allDay == that.allDay &&
+                Objects.equals(trainingId, that.trainingId) &&
+                Objects.equals(trainingName, that.trainingName) &&
+                Objects.equals(trainers, that.trainers) &&
+                Objects.equals(startDate, that.startDate) &&
+                Objects.equals(endDate, that.endDate) &&
+                Objects.equals(location, that.location);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(
+                super.hashCode(),
+                trainingId,
+                trainingName,
+                trainers,
+                startDate,
+                endDate,
+                allDay,
+                location);
     }
 }

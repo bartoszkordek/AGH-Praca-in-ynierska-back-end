@@ -1,5 +1,6 @@
 package com.healthy.gym.trainings.utils;
 
+import com.healthy.gym.trainings.data.document.GroupTrainingDocument;
 import com.healthy.gym.trainings.data.document.GroupTrainings;
 import com.healthy.gym.trainings.data.document.UserDocument;
 import com.healthy.gym.trainings.model.response.UserResponse;
@@ -21,7 +22,7 @@ class ParticipantsExtractorTest {
     private String clientId1;
     private String clientId2;
     private String clientId3;
-    private GroupTrainings groupTrainings;
+    private GroupTrainingDocument groupTrainings;
 
     @BeforeEach
     void setUp() {
@@ -52,14 +53,14 @@ class ParticipantsExtractorTest {
                 null,
                 clientId3
         );
-        groupTrainings = new GroupTrainings();
+        groupTrainings = new GroupTrainingDocument();
     }
 
     @Nested
     class WhenGetBasicList {
         @Test
         void shouldReturnProperBasicList() {
-            groupTrainings.setParticipants(List.of(testUser1, testUser2, testUser3));
+            groupTrainings.setBasicList(List.of(testUser1, testUser2, testUser3));
             assertThat(getBasicList(groupTrainings))
                     .hasSize(3)
                     .isEqualTo(
@@ -73,7 +74,7 @@ class ParticipantsExtractorTest {
 
         @Test
         void shouldReturnEmptyList() {
-            groupTrainings.setParticipants(List.of());
+            groupTrainings.setBasicList(List.of());
             assertThat(getBasicList(groupTrainings)).isEmpty();
         }
     }
@@ -127,19 +128,19 @@ class ParticipantsExtractorTest {
     class WhenIsClientAlreadyEnrolledToGroupTraining {
         @Test
         void shouldReturnTrueWhenUserExists() {
-            groupTrainings.setParticipants(List.of(testUser1, testUser2, testUser3));
+            groupTrainings.setBasicList(List.of(testUser1, testUser2, testUser3));
             assertThat(isClientAlreadyEnrolledToGroupTraining(groupTrainings, clientId1)).isTrue();
         }
 
         @Test
         void shouldReturnFalseWhenUserDoesNotExist() {
-            groupTrainings.setParticipants(List.of(testUser2, testUser3));
+            groupTrainings.setBasicList(List.of(testUser2, testUser3));
             assertThat(isClientAlreadyEnrolledToGroupTraining(groupTrainings, clientId1)).isFalse();
         }
 
         @Test
         void shouldReturnFalseWhenUserIsNull() {
-            groupTrainings.setParticipants(List.of(testUser2, testUser3));
+            groupTrainings.setBasicList(List.of(testUser2, testUser3));
             assertThat(isClientAlreadyEnrolledToGroupTraining(groupTrainings, null)).isFalse();
         }
     }

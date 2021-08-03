@@ -31,11 +31,6 @@ public interface ManagerGroupTrainingService {
             LocationOccupiedException,
             TrainerOccupiedException, PastDateException;
 
-    GroupTrainingResponse createGroupTraining(GroupTrainingRequest groupTrainingModel)
-            throws TrainingCreationException,
-            ParseException,
-            InvalidHourException,
-            InvalidDateException;
 
     GroupTrainingResponse updateGroupTraining(String trainingId, GroupTrainingRequest groupTrainingModelRequest)
             throws TrainingUpdateException,

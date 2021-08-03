@@ -176,8 +176,6 @@ class WhenGetGroupTrainingIntegrationTest {
         ResponseEntity<JsonNode> getResponseEntity = restTemplate
                 .exchange(getUri, HttpMethod.GET, getRequest, JsonNode.class);
 
-        System.out.println(getResponseEntity.getBody());
-
         JsonNode trainings = getResponseEntity.getBody().get("data");
 
         //then

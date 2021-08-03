@@ -1,4 +1,4 @@
-package com.healthy.gym.trainings.controller.group.training.manager.integrationTests;
+package com.healthy.gym.trainings.controller.groupTrainingController.integrationTest;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.healthy.gym.trainings.configuration.FixedClockConfig;
@@ -46,7 +46,7 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
         "eureka.client.fetch-registry=false",
         "eureka.client.register-with-eureka=false"
 })
-class WhenCreateGroupTrainingIntegrationTest {
+class WhenGetGroupTrainingIntegrationTest {
 
     @Container
     static MongoDBContainer mongoDBContainer =
@@ -83,7 +83,7 @@ class WhenCreateGroupTrainingIntegrationTest {
         locationId = UUID.randomUUID().toString();
 
         ObjectMapper objectMapper = new ObjectMapper();
-        requestContent = objectMapper.writeValueAsString(getTestRequest());
+        requestContent = objectMapper.writeValueAsString(createTestRequest());
 
         TrainingTypeDocument trainingType = new TrainingTypeDocument(
                 trainingTypeId,
@@ -131,7 +131,7 @@ class WhenCreateGroupTrainingIntegrationTest {
         mongoTemplate.dropCollection(LocationDocument.class);
     }
 
-    private CreateGroupTrainingRequest getTestRequest() {
+    private CreateGroupTrainingRequest createTestRequest() {
         CreateGroupTrainingRequest request = new CreateGroupTrainingRequest();
         request.setTrainingTypeId(trainingTypeId);
         request.setTrainerIds(List.of(trainerId1, trainerId2));
@@ -144,53 +144,68 @@ class WhenCreateGroupTrainingIntegrationTest {
 
     @ParameterizedTest
     @EnumSource(TestCountry.class)
-    void shouldCreateGroupTraining(TestCountry country) throws Exception {
-        Map<String, String> messages = getMessagesAccordingToLocale(country);
+    void shouldGetGroupTrainings(TestCountry country) throws Exception {
+
+        //before
         Locale testedLocale = convertEnumToLocale(country);
 
-        URI uri = new URI("http://localhost:" + port + "/group");
+        URI createUri = new URI("http://localhost:" + port + "/group");
 
-        HttpHeaders headers = new HttpHeaders();
-        headers.set("Accept-Language", testedLocale.toString());
-        headers.set("Authorization", managerToken);
-        headers.setContentType(MediaType.APPLICATION_JSON);
+        HttpHeaders createHeaders = new HttpHeaders();
+        createHeaders.set("Accept-Language", testedLocale.toString());
+        createHeaders.set("Authorization", managerToken);
+        createHeaders.setContentType(MediaType.APPLICATION_JSON);
 
-        HttpEntity<Object> request = new HttpEntity<>(requestContent, headers);
-        String expectedMessage = messages.get("request.create.training.success");
+        HttpEntity<Object> createRequest = new HttpEntity<>(requestContent, createHeaders);
 
-        ResponseEntity<JsonNode> responseEntity = restTemplate
-                .exchange(uri, HttpMethod.POST, request, JsonNode.class);
+        ResponseEntity<JsonNode> createResponseEntity = restTemplate
+                .exchange(createUri, HttpMethod.POST, createRequest, JsonNode.class);
 
-        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.CREATED);
-        assertThat(responseEntity.getHeaders().getContentType()).isEqualTo(MediaType.APPLICATION_JSON);
-        assertThat(responseEntity.getBody().get("message").textValue()).isEqualTo(expectedMessage);
+        //when
+        String startDate = "2020-01-01";
+        String endDate = "2021-12-31";
+        URI getUri = new URI("http://localhost:" + port + "/group" +
+                "?startDate="+startDate+"&endDate="+endDate);
 
-        JsonNode training = responseEntity.getBody().get("training");
-        assertThat(training.get("id")).isNotNull();
-        assertThat(training.get("title").textValue()).isEqualTo("Test training name");
-        assertThat(training.get("startDate").textValue()).isEqualTo("2020-10-10T16:00");
-        assertThat(training.get("endDate").textValue()).isEqualTo("2020-10-10T16:30");
-        assertThat(training.get("allDay").booleanValue()).isFalse();
-        assertThat(training.get("location").textValue()).isEqualTo("TestLocationName");
+        HttpHeaders getHeaders = new HttpHeaders();
+        getHeaders.set("Accept-Language", testedLocale.toString());
+        getHeaders.set("Authorization", managerToken);
 
-        JsonNode firstTrainer = training.get("trainers").get(0);
-        assertThat(firstTrainer.get("userId").textValue()).isEqualTo(trainerId1);
-        assertThat(firstTrainer.get("name").textValue()).isEqualTo("TrainerName1");
-        assertThat(firstTrainer.get("surname").textValue()).isEqualTo("TrainerSurname1");
-        assertThat(firstTrainer.get("avatar")).isNull();
+        HttpEntity<Object> getRequest = new HttpEntity<>(null, getHeaders);
 
-        JsonNode secondTrainer = training.get("trainers").get(1);
-        assertThat(secondTrainer.get("userId").textValue()).isEqualTo(trainerId2);
-        assertThat(secondTrainer.get("name").textValue()).isEqualTo("TrainerName2");
-        assertThat(secondTrainer.get("surname").textValue()).isEqualTo("TrainerSurname2");
-        assertThat(secondTrainer.get("avatar")).isNull();
+        ResponseEntity<JsonNode> getResponseEntity = restTemplate
+                .exchange(getUri, HttpMethod.GET, getRequest, JsonNode.class);
 
-        JsonNode participants = training.get("participants");
-        assertThat(participants.get("basicList").isArray()).isTrue();
-        assertThat(participants.get("reserveList").isArray()).isTrue();
+        System.out.println(getResponseEntity.getBody());
 
-        List<GroupTrainingDocument> groupTrainings = mongoTemplate.findAll(GroupTrainingDocument.class);
-        assertThat(groupTrainings.size()).isEqualTo(1);
+        JsonNode trainings = getResponseEntity.getBody().get("data");
+
+        //then
+        assertThat(getResponseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(getResponseEntity.getBody().has("data"));
+        assertThat(trainings.get(0).get("id")).isNotNull();
+        assertThat(trainings.get(0).get("title").textValue()).isEqualTo("Test training name");
+        assertThat(trainings.get(0).get("startDate").textValue()).isEqualTo("2020-10-10T16:00");
+        assertThat(trainings.get(0).get("endDate").textValue()).isEqualTo("2020-10-10T16:30");
+        assertThat(trainings.get(0).get("allDay").booleanValue()).isFalse();
+        assertThat(trainings.get(0).get("location").textValue()).isEqualTo("TestLocationName");
+
+        //trainer1
+        assertThat(trainings.get(0).get("trainers").get(0).get("name").textValue())
+                .isEqualTo("TrainerName1");
+        assertThat(trainings.get(0).get("trainers").get(0).get("surname").textValue())
+                .isEqualTo("TrainerSurname1");
+
+        //trainer2
+        assertThat(trainings.get(0).get("trainers").get(1).get("name").textValue())
+                .isEqualTo("TrainerName2");
+        assertThat(trainings.get(0).get("trainers").get(1).get("surname").textValue())
+                .isEqualTo("TrainerSurname2");
+
+        //participants
+        assertThat(trainings.get(0).get("participants").get("basicList").isArray());
+        assertThat(trainings.get(0).get("participants").get("reserveList").isArray());
+
     }
 
 }

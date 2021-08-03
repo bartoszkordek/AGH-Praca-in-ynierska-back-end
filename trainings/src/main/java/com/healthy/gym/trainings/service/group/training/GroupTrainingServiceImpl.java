@@ -193,7 +193,7 @@ public class GroupTrainingServiceImpl implements GroupTrainingService {
                     documentStartDate.format(dateFormatter).concat("T").concat(documentStartDate.format(timeFormatter)),
                     documentEndDate.format(dateFormatter).concat("T").concat(documentEndDate.format(timeFormatter)),
                     false,
-                    groupTrainingDocument.getLocation().getLocationId(),
+                    groupTrainingDocument.getLocation().getName(),
                     rating,
                     trainersDTO,
                     participantsDTO
@@ -237,7 +237,7 @@ public class GroupTrainingServiceImpl implements GroupTrainingService {
                     documentStartDate.format(dateFormatter).concat("T").concat(documentStartDate.format(timeFormatter)),
                     documentEndDate.format(dateFormatter).concat("T").concat(documentEndDate.format(timeFormatter)),
                     false,
-                    groupTrainingDocument.getLocation().getLocationId(),
+                    groupTrainingDocument.getLocation().getName(),
                     rating,
                     trainersDTO
             );
@@ -292,7 +292,7 @@ public class GroupTrainingServiceImpl implements GroupTrainingService {
                 documentStartDate.format(dateFormatter).concat("T").concat(documentStartDate.format(timeFormatter)),
                 documentEndDate.format(dateFormatter).concat("T").concat(documentEndDate.format(timeFormatter)),
                 false,
-                groupTrainingDocument.getLocation().getLocationId(),
+                groupTrainingDocument.getLocation().getName(),
                 rating,
                 trainersDTO,
                 participantsDTO

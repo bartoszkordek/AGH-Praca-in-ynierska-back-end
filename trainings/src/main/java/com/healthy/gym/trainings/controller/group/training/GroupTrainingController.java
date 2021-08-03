@@ -10,7 +10,6 @@ import com.healthy.gym.trainings.model.response.GroupTrainingParticipantsRespons
 import com.healthy.gym.trainings.model.response.GroupTrainingResponse;
 import com.healthy.gym.trainings.model.response.GroupTrainingsPublicResponse;
 import com.healthy.gym.trainings.model.response.GroupTrainingsResponse;
-import com.healthy.gym.trainings.shared.UserDTO;
 import com.healthy.gym.trainings.service.group.training.GroupTrainingService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;

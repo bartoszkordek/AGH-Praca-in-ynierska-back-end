@@ -2,7 +2,7 @@ package com.healthy.gym.trainings.utils;
 
 import com.healthy.gym.trainings.data.document.GroupTrainingDocument;
 import com.healthy.gym.trainings.data.document.UserDocument;
-import com.healthy.gym.trainings.shared.UserDTO;
+import com.healthy.gym.trainings.shared.BasicUserInfoDTO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -64,9 +64,9 @@ class ParticipantsExtractorTest {
                     .hasSize(3)
                     .isEqualTo(
                             List.of(
-                                    new UserDTO(clientId1, "TestName1", "TestSurname1"),
-                                    new UserDTO(clientId2, "TestName2", "TestSurname2"),
-                                    new UserDTO(clientId3, "TestName3", "TestSurname3")
+                                    new BasicUserInfoDTO(clientId1, "TestName1", "TestSurname1",null),
+                                    new BasicUserInfoDTO(clientId2, "TestName2", "TestSurname2",null),
+                                    new BasicUserInfoDTO(clientId3, "TestName3", "TestSurname3", null)
                             )
                     );
         }
@@ -87,9 +87,9 @@ class ParticipantsExtractorTest {
                     .hasSize(3)
                     .isEqualTo(
                             List.of(
-                                    new UserDTO(clientId1, "TestName1", "TestSurname1"),
-                                    new UserDTO(clientId2, "TestName2", "TestSurname2"),
-                                    new UserDTO(clientId3, "TestName3", "TestSurname3")
+                                    new BasicUserInfoDTO(clientId1, "TestName1", "TestSurname1", null),
+                                    new BasicUserInfoDTO(clientId2, "TestName2", "TestSurname2", null),
+                                    new BasicUserInfoDTO(clientId3, "TestName3", "TestSurname3", null)
                             )
                     );
         }

@@ -1,6 +1,9 @@
 package com.healthy.gym.trainings.service.group.training.manager.service;
 
-import com.healthy.gym.trainings.data.document.*;
+import com.healthy.gym.trainings.data.document.GroupTrainingDocument;
+import com.healthy.gym.trainings.data.document.LocationDocument;
+import com.healthy.gym.trainings.data.document.TrainingTypeDocument;
+import com.healthy.gym.trainings.data.document.UserDocument;
 import com.healthy.gym.trainings.data.repository.GroupTrainingsDAO;
 import com.healthy.gym.trainings.data.repository.GroupTrainingsRepository;
 import com.healthy.gym.trainings.data.repository.ReviewDAO;
@@ -29,7 +32,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @RunWith(SpringRunner.class)
-public class RemoveGroupTrainingService {
+class RemoveGroupTrainingServiceTest {
 
     @Autowired
     private ApplicationContext applicationContext;
@@ -65,8 +68,8 @@ public class RemoveGroupTrainingService {
         String id = "507f1f77bcf86cd799439011";
         String trainingId = "122ed953-e37f-435a-bd1e-9fb2a327c4d3";
         String trainingTypeId = "222ed952-es7f-435a-bd1e-9fb2a327c4dk";
-        LocalDateTime trainingStartDate = LocalDateTime.of(2021,7,1,18,0);
-        LocalDateTime trainingEndDate = LocalDateTime.of(2021,7,1,19,0);
+        LocalDateTime trainingStartDate = LocalDateTime.of(2021, 7, 1, 18, 0);
+        LocalDateTime trainingEndDate = LocalDateTime.of(2021, 7, 1, 19, 0);
         LocationDocument location = new LocationDocument();
         location.setId("507f1f77bcf86cd799439019");
         location.setLocationId("xdded952-es7f-435a-bd1e-9fb2a327c4dk");
@@ -135,8 +138,8 @@ public class RemoveGroupTrainingService {
         String trainerId = "100ed952-es7f-435a-bd1e-9fb2a327c4dk";
         List<String> trainersIds = new ArrayList<>();
         trainersIds.add(trainerId);
-        LocalDateTime trainingStartDate = LocalDateTime.of(2021,7,1,18,0);
-        LocalDateTime trainingEndDate = LocalDateTime.of(2021,7,1,19,0);
+        LocalDateTime trainingStartDate = LocalDateTime.of(2021, 7, 1, 18, 0);
+        LocalDateTime trainingEndDate = LocalDateTime.of(2021, 7, 1, 19, 0);
         LocationDocument location = new LocationDocument();
         location.setId("507f1f77bcf86cd799439019");
         location.setLocationId("xdded952-es7f-435a-bd1e-9fb2a327c4dk");

@@ -14,33 +14,45 @@ import com.healthy.gym.trainings.exception.occupied.TrainerOccupiedException;
 import com.healthy.gym.trainings.exception.training.TrainingRemovalException;
 import com.healthy.gym.trainings.exception.training.TrainingUpdateException;
 import com.healthy.gym.trainings.model.request.ManagerGroupTrainingRequest;
-import com.healthy.gym.trainings.model.request.GroupTrainingRequest;
 import com.healthy.gym.trainings.shared.GroupTrainingDTO;
 
 import java.text.ParseException;
 
 public interface ManagerGroupTrainingService {
 
-    GroupTrainingDTO createGroupTraining(ManagerGroupTrainingRequest createGroupTrainingRequest)
-            throws StartDateAfterEndDateException,
-            TrainerNotFoundException,
+    GroupTrainingDTO createGroupTraining(final ManagerGroupTrainingRequest groupTrainingRequest)
+            throws
             LocationNotFoundException,
-            TrainingTypeNotFoundException,
             LocationOccupiedException,
-            TrainerOccupiedException, PastDateException;
+            PastDateException,
+            StartDateAfterEndDateException,
+            TrainerOccupiedException,
+            TrainerNotFoundException,
+            TrainingTypeNotFoundException;
 
 
-    GroupTrainingDTO updateGroupTraining(String trainingId, GroupTrainingRequest groupTrainingModelRequest)
-            throws TrainingUpdateException,
-            EmailSendingException,
-            InvalidHourException,
-            ParseException,
-            InvalidDateException;
-
-    GroupTrainingDTO removeGroupTraining(String trainingId)
-            throws TrainingRemovalException,
-            EmailSendingException,
+    GroupTrainingDTO updateGroupTraining(
+            final String trainingId,
+            final ManagerGroupTrainingRequest groupTrainingRequest
+    ) throws EmailSendingException,
             InvalidDateException,
             InvalidHourException,
-            NotExistingGroupTrainingException;
+            LocationNotFoundException,
+            LocationOccupiedException,
+            NotExistingGroupTrainingException,
+            ParseException,
+            PastDateException,
+            StartDateAfterEndDateException,
+            TrainerNotFoundException,
+            TrainerOccupiedException,
+            TrainingTypeNotFoundException,
+            TrainingUpdateException;
+
+
+    GroupTrainingDTO removeGroupTraining(final String trainingId)
+            throws EmailSendingException,
+            InvalidDateException,
+            InvalidHourException,
+            NotExistingGroupTrainingException,
+            TrainingRemovalException;
 }

@@ -64,7 +64,6 @@ class CreateGroupTrainingServiceTest {
                 locationDAO,
                 userDAO,
                 null,
-                null,
                 clock,
                 null
         );

@@ -14,7 +14,6 @@ import com.healthy.gym.trainings.exception.occupied.TrainerOccupiedException;
 import com.healthy.gym.trainings.exception.training.TrainingRemovalException;
 import com.healthy.gym.trainings.exception.training.TrainingUpdateException;
 import com.healthy.gym.trainings.model.request.ManagerGroupTrainingRequest;
-import com.healthy.gym.trainings.model.request.GroupTrainingRequest;
 import com.healthy.gym.trainings.model.response.GroupTrainingResponse;
 import com.healthy.gym.trainings.service.group.training.ManagerGroupTrainingService;
 import com.healthy.gym.trainings.shared.GroupTrainingDTO;
@@ -50,8 +49,8 @@ public class ManagerGroupTrainingController {
 
     @PostMapping
     public ResponseEntity<GroupTrainingResponse> createGroupTraining(
-            @Valid @RequestBody ManagerGroupTrainingRequest createGroupTrainingRequest,
-            BindingResult bindingResult
+            @Valid @RequestBody final ManagerGroupTrainingRequest createGroupTrainingRequest,
+            final BindingResult bindingResult
     ) throws ResponseBindException {
         try {
             if (bindingResult.hasErrors()) throw new BindException(bindingResult);
@@ -106,14 +105,14 @@ public class ManagerGroupTrainingController {
     @PutMapping("/{trainingId}")
     public ResponseEntity<GroupTrainingResponse> updateGroupTraining(
             @PathVariable("trainingId") final String trainingId,
-            @Valid @RequestBody GroupTrainingRequest groupTrainingModelRequest,
-            BindingResult bindingResult
+            @Valid @RequestBody final ManagerGroupTrainingRequest groupTrainingRequest,
+            final BindingResult bindingResult
     ) throws ResponseBindException {
         try {
             if (bindingResult.hasErrors()) throw new BindException(bindingResult);
 
             GroupTrainingDTO updateGroupTraining = managerGroupTrainingService
-                    .updateGroupTraining(trainingId, groupTrainingModelRequest);
+                    .updateGroupTraining(trainingId, groupTrainingRequest);
             String message = translator.toLocale("request.update.training.success");
 
             return ResponseEntity

@@ -1,7 +1,6 @@
 package com.healthy.gym.trainings.service.group.training;
 
 import com.healthy.gym.trainings.data.document.GroupTrainingDocument;
-import com.healthy.gym.trainings.data.document.GroupTrainings;
 import com.healthy.gym.trainings.data.document.TrainingTypeDocument;
 import com.healthy.gym.trainings.data.document.UserDocument;
 import com.healthy.gym.trainings.data.repository.GroupTrainingsDAO;
@@ -12,12 +11,11 @@ import com.healthy.gym.trainings.exception.StartDateAfterEndDateException;
 import com.healthy.gym.trainings.exception.invalid.InvalidDateException;
 import com.healthy.gym.trainings.exception.invalid.InvalidHourException;
 import com.healthy.gym.trainings.exception.notexisting.NotExistingGroupTrainingException;
-import com.healthy.gym.trainings.exception.notfound.TrainingTypeNotFoundException;
-import com.healthy.gym.trainings.model.response.GroupTrainingPublicResponse;
-import com.healthy.gym.trainings.model.response.GroupTrainingResponse;
-import com.healthy.gym.trainings.model.response.GroupTrainingReviewResponse;
-import com.healthy.gym.trainings.model.response.UserResponse;
+import com.healthy.gym.trainings.model.response.*;
+import com.healthy.gym.trainings.shared.*;
 import com.healthy.gym.trainings.utils.DateFormatter;
+import com.healthy.gym.trainings.utils.DateValidator;
+import com.healthy.gym.trainings.utils.Time24HoursValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -26,11 +24,9 @@ import org.springframework.stereotype.Service;
 import javax.validation.constraints.NotNull;
 import java.text.ParseException;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
-
-import static com.healthy.gym.trainings.utils.ParticipantsExtractor.getBasicList;
-import static com.healthy.gym.trainings.utils.ParticipantsExtractor.getReserveList;
 
 @Service
 public class GroupTrainingServiceImpl implements GroupTrainingService {
@@ -41,6 +37,8 @@ public class GroupTrainingServiceImpl implements GroupTrainingService {
     private final TrainingTypeDAO trainingTypeDAO;
     private final ReviewDAO reviewDAO;
     private final Pageable paging;
+    private final DateTimeFormatter dateFormatter;
+    private final DateTimeFormatter timeFormatter;
 
     @Autowired
     public GroupTrainingServiceImpl(
@@ -56,6 +54,9 @@ public class GroupTrainingServiceImpl implements GroupTrainingService {
         this.trainingTypeDAO = trainingTypeDAO;
         this.reviewDAO = reviewDAO;
         this.paging = PageRequest.of(0, 1000000);
+
+        dateFormatter = DateTimeFormatter.ISO_LOCAL_DATE;
+        timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
     }
 
     private double getRatingForGroupTrainings(GroupTrainingDocument groupTraining) {
@@ -117,7 +118,7 @@ public class GroupTrainingServiceImpl implements GroupTrainingService {
                         dayAfterEndDate);
     }
 
-    List<GroupTrainingDocument> getGroupTrainingDocumentsByTrainingTypeIdBetweenStartAndEndDate(
+    private List<GroupTrainingDocument> getGroupTrainingDocumentsByTrainingTypeIdBetweenStartAndEndDate(
             String trainingTypeId, String startDate, String endDate) throws ParseException, StartDateAfterEndDateException {
         TrainingTypeDocument trainingTypeDocument = trainingTypeDAO.findByTrainingTypeId(trainingTypeId);
 
@@ -131,60 +132,120 @@ public class GroupTrainingServiceImpl implements GroupTrainingService {
                 );
     }
 
+    private List<BasicUserInfoDTO> mapUserDocumentsToBasicUserInfoDTO(List<UserDocument> userDocuments){
+
+        List<BasicUserInfoDTO> basicUserInfoDTOs = new ArrayList<>();
+        for(UserDocument userDocument : userDocuments){
+            BasicUserInfoDTO basicUserInfoDTO = new BasicUserInfoDTO(
+                    userDocument.getUserId(),
+                    userDocument.getName(),
+                    userDocument.getSurname(),
+                    null//TODO getAvatarUrl
+            );
+            basicUserInfoDTOs.add(basicUserInfoDTO);
+        }
+        return basicUserInfoDTOs;
+    }
+
 
 
     @Override
-    public List<GroupTrainingResponse> getGroupTrainings(String startDate, String endDate)
+    public GroupTrainingsResponse getGroupTrainings(String startDate, String endDate)
             throws InvalidHourException, StartDateAfterEndDateException, ParseException, InvalidDateException {
 
         List<GroupTrainingDocument> groupTrainingDocuments = getGroupTrainingDocumentsBetweenStartAndEndDate(
                 startDate, endDate);
 
-        List<GroupTrainingResponse> result = new ArrayList<>();
+        List<GetGroupTrainingDTO> groupTrainingsDTO = new ArrayList<>();
         for (GroupTrainingDocument groupTrainingDocument : groupTrainingDocuments) {
 
-            GroupTrainingResponse groupTraining = new GroupTrainingResponse(
+            LocalDateTime documentStartDate = groupTrainingDocument.getStartDate();
+            LocalDateTime documentEndDate = groupTrainingDocument.getEndDate();
+
+            if (!DateValidator.validate(documentStartDate.format(dateFormatter))
+                    || !Time24HoursValidator.validate(documentStartDate.format(timeFormatter)))
+                throw new InvalidDateException("Wrong start date or time");
+
+            if (!DateValidator.validate(documentEndDate.format(dateFormatter))
+                    || !Time24HoursValidator.validate(documentEndDate.format(timeFormatter)))
+                throw new InvalidHourException("Wrong end date or time");
+
+            double rating = getRatingForGroupTrainings(groupTrainingDocument);
+
+            List<BasicUserInfoDTO> trainersDTO = new ArrayList<>();
+            List<UserDocument> trainersDocuments = groupTrainingDocument.getTrainers();
+            trainersDTO = mapUserDocumentsToBasicUserInfoDTO(trainersDocuments);
+
+            //PARTICIPANTS
+            List<BasicUserInfoDTO> basicListDTO = new ArrayList<>();
+            List<UserDocument> basicListDocuments = groupTrainingDocument.getBasicList();
+            basicListDTO = mapUserDocumentsToBasicUserInfoDTO(basicListDocuments);
+
+            List<BasicUserInfoDTO> reserveListDTO = new ArrayList<>();
+            List<UserDocument> reserveListDocuments = groupTrainingDocument.getReserveList();
+            reserveListDTO = mapUserDocumentsToBasicUserInfoDTO(reserveListDocuments);
+
+            ParticipantsDTO participantsDTO = new ParticipantsDTO(basicListDTO, reserveListDTO);
+
+            GetGroupTrainingDTO groupTrainingDTO = new GetGroupTrainingDTO(
                     groupTrainingDocument.getGroupTrainingId(),
                     groupTrainingDocument.getTraining().getName(),
-                    null, //TODO fix training.getTrainerId(),
-                    groupTrainingDocument.getStartDate(),
-                    groupTrainingDocument.getEndDate(),
+                    documentStartDate.format(dateFormatter).concat("T").concat(documentStartDate.format(timeFormatter)),
+                    documentEndDate.format(dateFormatter).concat("T").concat(documentEndDate.format(timeFormatter)),
+                    false,
                     groupTrainingDocument.getLocation().getLocationId(),
-                    groupTrainingDocument.getLimit(),
-                    getRatingForGroupTrainings(groupTrainingDocument),
-                    getBasicList(groupTrainingDocument),
-                    getReserveList(groupTrainingDocument)
+                    rating,
+                    trainersDTO,
+                    participantsDTO
             );
-            result.add(groupTraining);
+
+            groupTrainingsDTO.add(groupTrainingDTO);
         }
-        return result;
+        return new GroupTrainingsResponse(groupTrainingsDTO);
     }
 
     @Override
-    public List<GroupTrainingPublicResponse> getPublicGroupTrainings(String startDate, String endDate)
+    public GroupTrainingsPublicResponse getPublicGroupTrainings(String startDate, String endDate)
             throws InvalidHourException, InvalidDateException, StartDateAfterEndDateException, ParseException {
 
         List<GroupTrainingDocument> groupTrainingDocuments = getGroupTrainingDocumentsBetweenStartAndEndDate(
                 startDate, endDate);
 
-        List<GroupTrainingPublicResponse> publicResponse = new ArrayList<>();
+        List<GetGroupTrainingPublicDTO> groupTrainingsDTO = new ArrayList<>();
         for (GroupTrainingDocument groupTrainingDocument : groupTrainingDocuments) {
 
-            publicResponse.add(
-                    new GroupTrainingPublicResponse(
-                            groupTrainingDocument.getGroupTrainingId(),
-                            groupTrainingDocument.getTraining().getName(),
-                            null, //TODO fix groupTraining.getTrainerId(),
-                            groupTrainingDocument.getStartDate(),
-                            groupTrainingDocument.getEndDate(),
-                            groupTrainingDocument.getLocation().getLocationId(),
-                            groupTrainingDocument.getLimit(),
-                            getRatingForGroupTrainings(groupTrainingDocument)
-                    )
+            LocalDateTime documentStartDate = groupTrainingDocument.getStartDate();
+            LocalDateTime documentEndDate = groupTrainingDocument.getEndDate();
+
+            if (!DateValidator.validate(documentStartDate.format(dateFormatter))
+                    || !Time24HoursValidator.validate(documentStartDate.format(timeFormatter)))
+                throw new InvalidDateException("Wrong start date or time");
+
+            if (!DateValidator.validate(documentEndDate.format(dateFormatter))
+                    || !Time24HoursValidator.validate(documentEndDate.format(timeFormatter)))
+                throw new InvalidHourException("Wrong end date or time");
+
+            double rating = getRatingForGroupTrainings(groupTrainingDocument);
+
+            List<BasicUserInfoDTO> trainersDTO = new ArrayList<>();
+            List<UserDocument> trainersDocuments = groupTrainingDocument.getTrainers();
+            trainersDTO = mapUserDocumentsToBasicUserInfoDTO(trainersDocuments);
+
+            GetGroupTrainingPublicDTO groupTrainingDTO = new GetGroupTrainingPublicDTO(
+                    groupTrainingDocument.getGroupTrainingId(),
+                    groupTrainingDocument.getTraining().getName(),
+                    documentStartDate.format(dateFormatter).concat("T").concat(documentStartDate.format(timeFormatter)),
+                    documentEndDate.format(dateFormatter).concat("T").concat(documentEndDate.format(timeFormatter)),
+                    false,
+                    groupTrainingDocument.getLocation().getLocationId(),
+                    rating,
+                    trainersDTO
             );
+
+            groupTrainingsDTO.add(groupTrainingDTO);
         }
 
-        return publicResponse;
+        return new GroupTrainingsPublicResponse(groupTrainingsDTO);
     }
 
     @Override
@@ -197,22 +258,52 @@ public class GroupTrainingServiceImpl implements GroupTrainingService {
 
         GroupTrainingDocument groupTrainingDocument = groupTrainingsDAO.findFirstByGroupTrainingId(trainingId);
 
-        return new GroupTrainingResponse(
+        LocalDateTime documentStartDate = groupTrainingDocument.getStartDate();
+        LocalDateTime documentEndDate = groupTrainingDocument.getEndDate();
+
+        if (!DateValidator.validate(documentStartDate.format(dateFormatter))
+                || !Time24HoursValidator.validate(documentStartDate.format(timeFormatter)))
+            throw new InvalidDateException("Wrong start date or time");
+
+        if (!DateValidator.validate(documentEndDate.format(dateFormatter))
+                || !Time24HoursValidator.validate(documentEndDate.format(timeFormatter)))
+            throw new InvalidHourException("Wrong end date or time");
+
+        double rating = getRatingForGroupTrainings(groupTrainingDocument);
+
+        List<BasicUserInfoDTO> trainersDTO = new ArrayList<>();
+        List<UserDocument> trainersDocuments = groupTrainingDocument.getTrainers();
+        trainersDTO = mapUserDocumentsToBasicUserInfoDTO(trainersDocuments);
+
+        //PARTICIPANTS
+        List<BasicUserInfoDTO> basicListDTO = new ArrayList<>();
+        List<UserDocument> basicListDocuments = groupTrainingDocument.getBasicList();
+        basicListDTO = mapUserDocumentsToBasicUserInfoDTO(basicListDocuments);
+
+        List<BasicUserInfoDTO> reserveListDTO = new ArrayList<>();
+        List<UserDocument> reserveListDocuments = groupTrainingDocument.getReserveList();
+        reserveListDTO = mapUserDocumentsToBasicUserInfoDTO(reserveListDocuments);
+
+        ParticipantsDTO participantsDTO = new ParticipantsDTO(basicListDTO, reserveListDTO);
+
+        GetGroupTrainingDTO groupTrainingDTO = new GetGroupTrainingDTO(
                 groupTrainingDocument.getGroupTrainingId(),
                 groupTrainingDocument.getTraining().getName(),
-                null, //TODO fix groupTrainingsDbResponse.getTrainerId(),
-                groupTrainingDocument.getStartDate(),
-                groupTrainingDocument.getEndDate(),
+                documentStartDate.format(dateFormatter).concat("T").concat(documentStartDate.format(timeFormatter)),
+                documentEndDate.format(dateFormatter).concat("T").concat(documentEndDate.format(timeFormatter)),
+                false,
                 groupTrainingDocument.getLocation().getLocationId(),
-                groupTrainingDocument.getLimit(),
-                getRatingForGroupTrainings(groupTrainingDocument),
-                getBasicList(groupTrainingDocument),
-                getReserveList(groupTrainingDocument)
+                rating,
+                trainersDTO,
+                participantsDTO
         );
+
+        return new GroupTrainingResponse(groupTrainingDTO);
     }
 
-    @Override
-    public List<GroupTrainingResponse> getGroupTrainingsByType(String trainingTypeId, String startDate, String endDate)
+    //TEMPORARY commented
+    /*@Override
+    public List<GroupTrainingsResponse> getGroupTrainingsByType(String trainingTypeId, String startDate, String endDate)
             throws NotExistingGroupTrainingException, InvalidHourException, StartDateAfterEndDateException,
             ParseException, InvalidDateException, TrainingTypeNotFoundException {
         if (!trainingTypeDAO.existsByTrainingTypeId(trainingTypeId)) {
@@ -229,10 +320,10 @@ public class GroupTrainingServiceImpl implements GroupTrainingService {
 
         double rating = getRatingForGroupTrainingList(groupTrainingsList);
 
-        List<GroupTrainingResponse> result = new ArrayList<>();
+        List<GroupTrainingsResponse> result = new ArrayList<>();
         for (GroupTrainingDocument groupTrainingDocument : groupTrainingsList) {
 
-            GroupTrainingResponse groupTraining = new GroupTrainingResponse(
+            GroupTrainingsResponse groupTraining = new GroupTrainingsResponse(
                     groupTrainingDocument.getGroupTrainingId(),
                     groupTrainingDocument.getTraining().getName(),
                     null, //TODO fix training.getTrainerId(),
@@ -250,7 +341,7 @@ public class GroupTrainingServiceImpl implements GroupTrainingService {
     }
 
     @Override
-    public List<GroupTrainingPublicResponse> getGroupTrainingsPublicByType(
+    public List<GroupTrainingsPublicResponse> getGroupTrainingsPublicByType(
             String trainingTypeId,
             String startDate,
             String endDate
@@ -271,9 +362,9 @@ public class GroupTrainingServiceImpl implements GroupTrainingService {
                 getGroupTrainingsByTrainingTypeIdAndDates(trainingTypeId, startDate, endDate);
         double rating = getRatingForGroupTrainingList(groupTrainingsList);
 
-        List<GroupTrainingPublicResponse> result = new ArrayList<>();
+        List<GroupTrainingsPublicResponse> result = new ArrayList<>();
         for (GroupTrainingDocument groupTrainingDocument : groupTrainingsList) {
-            GroupTrainingPublicResponse groupTraining = new GroupTrainingPublicResponse(
+            GroupTrainingsPublicResponse groupTraining = new GroupTrainingsPublicResponse(
                     groupTrainingDocument.getGroupTrainingId(),
                     groupTrainingDocument.getTraining().getName(),
                     null, //TODO fix training.getTrainerId(),
@@ -286,7 +377,7 @@ public class GroupTrainingServiceImpl implements GroupTrainingService {
             result.add(groupTraining);
         }
         return result;
-    }
+    }*/
 
     private List<GroupTrainingDocument> getGroupTrainingsByTrainingTypeIdAndDates(
             String trainingTypeId,
@@ -309,7 +400,7 @@ public class GroupTrainingServiceImpl implements GroupTrainingService {
 
 
     @Override
-    public List<UserResponse> getTrainingParticipants(String trainingId)
+    public GroupTrainingParticipantsResponse getTrainingParticipants(String trainingId)
             throws NotExistingGroupTrainingException {
 
         if (!groupTrainingsRepository.existsByTrainingId(trainingId))
@@ -317,20 +408,21 @@ public class GroupTrainingServiceImpl implements GroupTrainingService {
                     getNotExistingGroupTrainingExceptionMessage(trainingId)
             );
 
-        List<UserResponse> participantsResponses = new ArrayList<>();
+        List<BasicUserInfoDTO> participantsResponses = new ArrayList<>();
         List<UserDocument> participants = groupTrainingsRepository
                 .getFirstByTrainingId(trainingId)
                 .getParticipants();
 
         for (UserDocument userDocument : participants) {
-            UserResponse participantsResponse = new UserResponse(
+            BasicUserInfoDTO participantsResponse = new BasicUserInfoDTO(
                     userDocument.getUserId(),
                     userDocument.getName(),
-                    userDocument.getSurname()
+                    userDocument.getSurname(),
+                    null //TODO add avatar
             );
             participantsResponses.add(participantsResponse);
         }
 
-        return participantsResponses;
+        return new GroupTrainingParticipantsResponse(participantsResponses);
     }
 }

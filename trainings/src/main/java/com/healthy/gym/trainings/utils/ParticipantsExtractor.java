@@ -1,9 +1,8 @@
 package com.healthy.gym.trainings.utils;
 
 import com.healthy.gym.trainings.data.document.GroupTrainingDocument;
-import com.healthy.gym.trainings.data.document.GroupTrainings;
 import com.healthy.gym.trainings.data.document.UserDocument;
-import com.healthy.gym.trainings.model.response.UserResponse;
+import com.healthy.gym.trainings.shared.UserDTO;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
 
@@ -18,23 +17,23 @@ public class ParticipantsExtractor {
         throw new IllegalStateException("Utility class");
     }
 
-    public static List<UserResponse> getBasicList(GroupTrainingDocument training) {
+    public static List<UserDTO> getBasicList(GroupTrainingDocument training) {
         List<UserDocument> participants = training.getBasicList();
         return getParticipants(participants);
     }
 
-    public static List<UserResponse> getReserveList(GroupTrainingDocument training) {
+    public static List<UserDTO> getReserveList(GroupTrainingDocument training) {
         List<UserDocument> reserveList = training.getReserveList();
         return getParticipants(reserveList);
     }
 
-    private static List<UserResponse> getParticipants(List<UserDocument> participants) {
+    private static List<UserDTO> getParticipants(List<UserDocument> participants) {
         ModelMapper modelMapper = new ModelMapper();
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
 
         return participants
                 .stream()
-                .map(userDocument -> modelMapper.map(userDocument, UserResponse.class))
+                .map(userDocument -> modelMapper.map(userDocument, UserDTO.class))
                 .collect(Collectors.toList());
     }
 

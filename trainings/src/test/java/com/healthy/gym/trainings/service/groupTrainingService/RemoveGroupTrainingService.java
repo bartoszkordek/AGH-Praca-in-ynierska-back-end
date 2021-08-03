@@ -8,9 +8,8 @@ import com.healthy.gym.trainings.data.repository.TrainingTypeDAO;
 import com.healthy.gym.trainings.exception.invalid.InvalidDateException;
 import com.healthy.gym.trainings.exception.invalid.InvalidHourException;
 import com.healthy.gym.trainings.exception.training.TrainingRemovalException;
-import com.healthy.gym.trainings.model.request.GroupTrainingRequest;
-import com.healthy.gym.trainings.model.response.GroupTrainingResponse;
-import com.healthy.gym.trainings.model.response.UserResponse;
+import com.healthy.gym.trainings.model.response.GroupTrainingsResponse;
+import com.healthy.gym.trainings.shared.UserDTO;
 import com.healthy.gym.trainings.service.group.training.GroupTrainingService;
 import com.healthy.gym.trainings.service.group.training.GroupTrainingServiceImpl;
 import org.junit.Before;
@@ -106,15 +105,15 @@ public class RemoveGroupTrainingService {
 
         double rating = 0.0;
 
-        List<UserResponse> trainersResponse = new ArrayList<>();
-        UserResponse trainer1Response = new UserResponse(trainer1UserId, trainer1Name, trainer1Surname);
+        List<UserDTO> trainersResponse = new ArrayList<>();
+        UserDTO trainer1Response = new UserDTO(trainer1UserId, trainer1Name, trainer1Surname);
         trainersResponse.add(trainer1Response);
 
-        List<UserResponse> participantsResponses = new ArrayList<>();
-        List<UserResponse> reserveListResponses = new ArrayList<>();
-        GroupTrainingResponse groupTrainingResponse = new GroupTrainingResponse(trainingId, trainingName,
+        List<UserDTO> participantsResponses = new ArrayList<>();
+        List<UserDTO> reserveListResponses = new ArrayList<>();
+        /*GroupTrainingsResponse groupTrainingResponse = new GroupTrainingsResponse(trainingId, trainingName,
                 trainersResponse, trainingStartDate, trainingEndDate, location.getName(), limit, rating, participantsResponses,
-                reserveListResponses);
+                reserveListResponses);*/
 
         //when
         when(groupTrainingsDAO.findFirstByGroupTrainingId(trainingId)).thenReturn(groupTraining);
@@ -180,12 +179,12 @@ public class RemoveGroupTrainingService {
 
         double rating = 0.0;
 
-        List<UserResponse> trainersResponse = new ArrayList<>();
-        UserResponse trainer1Response = new UserResponse(trainer1UserId, trainer1Name, trainer1Surname);
+        List<UserDTO> trainersResponse = new ArrayList<>();
+        UserDTO trainer1Response = new UserDTO(trainer1UserId, trainer1Name, trainer1Surname);
         trainersResponse.add(trainer1Response);
 
-        List<UserResponse> participantsResponses = new ArrayList<>();
-        List<UserResponse> reserveListResponses = new ArrayList<>();
+        List<UserDTO> participantsResponses = new ArrayList<>();
+        List<UserDTO> reserveListResponses = new ArrayList<>();
         /*GroupTrainingResponse groupTrainingResponse = new GroupTrainingResponse(trainingId, trainingName,
                 trainersResponse, date, startTime, endTime, hallNo, limit, rating, participantsResponses,
                 reserveListResponses);*/

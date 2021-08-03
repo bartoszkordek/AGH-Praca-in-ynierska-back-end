@@ -4,29 +4,28 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.healthy.gym.trainings.shared.GetGroupTrainingDTO;
 
 import javax.validation.constraints.NotNull;
+
+import java.util.List;
 import java.util.Objects;
 
-public class GroupTrainingResponse {
+public class GroupTrainingsResponse {
 
     @NotNull
     @JsonProperty("data")
-    private final GetGroupTrainingDTO groupTraining;
+    private final List<GetGroupTrainingDTO> groupTrainings;
 
-    public GroupTrainingResponse(
-            @JsonProperty("data") GetGroupTrainingDTO groupTraining
+    public GroupTrainingsResponse(
+            @JsonProperty("data") List<GetGroupTrainingDTO> groupTrainings
 
     ) {
-        this.groupTraining = groupTraining;
-    }
+        this.groupTrainings = groupTrainings;
 
-    public GetGroupTrainingDTO getGroupTraining() {
-        return groupTraining;
     }
 
     @Override
     public String toString() {
         return "GroupTrainingResponse{" +
-                "groupTraining=" + groupTraining +
+                "groupTrainings=" + groupTrainings +
                 '}';
     }
 
@@ -34,12 +33,16 @@ public class GroupTrainingResponse {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        GroupTrainingResponse that = (GroupTrainingResponse) o;
-        return Objects.equals(groupTraining, that.groupTraining);
+        GroupTrainingsResponse that = (GroupTrainingsResponse) o;
+        return Objects.equals(groupTrainings, that.groupTrainings);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(groupTraining);
+        return Objects.hash(groupTrainings);
+    }
+
+    public List<GetGroupTrainingDTO> getGroupTrainings() {
+        return groupTrainings;
     }
 }

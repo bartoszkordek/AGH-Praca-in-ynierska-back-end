@@ -5,7 +5,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.healthy.gym.trainings.exception.invalid.InvalidDateException;
 import com.healthy.gym.trainings.exception.invalid.InvalidHourException;
 import com.healthy.gym.trainings.model.response.AbstractResponse;
-import com.healthy.gym.trainings.model.response.UserResponse;
 import com.healthy.gym.trainings.utils.DateValidator;
 import com.healthy.gym.trainings.utils.Time24HoursValidator;
 
@@ -25,7 +24,7 @@ public class GroupTrainingEnrollmentDTO extends AbstractResponse {
     @JsonProperty("title")
     private final String trainingName;
     @NotNull
-    private final List<UserResponse> trainers;
+    private final List<BasicUserInfoDTO> trainers;
     @NotNull
     private final String startDate;
     @NotNull
@@ -39,7 +38,7 @@ public class GroupTrainingEnrollmentDTO extends AbstractResponse {
 
             @JsonProperty("id") String trainingId,
             @JsonProperty("title") String trainingName,
-            List<UserResponse> trainers,
+            List<BasicUserInfoDTO> trainers,
             LocalDateTime startDate,
             LocalDateTime endDate,
             String location
@@ -72,7 +71,7 @@ public class GroupTrainingEnrollmentDTO extends AbstractResponse {
         return trainingName;
     }
 
-    public List<UserResponse> getTrainers() {
+    public List<BasicUserInfoDTO> getTrainers() {
         return trainers;
     }
 

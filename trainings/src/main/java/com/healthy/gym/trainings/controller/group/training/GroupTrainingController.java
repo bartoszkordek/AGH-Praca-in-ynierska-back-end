@@ -6,9 +6,11 @@ import com.healthy.gym.trainings.exception.invalid.InvalidDateException;
 import com.healthy.gym.trainings.exception.invalid.InvalidHourException;
 import com.healthy.gym.trainings.exception.notexisting.NotExistingGroupTrainingException;
 import com.healthy.gym.trainings.exception.notfound.TrainingTypeNotFoundException;
-import com.healthy.gym.trainings.model.response.GroupTrainingPublicResponse;
+import com.healthy.gym.trainings.model.response.GroupTrainingParticipantsResponse;
 import com.healthy.gym.trainings.model.response.GroupTrainingResponse;
-import com.healthy.gym.trainings.model.response.UserResponse;
+import com.healthy.gym.trainings.model.response.GroupTrainingsPublicResponse;
+import com.healthy.gym.trainings.model.response.GroupTrainingsResponse;
+import com.healthy.gym.trainings.shared.UserDTO;
 import com.healthy.gym.trainings.service.group.training.GroupTrainingService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -33,7 +35,7 @@ public class GroupTrainingController {
     }
 
     @GetMapping("/public")
-    public List<GroupTrainingPublicResponse> getPublicGroupTrainings(
+    public GroupTrainingsPublicResponse getPublicGroupTrainings(
             @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") final String startDate,
             @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") final String endDate
     ) {
@@ -55,8 +57,9 @@ public class GroupTrainingController {
         }
     }
 
-    @GetMapping("/public/type/{trainingTypeId}")
-    public List<GroupTrainingPublicResponse> getPublicGroupTrainingsByType(
+    //Temporary commented
+    /*@GetMapping("/public/type/{trainingTypeId}")
+    public List<GroupTrainingsPublicResponse> getPublicGroupTrainingsByType(
             @PathVariable("trainingTypeId") final String trainingTypeId,
             @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") final String startDate,
             @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") final String endDate
@@ -85,10 +88,10 @@ public class GroupTrainingController {
             exception.printStackTrace();
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, reason, exception);
         }
-    }
+    }*/
 
     @GetMapping
-    public List<GroupTrainingResponse> getGroupTrainings(
+    public GroupTrainingsResponse getGroupTrainings(
             @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") final String startDate,
             @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") final String endDate
     ) {
@@ -132,8 +135,9 @@ public class GroupTrainingController {
         }
     }
 
-    @GetMapping("/type/{trainingTypeId}")
-    public List<GroupTrainingResponse> getGroupTrainingsByType(
+    //Temporary commented
+    /*@GetMapping("/type/{trainingTypeId}")
+    public List<GroupTrainingsResponse> getGroupTrainingsByType(
             @PathVariable("trainingTypeId") final String trainingTypeId,
             @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") final String startDate,
             @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") final String endDate
@@ -162,10 +166,10 @@ public class GroupTrainingController {
             exception.printStackTrace();
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, reason, exception);
         }
-    }
+    }*/
 
     @GetMapping("/{trainingId}/participants")
-    public List<UserResponse> getTrainingParticipants(
+    public GroupTrainingParticipantsResponse getTrainingParticipants(
             @PathVariable("trainingId") final String trainingId
     ) {
         try {

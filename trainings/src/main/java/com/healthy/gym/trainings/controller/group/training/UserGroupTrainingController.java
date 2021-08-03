@@ -5,7 +5,7 @@ import com.healthy.gym.trainings.exception.training.TrainingEnrollmentException;
 import com.healthy.gym.trainings.exception.notexisting.NotExistingGroupTrainingException;
 import com.healthy.gym.trainings.model.response.GroupTrainingEnrollmentResponse;
 import com.healthy.gym.trainings.shared.GroupTrainingEnrollmentDTO;
-import com.healthy.gym.trainings.model.response.GroupTrainingPublicResponse;
+import com.healthy.gym.trainings.model.response.GroupTrainingsPublicResponse;
 import com.healthy.gym.trainings.service.group.training.UserGroupTrainingService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -37,9 +37,11 @@ public class UserGroupTrainingController {
 
     @PreAuthorize("hasRole('ADMIN') or principal==#userId")
     @GetMapping("/trainings/{userId}")
-    public List<GroupTrainingPublicResponse> getAllGroupTrainingsByUserId(@PathVariable final String userId) {
+    public ResponseEntity<GroupTrainingsPublicResponse> getAllGroupTrainingsByUserId(@PathVariable final String userId) {
         try {
-            return userGroupTrainingService.getMyAllTrainings(userId);
+            return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(userGroupTrainingService.getMyAllTrainings(userId));
 
         } catch (Exception exception) {
             String reason = translator.toLocale(EXCEPTION_INTERNAL_ERROR);

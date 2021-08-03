@@ -9,16 +9,19 @@ import com.healthy.gym.trainings.exception.invalid.InvalidHourException;
 import com.healthy.gym.trainings.exception.notexisting.NotExistingGroupTrainingException;
 import com.healthy.gym.trainings.exception.notfound.UserNotFoundException;
 import com.healthy.gym.trainings.exception.training.TrainingEnrollmentException;
+import com.healthy.gym.trainings.shared.BasicUserInfoDTO;
 import com.healthy.gym.trainings.shared.GroupTrainingEnrollmentDTO;
-import com.healthy.gym.trainings.model.response.GroupTrainingPublicResponse;
+import com.healthy.gym.trainings.model.response.GroupTrainingsPublicResponse;
 import com.healthy.gym.trainings.model.response.GroupTrainingReviewResponse;
-import com.healthy.gym.trainings.model.response.UserResponse;
+import com.healthy.gym.trainings.shared.GetGroupTrainingPublicDTO;
+import com.healthy.gym.trainings.shared.UserDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,75 +31,66 @@ import static com.healthy.gym.trainings.utils.ParticipantsExtractor.isClientAlre
 @Service
 public class UserGroupTrainingServiceImpl implements UserGroupTrainingService {
 
-    private final GroupTrainingsDbRepositoryImpl groupTrainingsDbRepositoryImpl;
     private final GroupTrainingsRepository groupTrainingsRepository;
     private final GroupTrainingsDAO groupTrainingsDAO;
     private final UserDAO userRepository;
     private final Pageable paging;
     private final ReviewDAO groupTrainingsReviewsRepository;
+    private final DateTimeFormatter dateFormatter;
+    private final DateTimeFormatter timeFormatter;
 
     @Autowired
     public UserGroupTrainingServiceImpl(
-            GroupTrainingsDbRepositoryImpl groupTrainingsDbRepositoryImpl,
             GroupTrainingsRepository groupTrainingsRepository,
             GroupTrainingsDAO groupTrainingsDAO,
             UserDAO userRepository,
             ReviewDAO groupTrainingsReviewsRepository
     ) {
-        this.groupTrainingsDbRepositoryImpl = groupTrainingsDbRepositoryImpl;
         this.groupTrainingsRepository = groupTrainingsRepository;
         this.groupTrainingsDAO = groupTrainingsDAO;
         this.userRepository = userRepository;
         this.groupTrainingsReviewsRepository = groupTrainingsReviewsRepository;
         this.paging = PageRequest.of(0, 1000000);
+
+        dateFormatter = DateTimeFormatter.ISO_LOCAL_DATE;
+        timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
     }
 
     @Override
-    public List<GroupTrainingPublicResponse> getMyAllTrainings(String clientId)
+    public GroupTrainingsPublicResponse getMyAllTrainings(String clientId)
             throws InvalidHourException, InvalidDateException, UserNotFoundException {
 
         UserDocument userDocument = userRepository.findByUserId(clientId);
         if (userDocument == null) throw new UserNotFoundException();
 
-        List<GroupTrainingPublicResponse> publicResponse = new ArrayList<>();
+        List<GetGroupTrainingPublicDTO> groupTrainingsDTO = new ArrayList<>();
         List<GroupTrainingDocument> groupTrainings = groupTrainingsDAO.findByBasicListContains(userDocument);
 
         for (GroupTrainingDocument groupTrainingDocument : groupTrainings) {
 
-            double rating = 0.0;
-            if (!groupTrainings.isEmpty()) {
-                List<GroupTrainingReviewResponse> groupTrainingsReviews = groupTrainingsReviewsRepository
-                        .findByDateBetweenAndTrainingTypeId(
-                                null,
-                                null,
-                                groupTrainingDocument.getTraining().getTrainingTypeId(),
-                                paging
-                        ).getContent();
+            LocalDateTime documentStartDate = groupTrainingDocument.getStartDate();
+            LocalDateTime documentEndDate = groupTrainingDocument.getEndDate();
 
-                double sum = 0;
-                int counter = 0;
-                for (GroupTrainingReviewResponse review : groupTrainingsReviews) {
-                    sum += review.getStars();
-                    counter++;
-                }
-                if (counter != 0) rating = sum / counter;
-            }
+            double rating = getRatingForGroupTrainings(groupTrainingDocument);
 
-            publicResponse.add(
-                    new GroupTrainingPublicResponse(
-                            groupTrainingDocument.getId(),
-                            groupTrainingDocument.getTraining().getName(),
-                            null, //TODO fix groupTraining.getTrainerId(),
-                            groupTrainingDocument.getStartDate(),
-                            groupTrainingDocument.getEndDate(),
-                            groupTrainingDocument.getLocation().getName(),
-                            groupTrainingDocument.getLimit(),
-                            rating
-                    )
+            List<BasicUserInfoDTO> trainersDTO = mapUserDocumentsToBasicUserInfoDTO(groupTrainingDocument.getTrainers());
+
+
+            GetGroupTrainingPublicDTO groupTrainingDTO = new GetGroupTrainingPublicDTO(
+                    groupTrainingDocument.getGroupTrainingId(),
+                    groupTrainingDocument.getTraining().getName(),
+                    documentStartDate.format(dateFormatter).concat("T").concat(documentStartDate.format(timeFormatter)),
+                    documentEndDate.format(dateFormatter).concat("T").concat(documentEndDate.format(timeFormatter)),
+                    false,
+                    groupTrainingDocument.getLocation().getLocationId(),
+                    rating,
+                    trainersDTO
             );
+
+            groupTrainingsDTO.add(groupTrainingDTO);
         }
 
-        return publicResponse;
+        return new GroupTrainingsPublicResponse(groupTrainingsDTO);
     }
 
     @Override
@@ -121,7 +115,7 @@ public class UserGroupTrainingServiceImpl implements UserGroupTrainingService {
             throw new TrainingEnrollmentException("Client is already enrolled to this training");
 
         List<UserDocument> trainersDocuments = groupTraining.getTrainers();
-        List<UserResponse> trainersResponse = mapUserResponse(trainersDocuments);
+        List<BasicUserInfoDTO> trainersResponse = mapUserDocumentsToBasicUserInfoDTO(trainersDocuments);
 
         List<UserDocument> participants = groupTraining.getBasicList();
         participants.add(newParticipant);
@@ -203,10 +197,46 @@ public class UserGroupTrainingServiceImpl implements UserGroupTrainingService {
         if (clientIsInReserveList) removeFromReserveList(trainingId, clientId);
     }
 
-    private List<UserResponse> mapUserResponse(List<UserDocument> documents){
-        List<UserResponse> userResponses = new ArrayList<>();
+    private double getRatingForGroupTrainings(GroupTrainingDocument groupTraining) {
+        List<GroupTrainingReviewResponse> groupTrainingsReviews = groupTrainingsReviewsRepository
+                .findByDateBetweenAndTrainingTypeId(
+                        null,
+                        null,
+                        groupTraining.getTraining().getTrainingTypeId(),
+                        paging
+                ).getContent();
+
+        double rating = 0.0;
+        double sum = 0;
+        int counter = 0;
+        for (GroupTrainingReviewResponse review : groupTrainingsReviews) {
+            sum += review.getStars();
+            counter++;
+        }
+        if (counter != 0) rating = sum / counter;
+
+        return rating;
+    }
+
+    private List<BasicUserInfoDTO> mapUserDocumentsToBasicUserInfoDTO(List<UserDocument> userDocuments){
+
+        List<BasicUserInfoDTO> basicUserInfoDTOs = new ArrayList<>();
+        for(UserDocument userDocument : userDocuments){
+            BasicUserInfoDTO basicUserInfoDTO = new BasicUserInfoDTO(
+                    userDocument.getUserId(),
+                    userDocument.getName(),
+                    userDocument.getSurname(),
+                    null//TODO getAvatarUrl
+            );
+            basicUserInfoDTOs.add(basicUserInfoDTO);
+        }
+        return basicUserInfoDTOs;
+    }
+
+    private List<UserDTO> mapUserResponse(List<UserDocument> documents){
+        List<UserDTO> userResponses = new ArrayList<>();
         for(UserDocument document : documents){
-            UserResponse userResponse = new UserResponse(
+            UserDTO userResponse = new UserDTO(
                     document.getUserId(),
                     document.getName(),
                     document.getSurname()

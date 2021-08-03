@@ -1,9 +1,9 @@
-package com.healthy.gym.trainings.model.response;
+package com.healthy.gym.trainings.shared;
 
 import javax.validation.constraints.NotNull;
 import java.util.Objects;
 
-public class UserResponse {
+public class UserDTO {
 
     @NotNull
     private String userId;
@@ -18,10 +18,10 @@ public class UserResponse {
 
     //TODO ADD Avatar
 
-    public UserResponse() {
+    public UserDTO() {
     }
 
-    public UserResponse(String userId, String name, String surname) {
+    public UserDTO(String userId, String name, String surname) {
         this.userId = userId;
         this.name = name;
         this.surname = surname;
@@ -55,7 +55,7 @@ public class UserResponse {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        UserResponse that = (UserResponse) o;
+        UserDTO that = (UserDTO) o;
         return Objects.equals(userId, that.userId)
                 && Objects.equals(name, that.name)
                 && Objects.equals(surname, that.surname);

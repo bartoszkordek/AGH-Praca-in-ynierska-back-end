@@ -15,12 +15,12 @@ import com.healthy.gym.trainings.exception.notfound.TrainerNotFoundException;
 import com.healthy.gym.trainings.exception.notfound.TrainingTypeNotFoundException;
 import com.healthy.gym.trainings.exception.occupied.LocationOccupiedException;
 import com.healthy.gym.trainings.exception.occupied.TrainerOccupiedException;
-import com.healthy.gym.trainings.exception.training.TrainingCreationException;
 import com.healthy.gym.trainings.exception.training.TrainingUpdateException;
 import com.healthy.gym.trainings.model.request.CreateGroupTrainingRequest;
 import com.healthy.gym.trainings.model.request.GroupTrainingRequest;
 import com.healthy.gym.trainings.model.response.GroupTrainingResponse;
-import com.healthy.gym.trainings.model.response.UserResponse;
+import com.healthy.gym.trainings.model.response.GroupTrainingsResponse;
+import com.healthy.gym.trainings.shared.UserDTO;
 import com.healthy.gym.trainings.shared.GroupTrainingDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -128,7 +128,7 @@ public class ManagerGroupTrainingServiceImpl implements ManagerGroupTrainingServ
 
 
     @Override
-    public GroupTrainingResponse updateGroupTraining(
+    public GroupTrainingDTO updateGroupTraining(
             String trainingId,
             GroupTrainingRequest groupTrainingModelRequest
     ) throws TrainingUpdateException,
@@ -178,10 +178,10 @@ public class ManagerGroupTrainingServiceImpl implements ManagerGroupTrainingServ
         groupTrainingsRepository.save(groupTrainings1);
 
         List<UserDocument> participants = groupTrainings1.getParticipants();
-        List<UserResponse> participantsResponses = new ArrayList<>();
+        List<UserDTO> participantsResponses = new ArrayList<>();
         List<String> toEmails = new ArrayList<>();
         for (UserDocument document : participants) {
-            UserResponse participantsResponse = new UserResponse(document.getUserId(),
+            UserDTO participantsResponse = new UserDTO(document.getUserId(),
                     document.getName(), document.getSurname());
             participantsResponses.add(participantsResponse);
             String email = document.getEmail();
@@ -189,9 +189,9 @@ public class ManagerGroupTrainingServiceImpl implements ManagerGroupTrainingServ
         }
 
         List<UserDocument> reserveList = groupTrainings1.getReserveList();
-        List<UserResponse> reserveListResponses = new ArrayList<>();
+        List<UserDTO> reserveListResponses = new ArrayList<>();
         for (UserDocument document : reserveList) {
-            UserResponse reserveListResponse = new UserResponse(document.getUserId(),
+            UserDTO reserveListResponse = new UserDTO(document.getUserId(),
                     document.getName(), document.getSurname());
             reserveListResponses.add(reserveListResponse);
         }
@@ -205,21 +205,11 @@ public class ManagerGroupTrainingServiceImpl implements ManagerGroupTrainingServ
             throw new EmailSendingException("Cannot send email");
         }
 
-        return new GroupTrainingResponse(
-                null, //TODO fix groupTrainings1.getTrainingId(),
-                null, //TODO fix groupTrainings1.getTrainingType().getName(),
-                null, //TODO fix groupTrainings1.getTrainerId(),
-                null, //TODO fix groupTrainings1.getStartDate(),
-                null, //TODO fix groupTrainings1.getEndTime(),
-                null, //TODO fix groupTrainings1.getHallNo(),
-                groupTrainings1.getLimit(),
-                INITIAL_RATING,
-                participantsResponses,
-                reserveListResponses);
+        return null;//TODO create return object
     }
 
     @Override
-    public GroupTrainingResponse removeGroupTraining(String trainingId)
+    public GroupTrainingDTO removeGroupTraining(String trainingId)
             throws EmailSendingException, InvalidDateException, InvalidHourException, NotExistingGroupTrainingException {
 
         GroupTrainings repositoryResponse = groupTrainingsRepository.findFirstByTrainingId(trainingId);
@@ -228,10 +218,10 @@ public class ManagerGroupTrainingServiceImpl implements ManagerGroupTrainingServ
         groupTrainingsRepository.removeByTrainingId(trainingId);
 
         List<UserDocument> participants = repositoryResponse.getParticipants();
-        List<UserResponse> participantsResponses = new ArrayList<>();
+        List<UserDTO> participantsResponses = new ArrayList<>();
         List<String> toEmails = new ArrayList<>();
         for (UserDocument document : participants) {
-            UserResponse participantsResponse = new UserResponse(document.getUserId(),
+            UserDTO participantsResponse = new UserDTO(document.getUserId(),
                     document.getName(), document.getSurname());
             participantsResponses.add(participantsResponse);
             String email = document.getEmail();
@@ -239,9 +229,9 @@ public class ManagerGroupTrainingServiceImpl implements ManagerGroupTrainingServ
         }
 
         List<UserDocument> reserveList = repositoryResponse.getReserveList();
-        List<UserResponse> reserveListResponses = new ArrayList<>();
+        List<UserDTO> reserveListResponses = new ArrayList<>();
         for (UserDocument document : reserveList) {
-            UserResponse reserveListResponse = new UserResponse(document.getUserId(),
+            UserDTO reserveListResponse = new UserDTO(document.getUserId(),
                     document.getName(), document.getSurname());
             reserveListResponses.add(reserveListResponse);
         }
@@ -255,16 +245,6 @@ public class ManagerGroupTrainingServiceImpl implements ManagerGroupTrainingServ
             throw new EmailSendingException("Cannot send email");
         }
 
-        return new GroupTrainingResponse(
-                null, //TODO fix groupTrainings1.getTrainingId(),
-                null, //TODO fix groupTrainings1.getTrainingType().getName(),
-                null, //TODO fix groupTrainings1.getTrainerId(),
-                null, //TODO fix groupTrainings1.getStartDate(),
-                null, //TODO fix groupTrainings1.getEndTime(),
-                null, //TODO fix groupTrainings1.getHallNo(),
-                repositoryResponse.getLimit(),
-                INITIAL_RATING,
-                participantsResponses,
-                reserveListResponses);
+        return null;//TODO create return object
     }
 }

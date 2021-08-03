@@ -11,8 +11,7 @@ import com.healthy.gym.trainings.exception.invalid.InvalidDateException;
 import com.healthy.gym.trainings.exception.invalid.InvalidHourException;
 import com.healthy.gym.trainings.exception.training.TrainingCreationException;
 import com.healthy.gym.trainings.model.request.GroupTrainingRequest;
-import com.healthy.gym.trainings.model.response.GroupTrainingResponse;
-import com.healthy.gym.trainings.model.response.UserResponse;
+import com.healthy.gym.trainings.shared.UserDTO;
 import com.healthy.gym.trainings.service.group.training.GroupTrainingService;
 import com.healthy.gym.trainings.service.group.training.GroupTrainingServiceImpl;
 import org.junit.Before;
@@ -111,11 +110,11 @@ public class CreateGroupTrainingService {
         groupTraining.setId(id);
 
 
-        List<UserResponse> trainersResponse = new ArrayList<>();
-        UserResponse trainer1Response = new UserResponse(trainer1UserId, trainer1Name, trainer1Surname);
+        List<UserDTO> trainersResponse = new ArrayList<>();
+        UserDTO trainer1Response = new UserDTO(trainer1UserId, trainer1Name, trainer1Surname);
         trainersResponse.add(trainer1Response);
-        List<UserResponse> participantsResponses = new ArrayList<>();
-        List<UserResponse> reserveListResponses = new ArrayList<>();
+        List<UserDTO> participantsResponses = new ArrayList<>();
+        List<UserDTO> reserveListResponses = new ArrayList<>();
 //        GroupTrainingResponse groupTrainingResponse = new GroupTrainingResponse(trainingId, trainingName,
 //                trainersResponse, date, startTime, endTime, hallNo, limit, rating, participantsResponses, reserveListResponses);
 
@@ -174,8 +173,8 @@ public class CreateGroupTrainingService {
         TrainingTypeDocument trainingType = new TrainingTypeDocument(trainingTypeId, trainingName, trainingDescription,
                 trainingDuration, null);
 
-        List<UserResponse> trainersResponse = new ArrayList<>();
-        UserResponse trainer1Response = new UserResponse(trainer1UserId, trainer1Name, trainer1Surname);
+        List<UserDTO> trainersResponse = new ArrayList<>();
+        UserDTO trainer1Response = new UserDTO(trainer1UserId, trainer1Name, trainer1Surname);
         trainersResponse.add(trainer1Response);
 
         List<UserDocument> participantDocuments = new ArrayList<>();

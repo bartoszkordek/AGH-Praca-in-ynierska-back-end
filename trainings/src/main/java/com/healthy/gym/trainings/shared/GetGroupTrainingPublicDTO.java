@@ -142,6 +142,7 @@ public class GetGroupTrainingPublicDTO {
                 allDay,
                 location,
                 rating,
-                trainers);
+                trainers
+        );
     }
 }

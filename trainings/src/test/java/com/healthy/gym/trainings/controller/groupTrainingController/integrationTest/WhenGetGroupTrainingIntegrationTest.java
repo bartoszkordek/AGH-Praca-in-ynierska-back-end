@@ -164,14 +164,16 @@ class WhenGetGroupTrainingIntegrationTest {
         //when
         String startDate = "2020-01-01";
         String endDate = "2021-12-31";
-        URI getUri = new URI("http://localhost:" + port + "/group" +
-                "?startDate="+startDate+"&endDate="+endDate);
 
         HttpHeaders getHeaders = new HttpHeaders();
         getHeaders.set("Accept-Language", testedLocale.toString());
         getHeaders.set("Authorization", managerToken);
 
         HttpEntity<Object> getRequest = new HttpEntity<>(null, getHeaders);
+
+        //PRIVATE
+        URI getUri = new URI("http://localhost:" + port + "/group" +
+                "?startDate="+startDate+"&endDate="+endDate);
 
         ResponseEntity<JsonNode> getResponseEntity = restTemplate
                 .exchange(getUri, HttpMethod.GET, getRequest, JsonNode.class);
@@ -201,9 +203,46 @@ class WhenGetGroupTrainingIntegrationTest {
                 .isEqualTo("TrainerSurname2");
 
         //participants
+        assertThat(trainings.get(0).has("participants")).isTrue();
         assertThat(trainings.get(0).get("participants").get("basicList").isArray());
         assertThat(trainings.get(0).get("participants").get("reserveList").isArray());
 
+
+        //PUBLIC
+        URI getPublicUri = new URI("http://localhost:" + port + "/group/public" +
+                "?startDate="+startDate+"&endDate="+endDate);
+
+        ResponseEntity<JsonNode> getPublicResponseEntity = restTemplate
+                .exchange(getPublicUri, HttpMethod.GET, getRequest, JsonNode.class);
+
+        System.out.println(getPublicResponseEntity.getBody());
+
+        JsonNode publicTrainings = getPublicResponseEntity.getBody().get("data");
+
+        //then
+        assertThat(getResponseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(getResponseEntity.getBody().has("data"));
+        assertThat(publicTrainings.get(0).get("id")).isNotNull();
+        assertThat(publicTrainings.get(0).get("title").textValue()).isEqualTo("Test training name");
+        assertThat(publicTrainings.get(0).get("startDate").textValue()).isEqualTo("2020-10-10T16:00");
+        assertThat(publicTrainings.get(0).get("endDate").textValue()).isEqualTo("2020-10-10T16:30");
+        assertThat(publicTrainings.get(0).get("allDay").booleanValue()).isFalse();
+        assertThat(publicTrainings.get(0).get("location").textValue()).isEqualTo("TestLocationName");
+
+        //trainer1
+        assertThat(publicTrainings.get(0).get("trainers").get(0).get("name").textValue())
+                .isEqualTo("TrainerName1");
+        assertThat(publicTrainings.get(0).get("trainers").get(0).get("surname").textValue())
+                .isEqualTo("TrainerSurname1");
+
+        //trainer2
+        assertThat(publicTrainings.get(0).get("trainers").get(1).get("name").textValue())
+                .isEqualTo("TrainerName2");
+        assertThat(publicTrainings.get(0).get("trainers").get(1).get("surname").textValue())
+                .isEqualTo("TrainerSurname2");
+
+        //participants
+        assertThat(publicTrainings.get(0).has("participants")).isFalse();
     }
 
 }

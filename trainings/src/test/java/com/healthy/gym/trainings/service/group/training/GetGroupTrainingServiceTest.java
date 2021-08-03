@@ -1,4 +1,4 @@
-package com.healthy.gym.trainings.service.groupTrainingService;
+package com.healthy.gym.trainings.service.group.training;
 
 import com.healthy.gym.trainings.data.repository.GroupTrainingsDAO;
 import com.healthy.gym.trainings.data.repository.GroupTrainingsRepository;

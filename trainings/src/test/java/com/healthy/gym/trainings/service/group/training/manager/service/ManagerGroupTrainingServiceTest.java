@@ -1,4 +1,4 @@
-package com.healthy.gym.trainings.service.group.training;
+package com.healthy.gym.trainings.service.group.training.manager.service;
 
 import com.healthy.gym.trainings.data.document.LocationDocument;
 import com.healthy.gym.trainings.data.document.TrainingTypeDocument;

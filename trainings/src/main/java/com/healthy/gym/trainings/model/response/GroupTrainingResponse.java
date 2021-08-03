@@ -5,18 +5,18 @@ import com.healthy.gym.trainings.shared.GroupTrainingDTO;
 import java.util.Map;
 import java.util.Objects;
 
-public class CreateGroupTrainingResponse extends AbstractResponse {
+public class GroupTrainingResponse extends AbstractResponse {
     private GroupTrainingDTO training;
 
-    public CreateGroupTrainingResponse() {
+    public GroupTrainingResponse() {
     }
 
-    public CreateGroupTrainingResponse(String message, GroupTrainingDTO training) {
+    public GroupTrainingResponse(String message, GroupTrainingDTO training) {
         super(message);
         this.training = training;
     }
 
-    public CreateGroupTrainingResponse(String message, Map<String, String> errors, GroupTrainingDTO training) {
+    public GroupTrainingResponse(String message, Map<String, String> errors, GroupTrainingDTO training) {
         super(message, errors);
         this.training = training;
     }
@@ -34,7 +34,7 @@ public class CreateGroupTrainingResponse extends AbstractResponse {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         if (!super.equals(o)) return false;
-        CreateGroupTrainingResponse that = (CreateGroupTrainingResponse) o;
+        GroupTrainingResponse that = (GroupTrainingResponse) o;
         return Objects.equals(training, that.training);
     }
 

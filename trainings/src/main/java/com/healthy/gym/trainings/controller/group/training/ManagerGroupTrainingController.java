@@ -12,7 +12,7 @@ import com.healthy.gym.trainings.exception.training.TrainingRemovalException;
 import com.healthy.gym.trainings.exception.training.TrainingUpdateException;
 import com.healthy.gym.trainings.model.request.CreateGroupTrainingRequest;
 import com.healthy.gym.trainings.model.request.GroupTrainingRequest;
-import com.healthy.gym.trainings.model.response.CreateGroupTrainingResponse;
+import com.healthy.gym.trainings.model.response.GroupTrainingResponse;
 import com.healthy.gym.trainings.model.response.GroupTrainingResponseOld;
 import com.healthy.gym.trainings.service.group.training.ManagerGroupTrainingService;
 import com.healthy.gym.trainings.shared.GroupTrainingDTO;
@@ -47,7 +47,7 @@ public class ManagerGroupTrainingController {
     }
 
     @PostMapping
-    public ResponseEntity<CreateGroupTrainingResponse> createGroupTraining(
+    public ResponseEntity<GroupTrainingResponse> createGroupTraining(
             @Valid @RequestBody CreateGroupTrainingRequest createGroupTrainingRequest,
             BindingResult bindingResult
     ) throws ResponseBindException {
@@ -60,7 +60,7 @@ public class ManagerGroupTrainingController {
 
             return ResponseEntity
                     .status(HttpStatus.CREATED)
-                    .body(new CreateGroupTrainingResponse(message, createdTraining));
+                    .body(new GroupTrainingResponse(message, createdTraining));
 
         } catch (BindException exception) {
             String reason = translator.toLocale("request.bind.exception");

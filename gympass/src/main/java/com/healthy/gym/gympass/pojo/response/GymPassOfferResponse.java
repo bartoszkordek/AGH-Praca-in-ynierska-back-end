@@ -1,17 +1,17 @@
 package com.healthy.gym.gympass.pojo.response;
 
-import com.healthy.gym.gympass.data.document.GymPassDocument;
+import com.healthy.gym.gympass.dto.GymPassDTO;
 
 import java.util.List;
 
 public class GymPassOfferResponse extends AbstractResponse {
-    private List<GymPassDocument> gymPassDocument;
+    private GymPassDTO gymPassDTO;
 
     public GymPassOfferResponse() {
     }
 
-    public GymPassOfferResponse(String message, List<GymPassDocument> gymPassDocument) {
+    public GymPassOfferResponse(String message, GymPassDTO gymPassDTO) {
         super(message);
-        this.gymPassDocument = gymPassDocument;
+        this.gymPassDTO = gymPassDTO;
     }
 }

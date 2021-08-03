@@ -8,4 +8,7 @@ import java.util.List;
 public interface OfferService {
 
     List<GymPassDTO> getGymPassOffer() throws NoOffersException;
+
+    GymPassDTO createGymPassOffer();
+
 }

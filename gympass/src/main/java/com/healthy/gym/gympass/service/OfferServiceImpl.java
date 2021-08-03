@@ -13,4 +13,9 @@ public class OfferServiceImpl implements OfferService{
     public List<GymPassDTO> getGymPassOffer() throws NoOffersException {
         return null;
     }
+
+    @Override
+    public GymPassDTO createGymPassOffer() {
+        return null;
+    }
 }

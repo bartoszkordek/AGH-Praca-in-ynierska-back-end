@@ -1,4 +1,4 @@
-package com.healthy.gym.gympass.controller;
+package com.healthy.gym.gympass.controller.integrationTests;
 
 import com.healthy.gym.gympass.configuration.FixedClockConfig;
 import com.healthy.gym.gympass.configuration.TestCountry;

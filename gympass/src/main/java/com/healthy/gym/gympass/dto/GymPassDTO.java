@@ -7,7 +7,7 @@ import com.healthy.gym.gympass.shared.Price;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class GymPassDTO {
 
-    private String id;
+    private String documentId;
     private String title;
     private String subheader;
     private Price price;
@@ -17,14 +17,14 @@ public class GymPassDTO {
     public GymPassDTO(){}
 
     public GymPassDTO(
-            String id,
+            String documentId,
             String title,
             String subheader,
             Price price,
             boolean isPremium,
             Description description
     ){
-        this.id = id;
+        this.documentId = documentId;
         this.title = title;
         this.subheader = subheader;
         this.price = price;
@@ -32,8 +32,8 @@ public class GymPassDTO {
         this.description = description;
     }
 
-    public String getId() {
-        return id;
+    public String getDocumentId() {
+        return documentId;
     }
 
     public String getTitle() {
@@ -56,8 +56,8 @@ public class GymPassDTO {
         return description;
     }
 
-    public void setId(String id) {
-        this.id = id;
+    public void setDocumentId(String documentId) {
+        this.documentId = documentId;
     }
 
     public void setTitle(String title) {

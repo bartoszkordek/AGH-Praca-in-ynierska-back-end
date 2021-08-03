@@ -11,7 +11,7 @@ import com.healthy.gym.trainings.exception.notexisting.NotExistingGroupTrainingE
 import com.healthy.gym.trainings.exception.notfound.TrainingTypeNotFoundException;
 import com.healthy.gym.trainings.model.response.GroupTrainingsPublicResponse;
 import com.healthy.gym.trainings.model.response.GroupTrainingsResponse;
-import com.healthy.gym.trainings.shared.UserDTO;
+import com.healthy.gym.trainings.shared.BasicUserInfoDTO;
 import com.healthy.gym.trainings.service.group.training.GroupTrainingService;
 import com.healthy.gym.trainings.service.group.training.GroupTrainingServiceImpl;
 import org.junit.Before;
@@ -76,15 +76,15 @@ public class GetGroupTrainingServiceTest {
 
         double rating = 0.0;
 
-        List<UserDTO> trainersResponse = new ArrayList<>();
+        List<BasicUserInfoDTO> trainersResponse = new ArrayList<>();
         String trainer1Name = "John";
         String trainer1Surname = "Smith";
         String trainer1UserId = "100ed952-es7f-435a-bd1e-9fb2a327c4dk";
-        UserDTO trainer1Response = new UserDTO(trainer1UserId, trainer1Name, trainer1Surname);
+        BasicUserInfoDTO trainer1Response = new BasicUserInfoDTO(trainer1UserId, trainer1Name, trainer1Surname, null);
         trainersResponse.add(trainer1Response);
 
-        List<UserDTO> participantsResponses = new ArrayList<>();
-        List<UserDTO> reserveListResponses = new ArrayList<>();
+        List<BasicUserInfoDTO> participantsResponses = new ArrayList<>();
+        List<BasicUserInfoDTO> reserveListResponses = new ArrayList<>();
         /*GroupTrainingsResponse groupTraining = new GroupTrainingsResponse(trainingId, trainingName, trainersResponse,
                 trainingStartDate, trainingEndDate, locationName, limit, rating, participantsResponses, reserveListResponses);
 
@@ -115,11 +115,11 @@ public class GetGroupTrainingServiceTest {
         int limit = 15;
         double rating = 0.0;
 
-        List<UserDTO> trainersResponse = new ArrayList<>();
+        List<BasicUserInfoDTO> trainersResponse = new ArrayList<>();
         String trainer1Name = "John";
         String trainer1Surname = "Smith";
         String trainer1UserId = "100ed952-es7f-435a-bd1e-9fb2a327c4dk";
-        UserDTO trainer1Response = new UserDTO(trainer1UserId, trainer1Name, trainer1Surname);
+        BasicUserInfoDTO trainer1Response = new BasicUserInfoDTO(trainer1UserId, trainer1Name, trainer1Surname,null);
         trainersResponse.add(trainer1Response);
 
         /*GroupTrainingsPublicResponse groupTrainingPublicResponse = new GroupTrainingsPublicResponse(trainingId,
@@ -151,15 +151,15 @@ public class GetGroupTrainingServiceTest {
         int limit = 15;
         double rating = 0.0;
 
-        List<UserDTO> trainersResponse = new ArrayList<>();
+        List<BasicUserInfoDTO> trainersResponse = new ArrayList<>();
         String trainer1Name = "John";
         String trainer1Surname = "Smith";
         String trainer1UserId = "100ed952-es7f-435a-bd1e-9fb2a327c4dk";
-        UserDTO trainer1Response = new UserDTO(trainer1UserId, trainer1Name, trainer1Surname);
+        BasicUserInfoDTO trainer1Response = new BasicUserInfoDTO(trainer1UserId, trainer1Name, trainer1Surname, null);
         trainersResponse.add(trainer1Response);
 
-        List<UserDTO> participantsResponses = new ArrayList<>();
-        List<UserDTO> reserveListResponses = new ArrayList<>();
+        List<BasicUserInfoDTO> participantsResponses = new ArrayList<>();
+        List<BasicUserInfoDTO> reserveListResponses = new ArrayList<>();
         /*GroupTrainingsResponse groupTraining = new GroupTrainingsResponse(
                 trainingId,
                 trainingName,
@@ -207,11 +207,11 @@ public class GetGroupTrainingServiceTest {
         String participant2UserId = "222ed953-e37f-435a-bd1e-9fb2a327c4d4";
         String participant2Name = "Max";
         String participant2Surname = "Adams";
-        List<UserDTO> participantsResponses = new ArrayList<>();
-        UserDTO participants1Response = new UserDTO(participant1UserId, participant1Name,
-                participant1Surname);
-        UserDTO participants2Response = new UserDTO(participant2UserId, participant2Name,
-                participant2Surname);
+        List<BasicUserInfoDTO> participantsResponses = new ArrayList<>();
+        BasicUserInfoDTO participants1Response = new BasicUserInfoDTO(participant1UserId, participant1Name,
+                participant1Surname, null);
+        BasicUserInfoDTO participants2Response = new BasicUserInfoDTO(participant2UserId, participant2Name,
+                participant2Surname, null);
         participantsResponses.add(participants1Response);
         participantsResponses.add(participants2Response);
 
@@ -253,15 +253,15 @@ public class GetGroupTrainingServiceTest {
         int limit = 15;
         double rating = 0.0;
 
-        List<UserDTO> trainersResponse = new ArrayList<>();
+        List<BasicUserInfoDTO> trainersResponse = new ArrayList<>();
         String trainer1Name = "John";
         String trainer1Surname = "Smith";
         String trainer1UserId = "100ed952-es7f-435a-bd1e-9fb2a327c4dk";
-        UserDTO trainer1Response = new UserDTO(trainer1UserId, trainer1Name, trainer1Surname);
+        BasicUserInfoDTO trainer1Response = new BasicUserInfoDTO(trainer1UserId, trainer1Name, trainer1Surname, null);
         trainersResponse.add(trainer1Response);
 
-        List<UserDTO> participantsResponses = new ArrayList<>();
-        List<UserDTO> reserveListResponses = new ArrayList<>();
+        List<BasicUserInfoDTO> participantsResponses = new ArrayList<>();
+        List<BasicUserInfoDTO> reserveListResponses = new ArrayList<>();
         /*GroupTrainingsResponse groupTraining = new GroupTrainingsResponse(trainingId, trainingName, trainersResponse,
                 trainingStartDate, trainingEndDate, locationName, limit, rating, participantsResponses, reserveListResponses);
 
@@ -296,15 +296,15 @@ public class GetGroupTrainingServiceTest {
         int limit = 15;
         double rating = 0.0;
 
-        List<UserDTO> trainersResponse = new ArrayList<>();
+        List<BasicUserInfoDTO> trainersResponse = new ArrayList<>();
         String trainer1Name = "John";
         String trainer1Surname = "Smith";
         String trainer1UserId = "100ed952-es7f-435a-bd1e-9fb2a327c4dk";
-        UserDTO trainer1Response = new UserDTO(trainer1UserId, trainer1Name, trainer1Surname);
+        BasicUserInfoDTO trainer1Response = new BasicUserInfoDTO(trainer1UserId, trainer1Name, trainer1Surname);
         trainersResponse.add(trainer1Response);
 
-        List<UserDTO> participantsResponses = new ArrayList<>();
-        List<UserDTO> reserveListResponses = new ArrayList<>();
+        List<BasicUserInfoDTO> participantsResponses = new ArrayList<>();
+        List<BasicUserInfoDTO> reserveListResponses = new ArrayList<>();
         *//*GroupTrainingsResponse groupTraining = new GroupTrainingsResponse(trainingId, trainingName, trainersResponse,
                 trainingStartDate, trainingEndDate, locationName, limit, rating, participantsResponses, reserveListResponses);
 

@@ -18,9 +18,7 @@ import com.healthy.gym.trainings.exception.occupied.TrainerOccupiedException;
 import com.healthy.gym.trainings.exception.training.TrainingUpdateException;
 import com.healthy.gym.trainings.model.request.CreateGroupTrainingRequest;
 import com.healthy.gym.trainings.model.request.GroupTrainingRequest;
-import com.healthy.gym.trainings.model.response.GroupTrainingResponse;
-import com.healthy.gym.trainings.model.response.GroupTrainingsResponse;
-import com.healthy.gym.trainings.shared.UserDTO;
+import com.healthy.gym.trainings.shared.BasicUserInfoDTO;
 import com.healthy.gym.trainings.shared.GroupTrainingDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -178,21 +176,21 @@ public class ManagerGroupTrainingServiceImpl implements ManagerGroupTrainingServ
         groupTrainingsRepository.save(groupTrainings1);
 
         List<UserDocument> participants = groupTrainings1.getParticipants();
-        List<UserDTO> participantsResponses = new ArrayList<>();
+        List<BasicUserInfoDTO> participantsResponses = new ArrayList<>();
         List<String> toEmails = new ArrayList<>();
         for (UserDocument document : participants) {
-            UserDTO participantsResponse = new UserDTO(document.getUserId(),
-                    document.getName(), document.getSurname());
+            BasicUserInfoDTO participantsResponse = new BasicUserInfoDTO(document.getUserId(),
+                    document.getName(), document.getSurname(), null);//TODO add avatar
             participantsResponses.add(participantsResponse);
             String email = document.getEmail();
             toEmails.add(email);
         }
 
         List<UserDocument> reserveList = groupTrainings1.getReserveList();
-        List<UserDTO> reserveListResponses = new ArrayList<>();
+        List<BasicUserInfoDTO> reserveListResponses = new ArrayList<>();
         for (UserDocument document : reserveList) {
-            UserDTO reserveListResponse = new UserDTO(document.getUserId(),
-                    document.getName(), document.getSurname());
+            BasicUserInfoDTO reserveListResponse = new BasicUserInfoDTO(document.getUserId(),
+                    document.getName(), document.getSurname(),null);//TODO add avatar
             reserveListResponses.add(reserveListResponse);
         }
 
@@ -218,21 +216,21 @@ public class ManagerGroupTrainingServiceImpl implements ManagerGroupTrainingServ
         groupTrainingsRepository.removeByTrainingId(trainingId);
 
         List<UserDocument> participants = repositoryResponse.getParticipants();
-        List<UserDTO> participantsResponses = new ArrayList<>();
+        List<BasicUserInfoDTO> participantsResponses = new ArrayList<>();
         List<String> toEmails = new ArrayList<>();
         for (UserDocument document : participants) {
-            UserDTO participantsResponse = new UserDTO(document.getUserId(),
-                    document.getName(), document.getSurname());
+            BasicUserInfoDTO participantsResponse = new BasicUserInfoDTO(document.getUserId(),
+                    document.getName(), document.getSurname() ,null);//TODO add avatar
             participantsResponses.add(participantsResponse);
             String email = document.getEmail();
             toEmails.add(email);
         }
 
         List<UserDocument> reserveList = repositoryResponse.getReserveList();
-        List<UserDTO> reserveListResponses = new ArrayList<>();
+        List<BasicUserInfoDTO> reserveListResponses = new ArrayList<>();
         for (UserDocument document : reserveList) {
-            UserDTO reserveListResponse = new UserDTO(document.getUserId(),
-                    document.getName(), document.getSurname());
+            BasicUserInfoDTO reserveListResponse = new BasicUserInfoDTO(document.getUserId(),
+                    document.getName(), document.getSurname(), null); //TODO add avatar
             reserveListResponses.add(reserveListResponse);
         }
 

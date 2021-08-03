@@ -14,7 +14,6 @@ import com.healthy.gym.trainings.shared.GroupTrainingEnrollmentDTO;
 import com.healthy.gym.trainings.model.response.GroupTrainingsPublicResponse;
 import com.healthy.gym.trainings.model.response.GroupTrainingReviewResponse;
 import com.healthy.gym.trainings.shared.GetGroupTrainingPublicDTO;
-import com.healthy.gym.trainings.shared.UserDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -231,19 +230,6 @@ public class UserGroupTrainingServiceImpl implements UserGroupTrainingService {
             basicUserInfoDTOs.add(basicUserInfoDTO);
         }
         return basicUserInfoDTOs;
-    }
-
-    private List<UserDTO> mapUserResponse(List<UserDocument> documents){
-        List<UserDTO> userResponses = new ArrayList<>();
-        for(UserDocument document : documents){
-            UserDTO userResponse = new UserDTO(
-                    document.getUserId(),
-                    document.getName(),
-                    document.getSurname()
-                    );
-            userResponses.add(userResponse);
-        }
-        return userResponses;
     }
 
     private void removeFromReserveList(String trainingId, String clientId) {

@@ -11,7 +11,7 @@ import com.healthy.gym.trainings.exception.invalid.InvalidDateException;
 import com.healthy.gym.trainings.exception.invalid.InvalidHourException;
 import com.healthy.gym.trainings.exception.training.TrainingUpdateException;
 import com.healthy.gym.trainings.model.request.GroupTrainingRequest;
-import com.healthy.gym.trainings.shared.UserDTO;
+import com.healthy.gym.trainings.shared.BasicUserInfoDTO;
 import com.healthy.gym.trainings.service.group.training.GroupTrainingService;
 import com.healthy.gym.trainings.service.group.training.GroupTrainingServiceImpl;
 import org.junit.Before;
@@ -122,12 +122,12 @@ public class UpdateGroupTrainingService {
 
         double rating = 0.0;
 
-        List<UserDTO> trainersResponse = new ArrayList<>();
-        UserDTO trainer1Response = new UserDTO(trainer1UserId, trainer1Name, trainer1Surname);
+        List<BasicUserInfoDTO> trainersResponse = new ArrayList<>();
+        BasicUserInfoDTO trainer1Response = new BasicUserInfoDTO(trainer1UserId, trainer1Name, trainer1Surname, null);
         trainersResponse.add(trainer1Response);
 
-        List<UserDTO> participantsResponses = new ArrayList<>();
-        List<UserDTO> reserveListResponses = new ArrayList<>();
+        List<BasicUserInfoDTO> participantsResponses = new ArrayList<>();
+        List<BasicUserInfoDTO> reserveListResponses = new ArrayList<>();
         /*GroupTrainingResponse groupTrainingResponseAfterUpdate = new GroupTrainingResponse(trainingId, trainingName,
                 trainersResponse, date, startTimeAfterUpdate, endTimeAfterUpdate, hallNoAfterUpdate, limitAfterUpdate,
                 rating, participantsResponses, reserveListResponses);*/
@@ -207,11 +207,11 @@ public class UpdateGroupTrainingService {
         groupTrainingAfterUpdate.setId(id);
 
         double rating = 0.0;
-        List<UserDTO> trainersResponse = new ArrayList<>();
-        UserDTO trainer1Response = new UserDTO(trainer1UserId, trainer1Name, trainer1Surname);
+        List<BasicUserInfoDTO> trainersResponse = new ArrayList<>();
+        BasicUserInfoDTO trainer1Response = new BasicUserInfoDTO(trainer1UserId, trainer1Name, trainer1Surname, null);
         trainersResponse.add(trainer1Response);
-        List<UserDTO> participantsResponses = new ArrayList<>();
-        List<UserDTO> reserveListResponses = new ArrayList<>();
+        List<BasicUserInfoDTO> participantsResponses = new ArrayList<>();
+        List<BasicUserInfoDTO> reserveListResponses = new ArrayList<>();
         /*GroupTrainingResponse groupTrainingResponseAfterUpdate = new GroupTrainingResponse(trainingId, trainingName,
                 trainersResponse, date, startTimeAfterUpdate, endTimeAfterUpdate, hallNoAfterUpdate, limitAfterUpdate,
                 rating, participantsResponses, reserveListResponses);*/
@@ -291,11 +291,11 @@ public class UpdateGroupTrainingService {
         groupTrainingAfterUpdate.setId(id);
 
         double rating = 0.0;
-        List<UserDTO> trainersResponse = new ArrayList<>();
-        UserDTO trainer1Response = new UserDTO(trainer1UserId, trainer1Name, trainer1Surname);
+        List<BasicUserInfoDTO> trainersResponse = new ArrayList<>();
+        BasicUserInfoDTO trainer1Response = new BasicUserInfoDTO(trainer1UserId, trainer1Name, trainer1Surname, null);
         trainersResponse.add(trainer1Response);
-        List<UserDTO> participantsResponses = new ArrayList<>();
-        List<UserDTO> reserveListResponses = new ArrayList<>();
+        List<BasicUserInfoDTO> participantsResponses = new ArrayList<>();
+        List<BasicUserInfoDTO> reserveListResponses = new ArrayList<>();
         /*GroupTrainingResponse groupTrainingResponseAfterUpdate = new GroupTrainingResponse(trainingId, trainingName,
                 trainersResponse, date, startTimeAfterUpdate, endTimeAfterUpdate, hallNoAfterUpdate, limitAfterUpdate,
                 rating, participantsResponses, reserveListResponses);*/

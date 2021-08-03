@@ -3,6 +3,7 @@ package com.healthy.gym.gympass.controller;
 
 import com.healthy.gym.gympass.component.Translator;
 import com.healthy.gym.gympass.dto.GymPassDTO;
+import com.healthy.gym.gympass.exception.NoOffersException;
 import com.healthy.gym.gympass.service.OfferService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -37,6 +38,9 @@ public class OfferController {
             return ResponseEntity
                     .status(HttpStatus.OK)
                     .body(offerService.getGymPassOffer());
+        } catch (NoOffersException exception){
+            String reason = translator.toLocale("exception.no.offers");
+            throw new ResponseStatusException(HttpStatus.NO_CONTENT, reason, exception);
         } catch (Exception exception){
             String reason = translator.toLocale(INTERNAL_ERROR_EXCEPTION);
             exception.printStackTrace();

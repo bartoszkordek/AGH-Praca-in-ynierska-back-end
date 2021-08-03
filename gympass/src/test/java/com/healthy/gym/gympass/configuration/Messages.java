@@ -7,14 +7,16 @@ import java.util.stream.Stream;
 public class Messages {
     private static Map<String, String> getMessagesPL() {
         return Stream.of(new String[][]{
-                {"exception.internal.error", "Podczas przetwarzania żądania wystąpił błąd."}
+                {"exception.internal.error", "Podczas przetwarzania żądania wystąpił błąd."},
+                {"exception.no.offers", "Brak ofert"}
 
         }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
     }
 
     private static Map<String, String> getMessagesEN() {
         return Stream.of(new String[][]{
-                {"exception.internal.error", "An error occurred while processing your request."}
+                {"exception.internal.error", "An error occurred while processing your request."},
+                {"exception.no.offers", "No offers"}
         }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
     }
 

@@ -4,6 +4,7 @@ import com.healthy.gym.gympass.configuration.TestCountry;
 import com.healthy.gym.gympass.configuration.TestRoleTokenFactory;
 import com.healthy.gym.gympass.controller.OfferController;
 import com.healthy.gym.gympass.dto.GymPassDTO;
+import com.healthy.gym.gympass.exception.NoOffersException;
 import com.healthy.gym.gympass.service.OfferService;
 import com.healthy.gym.gympass.shared.Description;
 import com.healthy.gym.gympass.shared.Price;
@@ -20,22 +21,23 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.List;
-import java.util.Locale;
-import java.util.UUID;
+import java.util.*;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.is;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.ResultMatcher.matchAll;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 
 import static com.healthy.gym.gympass.configuration.LocaleConverter.convertEnumToLocale;
+import static com.healthy.gym.gympass.configuration.Messages.getMessagesAccordingToLocale;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
 @WebMvcTest(OfferController.class)
-public class OfferUnitTest {
+public class GetOffersUnitTest {
 
     @Autowired
     private MockMvc mockMvc;
@@ -182,5 +184,34 @@ public class OfferUnitTest {
                         jsonPath("$.[1].description.features")
                                 .value(hasItem("dostęp do sauny"))
                 ));
+    }
+
+    @ParameterizedTest
+    @EnumSource(TestCountry.class)
+    void shouldNotReturnAnyOfferWhenEmptyOffersList(TestCountry country) throws Exception {
+        Map<String, String> messages = getMessagesAccordingToLocale(country);
+        Locale testedLocale = convertEnumToLocale(country);
+
+        RequestBuilder request = MockMvcRequestBuilders
+                .get(uri)
+                .header("Accept-Language", testedLocale.toString())
+                .header("Authorization", userToken)
+                .contentType(MediaType.APPLICATION_JSON);
+
+        String expectedMessage = messages.get("exception.no.offers");
+
+        doThrow(NoOffersException.class)
+                .when(offerService)
+                .getGymPassOffer();
+
+        mockMvc.perform(request)
+                .andDo(print())
+                .andExpect(status().isNoContent())
+                .andExpect(status().reason(is(expectedMessage)))
+                .andExpect(result ->
+                        assertThat(result.getResolvedException().getCause())
+                                .isInstanceOf(NoOffersException.class)
+                );
+
     }
 }

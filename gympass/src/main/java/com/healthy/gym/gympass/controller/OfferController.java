@@ -64,7 +64,6 @@ public class OfferController {
     ){
 
         try{
-
             if (bindingResult.hasErrors()) throw new BindException(bindingResult);
 
             String message = translator.toLocale("offer.created");
@@ -72,7 +71,7 @@ public class OfferController {
                     .status(HttpStatus.CREATED)
                     .body( new GymPassOfferResponse(
                             message,
-                            offerService.createGymPassOffer()
+                            offerService.createGymPassOffer(request)
                     ));
 
         } catch (Exception exception){

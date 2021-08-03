@@ -2,6 +2,7 @@ package com.healthy.gym.gympass.service;
 
 import com.healthy.gym.gympass.dto.GymPassDTO;
 import com.healthy.gym.gympass.exception.NoOffersException;
+import com.healthy.gym.gympass.pojo.request.GymPassOfferRequest;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -15,7 +16,7 @@ public class OfferServiceImpl implements OfferService{
     }
 
     @Override
-    public GymPassDTO createGymPassOffer() {
+    public GymPassDTO createGymPassOffer(GymPassOfferRequest request) {
         return null;
     }
 }

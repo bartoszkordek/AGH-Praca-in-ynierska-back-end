@@ -1,6 +1,6 @@
 package com.healthy.gym.trainings.data.repository;
 
-import com.healthy.gym.trainings.model.request.GroupTrainingRequestOld;
+import com.healthy.gym.trainings.model.request.GroupTrainingRequest;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoCollection;
@@ -65,7 +65,7 @@ public class GroupTrainingsDbRepositoryImpl implements GroupTrainingsDbRepositor
     }
 
     @Override
-    public boolean isAbilityToCreateTraining(GroupTrainingRequestOld groupTrainingModel) {
+    public boolean isAbilityToCreateTraining(GroupTrainingRequest groupTrainingModel) {
         String date = groupTrainingModel.getDate();
         String startTime = groupTrainingModel.getStartTime();
         String endTime = groupTrainingModel.getEndTime();
@@ -110,7 +110,7 @@ public class GroupTrainingsDbRepositoryImpl implements GroupTrainingsDbRepositor
     }
 
     @Override
-    public boolean isAbilityToUpdateTraining(String trainingId, GroupTrainingRequestOld groupTrainingModel) {
+    public boolean isAbilityToUpdateTraining(String trainingId, GroupTrainingRequest groupTrainingModel) {
         String date = groupTrainingModel.getDate();
         String startTime = groupTrainingModel.getStartTime();
         String endTime = groupTrainingModel.getEndTime();

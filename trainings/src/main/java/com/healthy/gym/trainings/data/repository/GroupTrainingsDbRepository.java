@@ -1,12 +1,12 @@
 package com.healthy.gym.trainings.data.repository;
 
-import com.healthy.gym.trainings.model.request.GroupTrainingRequestOld;
+import com.healthy.gym.trainings.model.request.GroupTrainingRequest;
 
 public interface GroupTrainingsDbRepository {
 
     boolean isAbilityToGroupTrainingEnrollment(String trainingId);
 
-    boolean isAbilityToCreateTraining(GroupTrainingRequestOld groupTrainingModel);
+    boolean isAbilityToCreateTraining(GroupTrainingRequest groupTrainingModel);
 
-    boolean isAbilityToUpdateTraining(String trainingId, GroupTrainingRequestOld groupTrainingModel);
+    boolean isAbilityToUpdateTraining(String trainingId, GroupTrainingRequest groupTrainingModel);
 }

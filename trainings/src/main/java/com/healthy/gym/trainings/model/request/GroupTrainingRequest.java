@@ -10,7 +10,7 @@ import javax.validation.constraints.NotNull;
 import java.util.List;
 import java.util.Objects;
 
-public class GroupTrainingRequestOld {
+public class GroupTrainingRequest {
 
     @NotNull
     private final String trainingTypeId;
@@ -30,7 +30,7 @@ public class GroupTrainingRequestOld {
     private final List<String> participants;
     private final List<String> reserveList;
 
-    public GroupTrainingRequestOld(
+    public GroupTrainingRequest(
             String trainingTypeId,
             List<String> trainers,
             String date,
@@ -76,7 +76,7 @@ public class GroupTrainingRequestOld {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        GroupTrainingRequestOld that = (GroupTrainingRequestOld) o;
+        GroupTrainingRequest that = (GroupTrainingRequest) o;
         return hallNo == that.hallNo &&
                 limit == that.limit &&
                 Objects.equals(trainingTypeId, that.trainingTypeId) &&

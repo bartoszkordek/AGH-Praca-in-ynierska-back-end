@@ -14,7 +14,7 @@ import com.healthy.gym.trainings.exception.occupied.TrainerOccupiedException;
 import com.healthy.gym.trainings.exception.training.TrainingRemovalException;
 import com.healthy.gym.trainings.exception.training.TrainingUpdateException;
 import com.healthy.gym.trainings.model.request.ManagerGroupTrainingRequest;
-import com.healthy.gym.trainings.model.request.GroupTrainingRequestOld;
+import com.healthy.gym.trainings.model.request.GroupTrainingRequest;
 import com.healthy.gym.trainings.model.response.GroupTrainingResponse;
 import com.healthy.gym.trainings.service.group.training.ManagerGroupTrainingService;
 import com.healthy.gym.trainings.shared.GroupTrainingDTO;
@@ -106,7 +106,7 @@ public class ManagerGroupTrainingController {
     @PutMapping("/{trainingId}")
     public ResponseEntity<GroupTrainingResponse> updateGroupTraining(
             @PathVariable("trainingId") final String trainingId,
-            @Valid @RequestBody GroupTrainingRequestOld groupTrainingModelRequest,
+            @Valid @RequestBody GroupTrainingRequest groupTrainingModelRequest,
             BindingResult bindingResult
     ) throws ResponseBindException {
         try {

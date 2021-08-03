@@ -1,7 +1,7 @@
 package com.healthy.gym.gympass.data.document;
 
-import com.healthy.gym.gympass.dto.Description;
-import com.healthy.gym.gympass.dto.Price;
+import com.healthy.gym.gympass.shared.Description;
+import com.healthy.gym.gympass.shared.Price;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 

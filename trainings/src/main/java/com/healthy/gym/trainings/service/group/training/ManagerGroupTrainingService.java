@@ -11,7 +11,6 @@ import com.healthy.gym.trainings.exception.notfound.TrainerNotFoundException;
 import com.healthy.gym.trainings.exception.notfound.TrainingTypeNotFoundException;
 import com.healthy.gym.trainings.exception.occupied.LocationOccupiedException;
 import com.healthy.gym.trainings.exception.occupied.TrainerOccupiedException;
-import com.healthy.gym.trainings.exception.training.TrainingCreationException;
 import com.healthy.gym.trainings.exception.training.TrainingRemovalException;
 import com.healthy.gym.trainings.exception.training.TrainingUpdateException;
 import com.healthy.gym.trainings.model.request.CreateGroupTrainingRequest;

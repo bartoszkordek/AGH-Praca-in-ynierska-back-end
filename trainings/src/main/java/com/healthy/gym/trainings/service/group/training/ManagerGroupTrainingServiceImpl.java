@@ -15,7 +15,6 @@ import com.healthy.gym.trainings.exception.notfound.TrainerNotFoundException;
 import com.healthy.gym.trainings.exception.notfound.TrainingTypeNotFoundException;
 import com.healthy.gym.trainings.exception.occupied.LocationOccupiedException;
 import com.healthy.gym.trainings.exception.occupied.TrainerOccupiedException;
-import com.healthy.gym.trainings.exception.training.TrainingCreationException;
 import com.healthy.gym.trainings.exception.training.TrainingUpdateException;
 import com.healthy.gym.trainings.model.request.CreateGroupTrainingRequest;
 import com.healthy.gym.trainings.model.request.GroupTrainingRequest;
@@ -44,11 +43,10 @@ public class ManagerGroupTrainingServiceImpl implements ManagerGroupTrainingServ
     private final TrainingTypeDAO trainingTypeDAO;
     private final LocationDAO locationDAO;
     private final UserDAO userDAO;
-    private final GroupTrainingsDbRepositoryImpl groupTrainingsDbRepositoryImpl;
+    private final GroupTrainingsDbRepository groupTrainingsDbRepositoryImpl;
     private final EmailSender emailSender;
     private final Clock clock;
     private final GroupTrainingsRepository groupTrainingsRepository;
-    private final TrainingTypeDAO trainingTypeRepository;
 
     @Autowired
     public ManagerGroupTrainingServiceImpl(
@@ -56,11 +54,10 @@ public class ManagerGroupTrainingServiceImpl implements ManagerGroupTrainingServ
             TrainingTypeDAO trainingTypeDAO,
             LocationDAO locationDAO,
             UserDAO userDAO,
-            GroupTrainingsDbRepositoryImpl groupTrainingsDbRepositoryImpl,
+            GroupTrainingsDbRepository groupTrainingsDbRepositoryImpl,
             EmailSender emailSender,
             Clock clock,
-            GroupTrainingsRepository groupTrainingsRepository,
-            TrainingTypeDAO trainingTypeRepository
+            GroupTrainingsRepository groupTrainingsRepository
     ) {
         this.groupTrainingsDAO = groupTrainingsDAO;
         this.trainingTypeDAO = trainingTypeDAO;
@@ -70,7 +67,6 @@ public class ManagerGroupTrainingServiceImpl implements ManagerGroupTrainingServ
         this.emailSender = emailSender;
         this.clock = clock;
         this.groupTrainingsRepository = groupTrainingsRepository;
-        this.trainingTypeRepository = trainingTypeRepository;
     }
 
     @Override
@@ -163,7 +159,7 @@ public class ManagerGroupTrainingServiceImpl implements ManagerGroupTrainingServ
 
         GroupTrainings groupTrainings1 = groupTrainingsRepository.findFirstByTrainingId(trainingId);
 
-        TrainingTypeDocument trainingType = trainingTypeRepository.findByTrainingTypeId(
+        TrainingTypeDocument trainingType = trainingTypeDAO.findByTrainingTypeId(
                 groupTrainingModelRequest.getTrainingTypeId()
         );
 

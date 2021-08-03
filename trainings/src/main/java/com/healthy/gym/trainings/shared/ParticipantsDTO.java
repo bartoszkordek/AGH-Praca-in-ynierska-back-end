@@ -2,6 +2,7 @@ package com.healthy.gym.trainings.shared;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -11,6 +12,8 @@ public class ParticipantsDTO {
     private List<BasicUserInfoDTO> reserveList;
 
     public ParticipantsDTO() {
+        this.basicList = new ArrayList<>();
+        this.reserveList = new ArrayList<>();
     }
 
     public ParticipantsDTO(List<BasicUserInfoDTO> basicList, List<BasicUserInfoDTO> reservationList) {

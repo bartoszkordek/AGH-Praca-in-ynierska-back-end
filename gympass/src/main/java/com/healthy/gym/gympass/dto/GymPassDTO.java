@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.healthy.gym.gympass.shared.Description;
 import com.healthy.gym.gympass.shared.Price;
 
+import java.util.Objects;
+
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class GymPassDTO {
 
@@ -78,5 +80,42 @@ public class GymPassDTO {
 
     public void setDescription(Description description) {
         this.description = description;
+    }
+
+    @Override
+    public String toString() {
+        return "GymPassDTO{" +
+                "documentId='" + documentId + '\'' +
+                ", title='" + title + '\'' +
+                ", subheader='" + subheader + '\'' +
+                ", price=" + price +
+                ", isPremium=" + isPremium +
+                ", description=" + description +
+                '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        GymPassDTO that = (GymPassDTO) o;
+        return isPremium == that.isPremium &&
+                Objects.equals(documentId, that.documentId) &&
+                Objects.equals(title, that.title) &&
+                Objects.equals(subheader, that.subheader) &&
+                Objects.equals(price, that.price) &&
+                Objects.equals(description, that.description);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(
+                documentId,
+                title,
+                subheader,
+                price,
+                isPremium,
+                description
+        );
     }
 }

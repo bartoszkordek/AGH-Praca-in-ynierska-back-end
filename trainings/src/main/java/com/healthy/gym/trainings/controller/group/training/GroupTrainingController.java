@@ -7,7 +7,7 @@ import com.healthy.gym.trainings.exception.invalid.InvalidHourException;
 import com.healthy.gym.trainings.exception.notexisting.NotExistingGroupTrainingException;
 import com.healthy.gym.trainings.exception.notfound.TrainingTypeNotFoundException;
 import com.healthy.gym.trainings.model.response.GroupTrainingPublicResponse;
-import com.healthy.gym.trainings.model.response.GroupTrainingResponse;
+import com.healthy.gym.trainings.model.response.GroupTrainingResponseOld;
 import com.healthy.gym.trainings.model.response.UserResponse;
 import com.healthy.gym.trainings.service.group.training.GroupTrainingService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -88,7 +88,7 @@ public class GroupTrainingController {
     }
 
     @GetMapping
-    public List<GroupTrainingResponse> getGroupTrainings(
+    public List<GroupTrainingResponseOld> getGroupTrainings(
             @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") final String startDate,
             @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") final String endDate
     ) {
@@ -111,7 +111,7 @@ public class GroupTrainingController {
     }
 
     @GetMapping("/{trainingId}")
-    public GroupTrainingResponse getGroupTrainingById(
+    public GroupTrainingResponseOld getGroupTrainingById(
             @PathVariable("trainingId") final String trainingId
     ) {
         try {
@@ -133,7 +133,7 @@ public class GroupTrainingController {
     }
 
     @GetMapping("/type/{trainingTypeId}")
-    public List<GroupTrainingResponse> getGroupTrainingsByType(
+    public List<GroupTrainingResponseOld> getGroupTrainingsByType(
             @PathVariable("trainingTypeId") final String trainingTypeId,
             @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") final String startDate,
             @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") final String endDate

@@ -15,7 +15,7 @@ import com.healthy.gym.trainings.exception.training.TrainingRemovalException;
 import com.healthy.gym.trainings.exception.training.TrainingUpdateException;
 import com.healthy.gym.trainings.model.request.CreateGroupTrainingRequest;
 import com.healthy.gym.trainings.model.request.GroupTrainingRequest;
-import com.healthy.gym.trainings.model.response.GroupTrainingResponse;
+import com.healthy.gym.trainings.model.response.GroupTrainingResponseOld;
 import com.healthy.gym.trainings.shared.GroupTrainingDTO;
 
 import java.text.ParseException;
@@ -31,14 +31,14 @@ public interface ManagerGroupTrainingService {
             TrainerOccupiedException, PastDateException;
 
 
-    GroupTrainingResponse updateGroupTraining(String trainingId, GroupTrainingRequest groupTrainingModelRequest)
+    GroupTrainingResponseOld updateGroupTraining(String trainingId, GroupTrainingRequest groupTrainingModelRequest)
             throws TrainingUpdateException,
             EmailSendingException,
             InvalidHourException,
             ParseException,
             InvalidDateException;
 
-    GroupTrainingResponse removeGroupTraining(String trainingId)
+    GroupTrainingResponseOld removeGroupTraining(String trainingId)
             throws TrainingRemovalException,
             EmailSendingException,
             InvalidDateException,

@@ -18,7 +18,7 @@ import com.healthy.gym.trainings.exception.occupied.TrainerOccupiedException;
 import com.healthy.gym.trainings.exception.training.TrainingUpdateException;
 import com.healthy.gym.trainings.model.request.CreateGroupTrainingRequest;
 import com.healthy.gym.trainings.model.request.GroupTrainingRequest;
-import com.healthy.gym.trainings.model.response.GroupTrainingResponse;
+import com.healthy.gym.trainings.model.response.GroupTrainingResponseOld;
 import com.healthy.gym.trainings.model.response.UserResponse;
 import com.healthy.gym.trainings.shared.GroupTrainingDTO;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -124,7 +124,7 @@ public class ManagerGroupTrainingServiceImpl implements ManagerGroupTrainingServ
 
 
     @Override
-    public GroupTrainingResponse updateGroupTraining(
+    public GroupTrainingResponseOld updateGroupTraining(
             String trainingId,
             GroupTrainingRequest groupTrainingModelRequest
     ) throws TrainingUpdateException,
@@ -201,7 +201,7 @@ public class ManagerGroupTrainingServiceImpl implements ManagerGroupTrainingServ
             throw new EmailSendingException("Cannot send email");
         }
 
-        return new GroupTrainingResponse(
+        return new GroupTrainingResponseOld(
                 null, //TODO fix groupTrainings1.getTrainingId(),
                 null, //TODO fix groupTrainings1.getTrainingType().getName(),
                 null, //TODO fix groupTrainings1.getTrainerId(),
@@ -215,7 +215,7 @@ public class ManagerGroupTrainingServiceImpl implements ManagerGroupTrainingServ
     }
 
     @Override
-    public GroupTrainingResponse removeGroupTraining(String trainingId)
+    public GroupTrainingResponseOld removeGroupTraining(String trainingId)
             throws EmailSendingException, InvalidDateException, InvalidHourException, NotExistingGroupTrainingException {
 
         GroupTrainings repositoryResponse = groupTrainingsRepository.findFirstByTrainingId(trainingId);
@@ -251,7 +251,7 @@ public class ManagerGroupTrainingServiceImpl implements ManagerGroupTrainingServ
             throw new EmailSendingException("Cannot send email");
         }
 
-        return new GroupTrainingResponse(
+        return new GroupTrainingResponseOld(
                 null, //TODO fix groupTrainings1.getTrainingId(),
                 null, //TODO fix groupTrainings1.getTrainingType().getName(),
                 null, //TODO fix groupTrainings1.getTrainerId(),

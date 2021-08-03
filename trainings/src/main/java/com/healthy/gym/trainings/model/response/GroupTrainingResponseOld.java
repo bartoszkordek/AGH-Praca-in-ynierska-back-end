@@ -12,7 +12,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Objects;
 
-public class GroupTrainingResponse {
+public class GroupTrainingResponseOld {
 
     @NotNull
     @JsonProperty("id")
@@ -39,7 +39,7 @@ public class GroupTrainingResponse {
     @NotNull
     private final List<UserResponse> reserveList;
 
-    public GroupTrainingResponse(
+    public GroupTrainingResponseOld(
             @JsonProperty("id") String trainingId,
             @JsonProperty("title") String trainingName,
             List<UserResponse> trainers,
@@ -97,7 +97,7 @@ public class GroupTrainingResponse {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        GroupTrainingResponse that = (GroupTrainingResponse) o;
+        GroupTrainingResponseOld that = (GroupTrainingResponseOld) o;
         return allDay == that.allDay &&
                 limit == that.limit &&
                 Double.compare(that.rating, rating) == 0 &&

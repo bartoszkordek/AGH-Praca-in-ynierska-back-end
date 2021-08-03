@@ -4,6 +4,7 @@ import com.healthy.gym.trainings.component.Translator;
 import com.healthy.gym.trainings.exception.training.TrainingEnrollmentException;
 import com.healthy.gym.trainings.exception.notexisting.NotExistingGroupTrainingException;
 import com.healthy.gym.trainings.model.response.GroupTrainingEnrollmentResponse;
+import com.healthy.gym.trainings.shared.GroupTrainingEnrollmentDTO;
 import com.healthy.gym.trainings.model.response.GroupTrainingPublicResponse;
 import com.healthy.gym.trainings.service.group.training.UserGroupTrainingService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,9 +56,12 @@ public class UserGroupTrainingController {
     ) {
         try {
             String message = translator.toLocale("enrollment.success");
+            GroupTrainingEnrollmentDTO enrolledTraining
+                    = userGroupTrainingService.enrollToGroupTraining(trainingId, userId);
+
             return ResponseEntity
                     .status(HttpStatus.OK)
-                    .body(userGroupTrainingService.enrollToGroupTraining(trainingId, userId)
+                    .body(new GroupTrainingEnrollmentResponse(message, enrolledTraining)
                     );
 
         } catch (TrainingEnrollmentException e) {

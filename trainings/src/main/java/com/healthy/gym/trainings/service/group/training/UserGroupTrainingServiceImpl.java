@@ -9,7 +9,7 @@ import com.healthy.gym.trainings.exception.invalid.InvalidHourException;
 import com.healthy.gym.trainings.exception.notexisting.NotExistingGroupTrainingException;
 import com.healthy.gym.trainings.exception.notfound.UserNotFoundException;
 import com.healthy.gym.trainings.exception.training.TrainingEnrollmentException;
-import com.healthy.gym.trainings.model.response.GroupTrainingEnrollmentResponse;
+import com.healthy.gym.trainings.shared.GroupTrainingEnrollmentDTO;
 import com.healthy.gym.trainings.model.response.GroupTrainingPublicResponse;
 import com.healthy.gym.trainings.model.response.GroupTrainingReviewResponse;
 import com.healthy.gym.trainings.model.response.UserResponse;
@@ -100,7 +100,7 @@ public class UserGroupTrainingServiceImpl implements UserGroupTrainingService {
     }
 
     @Override
-    public GroupTrainingEnrollmentResponse enrollToGroupTraining(String trainingId, String clientId)
+    public GroupTrainingEnrollmentDTO enrollToGroupTraining(String trainingId, String clientId)
             throws TrainingEnrollmentException, NotExistingGroupTrainingException, UserNotFoundException, InvalidHourException, InvalidDateException {
 
         GroupTrainingDocument groupTraining = groupTrainingsDAO.findFirstByGroupTrainingId(trainingId);
@@ -133,7 +133,7 @@ public class UserGroupTrainingServiceImpl implements UserGroupTrainingService {
         if (isClientAlreadyExistInReserveList(groupTraining, clientId))
             removeFromReserveList(trainingId, clientId);
 
-        return new GroupTrainingEnrollmentResponse(
+        return new GroupTrainingEnrollmentDTO(
                 groupTraining.getGroupTrainingId(),
                 groupTraining.getTraining().getName(),
                 trainersResponse,

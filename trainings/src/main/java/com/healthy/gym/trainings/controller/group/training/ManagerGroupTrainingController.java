@@ -1,7 +1,10 @@
 package com.healthy.gym.trainings.controller.group.training;
 
 import com.healthy.gym.trainings.component.Translator;
-import com.healthy.gym.trainings.exception.*;
+import com.healthy.gym.trainings.exception.EmailSendingException;
+import com.healthy.gym.trainings.exception.PastDateException;
+import com.healthy.gym.trainings.exception.ResponseBindException;
+import com.healthy.gym.trainings.exception.StartDateAfterEndDateException;
 import com.healthy.gym.trainings.exception.invalid.InvalidHourException;
 import com.healthy.gym.trainings.exception.notfound.LocationNotFoundException;
 import com.healthy.gym.trainings.exception.notfound.TrainerNotFoundException;
@@ -10,9 +13,8 @@ import com.healthy.gym.trainings.exception.occupied.LocationOccupiedException;
 import com.healthy.gym.trainings.exception.occupied.TrainerOccupiedException;
 import com.healthy.gym.trainings.exception.training.TrainingRemovalException;
 import com.healthy.gym.trainings.exception.training.TrainingUpdateException;
-import com.healthy.gym.trainings.model.request.CreateGroupTrainingRequest;
+import com.healthy.gym.trainings.model.request.ManagerGroupTrainingRequest;
 import com.healthy.gym.trainings.model.request.GroupTrainingRequest;
-import com.healthy.gym.trainings.model.response.CreateGroupTrainingResponse;
 import com.healthy.gym.trainings.model.response.GroupTrainingResponse;
 import com.healthy.gym.trainings.service.group.training.ManagerGroupTrainingService;
 import com.healthy.gym.trainings.shared.GroupTrainingDTO;
@@ -47,8 +49,8 @@ public class ManagerGroupTrainingController {
     }
 
     @PostMapping
-    public ResponseEntity<CreateGroupTrainingResponse> createGroupTraining(
-            @Valid @RequestBody CreateGroupTrainingRequest createGroupTrainingRequest,
+    public ResponseEntity<GroupTrainingResponse> createGroupTraining(
+            @Valid @RequestBody ManagerGroupTrainingRequest createGroupTrainingRequest,
             BindingResult bindingResult
     ) throws ResponseBindException {
         try {
@@ -60,7 +62,7 @@ public class ManagerGroupTrainingController {
 
             return ResponseEntity
                     .status(HttpStatus.CREATED)
-                    .body(new CreateGroupTrainingResponse(message, createdTraining));
+                    .body(new GroupTrainingResponse(message, createdTraining));
 
         } catch (BindException exception) {
             String reason = translator.toLocale("request.bind.exception");
@@ -102,12 +104,25 @@ public class ManagerGroupTrainingController {
     }
 
     @PutMapping("/{trainingId}")
-    public GroupTrainingResponse updateGroupTraining(
+    public ResponseEntity<GroupTrainingResponse> updateGroupTraining(
             @PathVariable("trainingId") final String trainingId,
-            @Valid @RequestBody GroupTrainingRequest groupTrainingModelRequest
-    ) {
+            @Valid @RequestBody GroupTrainingRequest groupTrainingModelRequest,
+            BindingResult bindingResult
+    ) throws ResponseBindException {
         try {
-            return managerGroupTrainingService.updateGroupTraining(trainingId, groupTrainingModelRequest);
+            if (bindingResult.hasErrors()) throw new BindException(bindingResult);
+
+            GroupTrainingDTO updateGroupTraining = managerGroupTrainingService
+                    .updateGroupTraining(trainingId, groupTrainingModelRequest);
+            String message = translator.toLocale("request.update.training.success");
+
+            return ResponseEntity
+                    .status(HttpStatus.OK)
+                    .body(new GroupTrainingResponse(message, updateGroupTraining));
+
+        } catch (BindException exception) {
+            String reason = translator.toLocale("request.bind.exception");
+            throw new ResponseBindException(HttpStatus.BAD_REQUEST, reason, exception);
 
         } catch (InvalidHourException | ParseException e) {
             String reason = translator.toLocale("exception.date.or.hour.parse");
@@ -129,11 +144,16 @@ public class ManagerGroupTrainingController {
     }
 
     @DeleteMapping("/{trainingId}")
-    public GroupTrainingResponse removeGroupTraining(
+    public ResponseEntity<GroupTrainingResponse> removeGroupTraining(
             @PathVariable("trainingId") final String trainingId
     ) {
         try {
-            return managerGroupTrainingService.removeGroupTraining(trainingId);
+            GroupTrainingDTO updateGroupTraining = managerGroupTrainingService.removeGroupTraining(trainingId);
+            String message = translator.toLocale("request.delete.training.success");
+
+            return ResponseEntity
+                    .status(HttpStatus.OK)
+                    .body(new GroupTrainingResponse(message, updateGroupTraining));
 
         } catch (TrainingRemovalException e) {
             String reason = translator.toLocale("exception.group.training.remove");

@@ -15,11 +15,9 @@ import com.healthy.gym.trainings.exception.notfound.TrainerNotFoundException;
 import com.healthy.gym.trainings.exception.notfound.TrainingTypeNotFoundException;
 import com.healthy.gym.trainings.exception.occupied.LocationOccupiedException;
 import com.healthy.gym.trainings.exception.occupied.TrainerOccupiedException;
-import com.healthy.gym.trainings.exception.training.TrainingCreationException;
 import com.healthy.gym.trainings.exception.training.TrainingUpdateException;
-import com.healthy.gym.trainings.model.request.CreateGroupTrainingRequest;
+import com.healthy.gym.trainings.model.request.ManagerGroupTrainingRequest;
 import com.healthy.gym.trainings.model.request.GroupTrainingRequest;
-import com.healthy.gym.trainings.model.response.GroupTrainingResponse;
 import com.healthy.gym.trainings.model.response.UserResponse;
 import com.healthy.gym.trainings.shared.GroupTrainingDTO;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,11 +42,10 @@ public class ManagerGroupTrainingServiceImpl implements ManagerGroupTrainingServ
     private final TrainingTypeDAO trainingTypeDAO;
     private final LocationDAO locationDAO;
     private final UserDAO userDAO;
-    private final GroupTrainingsDbRepositoryImpl groupTrainingsDbRepositoryImpl;
+    private final GroupTrainingsDbRepository groupTrainingsDbRepositoryImpl;
     private final EmailSender emailSender;
     private final Clock clock;
     private final GroupTrainingsRepository groupTrainingsRepository;
-    private final TrainingTypeDAO trainingTypeRepository;
 
     @Autowired
     public ManagerGroupTrainingServiceImpl(
@@ -56,11 +53,10 @@ public class ManagerGroupTrainingServiceImpl implements ManagerGroupTrainingServ
             TrainingTypeDAO trainingTypeDAO,
             LocationDAO locationDAO,
             UserDAO userDAO,
-            GroupTrainingsDbRepositoryImpl groupTrainingsDbRepositoryImpl,
+            GroupTrainingsDbRepository groupTrainingsDbRepositoryImpl,
             EmailSender emailSender,
             Clock clock,
-            GroupTrainingsRepository groupTrainingsRepository,
-            TrainingTypeDAO trainingTypeRepository
+            GroupTrainingsRepository groupTrainingsRepository
     ) {
         this.groupTrainingsDAO = groupTrainingsDAO;
         this.trainingTypeDAO = trainingTypeDAO;
@@ -70,11 +66,10 @@ public class ManagerGroupTrainingServiceImpl implements ManagerGroupTrainingServ
         this.emailSender = emailSender;
         this.clock = clock;
         this.groupTrainingsRepository = groupTrainingsRepository;
-        this.trainingTypeRepository = trainingTypeRepository;
     }
 
     @Override
-    public GroupTrainingDTO createGroupTraining(CreateGroupTrainingRequest createGroupTrainingRequest)
+    public GroupTrainingDTO createGroupTraining(ManagerGroupTrainingRequest createGroupTrainingRequest)
             throws StartDateAfterEndDateException, TrainerNotFoundException,
             LocationNotFoundException, TrainingTypeNotFoundException,
             LocationOccupiedException, TrainerOccupiedException, PastDateException {
@@ -128,7 +123,7 @@ public class ManagerGroupTrainingServiceImpl implements ManagerGroupTrainingServ
 
 
     @Override
-    public GroupTrainingResponse updateGroupTraining(
+    public GroupTrainingDTO updateGroupTraining(
             String trainingId,
             GroupTrainingRequest groupTrainingModelRequest
     ) throws TrainingUpdateException,
@@ -163,7 +158,7 @@ public class ManagerGroupTrainingServiceImpl implements ManagerGroupTrainingServ
 
         GroupTrainings groupTrainings1 = groupTrainingsRepository.findFirstByTrainingId(trainingId);
 
-        TrainingTypeDocument trainingType = trainingTypeRepository.findByTrainingTypeId(
+        TrainingTypeDocument trainingType = trainingTypeDAO.findByTrainingTypeId(
                 groupTrainingModelRequest.getTrainingTypeId()
         );
 
@@ -205,21 +200,24 @@ public class ManagerGroupTrainingServiceImpl implements ManagerGroupTrainingServ
             throw new EmailSendingException("Cannot send email");
         }
 
-        return new GroupTrainingResponse(
-                null, //TODO fix groupTrainings1.getTrainingId(),
-                null, //TODO fix groupTrainings1.getTrainingType().getName(),
-                null, //TODO fix groupTrainings1.getTrainerId(),
-                null, //TODO fix groupTrainings1.getStartDate(),
-                null, //TODO fix groupTrainings1.getEndTime(),
-                null, //TODO fix groupTrainings1.getHallNo(),
-                groupTrainings1.getLimit(),
-                INITIAL_RATING,
-                participantsResponses,
-                reserveListResponses);
+        //todo fix
+        return new GroupTrainingDTO();
+
+//        return new GroupTrainingResponseOld(
+//                null, //TODO fix groupTrainings1.getTrainingId(),
+//                null, //TODO fix groupTrainings1.getTrainingType().getName(),
+//                null, //TODO fix groupTrainings1.getTrainerId(),
+//                null, //TODO fix groupTrainings1.getStartDate(),
+//                null, //TODO fix groupTrainings1.getEndTime(),
+//                null, //TODO fix groupTrainings1.getHallNo(),
+//                groupTrainings1.getLimit(),
+//                INITIAL_RATING,
+//                participantsResponses,
+//                reserveListResponses);
     }
 
     @Override
-    public GroupTrainingResponse removeGroupTraining(String trainingId)
+    public GroupTrainingDTO removeGroupTraining(String trainingId)
             throws EmailSendingException, InvalidDateException, InvalidHourException, NotExistingGroupTrainingException {
 
         GroupTrainings repositoryResponse = groupTrainingsRepository.findFirstByTrainingId(trainingId);
@@ -255,16 +253,19 @@ public class ManagerGroupTrainingServiceImpl implements ManagerGroupTrainingServ
             throw new EmailSendingException("Cannot send email");
         }
 
-        return new GroupTrainingResponse(
-                null, //TODO fix groupTrainings1.getTrainingId(),
-                null, //TODO fix groupTrainings1.getTrainingType().getName(),
-                null, //TODO fix groupTrainings1.getTrainerId(),
-                null, //TODO fix groupTrainings1.getStartDate(),
-                null, //TODO fix groupTrainings1.getEndTime(),
-                null, //TODO fix groupTrainings1.getHallNo(),
-                repositoryResponse.getLimit(),
-                INITIAL_RATING,
-                participantsResponses,
-                reserveListResponses);
+        //todo fix
+        return new GroupTrainingDTO();
+
+//        return new GroupTrainingResponseOld(
+//                null, //TODO fix groupTrainings1.getTrainingId(),
+//                null, //TODO fix groupTrainings1.getTrainingType().getName(),
+//                null, //TODO fix groupTrainings1.getTrainerId(),
+//                null, //TODO fix groupTrainings1.getStartDate(),
+//                null, //TODO fix groupTrainings1.getEndTime(),
+//                null, //TODO fix groupTrainings1.getHallNo(),
+//                repositoryResponse.getLimit(),
+//                INITIAL_RATING,
+//                participantsResponses,
+//                reserveListResponses);
     }
 }

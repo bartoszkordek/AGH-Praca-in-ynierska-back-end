@@ -1,4 +1,4 @@
-package com.healthy.gym.trainings.service.groupTrainingService;
+package com.healthy.gym.trainings.service.group.training.manager.service;
 
 import com.healthy.gym.trainings.data.document.*;
 import com.healthy.gym.trainings.data.repository.GroupTrainingsDAO;
@@ -8,8 +8,7 @@ import com.healthy.gym.trainings.data.repository.TrainingTypeDAO;
 import com.healthy.gym.trainings.exception.invalid.InvalidDateException;
 import com.healthy.gym.trainings.exception.invalid.InvalidHourException;
 import com.healthy.gym.trainings.exception.training.TrainingRemovalException;
-import com.healthy.gym.trainings.model.request.GroupTrainingRequest;
-import com.healthy.gym.trainings.model.response.GroupTrainingResponse;
+import com.healthy.gym.trainings.model.response.GroupTrainingResponseOld;
 import com.healthy.gym.trainings.model.response.UserResponse;
 import com.healthy.gym.trainings.service.group.training.GroupTrainingService;
 import com.healthy.gym.trainings.service.group.training.GroupTrainingServiceImpl;
@@ -112,7 +111,7 @@ public class RemoveGroupTrainingService {
 
         List<UserResponse> participantsResponses = new ArrayList<>();
         List<UserResponse> reserveListResponses = new ArrayList<>();
-        GroupTrainingResponse groupTrainingResponse = new GroupTrainingResponse(trainingId, trainingName,
+        GroupTrainingResponseOld groupTrainingResponse = new GroupTrainingResponseOld(trainingId, trainingName,
                 trainersResponse, trainingStartDate, trainingEndDate, location.getName(), limit, rating, participantsResponses,
                 reserveListResponses);
 

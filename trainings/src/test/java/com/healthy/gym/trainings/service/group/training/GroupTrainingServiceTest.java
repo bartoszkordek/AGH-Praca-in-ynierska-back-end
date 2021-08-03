@@ -1,4 +1,4 @@
-package com.healthy.gym.trainings.service.groupTrainingService;
+package com.healthy.gym.trainings.service.group.training;
 
 import static org.junit.jupiter.api.Assertions.*;
 

@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.healthy.gym.trainings.configuration.TestCountry;
 import com.healthy.gym.trainings.configuration.TestRoleTokenFactory;
 import com.healthy.gym.trainings.data.document.LocationDocument;
-import com.healthy.gym.trainings.model.request.CreateLocationRequest;
+import com.healthy.gym.trainings.model.request.LocationRequest;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -68,7 +68,7 @@ class LocationControllerIntegrationTest {
         managerToken = tokenFactory.getMangerToken(UUID.randomUUID().toString());
 
         ObjectMapper objectMapper = new ObjectMapper();
-        CreateLocationRequest locationRequest = new CreateLocationRequest();
+        LocationRequest locationRequest = new LocationRequest();
         locationRequest.setName("Sala nr 1");
 
         requestContent = objectMapper.writeValueAsString(locationRequest);

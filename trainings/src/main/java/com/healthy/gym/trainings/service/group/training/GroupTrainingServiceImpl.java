@@ -1,7 +1,6 @@
 package com.healthy.gym.trainings.service.group.training;
 
 import com.healthy.gym.trainings.data.document.GroupTrainingDocument;
-import com.healthy.gym.trainings.data.document.GroupTrainings;
 import com.healthy.gym.trainings.data.document.TrainingTypeDocument;
 import com.healthy.gym.trainings.data.document.UserDocument;
 import com.healthy.gym.trainings.data.repository.GroupTrainingsDAO;
@@ -14,7 +13,7 @@ import com.healthy.gym.trainings.exception.invalid.InvalidHourException;
 import com.healthy.gym.trainings.exception.notexisting.NotExistingGroupTrainingException;
 import com.healthy.gym.trainings.exception.notfound.TrainingTypeNotFoundException;
 import com.healthy.gym.trainings.model.response.GroupTrainingPublicResponse;
-import com.healthy.gym.trainings.model.response.GroupTrainingResponse;
+import com.healthy.gym.trainings.model.response.GroupTrainingResponseOld;
 import com.healthy.gym.trainings.model.response.GroupTrainingReviewResponse;
 import com.healthy.gym.trainings.model.response.UserResponse;
 import com.healthy.gym.trainings.utils.DateFormatter;
@@ -134,16 +133,16 @@ public class GroupTrainingServiceImpl implements GroupTrainingService {
 
 
     @Override
-    public List<GroupTrainingResponse> getGroupTrainings(String startDate, String endDate)
+    public List<GroupTrainingResponseOld> getGroupTrainings(String startDate, String endDate)
             throws InvalidHourException, StartDateAfterEndDateException, ParseException, InvalidDateException {
 
         List<GroupTrainingDocument> groupTrainingDocuments = getGroupTrainingDocumentsBetweenStartAndEndDate(
                 startDate, endDate);
 
-        List<GroupTrainingResponse> result = new ArrayList<>();
+        List<GroupTrainingResponseOld> result = new ArrayList<>();
         for (GroupTrainingDocument groupTrainingDocument : groupTrainingDocuments) {
 
-            GroupTrainingResponse groupTraining = new GroupTrainingResponse(
+            GroupTrainingResponseOld groupTraining = new GroupTrainingResponseOld(
                     groupTrainingDocument.getGroupTrainingId(),
                     groupTrainingDocument.getTraining().getName(),
                     null, //TODO fix training.getTrainerId(),
@@ -188,7 +187,7 @@ public class GroupTrainingServiceImpl implements GroupTrainingService {
     }
 
     @Override
-    public GroupTrainingResponse getGroupTrainingById(String trainingId) throws NotExistingGroupTrainingException,
+    public GroupTrainingResponseOld getGroupTrainingById(String trainingId) throws NotExistingGroupTrainingException,
             InvalidHourException, InvalidDateException {
         if (!groupTrainingsDAO.existsById(trainingId))
             throw new NotExistingGroupTrainingException(
@@ -197,7 +196,7 @@ public class GroupTrainingServiceImpl implements GroupTrainingService {
 
         GroupTrainingDocument groupTrainingDocument = groupTrainingsDAO.findFirstByGroupTrainingId(trainingId);
 
-        return new GroupTrainingResponse(
+        return new GroupTrainingResponseOld(
                 groupTrainingDocument.getGroupTrainingId(),
                 groupTrainingDocument.getTraining().getName(),
                 null, //TODO fix groupTrainingsDbResponse.getTrainerId(),
@@ -212,7 +211,7 @@ public class GroupTrainingServiceImpl implements GroupTrainingService {
     }
 
     @Override
-    public List<GroupTrainingResponse> getGroupTrainingsByType(String trainingTypeId, String startDate, String endDate)
+    public List<GroupTrainingResponseOld> getGroupTrainingsByType(String trainingTypeId, String startDate, String endDate)
             throws NotExistingGroupTrainingException, InvalidHourException, StartDateAfterEndDateException,
             ParseException, InvalidDateException, TrainingTypeNotFoundException {
         if (!trainingTypeDAO.existsByTrainingTypeId(trainingTypeId)) {
@@ -229,10 +228,10 @@ public class GroupTrainingServiceImpl implements GroupTrainingService {
 
         double rating = getRatingForGroupTrainingList(groupTrainingsList);
 
-        List<GroupTrainingResponse> result = new ArrayList<>();
+        List<GroupTrainingResponseOld> result = new ArrayList<>();
         for (GroupTrainingDocument groupTrainingDocument : groupTrainingsList) {
 
-            GroupTrainingResponse groupTraining = new GroupTrainingResponse(
+            GroupTrainingResponseOld groupTraining = new GroupTrainingResponseOld(
                     groupTrainingDocument.getGroupTrainingId(),
                     groupTrainingDocument.getTraining().getName(),
                     null, //TODO fix training.getTrainerId(),

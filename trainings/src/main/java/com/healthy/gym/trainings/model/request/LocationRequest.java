@@ -7,7 +7,7 @@ import javax.validation.constraints.Size;
 import java.util.Objects;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class CreateLocationRequest {
+public class LocationRequest {
 
     @NotNull(message = "{field.required}")
     @Size(min = 2, max = 20, message = "{field.name.failure}")
@@ -25,7 +25,7 @@ public class CreateLocationRequest {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        CreateLocationRequest that = (CreateLocationRequest) o;
+        LocationRequest that = (LocationRequest) o;
         return Objects.equals(name, that.name);
     }
 

@@ -1,4 +1,4 @@
-package com.healthy.gym.trainings.service.groupTrainingService;
+package com.healthy.gym.trainings.service.group.training;
 
 import com.healthy.gym.trainings.data.repository.GroupTrainingsDAO;
 import com.healthy.gym.trainings.data.repository.GroupTrainingsRepository;
@@ -10,10 +10,8 @@ import com.healthy.gym.trainings.exception.invalid.InvalidHourException;
 import com.healthy.gym.trainings.exception.notexisting.NotExistingGroupTrainingException;
 import com.healthy.gym.trainings.exception.notfound.TrainingTypeNotFoundException;
 import com.healthy.gym.trainings.model.response.GroupTrainingPublicResponse;
-import com.healthy.gym.trainings.model.response.GroupTrainingResponse;
+import com.healthy.gym.trainings.model.response.GroupTrainingResponseOld;
 import com.healthy.gym.trainings.model.response.UserResponse;
-import com.healthy.gym.trainings.service.group.training.GroupTrainingService;
-import com.healthy.gym.trainings.service.group.training.GroupTrainingServiceImpl;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -85,10 +83,10 @@ public class GetGroupTrainingServiceTest {
 
         List<UserResponse> participantsResponses = new ArrayList<>();
         List<UserResponse> reserveListResponses = new ArrayList<>();
-        GroupTrainingResponse groupTraining = new GroupTrainingResponse(trainingId, trainingName, trainersResponse,
+        GroupTrainingResponseOld groupTraining = new GroupTrainingResponseOld(trainingId, trainingName, trainersResponse,
                 trainingStartDate, trainingEndDate, locationName, limit, rating, participantsResponses, reserveListResponses);
 
-        List<GroupTrainingResponse> groupTrainings = new ArrayList<>();
+        List<GroupTrainingResponseOld> groupTrainings = new ArrayList<>();
         groupTrainings.add(groupTraining);
 
         //when
@@ -160,7 +158,7 @@ public class GetGroupTrainingServiceTest {
 
         List<UserResponse> participantsResponses = new ArrayList<>();
         List<UserResponse> reserveListResponses = new ArrayList<>();
-        GroupTrainingResponse groupTraining = new GroupTrainingResponse(
+        GroupTrainingResponseOld groupTraining = new GroupTrainingResponseOld(
                 trainingId,
                 trainingName,
                 trainersResponse,
@@ -173,7 +171,7 @@ public class GetGroupTrainingServiceTest {
                 reserveListResponses
         );
 
-        List<GroupTrainingResponse> groupTrainings = new ArrayList<>();
+        List<GroupTrainingResponseOld> groupTrainings = new ArrayList<>();
         groupTrainings.add(groupTraining);
 
         //when
@@ -262,10 +260,10 @@ public class GetGroupTrainingServiceTest {
 
         List<UserResponse> participantsResponses = new ArrayList<>();
         List<UserResponse> reserveListResponses = new ArrayList<>();
-        GroupTrainingResponse groupTraining = new GroupTrainingResponse(trainingId, trainingName, trainersResponse,
+        GroupTrainingResponseOld groupTraining = new GroupTrainingResponseOld(trainingId, trainingName, trainersResponse,
                 trainingStartDate, trainingEndDate, locationName, limit, rating, participantsResponses, reserveListResponses);
 
-        List<GroupTrainingResponse> groupTrainings = new ArrayList<>();
+        List<GroupTrainingResponseOld> groupTrainings = new ArrayList<>();
         groupTrainings.add(groupTraining);
 
         //when
@@ -305,10 +303,10 @@ public class GetGroupTrainingServiceTest {
 
         List<UserResponse> participantsResponses = new ArrayList<>();
         List<UserResponse> reserveListResponses = new ArrayList<>();
-        GroupTrainingResponse groupTraining = new GroupTrainingResponse(trainingId, trainingName, trainersResponse,
+        GroupTrainingResponseOld groupTraining = new GroupTrainingResponseOld(trainingId, trainingName, trainersResponse,
                 trainingStartDate, trainingEndDate, locationName, limit, rating, participantsResponses, reserveListResponses);
 
-        List<GroupTrainingResponse> groupTrainings = new ArrayList<>();
+        List<GroupTrainingResponseOld> groupTrainings = new ArrayList<>();
         groupTrainings.add(groupTraining);
 
         //when

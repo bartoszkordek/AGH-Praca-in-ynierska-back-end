@@ -5,7 +5,7 @@ import com.healthy.gym.trainings.configuration.TestRoleTokenFactory;
 import com.healthy.gym.trainings.controller.LocationController;
 import com.healthy.gym.trainings.exception.duplicated.DuplicatedLocationNameException;
 import com.healthy.gym.trainings.exception.notfound.LocationNotFoundException;
-import com.healthy.gym.trainings.model.request.CreateLocationRequest;
+import com.healthy.gym.trainings.model.request.LocationRequest;
 import com.healthy.gym.trainings.service.LocationService;
 import com.healthy.gym.trainings.shared.LocationDTO;
 import org.junit.jupiter.api.BeforeEach;
@@ -73,11 +73,11 @@ class WhenUpdateLocationTest {
         adminToken = tokenFactory.getAdminToken(adminId);
 
         ObjectMapper objectMapper = new ObjectMapper();
-        CreateLocationRequest locationRequest = new CreateLocationRequest();
+        LocationRequest locationRequest = new LocationRequest();
         locationRequest.setName("Sala nr2");
         requestContent = objectMapper.writeValueAsString(locationRequest);
 
-        CreateLocationRequest invalidLocationRequest = new CreateLocationRequest();
+        LocationRequest invalidLocationRequest = new LocationRequest();
         invalidLocationRequest.setName("S");
         invalidRequestContent = objectMapper.writeValueAsString(invalidLocationRequest);
 

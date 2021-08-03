@@ -115,10 +115,6 @@ public class UserGroupTrainingServiceImpl implements UserGroupTrainingService {
             throw new TrainingEnrollmentException("Full participants list");
         }
 
-        //TODO przerobić pod GroupTrainingsDAO
-        /*if (!groupTrainingsDbRepositoryImpl.isAbilityToGroupTrainingEnrollment(trainingId))
-            throw new TrainingEnrollmentException("Cannot enroll to this training");*/
-
         if (isClientAlreadyEnrolledToGroupTraining(groupTraining, clientId))
             throw new TrainingEnrollmentException("Client is already enrolled to this training");
 
@@ -143,7 +139,6 @@ public class UserGroupTrainingServiceImpl implements UserGroupTrainingService {
         UserDocument newReserveListParticipant = userRepository.findByUserId(clientId);
         if (newReserveListParticipant == null) throw new UserNotFoundException();
 
-        //TODO przerobić powyżej na GroupTrainingDocument
         if (isClientAlreadyEnrolledToGroupTraining(groupTraining, clientId))
             throw new TrainingEnrollmentException("Client is already enrolled to this training");
 

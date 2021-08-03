@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Objects;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class CreateGroupTrainingRequest {
+public class ManagerGroupTrainingRequest {
 
     @NotNull(message = "{field.required}")
     @ValidID(message = "{exception.invalid.id.format}")
@@ -87,7 +87,7 @@ public class CreateGroupTrainingRequest {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        CreateGroupTrainingRequest that = (CreateGroupTrainingRequest) o;
+        ManagerGroupTrainingRequest that = (ManagerGroupTrainingRequest) o;
         return limit == that.limit
                 && Objects.equals(trainingTypeId, that.trainingTypeId)
                 && Objects.equals(trainerIds, that.trainerIds)

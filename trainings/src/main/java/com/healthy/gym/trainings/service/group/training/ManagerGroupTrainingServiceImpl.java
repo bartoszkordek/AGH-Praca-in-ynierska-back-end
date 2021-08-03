@@ -16,7 +16,7 @@ import com.healthy.gym.trainings.exception.notfound.TrainingTypeNotFoundExceptio
 import com.healthy.gym.trainings.exception.occupied.LocationOccupiedException;
 import com.healthy.gym.trainings.exception.occupied.TrainerOccupiedException;
 import com.healthy.gym.trainings.exception.training.TrainingUpdateException;
-import com.healthy.gym.trainings.model.request.CreateGroupTrainingRequest;
+import com.healthy.gym.trainings.model.request.ManagerGroupTrainingRequest;
 import com.healthy.gym.trainings.model.request.GroupTrainingRequestOld;
 import com.healthy.gym.trainings.model.response.UserResponse;
 import com.healthy.gym.trainings.shared.GroupTrainingDTO;
@@ -69,7 +69,7 @@ public class ManagerGroupTrainingServiceImpl implements ManagerGroupTrainingServ
     }
 
     @Override
-    public GroupTrainingDTO createGroupTraining(CreateGroupTrainingRequest createGroupTrainingRequest)
+    public GroupTrainingDTO createGroupTraining(ManagerGroupTrainingRequest createGroupTrainingRequest)
             throws StartDateAfterEndDateException, TrainerNotFoundException,
             LocationNotFoundException, TrainingTypeNotFoundException,
             LocationOccupiedException, TrainerOccupiedException, PastDateException {

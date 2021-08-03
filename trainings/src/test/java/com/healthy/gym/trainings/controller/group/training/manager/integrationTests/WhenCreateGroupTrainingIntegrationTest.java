@@ -9,7 +9,7 @@ import com.healthy.gym.trainings.data.document.LocationDocument;
 import com.healthy.gym.trainings.data.document.TrainingTypeDocument;
 import com.healthy.gym.trainings.data.document.UserDocument;
 import com.healthy.gym.trainings.enums.GymRole;
-import com.healthy.gym.trainings.model.request.CreateGroupTrainingRequest;
+import com.healthy.gym.trainings.model.request.ManagerGroupTrainingRequest;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -131,8 +131,8 @@ class WhenCreateGroupTrainingIntegrationTest {
         mongoTemplate.dropCollection(LocationDocument.class);
     }
 
-    private CreateGroupTrainingRequest getTestRequest() {
-        CreateGroupTrainingRequest request = new CreateGroupTrainingRequest();
+    private ManagerGroupTrainingRequest getTestRequest() {
+        ManagerGroupTrainingRequest request = new ManagerGroupTrainingRequest();
         request.setTrainingTypeId(trainingTypeId);
         request.setTrainerIds(List.of(trainerId1, trainerId2));
         request.setStartDate("2020-10-10T16:00");

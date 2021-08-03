@@ -11,7 +11,7 @@ import com.healthy.gym.trainings.enums.GymRole;
 import com.healthy.gym.trainings.exception.StartDateAfterEndDateException;
 import com.healthy.gym.trainings.exception.notfound.TrainerNotFoundException;
 import com.healthy.gym.trainings.exception.notfound.TrainingTypeNotFoundException;
-import com.healthy.gym.trainings.model.request.CreateGroupTrainingRequest;
+import com.healthy.gym.trainings.model.request.ManagerGroupTrainingRequest;
 import com.healthy.gym.trainings.service.group.training.ManagerGroupTrainingService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -44,11 +44,11 @@ class ManagerGroupTrainingServiceTest {
     @MockBean
     private UserDAO userDAO;
 
-    private CreateGroupTrainingRequest request;
+    private ManagerGroupTrainingRequest request;
 
     @BeforeEach
     void setUp() {
-        request = new CreateGroupTrainingRequest();
+        request = new ManagerGroupTrainingRequest();
         request.setTrainingTypeId(UUID.randomUUID().toString());
         request.setTrainerIds(List.of(UUID.randomUUID().toString(), UUID.randomUUID().toString()));
         request.setStartDate("2021-12-10T19:00");

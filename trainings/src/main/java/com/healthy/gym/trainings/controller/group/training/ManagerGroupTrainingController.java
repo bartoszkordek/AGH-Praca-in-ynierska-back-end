@@ -13,7 +13,7 @@ import com.healthy.gym.trainings.exception.occupied.LocationOccupiedException;
 import com.healthy.gym.trainings.exception.occupied.TrainerOccupiedException;
 import com.healthy.gym.trainings.exception.training.TrainingRemovalException;
 import com.healthy.gym.trainings.exception.training.TrainingUpdateException;
-import com.healthy.gym.trainings.model.request.CreateGroupTrainingRequest;
+import com.healthy.gym.trainings.model.request.ManagerGroupTrainingRequest;
 import com.healthy.gym.trainings.model.request.GroupTrainingRequestOld;
 import com.healthy.gym.trainings.model.response.GroupTrainingResponse;
 import com.healthy.gym.trainings.service.group.training.ManagerGroupTrainingService;
@@ -50,7 +50,7 @@ public class ManagerGroupTrainingController {
 
     @PostMapping
     public ResponseEntity<GroupTrainingResponse> createGroupTraining(
-            @Valid @RequestBody CreateGroupTrainingRequest createGroupTrainingRequest,
+            @Valid @RequestBody ManagerGroupTrainingRequest createGroupTrainingRequest,
             BindingResult bindingResult
     ) throws ResponseBindException {
         try {

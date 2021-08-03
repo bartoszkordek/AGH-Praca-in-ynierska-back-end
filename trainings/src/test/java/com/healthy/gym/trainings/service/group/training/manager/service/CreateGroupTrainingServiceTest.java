@@ -16,7 +16,7 @@ import com.healthy.gym.trainings.exception.notfound.TrainerNotFoundException;
 import com.healthy.gym.trainings.exception.notfound.TrainingTypeNotFoundException;
 import com.healthy.gym.trainings.exception.occupied.LocationOccupiedException;
 import com.healthy.gym.trainings.exception.occupied.TrainerOccupiedException;
-import com.healthy.gym.trainings.model.request.CreateGroupTrainingRequest;
+import com.healthy.gym.trainings.model.request.ManagerGroupTrainingRequest;
 import com.healthy.gym.trainings.service.group.training.ManagerGroupTrainingService;
 import com.healthy.gym.trainings.service.group.training.ManagerGroupTrainingServiceImpl;
 import com.healthy.gym.trainings.shared.BasicUserInfoDTO;
@@ -46,7 +46,7 @@ class CreateGroupTrainingServiceTest {
     private LocationDAO locationDAO;
     private UserDAO userDAO;
 
-    private CreateGroupTrainingRequest createGroupTrainingRequest;
+    private ManagerGroupTrainingRequest createGroupTrainingRequest;
     private ManagerGroupTrainingService managerGroupTrainingService;
 
     @BeforeEach
@@ -70,8 +70,8 @@ class CreateGroupTrainingServiceTest {
         );
     }
 
-    private CreateGroupTrainingRequest getCreateGroupTrainingRequest() {
-        CreateGroupTrainingRequest createGroupTrainingRequest = new CreateGroupTrainingRequest();
+    private ManagerGroupTrainingRequest getCreateGroupTrainingRequest() {
+        ManagerGroupTrainingRequest createGroupTrainingRequest = new ManagerGroupTrainingRequest();
         createGroupTrainingRequest.setTrainingTypeId("122ed953-e37f-435a-bd1e-9fb2a327c4d3");
         createGroupTrainingRequest.setTrainerIds(
                 List.of("100ed952-es7f-435a-bd1e-9fb2a327c4dk", "501692e9-2a79-46bb-ac62-55f980581bad")

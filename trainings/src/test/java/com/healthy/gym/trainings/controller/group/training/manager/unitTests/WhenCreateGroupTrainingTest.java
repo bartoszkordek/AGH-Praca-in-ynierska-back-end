@@ -12,7 +12,7 @@ import com.healthy.gym.trainings.exception.notfound.TrainerNotFoundException;
 import com.healthy.gym.trainings.exception.notfound.TrainingTypeNotFoundException;
 import com.healthy.gym.trainings.exception.occupied.LocationOccupiedException;
 import com.healthy.gym.trainings.exception.occupied.TrainerOccupiedException;
-import com.healthy.gym.trainings.model.request.CreateGroupTrainingRequest;
+import com.healthy.gym.trainings.model.request.ManagerGroupTrainingRequest;
 import com.healthy.gym.trainings.service.group.training.ManagerGroupTrainingService;
 import com.healthy.gym.trainings.shared.BasicUserInfoDTO;
 import com.healthy.gym.trainings.shared.GroupTrainingDTO;
@@ -80,12 +80,12 @@ class WhenCreateGroupTrainingTest {
         String adminId = UUID.randomUUID().toString();
         adminToken = tokenFactory.getAdminToken(adminId);
 
-        CreateGroupTrainingRequest request = getTestRequest();
+        ManagerGroupTrainingRequest request = getTestRequest();
         ObjectMapper mapper = new ObjectMapper();
 
         requestContent = mapper.writeValueAsString(request);
 
-        CreateGroupTrainingRequest invalidRequest = getInvalidTestRequest();
+        ManagerGroupTrainingRequest invalidRequest = getInvalidTestRequest();
         invalidRequestContent = mapper.writeValueAsString(invalidRequest);
         uri = new URI("/group");
 
@@ -109,8 +109,8 @@ class WhenCreateGroupTrainingTest {
         );
     }
 
-    private CreateGroupTrainingRequest getTestRequest() {
-        CreateGroupTrainingRequest request = new CreateGroupTrainingRequest();
+    private ManagerGroupTrainingRequest getTestRequest() {
+        ManagerGroupTrainingRequest request = new ManagerGroupTrainingRequest();
         request.setTrainingTypeId(UUID.randomUUID().toString());
         request.setTrainerIds(List.of(UUID.randomUUID().toString(), UUID.randomUUID().toString()));
         request.setStartDate("2020-10-10T16:00");
@@ -120,8 +120,8 @@ class WhenCreateGroupTrainingTest {
         return request;
     }
 
-    private CreateGroupTrainingRequest getInvalidTestRequest() {
-        CreateGroupTrainingRequest request = new CreateGroupTrainingRequest();
+    private ManagerGroupTrainingRequest getInvalidTestRequest() {
+        ManagerGroupTrainingRequest request = new ManagerGroupTrainingRequest();
         request.setTrainingTypeId(UUID.randomUUID().toString());
         request.setTrainerIds(List.of(UUID.randomUUID().toString(), UUID.randomUUID().toString()));
         request.setStartDate("2020-10-10 16:00");
@@ -147,7 +147,7 @@ class WhenCreateGroupTrainingTest {
                     .content(requestContent)
                     .contentType(MediaType.APPLICATION_JSON);
 
-            when(managerGroupTrainingService.createGroupTraining((CreateGroupTrainingRequest) any()))
+            when(managerGroupTrainingService.createGroupTraining((ManagerGroupTrainingRequest) any()))
                     .thenReturn(validResponse);
 
             String expectedMessage = messages.get("request.create.training.success");
@@ -212,7 +212,7 @@ class WhenCreateGroupTrainingTest {
 
             doThrow(StartDateAfterEndDateException.class)
                     .when(managerGroupTrainingService)
-                    .createGroupTraining((CreateGroupTrainingRequest) any());
+                    .createGroupTraining((ManagerGroupTrainingRequest) any());
 
             RequestBuilder request = MockMvcRequestBuilders
                     .post(uri)
@@ -241,7 +241,7 @@ class WhenCreateGroupTrainingTest {
 
             doThrow(PastDateException.class)
                     .when(managerGroupTrainingService)
-                    .createGroupTraining((CreateGroupTrainingRequest) any());
+                    .createGroupTraining((ManagerGroupTrainingRequest) any());
 
             RequestBuilder request = MockMvcRequestBuilders
                     .post(uri)
@@ -270,7 +270,7 @@ class WhenCreateGroupTrainingTest {
 
             doThrow(TrainerNotFoundException.class)
                     .when(managerGroupTrainingService)
-                    .createGroupTraining((CreateGroupTrainingRequest) any());
+                    .createGroupTraining((ManagerGroupTrainingRequest) any());
 
             RequestBuilder request = MockMvcRequestBuilders
                     .post(uri)
@@ -300,7 +300,7 @@ class WhenCreateGroupTrainingTest {
 
             doThrow(LocationNotFoundException.class)
                     .when(managerGroupTrainingService)
-                    .createGroupTraining((CreateGroupTrainingRequest) any());
+                    .createGroupTraining((ManagerGroupTrainingRequest) any());
 
             RequestBuilder request = MockMvcRequestBuilders
                     .post(uri)
@@ -329,7 +329,7 @@ class WhenCreateGroupTrainingTest {
 
             doThrow(TrainingTypeNotFoundException.class)
                     .when(managerGroupTrainingService)
-                    .createGroupTraining((CreateGroupTrainingRequest) any());
+                    .createGroupTraining((ManagerGroupTrainingRequest) any());
 
             RequestBuilder request = MockMvcRequestBuilders
                     .post(uri)
@@ -358,7 +358,7 @@ class WhenCreateGroupTrainingTest {
 
             doThrow(LocationOccupiedException.class)
                     .when(managerGroupTrainingService)
-                    .createGroupTraining((CreateGroupTrainingRequest) any());
+                    .createGroupTraining((ManagerGroupTrainingRequest) any());
 
             RequestBuilder request = MockMvcRequestBuilders
                     .post(uri)
@@ -387,7 +387,7 @@ class WhenCreateGroupTrainingTest {
 
             doThrow(TrainerOccupiedException.class)
                     .when(managerGroupTrainingService)
-                    .createGroupTraining((CreateGroupTrainingRequest) any());
+                    .createGroupTraining((ManagerGroupTrainingRequest) any());
 
             RequestBuilder request = MockMvcRequestBuilders
                     .post(uri)
@@ -416,7 +416,7 @@ class WhenCreateGroupTrainingTest {
 
             doThrow(IllegalStateException.class)
                     .when(managerGroupTrainingService)
-                    .createGroupTraining((CreateGroupTrainingRequest) any());
+                    .createGroupTraining((ManagerGroupTrainingRequest) any());
 
 
             RequestBuilder request = MockMvcRequestBuilders

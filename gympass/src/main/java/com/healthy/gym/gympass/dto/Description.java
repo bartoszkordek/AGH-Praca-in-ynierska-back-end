@@ -1,4 +1,4 @@
-package com.healthy.gym.gympass.shared;
+package com.healthy.gym.gympass.dto;
 
 import java.util.List;
 import java.util.Objects;

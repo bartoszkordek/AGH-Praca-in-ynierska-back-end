@@ -1,8 +1,8 @@
 package com.healthy.gym.gympass.controller;
 
 import com.healthy.gym.gympass.data.document.GymPassDocument;
-import com.healthy.gym.gympass.shared.Description;
-import com.healthy.gym.gympass.shared.Price;
+import com.healthy.gym.gympass.dto.Description;
+import com.healthy.gym.gympass.dto.Price;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;

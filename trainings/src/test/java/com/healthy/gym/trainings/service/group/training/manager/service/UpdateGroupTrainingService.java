@@ -10,7 +10,7 @@ import com.healthy.gym.trainings.data.repository.TrainingTypeDAO;
 import com.healthy.gym.trainings.exception.invalid.InvalidDateException;
 import com.healthy.gym.trainings.exception.invalid.InvalidHourException;
 import com.healthy.gym.trainings.exception.training.TrainingUpdateException;
-import com.healthy.gym.trainings.model.request.GroupTrainingRequest;
+import com.healthy.gym.trainings.model.request.GroupTrainingRequestOld;
 import com.healthy.gym.trainings.model.response.UserResponse;
 import com.healthy.gym.trainings.service.group.training.GroupTrainingService;
 import com.healthy.gym.trainings.service.group.training.GroupTrainingServiceImpl;
@@ -81,7 +81,7 @@ public class UpdateGroupTrainingService {
         int limitAfterUpdate = 20;
         List<String> participants = new ArrayList<>();
         List<String> reserveList = new ArrayList<>();
-        GroupTrainingRequest groupTrainingUpdateRequest = new GroupTrainingRequest(trainingTypeId, trainersIds, date,
+        GroupTrainingRequestOld groupTrainingUpdateRequest = new GroupTrainingRequestOld(trainingTypeId, trainersIds, date,
                 startTimeAfterUpdate, endTimeAfterUpdate, hallNoAfterUpdate, limitAfterUpdate, participants,
                 reserveList);
 
@@ -168,7 +168,7 @@ public class UpdateGroupTrainingService {
         int limitAfterUpdate = 20;
         List<String> participants = new ArrayList<>();
         List<String> reserveList = new ArrayList<>();
-        GroupTrainingRequest groupTrainingUpdateRequest = new GroupTrainingRequest(trainingTypeId, trainersIds, date,
+        GroupTrainingRequestOld groupTrainingUpdateRequest = new GroupTrainingRequestOld(trainingTypeId, trainersIds, date,
                 startTimeAfterUpdate, endTimeAfterUpdate, hallNoAfterUpdate, limitAfterUpdate, participants,
                 reserveList);
 
@@ -252,7 +252,7 @@ public class UpdateGroupTrainingService {
         int limitAfterUpdate = 20;
         List<String> participants = new ArrayList<>();
         List<String> reserveList = new ArrayList<>();
-        GroupTrainingRequest groupTrainingUpdateRequest = new GroupTrainingRequest(trainingTypeId, trainersIds, date,
+        GroupTrainingRequestOld groupTrainingUpdateRequest = new GroupTrainingRequestOld(trainingTypeId, trainersIds, date,
                 startTimeAfterUpdate, endTimeAfterUpdate, hallNoAfterUpdate, limitAfterUpdate, participants,
                 reserveList);
 

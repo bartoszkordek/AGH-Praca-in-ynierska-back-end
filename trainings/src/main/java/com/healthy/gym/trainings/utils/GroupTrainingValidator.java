@@ -1,6 +1,6 @@
 package com.healthy.gym.trainings.utils;
 
-import com.healthy.gym.trainings.model.request.GroupTrainingRequest;
+import com.healthy.gym.trainings.model.request.GroupTrainingRequestOld;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -15,7 +15,7 @@ public class GroupTrainingValidator {
         throw new IllegalStateException("Utility class");
     }
 
-    public static boolean isExistRequiredDataForGroupTraining(GroupTrainingRequest groupTrainingModel) {
+    public static boolean isExistRequiredDataForGroupTraining(GroupTrainingRequestOld groupTrainingModel) {
         String trainingName = groupTrainingModel.getTrainingTypeId();
         List<String> trainers = groupTrainingModel.getTrainers();
         String date = groupTrainingModel.getDate();

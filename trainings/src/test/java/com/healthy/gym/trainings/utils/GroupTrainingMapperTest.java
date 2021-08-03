@@ -116,7 +116,7 @@ class GroupTrainingMapperTest {
                 reserveList
         );
 
-        groupTrainingDTO = GroupTrainingMapper.mapToGroupTrainingDTO(groupTrainingToCreate);
+        groupTrainingDTO = GroupTrainingMapper.mapToGroupTrainingsDocumentsToDTOs(groupTrainingToCreate);
     }
 
     @Test

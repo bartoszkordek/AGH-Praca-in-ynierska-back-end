@@ -17,6 +17,7 @@ import com.healthy.gym.trainings.exception.notfound.TrainingTypeNotFoundExceptio
 import com.healthy.gym.trainings.exception.occupied.LocationOccupiedException;
 import com.healthy.gym.trainings.exception.occupied.TrainerOccupiedException;
 import com.healthy.gym.trainings.model.request.ManagerGroupTrainingRequest;
+import com.healthy.gym.trainings.service.group.training.GroupTrainingDocumentUpdater;
 import com.healthy.gym.trainings.service.group.training.ManagerGroupTrainingService;
 import com.healthy.gym.trainings.service.group.training.ManagerGroupTrainingServiceImpl;
 import com.healthy.gym.trainings.shared.BasicUserInfoDTO;
@@ -46,6 +47,7 @@ class CreateGroupTrainingServiceTest {
     private LocationDAO locationDAO;
     private UserDAO userDAO;
 
+    private GroupTrainingDocumentUpdater groupTrainingDocumentUpdater;
     private ManagerGroupTrainingRequest createGroupTrainingRequest;
     private ManagerGroupTrainingService managerGroupTrainingService;
 
@@ -57,6 +59,7 @@ class CreateGroupTrainingServiceTest {
         userDAO = mock(UserDAO.class);
         Clock clock = Clock.fixed(Instant.parse("2021-07-10T18:00:00.00Z"), ZoneId.of("Europe/Warsaw"));
 
+        groupTrainingDocumentUpdater = mock(GroupTrainingDocumentUpdater.class);
         createGroupTrainingRequest = getCreateGroupTrainingRequest();
         managerGroupTrainingService = new ManagerGroupTrainingServiceImpl(
                 groupTrainingsDAO,
@@ -65,7 +68,8 @@ class CreateGroupTrainingServiceTest {
                 userDAO,
                 null,
                 clock,
-                null
+                null,
+                groupTrainingDocumentUpdater
         );
     }
 

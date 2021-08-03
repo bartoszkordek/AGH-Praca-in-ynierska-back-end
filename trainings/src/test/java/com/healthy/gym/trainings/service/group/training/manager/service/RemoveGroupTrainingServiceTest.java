@@ -5,198 +5,190 @@ import com.healthy.gym.trainings.data.document.LocationDocument;
 import com.healthy.gym.trainings.data.document.TrainingTypeDocument;
 import com.healthy.gym.trainings.data.document.UserDocument;
 import com.healthy.gym.trainings.data.repository.GroupTrainingsDAO;
-import com.healthy.gym.trainings.data.repository.GroupTrainingsRepository;
-import com.healthy.gym.trainings.data.repository.ReviewDAO;
+import com.healthy.gym.trainings.data.repository.LocationDAO;
 import com.healthy.gym.trainings.data.repository.TrainingTypeDAO;
-import com.healthy.gym.trainings.exception.invalid.InvalidDateException;
-import com.healthy.gym.trainings.exception.invalid.InvalidHourException;
-import com.healthy.gym.trainings.exception.training.TrainingRemovalException;
-import com.healthy.gym.trainings.model.response.GroupTrainingResponseOld;
-import com.healthy.gym.trainings.model.response.UserResponse;
-import com.healthy.gym.trainings.service.group.training.GroupTrainingService;
-import com.healthy.gym.trainings.service.group.training.GroupTrainingServiceImpl;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
-import org.springframework.test.context.junit4.SpringRunner;
+import com.healthy.gym.trainings.data.repository.UserDAO;
+import com.healthy.gym.trainings.enums.GymRole;
+import com.healthy.gym.trainings.exception.notexisting.NotExistingGroupTrainingException;
+import com.healthy.gym.trainings.service.group.training.GroupTrainingDocumentUpdater;
+import com.healthy.gym.trainings.service.group.training.ManagerGroupTrainingService;
+import com.healthy.gym.trainings.service.group.training.ManagerGroupTrainingServiceImpl;
+import com.healthy.gym.trainings.shared.BasicUserInfoDTO;
+import com.healthy.gym.trainings.shared.GroupTrainingDTO;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
+import java.time.Clock;
+import java.time.Instant;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.util.ArrayList;
+import java.time.ZoneId;
 import java.util.List;
+import java.util.UUID;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-@RunWith(SpringRunner.class)
 class RemoveGroupTrainingServiceTest {
 
-    @Autowired
-    private ApplicationContext applicationContext;
-
-    private TrainingTypeDAO trainingTypeRepository;
-    private GroupTrainingsRepository groupTrainingsRepository;
     private GroupTrainingsDAO groupTrainingsDAO;
-    private TrainingTypeDAO trainingTypeDAO;
-    private ReviewDAO reviewDAO;
-    private GroupTrainingService groupTrainingService;
 
-    @Before
-    public void setUp() throws Exception {
-        trainingTypeRepository = mock(TrainingTypeDAO.class);
-        groupTrainingsRepository = mock(GroupTrainingsRepository.class);
+    private ManagerGroupTrainingService managerGroupTrainingService;
+    private String groupTrainingId;
+
+    @BeforeEach
+    void setUp() {
+        groupTrainingId = UUID.randomUUID().toString();
         groupTrainingsDAO = mock(GroupTrainingsDAO.class);
-        trainingTypeDAO = mock(TrainingTypeDAO.class);
-        reviewDAO = mock(ReviewDAO.class);
-        groupTrainingService = new GroupTrainingServiceImpl(
-                trainingTypeRepository,
-                groupTrainingsRepository,
+        TrainingTypeDAO trainingTypeDAO = mock(TrainingTypeDAO.class);
+        LocationDAO locationDAO = mock(LocationDAO.class);
+        UserDAO userDAO = mock(UserDAO.class);
+        Clock clock = Clock.fixed(Instant.parse("2021-07-10T18:00:00.00Z"), ZoneId.of("Europe/Warsaw"));
+
+        GroupTrainingDocumentUpdater groupTrainingDocumentUpdater = mock(GroupTrainingDocumentUpdater.class);
+        managerGroupTrainingService = new ManagerGroupTrainingServiceImpl(
                 groupTrainingsDAO,
                 trainingTypeDAO,
-                reviewDAO
+                locationDAO,
+                userDAO,
+                clock,
+                groupTrainingDocumentUpdater
         );
     }
 
     @Test
-    public void shouldRemoveGroupTraining_whenTrainingExists()
-            throws InvalidDateException, InvalidHourException {
+    void shouldThrowNotExistingGroupTrainingException() {
+        when(groupTrainingsDAO.findFirstByGroupTrainingId(anyString())).thenReturn(null);
 
-        //before
-        String id = "507f1f77bcf86cd799439011";
-        String trainingId = "122ed953-e37f-435a-bd1e-9fb2a327c4d3";
-        String trainingTypeId = "222ed952-es7f-435a-bd1e-9fb2a327c4dk";
-        LocalDateTime trainingStartDate = LocalDateTime.of(2021, 7, 1, 18, 0);
-        LocalDateTime trainingEndDate = LocalDateTime.of(2021, 7, 1, 19, 0);
-        LocationDocument location = new LocationDocument();
-        location.setId("507f1f77bcf86cd799439019");
-        location.setLocationId("xdded952-es7f-435a-bd1e-9fb2a327c4dk");
-        location.setName("Location 1");
-        int limit = 15;
-
-        List<UserDocument> trainersDocuments = new ArrayList<>();
-        String trainer1Name = "John";
-        String trainer1Surname = "Smith";
-        String trainer1Email = "sample@trainer.com";
-        String trainer1PhoneNumber = "666222333";
-        String trainer1EncryptedPassword = "encrypted_password123!";
-        String trainer1UserId = "100ed952-es7f-435a-bd1e-9fb2a327c4dk";
-        UserDocument trainer1Document = new UserDocument(
-                trainer1Name,
-                trainer1Surname,
-                trainer1Email,
-                trainer1PhoneNumber,
-                trainer1EncryptedPassword,
-                trainer1UserId);
-        trainer1Document.setId("507f191e810c19729de860ea");
-        trainersDocuments.add(trainer1Document);
-
-        List<UserDocument> participantDocuments = new ArrayList<>();
-        List<UserDocument> reserveListDocuments = new ArrayList<>();
-
-        String trainingName = "Test Training";
-        String trainingDescription = "Sample description";
-        LocalTime trainingDuration = LocalTime.of(1, 0, 0, 0);
-        TrainingTypeDocument trainingType = new TrainingTypeDocument(trainingTypeId, trainingName, trainingDescription,
-                trainingDuration, null);
-
-        GroupTrainingDocument groupTraining = new GroupTrainingDocument(trainingId, trainingType, trainersDocuments,
-                trainingStartDate, trainingEndDate, location, limit, participantDocuments, reserveListDocuments);
-        groupTraining.setId(id);
-
-        double rating = 0.0;
-
-        List<UserResponse> trainersResponse = new ArrayList<>();
-        UserResponse trainer1Response = new UserResponse(trainer1UserId, trainer1Name, trainer1Surname);
-        trainersResponse.add(trainer1Response);
-
-        List<UserResponse> participantsResponses = new ArrayList<>();
-        List<UserResponse> reserveListResponses = new ArrayList<>();
-        GroupTrainingResponseOld groupTrainingResponse = new GroupTrainingResponseOld(trainingId, trainingName,
-                trainersResponse, trainingStartDate, trainingEndDate, location.getName(), limit, rating, participantsResponses,
-                reserveListResponses);
-
-        //when
-        when(groupTrainingsDAO.findFirstByGroupTrainingId(trainingId)).thenReturn(groupTraining);
-
-        //then
-        //TODO
-        //assertThat(groupTrainingService.removeGroupTraining(trainingId)).isEqualTo(groupTrainingResponse);
+        assertThatThrownBy(
+                () -> managerGroupTrainingService.removeGroupTraining(groupTrainingId)
+        ).isInstanceOf(NotExistingGroupTrainingException.class);
     }
 
-    @Ignore
-    @Test(expected = TrainingRemovalException.class)
-    public void shouldNotRemoveGroupTraining_whenInvalidTrainingId()
-            throws InvalidDateException, InvalidHourException {
+    @Test
+    void shouldRemoveGroupTraining() throws NotExistingGroupTrainingException {
+        when(groupTrainingsDAO.findFirstByGroupTrainingId(anyString()))
+                .thenReturn(getGroupTrainingDocument());
 
-        //before
-        String id = "507f1f77bcf86cd799439011";
-        String trainingId = "122ed953-e37f-435a-bd1e-9fb2a327c4d3";
-        String trainingTypeId = "222ed952-es7f-435a-bd1e-9fb2a327c4dk";
-        String trainerId = "100ed952-es7f-435a-bd1e-9fb2a327c4dk";
-        List<String> trainersIds = new ArrayList<>();
-        trainersIds.add(trainerId);
-        LocalDateTime trainingStartDate = LocalDateTime.of(2021, 7, 1, 18, 0);
-        LocalDateTime trainingEndDate = LocalDateTime.of(2021, 7, 1, 19, 0);
-        LocationDocument location = new LocationDocument();
-        location.setId("507f1f77bcf86cd799439019");
-        location.setLocationId("xdded952-es7f-435a-bd1e-9fb2a327c4dk");
-        location.setName("Location 1");
-        int limit = 15;
+        GroupTrainingDTO groupTrainingDTO = getExpectedGroupTrainingDTO();
 
-        List<String> participants = new ArrayList<>();
-        List<String> reserveList = new ArrayList<>();
-        /*GroupTrainingRequest groupTrainingRequest = new GroupTrainingRequest(trainingTypeId, trainersIds, date, startTime,
-                endTime, hallNo, limit, participants, reserveList);*/
+        assertThat(managerGroupTrainingService.removeGroupTraining("bcbc63a7-1208-42af-b1a2-134a82fb5233"))
+                .isEqualTo(groupTrainingDTO);
+    }
 
-        String trainingName = "Test Training";
-        String trainingDescription = "Sample description";
-        LocalTime trainingDuration = LocalTime.of(1, 0, 0, 0);
-        TrainingTypeDocument trainingType = new TrainingTypeDocument(trainingTypeId, trainingName, trainingDescription,
-                trainingDuration, null);
+    private GroupTrainingDocument getGroupTrainingDocument() {
+        return new GroupTrainingDocument(
+                "bcbc63a7-1208-42af-b1a2-134a82fb5233",
+                getTestTrainingTypeDocument(),
+                List.of(getTestTrainer1(), getTestTrainer2()),
+                LocalDateTime.parse("2021-07-10T20:00"),
+                LocalDateTime.parse("2021-07-10T21:00"),
+                getTestLocationDocument(),
+                10,
+                List.of(getTestUserDocument1()),
+                List.of(getTestUserDocument2())
+        );
+    }
 
-        List<UserDocument> trainersDocuments = new ArrayList<>();
-        String trainer1Name = "John";
-        String trainer1Surname = "Smith";
-        String trainer1Email = "sample@trainer.com";
-        String trainer1PhoneNumber = "666222333";
-        String trainer1EncryptedPassword = "encrypted_password123!";
-        String trainer1UserId = "100ed952-es7f-435a-bd1e-9fb2a327c4dk";
-        UserDocument trainer1Document = new UserDocument(
-                trainer1Name,
-                trainer1Surname,
-                trainer1Email,
-                trainer1PhoneNumber,
-                trainer1EncryptedPassword,
-                trainer1UserId);
-        trainer1Document.setId("507f191e810c19729de860ea");
-        trainersDocuments.add(trainer1Document);
+    private TrainingTypeDocument getTestTrainingTypeDocument() {
+        return new TrainingTypeDocument(
+                "122ed953-e37f-435a-bd1e-9fb2a327c4d3",
+                "TestTraining",
+                "TestDescription",
+                null,
+                null
+        );
+    }
 
-        List<UserDocument> participantDocuments = new ArrayList<>();
-        List<UserDocument> reserveListDocuments = new ArrayList<>();
-        /*GroupTrainings groupTraining = new GroupTrainings(trainingId, trainingType, trainersDocuments,
-                date, startTime, endTime, hallNo, limit, participantDocuments, reserveListDocuments);
-        groupTraining.setId(id);*/
+    private UserDocument getTestTrainer1() {
+        var user = new UserDocument();
+        user.setName("TestTrainerName1");
+        user.setSurname("TestTrainerSurname1");
+        user.setUserId("100ed952-es7f-435a-bd1e-9fb2a327c4dk");
+        user.setGymRoles(List.of(GymRole.USER, GymRole.TRAINER));
+        return user;
+    }
 
-        double rating = 0.0;
+    private UserDocument getTestTrainer2() {
+        var user = new UserDocument();
+        user.setName("TestTrainerName2");
+        user.setSurname("TestTrainerSurname2");
+        user.setUserId("501692e9-2a79-46bb-ac62-55f980581bad");
+        user.setGymRoles(List.of(GymRole.USER, GymRole.TRAINER));
+        return user;
+    }
 
-        List<UserResponse> trainersResponse = new ArrayList<>();
-        UserResponse trainer1Response = new UserResponse(trainer1UserId, trainer1Name, trainer1Surname);
-        trainersResponse.add(trainer1Response);
+    private LocationDocument getTestLocationDocument() {
+        return new LocationDocument(UUID.randomUUID().toString(), "TestLocation");
+    }
 
-        List<UserResponse> participantsResponses = new ArrayList<>();
-        List<UserResponse> reserveListResponses = new ArrayList<>();
-        /*GroupTrainingResponse groupTrainingResponse = new GroupTrainingResponse(trainingId, trainingName,
-                trainersResponse, date, startTime, endTime, hallNo, limit, rating, participantsResponses,
-                reserveListResponses);*/
+    private UserDocument getTestUserDocument1() {
+        var user = new UserDocument();
+        user.setName("TestName1");
+        user.setSurname("TestSurname1");
+        user.setUserId("100ed952-es7f-435a-bd1e-9fb2a327c4dk");
+        user.setGymRoles(List.of(GymRole.USER));
+        return user;
+    }
 
-        //when
-        /*when(groupTrainingsRepository.findFirstByTrainingId(trainingId)).thenReturn(groupTraining);*/
+    private UserDocument getTestUserDocument2() {
+        var user = new UserDocument();
+        user.setName("TestName2");
+        user.setSurname("TestSurname2");
+        user.setUserId("501692e9-2a79-46bb-ac62-55f980581bad");
+        user.setGymRoles(List.of(GymRole.USER));
+        return user;
+    }
 
-        //then
-        //TODO
-        //groupTrainingService.removeGroupTraining(trainingId);
+    private GroupTrainingDTO getExpectedGroupTrainingDTO() {
+        var groupTrainingDto = new GroupTrainingDTO();
+        groupTrainingDto.setGroupTrainingId("bcbc63a7-1208-42af-b1a2-134a82fb5233");
+        groupTrainingDto.setTitle("TestTraining");
+        groupTrainingDto.setStartDate("2021-07-10T20:00");
+        groupTrainingDto.setEndDate("2021-07-10T21:00");
+        groupTrainingDto.setLocation("TestLocation");
+        groupTrainingDto.setTrainers(List.of(getTestTrainer1DTO(), getTestTrainer2DTO()));
+        groupTrainingDto.setBasicList(List.of(getTestUserDocument1DTO()));
+        groupTrainingDto.setReserveList(List.of(getTestUserDocument2DTO()));
+
+        return groupTrainingDto;
+    }
+
+    private BasicUserInfoDTO getTestTrainer1DTO() {
+        return new BasicUserInfoDTO(
+                "100ed952-es7f-435a-bd1e-9fb2a327c4dk",
+                "TestTrainerName1",
+                "TestTrainerSurname1",
+                null
+        );
+    }
+
+    private BasicUserInfoDTO getTestTrainer2DTO() {
+        return new BasicUserInfoDTO(
+                "501692e9-2a79-46bb-ac62-55f980581bad",
+                "TestTrainerName2",
+                "TestTrainerSurname2",
+                null
+        );
+    }
+
+    private BasicUserInfoDTO getTestUserDocument1DTO() {
+        return new BasicUserInfoDTO(
+                "100ed952-es7f-435a-bd1e-9fb2a327c4dk",
+                "TestName1",
+                "TestSurname1",
+                null
+        );
+    }
+
+    private BasicUserInfoDTO getTestUserDocument2DTO() {
+        return new BasicUserInfoDTO(
+                "501692e9-2a79-46bb-ac62-55f980581bad",
+                "TestName2",
+                "TestSurname2",
+                null
+        );
     }
 }

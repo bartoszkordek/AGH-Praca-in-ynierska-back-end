@@ -1,13 +1,14 @@
 package com.healthy.gym.trainings.service.group.training;
 
-import com.healthy.gym.trainings.component.EmailSender;
 import com.healthy.gym.trainings.data.document.GroupTrainingDocument;
 import com.healthy.gym.trainings.data.document.LocationDocument;
 import com.healthy.gym.trainings.data.document.TrainingTypeDocument;
 import com.healthy.gym.trainings.data.document.UserDocument;
-import com.healthy.gym.trainings.data.repository.*;
+import com.healthy.gym.trainings.data.repository.GroupTrainingsDAO;
+import com.healthy.gym.trainings.data.repository.LocationDAO;
+import com.healthy.gym.trainings.data.repository.TrainingTypeDAO;
+import com.healthy.gym.trainings.data.repository.UserDAO;
 import com.healthy.gym.trainings.enums.GymRole;
-import com.healthy.gym.trainings.exception.EmailSendingException;
 import com.healthy.gym.trainings.exception.PastDateException;
 import com.healthy.gym.trainings.exception.StartDateAfterEndDateException;
 import com.healthy.gym.trainings.exception.notexisting.NotExistingGroupTrainingException;
@@ -155,14 +156,14 @@ public class ManagerGroupTrainingServiceImpl implements ManagerGroupTrainingServ
     public GroupTrainingDTO updateGroupTraining(
             final String trainingId,
             final ManagerGroupTrainingRequest groupTrainingRequest
-    ) throws TrainingTypeNotFoundException,
-            NotExistingGroupTrainingException,
-            TrainerNotFoundException,
-            LocationNotFoundException,
+    ) throws LocationNotFoundException,
             LocationOccupiedException,
-            TrainerOccupiedException,
+            NotExistingGroupTrainingException,
             PastDateException,
-            StartDateAfterEndDateException {
+            StartDateAfterEndDateException,
+            TrainerNotFoundException,
+            TrainerOccupiedException,
+            TrainingTypeNotFoundException {
 
         GroupTrainingDocument groupTraining = groupTrainingsDAO.findFirstByGroupTrainingId(trainingId);
         if (groupTraining == null) throw new NotExistingGroupTrainingException();
@@ -183,10 +184,18 @@ public class ManagerGroupTrainingServiceImpl implements ManagerGroupTrainingServ
         //TODO add validation TrainerOccupiedException
 
         GroupTrainingDocument groupTrainingSaved = groupTrainingsDAO.save(groupTrainingUpdated);
-        List<String> emails = getAllEmails(groupTrainingSaved);
-        //TODO send emails to all participants about changes
+
+        sendEmails(groupTrainingSaved);
 
         return mapToGroupTrainingsDocumentsToDTOs(groupTrainingSaved);
+    }
+
+    private void sendEmails(GroupTrainingDocument groupTraining) {
+        LocalDateTime endDate = groupTraining.getEndDate();
+        if (endDate.isAfter(LocalDateTime.now(clock))) return;
+
+        List<String> emails = getAllEmails(groupTraining);
+        //TODO send emails to all participants about changes
     }
 
     private List<String> getAllEmails(GroupTrainingDocument groupTraining) {
@@ -208,8 +217,7 @@ public class ManagerGroupTrainingServiceImpl implements ManagerGroupTrainingServ
         if (groupTrainingToDelete == null) throw new NotExistingGroupTrainingException();
         groupTrainingsDAO.delete(groupTrainingToDelete);
 
-        List<String> emails = getAllEmails(groupTrainingToDelete);
-        //TODO send emails to all participants about changes
+        sendEmails(groupTrainingToDelete);
 
         return mapToGroupTrainingsDocumentsToDTOs(groupTrainingToDelete);
     }

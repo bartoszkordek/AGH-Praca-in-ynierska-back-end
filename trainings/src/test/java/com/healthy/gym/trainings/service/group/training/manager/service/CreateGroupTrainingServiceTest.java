@@ -47,7 +47,6 @@ class CreateGroupTrainingServiceTest {
     private LocationDAO locationDAO;
     private UserDAO userDAO;
 
-    private GroupTrainingDocumentUpdater groupTrainingDocumentUpdater;
     private ManagerGroupTrainingRequest createGroupTrainingRequest;
     private ManagerGroupTrainingService managerGroupTrainingService;
 
@@ -59,16 +58,14 @@ class CreateGroupTrainingServiceTest {
         userDAO = mock(UserDAO.class);
         Clock clock = Clock.fixed(Instant.parse("2021-07-10T18:00:00.00Z"), ZoneId.of("Europe/Warsaw"));
 
-        groupTrainingDocumentUpdater = mock(GroupTrainingDocumentUpdater.class);
+        GroupTrainingDocumentUpdater groupTrainingDocumentUpdater = mock(GroupTrainingDocumentUpdater.class);
         createGroupTrainingRequest = getCreateGroupTrainingRequest();
         managerGroupTrainingService = new ManagerGroupTrainingServiceImpl(
                 groupTrainingsDAO,
                 trainingTypeDAO,
                 locationDAO,
                 userDAO,
-                null,
                 clock,
-                null,
                 groupTrainingDocumentUpdater
         );
     }

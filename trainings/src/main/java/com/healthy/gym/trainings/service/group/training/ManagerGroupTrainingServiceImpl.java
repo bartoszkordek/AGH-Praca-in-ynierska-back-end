@@ -18,7 +18,6 @@ import com.healthy.gym.trainings.exception.occupied.TrainerOccupiedException;
 import com.healthy.gym.trainings.exception.training.TrainingUpdateException;
 import com.healthy.gym.trainings.model.request.CreateGroupTrainingRequest;
 import com.healthy.gym.trainings.model.request.GroupTrainingRequest;
-import com.healthy.gym.trainings.model.response.GroupTrainingResponseOld;
 import com.healthy.gym.trainings.model.response.UserResponse;
 import com.healthy.gym.trainings.shared.GroupTrainingDTO;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -124,7 +123,7 @@ public class ManagerGroupTrainingServiceImpl implements ManagerGroupTrainingServ
 
 
     @Override
-    public GroupTrainingResponseOld updateGroupTraining(
+    public GroupTrainingDTO updateGroupTraining(
             String trainingId,
             GroupTrainingRequest groupTrainingModelRequest
     ) throws TrainingUpdateException,
@@ -201,21 +200,24 @@ public class ManagerGroupTrainingServiceImpl implements ManagerGroupTrainingServ
             throw new EmailSendingException("Cannot send email");
         }
 
-        return new GroupTrainingResponseOld(
-                null, //TODO fix groupTrainings1.getTrainingId(),
-                null, //TODO fix groupTrainings1.getTrainingType().getName(),
-                null, //TODO fix groupTrainings1.getTrainerId(),
-                null, //TODO fix groupTrainings1.getStartDate(),
-                null, //TODO fix groupTrainings1.getEndTime(),
-                null, //TODO fix groupTrainings1.getHallNo(),
-                groupTrainings1.getLimit(),
-                INITIAL_RATING,
-                participantsResponses,
-                reserveListResponses);
+        //todo fix
+        return new GroupTrainingDTO();
+
+//        return new GroupTrainingResponseOld(
+//                null, //TODO fix groupTrainings1.getTrainingId(),
+//                null, //TODO fix groupTrainings1.getTrainingType().getName(),
+//                null, //TODO fix groupTrainings1.getTrainerId(),
+//                null, //TODO fix groupTrainings1.getStartDate(),
+//                null, //TODO fix groupTrainings1.getEndTime(),
+//                null, //TODO fix groupTrainings1.getHallNo(),
+//                groupTrainings1.getLimit(),
+//                INITIAL_RATING,
+//                participantsResponses,
+//                reserveListResponses);
     }
 
     @Override
-    public GroupTrainingResponseOld removeGroupTraining(String trainingId)
+    public GroupTrainingDTO removeGroupTraining(String trainingId)
             throws EmailSendingException, InvalidDateException, InvalidHourException, NotExistingGroupTrainingException {
 
         GroupTrainings repositoryResponse = groupTrainingsRepository.findFirstByTrainingId(trainingId);
@@ -251,16 +253,19 @@ public class ManagerGroupTrainingServiceImpl implements ManagerGroupTrainingServ
             throw new EmailSendingException("Cannot send email");
         }
 
-        return new GroupTrainingResponseOld(
-                null, //TODO fix groupTrainings1.getTrainingId(),
-                null, //TODO fix groupTrainings1.getTrainingType().getName(),
-                null, //TODO fix groupTrainings1.getTrainerId(),
-                null, //TODO fix groupTrainings1.getStartDate(),
-                null, //TODO fix groupTrainings1.getEndTime(),
-                null, //TODO fix groupTrainings1.getHallNo(),
-                repositoryResponse.getLimit(),
-                INITIAL_RATING,
-                participantsResponses,
-                reserveListResponses);
+        //todo fix
+        return new GroupTrainingDTO();
+
+//        return new GroupTrainingResponseOld(
+//                null, //TODO fix groupTrainings1.getTrainingId(),
+//                null, //TODO fix groupTrainings1.getTrainingType().getName(),
+//                null, //TODO fix groupTrainings1.getTrainerId(),
+//                null, //TODO fix groupTrainings1.getStartDate(),
+//                null, //TODO fix groupTrainings1.getEndTime(),
+//                null, //TODO fix groupTrainings1.getHallNo(),
+//                repositoryResponse.getLimit(),
+//                INITIAL_RATING,
+//                participantsResponses,
+//                reserveListResponses);
     }
 }

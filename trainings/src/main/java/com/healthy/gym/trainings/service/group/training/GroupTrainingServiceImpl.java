@@ -144,7 +144,7 @@ public class GroupTrainingServiceImpl implements GroupTrainingService {
         for (GroupTrainingDocument groupTrainingDocument : groupTrainingDocuments) {
 
             GroupTrainingResponse groupTraining = new GroupTrainingResponse(
-                    groupTrainingDocument.getId(),
+                    groupTrainingDocument.getGroupTrainingId(),
                     groupTrainingDocument.getTraining().getName(),
                     null, //TODO fix training.getTrainerId(),
                     groupTrainingDocument.getStartDate(),
@@ -172,7 +172,7 @@ public class GroupTrainingServiceImpl implements GroupTrainingService {
 
             publicResponse.add(
                     new GroupTrainingPublicResponse(
-                            groupTrainingDocument.getId(),
+                            groupTrainingDocument.getGroupTrainingId(),
                             groupTrainingDocument.getTraining().getName(),
                             null, //TODO fix groupTraining.getTrainerId(),
                             groupTrainingDocument.getStartDate(),
@@ -198,7 +198,7 @@ public class GroupTrainingServiceImpl implements GroupTrainingService {
         GroupTrainingDocument groupTrainingDocument = groupTrainingsDAO.findFirstByGroupTrainingId(trainingId);
 
         return new GroupTrainingResponse(
-                groupTrainingDocument.getId(),
+                groupTrainingDocument.getGroupTrainingId(),
                 groupTrainingDocument.getTraining().getName(),
                 null, //TODO fix groupTrainingsDbResponse.getTrainerId(),
                 groupTrainingDocument.getStartDate(),
@@ -233,7 +233,7 @@ public class GroupTrainingServiceImpl implements GroupTrainingService {
         for (GroupTrainingDocument groupTrainingDocument : groupTrainingsList) {
 
             GroupTrainingResponse groupTraining = new GroupTrainingResponse(
-                    groupTrainingDocument.getId(),
+                    groupTrainingDocument.getGroupTrainingId(),
                     groupTrainingDocument.getTraining().getName(),
                     null, //TODO fix training.getTrainerId(),
                     groupTrainingDocument.getStartDate(),
@@ -274,7 +274,7 @@ public class GroupTrainingServiceImpl implements GroupTrainingService {
         List<GroupTrainingPublicResponse> result = new ArrayList<>();
         for (GroupTrainingDocument groupTrainingDocument : groupTrainingsList) {
             GroupTrainingPublicResponse groupTraining = new GroupTrainingPublicResponse(
-                    groupTrainingDocument.getId(),
+                    groupTrainingDocument.getGroupTrainingId(),
                     groupTrainingDocument.getTraining().getName(),
                     null, //TODO fix training.getTrainerId(),
                     groupTrainingDocument.getStartDate(),

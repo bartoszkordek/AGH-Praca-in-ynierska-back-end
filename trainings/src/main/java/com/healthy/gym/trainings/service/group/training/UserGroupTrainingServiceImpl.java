@@ -9,8 +9,10 @@ import com.healthy.gym.trainings.exception.invalid.InvalidHourException;
 import com.healthy.gym.trainings.exception.notexisting.NotExistingGroupTrainingException;
 import com.healthy.gym.trainings.exception.notfound.UserNotFoundException;
 import com.healthy.gym.trainings.exception.training.TrainingEnrollmentException;
+import com.healthy.gym.trainings.model.response.GroupTrainingEnrollmentResponse;
 import com.healthy.gym.trainings.model.response.GroupTrainingPublicResponse;
 import com.healthy.gym.trainings.model.response.GroupTrainingReviewResponse;
+import com.healthy.gym.trainings.model.response.UserResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -98,8 +100,8 @@ public class UserGroupTrainingServiceImpl implements UserGroupTrainingService {
     }
 
     @Override
-    public void enrollToGroupTraining(String trainingId, String clientId)
-            throws TrainingEnrollmentException, NotExistingGroupTrainingException, UserNotFoundException {
+    public GroupTrainingEnrollmentResponse enrollToGroupTraining(String trainingId, String clientId)
+            throws TrainingEnrollmentException, NotExistingGroupTrainingException, UserNotFoundException, InvalidHourException, InvalidDateException {
 
         GroupTrainingDocument groupTraining = groupTrainingsDAO.findFirstByGroupTrainingId(trainingId);
         if (groupTraining == null) throw new NotExistingGroupTrainingException();
@@ -118,6 +120,9 @@ public class UserGroupTrainingServiceImpl implements UserGroupTrainingService {
         if (isClientAlreadyEnrolledToGroupTraining(groupTraining, clientId))
             throw new TrainingEnrollmentException("Client is already enrolled to this training");
 
+        List<UserDocument> trainersDocuments = groupTraining.getTrainers();
+        List<UserResponse> trainersResponse = mapUserResponse(trainersDocuments);
+
         List<UserDocument> participants = groupTraining.getBasicList();
         participants.add(newParticipant);
         groupTraining.setBasicList(participants);
@@ -127,6 +132,15 @@ public class UserGroupTrainingServiceImpl implements UserGroupTrainingService {
         // to jest po to żeby usunął go z listy rezerwowej jak już się zapisze na listę postawową
         if (isClientAlreadyExistInReserveList(groupTraining, clientId))
             removeFromReserveList(trainingId, clientId);
+
+        return new GroupTrainingEnrollmentResponse(
+                groupTraining.getGroupTrainingId(),
+                groupTraining.getTraining().getName(),
+                trainersResponse,
+                groupTraining.getStartDate(),
+                groupTraining.getEndDate(),
+                groupTraining.getLocation().getName()
+        );
     }
 
     @Override
@@ -187,6 +201,19 @@ public class UserGroupTrainingServiceImpl implements UserGroupTrainingService {
         }
 
         if (clientIsInReserveList) removeFromReserveList(trainingId, clientId);
+    }
+
+    private List<UserResponse> mapUserResponse(List<UserDocument> documents){
+        List<UserResponse> userResponses = new ArrayList<>();
+        for(UserDocument document : documents){
+            UserResponse userResponse = new UserResponse(
+                    document.getUserId(),
+                    document.getName(),
+                    document.getSurname()
+                    );
+            userResponses.add(userResponse);
+        }
+        return userResponses;
     }
 
     private void removeFromReserveList(String trainingId, String clientId) {

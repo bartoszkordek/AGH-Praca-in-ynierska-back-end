@@ -3,10 +3,12 @@ package com.healthy.gym.trainings.controller.group.training;
 import com.healthy.gym.trainings.component.Translator;
 import com.healthy.gym.trainings.exception.training.TrainingEnrollmentException;
 import com.healthy.gym.trainings.exception.notexisting.NotExistingGroupTrainingException;
+import com.healthy.gym.trainings.model.response.GroupTrainingEnrollmentResponse;
 import com.healthy.gym.trainings.model.response.GroupTrainingPublicResponse;
 import com.healthy.gym.trainings.service.group.training.UserGroupTrainingService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
@@ -47,12 +49,16 @@ public class UserGroupTrainingController {
 
     @PreAuthorize("hasRole('ADMIN') or hasRole('EMPLOYEE') or principal==#userId")
     @PostMapping("/{trainingId}/enroll")
-    public void enrollToGroupTraining(
+    public ResponseEntity<GroupTrainingEnrollmentResponse> enrollToGroupTraining(
             @PathVariable("trainingId") final String trainingId,
             @RequestParam("clientId") final String userId
     ) {
         try {
-            userGroupTrainingService.enrollToGroupTraining(trainingId, userId);
+            String message = translator.toLocale("enrollment.success");
+            return ResponseEntity
+                    .status(HttpStatus.OK)
+                    .body(userGroupTrainingService.enrollToGroupTraining(trainingId, userId)
+                    );
 
         } catch (TrainingEnrollmentException e) {
             String reason = translator.toLocale(EXCEPTION_GROUP_TRAINING_ENROLLMENT);

@@ -31,10 +31,7 @@ import org.testcontainers.shaded.com.fasterxml.jackson.databind.ObjectMapper;
 import org.testcontainers.utility.DockerImageName;
 
 import java.net.URI;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 import static com.healthy.gym.trainings.configuration.LocaleConverter.convertEnumToLocale;
 import static com.healthy.gym.trainings.configuration.Messages.getMessagesAccordingToLocale;
@@ -163,7 +160,8 @@ class CreateGroupTrainingIntegrationTest {
 
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.CREATED);
         assertThat(responseEntity.getHeaders().getContentType()).isEqualTo(MediaType.APPLICATION_JSON);
-        assertThat(responseEntity.getBody().get("message").textValue()).isEqualTo(expectedMessage);
+        assertThat(Objects.requireNonNull(responseEntity.getBody()).get("message").textValue())
+                .isEqualTo(expectedMessage);
 
         JsonNode training = responseEntity.getBody().get("training");
         assertThat(training.get("id")).isNotNull();

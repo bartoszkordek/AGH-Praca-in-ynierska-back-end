@@ -56,7 +56,8 @@ public class Messages {
                 {"training.type.removed", "Typ treningu został usunięty."},
                 {"training.type.updated", "Typ treningu został zaktualizowany."},
                 {"enrollment.success.basic.list", "Pomyślnie zapisano się na zajęcia."},
-                {"enrollment.success.reserve.list", "Brak miejsc na liście podstawowej. Zapisano na listę rezerwową."}
+                {"enrollment.success.reserve.list", "Brak miejsc na liście podstawowej. Zapisano na listę rezerwową."},
+                {"enrollment.remove", "Zrezygnowano z uczestnictwa w zajęciach."}
         }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
     }
 
@@ -111,7 +112,8 @@ public class Messages {
                 {"training.type.removed", "Training type has been removed."},
                 {"training.type.updated", "Training type has been updated."},
                 {"enrollment.success.basic.list", "Successfully enrolled to group training."},
-                {"enrollment.success.reserve.list", "Basic list is full. You have been enrolled to reserve list."}
+                {"enrollment.success.reserve.list", "Basic list is full. You have been enrolled to reserve list."},
+                {"enrollment.remove", "Participation in the classes was resigned."}
         }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
     }
 

@@ -77,4 +77,23 @@ public class ParticipantsExtractor {
                 .collect(Collectors.toList());
         return !filteredList.isEmpty();
     }
+
+    public static void removeFromBasicList(GroupTrainingDocument groupTraining, String userId) {
+        List<UserDocument> basicList = groupTraining.getBasicList();
+        List<UserDocument> basicListUpdated = removeFromList(basicList, userId);
+        groupTraining.setBasicList(basicListUpdated);
+    }
+
+    private static List<UserDocument> removeFromList(List<UserDocument> userList, String userId) {
+        return userList
+                .stream()
+                .filter(userDocument -> !userDocument.getUserId().equals(userId))
+                .collect(Collectors.toList());
+    }
+
+    public static void removeFromReserveList(GroupTrainingDocument groupTraining, String userId) {
+        List<UserDocument> reserveList = groupTraining.getReserveList();
+        List<UserDocument> reserveListUpdated = removeFromList(reserveList, userId);
+        groupTraining.setReserveList(reserveListUpdated);
+    }
 }

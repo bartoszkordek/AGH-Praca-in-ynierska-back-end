@@ -195,4 +195,124 @@ class ParticipantsExtractorTest {
             assertThat(userIsInBasicList(groupTrainingDTO, userId)).isFalse();
         }
     }
+
+    @Nested
+    class WhenRemoveFromList {
+        private GroupTrainingDocument groupTraining;
+
+        @BeforeEach
+        void setUp() {
+            groupTraining = new GroupTrainingDocument();
+        }
+
+        private UserDocument getTestUserDocument() {
+            return getTestUserDocument(UUID.randomUUID().toString());
+        }
+
+        private UserDocument getTestUserDocument(String userId) {
+            var user = new UserDocument();
+            user.setUserId(userId);
+            return user;
+        }
+
+        private List<UserDocument> getListWithUser(String userId) {
+            return List.of(
+                    getTestUserDocument(),
+                    getTestUserDocument(),
+                    getTestUserDocument(userId)
+            );
+        }
+
+        private List<UserDocument> getListWithoutUser() {
+            return List.of(
+                    getTestUserDocument(),
+                    getTestUserDocument(),
+                    getTestUserDocument()
+            );
+        }
+
+        @Nested
+        class WhenRemoveFromBasicList {
+            @Test
+            void shouldRemoveFromBasicListWhenPresent() {
+                String userId = UUID.randomUUID().toString();
+                List<UserDocument> basicList = getListWithUser(userId);
+                groupTraining.setBasicList(basicList);
+                UserDocument user = getTestUserDocument(userId);
+
+                removeFromBasicList(groupTraining, userId);
+
+                assertThat(groupTraining.getBasicList().contains(user)).isFalse();
+                assertThat(groupTraining.getBasicList()).isNotEqualTo(basicList);
+            }
+
+            @Test
+            void shouldChangeBasicListWhenInvalidIdProvided() {
+                String userId = UUID.randomUUID().toString();
+                List<UserDocument> basicList = getListWithoutUser();
+                groupTraining.setBasicList(basicList);
+                UserDocument user = getTestUserDocument(userId);
+
+                removeFromBasicList(groupTraining, userId);
+
+                assertThat(groupTraining.getBasicList().contains(user)).isFalse();
+                assertThat(groupTraining.getBasicList()).isEqualTo(basicList);
+            }
+
+            @Test
+            void shouldChangeBasicListWhenNullIdProvided() {
+                List<UserDocument> basicList = getListWithoutUser();
+                groupTraining.setBasicList(basicList);
+                UserDocument user = getTestUserDocument(null);
+
+                removeFromBasicList(groupTraining, null);
+
+                assertThat(groupTraining.getBasicList().contains(user)).isFalse();
+                assertThat(groupTraining.getBasicList()).isEqualTo(basicList);
+            }
+        }
+
+        @Nested
+        class WhenRemoveFromReserveList {
+            @Test
+            void shouldRemoveFromBasicListWhenPresent() {
+                String userId = UUID.randomUUID().toString();
+                List<UserDocument> reserveList = getListWithUser(userId);
+                groupTraining.setReserveList(reserveList);
+                UserDocument user = getTestUserDocument(userId);
+
+                removeFromReserveList(groupTraining, userId);
+
+                assertThat(groupTraining.getReserveList().contains(user)).isFalse();
+                assertThat(groupTraining.getReserveList()).isNotEqualTo(reserveList);
+            }
+
+            @Test
+            void shouldChangeBasicListWhenInvalidIdProvided() {
+                String userId = UUID.randomUUID().toString();
+                List<UserDocument> reserveList = getListWithoutUser();
+                groupTraining.setReserveList(reserveList);
+                UserDocument user = getTestUserDocument(userId);
+
+                removeFromReserveList(groupTraining, userId);
+
+                assertThat(groupTraining.getReserveList().contains(user)).isFalse();
+                assertThat(groupTraining.getReserveList()).isEqualTo(reserveList);
+            }
+
+            @Test
+            void shouldChangeBasicListWhenNullIdProvided() {
+                List<UserDocument> reserveList = getListWithoutUser();
+                groupTraining.setReserveList(reserveList);
+                UserDocument user = getTestUserDocument(null);
+
+                removeFromReserveList(groupTraining, null);
+
+                assertThat(groupTraining.getReserveList().contains(user)).isFalse();
+                assertThat(groupTraining.getReserveList()).isEqualTo(reserveList);
+            }
+        }
+    }
+
+
 }

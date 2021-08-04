@@ -1,9 +1,11 @@
 package com.healthy.gym.trainings.utils;
 
 import com.healthy.gym.trainings.data.document.GroupTrainingDocument;
-import com.healthy.gym.trainings.data.document.GroupTrainings;
 import com.healthy.gym.trainings.data.document.UserDocument;
 import com.healthy.gym.trainings.model.response.UserResponse;
+import com.healthy.gym.trainings.shared.BasicUserInfoDTO;
+import com.healthy.gym.trainings.shared.GroupTrainingDTO;
+import com.healthy.gym.trainings.shared.ParticipantsDTO;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
 
@@ -64,5 +66,34 @@ public class ParticipantsExtractor {
                 .findFirst();
 
         return foundUser.isPresent();
+    }
+
+    public static boolean userIsInBasicList(GroupTrainingDTO enrolledTraining, String userId) {
+        ParticipantsDTO participants = enrolledTraining.getParticipants();
+        List<BasicUserInfoDTO> basicList = participants.getBasicList();
+        List<BasicUserInfoDTO> filteredList = basicList
+                .stream()
+                .filter(user -> user.getUserId().equals(userId))
+                .collect(Collectors.toList());
+        return !filteredList.isEmpty();
+    }
+
+    public static void removeFromBasicList(GroupTrainingDocument groupTraining, String userId) {
+        List<UserDocument> basicList = groupTraining.getBasicList();
+        List<UserDocument> basicListUpdated = removeFromList(basicList, userId);
+        groupTraining.setBasicList(basicListUpdated);
+    }
+
+    private static List<UserDocument> removeFromList(List<UserDocument> userList, String userId) {
+        return userList
+                .stream()
+                .filter(userDocument -> !userDocument.getUserId().equals(userId))
+                .collect(Collectors.toList());
+    }
+
+    public static void removeFromReserveList(GroupTrainingDocument groupTraining, String userId) {
+        List<UserDocument> reserveList = groupTraining.getReserveList();
+        List<UserDocument> reserveListUpdated = removeFromList(reserveList, userId);
+        groupTraining.setReserveList(reserveListUpdated);
     }
 }

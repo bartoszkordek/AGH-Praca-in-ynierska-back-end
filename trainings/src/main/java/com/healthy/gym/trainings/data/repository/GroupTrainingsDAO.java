@@ -18,5 +18,6 @@ public interface GroupTrainingsDAO extends MongoRepository<GroupTrainingDocument
     List<GroupTrainingDocument> findByTrainingAndStartDateAfterAndEndDateBefore(TrainingTypeDocument training,
                                                                                 LocalDateTime startDate,
                                                                                 LocalDateTime endDate);
+
     List<GroupTrainingDocument> findByBasicListContains(UserDocument user);
 }

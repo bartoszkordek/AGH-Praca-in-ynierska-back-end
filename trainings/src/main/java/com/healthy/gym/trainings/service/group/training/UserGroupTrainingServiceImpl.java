@@ -1,53 +1,53 @@
 package com.healthy.gym.trainings.service.group.training;
 
 import com.healthy.gym.trainings.data.document.GroupTrainingDocument;
-import com.healthy.gym.trainings.data.document.GroupTrainings;
 import com.healthy.gym.trainings.data.document.UserDocument;
-import com.healthy.gym.trainings.data.repository.*;
+import com.healthy.gym.trainings.data.repository.GroupTrainingsDAO;
+import com.healthy.gym.trainings.data.repository.ReviewDAO;
+import com.healthy.gym.trainings.data.repository.UserDAO;
+import com.healthy.gym.trainings.exception.PastDateException;
+import com.healthy.gym.trainings.exception.UserAlreadyEnrolledToTrainingException;
 import com.healthy.gym.trainings.exception.invalid.InvalidDateException;
 import com.healthy.gym.trainings.exception.invalid.InvalidHourException;
 import com.healthy.gym.trainings.exception.notexisting.NotExistingGroupTrainingException;
 import com.healthy.gym.trainings.exception.notfound.UserNotFoundException;
 import com.healthy.gym.trainings.exception.training.TrainingEnrollmentException;
-import com.healthy.gym.trainings.shared.GroupTrainingEnrollmentDTO;
 import com.healthy.gym.trainings.model.response.GroupTrainingPublicResponse;
 import com.healthy.gym.trainings.model.response.GroupTrainingReviewResponse;
-import com.healthy.gym.trainings.model.response.UserResponse;
+import com.healthy.gym.trainings.shared.GroupTrainingDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.time.Clock;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.healthy.gym.trainings.utils.ParticipantsExtractor.isClientAlreadyEnrolledToGroupTraining;
-import static com.healthy.gym.trainings.utils.ParticipantsExtractor.isClientAlreadyExistInReserveList;
+import static com.healthy.gym.trainings.utils.GroupTrainingMapper.mapToGroupTrainingsDocumentsToDTOs;
+import static com.healthy.gym.trainings.utils.ParticipantsExtractor.*;
 
 @Service
 public class UserGroupTrainingServiceImpl implements UserGroupTrainingService {
 
-    private final GroupTrainingsDbRepositoryImpl groupTrainingsDbRepositoryImpl;
-    private final GroupTrainingsRepository groupTrainingsRepository;
     private final GroupTrainingsDAO groupTrainingsDAO;
     private final UserDAO userRepository;
-    private final Pageable paging;
     private final ReviewDAO groupTrainingsReviewsRepository;
+    private final Clock clock;
+    private final Pageable paging;
 
     @Autowired
     public UserGroupTrainingServiceImpl(
-            GroupTrainingsDbRepositoryImpl groupTrainingsDbRepositoryImpl,
-            GroupTrainingsRepository groupTrainingsRepository,
             GroupTrainingsDAO groupTrainingsDAO,
             UserDAO userRepository,
-            ReviewDAO groupTrainingsReviewsRepository
+            ReviewDAO groupTrainingsReviewsRepository,
+            Clock clock
     ) {
-        this.groupTrainingsDbRepositoryImpl = groupTrainingsDbRepositoryImpl;
-        this.groupTrainingsRepository = groupTrainingsRepository;
         this.groupTrainingsDAO = groupTrainingsDAO;
         this.userRepository = userRepository;
         this.groupTrainingsReviewsRepository = groupTrainingsReviewsRepository;
+        this.clock = clock;
         this.paging = PageRequest.of(0, 1000000);
     }
 
@@ -100,128 +100,72 @@ public class UserGroupTrainingServiceImpl implements UserGroupTrainingService {
     }
 
     @Override
-    public GroupTrainingEnrollmentDTO enrollToGroupTraining(String trainingId, String clientId)
-            throws TrainingEnrollmentException, NotExistingGroupTrainingException, UserNotFoundException, InvalidHourException, InvalidDateException {
+    public GroupTrainingDTO enrollToGroupTraining(String trainingId, String userId)
+            throws NotExistingGroupTrainingException, PastDateException,
+            UserAlreadyEnrolledToTrainingException, UserNotFoundException {
 
+        GroupTrainingDocument groupTraining = getAndCheckGroupTraining(trainingId);
+        UserDocument user = getAndCheckUser(userId);
+        validateTime(groupTraining);
+
+        boolean userIsInBasicList = isClientAlreadyEnrolledToGroupTraining(groupTraining, userId);
+        boolean userIsInReserveList = isClientAlreadyExistInReserveList(groupTraining, userId);
+        if (userIsInBasicList || userIsInReserveList) throw new UserAlreadyEnrolledToTrainingException();
+
+        if (groupTraining.getBasicList().size() < groupTraining.getLimit()) {
+            enrollToBasicList(groupTraining, user);
+        } else {
+            enrollToReserveList(groupTraining, user);
+        }
+
+        GroupTrainingDocument groupTrainingUpdated = groupTrainingsDAO.save(groupTraining);
+        return mapToGroupTrainingsDocumentsToDTOs(groupTrainingUpdated);
+    }
+
+    private GroupTrainingDocument getAndCheckGroupTraining(String trainingId)
+            throws NotExistingGroupTrainingException {
         GroupTrainingDocument groupTraining = groupTrainingsDAO.findFirstByGroupTrainingId(trainingId);
         if (groupTraining == null) throw new NotExistingGroupTrainingException();
+        return groupTraining;
+    }
 
-        UserDocument newParticipant = userRepository.findByUserId(clientId);
-        if (newParticipant == null) throw new UserNotFoundException();
+    private UserDocument getAndCheckUser(String userId) throws UserNotFoundException {
+        UserDocument user = userRepository.findByUserId(userId);
+        if (user == null) throw new UserNotFoundException();
+        return user;
+    }
 
-        if(groupTraining.getStartDate().isAfter(LocalDateTime.now())){
-            throw new TrainingEnrollmentException("Retro event");
-        }
+    private void validateTime(GroupTrainingDocument groupTraining) throws PastDateException {
+        if (LocalDateTime.now(clock).isAfter(groupTraining.getStartDate())) throw new PastDateException();
+    }
 
-        if(groupTraining.getLimit()<=groupTraining.getBasicList().size()){
-            throw new TrainingEnrollmentException("Full participants list");
-        }
+    private void enrollToBasicList(GroupTrainingDocument groupTraining, UserDocument user) {
+        List<UserDocument> basicUsersList = groupTraining.getBasicList();
+        basicUsersList.add(user);
+    }
 
-        if (isClientAlreadyEnrolledToGroupTraining(groupTraining, clientId))
-            throw new TrainingEnrollmentException("Client is already enrolled to this training");
-
-        List<UserDocument> trainersDocuments = groupTraining.getTrainers();
-        List<UserResponse> trainersResponse = mapUserResponse(trainersDocuments);
-
-        List<UserDocument> participants = groupTraining.getBasicList();
-        participants.add(newParticipant);
-        groupTraining.setBasicList(participants);
-        groupTrainingsDAO.save(groupTraining);
-
-        // TODO nie rozumiem tego kodu poniżej, czemu on tutaj jest?
-        // to jest po to żeby usunął go z listy rezerwowej jak już się zapisze na listę postawową
-        if (isClientAlreadyExistInReserveList(groupTraining, clientId))
-            removeFromReserveList(trainingId, clientId);
-
-        return new GroupTrainingEnrollmentDTO(
-                groupTraining.getGroupTrainingId(),
-                groupTraining.getTraining().getName(),
-                trainersResponse,
-                groupTraining.getStartDate(),
-                groupTraining.getEndDate(),
-                groupTraining.getLocation().getName()
-        );
+    private void enrollToReserveList(GroupTrainingDocument groupTraining, UserDocument user) {
+        List<UserDocument> reserveUsersList = groupTraining.getReserveList();
+        reserveUsersList.add(user);
     }
 
     @Override
-    public void addToReserveList(String trainingId, String clientId)
-            throws NotExistingGroupTrainingException, TrainingEnrollmentException, UserNotFoundException {
+    public GroupTrainingDTO removeGroupTrainingEnrollment(String trainingId, String clientId)
+            throws NotExistingGroupTrainingException, PastDateException,
+            UserNotFoundException, TrainingEnrollmentException {
 
-        GroupTrainingDocument groupTraining = groupTrainingsDAO.findFirstByGroupTrainingId(trainingId);
-        if (groupTraining == null) throw new NotExistingGroupTrainingException();
+        GroupTrainingDocument groupTraining = getAndCheckGroupTraining(trainingId);
+        getAndCheckUser(clientId);
+        validateTime(groupTraining);
 
-        UserDocument newReserveListParticipant = userRepository.findByUserId(clientId);
-        if (newReserveListParticipant == null) throw new UserNotFoundException();
+        boolean userIsInBasicList = isClientAlreadyEnrolledToGroupTraining(groupTraining, clientId);
+        boolean userIsInReserveList = isClientAlreadyExistInReserveList(groupTraining, clientId);
+        if (!userIsInBasicList && !userIsInReserveList) throw new TrainingEnrollmentException();
 
-        if (isClientAlreadyEnrolledToGroupTraining(groupTraining, clientId))
-            throw new TrainingEnrollmentException("Client is already enrolled to this training");
+        if (userIsInBasicList) removeFromBasicList(groupTraining, clientId);
+        if (userIsInReserveList) removeFromReserveList(groupTraining, clientId);
 
-        if (isClientAlreadyExistInReserveList(groupTraining, clientId))
-            throw new TrainingEnrollmentException("Client already exists in reserve list");
-
-        if(groupTraining.getStartDate().isAfter(LocalDateTime.now())){
-            throw new TrainingEnrollmentException("Retro event");
-        }
-
-        if(groupTraining.getLimit()<=groupTraining.getBasicList().size()){
-            throw new TrainingEnrollmentException("Full participants list");
-        }
-
-        List<UserDocument> reserveList = groupTraining.getReserveList();
-        reserveList.add(newReserveListParticipant);
-        groupTraining.setReserveList(reserveList);
-        groupTrainingsDAO.save(groupTraining);
-    }
-
-    @Override
-    public void removeGroupTrainingEnrollment(String trainingId, String clientId)
-            throws NotExistingGroupTrainingException, TrainingEnrollmentException, UserNotFoundException {
-
-        GroupTrainingDocument groupTraining = groupTrainingsDAO.findFirstByGroupTrainingId(trainingId);
-        if (groupTraining == null) throw new NotExistingGroupTrainingException();
-
-        UserDocument participantToRemove = userRepository.findByUserId(clientId);
-        if (participantToRemove == null) throw new UserNotFoundException();
-
-        if(groupTraining.getStartDate().isAfter(LocalDateTime.now())){
-            throw new TrainingEnrollmentException("Retro event");
-        }
-
-        boolean clientIsEnrolled = isClientAlreadyEnrolledToGroupTraining(groupTraining, clientId);
-        boolean clientIsInReserveList = isClientAlreadyExistInReserveList(groupTraining, clientId);
-
-        if (!clientIsEnrolled && !clientIsInReserveList)
-            throw new TrainingEnrollmentException("Client is not enrolled to this training");
-
-        if (clientIsEnrolled) {
-            List<UserDocument> participants = groupTraining.getBasicList();
-            participants.remove(participantToRemove);
-            groupTraining.setBasicList(participants);
-            groupTrainingsDAO.save(groupTraining);
-        }
-
-        if (clientIsInReserveList) removeFromReserveList(trainingId, clientId);
-    }
-
-    private List<UserResponse> mapUserResponse(List<UserDocument> documents){
-        List<UserResponse> userResponses = new ArrayList<>();
-        for(UserDocument document : documents){
-            UserResponse userResponse = new UserResponse(
-                    document.getUserId(),
-                    document.getName(),
-                    document.getSurname()
-                    );
-            userResponses.add(userResponse);
-        }
-        return userResponses;
-    }
-
-    private void removeFromReserveList(String trainingId, String clientId) {
-        GroupTrainings groupTrainings = groupTrainingsRepository.findFirstByTrainingId(trainingId);
-        UserDocument reserveListParticipantToRemove = userRepository.findByUserId(clientId);
-        List<UserDocument> reserveList = groupTrainings.getReserveList();
-        reserveList.remove(reserveListParticipantToRemove);
-        groupTrainings.setReserveList(reserveList);
-        groupTrainingsRepository.save(groupTrainings);
+        GroupTrainingDocument groupTrainingUpdated = groupTrainingsDAO.save(groupTraining);
+        return mapToGroupTrainingsDocumentsToDTOs(groupTrainingUpdated);
     }
 }

@@ -19,6 +19,8 @@ public class Messages {
                 {"exception.duration.format", "Niepoprawny format czasu trwania zajęć."},
                 {"exception.email.sending", "Nie można wysłać maila."},
                 {"exception.group.training.enrollment", "Nie można się zapisać na trening grupowy."},
+                {"exception.group.training.enrollment.remove",
+                        "Nie odnaleziono użytkownika na liście uczestników zajęć grupowych."},
                 {"exception.group.training.remove", "Nie można usunąć istniejącego treningu grupowego."},
                 {"exception.group.training.update", "Nie udało się edytować istniejącego treningu grupowego."},
                 {"exception.group.training.not.found", "Nie znaleziono wskazanego treningu grupowego."},
@@ -29,11 +31,15 @@ public class Messages {
                 {"exception.not.found.training.id", "Blędne id treningu."},
                 {"exception.not.found.training.type.all", "Brak typów treningów do wyświetlenia."},
                 {"exception.not.found.training.type", "Nie znaleziono podanego typu treningu."},
-                {"exception.not.found.user.id", "Błędny numer użytkownika."},
+                {"exception.not.found.user.id", "Nie znaleziono wskazanego użytkownika."},
                 {"exception.review.stars.out.of.range", "Liczba gwazdek poza zakresem."},
                 {"exception.start.date.after.end.date", "Data rozpoczęcia powinna przypadać przed datą zakończenia."},
                 {"exception.past.date", "Data rozpoczęcia nie może być datą przeszłą."},
+                {"exception.past.date.enrollment", "Nie można się zapisać na zajęcia, które już się odbyły."},
+                {"exception.past.date.enrollment.remove",
+                        "Nie można zrezygnować z uczestnictwa z zajęć grupowych, które już się odbyły."},
                 {"exception.unsupported.data.type", "Błąd. Dopuszczalny format pliku to JPEG lub PNG."},
+                {"exception.user.already.enrolled.to.training", "Użytkownik jest już zapisany na dane zajęcia."},
                 {"field.invalid.date.time.format", "Nieprawidłowy format daty lub czasu."},
                 {"field.name.failure", "Nazwa powinna mieć od 2 do 20 znaków."},
                 {"field.required", "Pole jest wymagane."},
@@ -48,7 +54,10 @@ public class Messages {
                 {"training.type.created", "Nowy typ treningu został stworzony."},
                 {"training.type.failure", "Wystąpił błąd podczas tworzenia treningu."},
                 {"training.type.removed", "Typ treningu został usunięty."},
-                {"training.type.updated", "Typ treningu został zaktualizowany."}
+                {"training.type.updated", "Typ treningu został zaktualizowany."},
+                {"enrollment.success.basic.list", "Pomyślnie zapisano się na zajęcia."},
+                {"enrollment.success.reserve.list", "Brak miejsc na liście podstawowej. Zapisano na listę rezerwową."},
+                {"enrollment.remove", "Zrezygnowano z uczestnictwa w zajęciach."}
         }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
     }
 
@@ -66,6 +75,8 @@ public class Messages {
                 {"exception.duration.format", "Incorrect workout time duration format."},
                 {"exception.email.sending", "Cannot send email."},
                 {"exception.group.training.enrollment", "Cannot enroll to group training."},
+                {"exception.group.training.enrollment.remove",
+                        "User not found on the list of participants of group training."},
                 {"exception.group.training.remove", "Cannot remove group training."},
                 {"exception.group.training.update", "Cannot update group training."},
                 {"exception.group.training.not.found", "Specified group training is not found."},
@@ -76,11 +87,15 @@ public class Messages {
                 {"exception.not.found.training.id", "Incorrect training id."},
                 {"exception.not.found.training.type.all", "There are no workout types to display."},
                 {"exception.not.found.training.type", "Specified training type not found."},
-                {"exception.not.found.user.id", "Not found user id."},
+                {"exception.not.found.user.id", "Specified user is not found."},
                 {"exception.review.stars.out.of.range", "Stars out of range."},
                 {"exception.start.date.after.end.date", "Starting date should be before ending date."},
                 {"exception.past.date", "The start date cannot be in the past."},
+                {"exception.past.date.enrollment", "You cannot enroll to past event."},
+                {"exception.past.date.enrollment.remove",
+                        "Participation in group activities that have already taken place cannot be canceled."},
                 {"exception.unsupported.data.type", "Error. The acceptable file format is JPEG or PNG."},
+                {"exception.user.already.enrolled.to.training", "The user is already enrolled to the group training."},
                 {"field.invalid.date.time.format", "Invalid date or time format."},
                 {"field.name.failure", "The name should be 2 to 20 characters long."},
                 {"field.required", "Field is required."},
@@ -95,7 +110,10 @@ public class Messages {
                 {"training.type.created", "New training type has been created."},
                 {"training.type.failure", "An error occurred while creating new training type."},
                 {"training.type.removed", "Training type has been removed."},
-                {"training.type.updated", "Training type has been updated."}
+                {"training.type.updated", "Training type has been updated."},
+                {"enrollment.success.basic.list", "Successfully enrolled to group training."},
+                {"enrollment.success.reserve.list", "Basic list is full. You have been enrolled to reserve list."},
+                {"enrollment.remove", "Participation in the classes was resigned."}
         }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
     }
 

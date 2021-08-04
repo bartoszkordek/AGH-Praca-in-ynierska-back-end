@@ -11,6 +11,7 @@ import com.healthy.gym.gympass.pojo.response.GymPassOfferResponse;
 import com.healthy.gym.gympass.service.OfferService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindException;
@@ -22,6 +23,11 @@ import javax.validation.Valid;
 import java.util.List;
 
 @RestController
+@RequestMapping(
+        value = "/offer",
+        consumes = MediaType.APPLICATION_JSON_VALUE,
+        produces = MediaType.APPLICATION_JSON_VALUE
+)
 public class OfferController {
 
     private static final String INTERNAL_ERROR_EXCEPTION = "exception.internal.error";
@@ -38,7 +44,7 @@ public class OfferController {
     }
 
 
-    @GetMapping("/offer")
+    @GetMapping
     public ResponseEntity<List<GymPassDTO>> getGymPassOffer() {
 
         try{
@@ -58,7 +64,7 @@ public class OfferController {
     }
 
     @PreAuthorize("hasRole('ADMIN') or hasRole('MANAGER')")
-    @PostMapping("/offer")
+    @PostMapping
     public ResponseEntity<GymPassOfferResponse> createGymPassOffer(
             @Valid @RequestBody final GymPassOfferRequest request,
             final BindingResult bindingResult
@@ -94,7 +100,7 @@ public class OfferController {
     }
 
     @PreAuthorize("hasRole('ADMIN') or hasRole('MANAGER')")
-    @PutMapping("/offer/{id}")
+    @PutMapping("/{id}")
     public ResponseEntity<GymPassOfferResponse> updateGymPassOffer(
             @Valid @RequestBody final GymPassOfferRequest request,
             @PathVariable("id") final String id,

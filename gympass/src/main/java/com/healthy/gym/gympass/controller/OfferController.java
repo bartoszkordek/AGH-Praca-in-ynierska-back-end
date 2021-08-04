@@ -109,7 +109,6 @@ public class OfferController {
         try{
             if (bindingResult.hasErrors()) throw new BindException(bindingResult);
 
-
             String message = translator.toLocale("offer.updated");
 
             GymPassDTO updatedGymPassOffer = offerService.updateGymPassOffer(id, request);
@@ -132,6 +131,34 @@ public class OfferController {
         } catch (DuplicatedOffersException exception) {
             String reason = translator.toLocale("exception.duplicated.offers");
             throw new ResponseStatusException(HttpStatus.CONFLICT, reason, exception);
+
+        } catch (Exception exception){
+            String reason = translator.toLocale(INTERNAL_ERROR_EXCEPTION);
+            exception.printStackTrace();
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, reason, exception);
+        }
+    }
+
+    @PreAuthorize("hasRole('ADMIN') or hasRole('MANAGER')")
+    @DeleteMapping("/{id}")
+    public ResponseEntity<GymPassOfferResponse> deleteGymPassOffer(
+            @PathVariable("id") final String id
+    ) {
+        try{
+            String message = translator.toLocale("offer.removed");
+            GymPassDTO removedGymPassOffer = offerService.deleteGymPassOffer(id);
+
+            return ResponseEntity
+                    .status(HttpStatus.OK)
+                    .body(new GymPassOfferResponse(
+                            message,
+                            removedGymPassOffer
+                    ));
+        }
+
+        catch (InvalidGymPassOfferId exception) {
+            String reason = translator.toLocale("exception.invalid.offer.id");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, exception);
 
         } catch (Exception exception){
             String reason = translator.toLocale(INTERNAL_ERROR_EXCEPTION);

@@ -15,4 +15,6 @@ public interface OfferService {
     GymPassDTO createGymPassOffer(GymPassOfferRequest request) throws DuplicatedOffersException;
 
     GymPassDTO updateGymPassOffer(String id, GymPassOfferRequest request) throws DuplicatedOffersException, InvalidGymPassOfferId;
+
+    GymPassDTO deleteGymPassOffer(String id) throws InvalidGymPassOfferId;
 }

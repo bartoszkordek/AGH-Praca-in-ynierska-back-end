@@ -29,4 +29,9 @@ public class OfferServiceImpl implements OfferService{
             throws DuplicatedOffersException, InvalidGymPassOfferId {
         return null;
     }
+
+    @Override
+    public GymPassDTO deleteGymPassOffer(String id) throws InvalidGymPassOfferId {
+        return null;
+    }
 }

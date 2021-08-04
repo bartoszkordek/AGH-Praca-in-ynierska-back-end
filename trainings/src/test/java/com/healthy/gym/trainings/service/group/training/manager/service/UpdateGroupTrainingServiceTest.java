@@ -38,7 +38,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
-class UpdateGroupTrainingService {
+class UpdateGroupTrainingServiceTest {
 
     private GroupTrainingsDAO groupTrainingsDAO;
     private ManagerGroupTrainingRequest groupTrainingRequest;

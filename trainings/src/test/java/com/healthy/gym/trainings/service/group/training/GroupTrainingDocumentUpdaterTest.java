@@ -38,7 +38,7 @@ class GroupTrainingDocumentUpdaterTest {
 
     private GroupTrainingDocument currentGroupTrainingDocument;
     private ManagerGroupTrainingRequest groupTrainingRequest;
-    private GroupTrainingDocumentUpdater groupTrainingDocumentUpdater;
+    private GroupTrainingDocumentUpdateBuilder groupTrainingDocumentUpdateBuilder;
 
     @BeforeEach
     void setUp() {
@@ -50,8 +50,8 @@ class GroupTrainingDocumentUpdaterTest {
         currentGroupTrainingDocument = getCurrentTestGroupTrainingDocument();
         groupTrainingRequest = getTestGroupTrainingRequest();
 
-        groupTrainingDocumentUpdater =
-                new GroupTrainingDocumentUpdaterImpl(trainingTypeDAO, locationDAO, userDAO, clock);
+        groupTrainingDocumentUpdateBuilder =
+                new GroupTrainingDocumentUpdateBuilderImpl(trainingTypeDAO, locationDAO, userDAO, clock);
     }
 
     private GroupTrainingDocument getCurrentTestGroupTrainingDocument() {
@@ -148,7 +148,7 @@ class GroupTrainingDocumentUpdaterTest {
             when(trainingTypeDAO.findByTrainingTypeId("122ed953-e37f-435a-bd1e-9fb2a327c4d3"))
                     .thenReturn(trainingTypeDocumentUpdated);
 
-            GroupTrainingDocument updatedGroupTrainingDocument = groupTrainingDocumentUpdater
+            GroupTrainingDocument updatedGroupTrainingDocument = groupTrainingDocumentUpdateBuilder
                     .setGroupTrainingDocumentToUpdate(currentGroupTrainingDocument)
                     .setGroupTrainingRequest(groupTrainingRequest)
                     .updateTrainingType()
@@ -176,7 +176,7 @@ class GroupTrainingDocumentUpdaterTest {
                     .thenReturn(null);
 
             assertThatThrownBy(
-                    () -> groupTrainingDocumentUpdater
+                    () -> groupTrainingDocumentUpdateBuilder
                             .setGroupTrainingDocumentToUpdate(currentGroupTrainingDocument)
                             .setGroupTrainingRequest(groupTrainingRequest)
                             .updateTrainingType()
@@ -189,7 +189,7 @@ class GroupTrainingDocumentUpdaterTest {
             when(userDAO.findByUserId("dd6be548-86a2-47d9-896f-290e9752c216"))
                     .thenReturn(trainerUpdated);
 
-            GroupTrainingDocument updatedGroupTrainingDocument = groupTrainingDocumentUpdater
+            GroupTrainingDocument updatedGroupTrainingDocument = groupTrainingDocumentUpdateBuilder
                     .setGroupTrainingDocumentToUpdate(currentGroupTrainingDocument)
                     .setGroupTrainingRequest(groupTrainingRequest)
                     .updateTrainers()
@@ -216,7 +216,7 @@ class GroupTrainingDocumentUpdaterTest {
             when(userDAO.findByUserId("dd6be548-86a2-47d9-896f-290e9752c216")).thenReturn(null);
 
             assertThatThrownBy(
-                    () -> groupTrainingDocumentUpdater
+                    () -> groupTrainingDocumentUpdateBuilder
                             .setGroupTrainingDocumentToUpdate(currentGroupTrainingDocument)
                             .setGroupTrainingRequest(groupTrainingRequest)
                             .updateTrainers()
@@ -226,7 +226,7 @@ class GroupTrainingDocumentUpdaterTest {
 
         @Test
         void shouldUpdateStartDate() throws PastDateException {
-            GroupTrainingDocument updatedGroupTrainingDocument = groupTrainingDocumentUpdater
+            GroupTrainingDocument updatedGroupTrainingDocument = groupTrainingDocumentUpdateBuilder
                     .setGroupTrainingDocumentToUpdate(currentGroupTrainingDocument)
                     .setGroupTrainingRequest(groupTrainingRequest)
                     .updateStartDate()
@@ -253,7 +253,7 @@ class GroupTrainingDocumentUpdaterTest {
             groupTrainingRequest.setStartDate("2021-07-10T08:00");
 
             assertThatThrownBy(
-                    () -> groupTrainingDocumentUpdater
+                    () -> groupTrainingDocumentUpdateBuilder
                             .setGroupTrainingDocumentToUpdate(currentGroupTrainingDocument)
                             .setGroupTrainingRequest(groupTrainingRequest)
                             .updateStartDate()
@@ -264,7 +264,7 @@ class GroupTrainingDocumentUpdaterTest {
 
         @Test
         void shouldUpdateEndDate() throws PastDateException {
-            GroupTrainingDocument updatedGroupTrainingDocument = groupTrainingDocumentUpdater
+            GroupTrainingDocument updatedGroupTrainingDocument = groupTrainingDocumentUpdateBuilder
                     .setGroupTrainingDocumentToUpdate(currentGroupTrainingDocument)
                     .setGroupTrainingRequest(groupTrainingRequest)
                     .updateEndDate()
@@ -291,7 +291,7 @@ class GroupTrainingDocumentUpdaterTest {
             groupTrainingRequest.setEndDate("2021-07-10T08:00");
 
             assertThatThrownBy(
-                    () -> groupTrainingDocumentUpdater
+                    () -> groupTrainingDocumentUpdateBuilder
                             .setGroupTrainingDocumentToUpdate(currentGroupTrainingDocument)
                             .setGroupTrainingRequest(groupTrainingRequest)
                             .updateEndDate()
@@ -303,7 +303,7 @@ class GroupTrainingDocumentUpdaterTest {
         void shouldUpdateLocation() throws LocationNotFoundException {
             when(locationDAO.findByLocationId("f47d1d59-787c-4d49-8daf-37e5704d8ed2")).thenReturn(location);
 
-            GroupTrainingDocument updatedGroupTrainingDocument = groupTrainingDocumentUpdater
+            GroupTrainingDocument updatedGroupTrainingDocument = groupTrainingDocumentUpdateBuilder
                     .setGroupTrainingDocumentToUpdate(currentGroupTrainingDocument)
                     .setGroupTrainingRequest(groupTrainingRequest)
                     .updateLocation()
@@ -329,7 +329,7 @@ class GroupTrainingDocumentUpdaterTest {
         void shouldThrowLocationNotFoundException() {
             when(locationDAO.findByLocationId(anyString())).thenReturn(null);
 
-            assertThatThrownBy(() -> groupTrainingDocumentUpdater
+            assertThatThrownBy(() -> groupTrainingDocumentUpdateBuilder
                     .setGroupTrainingDocumentToUpdate(currentGroupTrainingDocument)
                     .setGroupTrainingRequest(groupTrainingRequest)
                     .updateLocation()
@@ -341,7 +341,7 @@ class GroupTrainingDocumentUpdaterTest {
         void shouldUpdateLimit() {
             groupTrainingRequest.setLimit(9);
 
-            GroupTrainingDocument updatedGroupTrainingDocument = groupTrainingDocumentUpdater
+            GroupTrainingDocument updatedGroupTrainingDocument = groupTrainingDocumentUpdateBuilder
                     .setGroupTrainingDocumentToUpdate(currentGroupTrainingDocument)
                     .setGroupTrainingRequest(groupTrainingRequest)
                     .updateLimit()
@@ -377,7 +377,7 @@ class GroupTrainingDocumentUpdaterTest {
             when(locationDAO.findByLocationId("f47d1d59-787c-4d49-8daf-37e5704d8ed2"))
                     .thenReturn(location);
 
-            GroupTrainingDocument updatedGroupTrainingDocument = groupTrainingDocumentUpdater
+            GroupTrainingDocument updatedGroupTrainingDocument = groupTrainingDocumentUpdateBuilder
                     .setGroupTrainingDocumentToUpdate(currentGroupTrainingDocument)
                     .setGroupTrainingRequest(groupTrainingRequest)
                     .updateTrainingType()
@@ -410,43 +410,43 @@ class GroupTrainingDocumentUpdaterTest {
 
         @Test
         void shouldThrowIllegalStateExceptionWhenUpdateTrainingType() {
-            assertThatThrownBy(() -> groupTrainingDocumentUpdater.updateTrainingType())
+            assertThatThrownBy(() -> groupTrainingDocumentUpdateBuilder.updateTrainingType())
                     .isInstanceOf(IllegalStateException.class);
         }
 
         @Test
         void shouldThrowIllegalStateExceptionWhenUpdateTrainers() {
-            assertThatThrownBy(() -> groupTrainingDocumentUpdater.updateTrainers())
+            assertThatThrownBy(() -> groupTrainingDocumentUpdateBuilder.updateTrainers())
                     .isInstanceOf(IllegalStateException.class);
         }
 
         @Test
         void shouldThrowIllegalStateExceptionWhenUpdateStartDate() {
-            assertThatThrownBy(() -> groupTrainingDocumentUpdater.updateStartDate())
+            assertThatThrownBy(() -> groupTrainingDocumentUpdateBuilder.updateStartDate())
                     .isInstanceOf(IllegalStateException.class);
         }
 
         @Test
         void shouldThrowIllegalStateExceptionWhenUpdateEndDate() {
-            assertThatThrownBy(() -> groupTrainingDocumentUpdater.updateEndDate())
+            assertThatThrownBy(() -> groupTrainingDocumentUpdateBuilder.updateEndDate())
                     .isInstanceOf(IllegalStateException.class);
         }
 
         @Test
         void shouldThrowIllegalStateExceptionWhenUpdateLocation() {
-            assertThatThrownBy(() -> groupTrainingDocumentUpdater.updateLocation())
+            assertThatThrownBy(() -> groupTrainingDocumentUpdateBuilder.updateLocation())
                     .isInstanceOf(IllegalStateException.class);
         }
 
         @Test
         void shouldThrowIllegalStateExceptionWhenUpdateLimit() {
-            assertThatThrownBy(() -> groupTrainingDocumentUpdater.updateLimit())
+            assertThatThrownBy(() -> groupTrainingDocumentUpdateBuilder.updateLimit())
                     .isInstanceOf(IllegalStateException.class);
         }
 
         @Test
         void shouldThrowIllegalStateExceptionWhenUpdate() {
-            assertThatThrownBy(() -> groupTrainingDocumentUpdater.update())
+            assertThatThrownBy(() -> groupTrainingDocumentUpdateBuilder.update())
                     .isInstanceOf(IllegalStateException.class);
         }
     }

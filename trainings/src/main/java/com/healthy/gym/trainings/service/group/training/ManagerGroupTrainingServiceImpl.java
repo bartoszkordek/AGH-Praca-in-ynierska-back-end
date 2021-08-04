@@ -38,7 +38,7 @@ public class ManagerGroupTrainingServiceImpl implements ManagerGroupTrainingServ
     private final LocationDAO locationDAO;
     private final UserDAO userDAO;
     private final Clock clock;
-    private final GroupTrainingDocumentUpdater groupTrainingDocumentUpdater;
+    private final GroupTrainingDocumentUpdateBuilder groupTrainingDocumentUpdateBuilder;
 
     @Autowired
     public ManagerGroupTrainingServiceImpl(
@@ -47,14 +47,14 @@ public class ManagerGroupTrainingServiceImpl implements ManagerGroupTrainingServ
             LocationDAO locationDAO,
             UserDAO userDAO,
             Clock clock,
-            GroupTrainingDocumentUpdater groupTrainingDocumentUpdater
+            GroupTrainingDocumentUpdateBuilder groupTrainingDocumentUpdateBuilder
     ) {
         this.groupTrainingsDAO = groupTrainingsDAO;
         this.trainingTypeDAO = trainingTypeDAO;
         this.locationDAO = locationDAO;
         this.userDAO = userDAO;
         this.clock = clock;
-        this.groupTrainingDocumentUpdater = groupTrainingDocumentUpdater;
+        this.groupTrainingDocumentUpdateBuilder = groupTrainingDocumentUpdateBuilder;
     }
 
     @Override
@@ -168,7 +168,7 @@ public class ManagerGroupTrainingServiceImpl implements ManagerGroupTrainingServ
         GroupTrainingDocument groupTraining = groupTrainingsDAO.findFirstByGroupTrainingId(trainingId);
         if (groupTraining == null) throw new NotExistingGroupTrainingException();
 
-        GroupTrainingDocument groupTrainingUpdated = groupTrainingDocumentUpdater
+        GroupTrainingDocument groupTrainingUpdated = groupTrainingDocumentUpdateBuilder
                 .setGroupTrainingDocumentToUpdate(groupTraining)
                 .setGroupTrainingRequest(groupTrainingRequest)
                 .updateTrainingType()

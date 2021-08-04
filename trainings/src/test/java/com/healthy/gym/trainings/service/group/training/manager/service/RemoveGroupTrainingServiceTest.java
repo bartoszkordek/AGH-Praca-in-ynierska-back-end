@@ -10,7 +10,7 @@ import com.healthy.gym.trainings.data.repository.TrainingTypeDAO;
 import com.healthy.gym.trainings.data.repository.UserDAO;
 import com.healthy.gym.trainings.enums.GymRole;
 import com.healthy.gym.trainings.exception.notexisting.NotExistingGroupTrainingException;
-import com.healthy.gym.trainings.service.group.training.GroupTrainingDocumentUpdater;
+import com.healthy.gym.trainings.service.group.training.GroupTrainingDocumentUpdateBuilder;
 import com.healthy.gym.trainings.service.group.training.ManagerGroupTrainingService;
 import com.healthy.gym.trainings.service.group.training.ManagerGroupTrainingServiceImpl;
 import com.healthy.gym.trainings.shared.BasicUserInfoDTO;
@@ -47,14 +47,15 @@ class RemoveGroupTrainingServiceTest {
         UserDAO userDAO = mock(UserDAO.class);
         Clock clock = Clock.fixed(Instant.parse("2021-07-10T18:00:00.00Z"), ZoneId.of("Europe/Warsaw"));
 
-        GroupTrainingDocumentUpdater groupTrainingDocumentUpdater = mock(GroupTrainingDocumentUpdater.class);
+        GroupTrainingDocumentUpdateBuilder groupTrainingDocumentUpdateBuilder
+                = mock(GroupTrainingDocumentUpdateBuilder.class);
         managerGroupTrainingService = new ManagerGroupTrainingServiceImpl(
                 groupTrainingsDAO,
                 trainingTypeDAO,
                 locationDAO,
                 userDAO,
                 clock,
-                groupTrainingDocumentUpdater
+                groupTrainingDocumentUpdateBuilder
         );
     }
 

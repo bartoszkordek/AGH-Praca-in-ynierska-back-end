@@ -18,7 +18,7 @@ import com.healthy.gym.trainings.exception.notfound.TrainingTypeNotFoundExceptio
 import com.healthy.gym.trainings.exception.occupied.LocationOccupiedException;
 import com.healthy.gym.trainings.exception.occupied.TrainerOccupiedException;
 import com.healthy.gym.trainings.model.request.ManagerGroupTrainingRequest;
-import com.healthy.gym.trainings.service.group.training.GroupTrainingDocumentUpdater;
+import com.healthy.gym.trainings.service.group.training.GroupTrainingDocumentUpdateBuilder;
 import com.healthy.gym.trainings.service.group.training.ManagerGroupTrainingService;
 import com.healthy.gym.trainings.service.group.training.ManagerGroupTrainingServiceImpl;
 import com.healthy.gym.trainings.shared.BasicUserInfoDTO;
@@ -43,7 +43,7 @@ class UpdateGroupTrainingServiceTest {
     private GroupTrainingsDAO groupTrainingsDAO;
     private ManagerGroupTrainingRequest groupTrainingRequest;
     private ManagerGroupTrainingService managerGroupTrainingService;
-    private GroupTrainingDocumentUpdater groupTrainingDocumentUpdater;
+    private GroupTrainingDocumentUpdateBuilder groupTrainingDocumentUpdateBuilder;
     private String groupTrainingId;
 
     @BeforeEach
@@ -55,7 +55,7 @@ class UpdateGroupTrainingServiceTest {
         UserDAO userDAO = mock(UserDAO.class);
         Clock clock = Clock.fixed(Instant.parse("2021-07-10T18:00:00.00Z"), ZoneId.of("Europe/Warsaw"));
 
-        groupTrainingDocumentUpdater = mock(GroupTrainingDocumentUpdater.class, RETURNS_DEEP_STUBS);
+        groupTrainingDocumentUpdateBuilder = mock(GroupTrainingDocumentUpdateBuilder.class, RETURNS_DEEP_STUBS);
         groupTrainingRequest = getGroupTrainingRequest();
 
         managerGroupTrainingService = new ManagerGroupTrainingServiceImpl(
@@ -64,7 +64,7 @@ class UpdateGroupTrainingServiceTest {
                 locationDAO,
                 userDAO,
                 clock,
-                groupTrainingDocumentUpdater
+                groupTrainingDocumentUpdateBuilder
         );
     }
 
@@ -110,7 +110,7 @@ class UpdateGroupTrainingServiceTest {
         );
 
         when(groupTrainingsDAO.findFirstByGroupTrainingId(anyString())).thenReturn(new GroupTrainingDocument());
-        when(groupTrainingDocumentUpdater
+        when(groupTrainingDocumentUpdateBuilder
                 .setGroupTrainingDocumentToUpdate(any())
                 .setGroupTrainingRequest(any())
                 .updateTrainingType()
@@ -151,7 +151,7 @@ class UpdateGroupTrainingServiceTest {
         );
 
         when(groupTrainingsDAO.findFirstByGroupTrainingId(anyString())).thenReturn(new GroupTrainingDocument());
-        when(groupTrainingDocumentUpdater
+        when(groupTrainingDocumentUpdateBuilder
                 .setGroupTrainingDocumentToUpdate(any())
                 .setGroupTrainingRequest(any())
                 .updateTrainingType()

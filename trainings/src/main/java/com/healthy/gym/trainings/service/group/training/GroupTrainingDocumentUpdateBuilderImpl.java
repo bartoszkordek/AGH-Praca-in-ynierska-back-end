@@ -24,7 +24,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
-public class GroupTrainingDocumentUpdaterImpl implements GroupTrainingDocumentUpdater {
+public class GroupTrainingDocumentUpdateBuilderImpl implements GroupTrainingDocumentUpdateBuilder {
 
     private final TrainingTypeDAO trainingTypeDAO;
     private final LocationDAO locationDAO;
@@ -35,7 +35,7 @@ public class GroupTrainingDocumentUpdaterImpl implements GroupTrainingDocumentUp
     private ManagerGroupTrainingRequest groupTrainingRequest;
 
     @Autowired
-    public GroupTrainingDocumentUpdaterImpl(
+    public GroupTrainingDocumentUpdateBuilderImpl(
             TrainingTypeDAO trainingTypeDAO,
             LocationDAO locationDAO,
             UserDAO userDAO,
@@ -48,19 +48,19 @@ public class GroupTrainingDocumentUpdaterImpl implements GroupTrainingDocumentUp
     }
 
     @Override
-    public GroupTrainingDocumentUpdater setGroupTrainingDocumentToUpdate(GroupTrainingDocument groupTraining) {
+    public GroupTrainingDocumentUpdateBuilder setGroupTrainingDocumentToUpdate(GroupTrainingDocument groupTraining) {
         this.currentGroupTrainingDocument = groupTraining;
         return this;
     }
 
     @Override
-    public GroupTrainingDocumentUpdater setGroupTrainingRequest(ManagerGroupTrainingRequest groupTrainingRequest) {
+    public GroupTrainingDocumentUpdateBuilder setGroupTrainingRequest(ManagerGroupTrainingRequest groupTrainingRequest) {
         this.groupTrainingRequest = groupTrainingRequest;
         return this;
     }
 
     @Override
-    public GroupTrainingDocumentUpdater updateTrainingType() throws TrainingTypeNotFoundException {
+    public GroupTrainingDocumentUpdateBuilder updateTrainingType() throws TrainingTypeNotFoundException {
         validateState();
 
         TrainingTypeDocument trainingTypeDocument = currentGroupTrainingDocument.getTraining();
@@ -84,7 +84,7 @@ public class GroupTrainingDocumentUpdaterImpl implements GroupTrainingDocumentUp
     }
 
     @Override
-    public GroupTrainingDocumentUpdater updateTrainers() throws TrainerNotFoundException {
+    public GroupTrainingDocumentUpdateBuilder updateTrainers() throws TrainerNotFoundException {
         validateState();
 
         List<String> currentTrainerIds = currentGroupTrainingDocument
@@ -117,7 +117,7 @@ public class GroupTrainingDocumentUpdaterImpl implements GroupTrainingDocumentUp
     }
 
     @Override
-    public GroupTrainingDocumentUpdater updateStartDate() throws PastDateException {
+    public GroupTrainingDocumentUpdateBuilder updateStartDate() throws PastDateException {
         validateState();
 
         LocalDateTime currentStartDateTime = currentGroupTrainingDocument.getStartDate();
@@ -139,7 +139,7 @@ public class GroupTrainingDocumentUpdaterImpl implements GroupTrainingDocumentUp
     }
 
     @Override
-    public GroupTrainingDocumentUpdater updateEndDate() throws PastDateException {
+    public GroupTrainingDocumentUpdateBuilder updateEndDate() throws PastDateException {
         validateState();
 
         LocalDateTime currentEndDateTime = currentGroupTrainingDocument.getEndDate();
@@ -158,7 +158,7 @@ public class GroupTrainingDocumentUpdaterImpl implements GroupTrainingDocumentUp
     }
 
     @Override
-    public GroupTrainingDocumentUpdater updateLocation() throws LocationNotFoundException {
+    public GroupTrainingDocumentUpdateBuilder updateLocation() throws LocationNotFoundException {
         validateState();
 
         LocationDocument currentLocation = currentGroupTrainingDocument.getLocation();
@@ -176,7 +176,7 @@ public class GroupTrainingDocumentUpdaterImpl implements GroupTrainingDocumentUp
     }
 
     @Override
-    public GroupTrainingDocumentUpdater updateLimit() {
+    public GroupTrainingDocumentUpdateBuilder updateLimit() {
         validateState();
 
         int currentLimit = currentGroupTrainingDocument.getLimit();

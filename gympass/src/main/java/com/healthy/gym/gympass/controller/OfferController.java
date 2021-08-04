@@ -100,11 +100,12 @@ public class OfferController {
         }
     }
 
+
     @PreAuthorize("hasRole('ADMIN') or hasRole('MANAGER')")
     @PutMapping("/{id}")
     public ResponseEntity<GymPassOfferResponse> updateGymPassOffer(
-            @Valid @RequestBody final GymPassOfferRequest request,
             @PathVariable("id") final String id,
+            @Valid @RequestBody final GymPassOfferRequest request,
             final BindingResult bindingResult
     ) throws RequestBindException {
         try{

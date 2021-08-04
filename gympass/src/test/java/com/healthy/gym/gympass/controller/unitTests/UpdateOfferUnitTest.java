@@ -58,7 +58,6 @@ public class UpdateOfferUnitTest {
     private String validId;
     private String invalidId;
     private GymPassOfferRequest gymPassOfferRequest;
-    private GymPassOfferRequest invalidGymPassOfferRequest;
     private String requestContent;
     private String invalidTitleRequestContent;
     private String invalidSubheaderRequestContent;

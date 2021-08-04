@@ -388,10 +388,7 @@ public class CreateOfferUnitTest {
                         ));
             }
 
-
         }
-
-
 
 
         @ParameterizedTest

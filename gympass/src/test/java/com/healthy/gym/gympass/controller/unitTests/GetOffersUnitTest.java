@@ -49,7 +49,6 @@ public class GetOffersUnitTest {
     private OfferService offerService;
 
     private String managerToken;
-    private String adminToken;
     private String userToken;
     private URI uri;
 
@@ -60,9 +59,6 @@ public class GetOffersUnitTest {
 
         String managerId = UUID.randomUUID().toString();
         managerToken = tokenFactory.getMangerToken(managerId);
-
-        String adminId = UUID.randomUUID().toString();
-        adminToken = tokenFactory.getAdminToken(adminId);
 
         uri = new URI("/offer");
     }
@@ -195,7 +191,7 @@ public class GetOffersUnitTest {
         RequestBuilder request = MockMvcRequestBuilders
                 .get(uri)
                 .header("Accept-Language", testedLocale.toString())
-                .header("Authorization", userToken)
+                .header("Authorization", managerToken)
                 .contentType(MediaType.APPLICATION_JSON);
 
         String expectedMessage = messages.get("exception.no.offers");

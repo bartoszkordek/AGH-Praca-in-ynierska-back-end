@@ -261,7 +261,7 @@ public class UpdateOfferUnitTest {
             RequestBuilder request = MockMvcRequestBuilders
                     .put(uri+"/"+validId)
                     .header("Accept-Language", testedLocale.toString())
-                    .header("Authorization", managerToken)
+                    .header("Authorization", adminToken)
                     .content(requestContent)
                     .contentType(MediaType.APPLICATION_JSON);
 

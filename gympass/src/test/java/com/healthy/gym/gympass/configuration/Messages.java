@@ -8,7 +8,7 @@ public class Messages {
     private static Map<String, String> getMessagesPL() {
         return Stream.of(new String[][]{
                 {"exception.internal.error", "Podczas przetwarzania żądania wystąpił błąd."},
-                {"exception.access.denied", "Nie masz uprawnień do wykonania tej operacji."},
+                {"exception.access.denied", "Nie masz uprawnien do wykonania tej operacji."},
                 {"exception.no.offers", "Brak ofert."},
                 {"offer.created", "Nowa oferta zostala utworzona."},
                 {"offer.updated", "Oferta zostala zaktualizowana."},

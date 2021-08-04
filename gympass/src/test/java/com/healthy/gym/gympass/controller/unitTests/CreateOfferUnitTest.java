@@ -16,6 +16,7 @@ import org.junit.jupiter.params.provider.EnumSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.RequestBuilder;
@@ -188,7 +189,12 @@ public class CreateOfferUnitTest {
 
             mockMvc.perform(request)
                     .andDo(print())
-                    .andExpect(status().isForbidden());
+                    .andExpect(status().isForbidden())
+                    .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(jsonPath("$.message").value(is(expectedMessage)))
+                    .andExpect(jsonPath("$.error").value(is("Forbidden")))
+                    .andExpect(jsonPath("$.status").value(403))
+                    .andExpect(jsonPath("$.timestamp").exists());
         }
 
     }

@@ -164,7 +164,12 @@ public class DeleteOfferUnitTest {
 
             mockMvc.perform(request)
                     .andDo(print())
-                    .andExpect(status().isForbidden());
+                    .andExpect(status().isForbidden())
+                    .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(jsonPath("$.message").value(is(expectedMessage)))
+                    .andExpect(jsonPath("$.error").value(is("Forbidden")))
+                    .andExpect(jsonPath("$.status").value(403))
+                    .andExpect(jsonPath("$.timestamp").exists());
         }
     }
 

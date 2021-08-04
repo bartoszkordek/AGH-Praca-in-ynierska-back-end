@@ -49,7 +49,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(ManagerGroupTrainingController.class)
-class WhenCreateGroupTrainingTest {
+class CreateGroupTrainingTest {
 
     @Autowired
     private MockMvc mockMvc;

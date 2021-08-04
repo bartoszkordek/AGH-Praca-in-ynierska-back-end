@@ -6,6 +6,7 @@ import com.healthy.gym.gympass.dto.GymPassDTO;
 import com.healthy.gym.gympass.exception.DuplicatedOffersException;
 import com.healthy.gym.gympass.exception.InvalidGymPassOfferId;
 import com.healthy.gym.gympass.exception.NoOffersException;
+import com.healthy.gym.gympass.exception.RequestBindException;
 import com.healthy.gym.gympass.pojo.request.GymPassOfferRequest;
 import com.healthy.gym.gympass.pojo.response.GymPassOfferResponse;
 import com.healthy.gym.gympass.service.OfferService;
@@ -68,7 +69,7 @@ public class OfferController {
     public ResponseEntity<GymPassOfferResponse> createGymPassOffer(
             @Valid @RequestBody final GymPassOfferRequest request,
             final BindingResult bindingResult
-    ) {
+    ) throws RequestBindException {
 
         try {
             if (bindingResult.hasErrors()) throw new BindException(bindingResult);
@@ -86,7 +87,7 @@ public class OfferController {
 
         } catch (BindException exception) {
             String reason = translator.toLocale("request.bind.exception");
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, exception);
+            throw new RequestBindException(HttpStatus.BAD_REQUEST, reason, exception);
 
         } catch (DuplicatedOffersException exception) {
             String reason = translator.toLocale("exception.duplicated.offers");
@@ -105,7 +106,7 @@ public class OfferController {
             @Valid @RequestBody final GymPassOfferRequest request,
             @PathVariable("id") final String id,
             final BindingResult bindingResult
-    ) {
+    ) throws RequestBindException {
         try{
             if (bindingResult.hasErrors()) throw new BindException(bindingResult);
 
@@ -122,7 +123,7 @@ public class OfferController {
 
         } catch (BindException exception) {
             String reason = translator.toLocale("request.bind.exception");
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, exception);
+            throw new RequestBindException(HttpStatus.BAD_REQUEST, reason, exception);
 
         } catch (InvalidGymPassOfferId exception) {
             String reason = translator.toLocale("exception.invalid.offer.id");

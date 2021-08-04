@@ -220,7 +220,13 @@ public class CreateOfferUnitTest {
             mockMvc.perform(request)
                     .andDo(print())
                     .andExpect(matchAll(
-                            status().isBadRequest()
+                            status().isBadRequest(),
+                            content().contentType(MediaType.APPLICATION_JSON),
+                            jsonPath("$.error").value(is(HttpStatus.BAD_REQUEST.getReasonPhrase())),
+                            jsonPath("$.message").value(is(expectedMessage)),
+                            jsonPath("$.errors").value(is(notNullValue())),
+                            jsonPath("$.errors.title")
+                                    .value(is(messages.get("field.name.failure")))
                     ));
         }
 

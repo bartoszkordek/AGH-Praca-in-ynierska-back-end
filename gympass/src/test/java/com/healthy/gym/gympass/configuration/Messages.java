@@ -7,20 +7,20 @@ import java.util.stream.Stream;
 public class Messages {
     private static Map<String, String> getMessagesPL() {
         return Stream.of(new String[][]{
-                {"exception.internal.error", "Podczas przetwarzania żądania wystąpił błąd."},
-                {"exception.access.denied", "Nie masz uprawnien do wykonania tej operacji."},
+                {"exception.internal.error", "Podczas przetwarzania zadania wystąpił blad."},
+                {"exception.access.denied", "Nie masz uprawnień do wykonania tej operacji."},
                 {"exception.no.offers", "Brak ofert."},
-                {"offer.created", "Nowa oferta zostala utworzona."},
+                {"offer.created", "Nowa oferta została utworzona."},
                 {"offer.updated", "Oferta zostala zaktualizowana."},
-                {"offer.removed", "Oferta zostala usunieta."},
+                {"offer.removed", "Oferta zostala usunięta."},
                 {"field.required", "Pole jest wymagane."},
                 {"field.name.failure", "Nazwa powinna mieć od 2 do 20 znaków."},
                 {"field.subheader.failure", "Opis powinnien mieć od 2 do 60 znaków."},
                 {"field.synopsis.failure", "Opis powinnien mieć od 2 do 60 znaków."},
-                {"field.features.failure", "Oferta może maksymalnie zawierać 20 szczegółów."},
+                {"field.features.failure", "Oferta może maksymalnie zawierać 20 szczególów"},
                 {"request.bind.exception", "Podano nieprawidłowy format danych."},
                 {"exception.duplicated.offers", "Zduplikowana nazwa oferty."},
-                {"exception.invalid.offer.id", "Bledne ID oferty."}
+                {"exception.invalid.offer.id", "Blędne ID oferty."}
 
         }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
     }

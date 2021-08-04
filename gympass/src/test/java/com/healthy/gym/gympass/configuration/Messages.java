@@ -10,7 +10,7 @@ public class Messages {
                 {"exception.internal.error", "Podczas przetwarzania żądania wystąpił błąd."},
                 {"exception.no.offers", "Brak ofert."},
                 {"offer.created", "Nowa oferta zostala utworzona."},
-                {"offer.updated", "Oferta została zaktualizowana."},
+                {"offer.updated", "Oferta zostala zaktualizowana."},
                 {"field.required", "Pole jest wymagane."},
                 {"field.name.failure", "Nazwa powinna mieć od 2 do 20 znaków."},
                 {"field.subheader.failure", "Opis powinnien mieć od 2 do 60 znaków."},

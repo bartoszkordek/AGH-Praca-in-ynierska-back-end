@@ -109,7 +109,7 @@ public class OfferController {
             GymPassDTO updatedGymPassOffer = offerService.updateGymPassOffer(id, request);
 
             return ResponseEntity
-                    .status(HttpStatus.CREATED)
+                    .status(HttpStatus.OK)
                     .body(new GymPassOfferResponse(
                             message,
                             updatedGymPassOffer

@@ -14,8 +14,7 @@ import com.healthy.gym.trainings.shared.GroupTrainingDTO;
 public interface ManagerGroupTrainingService {
 
     GroupTrainingDTO createGroupTraining(final ManagerGroupTrainingRequest groupTrainingRequest)
-            throws
-            LocationNotFoundException,
+            throws LocationNotFoundException,
             LocationOccupiedException,
             PastDateException,
             StartDateAfterEndDateException,

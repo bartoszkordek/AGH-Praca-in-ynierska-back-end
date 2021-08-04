@@ -63,32 +63,32 @@ public class ManagerGroupTrainingController {
             String reason = translator.toLocale("request.bind.exception");
             throw new ResponseBindException(HttpStatus.BAD_REQUEST, reason, exception);
 
-        } catch (StartDateAfterEndDateException exception) {
-            String reason = translator.toLocale("exception.start.date.after.end.date");
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, exception);
-
-        } catch (PastDateException exception) {
-            String reason = translator.toLocale("exception.past.date");
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, exception);
-
-        } catch (TrainerNotFoundException exception) {
-            String reason = translator.toLocale("exception.create.group.training.trainer.not.found");
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, exception);
-
         } catch (LocationNotFoundException exception) {
             String reason = translator.toLocale("exception.location.not.found");
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, exception);
-
-        } catch (TrainingTypeNotFoundException exception) {
-            String reason = translator.toLocale("exception.create.group.training.trainingType.not.found");
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, exception);
 
         } catch (LocationOccupiedException exception) {
             String reason = translator.toLocale("exception.create.group.training.location.occupied");
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, exception);
 
+        } catch (PastDateException exception) {
+            String reason = translator.toLocale("exception.past.date");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, exception);
+
+        } catch (StartDateAfterEndDateException exception) {
+            String reason = translator.toLocale("exception.start.date.after.end.date");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, exception);
+
         } catch (TrainerOccupiedException exception) {
             String reason = translator.toLocale("exception.create.group.training.trainer.occupied");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, exception);
+
+        } catch (TrainerNotFoundException exception) {
+            String reason = translator.toLocale("exception.create.group.training.trainer.not.found");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, exception);
+
+        } catch (TrainingTypeNotFoundException exception) {
+            String reason = translator.toLocale("exception.create.group.training.trainingType.not.found");
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, exception);
 
         } catch (Exception exception) {
@@ -118,6 +118,38 @@ public class ManagerGroupTrainingController {
         } catch (BindException exception) {
             String reason = translator.toLocale("request.bind.exception");
             throw new ResponseBindException(HttpStatus.BAD_REQUEST, reason, exception);
+
+        } catch (LocationNotFoundException exception) {
+            String reason = translator.toLocale("exception.location.not.found");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, exception);
+
+        } catch (LocationOccupiedException exception) {
+            String reason = translator.toLocale("exception.create.group.training.location.occupied");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, exception);
+
+        } catch (NotExistingGroupTrainingException exception) {
+            String reason = translator.toLocale("exception.group.training.not.found");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, exception);
+
+        } catch (PastDateException exception) {
+            String reason = translator.toLocale("exception.past.date");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, exception);
+
+        } catch (StartDateAfterEndDateException exception) {
+            String reason = translator.toLocale("exception.start.date.after.end.date");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, exception);
+
+        } catch (TrainerNotFoundException exception) {
+            String reason = translator.toLocale("exception.create.group.training.trainer.not.found");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, exception);
+
+        } catch (TrainerOccupiedException exception) {
+            String reason = translator.toLocale("exception.create.group.training.trainer.occupied");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, exception);
+
+        } catch (TrainingTypeNotFoundException exception) {
+            String reason = translator.toLocale("exception.create.group.training.trainingType.not.found");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, exception);
 
         } catch (Exception exception) {
             String reason = translator.toLocale(INTERNAL_ERROR_EXCEPTION);

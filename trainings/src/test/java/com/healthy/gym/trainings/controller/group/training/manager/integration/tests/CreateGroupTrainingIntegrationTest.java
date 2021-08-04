@@ -46,7 +46,7 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
         "eureka.client.fetch-registry=false",
         "eureka.client.register-with-eureka=false"
 })
-class WhenCreateGroupTrainingIntegrationTest {
+class CreateGroupTrainingIntegrationTest {
 
     @Container
     static MongoDBContainer mongoDBContainer =
@@ -164,8 +164,6 @@ class WhenCreateGroupTrainingIntegrationTest {
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.CREATED);
         assertThat(responseEntity.getHeaders().getContentType()).isEqualTo(MediaType.APPLICATION_JSON);
         assertThat(responseEntity.getBody().get("message").textValue()).isEqualTo(expectedMessage);
-
-        System.out.println(responseEntity);
 
         JsonNode training = responseEntity.getBody().get("training");
         assertThat(training.get("id")).isNotNull();

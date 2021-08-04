@@ -1,7 +1,6 @@
 package com.healthy.gym.trainings.utils;
 
 import com.healthy.gym.trainings.data.document.GroupTrainingDocument;
-import com.healthy.gym.trainings.data.document.GroupTrainings;
 import com.healthy.gym.trainings.data.document.UserDocument;
 import com.healthy.gym.trainings.model.response.UserResponse;
 import org.modelmapper.ModelMapper;

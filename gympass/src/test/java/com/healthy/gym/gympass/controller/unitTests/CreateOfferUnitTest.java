@@ -16,6 +16,7 @@ import org.junit.jupiter.params.provider.EnumSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.RequestBuilder;
@@ -31,7 +32,7 @@ import java.util.Map;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
@@ -135,7 +136,22 @@ public class CreateOfferUnitTest {
                 .andExpect(matchAll(
                         status().isCreated(),
                         content().contentType(MediaType.APPLICATION_JSON),
-                        jsonPath("$.message").value(is(expectedMessage))
+                        jsonPath("$.message").value(is(expectedMessage)),
+                        jsonPath("$.gymPass").exists(),
+                        jsonPath("$.gymPass.documentId").value(is(gymPassId)),
+                        jsonPath("$.gymPass.title").value(is(title)),
+                        jsonPath("$.gymPass.subheader").value(is(subheader)),
+                        jsonPath("$.gymPass.price.amount").value(is(199.99)),
+                        jsonPath("$.gymPass.price.currency").value(is("zł")),
+                        jsonPath("$.gymPass.price.period").value(is("miesiąc")),
+                        jsonPath("$.gymPass.isPremium").value(is(isPremium)),
+                        jsonPath("$.gymPass.description.synopsis")
+                                .value(is("Karnet uprawniający do korzystania w pełni z usług ośrodka")),
+                        jsonPath("$.gymPass.description.features").isArray(),
+                        jsonPath("$.gymPass.description.features").value(hasItem("Full pakiet")),
+                        jsonPath("$.gymPass.description.features").value(hasItem("sauna")),
+                        jsonPath("$.gymPass.description.features").value(hasItem("siłownia")),
+                        jsonPath("$.gymPass.description.features").value(hasItem("basen"))
                 ));
     }
 
@@ -159,6 +175,7 @@ public class CreateOfferUnitTest {
         @ParameterizedTest
         @EnumSource(TestCountry.class)
         void whenUserIsNotLogInAsUsualUser(TestCountry country) throws Exception {
+            Map<String, String> messages = getMessagesAccordingToLocale(country);
             Locale testedLocale = convertEnumToLocale(country);
 
             RequestBuilder request = MockMvcRequestBuilders
@@ -167,6 +184,8 @@ public class CreateOfferUnitTest {
                     .header("Authorization", userToken)
                     .content(requestContent)
                     .contentType(MediaType.APPLICATION_JSON);
+
+            String expectedMessage = messages.get("exception.access.denied");
 
             mockMvc.perform(request)
                     .andDo(print())

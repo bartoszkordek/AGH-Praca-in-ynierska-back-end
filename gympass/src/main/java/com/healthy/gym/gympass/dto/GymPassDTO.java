@@ -1,6 +1,7 @@
 package com.healthy.gym.gympass.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.healthy.gym.gympass.shared.Description;
 import com.healthy.gym.gympass.shared.Price;
 
@@ -13,6 +14,7 @@ public class GymPassDTO {
     private String title;
     private String subheader;
     private Price price;
+    @JsonProperty("isPremium")
     private boolean isPremium;
     private Description description;
 

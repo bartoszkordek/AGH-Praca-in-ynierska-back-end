@@ -68,7 +68,7 @@ public class OfferController {
     public ResponseEntity<GymPassOfferResponse> createGymPassOffer(
             @Valid @RequestBody final GymPassOfferRequest request,
             final BindingResult bindingResult
-    ){
+    ) {
 
         try {
             if (bindingResult.hasErrors()) throw new BindException(bindingResult);
@@ -105,7 +105,7 @@ public class OfferController {
             @Valid @RequestBody final GymPassOfferRequest request,
             @PathVariable("id") final String id,
             final BindingResult bindingResult
-    ){
+    ) {
         try{
             if (bindingResult.hasErrors()) throw new BindException(bindingResult);
 

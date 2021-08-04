@@ -4,6 +4,7 @@ import com.healthy.gym.gympass.configuration.TestCountry;
 import com.healthy.gym.gympass.configuration.TestRoleTokenFactory;
 import com.healthy.gym.gympass.controller.OfferController;
 import com.healthy.gym.gympass.dto.GymPassDTO;
+import com.healthy.gym.gympass.exception.DuplicatedOffersException;
 import com.healthy.gym.gympass.pojo.request.GymPassOfferRequest;
 import com.healthy.gym.gympass.service.OfferService;
 import com.healthy.gym.gympass.shared.Description;
@@ -15,7 +16,6 @@ import org.junit.jupiter.params.provider.EnumSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.RequestBuilder;
@@ -30,8 +30,10 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.ResultMatcher.matchAll;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -146,8 +148,25 @@ public class CreateOfferUnitTest {
             Locale testedLocale = convertEnumToLocale(country);
 
             RequestBuilder request = MockMvcRequestBuilders
-                    .get(uri)
+                    .post(uri)
                     .header("Accept-Language", testedLocale.toString());
+
+            mockMvc.perform(request)
+                    .andDo(print())
+                    .andExpect(status().isForbidden());
+        }
+
+        @ParameterizedTest
+        @EnumSource(TestCountry.class)
+        void whenUserIsNotLogInAsUsualUser(TestCountry country) throws Exception {
+            Locale testedLocale = convertEnumToLocale(country);
+
+            RequestBuilder request = MockMvcRequestBuilders
+                    .post(uri)
+                    .header("Accept-Language", testedLocale.toString())
+                    .header("Authorization", userToken)
+                    .content(requestContent)
+                    .contentType(MediaType.APPLICATION_JSON);
 
             mockMvc.perform(request)
                     .andDo(print())
@@ -179,6 +198,36 @@ public class CreateOfferUnitTest {
                     .andExpect(matchAll(
                             status().isBadRequest()
                     ));
+        }
+
+        @ParameterizedTest
+        @EnumSource(TestCountry.class)
+        void shouldThrowDuplicatedOffersException(TestCountry country) throws Exception {
+            Map<String, String> messages = getMessagesAccordingToLocale(country);
+            Locale testedLocale = convertEnumToLocale(country);
+
+            RequestBuilder request = MockMvcRequestBuilders
+                    .post(uri)
+                    .header("Accept-Language", testedLocale.toString())
+                    .header("Authorization", managerToken)
+                    .content(requestContent)
+                    .contentType(MediaType.APPLICATION_JSON);
+
+
+            String expectedMessage = messages.get("exception.duplicated.offers");
+
+            doThrow(DuplicatedOffersException.class)
+                    .when(offerService)
+                    .createGymPassOffer(any());
+
+            mockMvc.perform(request)
+                    .andDo(print())
+                    .andExpect(status().isConflict())
+                    .andExpect(status().reason(is(expectedMessage)))
+                    .andExpect(result ->
+                            assertThat(result.getResolvedException().getCause())
+                                    .isInstanceOf(DuplicatedOffersException.class)
+                    );
         }
     }
 

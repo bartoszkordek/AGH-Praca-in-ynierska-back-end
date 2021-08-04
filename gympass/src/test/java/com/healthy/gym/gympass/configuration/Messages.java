@@ -15,7 +15,8 @@ public class Messages {
                 {"field.subheader.failure", "Opis powinnien mieć od 2 do 60 znaków."},
                 {"field.synopsis.failure", "Opis powinnien mieć od 2 do 60 znaków."},
                 {"field.features.failure", "Oferta może maksymalnie zawierać 20 szczegółów."},
-                {"request.bind.exception", "Podano nieprawidłowy format danych."}
+                {"request.bind.exception", "Podano nieprawidłowy format danych."},
+                {"exception.duplicated.offers", "Zduplikowana nazwa oferty."}
 
         }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
     }
@@ -30,7 +31,8 @@ public class Messages {
                 {"field.subheader.failure", "The subheader should be 2 to 60 characters long."},
                 {"field.synopsis.failure", "The synopsis should be 2 to 60 characters long."},
                 {"field.features.failure", "Offer should contain max 20 features."},
-                {"request.bind.exception", "An invalid data format has been provided."}
+                {"request.bind.exception", "An invalid data format has been provided."},
+                {"exception.duplicated.offers", "Duplicated offer name."}
 
         }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
     }

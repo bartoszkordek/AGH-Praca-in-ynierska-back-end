@@ -3,6 +3,7 @@ package com.healthy.gym.gympass.controller;
 
 import com.healthy.gym.gympass.component.Translator;
 import com.healthy.gym.gympass.dto.GymPassDTO;
+import com.healthy.gym.gympass.exception.DuplicatedOffersException;
 import com.healthy.gym.gympass.exception.NoOffersException;
 import com.healthy.gym.gympass.pojo.request.GymPassOfferRequest;
 import com.healthy.gym.gympass.pojo.response.GymPassOfferResponse;
@@ -46,9 +47,11 @@ public class OfferController {
             return ResponseEntity
                     .status(HttpStatus.OK)
                     .body(offerService.getGymPassOffer());
+
         } catch (NoOffersException exception){
             String reason = translator.toLocale("exception.no.offers");
             throw new ResponseStatusException(HttpStatus.NO_CONTENT, reason, exception);
+
         } catch (Exception exception){
             String reason = translator.toLocale(INTERNAL_ERROR_EXCEPTION);
             exception.printStackTrace();
@@ -67,15 +70,22 @@ public class OfferController {
             if (bindingResult.hasErrors()) throw new BindException(bindingResult);
 
             String message = translator.toLocale("offer.created");
+
+            GymPassDTO createdGymPassOffer = offerService.createGymPassOffer(request);
+
             return ResponseEntity
                     .status(HttpStatus.CREATED)
                     .body(new GymPassOfferResponse(
                             message,
-                            offerService.createGymPassOffer(request)
+                            createdGymPassOffer
                     ));
         } catch (BindException exception) {
-                String reason = translator.toLocale("request.bind.exception");
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, exception);
+            String reason = translator.toLocale("request.bind.exception");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, exception);
+
+        } catch (DuplicatedOffersException exception) {
+            String reason = translator.toLocale("exception.duplicated.offers");
+            throw new ResponseStatusException(HttpStatus.CONFLICT, reason, exception);
 
         } catch (Exception exception){
             String reason = translator.toLocale(INTERNAL_ERROR_EXCEPTION);

@@ -26,8 +26,6 @@ import static com.healthy.gym.trainings.utils.ParticipantsExtractor.userIsInBasi
 public class UserGroupTrainingController {
 
     private static final String EXCEPTION_INTERNAL_ERROR = "exception.internal.error";
-    private static final String EXCEPTION_GROUP_TRAINING_ENROLLMENT = "exception.group.training.enrollment";
-    private static final String EXCEPTION_NOT_FOUND_TRAINING_ID = "exception.not.found.training.id";
     private final Translator translator;
     private final UserGroupTrainingService userGroupTrainingService;
 
@@ -98,20 +96,34 @@ public class UserGroupTrainingController {
 
     @PreAuthorize("hasRole('ADMIN') or hasRole('EMPLOYEE') or principal==#userId")
     @DeleteMapping("/{trainingId}/enroll")
-    public void removeGroupTrainingEnrollment(
+    public ResponseEntity<GroupTrainingResponse> removeGroupTrainingEnrollment(
             @PathVariable("trainingId") final String trainingId,
             @RequestParam("clientId") final String userId
     ) {
         try {
-            userGroupTrainingService.removeGroupTrainingEnrollment(trainingId, userId);
+            GroupTrainingDTO removedEnrolmentTraining =
+                    userGroupTrainingService.removeGroupTrainingEnrollment(trainingId, userId);
+            String message = translator.toLocale("enrollment.remove");
 
-        } catch (NotExistingGroupTrainingException e) {
-            String reason = translator.toLocale(EXCEPTION_NOT_FOUND_TRAINING_ID);
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, reason, e);
+            return ResponseEntity
+                    .status(HttpStatus.OK)
+                    .body(new GroupTrainingResponse(message, removedEnrolmentTraining));
 
-        } catch (TrainingEnrollmentException e) {
-            String reason = translator.toLocale(EXCEPTION_GROUP_TRAINING_ENROLLMENT);
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, e);
+        } catch (NotExistingGroupTrainingException exception) {
+            String reason = translator.toLocale("exception.group.training.not.found");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, exception);
+
+        } catch (PastDateException exception) {
+            String reason = translator.toLocale("exception.past.date.enrollment.remove");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, exception);
+
+        } catch (UserNotFoundException exception) {
+            String reason = translator.toLocale("exception.not.found.user.id");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, exception);
+
+        } catch (TrainingEnrollmentException exception) {
+            String reason = translator.toLocale("exception.group.training.enrollment.remove");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, exception);
 
         } catch (Exception exception) {
             String reason = translator.toLocale(EXCEPTION_INTERNAL_ERROR);

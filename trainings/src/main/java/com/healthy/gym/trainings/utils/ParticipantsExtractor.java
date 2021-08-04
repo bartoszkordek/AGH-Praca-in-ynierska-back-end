@@ -3,6 +3,9 @@ package com.healthy.gym.trainings.utils;
 import com.healthy.gym.trainings.data.document.GroupTrainingDocument;
 import com.healthy.gym.trainings.data.document.UserDocument;
 import com.healthy.gym.trainings.model.response.UserResponse;
+import com.healthy.gym.trainings.shared.BasicUserInfoDTO;
+import com.healthy.gym.trainings.shared.GroupTrainingDTO;
+import com.healthy.gym.trainings.shared.ParticipantsDTO;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
 
@@ -63,5 +66,15 @@ public class ParticipantsExtractor {
                 .findFirst();
 
         return foundUser.isPresent();
+    }
+
+    public static boolean userIsInBasicList(GroupTrainingDTO enrolledTraining, String userId) {
+        ParticipantsDTO participants = enrolledTraining.getParticipants();
+        List<BasicUserInfoDTO> basicList = participants.getBasicList();
+        List<BasicUserInfoDTO> filteredList = basicList
+                .stream()
+                .filter(user -> user.getUserId().equals(userId))
+                .collect(Collectors.toList());
+        return !filteredList.isEmpty();
     }
 }

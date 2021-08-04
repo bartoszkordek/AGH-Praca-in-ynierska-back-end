@@ -1,9 +1,10 @@
 package com.healthy.gym.trainings.utils;
 
 import com.healthy.gym.trainings.data.document.GroupTrainingDocument;
-import com.healthy.gym.trainings.data.document.GroupTrainings;
 import com.healthy.gym.trainings.data.document.UserDocument;
 import com.healthy.gym.trainings.model.response.UserResponse;
+import com.healthy.gym.trainings.shared.BasicUserInfoDTO;
+import com.healthy.gym.trainings.shared.GroupTrainingDTO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -142,6 +143,56 @@ class ParticipantsExtractorTest {
         void shouldReturnFalseWhenUserIsNull() {
             groupTrainings.setBasicList(List.of(testUser2, testUser3));
             assertThat(isClientAlreadyEnrolledToGroupTraining(groupTrainings, null)).isFalse();
+        }
+    }
+
+    @Nested
+    class WhenUserIsInBasicList {
+        private String userId;
+        private GroupTrainingDTO groupTrainingDTO;
+
+        @BeforeEach
+        void setUp() {
+            userId = UUID.randomUUID().toString();
+            groupTrainingDTO = new GroupTrainingDTO();
+        }
+
+        @Test
+        void shouldReturnTrueWhenUserIsInBasicList() {
+            groupTrainingDTO.setBasicList(
+                    List.of(
+                            getTestUser(userId),
+                            getTestUser(),
+                            getTestUser(),
+                            getTestUser()
+                    )
+            );
+
+            assertThat(userIsInBasicList(groupTrainingDTO, userId)).isTrue();
+        }
+
+        private BasicUserInfoDTO getTestUser() {
+            String userId = UUID.randomUUID().toString();
+            return getTestUser(userId);
+        }
+
+        private BasicUserInfoDTO getTestUser(String userId) {
+            var user = new BasicUserInfoDTO();
+            user.setUserId(userId);
+            return user;
+        }
+
+        @Test
+        void shouldReturnFalseWhenUserIsNotInBasicList() {
+            groupTrainingDTO.setBasicList(
+                    List.of(
+                            getTestUser(),
+                            getTestUser(),
+                            getTestUser()
+                    )
+            );
+
+            assertThat(userIsInBasicList(groupTrainingDTO, userId)).isFalse();
         }
     }
 }

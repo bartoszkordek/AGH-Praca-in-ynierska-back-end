@@ -4,6 +4,7 @@ package com.healthy.gym.gympass.controller;
 import com.healthy.gym.gympass.component.Translator;
 import com.healthy.gym.gympass.dto.GymPassDTO;
 import com.healthy.gym.gympass.exception.DuplicatedOffersException;
+import com.healthy.gym.gympass.exception.InvalidGymPassOfferId;
 import com.healthy.gym.gympass.exception.NoOffersException;
 import com.healthy.gym.gympass.pojo.request.GymPassOfferRequest;
 import com.healthy.gym.gympass.pojo.response.GymPassOfferResponse;
@@ -14,10 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindException;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import javax.validation.Valid;
@@ -62,8 +60,8 @@ public class OfferController {
     @PreAuthorize("hasRole('ADMIN') or hasRole('MANAGER')")
     @PostMapping("/offer")
     public ResponseEntity<GymPassOfferResponse> createGymPassOffer(
-            @Valid @RequestBody GymPassOfferRequest request,
-            BindingResult bindingResult
+            @Valid @RequestBody final GymPassOfferRequest request,
+            final BindingResult bindingResult
     ){
 
         try {
@@ -79,8 +77,50 @@ public class OfferController {
                             message,
                             createdGymPassOffer
                     ));
+
         } catch (BindException exception) {
             String reason = translator.toLocale("request.bind.exception");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, exception);
+
+        } catch (DuplicatedOffersException exception) {
+            String reason = translator.toLocale("exception.duplicated.offers");
+            throw new ResponseStatusException(HttpStatus.CONFLICT, reason, exception);
+
+        } catch (Exception exception){
+            String reason = translator.toLocale(INTERNAL_ERROR_EXCEPTION);
+            exception.printStackTrace();
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, reason, exception);
+        }
+    }
+
+    @PreAuthorize("hasRole('ADMIN') or hasRole('MANAGER')")
+    @PutMapping("/offer/{id}")
+    public ResponseEntity<GymPassOfferResponse> updateGymPassOffer(
+            @Valid @RequestBody final GymPassOfferRequest request,
+            @PathVariable("id") final String id,
+            final BindingResult bindingResult
+    ){
+        try{
+            if (bindingResult.hasErrors()) throw new BindException(bindingResult);
+
+
+            String message = translator.toLocale("offer.updated");
+
+            GymPassDTO updatedGymPassOffer = offerService.updateGymPassOffer(id, request);
+
+            return ResponseEntity
+                    .status(HttpStatus.CREATED)
+                    .body(new GymPassOfferResponse(
+                            message,
+                            updatedGymPassOffer
+                    ));
+
+        } catch (BindException exception) {
+            String reason = translator.toLocale("request.bind.exception");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, exception);
+
+        } catch (InvalidGymPassOfferId exception) {
+            String reason = translator.toLocale("exception.invalid.offer.id");
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, exception);
 
         } catch (DuplicatedOffersException exception) {

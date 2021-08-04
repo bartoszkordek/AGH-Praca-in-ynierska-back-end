@@ -14,7 +14,8 @@ public class Messages {
                 {"field.name.failure", "Nazwa powinna mieć od 2 do 20 znaków."},
                 {"field.subheader.failure", "Opis powinnien mieć od 2 do 60 znaków."},
                 {"field.synopsis.failure", "Opis powinnien mieć od 2 do 60 znaków."},
-                {"field.features.failure", "Oferta może maksymalnie zawierać 20 szczegółów."}
+                {"field.features.failure", "Oferta może maksymalnie zawierać 20 szczegółów."},
+                {"request.bind.exception", "Podano nieprawidłowy format danych."}
 
         }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
     }
@@ -28,7 +29,8 @@ public class Messages {
                 {"field.name.failure", "The name should be 2 to 20 characters long."},
                 {"field.subheader.failure", "The subheader should be 2 to 60 characters long."},
                 {"field.synopsis.failure", "The synopsis should be 2 to 60 characters long."},
-                {"field.features.failure", "Offer should contain max 20 features."}
+                {"field.features.failure", "Offer should contain max 20 features."},
+                {"request.bind.exception", "An invalid data format has been provided."}
 
         }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
     }

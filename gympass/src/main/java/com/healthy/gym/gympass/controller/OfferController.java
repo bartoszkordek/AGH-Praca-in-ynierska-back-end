@@ -63,16 +63,19 @@ public class OfferController {
             BindingResult bindingResult
     ){
 
-        try{
+        try {
             if (bindingResult.hasErrors()) throw new BindException(bindingResult);
 
             String message = translator.toLocale("offer.created");
             return ResponseEntity
                     .status(HttpStatus.CREATED)
-                    .body( new GymPassOfferResponse(
+                    .body(new GymPassOfferResponse(
                             message,
                             offerService.createGymPassOffer(request)
                     ));
+        } catch (BindException exception) {
+                String reason = translator.toLocale("request.bind.exception");
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, exception);
 
         } catch (Exception exception){
             String reason = translator.toLocale(INTERNAL_ERROR_EXCEPTION);

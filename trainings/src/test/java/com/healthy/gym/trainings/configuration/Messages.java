@@ -50,7 +50,9 @@ public class Messages {
                 {"training.type.created", "Nowy typ treningu został stworzony."},
                 {"training.type.failure", "Wystąpił błąd podczas tworzenia treningu."},
                 {"training.type.removed", "Typ treningu został usunięty."},
-                {"training.type.updated", "Typ treningu został zaktualizowany."}
+                {"training.type.updated", "Typ treningu został zaktualizowany."},
+                {"enrollment.success.basic.list", "Pomyślnie zapisano się na zajęcia."},
+                {"enrollment.success.reserve.list", "Brak miejsc na liście podstawowej. Zapisano na listę rezerwową."}
         }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
     }
 
@@ -99,7 +101,9 @@ public class Messages {
                 {"training.type.created", "New training type has been created."},
                 {"training.type.failure", "An error occurred while creating new training type."},
                 {"training.type.removed", "Training type has been removed."},
-                {"training.type.updated", "Training type has been updated."}
+                {"training.type.updated", "Training type has been updated."},
+                {"enrollment.success.basic.list", "Successfully enrolled to group training."},
+                {"enrollment.success.reserve.list", "Basic list is full. You have been enrolled to reserve list."}
         }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
     }
 

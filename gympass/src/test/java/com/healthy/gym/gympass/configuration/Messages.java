@@ -18,7 +18,7 @@ public class Messages {
                 {"field.features.failure", "Oferta może maksymalnie zawierać 20 szczegółów."},
                 {"request.bind.exception", "Podano nieprawidłowy format danych."},
                 {"exception.duplicated.offers", "Zduplikowana nazwa oferty."},
-                {"exception.invalid.offer.id", "Błędne ID oferty."}
+                {"exception.invalid.offer.id", "Bledne ID oferty."}
 
         }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
     }

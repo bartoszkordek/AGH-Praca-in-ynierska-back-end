@@ -4,7 +4,7 @@ import com.healthy.gym.gympass.configuration.TestCountry;
 import com.healthy.gym.gympass.configuration.TestRoleTokenFactory;
 import com.healthy.gym.gympass.controller.OfferController;
 import com.healthy.gym.gympass.dto.GymPassDTO;
-import com.healthy.gym.gympass.exception.DuplicatedOffersException;
+import com.healthy.gym.gympass.exception.InvalidGymPassOfferId;
 import com.healthy.gym.gympass.pojo.request.GymPassOfferRequest;
 import com.healthy.gym.gympass.service.OfferService;
 import com.healthy.gym.gympass.shared.Description;
@@ -34,7 +34,6 @@ import static com.healthy.gym.gympass.configuration.LocaleConverter.convertEnumT
 import static com.healthy.gym.gympass.configuration.Messages.getMessagesAccordingToLocale;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.ResultMatcher.matchAll;
@@ -75,8 +74,8 @@ public class UpdateOfferUnitTest {
         String adminId = UUID.randomUUID().toString();
         adminToken = tokenFactory.getAdminToken(adminId);
 
-        String validId = UUID.randomUUID().toString();
-        String invalidId = UUID.randomUUID().toString();
+        validId = UUID.randomUUID().toString();
+        invalidId = UUID.randomUUID().toString();
 
         ObjectMapper objectMapper = new ObjectMapper();
         gymPassOfferRequest = new GymPassOfferRequest();
@@ -203,6 +202,36 @@ public class UpdateOfferUnitTest {
                     .andExpect(matchAll(
                             status().isBadRequest()
                     ));
+        }
+
+        @ParameterizedTest
+        @EnumSource(TestCountry.class)
+        void shouldThrowInvalidGymPassOfferId(TestCountry country) throws Exception {
+            Map<String, String> messages = getMessagesAccordingToLocale(country);
+            Locale testedLocale = convertEnumToLocale(country);
+
+            RequestBuilder request = MockMvcRequestBuilders
+                    .put(uri+"/"+invalidId)
+                    .header("Accept-Language", testedLocale.toString())
+                    .header("Authorization", managerToken)
+                    .content(requestContent)
+                    .contentType(MediaType.APPLICATION_JSON);
+
+
+            String expectedMessage = messages.get("exception.invalid.offer.id");
+
+            doThrow(InvalidGymPassOfferId.class)
+                    .when(offerService)
+                    .updateGymPassOffer(invalidId, gymPassOfferRequest);
+
+            mockMvc.perform(request)
+                    .andDo(print())
+                    .andExpect(status().isBadRequest())
+                    .andExpect(status().reason(is(expectedMessage)))
+                    .andExpect(result ->
+                            assertThat(result.getResolvedException().getCause())
+                                    .isInstanceOf(InvalidGymPassOfferId.class)
+                    );
         }
     }
 }

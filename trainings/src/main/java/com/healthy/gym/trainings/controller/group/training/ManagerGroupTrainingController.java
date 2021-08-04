@@ -1,20 +1,16 @@
 package com.healthy.gym.trainings.controller.group.training;
 
 import com.healthy.gym.trainings.component.Translator;
-import com.healthy.gym.trainings.exception.EmailSendingException;
 import com.healthy.gym.trainings.exception.PastDateException;
 import com.healthy.gym.trainings.exception.ResponseBindException;
 import com.healthy.gym.trainings.exception.StartDateAfterEndDateException;
-import com.healthy.gym.trainings.exception.invalid.InvalidHourException;
+import com.healthy.gym.trainings.exception.notexisting.NotExistingGroupTrainingException;
 import com.healthy.gym.trainings.exception.notfound.LocationNotFoundException;
 import com.healthy.gym.trainings.exception.notfound.TrainerNotFoundException;
 import com.healthy.gym.trainings.exception.notfound.TrainingTypeNotFoundException;
 import com.healthy.gym.trainings.exception.occupied.LocationOccupiedException;
 import com.healthy.gym.trainings.exception.occupied.TrainerOccupiedException;
-import com.healthy.gym.trainings.exception.training.TrainingRemovalException;
-import com.healthy.gym.trainings.exception.training.TrainingUpdateException;
 import com.healthy.gym.trainings.model.request.ManagerGroupTrainingRequest;
-import com.healthy.gym.trainings.model.request.GroupTrainingRequest;
 import com.healthy.gym.trainings.model.response.GroupTrainingResponse;
 import com.healthy.gym.trainings.service.group.training.ManagerGroupTrainingService;
 import com.healthy.gym.trainings.shared.GroupTrainingDTO;
@@ -29,7 +25,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import javax.validation.Valid;
-import java.text.ParseException;
 
 @PreAuthorize("hasRole('MANAGER') or hasRole('ADMIN')")
 @RestController
@@ -50,8 +45,8 @@ public class ManagerGroupTrainingController {
 
     @PostMapping
     public ResponseEntity<GroupTrainingResponse> createGroupTraining(
-            @Valid @RequestBody ManagerGroupTrainingRequest createGroupTrainingRequest,
-            BindingResult bindingResult
+            @Valid @RequestBody final ManagerGroupTrainingRequest createGroupTrainingRequest,
+            final BindingResult bindingResult
     ) throws ResponseBindException {
         try {
             if (bindingResult.hasErrors()) throw new BindException(bindingResult);
@@ -106,14 +101,14 @@ public class ManagerGroupTrainingController {
     @PutMapping("/{trainingId}")
     public ResponseEntity<GroupTrainingResponse> updateGroupTraining(
             @PathVariable("trainingId") final String trainingId,
-            @Valid @RequestBody GroupTrainingRequest groupTrainingModelRequest,
-            BindingResult bindingResult
+            @Valid @RequestBody final ManagerGroupTrainingRequest groupTrainingRequest,
+            final BindingResult bindingResult
     ) throws ResponseBindException {
         try {
             if (bindingResult.hasErrors()) throw new BindException(bindingResult);
 
             GroupTrainingDTO updateGroupTraining = managerGroupTrainingService
-                    .updateGroupTraining(trainingId, groupTrainingModelRequest);
+                    .updateGroupTraining(trainingId, groupTrainingRequest);
             String message = translator.toLocale("request.update.training.success");
 
             return ResponseEntity
@@ -123,18 +118,6 @@ public class ManagerGroupTrainingController {
         } catch (BindException exception) {
             String reason = translator.toLocale("request.bind.exception");
             throw new ResponseBindException(HttpStatus.BAD_REQUEST, reason, exception);
-
-        } catch (InvalidHourException | ParseException e) {
-            String reason = translator.toLocale("exception.date.or.hour.parse");
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, e);
-
-        } catch (TrainingUpdateException e) {
-            String reason = translator.toLocale("exception.group.training.update");
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, e);
-
-        } catch (EmailSendingException e) {
-            String reason = translator.toLocale("exception.email.sending");
-            throw new ResponseStatusException(HttpStatus.REQUEST_TIMEOUT, reason, e);
 
         } catch (Exception exception) {
             String reason = translator.toLocale(INTERNAL_ERROR_EXCEPTION);
@@ -155,13 +138,9 @@ public class ManagerGroupTrainingController {
                     .status(HttpStatus.OK)
                     .body(new GroupTrainingResponse(message, updateGroupTraining));
 
-        } catch (TrainingRemovalException e) {
-            String reason = translator.toLocale("exception.group.training.remove");
+        } catch (NotExistingGroupTrainingException e) {
+            String reason = translator.toLocale("exception.group.training.not.found");
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, e);
-
-        } catch (EmailSendingException e) {
-            String reason = translator.toLocale("exception.email.sending");
-            throw new ResponseStatusException(HttpStatus.REQUEST_TIMEOUT, reason, e);
 
         } catch (Exception exception) {
             String reason = translator.toLocale(INTERNAL_ERROR_EXCEPTION);

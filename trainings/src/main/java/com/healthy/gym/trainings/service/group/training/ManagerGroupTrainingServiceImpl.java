@@ -1,51 +1,44 @@
 package com.healthy.gym.trainings.service.group.training;
 
-import com.healthy.gym.trainings.component.EmailSender;
-import com.healthy.gym.trainings.data.document.*;
-import com.healthy.gym.trainings.data.repository.*;
+import com.healthy.gym.trainings.data.document.GroupTrainingDocument;
+import com.healthy.gym.trainings.data.document.LocationDocument;
+import com.healthy.gym.trainings.data.document.TrainingTypeDocument;
+import com.healthy.gym.trainings.data.document.UserDocument;
+import com.healthy.gym.trainings.data.repository.GroupTrainingsDAO;
+import com.healthy.gym.trainings.data.repository.LocationDAO;
+import com.healthy.gym.trainings.data.repository.TrainingTypeDAO;
+import com.healthy.gym.trainings.data.repository.UserDAO;
 import com.healthy.gym.trainings.enums.GymRole;
-import com.healthy.gym.trainings.exception.EmailSendingException;
 import com.healthy.gym.trainings.exception.PastDateException;
 import com.healthy.gym.trainings.exception.StartDateAfterEndDateException;
-import com.healthy.gym.trainings.exception.invalid.InvalidDateException;
-import com.healthy.gym.trainings.exception.invalid.InvalidHourException;
 import com.healthy.gym.trainings.exception.notexisting.NotExistingGroupTrainingException;
 import com.healthy.gym.trainings.exception.notfound.LocationNotFoundException;
 import com.healthy.gym.trainings.exception.notfound.TrainerNotFoundException;
 import com.healthy.gym.trainings.exception.notfound.TrainingTypeNotFoundException;
 import com.healthy.gym.trainings.exception.occupied.LocationOccupiedException;
 import com.healthy.gym.trainings.exception.occupied.TrainerOccupiedException;
-import com.healthy.gym.trainings.exception.training.TrainingUpdateException;
 import com.healthy.gym.trainings.model.request.ManagerGroupTrainingRequest;
-import com.healthy.gym.trainings.model.request.GroupTrainingRequest;
-import com.healthy.gym.trainings.model.response.UserResponse;
 import com.healthy.gym.trainings.shared.GroupTrainingDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.text.ParseException;
 import java.time.Clock;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
+import java.util.stream.Collectors;
 
-import static com.healthy.gym.trainings.utils.GroupTrainingMapper.mapToGroupTrainingDTO;
-import static com.healthy.gym.trainings.utils.GroupTrainingValidator.*;
+import static com.healthy.gym.trainings.utils.GroupTrainingMapper.mapToGroupTrainingsDocumentsToDTOs;
 
 @Service
 public class ManagerGroupTrainingServiceImpl implements ManagerGroupTrainingService {
 
-    private static final double INITIAL_RATING = 0.0;
     private final GroupTrainingsDAO groupTrainingsDAO;
     private final TrainingTypeDAO trainingTypeDAO;
     private final LocationDAO locationDAO;
     private final UserDAO userDAO;
-    private final GroupTrainingsDbRepository groupTrainingsDbRepositoryImpl;
-    private final EmailSender emailSender;
     private final Clock clock;
-    private final GroupTrainingsRepository groupTrainingsRepository;
+    private final GroupTrainingDocumentUpdateBuilder groupTrainingDocumentUpdateBuilder;
 
     @Autowired
     public ManagerGroupTrainingServiceImpl(
@@ -53,56 +46,33 @@ public class ManagerGroupTrainingServiceImpl implements ManagerGroupTrainingServ
             TrainingTypeDAO trainingTypeDAO,
             LocationDAO locationDAO,
             UserDAO userDAO,
-            GroupTrainingsDbRepository groupTrainingsDbRepositoryImpl,
-            EmailSender emailSender,
             Clock clock,
-            GroupTrainingsRepository groupTrainingsRepository
+            GroupTrainingDocumentUpdateBuilder groupTrainingDocumentUpdateBuilder
     ) {
         this.groupTrainingsDAO = groupTrainingsDAO;
         this.trainingTypeDAO = trainingTypeDAO;
         this.locationDAO = locationDAO;
         this.userDAO = userDAO;
-        this.groupTrainingsDbRepositoryImpl = groupTrainingsDbRepositoryImpl;
-        this.emailSender = emailSender;
         this.clock = clock;
-        this.groupTrainingsRepository = groupTrainingsRepository;
+        this.groupTrainingDocumentUpdateBuilder = groupTrainingDocumentUpdateBuilder;
     }
 
     @Override
-    public GroupTrainingDTO createGroupTraining(ManagerGroupTrainingRequest createGroupTrainingRequest)
-            throws StartDateAfterEndDateException, TrainerNotFoundException,
-            LocationNotFoundException, TrainingTypeNotFoundException,
-            LocationOccupiedException, TrainerOccupiedException, PastDateException {
+    public GroupTrainingDTO createGroupTraining(
+            final ManagerGroupTrainingRequest createGroupTrainingRequest
+    ) throws StartDateAfterEndDateException,
+            TrainerNotFoundException,
+            LocationNotFoundException,
+            TrainingTypeNotFoundException,
+            LocationOccupiedException,
+            TrainerOccupiedException,
+            PastDateException {
 
-        String trainingTypeId = createGroupTrainingRequest.getTrainingTypeId();
-        TrainingTypeDocument trainingType = trainingTypeDAO.findByTrainingTypeId(trainingTypeId);
-        if (trainingType == null) throw new TrainingTypeNotFoundException();
-
-        List<String> trainerIds = createGroupTrainingRequest.getTrainerIds();
-        List<UserDocument> trainers = new ArrayList<>();
-        for (String trainerId : trainerIds) {
-            UserDocument trainer = userDAO.findByUserId(trainerId);
-            if (trainer == null || !trainer.getGymRoles().contains(GymRole.TRAINER))
-                throw new TrainerNotFoundException();
-            trainers.add(trainer);
-        }
-
-        String locationId = createGroupTrainingRequest.getLocationId();
-        LocationDocument location = locationDAO.findByLocationId(locationId);
-        if (location == null) throw new LocationNotFoundException();
-
-        String startDateStr = createGroupTrainingRequest.getStartDate();
-        LocalDateTime startDate = LocalDateTime.parse(startDateStr, DateTimeFormatter.ISO_LOCAL_DATE_TIME);
-        if (startDate.isBefore(LocalDateTime.now(clock))) throw new PastDateException();
-
-        String endDateStr = createGroupTrainingRequest.getEndDate();
-        LocalDateTime endDate = LocalDateTime.parse(endDateStr, DateTimeFormatter.ISO_LOCAL_DATE_TIME);
-        if (endDate.isBefore(startDate)) throw new StartDateAfterEndDateException();
-
-        //TODO LocationOccupiedException
-
-        //TODO TrainerOccupiedException
-
+        TrainingTypeDocument trainingType = getTrainingTypeDocument(createGroupTrainingRequest);
+        List<UserDocument> trainers = getListOfTrainersUserDocument(createGroupTrainingRequest);
+        LocationDocument location = getLocationDocument(createGroupTrainingRequest);
+        LocalDateTime startDate = getStartDate(createGroupTrainingRequest);
+        LocalDateTime endDate = getEndDate(createGroupTrainingRequest);
         int limit = createGroupTrainingRequest.getLimit();
 
         GroupTrainingDocument groupTrainingToCreate = new GroupTrainingDocument(
@@ -117,155 +87,138 @@ public class ManagerGroupTrainingServiceImpl implements ManagerGroupTrainingServ
                 new ArrayList<>()
         );
 
+        validateStartDateTime(groupTrainingToCreate);
+        checkIfStartDateTimeIsBeforeEndDateTime(groupTrainingToCreate);
+        //TODO add validation LocationOccupiedException
+        //TODO add validation TrainerOccupiedException
+
         GroupTrainingDocument groupTrainingSaved = groupTrainingsDAO.save(groupTrainingToCreate);
-        return mapToGroupTrainingDTO(groupTrainingSaved);
+        return mapToGroupTrainingsDocumentsToDTOs(groupTrainingSaved);
     }
 
+    private TrainingTypeDocument getTrainingTypeDocument(ManagerGroupTrainingRequest groupTrainingRequest)
+            throws TrainingTypeNotFoundException {
+        String trainingTypeId = groupTrainingRequest.getTrainingTypeId();
+        TrainingTypeDocument trainingType = trainingTypeDAO.findByTrainingTypeId(trainingTypeId);
+        if (trainingType == null) throw new TrainingTypeNotFoundException();
+        return trainingType;
+    }
+
+    private List<UserDocument> getListOfTrainersUserDocument(ManagerGroupTrainingRequest groupTrainingRequest)
+            throws TrainerNotFoundException {
+
+        List<String> trainerIds = groupTrainingRequest.getTrainerIds();
+        List<UserDocument> trainers = new ArrayList<>();
+        for (String trainerId : trainerIds) {
+            UserDocument trainer = userDAO.findByUserId(trainerId);
+            if (trainer == null || !trainer.getGymRoles().contains(GymRole.TRAINER))
+                throw new TrainerNotFoundException();
+            trainers.add(trainer);
+        }
+        return trainers;
+    }
+
+    private LocationDocument getLocationDocument(ManagerGroupTrainingRequest groupTrainingRequest)
+            throws LocationNotFoundException {
+        String locationId = groupTrainingRequest.getLocationId();
+        LocationDocument location = locationDAO.findByLocationId(locationId);
+        if (location == null) throw new LocationNotFoundException();
+        return location;
+    }
+
+    private LocalDateTime getStartDate(ManagerGroupTrainingRequest groupTrainingRequest) {
+        String startDate = groupTrainingRequest.getStartDate();
+        return parseDateTime(startDate);
+    }
+
+    private LocalDateTime parseDateTime(String dateTime) {
+        return LocalDateTime.parse(dateTime, DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+    }
+
+    private LocalDateTime getEndDate(ManagerGroupTrainingRequest groupTrainingRequest) {
+        String endDate = groupTrainingRequest.getEndDate();
+        return parseDateTime(endDate);
+    }
+
+    private void validateStartDateTime(GroupTrainingDocument groupTraining) throws PastDateException {
+        LocalDateTime startDate = groupTraining.getStartDate();
+        if (startDate.isBefore(LocalDateTime.now(clock))) throw new PastDateException();
+    }
+
+    private void checkIfStartDateTimeIsBeforeEndDateTime(GroupTrainingDocument groupTraining)
+            throws StartDateAfterEndDateException {
+        LocalDateTime startDate = groupTraining.getStartDate();
+        LocalDateTime endDate = groupTraining.getEndDate();
+        if (endDate.isBefore(startDate)) throw new StartDateAfterEndDateException();
+    }
 
     @Override
     public GroupTrainingDTO updateGroupTraining(
-            String trainingId,
-            GroupTrainingRequest groupTrainingModelRequest
-    ) throws TrainingUpdateException,
-            EmailSendingException,
-            InvalidHourException,
-            ParseException,
-            InvalidDateException {
+            final String trainingId,
+            final ManagerGroupTrainingRequest groupTrainingRequest
+    ) throws LocationNotFoundException,
+            LocationOccupiedException,
+            NotExistingGroupTrainingException,
+            PastDateException,
+            StartDateAfterEndDateException,
+            TrainerNotFoundException,
+            TrainerOccupiedException,
+            TrainingTypeNotFoundException {
 
-        if (!groupTrainingsRepository.existsByTrainingId(trainingId))
-            throw new TrainingUpdateException("Training with ID: " + trainingId + " doesn't exist");
+        GroupTrainingDocument groupTraining = groupTrainingsDAO.findFirstByGroupTrainingId(trainingId);
+        if (groupTraining == null) throw new NotExistingGroupTrainingException();
 
-        String date = groupTrainingModelRequest.getDate();
-        String startTime = groupTrainingModelRequest.getStartTime();
-        String endTime = groupTrainingModelRequest.getEndTime();
-        int hallNo = groupTrainingModelRequest.getHallNo();
-        int limit = groupTrainingModelRequest.getLimit();
+        GroupTrainingDocument groupTrainingUpdated = groupTrainingDocumentUpdateBuilder
+                .setGroupTrainingDocumentToUpdate(groupTraining)
+                .setGroupTrainingRequest(groupTrainingRequest)
+                .updateTrainingType()
+                .updateTrainers()
+                .updateStartDate()
+                .updateEndDate()
+                .updateLocation()
+                .updateLimit()
+                .update();
 
-        if (isTrainingRetroDate(date))
-            throw new TrainingUpdateException("Cannot update group training. Training retro date.");
+        checkIfStartDateTimeIsBeforeEndDateTime(groupTrainingUpdated);
+        //TODO add validation LocationOccupiedException
+        //TODO add validation TrainerOccupiedException
 
-        if (isStartTimeAfterEndTime(startTime, endTime))
-            throw new TrainingUpdateException("Cannot update group training. Start time after end time.");
+        GroupTrainingDocument groupTrainingSaved = groupTrainingsDAO.save(groupTrainingUpdated);
 
-        if (isHallNoInvalid(hallNo))
-            throw new TrainingUpdateException("Cannot update group training. Invalid hall no.");
+        sendEmails(groupTrainingSaved);
 
-        if (isLimitInvalid(limit))
-            throw new TrainingUpdateException("Cannot update group training. Invalid limit.");
+        return mapToGroupTrainingsDocumentsToDTOs(groupTrainingSaved);
+    }
 
-        if (!groupTrainingsDbRepositoryImpl.isAbilityToUpdateTraining(trainingId, groupTrainingModelRequest))
-            throw new TrainingUpdateException("Cannot update group training. Overlapping trainings.");
+    private void sendEmails(GroupTrainingDocument groupTraining) {
+        LocalDateTime endDate = groupTraining.getEndDate();
+        if (endDate.isAfter(LocalDateTime.now(clock))) return;
 
-        GroupTrainings groupTrainings1 = groupTrainingsRepository.findFirstByTrainingId(trainingId);
+        List<String> emails = getAllEmails(groupTraining);
+        //TODO send emails to all participants about changes
+    }
 
-        TrainingTypeDocument trainingType = trainingTypeDAO.findByTrainingTypeId(
-                groupTrainingModelRequest.getTrainingTypeId()
-        );
+    private List<String> getAllEmails(GroupTrainingDocument groupTraining) {
+        Set<UserDocument> allGroupTrainingUsers = new HashSet<>();
+        allGroupTrainingUsers.addAll(groupTraining.getTrainers());
+        allGroupTrainingUsers.addAll(groupTraining.getBasicList());
+        allGroupTrainingUsers.addAll(groupTraining.getReserveList());
 
-        groupTrainings1.setTrainingType(trainingType);
-        //TODO fix groupTrainings1.setTrainerId(groupTrainingModelRequest.getTrainerId());
-        groupTrainings1.setDate(groupTrainingModelRequest.getDate());
-        groupTrainings1.setStartTime(groupTrainingModelRequest.getStartTime());
-        groupTrainings1.setEndTime(groupTrainingModelRequest.getEndTime());
-        groupTrainings1.setHallNo(groupTrainingModelRequest.getHallNo());
-        groupTrainings1.setLimit(groupTrainingModelRequest.getLimit());
-
-        groupTrainingsRepository.save(groupTrainings1);
-
-        List<UserDocument> participants = groupTrainings1.getParticipants();
-        List<UserResponse> participantsResponses = new ArrayList<>();
-        List<String> toEmails = new ArrayList<>();
-        for (UserDocument document : participants) {
-            UserResponse participantsResponse = new UserResponse(document.getUserId(),
-                    document.getName(), document.getSurname());
-            participantsResponses.add(participantsResponse);
-            String email = document.getEmail();
-            toEmails.add(email);
-        }
-
-        List<UserDocument> reserveList = groupTrainings1.getReserveList();
-        List<UserResponse> reserveListResponses = new ArrayList<>();
-        for (UserDocument document : reserveList) {
-            UserResponse reserveListResponse = new UserResponse(document.getUserId(),
-                    document.getName(), document.getSurname());
-            reserveListResponses.add(reserveListResponse);
-        }
-
-        String subject = "Training has been updated";
-        String body = "Training " + groupTrainings1.getTrainingId() + " on " + groupTrainings1.getDate() + " at "
-                + groupTrainings1.getStartTime() + " with "; // //TODO fix + groupTrainings1.getTrainerId() + " has been updated.";
-        try {
-            emailSender.sendEmailWithoutAttachment(toEmails, subject, body);
-        } catch (Exception e) {
-            throw new EmailSendingException("Cannot send email");
-        }
-
-        //todo fix
-        return new GroupTrainingDTO();
-
-//        return new GroupTrainingResponseOld(
-//                null, //TODO fix groupTrainings1.getTrainingId(),
-//                null, //TODO fix groupTrainings1.getTrainingType().getName(),
-//                null, //TODO fix groupTrainings1.getTrainerId(),
-//                null, //TODO fix groupTrainings1.getStartDate(),
-//                null, //TODO fix groupTrainings1.getEndTime(),
-//                null, //TODO fix groupTrainings1.getHallNo(),
-//                groupTrainings1.getLimit(),
-//                INITIAL_RATING,
-//                participantsResponses,
-//                reserveListResponses);
+        return allGroupTrainingUsers
+                .stream()
+                .map(UserDocument::getEmail)
+                .collect(Collectors.toList());
     }
 
     @Override
-    public GroupTrainingDTO removeGroupTraining(String trainingId)
-            throws EmailSendingException, InvalidDateException, InvalidHourException, NotExistingGroupTrainingException {
+    public GroupTrainingDTO removeGroupTraining(String trainingId) throws NotExistingGroupTrainingException {
 
-        GroupTrainings repositoryResponse = groupTrainingsRepository.findFirstByTrainingId(trainingId);
+        GroupTrainingDocument groupTrainingToDelete = groupTrainingsDAO.findFirstByGroupTrainingId(trainingId);
+        if (groupTrainingToDelete == null) throw new NotExistingGroupTrainingException();
+        groupTrainingsDAO.delete(groupTrainingToDelete);
 
-        if (repositoryResponse == null) throw new NotExistingGroupTrainingException();
-        groupTrainingsRepository.removeByTrainingId(trainingId);
+        sendEmails(groupTrainingToDelete);
 
-        List<UserDocument> participants = repositoryResponse.getParticipants();
-        List<UserResponse> participantsResponses = new ArrayList<>();
-        List<String> toEmails = new ArrayList<>();
-        for (UserDocument document : participants) {
-            UserResponse participantsResponse = new UserResponse(document.getUserId(),
-                    document.getName(), document.getSurname());
-            participantsResponses.add(participantsResponse);
-            String email = document.getEmail();
-            toEmails.add(email);
-        }
-
-        List<UserDocument> reserveList = repositoryResponse.getReserveList();
-        List<UserResponse> reserveListResponses = new ArrayList<>();
-        for (UserDocument document : reserveList) {
-            UserResponse reserveListResponse = new UserResponse(document.getUserId(),
-                    document.getName(), document.getSurname());
-            reserveListResponses.add(reserveListResponse);
-        }
-
-        String subject = "Training has been deleted";
-        String body = "Training " + repositoryResponse.getTrainingId() + " on " + repositoryResponse.getDate() + " at "
-                + repositoryResponse.getStartTime() + " with "; //TODO fix + repositoryResponse.getTrainerId() + " has been deleted.";
-        try {
-            emailSender.sendEmailWithoutAttachment(toEmails, subject, body);
-        } catch (Exception e) {
-            throw new EmailSendingException("Cannot send email");
-        }
-
-        //todo fix
-        return new GroupTrainingDTO();
-
-//        return new GroupTrainingResponseOld(
-//                null, //TODO fix groupTrainings1.getTrainingId(),
-//                null, //TODO fix groupTrainings1.getTrainingType().getName(),
-//                null, //TODO fix groupTrainings1.getTrainerId(),
-//                null, //TODO fix groupTrainings1.getStartDate(),
-//                null, //TODO fix groupTrainings1.getEndTime(),
-//                null, //TODO fix groupTrainings1.getHallNo(),
-//                repositoryResponse.getLimit(),
-//                INITIAL_RATING,
-//                participantsResponses,
-//                reserveListResponses);
+        return mapToGroupTrainingsDocumentsToDTOs(groupTrainingToDelete);
     }
 }

@@ -31,10 +31,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 import static com.healthy.gym.trainings.configuration.LocaleConverter.convertEnumToLocale;
 import static com.healthy.gym.trainings.configuration.Messages.getMessagesAccordingToLocale;
@@ -97,7 +94,7 @@ class CreateGroupTrainingTest {
                 "2020-10-10T16:00",
                 "2020-10-10T16:30",
                 false,
-                "Sala nr 2",
+                "Room no 2",
                 List.of(
                         new BasicUserInfoDTO(
                                 UUID.randomUUID().toString(),
@@ -131,44 +128,53 @@ class CreateGroupTrainingTest {
         return request;
     }
 
+    @ParameterizedTest
+    @EnumSource(TestCountry.class)
+    void shouldCreateGroupTraining(TestCountry country) throws Exception {
+        Map<String, String> messages = getMessagesAccordingToLocale(country);
+        Locale testedLocale = convertEnumToLocale(country);
+
+        RequestBuilder request = MockMvcRequestBuilders
+                .post(uri)
+                .header("Accept-Language", testedLocale.toString())
+                .header("Authorization", managerToken)
+                .content(requestContent)
+                .contentType(MediaType.APPLICATION_JSON);
+
+        when(managerGroupTrainingService.createGroupTraining(any()))
+                .thenReturn(validResponse);
+
+        String expectedMessage = messages.get("request.create.training.success");
+
+        mockMvc.perform(request)
+                .andDo(print())
+                .andExpect(matchAll(
+                        status().isCreated(),
+                        content().contentType(MediaType.APPLICATION_JSON),
+                        jsonPath("$.message").value(is(expectedMessage)),
+                        jsonPath("$.training.id").value(is(trainingID)),
+                        jsonPath("$.training.title").value(is("Test training title")),
+                        jsonPath("$.training.startDate").value(is("2020-10-10T16:00")),
+                        jsonPath("$.training.endDate").value(is("2020-10-10T16:30")),
+                        jsonPath("$.training.allDay").value(is(false)),
+                        jsonPath("$.training.location").value(is("Room no 2")),
+                        jsonPath("$.training.trainers[0].name").value(is("TestName")),
+                        jsonPath("$.training.trainers[0].surname").value(is("TestSurname")),
+                        jsonPath("$.training.trainers[0].avatar").value(is("testAvatarUrl"))
+                ));
+    }
+
+    private RequestBuilder getValidRequest(String token, Locale locale) {
+        return MockMvcRequestBuilders
+                .post(uri)
+                .header("Accept-Language", locale.toString())
+                .header("Authorization", token)
+                .content(requestContent)
+                .contentType(MediaType.APPLICATION_JSON);
+    }
+
     @Nested
-    class ShouldAcceptRequestWhenUserHasAdminOrManagerRoleAnd {
-
-        @ParameterizedTest
-        @EnumSource(TestCountry.class)
-        void shouldCreateGroupTraining(TestCountry country) throws Exception {
-            Map<String, String> messages = getMessagesAccordingToLocale(country);
-            Locale testedLocale = convertEnumToLocale(country);
-
-            RequestBuilder request = MockMvcRequestBuilders
-                    .post(uri)
-                    .header("Accept-Language", testedLocale.toString())
-                    .header("Authorization", managerToken)
-                    .content(requestContent)
-                    .contentType(MediaType.APPLICATION_JSON);
-
-            when(managerGroupTrainingService.createGroupTraining((ManagerGroupTrainingRequest) any()))
-                    .thenReturn(validResponse);
-
-            String expectedMessage = messages.get("request.create.training.success");
-
-            mockMvc.perform(request)
-                    .andDo(print())
-                    .andExpect(matchAll(
-                            status().isCreated(),
-                            content().contentType(MediaType.APPLICATION_JSON),
-                            jsonPath("$.message").value(is(expectedMessage)),
-                            jsonPath("$.training.id").value(is(trainingID)),
-                            jsonPath("$.training.title").value(is("Test training title")),
-                            jsonPath("$.training.startDate").value(is("2020-10-10T16:00")),
-                            jsonPath("$.training.endDate").value(is("2020-10-10T16:30")),
-                            jsonPath("$.training.allDay").value(is(false)),
-                            jsonPath("$.training.location").value(is("Sala nr 2")),
-                            jsonPath("$.training.trainers[0].name").value(is("TestName")),
-                            jsonPath("$.training.trainers[0].surname").value(is("TestSurname")),
-                            jsonPath("$.training.trainers[0].avatar").value(is("testAvatarUrl"))
-                    ));
-        }
+    class ShouldAcceptRequestWhenUserHasAdminOrManagerRoleAndShouldThrow {
 
         @ParameterizedTest
         @EnumSource(TestCountry.class)
@@ -210,26 +216,25 @@ class CreateGroupTrainingTest {
             Map<String, String> messages = getMessagesAccordingToLocale(country);
             Locale testedLocale = convertEnumToLocale(country);
 
-            doThrow(StartDateAfterEndDateException.class)
-                    .when(managerGroupTrainingService)
-                    .createGroupTraining((ManagerGroupTrainingRequest) any());
-
-            RequestBuilder request = MockMvcRequestBuilders
-                    .post(uri)
-                    .header("Accept-Language", testedLocale.toString())
-                    .header("Authorization", managerToken)
-                    .content(requestContent)
-                    .contentType(MediaType.APPLICATION_JSON);
-
+            doThrow(StartDateAfterEndDateException.class).when(managerGroupTrainingService).createGroupTraining(any());
+            RequestBuilder request = getValidRequest(managerToken, testedLocale);
             String expectedMessage = messages.get("exception.start.date.after.end.date");
 
+            performRequestAndTestErrorResponse(request, expectedMessage, StartDateAfterEndDateException.class);
+        }
+
+        private void performRequestAndTestErrorResponse(
+                RequestBuilder request,
+                String expectedMessage,
+                Class<? extends Exception> expectedException
+        ) throws Exception {
             mockMvc.perform(request)
                     .andDo(print())
                     .andExpect(status().isBadRequest())
                     .andExpect(status().reason(is(expectedMessage)))
                     .andExpect(result ->
-                            assertThat(result.getResolvedException().getCause())
-                                    .isInstanceOf(StartDateAfterEndDateException.class)
+                            assertThat(Objects.requireNonNull(result.getResolvedException()).getCause())
+                                    .isInstanceOf(expectedException)
                     );
         }
 
@@ -239,27 +244,11 @@ class CreateGroupTrainingTest {
             Map<String, String> messages = getMessagesAccordingToLocale(country);
             Locale testedLocale = convertEnumToLocale(country);
 
-            doThrow(PastDateException.class)
-                    .when(managerGroupTrainingService)
-                    .createGroupTraining((ManagerGroupTrainingRequest) any());
-
-            RequestBuilder request = MockMvcRequestBuilders
-                    .post(uri)
-                    .header("Accept-Language", testedLocale.toString())
-                    .header("Authorization", managerToken)
-                    .content(requestContent)
-                    .contentType(MediaType.APPLICATION_JSON);
-
+            doThrow(PastDateException.class).when(managerGroupTrainingService).createGroupTraining(any());
+            RequestBuilder request = getValidRequest(managerToken, testedLocale);
             String expectedMessage = messages.get("exception.past.date");
 
-            mockMvc.perform(request)
-                    .andDo(print())
-                    .andExpect(status().isBadRequest())
-                    .andExpect(status().reason(is(expectedMessage)))
-                    .andExpect(result ->
-                            assertThat(result.getResolvedException().getCause())
-                                    .isInstanceOf(PastDateException.class)
-                    );
+            performRequestAndTestErrorResponse(request, expectedMessage, PastDateException.class);
         }
 
         @ParameterizedTest
@@ -268,27 +257,11 @@ class CreateGroupTrainingTest {
             Map<String, String> messages = getMessagesAccordingToLocale(country);
             Locale testedLocale = convertEnumToLocale(country);
 
-            doThrow(TrainerNotFoundException.class)
-                    .when(managerGroupTrainingService)
-                    .createGroupTraining((ManagerGroupTrainingRequest) any());
-
-            RequestBuilder request = MockMvcRequestBuilders
-                    .post(uri)
-                    .header("Accept-Language", testedLocale.toString())
-                    .header("Authorization", managerToken)
-                    .content(requestContent)
-                    .contentType(MediaType.APPLICATION_JSON);
-
+            doThrow(TrainerNotFoundException.class).when(managerGroupTrainingService).createGroupTraining(any());
+            RequestBuilder request = getValidRequest(managerToken, testedLocale);
             String expectedMessage = messages.get("exception.create.group.training.trainer.not.found");
 
-            mockMvc.perform(request)
-                    .andDo(print())
-                    .andExpect(status().isBadRequest())
-                    .andExpect(status().reason(is(expectedMessage)))
-                    .andExpect(result ->
-                            assertThat(result.getResolvedException().getCause())
-                                    .isInstanceOf(TrainerNotFoundException.class)
-                    );
+            performRequestAndTestErrorResponse(request, expectedMessage, TrainerNotFoundException.class);
         }
 
 
@@ -298,27 +271,11 @@ class CreateGroupTrainingTest {
             Map<String, String> messages = getMessagesAccordingToLocale(country);
             Locale testedLocale = convertEnumToLocale(country);
 
-            doThrow(LocationNotFoundException.class)
-                    .when(managerGroupTrainingService)
-                    .createGroupTraining((ManagerGroupTrainingRequest) any());
-
-            RequestBuilder request = MockMvcRequestBuilders
-                    .post(uri)
-                    .header("Accept-Language", testedLocale.toString())
-                    .header("Authorization", managerToken)
-                    .content(requestContent)
-                    .contentType(MediaType.APPLICATION_JSON);
-
+            doThrow(LocationNotFoundException.class).when(managerGroupTrainingService).createGroupTraining(any());
+            RequestBuilder request = getValidRequest(managerToken, testedLocale);
             String expectedMessage = messages.get("exception.location.not.found");
 
-            mockMvc.perform(request)
-                    .andDo(print())
-                    .andExpect(status().isBadRequest())
-                    .andExpect(status().reason(is(expectedMessage)))
-                    .andExpect(result ->
-                            assertThat(result.getResolvedException().getCause())
-                                    .isInstanceOf(LocationNotFoundException.class)
-                    );
+            performRequestAndTestErrorResponse(request, expectedMessage, LocationNotFoundException.class);
         }
 
         @ParameterizedTest
@@ -327,27 +284,11 @@ class CreateGroupTrainingTest {
             Map<String, String> messages = getMessagesAccordingToLocale(country);
             Locale testedLocale = convertEnumToLocale(country);
 
-            doThrow(TrainingTypeNotFoundException.class)
-                    .when(managerGroupTrainingService)
-                    .createGroupTraining((ManagerGroupTrainingRequest) any());
-
-            RequestBuilder request = MockMvcRequestBuilders
-                    .post(uri)
-                    .header("Accept-Language", testedLocale.toString())
-                    .header("Authorization", managerToken)
-                    .content(requestContent)
-                    .contentType(MediaType.APPLICATION_JSON);
-
+            doThrow(TrainingTypeNotFoundException.class).when(managerGroupTrainingService).createGroupTraining(any());
+            RequestBuilder request = getValidRequest(managerToken, testedLocale);
             String expectedMessage = messages.get("exception.create.group.training.trainingType.not.found");
 
-            mockMvc.perform(request)
-                    .andDo(print())
-                    .andExpect(status().isBadRequest())
-                    .andExpect(status().reason(is(expectedMessage)))
-                    .andExpect(result ->
-                            assertThat(result.getResolvedException().getCause())
-                                    .isInstanceOf(TrainingTypeNotFoundException.class)
-                    );
+            performRequestAndTestErrorResponse(request, expectedMessage, TrainingTypeNotFoundException.class);
         }
 
         @ParameterizedTest
@@ -356,27 +297,11 @@ class CreateGroupTrainingTest {
             Map<String, String> messages = getMessagesAccordingToLocale(country);
             Locale testedLocale = convertEnumToLocale(country);
 
-            doThrow(LocationOccupiedException.class)
-                    .when(managerGroupTrainingService)
-                    .createGroupTraining((ManagerGroupTrainingRequest) any());
-
-            RequestBuilder request = MockMvcRequestBuilders
-                    .post(uri)
-                    .header("Accept-Language", testedLocale.toString())
-                    .header("Authorization", adminToken)
-                    .content(requestContent)
-                    .contentType(MediaType.APPLICATION_JSON);
-
+            doThrow(LocationOccupiedException.class).when(managerGroupTrainingService).createGroupTraining(any());
+            RequestBuilder request = getValidRequest(adminToken, testedLocale);
             String expectedMessage = messages.get("exception.create.group.training.location.occupied");
 
-            mockMvc.perform(request)
-                    .andDo(print())
-                    .andExpect(status().isBadRequest())
-                    .andExpect(status().reason(is(expectedMessage)))
-                    .andExpect(result ->
-                            assertThat(result.getResolvedException().getCause())
-                                    .isInstanceOf(LocationOccupiedException.class)
-                    );
+            performRequestAndTestErrorResponse(request, expectedMessage, LocationOccupiedException.class);
         }
 
         @ParameterizedTest
@@ -385,27 +310,11 @@ class CreateGroupTrainingTest {
             Map<String, String> messages = getMessagesAccordingToLocale(country);
             Locale testedLocale = convertEnumToLocale(country);
 
-            doThrow(TrainerOccupiedException.class)
-                    .when(managerGroupTrainingService)
-                    .createGroupTraining((ManagerGroupTrainingRequest) any());
-
-            RequestBuilder request = MockMvcRequestBuilders
-                    .post(uri)
-                    .header("Accept-Language", testedLocale.toString())
-                    .header("Authorization", adminToken)
-                    .content(requestContent)
-                    .contentType(MediaType.APPLICATION_JSON);
-
+            doThrow(TrainerOccupiedException.class).when(managerGroupTrainingService).createGroupTraining(any());
+            RequestBuilder request = getValidRequest(adminToken, testedLocale);
             String expectedMessage = messages.get("exception.create.group.training.trainer.occupied");
 
-            mockMvc.perform(request)
-                    .andDo(print())
-                    .andExpect(status().isBadRequest())
-                    .andExpect(status().reason(is(expectedMessage)))
-                    .andExpect(result ->
-                            assertThat(result.getResolvedException().getCause())
-                                    .isInstanceOf(TrainerOccupiedException.class)
-                    );
+            performRequestAndTestErrorResponse(request, expectedMessage, TrainerOccupiedException.class);
         }
 
         @ParameterizedTest
@@ -414,18 +323,8 @@ class CreateGroupTrainingTest {
             Map<String, String> messages = getMessagesAccordingToLocale(country);
             Locale testedLocale = convertEnumToLocale(country);
 
-            doThrow(IllegalStateException.class)
-                    .when(managerGroupTrainingService)
-                    .createGroupTraining((ManagerGroupTrainingRequest) any());
-
-
-            RequestBuilder request = MockMvcRequestBuilders
-                    .post(uri)
-                    .header("Accept-Language", testedLocale.toString())
-                    .header("Authorization", adminToken)
-                    .content(requestContent)
-                    .contentType(MediaType.APPLICATION_JSON);
-
+            doThrow(IllegalStateException.class).when(managerGroupTrainingService).createGroupTraining(any());
+            RequestBuilder request = getValidRequest(adminToken, testedLocale);
             String expectedMessage = messages.get("exception.internal.error");
 
             mockMvc.perform(request)
@@ -433,7 +332,7 @@ class CreateGroupTrainingTest {
                     .andExpect(status().isInternalServerError())
                     .andExpect(status().reason(is(expectedMessage)))
                     .andExpect(result ->
-                            assertThat(result.getResolvedException().getCause())
+                            assertThat(Objects.requireNonNull(result.getResolvedException()).getCause())
                                     .isInstanceOf(IllegalStateException.class)
                     );
         }

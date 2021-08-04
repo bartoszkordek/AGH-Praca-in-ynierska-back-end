@@ -21,10 +21,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 import static com.healthy.gym.trainings.configuration.LocaleConverter.convertEnumToLocale;
 import static com.healthy.gym.trainings.configuration.Messages.getMessagesAccordingToLocale;
@@ -80,7 +77,7 @@ public class RemoveGroupTrainingTest {
                 "2020-10-10T16:00",
                 "2020-10-10T16:30",
                 false,
-                "Sala nr 2",
+                "Room no 2",
                 List.of(
                         new BasicUserInfoDTO(
                                 "138f6113-8acc-41f7-9427-7c5f9c63cbae",
@@ -149,7 +146,7 @@ public class RemoveGroupTrainingTest {
                                     jsonPath("$.training.startDate").value(is("2020-10-10T16:00")),
                                     jsonPath("$.training.endDate").value(is("2020-10-10T16:30")),
                                     jsonPath("$.training.allDay").value(is(false)),
-                                    jsonPath("$.training.location").value(is("Sala nr 2"))
+                                    jsonPath("$.training.location").value(is("Room no 2"))
                             )
                     )
                     .andExpect(
@@ -210,7 +207,7 @@ public class RemoveGroupTrainingTest {
                     .andExpect(status().isBadRequest())
                     .andExpect(status().reason(is(expectedMessage)))
                     .andExpect(result ->
-                            assertThat(result.getResolvedException().getCause())
+                            assertThat(Objects.requireNonNull(result.getResolvedException()).getCause())
                                     .isInstanceOf(NotExistingGroupTrainingException.class)
                     );
         }
@@ -238,7 +235,7 @@ public class RemoveGroupTrainingTest {
                     .andExpect(status().isInternalServerError())
                     .andExpect(status().reason(is(expectedMessage)))
                     .andExpect(result ->
-                            assertThat(result.getResolvedException().getCause())
+                            assertThat(Objects.requireNonNull(result.getResolvedException()).getCause())
                                     .isInstanceOf(IllegalStateException.class)
                     );
         }

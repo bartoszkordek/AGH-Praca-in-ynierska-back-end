@@ -21,6 +21,7 @@ public class GymPassOfferRequest {
     @DefaultValue("zł")
     private String currency;
     @NotNull(message = "{field.required}")
+    @Size(min = 2, max = 20, message = "{field.period.failure}")
     private String period;
     @NotNull(message = "{field.required}")
     private boolean isPremium;

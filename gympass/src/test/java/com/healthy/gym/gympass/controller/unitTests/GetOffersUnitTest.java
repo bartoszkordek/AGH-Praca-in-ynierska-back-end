@@ -26,6 +26,7 @@ import java.util.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.is;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.ResultMatcher.matchAll;
@@ -222,5 +223,34 @@ public class GetOffersUnitTest {
         mockMvc.perform(request)
                 .andDo(print())
                 .andExpect(status().isForbidden());
+    }
+
+    @ParameterizedTest
+    @EnumSource(TestCountry.class)
+    void shouldThrowIllegalStateExceptionWhenInternalErrorOccurs(TestCountry country)
+            throws Exception {
+        Map<String, String> messages = getMessagesAccordingToLocale(country);
+        Locale testedLocale = convertEnumToLocale(country);
+
+        RequestBuilder request = MockMvcRequestBuilders
+                .get(uri)
+                .header("Accept-Language", testedLocale.toString())
+                .header("Authorization", managerToken)
+                .contentType(MediaType.APPLICATION_JSON);
+
+        doThrow(IllegalStateException.class)
+                .when(offerService)
+                .getGymPassOffer();
+
+        String expectedMessage = messages.get("exception.internal.error");
+
+        mockMvc.perform(request)
+                .andDo(print())
+                .andExpect(status().isInternalServerError())
+                .andExpect(status().reason(is(expectedMessage)))
+                .andExpect(result ->
+                        assertThat(result.getResolvedException().getCause())
+                                .isInstanceOf(IllegalStateException.class)
+                );
     }
 }

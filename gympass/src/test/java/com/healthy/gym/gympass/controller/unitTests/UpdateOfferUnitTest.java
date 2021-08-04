@@ -27,10 +27,7 @@ import org.testcontainers.shaded.com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 import static com.healthy.gym.gympass.configuration.LocaleConverter.convertEnumToLocale;
 import static com.healthy.gym.gympass.configuration.Messages.getMessagesAccordingToLocale;
@@ -63,7 +60,11 @@ public class UpdateOfferUnitTest {
     private GymPassOfferRequest gymPassOfferRequest;
     private GymPassOfferRequest invalidGymPassOfferRequest;
     private String requestContent;
-    private String invalidRequestContent;
+    private String invalidTitleRequestContent;
+    private String invalidSubheaderRequestContent;
+    private String invalidPeriodRequestContent;
+    private String invalidSynopsisRequestContent;
+    private String invalidFeaturesRequestContent;
     private URI uri;
 
     @BeforeEach
@@ -93,9 +94,32 @@ public class UpdateOfferUnitTest {
 
         requestContent = objectMapper.writeValueAsString(gymPassOfferRequest);
 
-        invalidGymPassOfferRequest = new GymPassOfferRequest();
-        invalidGymPassOfferRequest.setTitle("A");
-        invalidRequestContent = objectMapper.writeValueAsString(invalidGymPassOfferRequest);
+        GymPassOfferRequest invalidTitleGymPassOfferRequest = new GymPassOfferRequest();
+        invalidTitleGymPassOfferRequest.setTitle("A");
+        invalidTitleRequestContent = objectMapper.writeValueAsString(invalidTitleGymPassOfferRequest);
+
+        GymPassOfferRequest invalidSubheaderGymPassOfferRequest = new GymPassOfferRequest();
+        invalidSubheaderGymPassOfferRequest.setSubheader("S");
+        invalidSubheaderRequestContent = objectMapper.writeValueAsString(invalidSubheaderGymPassOfferRequest);
+
+        GymPassOfferRequest invalidPeriodGymPassOfferRequest = new GymPassOfferRequest();
+        invalidPeriodGymPassOfferRequest.setPeriod("S");
+        invalidPeriodRequestContent = objectMapper.writeValueAsString(invalidPeriodGymPassOfferRequest);
+
+        GymPassOfferRequest invalidSynopsisGymPassOfferRequest = new GymPassOfferRequest();
+        invalidSynopsisGymPassOfferRequest.setSynopsis("S");
+        invalidSynopsisRequestContent = objectMapper.writeValueAsString(invalidSynopsisGymPassOfferRequest);
+
+
+        GymPassOfferRequest invalidFeaturesGymPassOfferRequest = new GymPassOfferRequest();
+
+        List<String> features = new ArrayList<>();
+        for (int i = 0; i<21; i++)
+            features.add("element "+i+1);
+
+        invalidFeaturesGymPassOfferRequest.setFeatures(features);
+        invalidFeaturesRequestContent = objectMapper.writeValueAsString(invalidFeaturesGymPassOfferRequest);
+
 
         uri = new URI("/offer");
     }
@@ -206,35 +230,173 @@ public class UpdateOfferUnitTest {
     }
 
     @Nested
-    class shouldNotUpdateOfferWhenInvalidRequest{
+    class ShouldNotUpdateOfferWhenInvalidRequest{
 
-        @ParameterizedTest
-        @EnumSource(TestCountry.class)
-        void shouldThrowBindException(TestCountry country) throws Exception {
-            Map<String, String> messages = getMessagesAccordingToLocale(country);
-            Locale testedLocale = convertEnumToLocale(country);
+        @Nested
+        class ShouldThrowBindExceptionWhenInvalidRequest{
 
-            RequestBuilder request = MockMvcRequestBuilders
-                    .put(uri+"/"+validId)
-                    .header("Accept-Language", testedLocale.toString())
-                    .header("Authorization", managerToken)
-                    .content(invalidRequestContent)
-                    .contentType(MediaType.APPLICATION_JSON);
+            @ParameterizedTest
+            @EnumSource(TestCountry.class)
+            void shouldThrowBindException_whenInvalidTitle(TestCountry country) throws Exception {
+                Map<String, String> messages = getMessagesAccordingToLocale(country);
+                Locale testedLocale = convertEnumToLocale(country);
 
-            String expectedMessage = messages.get("request.bind.exception");
+                RequestBuilder request = MockMvcRequestBuilders
+                        .put(uri+"/"+validId)
+                        .header("Accept-Language", testedLocale.toString())
+                        .header("Authorization", managerToken)
+                        .content(invalidTitleRequestContent)
+                        .contentType(MediaType.APPLICATION_JSON);
 
-            mockMvc.perform(request)
-                    .andDo(print())
-                    .andExpect(matchAll(
-                            status().isBadRequest(),
-                            content().contentType(MediaType.APPLICATION_JSON),
-                            jsonPath("$.error").value(is(HttpStatus.BAD_REQUEST.getReasonPhrase())),
-                            jsonPath("$.message").value(is(expectedMessage)),
-                            jsonPath("$.errors").value(is(notNullValue())),
-                            jsonPath("$.errors.title")
-                                    .value(is(messages.get("field.name.failure")))
-                    ));
+                String expectedMessage = messages.get("request.bind.exception");
+
+                mockMvc.perform(request)
+                        .andDo(print())
+                        .andExpect(matchAll(
+                                status().isBadRequest(),
+                                content().contentType(MediaType.APPLICATION_JSON),
+                                jsonPath("$.error").value(is(HttpStatus.BAD_REQUEST.getReasonPhrase())),
+                                jsonPath("$.message").value(is(expectedMessage)),
+                                jsonPath("$.errors").value(is(notNullValue())),
+                                jsonPath("$.errors.title")
+                                        .value(is(messages.get("field.name.failure"))),
+                                jsonPath("$.errors.period")
+                                        .value(is(messages.get("field.required")))
+                        ));
+            }
+
+            @ParameterizedTest
+            @EnumSource(TestCountry.class)
+            void shouldThrowBindException_whenInvalidSubheader(TestCountry country) throws Exception {
+                Map<String, String> messages = getMessagesAccordingToLocale(country);
+                Locale testedLocale = convertEnumToLocale(country);
+
+                RequestBuilder request = MockMvcRequestBuilders
+                        .put(uri+"/"+validId)
+                        .header("Accept-Language", testedLocale.toString())
+                        .header("Authorization", managerToken)
+                        .content(invalidSubheaderRequestContent)
+                        .contentType(MediaType.APPLICATION_JSON);
+
+                String expectedMessage = messages.get("request.bind.exception");
+
+                mockMvc.perform(request)
+                        .andDo(print())
+                        .andExpect(matchAll(
+                                status().isBadRequest(),
+                                content().contentType(MediaType.APPLICATION_JSON),
+                                jsonPath("$.error").value(is(HttpStatus.BAD_REQUEST.getReasonPhrase())),
+                                jsonPath("$.message").value(is(expectedMessage)),
+                                jsonPath("$.errors").value(is(notNullValue())),
+                                jsonPath("$.errors.title")
+                                        .value(is(messages.get("field.required"))),
+                                jsonPath("$.errors.subheader")
+                                        .value(is(messages.get("field.subheader.failure"))),
+                                jsonPath("$.errors.period")
+                                        .value(is(messages.get("field.required")))
+                        ));
+            }
+
+
+            @ParameterizedTest
+            @EnumSource(TestCountry.class)
+            void shouldThrowBindException_whenInvalidPeriod(TestCountry country) throws Exception {
+                Map<String, String> messages = getMessagesAccordingToLocale(country);
+                Locale testedLocale = convertEnumToLocale(country);
+
+                RequestBuilder request = MockMvcRequestBuilders
+                        .put(uri+"/"+validId)
+                        .header("Accept-Language", testedLocale.toString())
+                        .header("Authorization", managerToken)
+                        .content(invalidPeriodRequestContent)
+                        .contentType(MediaType.APPLICATION_JSON);
+
+                String expectedMessage = messages.get("request.bind.exception");
+
+                mockMvc.perform(request)
+                        .andDo(print())
+                        .andExpect(matchAll(
+                                status().isBadRequest(),
+                                content().contentType(MediaType.APPLICATION_JSON),
+                                jsonPath("$.error").value(is(HttpStatus.BAD_REQUEST.getReasonPhrase())),
+                                jsonPath("$.message").value(is(expectedMessage)),
+                                jsonPath("$.errors").value(is(notNullValue())),
+                                jsonPath("$.errors.title")
+                                        .value(is(messages.get("field.required"))),
+                                jsonPath("$.errors.period")
+                                        .value(is(messages.get("field.period.failure")))
+                        ));
+            }
+
+
+            @ParameterizedTest
+            @EnumSource(TestCountry.class)
+            void shouldThrowBindException_whenInvalidSynopsis(TestCountry country) throws Exception {
+                Map<String, String> messages = getMessagesAccordingToLocale(country);
+                Locale testedLocale = convertEnumToLocale(country);
+
+                RequestBuilder request = MockMvcRequestBuilders
+                        .put(uri+"/"+validId)
+                        .header("Accept-Language", testedLocale.toString())
+                        .header("Authorization", managerToken)
+                        .content(invalidSynopsisRequestContent)
+                        .contentType(MediaType.APPLICATION_JSON);
+
+                String expectedMessage = messages.get("request.bind.exception");
+
+                mockMvc.perform(request)
+                        .andDo(print())
+                        .andExpect(matchAll(
+                                status().isBadRequest(),
+                                content().contentType(MediaType.APPLICATION_JSON),
+                                jsonPath("$.error").value(is(HttpStatus.BAD_REQUEST.getReasonPhrase())),
+                                jsonPath("$.message").value(is(expectedMessage)),
+                                jsonPath("$.errors").value(is(notNullValue())),
+                                jsonPath("$.errors.title")
+                                        .value(is(messages.get("field.required"))),
+                                jsonPath("$.errors.period")
+                                        .value(is(messages.get("field.required"))),
+                                jsonPath("$.errors.synopsis")
+                                        .value(is(messages.get("field.synopsis.failure")))
+                        ));
+            }
+
+
+            @ParameterizedTest
+            @EnumSource(TestCountry.class)
+            void shouldThrowBindException_whenInvalidFeatures(TestCountry country) throws Exception {
+                Map<String, String> messages = getMessagesAccordingToLocale(country);
+                Locale testedLocale = convertEnumToLocale(country);
+
+                RequestBuilder request = MockMvcRequestBuilders
+                        .put(uri+"/"+validId)
+                        .header("Accept-Language", testedLocale.toString())
+                        .header("Authorization", managerToken)
+                        .content(invalidFeaturesRequestContent)
+                        .contentType(MediaType.APPLICATION_JSON);
+
+                String expectedMessage = messages.get("request.bind.exception");
+
+                mockMvc.perform(request)
+                        .andDo(print())
+                        .andExpect(matchAll(
+                                status().isBadRequest(),
+                                content().contentType(MediaType.APPLICATION_JSON),
+                                jsonPath("$.error").value(is(HttpStatus.BAD_REQUEST.getReasonPhrase())),
+                                jsonPath("$.message").value(is(expectedMessage)),
+                                jsonPath("$.errors").value(is(notNullValue())),
+                                jsonPath("$.errors.title")
+                                        .value(is(messages.get("field.required"))),
+                                jsonPath("$.errors.period")
+                                        .value(is(messages.get("field.required"))),
+                                jsonPath("$.errors.features")
+                                        .value(is(messages.get("field.features.failure")))
+                        ));
+            }
+
+
         }
+
 
         @ParameterizedTest
         @EnumSource(TestCountry.class)
@@ -293,6 +455,36 @@ public class UpdateOfferUnitTest {
                     .andExpect(result ->
                             assertThat(result.getResolvedException().getCause())
                                     .isInstanceOf(DuplicatedOffersException.class)
+                    );
+        }
+
+        @ParameterizedTest
+        @EnumSource(TestCountry.class)
+        void shouldThrowIllegalStateExceptionWhenInternalErrorOccurs(TestCountry country)
+                throws Exception {
+            Map<String, String> messages = getMessagesAccordingToLocale(country);
+            Locale testedLocale = convertEnumToLocale(country);
+
+            RequestBuilder request = MockMvcRequestBuilders
+                    .put(uri+"/"+validId)
+                    .header("Accept-Language", testedLocale.toString())
+                    .header("Authorization", managerToken)
+                    .content(requestContent)
+                    .contentType(MediaType.APPLICATION_JSON);
+
+            doThrow(IllegalStateException.class)
+                    .when(offerService)
+                    .updateGymPassOffer(validId,gymPassOfferRequest);
+
+            String expectedMessage = messages.get("exception.internal.error");
+
+            mockMvc.perform(request)
+                    .andDo(print())
+                    .andExpect(status().isInternalServerError())
+                    .andExpect(status().reason(is(expectedMessage)))
+                    .andExpect(result ->
+                            assertThat(result.getResolvedException().getCause())
+                                    .isInstanceOf(IllegalStateException.class)
                     );
         }
     }

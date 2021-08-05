@@ -1,5 +1,6 @@
 package com.healthy.gym.gympass.service;
 
+import com.healthy.gym.gympass.data.document.GymPassDocument;
 import com.healthy.gym.gympass.data.repository.GymPassOfferDAO;
 import com.healthy.gym.gympass.dto.GymPassDTO;
 import com.healthy.gym.gympass.exception.DuplicatedOffersException;
@@ -12,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class OfferServiceImpl implements OfferService{
@@ -31,7 +33,14 @@ public class OfferServiceImpl implements OfferService{
     @Override
     public List<GymPassDTO> getGymPassOffer()
             throws NoOffersException {
-        return null;
+        List<GymPassDocument> gymPassOfferDocuments = gymPassOfferDAO.findAll();
+
+        if(gymPassOfferDocuments.isEmpty()) throw new NoOffersException("No offers");
+
+        return gymPassOfferDocuments
+                .stream()
+                .map(gymPassDocument -> modelMapper.map(gymPassDocument, GymPassDTO.class))
+                .collect(Collectors.toList());
     }
 
     @Override

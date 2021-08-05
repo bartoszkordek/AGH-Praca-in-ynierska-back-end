@@ -41,7 +41,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(OfferController.class)
-public class UpdateOfferUnitTest {
+class UpdateOfferUnitTest {
 
     @Autowired
     private MockMvc mockMvc;
@@ -140,7 +140,6 @@ public class UpdateOfferUnitTest {
         String title = "Karnet platynowy";
         String subheader = "Najlepszy wybór dla osób aktywnych";
         Price price = new Price(199.99, "zł", "miesiąc");
-        boolean isPremium = true;
         Description description = new Description(
                 "Karnet uprawniający do korzystania w pełni z usług ośrodka",
                 List.of("Full pakiet", "sauna", "siłownia", "basen")
@@ -153,7 +152,7 @@ public class UpdateOfferUnitTest {
                                 title,
                                 subheader,
                                 price,
-                                isPremium,
+                                true,
                                 description
                         )
                 );
@@ -173,7 +172,7 @@ public class UpdateOfferUnitTest {
                 jsonPath("$.gymPass.price.amount").value(is(199.99)),
                 jsonPath("$.gymPass.price.currency").value(is("zł")),
                 jsonPath("$.gymPass.price.period").value(is("miesiąc")),
-                jsonPath("$.gymPass.isPremium").value(is(isPremium)),
+                jsonPath("$.gymPass.isPremium").value(is(true)),
                 jsonPath("$.gymPass.description.synopsis")
                         .value(is("Karnet uprawniający do korzystania w pełni z usług ośrodka")),
                 jsonPath("$.gymPass.description.features").isArray(),
@@ -422,7 +421,7 @@ public class UpdateOfferUnitTest {
                     .andExpect(status().isBadRequest())
                     .andExpect(status().reason(is(expectedMessage)))
                     .andExpect(result ->
-                            assertThat(result.getResolvedException().getCause())
+                            assertThat(Objects.requireNonNull(result.getResolvedException()).getCause())
                                     .isInstanceOf(InvalidGymPassOfferId.class)
                     );
         }
@@ -452,7 +451,7 @@ public class UpdateOfferUnitTest {
                     .andExpect(status().isConflict())
                     .andExpect(status().reason(is(expectedMessage)))
                     .andExpect(result ->
-                            assertThat(result.getResolvedException().getCause())
+                            assertThat(Objects.requireNonNull(result.getResolvedException()).getCause())
                                     .isInstanceOf(DuplicatedOffersException.class)
                     );
         }
@@ -482,7 +481,7 @@ public class UpdateOfferUnitTest {
                     .andExpect(status().isInternalServerError())
                     .andExpect(status().reason(is(expectedMessage)))
                     .andExpect(result ->
-                            assertThat(result.getResolvedException().getCause())
+                            assertThat(Objects.requireNonNull(result.getResolvedException()).getCause())
                                     .isInstanceOf(IllegalStateException.class)
                     );
         }

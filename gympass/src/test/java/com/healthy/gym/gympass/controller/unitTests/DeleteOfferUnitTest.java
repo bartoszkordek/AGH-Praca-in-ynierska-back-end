@@ -22,10 +22,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 import static com.healthy.gym.gympass.configuration.LocaleConverter.convertEnumToLocale;
 import static com.healthy.gym.gympass.configuration.Messages.getMessagesAccordingToLocale;
@@ -41,7 +38,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
 @WebMvcTest(OfferController.class)
-public class DeleteOfferUnitTest {
+class DeleteOfferUnitTest {
 
     @Autowired
     private MockMvc mockMvc;
@@ -87,7 +84,6 @@ public class DeleteOfferUnitTest {
         String title = "Karnet złoty";
         String subheader = "Najlepszy wybór dla osób aktywnych";
         Price price = new Price(199.99, "zł", "miesiąc");
-        boolean isPremium = true;
         Description description = new Description(
                 "Karnet uprawniający do korzystania w pełni z usług ośrodka",
                 List.of("Full pakiet", "sauna", "siłownia", "basen")
@@ -100,7 +96,7 @@ public class DeleteOfferUnitTest {
                                 title,
                                 subheader,
                                 price,
-                                isPremium,
+                                true,
                                 description
                         )
                 );
@@ -120,7 +116,7 @@ public class DeleteOfferUnitTest {
                         jsonPath("$.gymPass.price.amount").value(is(199.99)),
                         jsonPath("$.gymPass.price.currency").value(is("zł")),
                         jsonPath("$.gymPass.price.period").value(is("miesiąc")),
-                        jsonPath("$.gymPass.isPremium").value(is(isPremium)),
+                        jsonPath("$.gymPass.isPremium").value(is(true)),
                         jsonPath("$.gymPass.description.synopsis")
                                 .value(is("Karnet uprawniający do korzystania w pełni z usług ośrodka")),
                         jsonPath("$.gymPass.description.features").isArray(),
@@ -197,7 +193,7 @@ public class DeleteOfferUnitTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(status().reason(is(expectedMessage)))
                 .andExpect(result ->
-                        assertThat(result.getResolvedException().getCause())
+                        assertThat(Objects.requireNonNull(result.getResolvedException()).getCause())
                                 .isInstanceOf(InvalidGymPassOfferId.class)
                 );
     }
@@ -226,7 +222,7 @@ public class DeleteOfferUnitTest {
                 .andExpect(status().isInternalServerError())
                 .andExpect(status().reason(is(expectedMessage)))
                 .andExpect(result ->
-                        assertThat(result.getResolvedException().getCause())
+                        assertThat(Objects.requireNonNull(result.getResolvedException()).getCause())
                                 .isInstanceOf(IllegalStateException.class)
                 );
     }

@@ -37,7 +37,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
 @WebMvcTest(OfferController.class)
-public class GetOffersUnitTest {
+class GetOffersUnitTest {
 
     @Autowired
     private MockMvc mockMvc;
@@ -205,7 +205,7 @@ public class GetOffersUnitTest {
                 .andExpect(status().isNoContent())
                 .andExpect(status().reason(is(expectedMessage)))
                 .andExpect(result ->
-                        assertThat(result.getResolvedException().getCause())
+                        assertThat(Objects.requireNonNull(result.getResolvedException()).getCause())
                                 .isInstanceOf(NoOffersException.class)
                 );
     }
@@ -248,7 +248,7 @@ public class GetOffersUnitTest {
                 .andExpect(status().isInternalServerError())
                 .andExpect(status().reason(is(expectedMessage)))
                 .andExpect(result ->
-                        assertThat(result.getResolvedException().getCause())
+                        assertThat(Objects.requireNonNull(result.getResolvedException()).getCause())
                                 .isInstanceOf(IllegalStateException.class)
                 );
     }

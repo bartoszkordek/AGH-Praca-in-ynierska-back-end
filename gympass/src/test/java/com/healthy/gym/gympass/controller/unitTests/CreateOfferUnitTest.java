@@ -42,7 +42,7 @@ import static com.healthy.gym.gympass.configuration.LocaleConverter.convertEnumT
 import static com.healthy.gym.gympass.configuration.Messages.getMessagesAccordingToLocale;
 
 @WebMvcTest(OfferController.class)
-public class CreateOfferUnitTest {
+class CreateOfferUnitTest {
 
     @Autowired
     private MockMvc mockMvc;
@@ -135,7 +135,6 @@ public class CreateOfferUnitTest {
         String title = "Karnet złoty";
         String subheader = "Najlepszy wybór dla osób aktywnych";
         Price price = new Price(199.99, "zł", "miesiąc");
-        boolean isPremium = true;
         Description description = new Description(
                 "Karnet uprawniający do korzystania w pełni z usług ośrodka",
                 List.of("Full pakiet", "sauna", "siłownia", "basen")
@@ -148,7 +147,7 @@ public class CreateOfferUnitTest {
                                 title,
                                 subheader,
                                 price,
-                                isPremium,
+                                true,
                                 description
                         )
                 );
@@ -168,7 +167,7 @@ public class CreateOfferUnitTest {
                         jsonPath("$.gymPass.price.amount").value(is(199.99)),
                         jsonPath("$.gymPass.price.currency").value(is("zł")),
                         jsonPath("$.gymPass.price.period").value(is("miesiąc")),
-                        jsonPath("$.gymPass.isPremium").value(is(isPremium)),
+                        jsonPath("$.gymPass.isPremium").value(is(true)),
                         jsonPath("$.gymPass.description.synopsis")
                                 .value(is("Karnet uprawniający do korzystania w pełni z usług ośrodka")),
                         jsonPath("$.gymPass.description.features").isArray(),
@@ -416,7 +415,7 @@ public class CreateOfferUnitTest {
                     .andExpect(status().isConflict())
                     .andExpect(status().reason(is(expectedMessage)))
                     .andExpect(result ->
-                            assertThat(result.getResolvedException().getCause())
+                            assertThat(Objects.requireNonNull(result.getResolvedException()).getCause())
                                     .isInstanceOf(DuplicatedOffersException.class)
                     );
         }
@@ -446,7 +445,7 @@ public class CreateOfferUnitTest {
                     .andExpect(status().isInternalServerError())
                     .andExpect(status().reason(is(expectedMessage)))
                     .andExpect(result ->
-                            assertThat(result.getResolvedException().getCause())
+                            assertThat(Objects.requireNonNull(result.getResolvedException()).getCause())
                                     .isInstanceOf(IllegalStateException.class)
                     );
         }

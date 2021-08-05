@@ -42,7 +42,7 @@ class UpdateOfferServiceUnitTest {
     private String title;
 
     @BeforeEach
-    void setUp() throws IOException {
+    void setUp() {
 
         //existing document
         documentId = UUID.randomUUID().toString();
@@ -72,6 +72,7 @@ class UpdateOfferServiceUnitTest {
         );
         existingGymPassDocument.setId("507f1f77bcf86cd799439011");
 
+
         //request
         gymPassOfferRequest = new GymPassOfferRequest();
         gymPassOfferRequest.setTitle(title);
@@ -82,6 +83,7 @@ class UpdateOfferServiceUnitTest {
         gymPassOfferRequest.setPremium(isPremium);
         gymPassOfferRequest.setSynopsis(synopsis);
         gymPassOfferRequest.setFeatures(features);
+
 
         //response
         gymPassDTO = new GymPassDTO(

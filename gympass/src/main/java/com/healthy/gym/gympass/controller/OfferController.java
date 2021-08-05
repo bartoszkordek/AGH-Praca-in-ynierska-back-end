@@ -32,7 +32,7 @@ import java.util.List;
 public class OfferController {
 
     private static final String INTERNAL_ERROR_EXCEPTION = "exception.internal.error";
-    private Translator translator;
+    private final Translator translator;
     private final OfferService offerService;
 
     @Autowired

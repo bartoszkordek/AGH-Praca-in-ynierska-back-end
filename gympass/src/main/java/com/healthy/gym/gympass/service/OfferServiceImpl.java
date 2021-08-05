@@ -108,6 +108,12 @@ public class OfferServiceImpl implements OfferService{
 
     @Override
     public GymPassDTO deleteGymPassOffer(String id) throws InvalidGymPassOfferId {
-        return null;
+
+        GymPassDocument gymPassDocument = gymPassOfferDAO.findByDocumentId(id);
+        if(gymPassDocument == null)
+            throw new InvalidGymPassOfferId("Offer does not exist");
+        gymPassOfferDAO.delete(gymPassDocument);
+
+        return modelMapper.map(gymPassDocument, GymPassDTO.class);
     }
 }

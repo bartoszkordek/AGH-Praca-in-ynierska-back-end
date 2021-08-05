@@ -35,11 +35,18 @@ class UpdateOfferServiceUnitTest {
 
     private String documentId;
     private GymPassDocument existingGymPassDocument;
+    private GymPassOfferRequest gymPassOfferRequest;
+    private GymPassDTO gymPassDTO;
+    private GymPassDocument gymPassDocumentSavedInDB;
+
+    private String title;
 
     @BeforeEach
     void setUp() throws IOException {
+
+        //document
         documentId = UUID.randomUUID().toString();
-        String title = "Karnet miesięczny";
+        title = "Karnet miesięczny";
         String subheader = "Najepszy wybór dla regularnie uprawiających sport";
         double amount = 139.99;
         String currency = "zł";
@@ -64,52 +71,57 @@ class UpdateOfferServiceUnitTest {
                 )
         );
         existingGymPassDocument.setId("507f1f77bcf86cd799439011");
+
+        //request
+        gymPassOfferRequest = new GymPassOfferRequest();
+        gymPassOfferRequest.setTitle(title);
+        gymPassOfferRequest.setSubheader(subheader);
+        gymPassOfferRequest.setAmount(amount);
+        gymPassOfferRequest.setCurrency(currency);
+        gymPassOfferRequest.setPeriod(period);
+        gymPassOfferRequest.setPremium(isPremium);
+        gymPassOfferRequest.setSynopsis(synopsis);
+        gymPassOfferRequest.setFeatures(features);
+
+        //response
+        gymPassDTO = new GymPassDTO(
+                documentId,
+                title,
+                subheader,
+                new Price(amount, currency, period),
+                isPremium,
+                new Description(synopsis,features)
+        );
+
+
+        //saved document
+        gymPassDocumentSavedInDB = new GymPassDocument(
+                documentId,
+                title,
+                subheader,
+                new Price(amount, currency, period),
+                isPremium,
+                new Description(synopsis,features)
+        );
+        gymPassDocumentSavedInDB.setId("507f1f77bcf86cd799439011");
     }
 
     @Nested
     class ShouldUpdateOffer{
         @Test
-        void shouldUpdateOffer_whenValidRequestAndDocumentId_updatedAmount() throws InvalidGymPassOfferId, DuplicatedOffersException {
+        void shouldUpdateOffer_whenValidRequestAndDocumentId_updatedPrice() throws InvalidGymPassOfferId, DuplicatedOffersException {
 
             //request document
-            String title = "Karnet miesięczny";
-            String subheader = "Najepszy wybór dla regularnie uprawiających sport";
             double amount = 149.99;
             String currency = "zł";
             String period = "miesiąc";
-            boolean isPremium = false;
-            String synopsis = "Nielimitowana liczba wejść";
-            List<String> features = List.of("siłownia", "fitness", "TRX", "rowery");
-            GymPassOfferRequest gymPassOfferRequest = new GymPassOfferRequest();
-            gymPassOfferRequest.setTitle(title);
-            gymPassOfferRequest.setSubheader(subheader);
             gymPassOfferRequest.setAmount(amount);
-            gymPassOfferRequest.setCurrency(currency);
-            gymPassOfferRequest.setPeriod(period);
-            gymPassOfferRequest.setPremium(isPremium);
-            gymPassOfferRequest.setSynopsis(synopsis);
-            gymPassOfferRequest.setFeatures(features);
 
             //response
-            GymPassDTO gymPassDTO = new GymPassDTO(
-                    documentId,
-                    title,
-                    subheader,
-                    new Price(amount, currency, period),
-                    isPremium,
-                    new Description(synopsis,features)
-            );
+            gymPassDTO.setPrice(new Price(amount , currency, period));
 
             //document
-            GymPassDocument gymPassDocumentSavedInDB = new GymPassDocument(
-                    documentId,
-                    title,
-                    subheader,
-                    new Price(amount, currency, period),
-                    isPremium,
-                    new Description(synopsis,features)
-            );
-            gymPassDocumentSavedInDB.setId("507f1f77bcf86cd799439011");
+            gymPassDocumentSavedInDB.setPrice(new Price(amount, currency, period));
 
             //when
             when(gymPassOfferDAO.findByDocumentId(documentId)).thenReturn(existingGymPassDocument);
@@ -123,45 +135,15 @@ class UpdateOfferServiceUnitTest {
         @Test
         void shouldUpdateOffer_whenValidRequestAndDocumentId_updatedTitle() throws InvalidGymPassOfferId, DuplicatedOffersException {
 
-            //request document
+            //request
             String title = "Karnet miesięczny plus";
-            String subheader = "Najepszy wybór dla regularnie uprawiających sport";
-            double amount = 139.99;
-            String currency = "zł";
-            String period = "miesiąc";
-            boolean isPremium = false;
-            String synopsis = "Nielimitowana liczba wejść";
-            List<String> features = List.of("siłownia", "fitness", "TRX", "rowery");
-            GymPassOfferRequest gymPassOfferRequest = new GymPassOfferRequest();
             gymPassOfferRequest.setTitle(title);
-            gymPassOfferRequest.setSubheader(subheader);
-            gymPassOfferRequest.setAmount(amount);
-            gymPassOfferRequest.setCurrency(currency);
-            gymPassOfferRequest.setPeriod(period);
-            gymPassOfferRequest.setPremium(isPremium);
-            gymPassOfferRequest.setSynopsis(synopsis);
-            gymPassOfferRequest.setFeatures(features);
 
             //response
-            GymPassDTO gymPassDTO = new GymPassDTO(
-                    documentId,
-                    title,
-                    subheader,
-                    new Price(amount, currency, period),
-                    isPremium,
-                    new Description(synopsis,features)
-            );
+            gymPassDTO.setTitle(title);
 
-            //document
-            GymPassDocument gymPassDocumentSavedInDB = new GymPassDocument(
-                    documentId,
-                    title,
-                    subheader,
-                    new Price(amount, currency, period),
-                    isPremium,
-                    new Description(synopsis,features)
-            );
-            gymPassDocumentSavedInDB.setId("507f1f77bcf86cd799439011");
+            //saved document
+            gymPassDocumentSavedInDB.setTitle(title);
 
             //when
             when(gymPassOfferDAO.findByDocumentId(documentId)).thenReturn(existingGymPassDocument);
@@ -178,25 +160,6 @@ class UpdateOfferServiceUnitTest {
 
         @Test
         void shouldNotUpdateOffer_whenInvalidId(){
-
-            //request document
-            String title = "Karnet miesięczny";
-            String subheader = "Najepszy wybór dla regularnie uprawiających sport";
-            double amount = 149.99;
-            String currency = "zł";
-            String period = "miesiąc";
-            boolean isPremium = false;
-            String synopsis = "Nielimitowana liczba wejść";
-            List<String> features = List.of("siłownia", "fitness", "TRX", "rowery");
-            GymPassOfferRequest gymPassOfferRequest = new GymPassOfferRequest();
-            gymPassOfferRequest.setTitle(title);
-            gymPassOfferRequest.setSubheader(subheader);
-            gymPassOfferRequest.setAmount(amount);
-            gymPassOfferRequest.setCurrency(currency);
-            gymPassOfferRequest.setPeriod(period);
-            gymPassOfferRequest.setPremium(isPremium);
-            gymPassOfferRequest.setSynopsis(synopsis);
-            gymPassOfferRequest.setFeatures(features);
 
             //when
             when(gymPassOfferDAO.findByDocumentId(documentId)).thenReturn(null);

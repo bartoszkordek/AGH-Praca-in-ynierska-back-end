@@ -58,6 +58,7 @@ class OfferIntegrationTest {
     private String managerToken;
     private String requestContent;
     private String invalidTitleRequestContent;
+    private String invalidSubheaderRequestContent;
 
     @DynamicPropertySource
     static void setProperties(DynamicPropertyRegistry registry) {
@@ -82,10 +83,15 @@ class OfferIntegrationTest {
 
         requestContent = objectMapper.writeValueAsString(gymPassOfferRequest);
 
-        GymPassOfferRequest invalidGymPassOfferRequest = new GymPassOfferRequest();
-        invalidGymPassOfferRequest.setTitle("T");
+        GymPassOfferRequest invalidTitleGymPassOfferRequest = new GymPassOfferRequest();
+        invalidTitleGymPassOfferRequest.setTitle("T");
 
-        invalidTitleRequestContent = objectMapper.writeValueAsString(invalidGymPassOfferRequest);
+        invalidTitleRequestContent = objectMapper.writeValueAsString(invalidTitleGymPassOfferRequest);
+
+        GymPassOfferRequest invalidSubheaderGymPassOfferRequest = new GymPassOfferRequest();
+        invalidSubheaderGymPassOfferRequest.setSubheader("S");
+
+        invalidSubheaderRequestContent = objectMapper.writeValueAsString(invalidSubheaderGymPassOfferRequest);
     }
 
     @AfterEach
@@ -196,6 +202,37 @@ class OfferIntegrationTest {
         assertThat(Objects.requireNonNull(responseEntity.getBody().get("message").textValue())).isEqualTo(expectedMessage);
         assertThat(responseEntity.getBody().get("errors").get("title").textValue())
                 .isEqualTo(messages.get("field.name.failure"));
+        assertThat(responseEntity.getBody().get("errors").get("period").textValue())
+                .isEqualTo(messages.get("field.required"));
+        assertThat(responseEntity.getHeaders().getContentType()).isEqualTo(MediaType.APPLICATION_JSON);
+    }
+
+    @ParameterizedTest
+    @EnumSource(TestCountry.class)
+    void shouldThrowBindExceptionWhenInvalidSubheader(TestCountry country) throws Exception {
+        Map<String, String> messages = getMessagesAccordingToLocale(country);
+        Locale testedLocale = convertEnumToLocale(country);
+
+        URI uri = new URI("http://localhost:" + port + "/offer");
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Accept-Language", testedLocale.toString());
+        headers.set("Authorization", managerToken);
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+
+        HttpEntity<Object> request = new HttpEntity<>(invalidSubheaderRequestContent, headers);
+        String expectedMessage = messages.get("request.bind.exception");
+
+        ResponseEntity<JsonNode> responseEntity = restTemplate
+                .exchange(uri, HttpMethod.POST, request, JsonNode.class);
+
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        assertThat(Objects.requireNonNull(responseEntity.getBody().get("message").textValue())).isEqualTo(expectedMessage);
+        assertThat(responseEntity.getBody().get("errors").get("title").textValue())
+                .isEqualTo(messages.get("field.required"));
+        assertThat(responseEntity.getBody().get("errors").get("subheader").textValue())
+                .isEqualTo(messages.get("field.subheader.failure"));
         assertThat(responseEntity.getBody().get("errors").get("period").textValue())
                 .isEqualTo(messages.get("field.required"));
         assertThat(responseEntity.getHeaders().getContentType()).isEqualTo(MediaType.APPLICATION_JSON);

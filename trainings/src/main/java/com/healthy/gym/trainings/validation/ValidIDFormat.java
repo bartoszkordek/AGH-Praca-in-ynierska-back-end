@@ -10,8 +10,8 @@ import java.lang.annotation.Target;
 @Constraint(validatedBy = IDFormatValidator.class)
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.FIELD, ElementType.METHOD, ElementType.PARAMETER})
-public @interface ValidFormatID {
-    String message() default "";
+public @interface ValidIDFormat {
+    String message() default "{exception.invalid.id.format}";
 
     Class<?>[] groups() default {};
 

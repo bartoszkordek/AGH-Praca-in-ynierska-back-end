@@ -8,12 +8,12 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-@Constraint(validatedBy = DateTimeValidator.class)
+@Constraint(validatedBy = DateTimeFormatValidator.class)
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.FIELD, ElementType.METHOD, ElementType.PARAMETER})
-public @interface ValidDateTime {
+public @interface ValidDateTimeFormat {
 
-    String message() default "";
+    String message() default "{exception.invalid.date.time.format}";
 
     Class<?>[] groups() default {};
 

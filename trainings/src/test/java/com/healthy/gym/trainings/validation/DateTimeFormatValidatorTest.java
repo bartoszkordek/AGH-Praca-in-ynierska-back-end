@@ -8,13 +8,13 @@ import javax.validation.ConstraintValidatorContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class DateTimeValidatorTest {
-    private DateTimeValidator validator;
+class DateTimeFormatValidatorTest {
+    private DateTimeFormatValidator validator;
     private ConstraintValidatorContext context;
 
     @BeforeEach
     void setUp() {
-        validator = new DateTimeValidator();
+        validator = new DateTimeFormatValidator();
         context = null;
     }
 

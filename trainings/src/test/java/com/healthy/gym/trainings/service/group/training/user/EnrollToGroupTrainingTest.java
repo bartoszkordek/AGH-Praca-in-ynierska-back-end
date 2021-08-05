@@ -49,9 +49,9 @@ class EnrollToGroupTrainingTest {
         Clock clock = Clock.fixed(Instant.parse("2021-07-10T18:00:00.00Z"), ZoneId.of("Europe/Warsaw"));
 
         userGroupTrainingService = new UserGroupTrainingServiceImpl(
+                null,
                 groupTrainingsDAO,
                 userDAO,
-                null,
                 clock
         );
     }

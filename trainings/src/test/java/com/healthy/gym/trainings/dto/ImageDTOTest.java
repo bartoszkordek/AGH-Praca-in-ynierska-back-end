@@ -1,4 +1,4 @@
-package com.healthy.gym.trainings.shared;
+package com.healthy.gym.trainings.dto;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

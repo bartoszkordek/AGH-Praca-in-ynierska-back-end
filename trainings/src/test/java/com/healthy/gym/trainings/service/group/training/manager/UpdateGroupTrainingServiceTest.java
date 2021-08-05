@@ -21,8 +21,8 @@ import com.healthy.gym.trainings.model.request.ManagerGroupTrainingRequest;
 import com.healthy.gym.trainings.service.group.training.GroupTrainingDocumentUpdateBuilder;
 import com.healthy.gym.trainings.service.group.training.ManagerGroupTrainingService;
 import com.healthy.gym.trainings.service.group.training.ManagerGroupTrainingServiceImpl;
-import com.healthy.gym.trainings.shared.BasicUserInfoDTO;
-import com.healthy.gym.trainings.shared.GroupTrainingDTO;
+import com.healthy.gym.trainings.dto.BasicUserInfoDTO;
+import com.healthy.gym.trainings.dto.GroupTrainingDTO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 

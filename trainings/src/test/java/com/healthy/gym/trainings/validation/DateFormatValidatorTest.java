@@ -8,26 +8,26 @@ import javax.validation.ConstraintValidatorContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class DateTimeValidatorTest {
-    private DateTimeValidator validator;
+class DateFormatValidatorTest {
+    private DateFormatValidator validator;
     private ConstraintValidatorContext context;
 
     @BeforeEach
     void setUp() {
-        validator = new DateTimeValidator();
+        validator = new DateFormatValidator();
         context = null;
     }
 
     @ParameterizedTest
     @ValueSource(strings = {
-            "2020-10-10T22:00",
-            "2021-10-11T12:00:01",
-            "2021-12-12T00:00:01",
-            "2021-12-12T00:10",
+            "2020-10-10",
+            "2021-01-11",
+            "1999-12-12",
+            "2000-11-12",
     })
-    void shouldBeTrue(String validID) {
+    void shouldBeTrue(String value) {
         assertThat(
-                validator.isValid(validID, context)
+                validator.isValid(value, context)
         ).isTrue();
     }
 
@@ -37,10 +37,14 @@ class DateTimeValidatorTest {
             "2021-20-12T12:00",
             "2021-12-12 T 00:00:01",
             "21-12-12T00:10",
+            "2020-1010",
+            "20210111",
+            "1999.12.12",
+            "2000-14-12",
     })
-    void shouldBeFalse(String validID) {
+    void shouldBeFalse(String value) {
         assertThat(
-                validator.isValid(validID, context)
+                validator.isValid(value, context)
         ).isFalse();
     }
 }

@@ -5,7 +5,7 @@ import javax.validation.ConstraintValidatorContext;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class IDValidator implements ConstraintValidator<ValidID, String> {
+public class IDFormatValidator implements ConstraintValidator<ValidIDFormat, String> {
 
     private static final String ID_VALUE_PATTERN =
             "\\b[0-9a-f]{8}\\b-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-\\b[0-9a-f]{12}\\b";

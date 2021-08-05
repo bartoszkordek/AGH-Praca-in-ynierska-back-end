@@ -1,4 +1,4 @@
-package com.healthy.gym.trainings.shared;
+package com.healthy.gym.trainings.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 

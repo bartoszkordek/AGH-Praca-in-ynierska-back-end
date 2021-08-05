@@ -3,7 +3,7 @@ package com.healthy.gym.trainings.service;
 import com.healthy.gym.trainings.exception.duplicated.DuplicatedLocationNameException;
 import com.healthy.gym.trainings.exception.notfound.LocationNotFoundException;
 import com.healthy.gym.trainings.model.request.LocationRequest;
-import com.healthy.gym.trainings.shared.LocationDTO;
+import com.healthy.gym.trainings.dto.LocationDTO;
 
 import java.util.List;
 

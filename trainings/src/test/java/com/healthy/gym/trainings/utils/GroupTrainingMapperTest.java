@@ -4,7 +4,7 @@ import com.healthy.gym.trainings.data.document.GroupTrainingDocument;
 import com.healthy.gym.trainings.data.document.LocationDocument;
 import com.healthy.gym.trainings.data.document.TrainingTypeDocument;
 import com.healthy.gym.trainings.data.document.UserDocument;
-import com.healthy.gym.trainings.shared.GroupTrainingDTO;
+import com.healthy.gym.trainings.dto.GroupTrainingDTO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 

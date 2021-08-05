@@ -25,7 +25,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @Testcontainers
 @DataMongoTest(excludeAutoConfiguration = EmbeddedMongoAutoConfiguration.class)
-class TrainingTypeDAOTest {
+class TrainingTypeDAOIntegrationTest {
     @Container
     static MongoDBContainer mongoDBContainer =
             new MongoDBContainer(DockerImageName.parse("mongo:4.4.4-bionic"));

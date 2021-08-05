@@ -5,7 +5,7 @@ import com.healthy.gym.trainings.data.repository.LocationDAO;
 import com.healthy.gym.trainings.exception.duplicated.DuplicatedLocationNameException;
 import com.healthy.gym.trainings.exception.notfound.LocationNotFoundException;
 import com.healthy.gym.trainings.model.request.LocationRequest;
-import com.healthy.gym.trainings.shared.LocationDTO;
+import com.healthy.gym.trainings.dto.LocationDTO;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;

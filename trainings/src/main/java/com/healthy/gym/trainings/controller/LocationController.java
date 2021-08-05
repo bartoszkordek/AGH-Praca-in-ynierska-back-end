@@ -7,7 +7,7 @@ import com.healthy.gym.trainings.exception.notfound.LocationNotFoundException;
 import com.healthy.gym.trainings.model.request.LocationRequest;
 import com.healthy.gym.trainings.model.response.LocationResponse;
 import com.healthy.gym.trainings.service.LocationService;
-import com.healthy.gym.trainings.shared.LocationDTO;
+import com.healthy.gym.trainings.dto.LocationDTO;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;

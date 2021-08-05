@@ -23,6 +23,11 @@ public class TrainingTypeDocument {
         // empty constructor required by spring data mapper
     }
 
+    public TrainingTypeDocument(String trainingTypeId, String name) {
+        this.trainingTypeId = trainingTypeId;
+        this.name = name;
+    }
+
     public TrainingTypeDocument(
             String trainingTypeId,
             String name,

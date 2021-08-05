@@ -2,7 +2,6 @@ package com.healthy.gym.trainings.data.repository;
 
 import com.healthy.gym.trainings.data.document.GroupTrainingDocument;
 import com.healthy.gym.trainings.data.document.TrainingTypeDocument;
-import com.healthy.gym.trainings.data.document.UserDocument;
 import org.springframework.data.mongodb.repository.MongoRepository;
 
 import java.time.LocalDateTime;
@@ -18,6 +17,4 @@ public interface GroupTrainingsDAO extends MongoRepository<GroupTrainingDocument
     List<GroupTrainingDocument> findByTrainingAndStartDateAfterAndEndDateBefore(TrainingTypeDocument training,
                                                                                 LocalDateTime startDate,
                                                                                 LocalDateTime endDate);
-
-    List<GroupTrainingDocument> findByBasicListContains(UserDocument user);
 }

@@ -8,22 +8,22 @@ import javax.validation.ConstraintValidatorContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class IDValidatorTest {
-    private IDValidator validator;
+class DateTimeFormatValidatorTest {
+    private DateTimeFormatValidator validator;
     private ConstraintValidatorContext context;
 
     @BeforeEach
     void setUp() {
-        validator = new IDValidator();
+        validator = new DateTimeFormatValidator();
         context = null;
     }
 
     @ParameterizedTest
     @ValueSource(strings = {
-            "e1176ebb-da30-4193-b974-68b3baa60351",
-            "aa854438-1122-40c1-b01e-dc44d6633e43",
-            "103f0f36-b3e9-4c72-b1d5-c963d02dc2ea",
-            "b03e76f6-4cdb-4629-a56a-a7f5b4bac213"
+            "2020-10-10T22:00",
+            "2021-10-11T12:00:01",
+            "2021-12-12T00:00:01",
+            "2021-12-12T00:10",
     })
     void shouldBeTrue(String validID) {
         assertThat(
@@ -33,10 +33,10 @@ class IDValidatorTest {
 
     @ParameterizedTest
     @ValueSource(strings = {
-            "e1176ebt-da30-4193-b974-68b3baa60351",
-            "aa854438.1122-40c1-b01e-dc44d6633e43",
-            "das",
-            "1231"
+            "2020-10-10 22:00",
+            "2021-20-12T12:00",
+            "2021-12-12 T 00:00:01",
+            "21-12-12T00:10",
     })
     void shouldBeFalse(String validID) {
         assertThat(

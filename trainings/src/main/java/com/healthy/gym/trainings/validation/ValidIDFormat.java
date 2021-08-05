@@ -7,11 +7,11 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-@Constraint(validatedBy = IDValidator.class)
+@Constraint(validatedBy = IDFormatValidator.class)
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.FIELD, ElementType.METHOD})
-public @interface ValidID {
-    String message() default "";
+@Target({ElementType.FIELD, ElementType.METHOD, ElementType.PARAMETER})
+public @interface ValidIDFormat {
+    String message() default "{exception.invalid.id.format}";
 
     Class<?>[] groups() default {};
 

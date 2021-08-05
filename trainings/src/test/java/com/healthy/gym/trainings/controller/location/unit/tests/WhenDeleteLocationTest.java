@@ -5,7 +5,7 @@ import com.healthy.gym.trainings.configuration.TestRoleTokenFactory;
 import com.healthy.gym.trainings.controller.LocationController;
 import com.healthy.gym.trainings.exception.notfound.LocationNotFoundException;
 import com.healthy.gym.trainings.service.LocationService;
-import com.healthy.gym.trainings.shared.LocationDTO;
+import com.healthy.gym.trainings.dto.LocationDTO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.params.ParameterizedTest;

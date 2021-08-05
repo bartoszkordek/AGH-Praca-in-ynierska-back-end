@@ -12,8 +12,8 @@ import com.healthy.gym.trainings.exception.notfound.UserNotFoundException;
 import com.healthy.gym.trainings.exception.training.TrainingEnrollmentException;
 import com.healthy.gym.trainings.service.group.training.UserGroupTrainingService;
 import com.healthy.gym.trainings.service.group.training.UserGroupTrainingServiceImpl;
-import com.healthy.gym.trainings.shared.BasicUserInfoDTO;
-import com.healthy.gym.trainings.shared.GroupTrainingDTO;
+import com.healthy.gym.trainings.dto.BasicUserInfoDTO;
+import com.healthy.gym.trainings.dto.GroupTrainingDTO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -49,9 +49,9 @@ class RemoveGroupTrainingEnrollmentTest {
         Clock clock = Clock.fixed(Instant.parse("2021-07-10T18:00:00.00Z"), ZoneId.of("Europe/Warsaw"));
 
         userGroupTrainingService = new UserGroupTrainingServiceImpl(
+                null,
                 groupTrainingsDAO,
                 userDAO,
-                null,
                 clock
         );
     }

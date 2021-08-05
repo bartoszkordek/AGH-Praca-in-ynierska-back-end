@@ -3,9 +3,9 @@ package com.healthy.gym.trainings.utils;
 import com.healthy.gym.trainings.data.document.GroupTrainingDocument;
 import com.healthy.gym.trainings.data.document.UserDocument;
 import com.healthy.gym.trainings.model.response.UserResponse;
-import com.healthy.gym.trainings.shared.BasicUserInfoDTO;
-import com.healthy.gym.trainings.shared.GroupTrainingDTO;
-import com.healthy.gym.trainings.shared.ParticipantsDTO;
+import com.healthy.gym.trainings.dto.BasicUserInfoDTO;
+import com.healthy.gym.trainings.dto.GroupTrainingDTO;
+import com.healthy.gym.trainings.dto.ParticipantsDTO;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
 

@@ -17,6 +17,7 @@ import org.junit.jupiter.params.provider.EnumSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.RequestBuilder;
@@ -30,6 +31,7 @@ import static com.healthy.gym.trainings.configuration.LocaleConverter.convertEnu
 import static com.healthy.gym.trainings.configuration.Messages.getMessagesAccordingToLocale;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.ResultMatcher.matchAll;
@@ -214,6 +216,42 @@ class EnrollToGroupTrainingTest {
 
     @Nested
     class ShouldAcceptRequestWhenUserHasAdminOrManagerRoleAndShouldThrow {
+
+        @ParameterizedTest
+        @EnumSource(TestCountry.class)
+        void shouldThrowConstraintViolationException(TestCountry country) throws Exception {
+            Map<String, String> messages = getMessagesAccordingToLocale(country);
+            Locale testedLocale = convertEnumToLocale(country);
+
+            URI invalidUri  = new URI("/group/" + 123123 + "/enroll?clientId=" + 1231);
+
+            RequestBuilder request = MockMvcRequestBuilders
+                    .post(invalidUri)
+                    .header("Accept-Language", testedLocale.toString())
+                    .header("Authorization", adminToken)
+                    .contentType(MediaType.APPLICATION_JSON);
+
+            String expectedMessage = messages.get("exception.constraint.violation");
+
+            mockMvc.perform(request)
+                    .andDo(print())
+                    .andExpect(
+                            matchAll(
+                                    status().isBadRequest(),
+                                    content().contentType(MediaType.APPLICATION_JSON),
+                                    jsonPath("$.error").value(is(HttpStatus.BAD_REQUEST.getReasonPhrase())),
+                                    jsonPath("$.message").value(is(expectedMessage)),
+                                    jsonPath("$.errors").value(is(notNullValue()))
+                            )
+                    ).andExpect(
+                            matchAll(
+                                    jsonPath("$.errors.userId")
+                                            .value(is(messages.get("exception.invalid.id.format"))),
+                                    jsonPath("$.errors.trainingId")
+                                            .value(is(messages.get("exception.invalid.id.format")))
+                            )
+                    );
+        }
 
         @ParameterizedTest
         @EnumSource(TestCountry.class)

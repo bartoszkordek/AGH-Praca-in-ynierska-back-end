@@ -6,6 +6,8 @@ import com.healthy.gym.gympass.configuration.TestCountry;
 import com.healthy.gym.gympass.configuration.TestRoleTokenFactory;
 import com.healthy.gym.gympass.data.document.GymPassDocument;
 import com.healthy.gym.gympass.pojo.request.GymPassOfferRequest;
+import com.healthy.gym.gympass.shared.Description;
+import com.healthy.gym.gympass.shared.Price;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -127,5 +129,40 @@ class OfferIntegrationTest {
 
         List<GymPassDocument> gymPassDocumentList = mongoTemplate.findAll(GymPassDocument.class);
         assertThat(gymPassDocumentList.size()).isEqualTo(1);
+    }
+
+    @ParameterizedTest
+    @EnumSource(TestCountry.class)
+    void shouldThrowDuplicatedGymPassDocumentsWhenCreateNewOffer(TestCountry country) throws Exception {
+        mongoTemplate.save(new GymPassDocument(
+                UUID.randomUUID().toString(),
+                "Karnet miesięczny",
+                "Najlepszy wybór dla osób aktywnych",
+                new Price(140.00, "zł", "miesiąc"),
+                false,
+                new Description("Karnet uprawniający do korzystania w pełni z usług ośrodka",
+                        List.of("Full pakiet", "sauna", "siłownia", "basen"))
+        ));
+
+        Map<String, String> messages = getMessagesAccordingToLocale(country);
+        Locale testedLocale = convertEnumToLocale(country);
+
+        URI uri = new URI("http://localhost:" + port + "/offer");
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Accept-Language", testedLocale.toString());
+        headers.set("Authorization", managerToken);
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+
+        HttpEntity<Object> request = new HttpEntity<>(requestContent, headers);
+        String expectedMessage = messages.get("exception.duplicated.offers");
+
+        ResponseEntity<JsonNode> responseEntity = restTemplate
+                .exchange(uri, HttpMethod.POST, request, JsonNode.class);
+
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.CONFLICT);
+        assertThat(responseEntity.getBody().get("message").textValue()).isEqualTo(expectedMessage);
+        assertThat(responseEntity.getHeaders().getContentType()).isEqualTo(MediaType.APPLICATION_JSON);
     }
 }

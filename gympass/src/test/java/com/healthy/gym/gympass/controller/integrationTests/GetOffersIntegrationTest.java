@@ -11,6 +11,7 @@ import com.healthy.gym.gympass.shared.Price;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,13 +26,13 @@ import org.springframework.test.context.TestPropertySource;
 import org.testcontainers.containers.MongoDBContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
-import org.testcontainers.shaded.com.fasterxml.jackson.core.JsonProcessingException;
 import org.testcontainers.utility.DockerImageName;
 
 import java.net.URI;
 import java.util.*;
 
 import static com.healthy.gym.gympass.configuration.LocaleConverter.convertEnumToLocale;
+import static com.healthy.gym.gympass.configuration.Messages.getMessagesAccordingToLocale;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 @Testcontainers
@@ -54,6 +55,7 @@ public class GetOffersIntegrationTest {
 
     @LocalServerPort
     private Integer port;
+    private String userToken;
     private String managerToken;
 
     @DynamicPropertySource
@@ -63,27 +65,10 @@ public class GetOffersIntegrationTest {
 
     @BeforeEach
     void setUp() {
+
+        userToken = tokenFactory.getUserToken(UUID.randomUUID().toString());
+
         managerToken = tokenFactory.getMangerToken(UUID.randomUUID().toString());
-
-        mongoTemplate.save(new GymPassDocument(
-                UUID.randomUUID().toString(),
-                "Karnet miesięczny",
-                "Najlepszy wybór dla osób aktywnych",
-                new Price(139.99, "zł", "miesiąc"),
-                false,
-                new Description("Karnet uprawniający do korzystania w pełni z usług ośrodka",
-                        List.of("Full pakiet", "sauna", "siłownia", "basen"))
-        ));
-
-        mongoTemplate.save(new GymPassDocument(
-                UUID.randomUUID().toString(),
-                "Karnet kwartalny",
-                "Najlepszy wybór dla osób aktywnych i korzystny cenowo",
-                new Price(399.99, "zł", "miesiąc"),
-                false,
-                new Description("Karnet uprawniający do korzystania w pełni z usług ośrodka",
-                        List.of("Full pakiet", "sauna", "siłownia", "basen"))
-        ));
     }
 
     @AfterEach
@@ -97,13 +82,35 @@ public class GetOffersIntegrationTest {
         @ParameterizedTest
         @EnumSource(TestCountry.class)
         void shouldGetGymPassOffers(TestCountry country) throws Exception {
+
+            //before
+            mongoTemplate.save(new GymPassDocument(
+                    UUID.randomUUID().toString(),
+                    "Karnet miesięczny",
+                    "Najlepszy wybór dla osób aktywnych",
+                    new Price(139.99, "zł", "miesiąc"),
+                    false,
+                    new Description("Karnet uprawniający do korzystania w pełni z usług ośrodka",
+                            List.of("Full pakiet", "sauna", "siłownia", "basen"))
+            ));
+
+            mongoTemplate.save(new GymPassDocument(
+                    UUID.randomUUID().toString(),
+                    "Karnet kwartalny",
+                    "Najlepszy wybór dla osób aktywnych i korzystny cenowo",
+                    new Price(399.99, "zł", "miesiąc"),
+                    false,
+                    new Description("Karnet uprawniający do korzystania w pełni z usług ośrodka",
+                            List.of("Full pakiet", "sauna", "siłownia", "basen"))
+            ));
+
             Locale testedLocale = convertEnumToLocale(country);
 
             URI uri = new URI("http://localhost:" + port + "/offer");
 
             HttpHeaders headers = new HttpHeaders();
             headers.set("Accept-Language", testedLocale.toString());
-            headers.set("Authorization", managerToken);
+            headers.set("Authorization", userToken);
             headers.setContentType(MediaType.APPLICATION_JSON);
 
             HttpEntity<Object> request = new HttpEntity<>(null, headers);
@@ -152,6 +159,33 @@ public class GetOffersIntegrationTest {
             List<GymPassDocument> gymPassDocumentList = mongoTemplate.findAll(GymPassDocument.class);
             assertThat(gymPassDocumentList.size()).isEqualTo(2);
         }
+    }
+
+    @Nested
+    class ShouldNotGetOffers{
+
+        @ParameterizedTest
+        @EnumSource(TestCountry.class)
+        void shouldNotGetOffersWhenEmptyOffersLists(TestCountry country) throws Exception {
+
+            Locale testedLocale = convertEnumToLocale(country);
+
+            URI uri = new URI("http://localhost:" + port + "/offer");
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.set("Accept-Language", testedLocale.toString());
+            headers.set("Authorization", managerToken);
+            headers.setContentType(MediaType.APPLICATION_JSON);
+
+            HttpEntity<Object> request = new HttpEntity<>(null, headers);
+
+            ResponseEntity<JsonNode> responseEntity = restTemplate
+                    .exchange(uri, HttpMethod.GET, request, JsonNode.class);
+
+            assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
+            assertThat(responseEntity.getBody()).isNull();
+        }
+
     }
 
 

@@ -10,8 +10,8 @@ import java.util.Objects;
 @Document(collection = "gymPasses")
 public class GymPassDocument {
     @Id
-    private String documentId;
     private String id;
+    private String documentId;
     private String title;
     private String subheader;
     private Price price;

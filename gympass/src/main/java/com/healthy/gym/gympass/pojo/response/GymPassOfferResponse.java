@@ -1,17 +1,46 @@
 package com.healthy.gym.gympass.pojo.response;
 
-import com.healthy.gym.gympass.data.document.GymPassDocument;
+import com.healthy.gym.gympass.dto.GymPassDTO;
 
-import java.util.List;
+import java.util.Objects;
 
 public class GymPassOfferResponse extends AbstractResponse {
-    private List<GymPassDocument> gymPassDocument;
+    private GymPassDTO gymPass;
 
     public GymPassOfferResponse() {
     }
 
-    public GymPassOfferResponse(String message, List<GymPassDocument> gymPassDocument) {
+    public GymPassOfferResponse(String message, GymPassDTO gymPass) {
         super(message);
-        this.gymPassDocument = gymPassDocument;
+        this.gymPass = gymPass;
+    }
+
+    public GymPassDTO getGymPass() {
+        return gymPass;
+    }
+
+    public void setGymPass(GymPassDTO gymPass) {
+        this.gymPass = gymPass;
+    }
+
+    @Override
+    public String toString() {
+        return "GymPassOfferResponse{" +
+                "gymPass=" + gymPass +
+                '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
+        GymPassOfferResponse that = (GymPassOfferResponse) o;
+        return Objects.equals(gymPass, that.gymPass);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), gymPass);
     }
 }

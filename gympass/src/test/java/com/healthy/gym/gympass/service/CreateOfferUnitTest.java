@@ -80,4 +80,60 @@ class CreateOfferUnitTest {
         //then
         assertThat(offerService.createGymPassOffer(gymPassOfferRequest)).isEqualTo(gymPassDTO);
     }
+
+    @Test
+    void shouldNotCreateOffer_whenDuplicatedTitles() throws DuplicatedOffersException {
+
+        //request document
+        String title = "Karnet miesięczny";
+        String subheader = "Najepszy wybór dla regularnie uprawiających sport";
+        double amount = 139.99;
+        String currency = "zł";
+        String period = "miesiąc";
+        boolean isPremium = false;
+        String synopsis = "Nielimitowana liczba wejść";
+        List<String> features = List.of("siłownia", "fitness", "TRX", "rowery");
+        GymPassOfferRequest gymPassOfferRequest = new GymPassOfferRequest();
+        gymPassOfferRequest.setTitle(title);
+        gymPassOfferRequest.setSubheader(subheader);
+        gymPassOfferRequest.setAmount(amount);
+        gymPassOfferRequest.setCurrency(currency);
+        gymPassOfferRequest.setPeriod(period);
+        gymPassOfferRequest.setPremium(isPremium);
+        gymPassOfferRequest.setSynopsis(synopsis);
+        gymPassOfferRequest.setFeatures(features);
+
+        //response
+        String documentId = UUID.randomUUID().toString();
+        GymPassDTO gymPassDTO = new GymPassDTO(
+                documentId,
+                title,
+                subheader,
+                new Price(amount, currency, period),
+                isPremium,
+                new Description(synopsis,features)
+        );
+
+        //document
+        GymPassDocument gymPassDocumentSavedInDB = new GymPassDocument(
+                documentId,
+                title,
+                subheader,
+                new Price(amount, currency, period),
+                isPremium,
+                new Description(synopsis,features)
+        );
+        gymPassDocumentSavedInDB.setId("507f1f77bcf86cd799439011");
+
+        GymPassDocument gymPassDocumentExisting = new GymPassDocument();
+
+        //when
+        when(gymPassOfferDAO.findFirstByTitle(title)).thenReturn(gymPassDocumentExisting);
+        when(gymPassOfferDAO.save(any())).thenReturn(gymPassDocumentSavedInDB);
+
+        //then
+        assertThatThrownBy(() ->
+                offerService.createGymPassOffer(gymPassOfferRequest)
+        ).isInstanceOf(DuplicatedOffersException.class);
+    }
 }

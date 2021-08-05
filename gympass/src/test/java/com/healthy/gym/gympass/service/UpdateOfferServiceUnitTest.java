@@ -114,4 +114,56 @@ class UpdateOfferServiceUnitTest {
         //then
         assertThat(offerService.updateGymPassOffer(documentId, gymPassOfferRequest)).isEqualTo(gymPassDTO);
     }
+
+    @Test
+    void shouldUpdateOffer_whenValidRequestAndDocumentId_updatedTitle() throws InvalidGymPassOfferId, DuplicatedOffersException {
+
+        //request document
+        String title = "Karnet miesięczny plus";
+        String subheader = "Najepszy wybór dla regularnie uprawiających sport";
+        double amount = 139.99;
+        String currency = "zł";
+        String period = "miesiąc";
+        boolean isPremium = false;
+        String synopsis = "Nielimitowana liczba wejść";
+        List<String> features = List.of("siłownia", "fitness", "TRX", "rowery");
+        GymPassOfferRequest gymPassOfferRequest = new GymPassOfferRequest();
+        gymPassOfferRequest.setTitle(title);
+        gymPassOfferRequest.setSubheader(subheader);
+        gymPassOfferRequest.setAmount(amount);
+        gymPassOfferRequest.setCurrency(currency);
+        gymPassOfferRequest.setPeriod(period);
+        gymPassOfferRequest.setPremium(isPremium);
+        gymPassOfferRequest.setSynopsis(synopsis);
+        gymPassOfferRequest.setFeatures(features);
+
+        //response
+        GymPassDTO gymPassDTO = new GymPassDTO(
+                documentId,
+                title,
+                subheader,
+                new Price(amount, currency, period),
+                isPremium,
+                new Description(synopsis,features)
+        );
+
+        //document
+        GymPassDocument gymPassDocumentSavedInDB = new GymPassDocument(
+                documentId,
+                title,
+                subheader,
+                new Price(amount, currency, period),
+                isPremium,
+                new Description(synopsis,features)
+        );
+        gymPassDocumentSavedInDB.setId("507f1f77bcf86cd799439011");
+
+        //when
+        when(gymPassOfferDAO.findByDocumentId(documentId)).thenReturn(existingGymPassDocument);
+        when(gymPassOfferDAO.findByTitle(title)).thenReturn(existingGymPassDocument);
+        when(gymPassOfferDAO.save(gymPassDocumentSavedInDB)).thenReturn(gymPassDocumentSavedInDB);
+
+        //then
+        assertThat(offerService.updateGymPassOffer(documentId, gymPassOfferRequest)).isEqualTo(gymPassDTO);
+    }
 }

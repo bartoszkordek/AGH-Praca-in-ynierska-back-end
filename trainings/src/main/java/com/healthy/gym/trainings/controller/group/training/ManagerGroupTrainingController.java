@@ -13,7 +13,7 @@ import com.healthy.gym.trainings.exception.occupied.TrainerOccupiedException;
 import com.healthy.gym.trainings.model.request.ManagerGroupTrainingRequest;
 import com.healthy.gym.trainings.model.response.GroupTrainingResponse;
 import com.healthy.gym.trainings.service.group.training.ManagerGroupTrainingService;
-import com.healthy.gym.trainings.shared.GroupTrainingDTO;
+import com.healthy.gym.trainings.dto.GroupTrainingDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;

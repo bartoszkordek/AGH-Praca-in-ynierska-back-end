@@ -11,7 +11,7 @@ import com.healthy.gym.trainings.exception.UserAlreadyEnrolledToTrainingExceptio
 import com.healthy.gym.trainings.exception.notexisting.NotExistingGroupTrainingException;
 import com.healthy.gym.trainings.exception.notfound.UserNotFoundException;
 import com.healthy.gym.trainings.exception.training.TrainingEnrollmentException;
-import com.healthy.gym.trainings.shared.GroupTrainingDTO;
+import com.healthy.gym.trainings.dto.GroupTrainingDTO;
 import com.healthy.gym.trainings.utils.GroupTrainingMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

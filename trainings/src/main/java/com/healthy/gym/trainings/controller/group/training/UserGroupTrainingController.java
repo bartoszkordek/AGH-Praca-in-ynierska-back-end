@@ -9,7 +9,7 @@ import com.healthy.gym.trainings.exception.notfound.UserNotFoundException;
 import com.healthy.gym.trainings.exception.training.TrainingEnrollmentException;
 import com.healthy.gym.trainings.model.response.GroupTrainingResponse;
 import com.healthy.gym.trainings.service.group.training.UserGroupTrainingService;
-import com.healthy.gym.trainings.shared.GroupTrainingDTO;
+import com.healthy.gym.trainings.dto.GroupTrainingDTO;
 import com.healthy.gym.trainings.validation.ValidDateFormat;
 import com.healthy.gym.trainings.validation.ValidIDFormat;
 import org.springframework.beans.factory.annotation.Autowired;

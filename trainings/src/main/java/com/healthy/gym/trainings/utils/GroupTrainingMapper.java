@@ -1,7 +1,7 @@
 package com.healthy.gym.trainings.utils;
 
 import com.healthy.gym.trainings.data.document.GroupTrainingDocument;
-import com.healthy.gym.trainings.shared.GroupTrainingDTO;
+import com.healthy.gym.trainings.dto.GroupTrainingDTO;
 import org.modelmapper.ModelMapper;
 
 public class GroupTrainingMapper {

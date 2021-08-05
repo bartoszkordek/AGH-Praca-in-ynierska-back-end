@@ -6,8 +6,8 @@ import com.healthy.gym.trainings.controller.group.training.UserGroupTrainingCont
 import com.healthy.gym.trainings.exception.StartDateAfterEndDateException;
 import com.healthy.gym.trainings.exception.notfound.UserNotFoundException;
 import com.healthy.gym.trainings.service.group.training.UserGroupTrainingService;
-import com.healthy.gym.trainings.shared.BasicUserInfoDTO;
-import com.healthy.gym.trainings.shared.GroupTrainingDTO;
+import com.healthy.gym.trainings.dto.BasicUserInfoDTO;
+import com.healthy.gym.trainings.dto.GroupTrainingDTO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.params.ParameterizedTest;

@@ -11,7 +11,7 @@ import com.healthy.gym.trainings.exception.notfound.TrainingTypeNotFoundExceptio
 import com.healthy.gym.trainings.model.request.TrainingTypeRequest;
 import com.healthy.gym.trainings.model.response.TrainingTypeResponse;
 import com.healthy.gym.trainings.service.TrainingTypeService;
-import com.healthy.gym.trainings.shared.ImageDTO;
+import com.healthy.gym.trainings.dto.ImageDTO;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;

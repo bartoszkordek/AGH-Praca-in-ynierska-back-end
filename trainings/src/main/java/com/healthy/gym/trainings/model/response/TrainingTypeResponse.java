@@ -3,7 +3,7 @@ package com.healthy.gym.trainings.model.response;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.healthy.gym.trainings.shared.ImageDTO;
+import com.healthy.gym.trainings.dto.ImageDTO;
 
 import java.time.LocalTime;
 import java.util.Map;

@@ -1,4 +1,4 @@
-package com.healthy.gym.trainings.shared;
+package com.healthy.gym.trainings.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -7,9 +7,10 @@ import java.util.List;
 import java.util.Objects;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class GroupTrainingDTO {
+public class IndividualTrainingDTO {
+
     @JsonProperty("id")
-    private String groupTrainingId;
+    private String individualTrainingId;
     private String title;
     private String startDate;
     private String endDate;
@@ -18,35 +19,34 @@ public class GroupTrainingDTO {
     private List<BasicUserInfoDTO> trainers;
     private ParticipantsDTO participants;
 
-    public GroupTrainingDTO() {
+    public IndividualTrainingDTO() {
         this.participants = new ParticipantsDTO();
     }
 
-    public GroupTrainingDTO(
-            String id,
+    public IndividualTrainingDTO(
+            String individualTrainingId,
             String title,
             String startDate,
             String endDate,
-            Boolean allDay,
+            boolean allDay,
             String location,
             List<BasicUserInfoDTO> trainers
     ) {
-        this.groupTrainingId = id;
+        this.individualTrainingId = individualTrainingId;
         this.title = title;
         this.startDate = startDate;
         this.endDate = endDate;
         this.allDay = allDay;
         this.location = location;
         this.trainers = trainers;
-        this.participants = new ParticipantsDTO();
     }
 
-    public String getGroupTrainingId() {
-        return groupTrainingId;
+    public String getIndividualTrainingId() {
+        return individualTrainingId;
     }
 
-    public void setGroupTrainingId(String groupTrainingId) {
-        this.groupTrainingId = groupTrainingId;
+    public void setIndividualTrainingId(String individualTrainingId) {
+        this.individualTrainingId = individualTrainingId;
     }
 
     public String getTitle() {
@@ -105,21 +105,13 @@ public class GroupTrainingDTO {
         this.participants = participants;
     }
 
-    public void setBasicList(List<BasicUserInfoDTO> basicList) {
-        this.participants.setBasicList(basicList);
-    }
-
-    public void setReserveList(List<BasicUserInfoDTO> reserveList) {
-        this.participants.setReserveList(reserveList);
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        GroupTrainingDTO that = (GroupTrainingDTO) o;
+        IndividualTrainingDTO that = (IndividualTrainingDTO) o;
         return allDay == that.allDay
-                && Objects.equals(groupTrainingId, that.groupTrainingId)
+                && Objects.equals(individualTrainingId, that.individualTrainingId)
                 && Objects.equals(title, that.title)
                 && Objects.equals(startDate, that.startDate)
                 && Objects.equals(endDate, that.endDate)
@@ -130,13 +122,13 @@ public class GroupTrainingDTO {
 
     @Override
     public int hashCode() {
-        return Objects.hash(groupTrainingId, title, startDate, endDate, allDay, location, trainers, participants);
+        return Objects.hash(individualTrainingId, title, startDate, endDate, allDay, location, trainers, participants);
     }
 
     @Override
     public String toString() {
-        return "GroupTrainingDTO{" +
-                "id='" + groupTrainingId + '\'' +
+        return "IndividualTrainingDTO{" +
+                "individualTrainingId='" + individualTrainingId + '\'' +
                 ", title='" + title + '\'' +
                 ", startDate='" + startDate + '\'' +
                 ", endDate='" + endDate + '\'' +

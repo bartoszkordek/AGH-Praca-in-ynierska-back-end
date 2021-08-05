@@ -1,6 +1,6 @@
 package com.healthy.gym.trainings.model.response;
 
-import com.healthy.gym.trainings.shared.LocationDTO;
+import com.healthy.gym.trainings.dto.LocationDTO;
 
 import java.util.Objects;
 

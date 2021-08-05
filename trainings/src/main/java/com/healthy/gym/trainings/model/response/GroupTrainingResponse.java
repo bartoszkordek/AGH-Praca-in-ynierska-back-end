@@ -1,6 +1,6 @@
 package com.healthy.gym.trainings.model.response;
 
-import com.healthy.gym.trainings.shared.GroupTrainingDTO;
+import com.healthy.gym.trainings.dto.GroupTrainingDTO;
 
 import java.util.Map;
 import java.util.Objects;

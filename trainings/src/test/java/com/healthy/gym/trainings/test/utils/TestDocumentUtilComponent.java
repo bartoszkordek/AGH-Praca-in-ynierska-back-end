@@ -32,6 +32,10 @@ public class TestDocumentUtilComponent {
         return mongoTemplate.save(getTestUser());
     }
 
+    public UserDocument saveAndGetTestUser(String userId) {
+        return mongoTemplate.save(getTestUser(userId));
+    }
+
     public UserDocument saveAndGetTestTrainer() {
         return mongoTemplate.save(getTestTrainer());
     }

@@ -36,6 +36,7 @@ public class OfferServiceImpl implements OfferService{
     @Override
     public List<GymPassDTO> getGymPassOffer()
             throws NoOffersException {
+
         List<GymPassDocument> gymPassOfferDocuments = gymPassOfferDAO.findAll();
 
         if(gymPassOfferDocuments.isEmpty()) throw new NoOffersException("No offers");
@@ -49,6 +50,7 @@ public class OfferServiceImpl implements OfferService{
     @Override
     public GymPassDTO createGymPassOffer(GymPassOfferRequest request)
             throws DuplicatedOffersException {
+
         String requestTitle = request.getTitle();
         if(gymPassOfferDAO.findFirstByTitle(requestTitle) != null)
             throw new DuplicatedOffersException("Offer with the same title already exists");
@@ -72,7 +74,36 @@ public class OfferServiceImpl implements OfferService{
     @Override
     public GymPassDTO updateGymPassOffer(String id, GymPassOfferRequest request)
             throws DuplicatedOffersException, InvalidGymPassOfferId {
-        return null;
+
+        GymPassDocument gymPassDocument = gymPassOfferDAO.findByDocumentId(id);
+        if(gymPassDocument == null)
+            throw new InvalidGymPassOfferId("Offer does not exist");
+
+        String requestTitle = request.getTitle();
+        GymPassDocument documentWithRequestTitle = gymPassOfferDAO.findByTitle(requestTitle);
+
+        if(documentWithRequestTitle != null && documentWithRequestTitle.getDocumentId().equals(id))
+            throw new DuplicatedOffersException("Offer with the same title already exists");
+
+        gymPassDocument.setTitle(requestTitle);
+        gymPassDocument.setSubheader(request.getSubheader());
+        gymPassDocument.setPrice(
+                new Price(request.getAmount(),
+                        request.getCurrency(),
+                        request.getPeriod()
+                )
+        );
+        gymPassDocument.setPremium(request.isPremium());
+        gymPassDocument.setDescription(
+                new Description(
+                     request.getSynopsis(),
+                     request.getFeatures()
+                )
+        );
+
+        GymPassDocument updatedGymPassDocument = gymPassOfferDAO.save(gymPassDocument);
+
+        return modelMapper.map(updatedGymPassDocument, GymPassDTO.class);
     }
 
     @Override

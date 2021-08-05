@@ -7,12 +7,15 @@ import com.healthy.gym.gympass.exception.DuplicatedOffersException;
 import com.healthy.gym.gympass.exception.InvalidGymPassOfferId;
 import com.healthy.gym.gympass.exception.NoOffersException;
 import com.healthy.gym.gympass.pojo.request.GymPassOfferRequest;
+import com.healthy.gym.gympass.shared.Description;
+import com.healthy.gym.gympass.shared.Price;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -46,7 +49,24 @@ public class OfferServiceImpl implements OfferService{
     @Override
     public GymPassDTO createGymPassOffer(GymPassOfferRequest request)
             throws DuplicatedOffersException {
-        return null;
+        String requestTitle = request.getTitle();
+        if(gymPassOfferDAO.findFirstByTitle(requestTitle) != null)
+            throw new DuplicatedOffersException("Offer with the same title already exists");
+
+        GymPassDocument gymPassDocumentToSave = new GymPassDocument(
+                UUID.randomUUID().toString(),
+                request.getTitle(),
+                request.getSubheader(),
+                new Price(
+                        request.getAmount(),
+                        request.getCurrency(),
+                        request.getPeriod()
+                ),
+                request.isPremium(),
+                new Description(request.getSynopsis(), request.getFeatures())
+        );
+        GymPassDocument gymPassDocumentSaved = gymPassOfferDAO.save(gymPassDocumentToSave);
+        return modelMapper.map(gymPassDocumentSaved, GymPassDTO.class);
     }
 
     @Override

@@ -114,4 +114,18 @@ public class GetOffersServiceTest {
         assertThat(offerService.getGymPassOffer().get(1)).isEqualTo(gymPassOfferDTOs.get(1));
     }
 
+    @Test
+    public void shouldThrowNoOffersException_whenEmptyOffersList(){
+
+        //before
+        List<GymPassDocument> gymPassDocuments = new ArrayList<>();
+
+        //when
+        when(gymPassOfferDAO.findAll()).thenReturn(gymPassDocuments);
+
+        assertThatThrownBy(() ->
+                offerService.getGymPassOffer()
+        ).isInstanceOf(NoOffersException.class);
+    }
+
 }

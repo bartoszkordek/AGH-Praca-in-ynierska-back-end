@@ -10,7 +10,7 @@ import java.lang.annotation.Target;
 
 @Constraint(validatedBy = DateTimeValidator.class)
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.FIELD, ElementType.METHOD})
+@Target({ElementType.FIELD, ElementType.METHOD, ElementType.PARAMETER})
 public @interface ValidDateTime {
 
     String message() default "";

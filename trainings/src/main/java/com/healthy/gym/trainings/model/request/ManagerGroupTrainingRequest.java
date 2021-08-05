@@ -2,7 +2,7 @@ package com.healthy.gym.trainings.model.request;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.healthy.gym.trainings.validation.ValidDateTime;
-import com.healthy.gym.trainings.validation.ValidID;
+import com.healthy.gym.trainings.validation.ValidFormatID;
 
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
@@ -13,7 +13,7 @@ import java.util.Objects;
 public class ManagerGroupTrainingRequest {
 
     @NotNull(message = "{field.required}")
-    @ValidID(message = "{exception.invalid.id.format}")
+    @ValidFormatID(message = "{exception.invalid.id.format}")
     private String trainingTypeId;
 
     @NotNull(message = "{field.required}")
@@ -28,7 +28,7 @@ public class ManagerGroupTrainingRequest {
     private String endDate;
 
     @NotNull(message = "{field.required}")
-    @ValidID(message = "{exception.invalid.id.format}")
+    @ValidFormatID(message = "{exception.invalid.id.format}")
     private String locationId;
 
     @NotNull(message = "{field.required}")

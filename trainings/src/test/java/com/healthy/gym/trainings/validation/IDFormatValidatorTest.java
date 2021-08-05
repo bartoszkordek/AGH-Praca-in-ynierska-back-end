@@ -8,13 +8,13 @@ import javax.validation.ConstraintValidatorContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class IDValidatorTest {
-    private IDValidator validator;
+class IDFormatValidatorTest {
+    private IDFormatValidator validator;
     private ConstraintValidatorContext context;
 
     @BeforeEach
     void setUp() {
-        validator = new IDValidator();
+        validator = new IDFormatValidator();
         context = null;
     }
 

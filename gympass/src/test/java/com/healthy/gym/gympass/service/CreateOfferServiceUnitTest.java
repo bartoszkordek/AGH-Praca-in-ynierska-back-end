@@ -21,7 +21,7 @@ import static org.mockito.Mockito.when;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
-class CreateOfferUnitTest {
+class CreateOfferServiceUnitTest {
 
     @Autowired
     private OfferService offerService;
@@ -74,7 +74,7 @@ class CreateOfferUnitTest {
         gymPassDocumentSavedInDB.setId("507f1f77bcf86cd799439011");
 
         //when
-        when(gymPassOfferDAO.findFirstByTitle(title)).thenReturn(null);
+        when(gymPassOfferDAO.findByTitle(title)).thenReturn(null);
         when(gymPassOfferDAO.save(any())).thenReturn(gymPassDocumentSavedInDB);
 
         //then
@@ -128,7 +128,7 @@ class CreateOfferUnitTest {
         GymPassDocument gymPassDocumentExisting = new GymPassDocument();
 
         //when
-        when(gymPassOfferDAO.findFirstByTitle(title)).thenReturn(gymPassDocumentExisting);
+        when(gymPassOfferDAO.findByTitle(title)).thenReturn(gymPassDocumentExisting);
         when(gymPassOfferDAO.save(any())).thenReturn(gymPassDocumentSavedInDB);
 
         //then

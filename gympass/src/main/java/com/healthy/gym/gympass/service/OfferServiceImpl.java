@@ -52,7 +52,7 @@ public class OfferServiceImpl implements OfferService{
             throws DuplicatedOffersException {
 
         String requestTitle = request.getTitle();
-        if(gymPassOfferDAO.findFirstByTitle(requestTitle) != null)
+        if(gymPassOfferDAO.findByTitle(requestTitle) != null)
             throw new DuplicatedOffersException("Offer with the same title already exists");
 
         GymPassDocument gymPassDocumentToSave = new GymPassDocument(
@@ -82,7 +82,7 @@ public class OfferServiceImpl implements OfferService{
         String requestTitle = request.getTitle();
         GymPassDocument documentWithRequestTitle = gymPassOfferDAO.findByTitle(requestTitle);
 
-        if(documentWithRequestTitle != null && documentWithRequestTitle.getDocumentId().equals(id))
+        if(documentWithRequestTitle != null && !documentWithRequestTitle.getDocumentId().equals(id))
             throw new DuplicatedOffersException("Offer with the same title already exists");
 
         gymPassDocument.setTitle(requestTitle);

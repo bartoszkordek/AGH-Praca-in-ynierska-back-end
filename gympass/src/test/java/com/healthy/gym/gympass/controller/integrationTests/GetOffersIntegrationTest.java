@@ -5,13 +5,11 @@ import com.healthy.gym.gympass.configuration.FixedClockConfig;
 import com.healthy.gym.gympass.configuration.TestCountry;
 import com.healthy.gym.gympass.configuration.TestRoleTokenFactory;
 import com.healthy.gym.gympass.data.document.GymPassDocument;
-import com.healthy.gym.gympass.pojo.request.GymPassOfferRequest;
 import com.healthy.gym.gympass.shared.Description;
 import com.healthy.gym.gympass.shared.Price;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -184,6 +182,29 @@ public class GetOffersIntegrationTest {
 
             assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
             assertThat(responseEntity.getBody()).isNull();
+        }
+
+        @ParameterizedTest
+        @EnumSource(TestCountry.class)
+        void shouldNotGetOffersWhenNoToken(TestCountry country) throws Exception {
+            Locale testedLocale = convertEnumToLocale(country);
+
+            URI uri = new URI("http://localhost:" + port + "/offer");
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.set("Accept-Language", testedLocale.toString());
+            headers.setContentType(MediaType.APPLICATION_JSON);
+
+            HttpEntity<Object> request = new HttpEntity<>(null, headers);
+
+            ResponseEntity<JsonNode> responseEntity = restTemplate
+                    .exchange(uri, HttpMethod.GET, request, JsonNode.class);
+
+
+            assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
+            assertThat(responseEntity.getBody().get("status").intValue()).isEqualTo(403);
+            assertThat(responseEntity.getBody().get("error").textValue()).isEqualTo("Forbidden");
+            assertThat(responseEntity.getBody().get("message").textValue()).isEqualTo("Access Denied");
         }
 
     }

@@ -39,7 +39,7 @@ import static org.assertj.core.api.Assertions.assertThat;
         "eureka.client.fetch-registry=false",
         "eureka.client.register-with-eureka=false"
 })
-class UserGroupTrainingsDAOTest {
+class UserGroupTrainingsDAOIntegrationTest {
 
     @Container
     static MongoDBContainer mongoDBContainer =

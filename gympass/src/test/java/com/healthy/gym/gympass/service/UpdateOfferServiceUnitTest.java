@@ -44,7 +44,7 @@ class UpdateOfferServiceUnitTest {
     @BeforeEach
     void setUp() throws IOException {
 
-        //document
+        //existing document
         documentId = UUID.randomUUID().toString();
         title = "Karnet miesięczny";
         String subheader = "Najepszy wybór dla regularnie uprawiających sport";
@@ -111,7 +111,7 @@ class UpdateOfferServiceUnitTest {
         @Test
         void shouldUpdateOffer_whenValidRequestAndDocumentId_updatedPrice() throws InvalidGymPassOfferId, DuplicatedOffersException {
 
-            //request document
+            //request
             double amount = 149.99;
             String currency = "zł";
             String period = "miesiąc";
@@ -164,11 +164,54 @@ class UpdateOfferServiceUnitTest {
             //when
             when(gymPassOfferDAO.findByDocumentId(documentId)).thenReturn(null);
 
-
             //then
             assertThatThrownBy(() ->
                     offerService.updateGymPassOffer(any(),gymPassOfferRequest)
             ).isInstanceOf(InvalidGymPassOfferId.class);
+        }
+
+        @Test
+        void shouldNotUpdateOffer_whenDuplicatedTitles(){
+
+            //another existing document
+            String anotherDocumentId = UUID.randomUUID().toString();
+            String anotherTitle = "Karnet kwartalny";
+            String anotherSubheader = "Najepszy wybór dla regularnie uprawiających sport. Korzystny cenowo";
+            double anotherAmount = 399.99;
+            String anotherCurrency = "zł";
+            String anotherPeriod = "kwartał";
+            boolean anotherIsPremium = false;
+            String anotherSynopsis = "Nielimitowana liczba wejść";
+            List<String> anotherFeatures = List.of("siłownia", "fitness", "TRX", "rowery");
+
+            GymPassDocument anotherExistingGymPassDocument = new GymPassDocument(
+                    anotherDocumentId,
+                    anotherTitle,
+                    anotherSubheader,
+                    new Price(
+                            anotherAmount,
+                            anotherCurrency,
+                            anotherPeriod
+                    ),
+                    anotherIsPremium,
+                    new Description(
+                            anotherSynopsis,
+                            anotherFeatures
+                    )
+            );
+            existingGymPassDocument.setId("507f1f77bcf86cd799439012");
+
+
+            //when
+            when(gymPassOfferDAO.findByDocumentId(documentId)).thenReturn(existingGymPassDocument);
+            when(gymPassOfferDAO.findByTitle(title)).thenReturn(anotherExistingGymPassDocument);
+            when(gymPassOfferDAO.save(gymPassDocumentSavedInDB)).thenReturn(gymPassDocumentSavedInDB);
+
+            //then
+            assertThatThrownBy(() ->
+                    offerService.updateGymPassOffer(documentId,gymPassOfferRequest)
+            ).isInstanceOf(DuplicatedOffersException.class);
+
         }
 
     }

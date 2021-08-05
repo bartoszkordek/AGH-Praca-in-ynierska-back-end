@@ -4,7 +4,6 @@ import com.healthy.gym.gympass.data.document.GymPassDocument;
 import com.healthy.gym.gympass.data.repository.GymPassOfferDAO;
 import com.healthy.gym.gympass.dto.GymPassDTO;
 import com.healthy.gym.gympass.exception.InvalidGymPassOfferId;
-import com.healthy.gym.gympass.pojo.request.GymPassOfferRequest;
 import com.healthy.gym.gympass.shared.Description;
 import com.healthy.gym.gympass.shared.Price;
 import org.junit.jupiter.api.BeforeEach;
@@ -14,11 +13,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.when;
 
 @SpringBootTest
@@ -87,8 +86,25 @@ public class DeleteOfferServiceUnitTest {
             when(gymPassOfferDAO.findByDocumentId(documentId)).thenReturn(existingGymPassDocument);
 
             //then
-            //then
             assertThat(offerService.deleteGymPassOffer(documentId)).isEqualTo(gymPassDTO);
+        }
+    }
+
+
+    @Nested
+    class ShouldNotDeleteOffer{
+
+        @Test
+        void shouldDeleteOffer_whenInvalidDocumentId() throws InvalidGymPassOfferId {
+
+            //when
+            when(gymPassOfferDAO.findByDocumentId(documentId)).thenReturn(null);
+
+            //then
+            //then
+            assertThatThrownBy(() ->
+                    offerService.deleteGymPassOffer(documentId)
+            ).isInstanceOf(InvalidGymPassOfferId.class);
         }
     }
 

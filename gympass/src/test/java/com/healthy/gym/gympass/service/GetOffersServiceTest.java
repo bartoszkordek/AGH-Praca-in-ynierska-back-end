@@ -20,7 +20,7 @@ import static org.mockito.Mockito.when;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
-public class GetOffersServiceTest {
+class GetOffersServiceTest {
 
     @Autowired
     private OfferService offerService;
@@ -29,7 +29,7 @@ public class GetOffersServiceTest {
     private GymPassOfferDAO gymPassOfferDAO;
 
     @Test
-    public void shouldGetOffers_whenExist() throws NoOffersException {
+    void shouldGetOffers_whenExist() throws NoOffersException {
 
         //before
         //documents
@@ -115,7 +115,7 @@ public class GetOffersServiceTest {
     }
 
     @Test
-    public void shouldThrowNoOffersException_whenEmptyOffersList(){
+    void shouldThrowNoOffersException_whenEmptyOffersList(){
 
         //before
         List<GymPassDocument> gymPassDocuments = new ArrayList<>();

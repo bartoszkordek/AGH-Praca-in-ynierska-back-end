@@ -3,7 +3,7 @@ package com.healthy.gym.trainings.service.group.training.user;
 import com.healthy.gym.trainings.data.document.GroupTrainingDocument;
 import com.healthy.gym.trainings.data.document.UserDocument;
 import com.healthy.gym.trainings.data.repository.UserDAO;
-import com.healthy.gym.trainings.data.repository.UserGroupTrainingsDAO;
+import com.healthy.gym.trainings.data.repository.group.training.UserGroupTrainingsDAO;
 import com.healthy.gym.trainings.exception.StartDateAfterEndDateException;
 import com.healthy.gym.trainings.exception.notfound.UserNotFoundException;
 import com.healthy.gym.trainings.service.group.training.UserGroupTrainingService;

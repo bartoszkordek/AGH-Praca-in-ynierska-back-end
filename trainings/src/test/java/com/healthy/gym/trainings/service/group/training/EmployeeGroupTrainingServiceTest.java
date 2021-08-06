@@ -2,7 +2,7 @@ package com.healthy.gym.trainings.service.group.training;
 
 import com.healthy.gym.trainings.data.document.GroupTrainingDocument;
 import com.healthy.gym.trainings.data.document.UserDocument;
-import com.healthy.gym.trainings.data.repository.GroupTrainingsDAO;
+import com.healthy.gym.trainings.data.repository.group.training.GroupTrainingsDAO;
 import com.healthy.gym.trainings.dto.BasicUserInfoDTO;
 import com.healthy.gym.trainings.dto.GroupTrainingDTO;
 import com.healthy.gym.trainings.dto.ParticipantsDTO;

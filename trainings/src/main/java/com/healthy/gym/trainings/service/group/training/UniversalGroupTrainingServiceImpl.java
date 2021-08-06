@@ -2,8 +2,8 @@ package com.healthy.gym.trainings.service.group.training;
 
 import com.healthy.gym.trainings.data.document.GroupTrainingDocument;
 import com.healthy.gym.trainings.data.document.TrainingTypeDocument;
-import com.healthy.gym.trainings.data.repository.GroupTrainingsDAO;
-import com.healthy.gym.trainings.data.repository.GroupTrainingsRepository;
+import com.healthy.gym.trainings.data.repository.group.training.GroupTrainingsDAO;
+import com.healthy.gym.trainings.data.repository.group.training.GroupTrainingsRepository;
 import com.healthy.gym.trainings.data.repository.ReviewDAO;
 import com.healthy.gym.trainings.data.repository.TrainingTypeDAO;
 import com.healthy.gym.trainings.exception.StartDateAfterEndDateException;

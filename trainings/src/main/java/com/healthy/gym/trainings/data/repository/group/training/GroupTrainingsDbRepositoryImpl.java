@@ -1,4 +1,4 @@
-package com.healthy.gym.trainings.data.repository;
+package com.healthy.gym.trainings.data.repository.group.training;
 
 import com.healthy.gym.trainings.model.request.GroupTrainingRequest;
 import com.mongodb.client.MongoClient;

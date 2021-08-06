@@ -132,12 +132,40 @@ public class DeleteOfferIntegrationTest {
             assertThat(responseEntity.getHeaders().getContentType()).isEqualTo(MediaType.APPLICATION_JSON);
 
             List<GymPassDocument> gymPassDocumentList = mongoTemplate.findAll(GymPassDocument.class);
-            assertThat(gymPassDocumentList.size()).isEqualTo(0);
+            assertThat(gymPassDocumentList.size()).isZero();
         }
     }
 
     @Nested
     class ShouldNotDeleteOffer{
+
+        @ParameterizedTest
+        @EnumSource(TestCountry.class)
+        void shouldThrowInvalidGymPassOfferIdExceptionWhenInvalidId(TestCountry country) throws Exception {
+            Map<String, String> messages = getMessagesAccordingToLocale(country);
+            Locale testedLocale = convertEnumToLocale(country);
+
+            String invalidDocumentId = UUID.randomUUID().toString();
+
+            URI uri = new URI("http://localhost:" + port + "/offer/"+invalidDocumentId);
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.set("Accept-Language", testedLocale.toString());
+            headers.set("Authorization", managerToken);
+            headers.setContentType(MediaType.APPLICATION_JSON);
+
+
+            HttpEntity<Object> request = new HttpEntity<>(null, headers);
+            String expectedMessage = messages.get("exception.invalid.offer.id");
+
+            ResponseEntity<JsonNode> responseEntity = restTemplate
+                    .exchange(uri, HttpMethod.DELETE, request, JsonNode.class);
+
+            assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+            assertThat(Objects.requireNonNull(responseEntity.getBody().get("message").textValue()))
+                    .isEqualTo(expectedMessage);
+            assertThat(responseEntity.getHeaders().getContentType()).isEqualTo(MediaType.APPLICATION_JSON);
+        }
 
         @Nested
         class ShouldNotCreateOfferWhenNotAuthorized{

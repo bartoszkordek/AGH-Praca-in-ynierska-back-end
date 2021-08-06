@@ -56,6 +56,7 @@ class CreateOfferIntegrationTest {
 
     @LocalServerPort
     private Integer port;
+    private String userToken;
     private String managerToken;
     private String requestContent;
     private String invalidTitleRequestContent;
@@ -71,6 +72,8 @@ class CreateOfferIntegrationTest {
 
     @BeforeEach
     void setUp() throws JsonProcessingException {
+
+        userToken = tokenFactory.getUserToken(UUID.randomUUID().toString());
         managerToken = tokenFactory.getMangerToken(UUID.randomUUID().toString());
 
         ObjectMapper objectMapper = new ObjectMapper();
@@ -207,6 +210,61 @@ class CreateOfferIntegrationTest {
             assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.CONFLICT);
             assertThat(Objects.requireNonNull(responseEntity.getBody().get("message").textValue())).isEqualTo(expectedMessage);
             assertThat(responseEntity.getHeaders().getContentType()).isEqualTo(MediaType.APPLICATION_JSON);
+        }
+
+        @Nested
+        class ShouldNotCreateOfferWhenNotAuthorized{
+
+            @ParameterizedTest
+            @EnumSource(TestCountry.class)
+            void shouldNotGetOffersWhenNoToken(TestCountry country) throws Exception {
+                Locale testedLocale = convertEnumToLocale(country);
+
+                URI uri = new URI("http://localhost:" + port + "/offer");
+
+                HttpHeaders headers = new HttpHeaders();
+                headers.set("Accept-Language", testedLocale.toString());
+                headers.setContentType(MediaType.APPLICATION_JSON);
+
+                HttpEntity<Object> request = new HttpEntity<>(null, headers);
+
+                ResponseEntity<JsonNode> responseEntity = restTemplate
+                        .exchange(uri, HttpMethod.POST, request, JsonNode.class);
+
+
+                assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
+                assertThat(responseEntity.getBody().get("status").intValue()).isEqualTo(403);
+                assertThat(responseEntity.getBody().get("error").textValue()).isEqualTo("Forbidden");
+                assertThat(responseEntity.getBody().get("message").textValue()).isEqualTo("Access Denied");
+                assertThat(responseEntity.getBody().get("timestamp")).isNotNull();
+            }
+
+            @ParameterizedTest
+            @EnumSource(TestCountry.class)
+            void shouldNotGetOffersWhenLoggedAsUser(TestCountry country) throws Exception {
+                Map<String, String> messages = getMessagesAccordingToLocale(country);
+                Locale testedLocale = convertEnumToLocale(country);
+
+                URI uri = new URI("http://localhost:" + port + "/offer");
+
+                HttpHeaders headers = new HttpHeaders();
+                headers.set("Accept-Language", testedLocale.toString());
+                headers.set("Authorization", userToken);
+                headers.setContentType(MediaType.APPLICATION_JSON);
+
+                HttpEntity<Object> request = new HttpEntity<>(requestContent, headers);
+
+                ResponseEntity<JsonNode> responseEntity = restTemplate
+                        .exchange(uri, HttpMethod.POST, request, JsonNode.class);
+
+                String expectedMessage = messages.get("exception.access.denied");
+
+                assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
+                assertThat(responseEntity.getBody().get("status").intValue()).isEqualTo(403);
+                assertThat(responseEntity.getBody().get("error").textValue()).isEqualTo("Forbidden");
+                assertThat(responseEntity.getBody().get("message").textValue()).isEqualTo(expectedMessage);
+                assertThat(responseEntity.getBody().get("timestamp")).isNotNull();
+            }
         }
 
         @Nested

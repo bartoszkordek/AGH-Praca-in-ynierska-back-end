@@ -62,9 +62,7 @@ public class GetOffersIntegrationTest {
 
     @BeforeEach
     void setUp() {
-
         userToken = tokenFactory.getUserToken(UUID.randomUUID().toString());
-
         managerToken = tokenFactory.getMangerToken(UUID.randomUUID().toString());
     }
 
@@ -204,6 +202,7 @@ public class GetOffersIntegrationTest {
             assertThat(responseEntity.getBody().get("status").intValue()).isEqualTo(403);
             assertThat(responseEntity.getBody().get("error").textValue()).isEqualTo("Forbidden");
             assertThat(responseEntity.getBody().get("message").textValue()).isEqualTo("Access Denied");
+            assertThat(responseEntity.getBody().get("timestamp")).isNotNull();
         }
 
     }

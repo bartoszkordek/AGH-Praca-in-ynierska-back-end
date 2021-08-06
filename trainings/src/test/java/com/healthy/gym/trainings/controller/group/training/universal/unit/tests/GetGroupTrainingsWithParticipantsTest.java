@@ -1,9 +1,10 @@
 package com.healthy.gym.trainings.controller.group.training.universal.unit.tests;
 
 import com.healthy.gym.trainings.configuration.TestCountry;
+import com.healthy.gym.trainings.configuration.TestRoleTokenFactory;
 import com.healthy.gym.trainings.controller.group.training.UniversalGroupTrainingController;
 import com.healthy.gym.trainings.dto.BasicUserInfoDTO;
-import com.healthy.gym.trainings.dto.GroupTrainingWithoutParticipantsDTO;
+import com.healthy.gym.trainings.dto.GroupTrainingDTO;
 import com.healthy.gym.trainings.exception.StartDateAfterEndDateException;
 import com.healthy.gym.trainings.service.group.training.UniversalGroupTrainingService;
 import org.junit.jupiter.api.BeforeEach;
@@ -29,7 +30,7 @@ import java.util.Objects;
 import static com.healthy.gym.trainings.configuration.LocaleConverter.convertEnumToLocale;
 import static com.healthy.gym.trainings.configuration.Messages.getMessagesAccordingToLocale;
 import static com.healthy.gym.trainings.test.utils.TestDocumentUtil.getTestGroupTraining;
-import static com.healthy.gym.trainings.utils.GroupTrainingMapper.mapGroupTrainingsDocumentToDTOWithoutParticipants;
+import static com.healthy.gym.trainings.utils.GroupTrainingMapper.mapGroupTrainingsDocumentToDTO;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
@@ -40,10 +41,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(UniversalGroupTrainingController.class)
-class GetGroupTrainingsWithoutParticipantsTest {
+class GetGroupTrainingsWithParticipantsTest {
 
     @Autowired
     private MockMvc mockMvc;
+
+    @Autowired
+    private TestRoleTokenFactory tokenFactory;
 
     @MockBean
     private UniversalGroupTrainingService universalGroupTrainingService;
@@ -51,18 +55,21 @@ class GetGroupTrainingsWithoutParticipantsTest {
     private URI uri;
     private String startDate;
     private String endDate;
+    private String userToken;
 
     @BeforeEach
     void setUp() throws URISyntaxException {
+        userToken = tokenFactory.getUserToken();
         startDate = "2020-08-02";
         endDate = "2020-08-08";
-        uri = new URI("/group/public?startDate=" + startDate + "&endDate=" + endDate);
+        uri = new URI("/group?startDate=" + startDate + "&endDate=" + endDate);
     }
 
     private RequestBuilder getValidRequest(Locale locale) {
         return MockMvcRequestBuilders
                 .get(uri)
                 .header("Accept-Language", locale.toString())
+                .header("Authorization", userToken)
                 .contentType(MediaType.APPLICATION_JSON);
     }
 
@@ -73,11 +80,9 @@ class GetGroupTrainingsWithoutParticipantsTest {
 
         var training1 = getTestGroupTraining("2020-08-03T18:00", "2020-08-03T19:00");
         var training2 = getTestGroupTraining("2020-08-04T18:00", "2020-08-04T19:00");
-        GroupTrainingWithoutParticipantsDTO trainingDTO1 =
-                mapGroupTrainingsDocumentToDTOWithoutParticipants(training1);
-        GroupTrainingWithoutParticipantsDTO trainingDTO2 =
-                mapGroupTrainingsDocumentToDTOWithoutParticipants(training2);
-        when(universalGroupTrainingService.getGroupTrainingsWithoutParticipants(startDate, endDate))
+        GroupTrainingDTO trainingDTO1 = mapGroupTrainingsDocumentToDTO(training1);
+        GroupTrainingDTO trainingDTO2 = mapGroupTrainingsDocumentToDTO(training2);
+        when(universalGroupTrainingService.getGroupTrainingsWithParticipants(startDate, endDate))
                 .thenReturn(List.of(trainingDTO1, trainingDTO2));
         RequestBuilder request = getValidRequest(testedLocale);
 
@@ -113,7 +118,10 @@ class GetGroupTrainingsWithoutParticipantsTest {
                 )
                 .andExpect(
                         matchAll(
-                                jsonPath("$[0].participants").doesNotHaveJsonPath()
+                                jsonPath("$[0].participants.basicList").hasJsonPath(),
+                                jsonPath("$[0].participants.basicList").isArray(),
+                                jsonPath("$[0].participants.reserveList").hasJsonPath(),
+                                jsonPath("$[0].participants.reserveList").isArray()
                         )
                 )
                 .andExpect(
@@ -135,9 +143,27 @@ class GetGroupTrainingsWithoutParticipantsTest {
                 )
                 .andExpect(
                         matchAll(
-                                jsonPath("$[1].participants").doesNotHaveJsonPath()
+                                jsonPath("$[1].participants.basicList").hasJsonPath(),
+                                jsonPath("$[1].participants.basicList").isArray(),
+                                jsonPath("$[1].participants.reserveList").hasJsonPath(),
+                                jsonPath("$[1].participants.reserveList").isArray()
                         )
                 );
+    }
+
+    @ParameterizedTest
+    @EnumSource(TestCountry.class)
+    void ShouldRejectRequestWhenUserIsNotLogIn(TestCountry country) throws Exception {
+        Locale testedLocale = convertEnumToLocale(country);
+
+        RequestBuilder request = MockMvcRequestBuilders
+                .get(uri)
+                .header("Accept-Language", testedLocale.toString())
+                .contentType(MediaType.APPLICATION_JSON);
+
+        mockMvc.perform(request)
+                .andDo(print())
+                .andExpect(status().isForbidden());
     }
 
     @Nested
@@ -152,11 +178,12 @@ class GetGroupTrainingsWithoutParticipantsTest {
             startDate = "20200802";
             endDate = "20200808";
 
-            uri = new URI("/group/public?startDate=" + startDate + "&endDate=" + endDate);
+            uri = new URI("/group?startDate=" + startDate + "&endDate=" + endDate);
 
             RequestBuilder request = MockMvcRequestBuilders
                     .get(uri)
                     .header("Accept-Language", testedLocale.toString())
+                    .header("Authorization", userToken)
                     .contentType(MediaType.APPLICATION_JSON);
 
             String expectedMessage = messages.get("exception.constraint.violation");
@@ -188,7 +215,7 @@ class GetGroupTrainingsWithoutParticipantsTest {
             Locale testedLocale = convertEnumToLocale(country);
 
             doThrow(StartDateAfterEndDateException.class)
-                    .when(universalGroupTrainingService).getGroupTrainingsWithoutParticipants(startDate, endDate);
+                    .when(universalGroupTrainingService).getGroupTrainingsWithParticipants(startDate, endDate);
             RequestBuilder request = getValidRequest(testedLocale);
             String expectedMessage = messages.get("exception.start.date.after.end.date");
 
@@ -209,7 +236,7 @@ class GetGroupTrainingsWithoutParticipantsTest {
             Locale testedLocale = convertEnumToLocale(country);
 
             doThrow(IllegalStateException.class)
-                    .when(universalGroupTrainingService).getGroupTrainingsWithoutParticipants(startDate, endDate);
+                    .when(universalGroupTrainingService).getGroupTrainingsWithParticipants(startDate, endDate);
             RequestBuilder request = getValidRequest(testedLocale);
             String expectedMessage = messages.get("exception.internal.error");
 
@@ -223,5 +250,4 @@ class GetGroupTrainingsWithoutParticipantsTest {
                     );
         }
     }
-
 }

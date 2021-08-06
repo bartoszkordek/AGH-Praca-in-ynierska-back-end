@@ -3,7 +3,6 @@ package com.healthy.gym.gympass.pojo.request;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.healthy.gym.gympass.validation.ValidDateFormat;
 import com.healthy.gym.gympass.validation.ValidIDFormat;
-import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.validation.constraints.NotNull;
 import java.util.Objects;
@@ -20,10 +19,6 @@ public class PurchasedGymPassRequest {
     private String userId;
 
     @NotNull(message = "{field.required}")
-    @DateTimeFormat
-    private String purchaseDateAndTime;
-
-    @NotNull(message = "{field.required}")
     @ValidDateFormat
     private String startDate;
 
@@ -34,9 +29,6 @@ public class PurchasedGymPassRequest {
     @NotNull(message = "{field.required}")
     private int entries;
 
-    @ValidDateFormat
-    private String suspensionDate;
-
 
     public String getGymPassOfferId() {
         return gymPassOfferId;
@@ -44,10 +36,6 @@ public class PurchasedGymPassRequest {
 
     public String getUserId() {
         return userId;
-    }
-
-    public String getPurchaseDateAndTime() {
-        return purchaseDateAndTime;
     }
 
     public String getStartDate() {
@@ -70,10 +58,6 @@ public class PurchasedGymPassRequest {
         this.userId = userId;
     }
 
-    public void setPurchaseDateAndTime(String purchaseDateAndTime) {
-        this.purchaseDateAndTime = purchaseDateAndTime;
-    }
-
     public void setStartDate(String startDate) {
         this.startDate = startDate;
     }
@@ -86,20 +70,15 @@ public class PurchasedGymPassRequest {
         this.entries = entries;
     }
 
-    public void setSuspensionDate(String suspensionDate) {
-        this.suspensionDate = suspensionDate;
-    }
 
     @Override
     public String toString() {
         return "PurchasedGymPassRequest{" +
                 "gymPassOfferId='" + gymPassOfferId + '\'' +
                 ", userId='" + userId + '\'' +
-                ", purchaseDateAndTime='" + purchaseDateAndTime + '\'' +
                 ", startDate='" + startDate + '\'' +
                 ", endDate='" + endDate + '\'' +
                 ", entries=" + entries +
-                ", suspensionDate='" + suspensionDate + '\'' +
                 '}';
     }
 
@@ -111,10 +90,8 @@ public class PurchasedGymPassRequest {
         return entries == that.entries &&
                 Objects.equals(gymPassOfferId, that.gymPassOfferId) &&
                 Objects.equals(userId, that.userId) &&
-                Objects.equals(purchaseDateAndTime, that.purchaseDateAndTime) &&
                 Objects.equals(startDate, that.startDate) &&
-                Objects.equals(endDate, that.endDate) &&
-                Objects.equals(suspensionDate, that.suspensionDate);
+                Objects.equals(endDate, that.endDate);
     }
 
     @Override
@@ -122,11 +99,9 @@ public class PurchasedGymPassRequest {
         return Objects.hash(
                 gymPassOfferId,
                 userId,
-                purchaseDateAndTime,
                 startDate,
                 endDate,
-                entries,
-                suspensionDate
+                entries
         );
     }
 }

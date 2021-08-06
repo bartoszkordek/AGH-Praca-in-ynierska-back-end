@@ -4,7 +4,7 @@ import com.healthy.gym.gympass.data.document.GymPassDocument;
 import com.healthy.gym.gympass.data.repository.GymPassOfferDAO;
 import com.healthy.gym.gympass.dto.GymPassDTO;
 import com.healthy.gym.gympass.exception.DuplicatedOffersException;
-import com.healthy.gym.gympass.exception.InvalidGymPassOfferId;
+import com.healthy.gym.gympass.exception.InvalidGymPassOfferIdException;
 import com.healthy.gym.gympass.pojo.request.GymPassOfferRequest;
 import com.healthy.gym.gympass.shared.Description;
 import com.healthy.gym.gympass.shared.Price;
@@ -15,7 +15,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
 
@@ -111,7 +110,7 @@ class UpdateOfferServiceUnitTest {
     @Nested
     class ShouldUpdateOffer{
         @Test
-        void shouldUpdateOffer_whenValidRequestAndDocumentId_updatedPrice() throws InvalidGymPassOfferId, DuplicatedOffersException {
+        void shouldUpdateOffer_whenValidRequestAndDocumentId_updatedPrice() throws InvalidGymPassOfferIdException, DuplicatedOffersException {
 
             //request
             double amount = 149.99;
@@ -135,7 +134,7 @@ class UpdateOfferServiceUnitTest {
         }
 
         @Test
-        void shouldUpdateOffer_whenValidRequestAndDocumentId_updatedTitle() throws InvalidGymPassOfferId, DuplicatedOffersException {
+        void shouldUpdateOffer_whenValidRequestAndDocumentId_updatedTitle() throws InvalidGymPassOfferIdException, DuplicatedOffersException {
 
             //request
             String title = "Karnet miesięczny plus";
@@ -169,7 +168,7 @@ class UpdateOfferServiceUnitTest {
             //then
             assertThatThrownBy(() ->
                     offerService.updateGymPassOffer(any(),gymPassOfferRequest)
-            ).isInstanceOf(InvalidGymPassOfferId.class);
+            ).isInstanceOf(InvalidGymPassOfferIdException.class);
         }
 
         @Test

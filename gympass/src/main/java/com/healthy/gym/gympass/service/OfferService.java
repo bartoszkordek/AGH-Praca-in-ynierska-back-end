@@ -2,7 +2,7 @@ package com.healthy.gym.gympass.service;
 
 import com.healthy.gym.gympass.dto.GymPassDTO;
 import com.healthy.gym.gympass.exception.DuplicatedOffersException;
-import com.healthy.gym.gympass.exception.InvalidGymPassOfferId;
+import com.healthy.gym.gympass.exception.InvalidGymPassOfferIdException;
 import com.healthy.gym.gympass.exception.NoOffersException;
 import com.healthy.gym.gympass.pojo.request.GymPassOfferRequest;
 
@@ -15,7 +15,7 @@ public interface OfferService {
     GymPassDTO createGymPassOffer(GymPassOfferRequest request) throws DuplicatedOffersException;
 
     GymPassDTO updateGymPassOffer(String id, GymPassOfferRequest request)
-            throws DuplicatedOffersException, InvalidGymPassOfferId;
+            throws DuplicatedOffersException, InvalidGymPassOfferIdException;
 
-    GymPassDTO deleteGymPassOffer(String id) throws InvalidGymPassOfferId;
+    GymPassDTO deleteGymPassOffer(String id) throws InvalidGymPassOfferIdException;
 }

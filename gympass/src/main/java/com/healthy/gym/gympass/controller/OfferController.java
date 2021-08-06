@@ -4,7 +4,7 @@ package com.healthy.gym.gympass.controller;
 import com.healthy.gym.gympass.component.Translator;
 import com.healthy.gym.gympass.dto.GymPassDTO;
 import com.healthy.gym.gympass.exception.DuplicatedOffersException;
-import com.healthy.gym.gympass.exception.InvalidGymPassOfferId;
+import com.healthy.gym.gympass.exception.InvalidGymPassOfferIdException;
 import com.healthy.gym.gympass.exception.NoOffersException;
 import com.healthy.gym.gympass.exception.RequestBindException;
 import com.healthy.gym.gympass.pojo.request.GymPassOfferRequest;
@@ -126,7 +126,7 @@ public class OfferController {
             String reason = translator.toLocale("request.bind.exception");
             throw new RequestBindException(HttpStatus.BAD_REQUEST, reason, exception);
 
-        } catch (InvalidGymPassOfferId exception) {
+        } catch (InvalidGymPassOfferIdException exception) {
             String reason = translator.toLocale("exception.invalid.offer.id");
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, exception);
 
@@ -158,7 +158,7 @@ public class OfferController {
                     ));
         }
 
-        catch (InvalidGymPassOfferId exception) {
+        catch (InvalidGymPassOfferIdException exception) {
             String reason = translator.toLocale("exception.invalid.offer.id");
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, exception);
 

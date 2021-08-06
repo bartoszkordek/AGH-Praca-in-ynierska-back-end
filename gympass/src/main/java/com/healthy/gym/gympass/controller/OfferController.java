@@ -51,7 +51,7 @@ public class OfferController {
         try{
             return ResponseEntity
                     .status(HttpStatus.OK)
-                    .body(offerService.getGymPassOffer());
+                    .body(offerService.getGymPassOffers());
 
         } catch (NoOffersException exception){
             String reason = translator.toLocale("exception.no.offers");

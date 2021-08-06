@@ -78,7 +78,7 @@ class UpdateGroupTrainingIntegrationTest {
 
     @BeforeEach
     void setUp() throws JsonProcessingException {
-        managerToken = tokenFactory.getMangerToken(UUID.randomUUID().toString());
+        managerToken = tokenFactory.getManagerToken(UUID.randomUUID().toString());
 
         prepareCurrentGroupTrainingDocumentForTesting();
         prepareOtherDocumentsForTestingUpdateMethod();

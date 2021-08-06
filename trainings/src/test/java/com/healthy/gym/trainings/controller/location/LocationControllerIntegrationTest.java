@@ -65,7 +65,7 @@ class LocationControllerIntegrationTest {
 
     @BeforeEach
     void setUp() throws JsonProcessingException {
-        managerToken = tokenFactory.getMangerToken(UUID.randomUUID().toString());
+        managerToken = tokenFactory.getManagerToken(UUID.randomUUID().toString());
 
         ObjectMapper objectMapper = new ObjectMapper();
         LocationRequest locationRequest = new LocationRequest();

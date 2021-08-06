@@ -10,6 +10,7 @@ import com.healthy.gym.gympass.exception.RequestBindException;
 import com.healthy.gym.gympass.pojo.request.GymPassOfferRequest;
 import com.healthy.gym.gympass.pojo.response.GymPassOfferResponse;
 import com.healthy.gym.gympass.service.OfferService;
+import com.healthy.gym.gympass.validation.ValidIDFormat;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -104,7 +105,7 @@ public class OfferController {
     @PreAuthorize("hasRole('ADMIN') or hasRole('MANAGER')")
     @PutMapping("/{id}")
     public ResponseEntity<GymPassOfferResponse> updateGymPassOffer(
-            @PathVariable("id") final String id,
+            @PathVariable("id") @ValidIDFormat final String id,
             @Valid @RequestBody final GymPassOfferRequest request,
             final BindingResult bindingResult
     ) throws RequestBindException {
@@ -144,7 +145,7 @@ public class OfferController {
     @PreAuthorize("hasRole('ADMIN') or hasRole('MANAGER')")
     @DeleteMapping("/{id}")
     public ResponseEntity<GymPassOfferResponse> deleteGymPassOffer(
-            @PathVariable("id") final String id
+            @PathVariable("id") @ValidIDFormat final String id
     ) {
         try{
             String message = translator.toLocale("offer.removed");

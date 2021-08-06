@@ -5,10 +5,11 @@ import com.healthy.gym.trainings.data.document.UserDocument;
 import com.healthy.gym.trainings.data.repository.GroupTrainingsDAO;
 import com.healthy.gym.trainings.data.repository.GroupTrainingsRepository;
 import com.healthy.gym.trainings.data.repository.ReviewDAO;
+import com.healthy.gym.trainings.dto.GroupTrainingDTO;
+import com.healthy.gym.trainings.dto.ParticipantsDTO;
 import com.healthy.gym.trainings.exception.invalid.InvalidDateException;
 import com.healthy.gym.trainings.exception.invalid.InvalidHourException;
 import com.healthy.gym.trainings.exception.notexisting.NotExistingGroupTrainingException;
-import com.healthy.gym.trainings.model.response.GroupTrainingResponseOld;
 import com.healthy.gym.trainings.model.response.GroupTrainingReviewResponse;
 import com.healthy.gym.trainings.model.response.UserResponse;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,9 +19,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import static com.healthy.gym.trainings.utils.ParticipantsExtractor.getBasicList;
-import static com.healthy.gym.trainings.utils.ParticipantsExtractor.getReserveList;
 
 @Service
 public class EmployeeGroupTrainingServiceImpl implements EmployeeGroupTrainingService {
@@ -43,7 +41,7 @@ public class EmployeeGroupTrainingServiceImpl implements EmployeeGroupTrainingSe
     }
 
     @Override
-    public List<UserResponse> getTrainingParticipants(String trainingId)
+    public ParticipantsDTO getTrainingParticipants(String trainingId)
             throws NotExistingGroupTrainingException {
 
         if (!groupTrainingsRepository.existsByTrainingId(trainingId))
@@ -64,8 +62,10 @@ public class EmployeeGroupTrainingServiceImpl implements EmployeeGroupTrainingSe
             );
             participantsResponses.add(participantsResponse);
         }
-
-        return participantsResponses;
+//
+//        return participantsResponses;
+//
+        return new ParticipantsDTO();
     }
 
     private String getNotExistingGroupTrainingExceptionMessage(String trainingId) {
@@ -73,7 +73,7 @@ public class EmployeeGroupTrainingServiceImpl implements EmployeeGroupTrainingSe
     }
 
     @Override
-    public GroupTrainingResponseOld getGroupTrainingById(String trainingId) throws NotExistingGroupTrainingException,
+    public GroupTrainingDTO getGroupTrainingById(String trainingId) throws NotExistingGroupTrainingException,
             InvalidHourException, InvalidDateException {
         if (!groupTrainingsDAO.existsById(trainingId))
             throw new NotExistingGroupTrainingException(
@@ -82,18 +82,20 @@ public class EmployeeGroupTrainingServiceImpl implements EmployeeGroupTrainingSe
 
         GroupTrainingDocument groupTrainingDocument = groupTrainingsDAO.findFirstByGroupTrainingId(trainingId);
 
-        return new GroupTrainingResponseOld(
-                groupTrainingDocument.getGroupTrainingId(),
-                groupTrainingDocument.getTraining().getName(),
-                null, //TODO fix groupTrainingsDbResponse.getTrainerId(),
-                groupTrainingDocument.getStartDate(),
-                groupTrainingDocument.getEndDate(),
-                groupTrainingDocument.getLocation().getLocationId(),
-                groupTrainingDocument.getLimit(),
-                getRatingForGroupTrainings(groupTrainingDocument),
-                getBasicList(groupTrainingDocument),
-                getReserveList(groupTrainingDocument)
-        );
+        return new GroupTrainingDTO();
+
+//        return new GroupTrainingResponseOld(
+//                groupTrainingDocument.getGroupTrainingId(),
+//                groupTrainingDocument.getTraining().getName(),
+//                null, //TODO fix groupTrainingsDbResponse.getTrainerId(),
+//                groupTrainingDocument.getStartDate(),
+//                groupTrainingDocument.getEndDate(),
+//                groupTrainingDocument.getLocation().getLocationId(),
+//                groupTrainingDocument.getLimit(),
+//                getRatingForGroupTrainings(groupTrainingDocument),
+//                getBasicList(groupTrainingDocument),
+//                getReserveList(groupTrainingDocument)
+//        );
     }
 
     private double getRatingForGroupTrainings(GroupTrainingDocument groupTraining) {

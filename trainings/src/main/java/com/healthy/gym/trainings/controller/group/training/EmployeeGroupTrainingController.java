@@ -1,12 +1,11 @@
 package com.healthy.gym.trainings.controller.group.training;
 
 import com.healthy.gym.trainings.component.Translator;
-import com.healthy.gym.trainings.exception.invalid.InvalidDateException;
-import com.healthy.gym.trainings.exception.invalid.InvalidHourException;
+import com.healthy.gym.trainings.dto.GroupTrainingDTO;
+import com.healthy.gym.trainings.dto.ParticipantsDTO;
 import com.healthy.gym.trainings.exception.notexisting.NotExistingGroupTrainingException;
-import com.healthy.gym.trainings.model.response.GroupTrainingResponseOld;
-import com.healthy.gym.trainings.model.response.UserResponse;
 import com.healthy.gym.trainings.service.group.training.EmployeeGroupTrainingService;
+import com.healthy.gym.trainings.validation.ValidIDFormat;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -17,8 +16,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
-
-import java.util.List;
 
 @PreAuthorize("hasRole('EMPLOYEE') or hasRole('MANAGER') or hasRole('ADMIN')")
 @RestController
@@ -39,9 +36,7 @@ public class EmployeeGroupTrainingController {
     }
 
     @GetMapping("/{trainingId}/participants")
-    public List<UserResponse> getTrainingParticipants(
-            @PathVariable("trainingId") final String trainingId
-    ) {
+    public ParticipantsDTO getTrainingParticipants(@PathVariable @ValidIDFormat String trainingId) {
         try {
             return employeeGroupTrainingService.getTrainingParticipants(trainingId);
 
@@ -57,15 +52,9 @@ public class EmployeeGroupTrainingController {
     }
 
     @GetMapping("/{trainingId}")
-    public GroupTrainingResponseOld getGroupTrainingById(
-            @PathVariable("trainingId") final String trainingId
-    ) {
+    public GroupTrainingDTO getGroupTrainingById(@PathVariable @ValidIDFormat String trainingId) {
         try {
             return employeeGroupTrainingService.getGroupTrainingById(trainingId);
-
-        } catch (InvalidHourException | InvalidDateException e) {
-            String reason = translator.toLocale("exception.date.or.hour.parse");
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, e);
 
         } catch (NotExistingGroupTrainingException e) {
             String reason = translator.toLocale("exception.not.found.training.id");

@@ -23,7 +23,6 @@ public class GymPassDocument {
 
     public GymPassDocument(
             String documentId,
-            String id,
             String title,
             String subheader,
             Price price,
@@ -31,7 +30,6 @@ public class GymPassDocument {
             Description description
     ) {
         this.documentId = documentId;
-        this.id = id;
         this.title = title;
         this.subheader = subheader;
         this.price = price;

@@ -12,12 +12,12 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Repository
-public class UniversalGroupTrainingImpl implements UniversalGroupTrainingDAO {
+public class UniversalGroupTrainingDAOImpl implements UniversalGroupTrainingDAO {
 
     private final MongoTemplate mongoTemplate;
 
     @Autowired
-    public UniversalGroupTrainingImpl(MongoTemplate mongoTemplate) {
+    public UniversalGroupTrainingDAOImpl(MongoTemplate mongoTemplate) {
         this.mongoTemplate = mongoTemplate;
     }
 

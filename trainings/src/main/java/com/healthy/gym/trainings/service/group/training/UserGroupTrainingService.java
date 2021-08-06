@@ -1,25 +1,29 @@
 package com.healthy.gym.trainings.service.group.training;
 
+import com.healthy.gym.trainings.dto.GroupTrainingDTO;
 import com.healthy.gym.trainings.exception.PastDateException;
 import com.healthy.gym.trainings.exception.StartDateAfterEndDateException;
 import com.healthy.gym.trainings.exception.UserAlreadyEnrolledToTrainingException;
 import com.healthy.gym.trainings.exception.notexisting.NotExistingGroupTrainingException;
 import com.healthy.gym.trainings.exception.notfound.UserNotFoundException;
 import com.healthy.gym.trainings.exception.training.TrainingEnrollmentException;
-import com.healthy.gym.trainings.dto.GroupTrainingDTO;
 
 import java.util.List;
 
 public interface UserGroupTrainingService {
 
     List<GroupTrainingDTO> getMyAllTrainings(String clientId, String startDate, String endDate)
-            throws UserNotFoundException, StartDateAfterEndDateException;
+            throws StartDateAfterEndDateException, UserNotFoundException;
 
     GroupTrainingDTO enrollToGroupTraining(String trainingId, String clientId)
-            throws NotExistingGroupTrainingException, PastDateException,
-            UserNotFoundException, UserAlreadyEnrolledToTrainingException;
+            throws NotExistingGroupTrainingException,
+            PastDateException,
+            UserAlreadyEnrolledToTrainingException,
+            UserNotFoundException;
 
     GroupTrainingDTO removeGroupTrainingEnrollment(String trainingId, String clientId)
-            throws NotExistingGroupTrainingException, PastDateException,
-            UserNotFoundException, TrainingEnrollmentException;
+            throws NotExistingGroupTrainingException,
+            PastDateException,
+            TrainingEnrollmentException,
+            UserNotFoundException;
 }

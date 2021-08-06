@@ -67,7 +67,7 @@ class WhenUpdateLocationTest {
         userToken = tokenFactory.getUserToken(userId);
 
         String managerId = UUID.randomUUID().toString();
-        managerToken = tokenFactory.getMangerToken(managerId);
+        managerToken = tokenFactory.getManagerToken(managerId);
 
         String adminId = UUID.randomUUID().toString();
         adminToken = tokenFactory.getAdminToken(adminId);

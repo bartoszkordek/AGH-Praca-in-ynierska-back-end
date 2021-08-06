@@ -1,5 +1,6 @@
 package com.healthy.gym.trainings.service.group.training;
 
+import com.healthy.gym.trainings.dto.GroupTrainingDTO;
 import com.healthy.gym.trainings.exception.PastDateException;
 import com.healthy.gym.trainings.exception.StartDateAfterEndDateException;
 import com.healthy.gym.trainings.exception.notexisting.NotExistingGroupTrainingException;
@@ -9,7 +10,6 @@ import com.healthy.gym.trainings.exception.notfound.TrainingTypeNotFoundExceptio
 import com.healthy.gym.trainings.exception.occupied.LocationOccupiedException;
 import com.healthy.gym.trainings.exception.occupied.TrainerOccupiedException;
 import com.healthy.gym.trainings.model.request.ManagerGroupTrainingRequest;
-import com.healthy.gym.trainings.dto.GroupTrainingDTO;
 
 public interface ManagerGroupTrainingService {
 
@@ -22,10 +22,8 @@ public interface ManagerGroupTrainingService {
             TrainerNotFoundException,
             TrainingTypeNotFoundException;
 
-    GroupTrainingDTO updateGroupTraining(
-            final String trainingId,
-            final ManagerGroupTrainingRequest groupTrainingRequest
-    ) throws LocationNotFoundException,
+    GroupTrainingDTO updateGroupTraining(String trainingId, final ManagerGroupTrainingRequest groupTrainingRequest)
+            throws LocationNotFoundException,
             LocationOccupiedException,
             NotExistingGroupTrainingException,
             PastDateException,
@@ -34,5 +32,5 @@ public interface ManagerGroupTrainingService {
             TrainerOccupiedException,
             TrainingTypeNotFoundException;
 
-    GroupTrainingDTO removeGroupTraining(final String trainingId) throws NotExistingGroupTrainingException;
+    GroupTrainingDTO removeGroupTraining(String trainingId) throws NotExistingGroupTrainingException;
 }

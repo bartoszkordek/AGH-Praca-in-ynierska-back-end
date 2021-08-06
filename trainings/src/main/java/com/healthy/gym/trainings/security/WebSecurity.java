@@ -27,6 +27,7 @@ public class WebSecurity extends WebSecurityConfigurerAdapter {
 
         http.authorizeRequests()
                 .antMatchers(HttpMethod.GET, "/trainingType/**").permitAll()
+                .antMatchers(HttpMethod.GET, "/group/public/**").permitAll()
                 .anyRequest().authenticated()
                 .and()
                 .addFilter(getAuthorizationFilter());

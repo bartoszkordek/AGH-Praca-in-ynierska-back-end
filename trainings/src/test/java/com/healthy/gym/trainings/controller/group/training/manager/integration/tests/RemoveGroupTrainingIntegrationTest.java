@@ -71,7 +71,7 @@ class RemoveGroupTrainingIntegrationTest {
 
     @BeforeEach
     void setUp() {
-        managerToken = tokenFactory.getMangerToken(UUID.randomUUID().toString());
+        managerToken = tokenFactory.getManagerToken(UUID.randomUUID().toString());
         prepareCurrentGroupTrainingDocumentForTesting();
     }
 

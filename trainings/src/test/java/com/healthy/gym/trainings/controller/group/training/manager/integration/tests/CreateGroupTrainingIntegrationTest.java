@@ -72,7 +72,7 @@ class CreateGroupTrainingIntegrationTest {
 
     @BeforeEach
     void setUp() throws JsonProcessingException {
-        managerToken = tokenFactory.getMangerToken(UUID.randomUUID().toString());
+        managerToken = tokenFactory.getManagerToken(UUID.randomUUID().toString());
 
         trainingTypeId = UUID.randomUUID().toString();
         trainerId1 = UUID.randomUUID().toString();

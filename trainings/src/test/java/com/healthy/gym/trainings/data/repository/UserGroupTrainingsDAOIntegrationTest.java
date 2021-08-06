@@ -5,6 +5,7 @@ import com.healthy.gym.trainings.data.document.GroupTrainingDocument;
 import com.healthy.gym.trainings.data.document.LocationDocument;
 import com.healthy.gym.trainings.data.document.TrainingTypeDocument;
 import com.healthy.gym.trainings.data.document.UserDocument;
+import com.healthy.gym.trainings.data.repository.group.training.UserGroupTrainingsDAO;
 import com.healthy.gym.trainings.test.utils.TestDocumentUtilComponent;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;

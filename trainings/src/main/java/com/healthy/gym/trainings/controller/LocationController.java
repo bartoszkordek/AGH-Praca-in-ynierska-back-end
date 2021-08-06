@@ -1,13 +1,13 @@
 package com.healthy.gym.trainings.controller;
 
 import com.healthy.gym.trainings.component.Translator;
+import com.healthy.gym.trainings.dto.LocationDTO;
 import com.healthy.gym.trainings.exception.ResponseBindException;
 import com.healthy.gym.trainings.exception.duplicated.DuplicatedLocationNameException;
 import com.healthy.gym.trainings.exception.notfound.LocationNotFoundException;
 import com.healthy.gym.trainings.model.request.LocationRequest;
 import com.healthy.gym.trainings.model.response.LocationResponse;
 import com.healthy.gym.trainings.service.LocationService;
-import com.healthy.gym.trainings.dto.LocationDTO;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -28,6 +28,8 @@ import java.util.List;
         produces = MediaType.APPLICATION_JSON_VALUE
 )
 public class LocationController {
+
+    private static final String EXCEPTION_INTERNAL_ERROR = "exception.internal.error";
 
     private final LocationService locationService;
     private final Translator translator;
@@ -63,7 +65,7 @@ public class LocationController {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, exception);
 
         } catch (Exception exception) {
-            String reason = translator.toLocale("exception.internal.error");
+            String reason = translator.toLocale(EXCEPTION_INTERNAL_ERROR);
             exception.printStackTrace();
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, reason, exception);
         }
@@ -102,7 +104,7 @@ public class LocationController {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, exception);
 
         } catch (Exception exception) {
-            String reason = translator.toLocale("exception.internal.error");
+            String reason = translator.toLocale(EXCEPTION_INTERNAL_ERROR);
             exception.printStackTrace();
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, reason, exception);
         }
@@ -122,7 +124,7 @@ public class LocationController {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, exception);
 
         } catch (Exception exception) {
-            String reason = translator.toLocale("exception.internal.error");
+            String reason = translator.toLocale(EXCEPTION_INTERNAL_ERROR);
             exception.printStackTrace();
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, reason, exception);
         }

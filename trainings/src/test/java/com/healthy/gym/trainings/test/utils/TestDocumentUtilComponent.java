@@ -9,6 +9,7 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -51,25 +52,83 @@ public class TestDocumentUtilComponent {
             boolean isInBasic,
             boolean isInReserve
     ) {
+        var basicList = getTestListOfSavedUserDocuments(5);
+        if (isInBasic) basicList.add(savedUserDocument);
 
+        var reserveList = getTestListOfSavedUserDocuments(2);
+        if (isInReserve) reserveList.add(savedUserDocument);
+
+        return saveAndGetTestGroupTraining(
+                saveAndGetTestTrainingType(),
+                List.of(saveAndGetTestTrainer()),
+                saveAndGetTestLocation(),
+                startDate,
+                endDate,
+                20,
+                basicList,
+                reserveList
+        );
+    }
+
+    public List<UserDocument> getTestListOfSavedUserDocuments(int numberOfUserDocuments) {
+        if (numberOfUserDocuments <= 0) throw new IllegalArgumentException("Number of users must be greater than 0.");
+        List<UserDocument> list = new ArrayList<>(numberOfUserDocuments);
+        for (int i = 0; i < numberOfUserDocuments; i++) {
+            list.add(saveAndGetTestUser());
+        }
+        return list;
+    }
+
+    public GroupTrainingDocument createTestGroupTraining(String startDate, String endDate) {
+        return saveAndGetTestGroupTraining(
+                saveAndGetTestTrainingType(),
+                List.of(saveAndGetTestTrainer()),
+                saveAndGetTestLocation(),
+                startDate,
+                endDate,
+                10,
+                getTestListOfSavedUserDocuments(10),
+                getTestListOfSavedUserDocuments(2)
+        );
+    }
+
+    public GroupTrainingDocument createTestGroupTraining(
+            TrainingTypeDocument savedTrainingType,
+            String startDate,
+            String endDate
+    ) {
+        return saveAndGetTestGroupTraining(
+                savedTrainingType,
+                List.of(saveAndGetTestTrainer()),
+                saveAndGetTestLocation(),
+                startDate,
+                endDate,
+                10,
+                getTestListOfSavedUserDocuments(10),
+                getTestListOfSavedUserDocuments(2)
+        );
+    }
+
+    private GroupTrainingDocument saveAndGetTestGroupTraining(
+            TrainingTypeDocument savedTrainingTypeDocument,
+            List<UserDocument> savedTrainersList,
+            LocationDocument savedLocationDocument,
+            String startDate,
+            String endDate,
+            int limit,
+            List<UserDocument> basicList,
+            List<UserDocument> reserveList
+    ) {
         String groupTrainingId = UUID.randomUUID().toString();
-        TrainingTypeDocument trainingType = saveAndGetTestTrainingType();
-        UserDocument trainer = saveAndGetTestTrainer();
-        LocationDocument location = saveAndGetTestLocation();
-        UserDocument user1 = saveAndGetTestUser();
-        UserDocument user2 = saveAndGetTestUser();
-
-        var basicList = isInBasic ? List.of(user1, user2, savedUserDocument) : List.of(user2);
-        var reserveList = isInReserve ? List.of(user1, user2, savedUserDocument) : List.of(user2);
 
         GroupTrainingDocument groupTrainingDocument = new GroupTrainingDocument(
                 groupTrainingId,
-                trainingType,
-                List.of(trainer),
+                savedTrainingTypeDocument,
+                savedTrainersList,
                 LocalDateTime.parse(startDate),
                 LocalDateTime.parse(endDate),
-                location,
-                20,
+                savedLocationDocument,
+                limit,
                 basicList,
                 reserveList
         );

@@ -4,7 +4,7 @@ import com.healthy.gym.trainings.data.document.GroupTrainingDocument;
 import com.healthy.gym.trainings.data.document.LocationDocument;
 import com.healthy.gym.trainings.data.document.TrainingTypeDocument;
 import com.healthy.gym.trainings.data.document.UserDocument;
-import com.healthy.gym.trainings.data.repository.GroupTrainingsDAO;
+import com.healthy.gym.trainings.data.repository.group.training.GroupTrainingsDAO;
 import com.healthy.gym.trainings.data.repository.LocationDAO;
 import com.healthy.gym.trainings.data.repository.TrainingTypeDAO;
 import com.healthy.gym.trainings.data.repository.UserDAO;
@@ -28,7 +28,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.healthy.gym.trainings.utils.GroupTrainingMapper.mapToGroupTrainingsDocumentsToDTOs;
+import static com.healthy.gym.trainings.utils.GroupTrainingMapper.mapGroupTrainingsDocumentToDTO;
 
 @Service
 public class ManagerGroupTrainingServiceImpl implements ManagerGroupTrainingService {
@@ -93,7 +93,7 @@ public class ManagerGroupTrainingServiceImpl implements ManagerGroupTrainingServ
         //TODO add validation TrainerOccupiedException
 
         GroupTrainingDocument groupTrainingSaved = groupTrainingsDAO.save(groupTrainingToCreate);
-        return mapToGroupTrainingsDocumentsToDTOs(groupTrainingSaved);
+        return mapGroupTrainingsDocumentToDTO(groupTrainingSaved);
     }
 
     private TrainingTypeDocument getTrainingTypeDocument(ManagerGroupTrainingRequest groupTrainingRequest)
@@ -187,7 +187,7 @@ public class ManagerGroupTrainingServiceImpl implements ManagerGroupTrainingServ
 
         sendEmails(groupTrainingSaved);
 
-        return mapToGroupTrainingsDocumentsToDTOs(groupTrainingSaved);
+        return mapGroupTrainingsDocumentToDTO(groupTrainingSaved);
     }
 
     private void sendEmails(GroupTrainingDocument groupTraining) {
@@ -219,6 +219,6 @@ public class ManagerGroupTrainingServiceImpl implements ManagerGroupTrainingServ
 
         sendEmails(groupTrainingToDelete);
 
-        return mapToGroupTrainingsDocumentsToDTOs(groupTrainingToDelete);
+        return mapGroupTrainingsDocumentToDTO(groupTrainingToDelete);
     }
 }

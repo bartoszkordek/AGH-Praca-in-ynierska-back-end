@@ -22,7 +22,12 @@ public class Messages {
                 {"request.bind.exception", "Podano nieprawidłowy format danych."},
                 {"exception.duplicated.offers", "Zduplikowana nazwa oferty."},
                 {"exception.invalid.offer.id", "Blędne ID oferty."},
-                {"gympass.purchased", "Karnet został zakupiony."}
+                {"gympass.purchased", "Karnet został zakupiony."},
+                {"retro.purchased.exception", "Nie można zakupić karnetu z datą wsteczną."},
+                {"exception.invalid.id.format", "Nieprawidłowy format id. Zastosuj format UUID."},
+                {"exception.invalid.date.format", "Nieprawidłowy format daty. Zastosuj format 'YYYY-MM-dd'."},
+                {"exception.invalid.date.time.format",
+                        "Nieprawidłowy format daty i czasu. Zastosuj format 'YYYY-MM-dd'T'HH:mm'."}
 
         }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
     }
@@ -44,7 +49,12 @@ public class Messages {
                 {"request.bind.exception", "An invalid data format has been provided."},
                 {"exception.duplicated.offers", "Duplicated offer name."},
                 {"exception.invalid.offer.id", "Invalid offer ID."},
-                {"gympass.purchased", "Gympass has been purchased."}
+                {"gympass.purchased", "Gympass has been purchased."},
+                {"retro.purchased.exception", "Cannot purchase gympass with retro date."},
+                {"exception.invalid.id.format", "Invalid id format. Use UUID format."},
+                {"exception.invalid.date.format","Invalid date format. Use the 'YYYY-MM-dd' format."},
+                {"exception.invalid.date.time.format",
+                        "Invalid date and time format. Use the 'YYYY-MM-dd'T'HH:mm' format."}
 
         }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
     }

@@ -8,11 +8,12 @@ import com.healthy.gym.trainings.exception.notexisting.NotExistingGroupTrainingE
 import com.healthy.gym.trainings.exception.notfound.TrainingTypeNotFoundException;
 import com.healthy.gym.trainings.model.response.GroupTrainingPublicResponse;
 import com.healthy.gym.trainings.model.response.GroupTrainingResponseOld;
-import com.healthy.gym.trainings.model.response.UserResponse;
 import com.healthy.gym.trainings.service.group.training.GroupTrainingService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -20,20 +21,23 @@ import java.text.ParseException;
 import java.util.List;
 
 @RestController
-@RequestMapping("/group")
-public class GroupTrainingController {
+@RequestMapping(value = "/group", produces = MediaType.APPLICATION_JSON_VALUE)
+public class UniversalGroupTrainingController {
 
     private final Translator translator;
     private final GroupTrainingService groupTrainingsService;
 
     @Autowired
-    public GroupTrainingController(Translator translator, GroupTrainingService groupTrainingsService) {
+    public UniversalGroupTrainingController(
+            Translator translator,
+            GroupTrainingService groupTrainingsService
+    ) {
         this.translator = translator;
         this.groupTrainingsService = groupTrainingsService;
     }
 
     @GetMapping("/public")
-    public List<GroupTrainingPublicResponse> getPublicGroupTrainings(
+    public List<GroupTrainingPublicResponse> getGroupTrainingsWithoutParticipants(
             @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") final String startDate,
             @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") final String endDate
     ) {
@@ -55,8 +59,32 @@ public class GroupTrainingController {
         }
     }
 
+    @PreAuthorize("hasRole('USER')")
+    @GetMapping
+    public List<GroupTrainingResponseOld> getGroupTrainingsWithParticipants(
+            @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") final String startDate,
+            @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") final String endDate
+    ) {
+        try {
+            return groupTrainingsService.getGroupTrainings(startDate, endDate);
+
+        } catch (InvalidDateException | InvalidHourException | ParseException e) {
+            String reason = translator.toLocale("exception.date.or.hour.parse");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, e);
+
+        } catch (StartDateAfterEndDateException e) {
+            String reason = translator.toLocale("exception.start.date.after.end.date");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, e);
+
+        } catch (Exception exception) {
+            String reason = translator.toLocale("exception.internal.error");
+            exception.printStackTrace();
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, reason, exception);
+        }
+    }
+
     @GetMapping("/public/type/{trainingTypeId}")
-    public List<GroupTrainingPublicResponse> getPublicGroupTrainingsByType(
+    public List<GroupTrainingPublicResponse> getGroupTrainingsByTypeWithoutParticipants(
             @PathVariable("trainingTypeId") final String trainingTypeId,
             @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") final String startDate,
             @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") final String endDate
@@ -87,53 +115,9 @@ public class GroupTrainingController {
         }
     }
 
-    @GetMapping
-    public List<GroupTrainingResponseOld> getGroupTrainings(
-            @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") final String startDate,
-            @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") final String endDate
-    ) {
-        try {
-            return groupTrainingsService.getGroupTrainings(startDate, endDate);
-
-        } catch (InvalidDateException | InvalidHourException | ParseException e) {
-            String reason = translator.toLocale("exception.date.or.hour.parse");
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, e);
-
-        } catch (StartDateAfterEndDateException e) {
-            String reason = translator.toLocale("exception.start.date.after.end.date");
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, e);
-
-        } catch (Exception exception) {
-            String reason = translator.toLocale("exception.internal.error");
-            exception.printStackTrace();
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, reason, exception);
-        }
-    }
-
-    @GetMapping("/{trainingId}")
-    public GroupTrainingResponseOld getGroupTrainingById(
-            @PathVariable("trainingId") final String trainingId
-    ) {
-        try {
-            return groupTrainingsService.getGroupTrainingById(trainingId);
-
-        } catch (InvalidHourException | InvalidDateException e) {
-            String reason = translator.toLocale("exception.date.or.hour.parse");
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, e);
-
-        } catch (NotExistingGroupTrainingException e) {
-            String reason = translator.toLocale("exception.not.found.training.id");
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, reason, e);
-
-        } catch (Exception exception) {
-            String reason = translator.toLocale("exception.internal.error");
-            exception.printStackTrace();
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, reason, exception);
-        }
-    }
-
+    @PreAuthorize("hasRole('USER')")
     @GetMapping("/type/{trainingTypeId}")
-    public List<GroupTrainingResponseOld> getGroupTrainingsByType(
+    public List<GroupTrainingResponseOld> getGroupTrainingsByTypeWithParticipants(
             @PathVariable("trainingTypeId") final String trainingTypeId,
             @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") final String startDate,
             @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") final String endDate
@@ -156,24 +140,6 @@ public class GroupTrainingController {
         } catch (StartDateAfterEndDateException e) {
             String reason = translator.toLocale("exception.start.date.after.end.date");
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, e);
-
-        } catch (Exception exception) {
-            String reason = translator.toLocale("exception.internal.error");
-            exception.printStackTrace();
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, reason, exception);
-        }
-    }
-
-    @GetMapping("/{trainingId}/participants")
-    public List<UserResponse> getTrainingParticipants(
-            @PathVariable("trainingId") final String trainingId
-    ) {
-        try {
-            return groupTrainingsService.getTrainingParticipants(trainingId);
-
-        } catch (NotExistingGroupTrainingException e) {
-            String reason = translator.toLocale("exception.not.found.training.id");
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, reason, e);
 
         } catch (Exception exception) {
             String reason = translator.toLocale("exception.internal.error");

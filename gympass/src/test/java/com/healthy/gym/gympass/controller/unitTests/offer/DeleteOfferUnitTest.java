@@ -1,4 +1,4 @@
-package com.healthy.gym.gympass.controller.unitTests;
+package com.healthy.gym.gympass.controller.unitTests.offer;
 
 import com.healthy.gym.gympass.configuration.TestCountry;
 import com.healthy.gym.gympass.configuration.TestRoleTokenFactory;

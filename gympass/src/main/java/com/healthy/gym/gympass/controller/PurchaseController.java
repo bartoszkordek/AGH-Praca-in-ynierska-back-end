@@ -2,6 +2,7 @@ package com.healthy.gym.gympass.controller;
 
 import com.healthy.gym.gympass.component.Translator;
 import com.healthy.gym.gympass.dto.PurchasedGymPassDTO;
+import com.healthy.gym.gympass.exception.RequestBindException;
 import com.healthy.gym.gympass.pojo.request.PurchasedGymPassRequest;
 import com.healthy.gym.gympass.pojo.response.PurchasedGymPassResponse;
 import com.healthy.gym.gympass.service.PurchaseService;
@@ -46,7 +47,7 @@ public class PurchaseController {
     public ResponseEntity<PurchasedGymPassResponse> purchaseGymPass(
             @Valid @RequestBody final PurchasedGymPassRequest request,
             final BindingResult bindingResult
-    ) throws BindException {
+    ) throws RequestBindException {
         try {
             if (bindingResult.hasErrors()) throw new BindException(bindingResult);
 
@@ -60,6 +61,10 @@ public class PurchaseController {
                             message,
                             purchasedGymPass
                     ));
+
+        } catch (BindException exception) {
+            String reason = translator.toLocale("request.bind.exception");
+            throw new RequestBindException(HttpStatus.BAD_REQUEST, reason, exception);
 
         } catch (Exception exception){
             String reason = translator.toLocale(INTERNAL_ERROR_EXCEPTION);

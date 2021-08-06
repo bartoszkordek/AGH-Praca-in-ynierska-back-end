@@ -217,7 +217,36 @@ public class UpdateOfferIntegrationTest {
                     .exchange(uri, HttpMethod.PUT, request, JsonNode.class);
 
             assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.CONFLICT);
-            assertThat(Objects.requireNonNull(responseEntity.getBody().get("message").textValue())).isEqualTo(expectedMessage);
+            assertThat(Objects.requireNonNull(responseEntity.getBody().get("message")
+                    .textValue())).isEqualTo(expectedMessage);
+            assertThat(responseEntity.getHeaders().getContentType()).isEqualTo(MediaType.APPLICATION_JSON);
+        }
+
+        @ParameterizedTest
+        @EnumSource(TestCountry.class)
+        void shouldThrowInvalidGymPassOfferIdExceptionWhenInvalidId(TestCountry country) throws Exception {
+            Map<String, String> messages = getMessagesAccordingToLocale(country);
+            Locale testedLocale = convertEnumToLocale(country);
+
+            String invalidDocumentId = UUID.randomUUID().toString();
+
+            URI uri = new URI("http://localhost:" + port + "/offer/"+invalidDocumentId);
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.set("Accept-Language", testedLocale.toString());
+            headers.set("Authorization", managerToken);
+            headers.setContentType(MediaType.APPLICATION_JSON);
+
+
+            HttpEntity<Object> request = new HttpEntity<>(requestContent, headers);
+            String expectedMessage = messages.get("exception.invalid.offer.id");
+
+            ResponseEntity<JsonNode> responseEntity = restTemplate
+                    .exchange(uri, HttpMethod.PUT, request, JsonNode.class);
+
+            assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+            assertThat(Objects.requireNonNull(responseEntity.getBody().get("message").textValue()))
+                    .isEqualTo(expectedMessage);
             assertThat(responseEntity.getHeaders().getContentType()).isEqualTo(MediaType.APPLICATION_JSON);
         }
 

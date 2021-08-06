@@ -11,7 +11,7 @@ import com.healthy.gym.trainings.model.response.GroupTrainingResponseOld;
 import java.text.ParseException;
 import java.util.List;
 
-public interface GroupTrainingService {
+public interface UniversalGroupTrainingService {
 
     List<GroupTrainingResponseOld> getGroupTrainings(String startDate, String endDate)
             throws InvalidHourException,

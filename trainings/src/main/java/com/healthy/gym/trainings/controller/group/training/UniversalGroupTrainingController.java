@@ -8,7 +8,7 @@ import com.healthy.gym.trainings.exception.notexisting.NotExistingGroupTrainingE
 import com.healthy.gym.trainings.exception.notfound.TrainingTypeNotFoundException;
 import com.healthy.gym.trainings.model.response.GroupTrainingPublicResponse;
 import com.healthy.gym.trainings.model.response.GroupTrainingResponseOld;
-import com.healthy.gym.trainings.service.group.training.GroupTrainingService;
+import com.healthy.gym.trainings.service.group.training.UniversalGroupTrainingService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
@@ -25,12 +25,12 @@ import java.util.List;
 public class UniversalGroupTrainingController {
 
     private final Translator translator;
-    private final GroupTrainingService groupTrainingsService;
+    private final UniversalGroupTrainingService groupTrainingsService;
 
     @Autowired
     public UniversalGroupTrainingController(
             Translator translator,
-            GroupTrainingService groupTrainingsService
+            UniversalGroupTrainingService groupTrainingsService
     ) {
         this.translator = translator;
         this.groupTrainingsService = groupTrainingsService;

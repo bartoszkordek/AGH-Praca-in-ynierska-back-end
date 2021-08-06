@@ -30,7 +30,7 @@ import static com.healthy.gym.trainings.utils.ParticipantsExtractor.getBasicList
 import static com.healthy.gym.trainings.utils.ParticipantsExtractor.getReserveList;
 
 @Service
-public class GroupTrainingServiceImpl implements GroupTrainingService {
+public class UniversalGroupTrainingServiceImpl implements UniversalGroupTrainingService {
 
     private final TrainingTypeDAO trainingTypeRepository;
     private final GroupTrainingsRepository groupTrainingsRepository;
@@ -40,7 +40,7 @@ public class GroupTrainingServiceImpl implements GroupTrainingService {
     private final Pageable paging;
 
     @Autowired
-    public GroupTrainingServiceImpl(
+    public UniversalGroupTrainingServiceImpl(
             TrainingTypeDAO trainingTypeRepository,
             GroupTrainingsRepository groupTrainingsRepository,
             GroupTrainingsDAO groupTrainingsDAO,

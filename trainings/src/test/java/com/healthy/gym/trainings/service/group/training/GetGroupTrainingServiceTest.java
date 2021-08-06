@@ -39,7 +39,7 @@ public class GetGroupTrainingServiceTest {
     private GroupTrainingsDAO groupTrainingsDAO;
     private TrainingTypeDAO trainingTypeDAO;
     private ReviewDAO reviewDAO;
-    private GroupTrainingService groupTrainingService;
+    private UniversalGroupTrainingService groupTrainingService;
 
     @Before
     public void setUp() throws Exception {
@@ -48,7 +48,7 @@ public class GetGroupTrainingServiceTest {
         groupTrainingsDAO = mock(GroupTrainingsDAO.class);
         trainingTypeDAO = mock(TrainingTypeDAO.class);
         reviewDAO = mock(ReviewDAO.class);
-        groupTrainingService = new GroupTrainingServiceImpl(
+        groupTrainingService = new UniversalGroupTrainingServiceImpl(
                 trainingTypeRepository,
                 groupTrainingsRepository,
                 groupTrainingsDAO,

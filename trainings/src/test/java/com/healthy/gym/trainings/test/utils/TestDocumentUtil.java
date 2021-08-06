@@ -11,6 +11,7 @@ import com.healthy.gym.trainings.enums.GymRole;
 import org.modelmapper.ModelMapper;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -67,23 +68,23 @@ public class TestDocumentUtil {
             boolean isInBasic,
             boolean isInReserve
     ) {
+        var basicList = getTestListOfUserDocuments(5);
+        if (isInBasic) basicList.add(user);
+
+        var reserveList = getTestListOfUserDocuments(2);
+        if (isInReserve) reserveList.add(user);
+
         String groupTrainingId = UUID.randomUUID().toString();
         TrainingTypeDocument trainingType = getTestTrainingType();
         UserDocument trainer = getTestTrainer();
         LocationDocument location = getTestLocation();
-        UserDocument user1 = getTestUser();
-        UserDocument user2 = getTestUser();
 
-        var basicList = isInBasic ? List.of(user1, user2, user) : List.of(user2);
-        var reserveList = isInReserve ? List.of(user1, user2, user) : List.of(user2);
-
-        return new GroupTrainingDocument(
-                groupTrainingId,
-                trainingType,
-                List.of(trainer),
-                LocalDateTime.parse(startDate),
-                LocalDateTime.parse(endDate),
-                location,
+        return getTestGroupTraining(
+                getTestTrainingType(),
+                List.of(getTestTrainer()),
+                getTestLocation(),
+                startDate,
+                endDate,
                 20,
                 basicList,
                 reserveList
@@ -100,6 +101,69 @@ public class TestDocumentUtil {
         GroupTrainingDocument document =
                 getTestGroupTrainingDocument(startDate, endDate, user, isInBasic, isInReserve);
         return mapGroupTrainingsDocumentToDTO(document);
+    }
+
+    public static List<UserDocument> getTestListOfUserDocuments(int numberOfUserDocuments) {
+        if (numberOfUserDocuments <= 0) throw new IllegalArgumentException("Number of users must be greater than 0.");
+        List<UserDocument> list = new ArrayList<>(numberOfUserDocuments);
+        for (int i = 0; i < numberOfUserDocuments; i++) {
+            list.add(getTestUser());
+        }
+        return list;
+    }
+
+    private static GroupTrainingDocument getTestGroupTraining(
+            TrainingTypeDocument trainingTypeDocument,
+            List<UserDocument> trainersList,
+            LocationDocument locationDocument,
+            String startDate,
+            String endDate,
+            int limit,
+            List<UserDocument> basicList,
+            List<UserDocument> reserveList
+    ) {
+        String groupTrainingId = UUID.randomUUID().toString();
+        return new GroupTrainingDocument(
+                groupTrainingId,
+                trainingTypeDocument,
+                trainersList,
+                LocalDateTime.parse(startDate),
+                LocalDateTime.parse(endDate),
+                locationDocument,
+                limit,
+                basicList,
+                reserveList
+        );
+    }
+
+    public static GroupTrainingDocument getTestGroupTraining(String startDate, String endDate) {
+        return getTestGroupTraining(
+                getTestTrainingType(),
+                List.of(getTestTrainer()),
+                getTestLocation(),
+                startDate,
+                endDate,
+                10,
+                getTestListOfUserDocuments(10),
+                getTestListOfUserDocuments(2)
+        );
+    }
+
+    public static GroupTrainingDocument getTestGroupTraining(
+            TrainingTypeDocument savedTrainingType,
+            String startDate,
+            String endDate
+    ) {
+        return getTestGroupTraining(
+                savedTrainingType,
+                List.of(getTestTrainer()),
+                getTestLocation(),
+                startDate,
+                endDate,
+                10,
+                getTestListOfUserDocuments(10),
+                getTestListOfUserDocuments(2)
+        );
     }
 
 }

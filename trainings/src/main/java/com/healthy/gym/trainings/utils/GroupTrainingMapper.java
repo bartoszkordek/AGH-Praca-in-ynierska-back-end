@@ -10,7 +10,7 @@ public class GroupTrainingMapper {
         throw new IllegalStateException("Utility class");
     }
 
-    public static GroupTrainingDTO mapToGroupTrainingsDocumentsToDTOs(GroupTrainingDocument groupTrainingDocument) {
+    public static GroupTrainingDTO mapGroupTrainingsDocumentToDTO(GroupTrainingDocument groupTrainingDocument) {
         ModelMapper modelMapper = new ModelMapper();
 
         return modelMapper

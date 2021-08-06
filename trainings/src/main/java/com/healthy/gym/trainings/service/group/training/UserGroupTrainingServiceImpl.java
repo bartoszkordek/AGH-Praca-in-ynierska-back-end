@@ -24,7 +24,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static com.healthy.gym.trainings.utils.DateParser.parseDate;
-import static com.healthy.gym.trainings.utils.GroupTrainingMapper.mapToGroupTrainingsDocumentsToDTOs;
+import static com.healthy.gym.trainings.utils.GroupTrainingMapper.mapGroupTrainingsDocumentToDTO;
 import static com.healthy.gym.trainings.utils.ParticipantsExtractor.*;
 
 @Service
@@ -69,7 +69,7 @@ public class UserGroupTrainingServiceImpl implements UserGroupTrainingService {
 
         return groupTrainingDocumentList
                 .stream()
-                .map(GroupTrainingMapper::mapToGroupTrainingsDocumentsToDTOs)
+                .map(GroupTrainingMapper::mapGroupTrainingsDocumentToDTO)
                 .collect(Collectors.toList());
     }
 
@@ -93,7 +93,7 @@ public class UserGroupTrainingServiceImpl implements UserGroupTrainingService {
         }
 
         GroupTrainingDocument groupTrainingUpdated = groupTrainingsDAO.save(groupTraining);
-        return mapToGroupTrainingsDocumentsToDTOs(groupTrainingUpdated);
+        return mapGroupTrainingsDocumentToDTO(groupTrainingUpdated);
     }
 
     private GroupTrainingDocument getAndCheckGroupTraining(String trainingId)
@@ -140,6 +140,6 @@ public class UserGroupTrainingServiceImpl implements UserGroupTrainingService {
         if (userIsInReserveList) removeFromReserveList(groupTraining, clientId);
 
         GroupTrainingDocument groupTrainingUpdated = groupTrainingsDAO.save(groupTraining);
-        return mapToGroupTrainingsDocumentsToDTOs(groupTrainingUpdated);
+        return mapGroupTrainingsDocumentToDTO(groupTrainingUpdated);
     }
 }

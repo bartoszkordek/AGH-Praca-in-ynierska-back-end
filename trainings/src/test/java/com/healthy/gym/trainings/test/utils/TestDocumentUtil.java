@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
-import static com.healthy.gym.trainings.utils.GroupTrainingMapper.mapToGroupTrainingsDocumentsToDTOs;
+import static com.healthy.gym.trainings.utils.GroupTrainingMapper.mapGroupTrainingsDocumentToDTO;
 
 public class TestDocumentUtil {
 
@@ -99,7 +99,7 @@ public class TestDocumentUtil {
     ) {
         GroupTrainingDocument document =
                 getTestGroupTrainingDocument(startDate, endDate, user, isInBasic, isInReserve);
-        return mapToGroupTrainingsDocumentsToDTOs(document);
+        return mapGroupTrainingsDocumentToDTO(document);
     }
 
 }

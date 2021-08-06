@@ -13,27 +13,30 @@ import java.util.List;
 
 public interface UniversalGroupTrainingService {
 
-    List<GroupTrainingResponseOld> getGroupTrainings(String startDate, String endDate)
+    List<GroupTrainingResponseOld> getGroupTrainingsWithParticipants(String startDate, String endDate)
             throws InvalidHourException,
             StartDateAfterEndDateException,
             ParseException,
             InvalidDateException;
 
-    List<GroupTrainingPublicResponse> getPublicGroupTrainings(String startDate, String endDate)
+    List<GroupTrainingPublicResponse> getGroupTrainingsWithoutParticipants(String startDate, String endDate)
             throws InvalidHourException,
             InvalidDateException,
             StartDateAfterEndDateException,
             ParseException;
 
-    List<GroupTrainingResponseOld> getGroupTrainingsByType(String trainingTypeId, String startDate, String endDate)
-            throws NotExistingGroupTrainingException,
+    List<GroupTrainingResponseOld> getGroupTrainingsByTypeWithParticipants(
+            String trainingTypeId,
+            String startDate,
+            String endDate
+    ) throws NotExistingGroupTrainingException,
             InvalidDateException,
             InvalidHourException,
             StartDateAfterEndDateException,
             ParseException,
             TrainingTypeNotFoundException;
 
-    List<GroupTrainingPublicResponse> getGroupTrainingsPublicByType(
+    List<GroupTrainingPublicResponse> getGroupTrainingsByTypeWithoutParticipants(
             String trainingTypeId,
             String startDate,
             String endDate

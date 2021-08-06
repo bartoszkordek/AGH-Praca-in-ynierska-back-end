@@ -42,7 +42,7 @@ public class UniversalGroupTrainingController {
             @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") final String endDate
     ) {
         try {
-            return groupTrainingsService.getPublicGroupTrainings(startDate, endDate);
+            return groupTrainingsService.getGroupTrainingsWithoutParticipants(startDate, endDate);
 
         } catch (InvalidDateException | InvalidHourException | ParseException e) {
             String reason = translator.toLocale("exception.date.or.hour.parse");
@@ -66,7 +66,7 @@ public class UniversalGroupTrainingController {
             @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") final String endDate
     ) {
         try {
-            return groupTrainingsService.getGroupTrainings(startDate, endDate);
+            return groupTrainingsService.getGroupTrainingsWithParticipants(startDate, endDate);
 
         } catch (InvalidDateException | InvalidHourException | ParseException e) {
             String reason = translator.toLocale("exception.date.or.hour.parse");
@@ -90,7 +90,7 @@ public class UniversalGroupTrainingController {
             @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") final String endDate
     ) {
         try {
-            return groupTrainingsService.getGroupTrainingsPublicByType(trainingTypeId, startDate, endDate);
+            return groupTrainingsService.getGroupTrainingsByTypeWithoutParticipants(trainingTypeId, startDate, endDate);
 
         } catch (InvalidHourException | InvalidDateException | ParseException e) {
             String reason = translator.toLocale("exception.date.or.hour.parse");
@@ -123,7 +123,7 @@ public class UniversalGroupTrainingController {
             @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") final String endDate
     ) {
         try {
-            return groupTrainingsService.getGroupTrainingsByType(trainingTypeId, startDate, endDate);
+            return groupTrainingsService.getGroupTrainingsByTypeWithParticipants(trainingTypeId, startDate, endDate);
 
         } catch (InvalidHourException | InvalidDateException | ParseException e) {
             String reason = translator.toLocale("exception.date.or.hour.parse");

@@ -316,7 +316,7 @@ public class GetGroupTrainingServiceTest {
 //                .thenReturn(groupTrainings);
 
         //then
-        groupTrainingService.getGroupTrainingsByType(trainingTypeId, startDate, endDate);
+        groupTrainingService.getGroupTrainingsByTypeWithParticipants(trainingTypeId, startDate, endDate);
     }
 
 }

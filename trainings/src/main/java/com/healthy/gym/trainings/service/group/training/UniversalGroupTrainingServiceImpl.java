@@ -57,7 +57,7 @@ public class UniversalGroupTrainingServiceImpl implements UniversalGroupTraining
 
 
     @Override
-    public List<GroupTrainingResponseOld> getGroupTrainings(String startDate, String endDate)
+    public List<GroupTrainingResponseOld> getGroupTrainingsWithParticipants(String startDate, String endDate)
             throws InvalidHourException, StartDateAfterEndDateException, ParseException, InvalidDateException {
 
         List<GroupTrainingDocument> groupTrainingDocuments = getGroupTrainingDocumentsBetweenStartAndEndDate(
@@ -117,7 +117,7 @@ public class UniversalGroupTrainingServiceImpl implements UniversalGroupTraining
     }
 
     @Override
-    public List<GroupTrainingPublicResponse> getPublicGroupTrainings(String startDate, String endDate)
+    public List<GroupTrainingPublicResponse> getGroupTrainingsWithoutParticipants(String startDate, String endDate)
             throws InvalidHourException, InvalidDateException, StartDateAfterEndDateException, ParseException {
 
         List<GroupTrainingDocument> groupTrainingDocuments = getGroupTrainingDocumentsBetweenStartAndEndDate(
@@ -144,7 +144,7 @@ public class UniversalGroupTrainingServiceImpl implements UniversalGroupTraining
     }
 
     @Override
-    public List<GroupTrainingResponseOld> getGroupTrainingsByType(String trainingTypeId, String startDate, String endDate)
+    public List<GroupTrainingResponseOld> getGroupTrainingsByTypeWithParticipants(String trainingTypeId, String startDate, String endDate)
             throws NotExistingGroupTrainingException, InvalidHourException, StartDateAfterEndDateException,
             ParseException, InvalidDateException, TrainingTypeNotFoundException {
         if (!trainingTypeDAO.existsByTrainingTypeId(trainingTypeId)) {
@@ -220,7 +220,7 @@ public class UniversalGroupTrainingServiceImpl implements UniversalGroupTraining
     }
 
     @Override
-    public List<GroupTrainingPublicResponse> getGroupTrainingsPublicByType(
+    public List<GroupTrainingPublicResponse> getGroupTrainingsByTypeWithoutParticipants(
             String trainingTypeId,
             String startDate,
             String endDate

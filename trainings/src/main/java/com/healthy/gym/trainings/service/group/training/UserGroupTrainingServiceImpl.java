@@ -2,16 +2,16 @@ package com.healthy.gym.trainings.service.group.training;
 
 import com.healthy.gym.trainings.data.document.GroupTrainingDocument;
 import com.healthy.gym.trainings.data.document.UserDocument;
-import com.healthy.gym.trainings.data.repository.group.training.GroupTrainingsDAO;
 import com.healthy.gym.trainings.data.repository.UserDAO;
+import com.healthy.gym.trainings.data.repository.group.training.GroupTrainingsDAO;
 import com.healthy.gym.trainings.data.repository.group.training.UserGroupTrainingsDAO;
+import com.healthy.gym.trainings.dto.GroupTrainingDTO;
 import com.healthy.gym.trainings.exception.PastDateException;
 import com.healthy.gym.trainings.exception.StartDateAfterEndDateException;
 import com.healthy.gym.trainings.exception.UserAlreadyEnrolledToTrainingException;
 import com.healthy.gym.trainings.exception.notexisting.NotExistingGroupTrainingException;
 import com.healthy.gym.trainings.exception.notfound.UserNotFoundException;
 import com.healthy.gym.trainings.exception.training.TrainingEnrollmentException;
-import com.healthy.gym.trainings.dto.GroupTrainingDTO;
 import com.healthy.gym.trainings.utils.GroupTrainingMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

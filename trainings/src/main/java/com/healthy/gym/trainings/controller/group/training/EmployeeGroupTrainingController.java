@@ -41,7 +41,7 @@ public class EmployeeGroupTrainingController {
             return employeeGroupTrainingService.getTrainingParticipants(trainingId);
 
         } catch (NotExistingGroupTrainingException e) {
-            String reason = translator.toLocale("exception.not.found.training.id");
+            String reason = translator.toLocale("exception.group.training.not.found");
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, reason, e);
 
         } catch (Exception exception) {
@@ -57,7 +57,7 @@ public class EmployeeGroupTrainingController {
             return employeeGroupTrainingService.getGroupTrainingById(trainingId);
 
         } catch (NotExistingGroupTrainingException e) {
-            String reason = translator.toLocale("exception.not.found.training.id");
+            String reason = translator.toLocale("exception.group.training.not.found");
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, reason, e);
 
         } catch (Exception exception) {

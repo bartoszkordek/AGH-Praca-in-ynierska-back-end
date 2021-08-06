@@ -5,7 +5,9 @@ import com.healthy.gym.trainings.data.document.LocationDocument;
 import com.healthy.gym.trainings.data.document.TrainingTypeDocument;
 import com.healthy.gym.trainings.data.document.UserDocument;
 import com.healthy.gym.trainings.dto.GroupTrainingDTO;
+import com.healthy.gym.trainings.dto.GroupTrainingWithoutParticipantsDTO;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDateTime;
@@ -18,13 +20,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class GroupTrainingMapperTest {
 
-    private GroupTrainingDTO groupTrainingDTO;
     private String trainerId1;
     private String trainerId2;
     private String userId;
     private String reserveUserId1;
     private String reserveUserId2;
     private String groupTrainingId;
+    private GroupTrainingDocument groupTrainingToCreate;
 
     @BeforeEach
     void setUp() {
@@ -101,10 +103,10 @@ class GroupTrainingMapperTest {
         LocalDateTime startDate = LocalDateTime.parse("2021-07-30T10:10", DateTimeFormatter.ISO_LOCAL_DATE_TIME);
         LocalDateTime endDate = LocalDateTime.parse("2021-07-30T11:00", DateTimeFormatter.ISO_LOCAL_DATE_TIME);
 
-        LocationDocument location = new LocationDocument(UUID.randomUUID().toString(), "Sala nr 2");
+        LocationDocument location = new LocationDocument(UUID.randomUUID().toString(), "Room no 2");
 
         groupTrainingId = UUID.randomUUID().toString();
-        GroupTrainingDocument groupTrainingToCreate = new GroupTrainingDocument(
+        groupTrainingToCreate = new GroupTrainingDocument(
                 groupTrainingId,
                 trainingType,
                 trainers,
@@ -115,69 +117,116 @@ class GroupTrainingMapperTest {
                 basicList,
                 reserveList
         );
-
-        groupTrainingDTO = GroupTrainingMapper.mapGroupTrainingsDocumentToDTO(groupTrainingToCreate);
     }
 
-    @Test
-    void shouldHaveProperGroupTrainingId() {
-        assertThat(groupTrainingDTO.getGroupTrainingId()).isEqualTo(groupTrainingId);
+    @Nested
+    class WhenMapGroupTrainingsDocumentToDTO {
+
+        private GroupTrainingDTO groupTrainingDTO;
+
+        @BeforeEach
+        void setUp() {
+            groupTrainingDTO = GroupTrainingMapper.mapGroupTrainingsDocumentToDTO(groupTrainingToCreate);
+        }
+
+        @Test
+        void shouldHaveProperGroupTrainingId() {
+            assertThat(groupTrainingDTO.getGroupTrainingId()).isEqualTo(groupTrainingId);
+        }
+
+        @Test
+        void shouldHaveProperTrainers() {
+            var trainerList = groupTrainingDTO.getTrainers();
+            assertThat(trainerList.size()).isEqualTo(2);
+
+            assertThat(groupTrainingDTO.getTrainers().get(0).getUserId()).isEqualTo(trainerId1);
+            assertThat(groupTrainingDTO.getTrainers().get(1).getUserId()).isEqualTo(trainerId2);
+        }
+
+        @Test
+        void shouldHaveProperTitle() {
+            assertThat(groupTrainingDTO.getTitle()).isEqualTo("TestTrainingType");
+        }
+
+        @Test
+        void shouldHaveProperLocation() {
+            assertThat(groupTrainingDTO.getLocation()).isEqualTo("Room no 2");
+        }
+
+        @Test
+        void shouldHaveProperStartAndEndDate() {
+            assertThat(groupTrainingDTO.getStartDate()).isEqualTo("2021-07-30T10:10");
+            assertThat(groupTrainingDTO.getEndDate()).isEqualTo("2021-07-30T11:00");
+        }
+
+        @Test
+        void shouldHaveProperBasicList() {
+            var basicList = groupTrainingDTO.getParticipants().getBasicList();
+            assertThat(basicList.size()).isEqualTo(1);
+
+            assertThat(basicList.get(0).getUserId()).isEqualTo(userId);
+            assertThat(basicList.get(0).getName()).isEqualTo("UserName2");
+            assertThat(basicList.get(0).getSurname()).isEqualTo("UserSUrname2");
+            assertThat(basicList.get(0).getAvatarUrl()).isNull();
+        }
+
+        @Test
+        void shouldHaveProperReserveList() {
+            var reserveList = groupTrainingDTO.getParticipants().getReserveList();
+            assertThat(reserveList.size()).isEqualTo(2);
+
+            var personDetails1 = reserveList.get(0);
+            assertThat(personDetails1.getUserId()).isEqualTo(reserveUserId1);
+            assertThat(personDetails1.getName()).isEqualTo("UserName3");
+            assertThat(personDetails1.getSurname()).isEqualTo("UserSUrname3");
+            assertThat(personDetails1.getAvatarUrl()).isNull();
+
+            var personDetails2 = reserveList.get(1);
+            assertThat(personDetails2.getUserId()).isEqualTo(reserveUserId2);
+            assertThat(personDetails2.getName()).isEqualTo("UserName4");
+            assertThat(personDetails2.getSurname()).isEqualTo("UserSUrname4");
+            assertThat(personDetails2.getAvatarUrl()).isNull();
+        }
     }
 
-    @Test
-    void shouldHaveProperTrainers() {
-        var trainerList = groupTrainingDTO.getTrainers();
-        assertThat(trainerList.size()).isEqualTo(2);
+    @Nested
+    class WhenMapGroupTrainingsDocumentToDTOWithoutParticipants {
+        private GroupTrainingWithoutParticipantsDTO groupTrainingDTO;
 
-        var firstTrainer = trainerList.get(0);
-        assertThat(groupTrainingDTO.getTrainers().get(0).getUserId()).isEqualTo(trainerId1);
-        assertThat(groupTrainingDTO.getTrainers().get(1).getUserId()).isEqualTo(trainerId2);
+        @BeforeEach
+        void setUp() {
+            groupTrainingDTO = GroupTrainingMapper
+                    .mapGroupTrainingsDocumentToDTOWithoutParticipants(groupTrainingToCreate);
+        }
+
+        @Test
+        void shouldHaveProperGroupTrainingId() {
+            assertThat(groupTrainingDTO.getGroupTrainingId()).isEqualTo(groupTrainingId);
+        }
+
+        @Test
+        void shouldHaveProperTrainers() {
+            var trainerList = groupTrainingDTO.getTrainers();
+            assertThat(trainerList.size()).isEqualTo(2);
+
+            assertThat(groupTrainingDTO.getTrainers().get(0).getUserId()).isEqualTo(trainerId1);
+            assertThat(groupTrainingDTO.getTrainers().get(1).getUserId()).isEqualTo(trainerId2);
+        }
+
+        @Test
+        void shouldHaveProperTitle() {
+            assertThat(groupTrainingDTO.getTitle()).isEqualTo("TestTrainingType");
+        }
+
+        @Test
+        void shouldHaveProperLocation() {
+            assertThat(groupTrainingDTO.getLocation()).isEqualTo("Room no 2");
+        }
+
+        @Test
+        void shouldHaveProperStartAndEndDate() {
+            assertThat(groupTrainingDTO.getStartDate()).isEqualTo("2021-07-30T10:10");
+            assertThat(groupTrainingDTO.getEndDate()).isEqualTo("2021-07-30T11:00");
+        }
     }
-
-    @Test
-    void shouldHaveProperTitle() {
-        assertThat(groupTrainingDTO.getTitle()).isEqualTo("TestTrainingType");
-    }
-
-    @Test
-    void shouldHaveProperLocation() {
-        assertThat(groupTrainingDTO.getLocation()).isEqualTo("Sala nr 2");
-    }
-
-    @Test
-    void shouldHaveProperStartAndEndDate() {
-        assertThat(groupTrainingDTO.getStartDate()).isEqualTo("2021-07-30T10:10");
-        assertThat(groupTrainingDTO.getEndDate()).isEqualTo("2021-07-30T11:00");
-    }
-
-    @Test
-    void shouldHaveProperBasicList() {
-        var basicList = groupTrainingDTO.getParticipants().getBasicList();
-        assertThat(basicList.size()).isEqualTo(1);
-
-        assertThat(basicList.get(0).getUserId()).isEqualTo(userId);
-        assertThat(basicList.get(0).getName()).isEqualTo("UserName2");
-        assertThat(basicList.get(0).getSurname()).isEqualTo("UserSUrname2");
-        assertThat(basicList.get(0).getAvatarUrl()).isNull();
-    }
-
-    @Test
-    void shouldHaveProperReserveList() {
-        var reserveList = groupTrainingDTO.getParticipants().getReserveList();
-        assertThat(reserveList.size()).isEqualTo(2);
-
-        var personDetails1 = reserveList.get(0);
-        assertThat(personDetails1.getUserId()).isEqualTo(reserveUserId1);
-        assertThat(personDetails1.getName()).isEqualTo("UserName3");
-        assertThat(personDetails1.getSurname()).isEqualTo("UserSUrname3");
-        assertThat(personDetails1.getAvatarUrl()).isNull();
-
-        var personDetails2 = reserveList.get(1);
-        assertThat(personDetails2.getUserId()).isEqualTo(reserveUserId2);
-        assertThat(personDetails2.getName()).isEqualTo("UserName4");
-        assertThat(personDetails2.getSurname()).isEqualTo("UserSUrname4");
-        assertThat(personDetails2.getAvatarUrl()).isNull();
-    }
-
-
 }

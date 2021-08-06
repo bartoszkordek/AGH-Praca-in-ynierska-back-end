@@ -183,6 +183,45 @@ public class UpdateOfferIntegrationTest {
         }
     }
 
+    @Nested
+    class ShouldNotUpdateOffer{
+
+        @ParameterizedTest
+        @EnumSource(TestCountry.class)
+        void shouldThrowDuplicatedGymPassDocumentsWhenUpdateExistingOffer(TestCountry country) throws Exception {
+            mongoTemplate.save(new GymPassDocument(
+                    UUID.randomUUID().toString(),
+                    "Karnet miesięczny",
+                    "Najlepszy wybór dla osób aktywnych",
+                    new Price(140.00, "zł", "miesiąc"),
+                    false,
+                    new Description("Karnet uprawniający do korzystania w pełni z usług ośrodka",
+                            List.of("Full pakiet", "sauna", "siłownia", "basen"))
+            ));
+
+            Map<String, String> messages = getMessagesAccordingToLocale(country);
+            Locale testedLocale = convertEnumToLocale(country);
+
+            URI uri = new URI("http://localhost:" + port + "/offer/"+existingDocumentId);
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.set("Accept-Language", testedLocale.toString());
+            headers.set("Authorization", managerToken);
+            headers.setContentType(MediaType.APPLICATION_JSON);
+
+
+            HttpEntity<Object> request = new HttpEntity<>(requestContent, headers);
+            String expectedMessage = messages.get("exception.duplicated.offers");
+
+            ResponseEntity<JsonNode> responseEntity = restTemplate
+                    .exchange(uri, HttpMethod.PUT, request, JsonNode.class);
+
+            assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.CONFLICT);
+            assertThat(Objects.requireNonNull(responseEntity.getBody().get("message").textValue())).isEqualTo(expectedMessage);
+            assertThat(responseEntity.getHeaders().getContentType()).isEqualTo(MediaType.APPLICATION_JSON);
+        }
+    }
+
 
 
 }

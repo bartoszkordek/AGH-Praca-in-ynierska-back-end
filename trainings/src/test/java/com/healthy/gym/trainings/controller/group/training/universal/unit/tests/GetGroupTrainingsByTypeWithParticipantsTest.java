@@ -22,10 +22,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 import static com.healthy.gym.trainings.configuration.LocaleConverter.convertEnumToLocale;
 import static com.healthy.gym.trainings.configuration.Messages.getMessagesAccordingToLocale;
@@ -41,7 +38,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(UniversalGroupTrainingController.class)
-class GetGroupTrainingsWithParticipantsTest {
+class GetGroupTrainingsByTypeWithParticipantsTest {
 
     @Autowired
     private MockMvc mockMvc;
@@ -56,13 +53,16 @@ class GetGroupTrainingsWithParticipantsTest {
     private String startDate;
     private String endDate;
     private String userToken;
+    private String trainingTypeId;
 
     @BeforeEach
     void setUp() throws URISyntaxException {
         userToken = tokenFactory.getUserToken();
         startDate = "2020-08-02";
         endDate = "2020-08-08";
-        uri = new URI("/group?startDate=" + startDate + "&endDate=" + endDate);
+        trainingTypeId = UUID.randomUUID().toString();
+        uri = new URI("/group/type/" + trainingTypeId + "?startDate="
+                + startDate + "&endDate=" + endDate);
     }
 
     private RequestBuilder getValidRequest(Locale locale) {
@@ -82,8 +82,9 @@ class GetGroupTrainingsWithParticipantsTest {
         var training2 = getTestGroupTraining("2020-08-04T18:00", "2020-08-04T19:00");
         GroupTrainingDTO trainingDTO1 = mapGroupTrainingsDocumentToDTO(training1);
         GroupTrainingDTO trainingDTO2 = mapGroupTrainingsDocumentToDTO(training2);
-        when(universalGroupTrainingService.getGroupTrainingsWithParticipants(startDate, endDate))
-                .thenReturn(List.of(trainingDTO1, trainingDTO2));
+        when(universalGroupTrainingService
+                .getGroupTrainingsByTypeWithParticipants(trainingTypeId, startDate, endDate)
+        ).thenReturn(List.of(trainingDTO1, trainingDTO2));
         RequestBuilder request = getValidRequest(testedLocale);
 
         BasicUserInfoDTO trainer1 = trainingDTO1.getTrainers().get(0);
@@ -151,6 +152,7 @@ class GetGroupTrainingsWithParticipantsTest {
                 );
     }
 
+
     @ParameterizedTest
     @EnumSource(TestCountry.class)
     void ShouldRejectRequestWhenUserIsNotLogIn(TestCountry country) throws Exception {
@@ -178,7 +180,7 @@ class GetGroupTrainingsWithParticipantsTest {
             startDate = "20200802";
             endDate = "20200808";
 
-            uri = new URI("/group?startDate=" + startDate + "&endDate=" + endDate);
+            uri = new URI("/group/type/" + 12321 + "?startDate=" + startDate + "&endDate=" + endDate);
 
             RequestBuilder request = MockMvcRequestBuilders
                     .get(uri)
@@ -200,6 +202,8 @@ class GetGroupTrainingsWithParticipantsTest {
                             )
                     ).andExpect(
                             matchAll(
+                                    jsonPath("$.errors.trainingTypeId")
+                                            .value(is(messages.get("exception.invalid.id.format"))),
                                     jsonPath("$.errors.startDate")
                                             .value(is(messages.get("exception.invalid.date.format"))),
                                     jsonPath("$.errors.endDate")
@@ -215,7 +219,8 @@ class GetGroupTrainingsWithParticipantsTest {
             Locale testedLocale = convertEnumToLocale(country);
 
             doThrow(StartDateAfterEndDateException.class)
-                    .when(universalGroupTrainingService).getGroupTrainingsWithParticipants(startDate, endDate);
+                    .when(universalGroupTrainingService)
+                    .getGroupTrainingsByTypeWithParticipants(trainingTypeId, startDate, endDate);
             RequestBuilder request = getValidRequest(testedLocale);
             String expectedMessage = messages.get("exception.start.date.after.end.date");
 
@@ -236,7 +241,8 @@ class GetGroupTrainingsWithParticipantsTest {
             Locale testedLocale = convertEnumToLocale(country);
 
             doThrow(IllegalStateException.class)
-                    .when(universalGroupTrainingService).getGroupTrainingsWithParticipants(startDate, endDate);
+                    .when(universalGroupTrainingService)
+                    .getGroupTrainingsByTypeWithParticipants(trainingTypeId, startDate, endDate);
             RequestBuilder request = getValidRequest(testedLocale);
             String expectedMessage = messages.get("exception.internal.error");
 

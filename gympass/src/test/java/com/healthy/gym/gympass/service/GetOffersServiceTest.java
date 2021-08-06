@@ -110,8 +110,8 @@ class GetOffersServiceTest {
         when(gymPassOfferDAO.findAll()).thenReturn(gymPassDocuments);
 
         //then
-        assertThat(offerService.getGymPassOffer().get(0)).isEqualTo(gymPassOfferDTOs.get(0));
-        assertThat(offerService.getGymPassOffer().get(1)).isEqualTo(gymPassOfferDTOs.get(1));
+        assertThat(offerService.getGymPassOffers().get(0)).isEqualTo(gymPassOfferDTOs.get(0));
+        assertThat(offerService.getGymPassOffers().get(1)).isEqualTo(gymPassOfferDTOs.get(1));
     }
 
     @Test
@@ -124,7 +124,7 @@ class GetOffersServiceTest {
         when(gymPassOfferDAO.findAll()).thenReturn(gymPassDocuments);
 
         assertThatThrownBy(() ->
-                offerService.getGymPassOffer()
+                offerService.getGymPassOffers()
         ).isInstanceOf(NoOffersException.class);
     }
 

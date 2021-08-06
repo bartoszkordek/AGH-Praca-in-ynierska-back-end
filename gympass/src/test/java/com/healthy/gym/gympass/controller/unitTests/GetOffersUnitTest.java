@@ -117,7 +117,7 @@ class GetOffersUnitTest {
 
         List<GymPassDTO> returnedList = List.of(gymPass1, gymPass2);
 
-        when(offerService.getGymPassOffer()).thenReturn(returnedList);
+        when(offerService.getGymPassOffers()).thenReturn(returnedList);
 
         mockMvc.perform(request)
                 .andDo(print())
@@ -198,7 +198,7 @@ class GetOffersUnitTest {
 
         doThrow(NoOffersException.class)
                 .when(offerService)
-                .getGymPassOffer();
+                .getGymPassOffers();
 
         mockMvc.perform(request)
                 .andDo(print())
@@ -239,7 +239,7 @@ class GetOffersUnitTest {
 
         doThrow(IllegalStateException.class)
                 .when(offerService)
-                .getGymPassOffer();
+                .getGymPassOffers();
 
         String expectedMessage = messages.get("exception.internal.error");
 

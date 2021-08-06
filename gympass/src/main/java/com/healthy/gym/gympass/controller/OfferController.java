@@ -46,7 +46,7 @@ public class OfferController {
 
 
     @GetMapping
-    public ResponseEntity<List<GymPassDTO>> getGymPassOffer() {
+    public ResponseEntity<List<GymPassDTO>> getGymPassOffers() {
 
         try{
             return ResponseEntity

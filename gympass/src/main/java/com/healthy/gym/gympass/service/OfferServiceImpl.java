@@ -34,7 +34,7 @@ public class OfferServiceImpl implements OfferService{
     }
 
     @Override
-    public List<GymPassDTO> getGymPassOffer()
+    public List<GymPassDTO> getGymPassOffers()
             throws NoOffersException {
 
         List<GymPassDocument> gymPassOfferDocuments = gymPassOfferDAO.findAll();

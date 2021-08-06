@@ -10,7 +10,7 @@ import java.util.List;
 
 public interface OfferService {
 
-    List<GymPassDTO> getGymPassOffer() throws NoOffersException;
+    List<GymPassDTO> getGymPassOffers() throws NoOffersException;
 
     GymPassDTO createGymPassOffer(GymPassOfferRequest request) throws DuplicatedOffersException;
 

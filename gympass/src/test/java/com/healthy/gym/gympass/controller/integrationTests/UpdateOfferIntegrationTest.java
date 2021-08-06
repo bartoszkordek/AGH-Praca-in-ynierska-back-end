@@ -275,6 +275,161 @@ public class UpdateOfferIntegrationTest {
                 assertThat(responseEntity.getBody().get("timestamp")).isNotNull();
             }
         }
+
+        @Nested
+        class ShouldThrowBindException{
+
+            @ParameterizedTest
+            @EnumSource(TestCountry.class)
+            void shouldThrowBindExceptionWhenInvalidTitle(TestCountry country) throws Exception {
+                Map<String, String> messages = getMessagesAccordingToLocale(country);
+                Locale testedLocale = convertEnumToLocale(country);
+
+                URI uri = new URI("http://localhost:" + port + "/offer/"+existingDocumentId);
+
+                HttpHeaders headers = new HttpHeaders();
+                headers.set("Accept-Language", testedLocale.toString());
+                headers.set("Authorization", managerToken);
+                headers.setContentType(MediaType.APPLICATION_JSON);
+
+
+                HttpEntity<Object> request = new HttpEntity<>(invalidTitleRequestContent, headers);
+                String expectedMessage = messages.get("request.bind.exception");
+
+                ResponseEntity<JsonNode> responseEntity = restTemplate
+                        .exchange(uri, HttpMethod.PUT, request, JsonNode.class);
+
+                assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+                assertThat(Objects.requireNonNull(responseEntity.getBody().get("message").textValue())).isEqualTo(expectedMessage);
+                assertThat(responseEntity.getBody().get("errors").get("title").textValue())
+                        .isEqualTo(messages.get("field.name.failure"));
+                assertThat(responseEntity.getBody().get("errors").get("period").textValue())
+                        .isEqualTo(messages.get("field.required"));
+                assertThat(responseEntity.getHeaders().getContentType()).isEqualTo(MediaType.APPLICATION_JSON);
+            }
+
+            @ParameterizedTest
+            @EnumSource(TestCountry.class)
+            void shouldThrowBindExceptionWhenInvalidSubheader(TestCountry country) throws Exception {
+                Map<String, String> messages = getMessagesAccordingToLocale(country);
+                Locale testedLocale = convertEnumToLocale(country);
+
+                URI uri = new URI("http://localhost:" + port + "/offer/"+existingDocumentId);
+
+                HttpHeaders headers = new HttpHeaders();
+                headers.set("Accept-Language", testedLocale.toString());
+                headers.set("Authorization", managerToken);
+                headers.setContentType(MediaType.APPLICATION_JSON);
+
+
+                HttpEntity<Object> request = new HttpEntity<>(invalidSubheaderRequestContent, headers);
+                String expectedMessage = messages.get("request.bind.exception");
+
+                ResponseEntity<JsonNode> responseEntity = restTemplate
+                        .exchange(uri, HttpMethod.PUT, request, JsonNode.class);
+
+                assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+                assertThat(Objects.requireNonNull(responseEntity.getBody().get("message").textValue())).isEqualTo(expectedMessage);
+                assertThat(responseEntity.getBody().get("errors").get("title").textValue())
+                        .isEqualTo(messages.get("field.required"));
+                assertThat(responseEntity.getBody().get("errors").get("subheader").textValue())
+                        .isEqualTo(messages.get("field.subheader.failure"));
+                assertThat(responseEntity.getBody().get("errors").get("period").textValue())
+                        .isEqualTo(messages.get("field.required"));
+                assertThat(responseEntity.getHeaders().getContentType()).isEqualTo(MediaType.APPLICATION_JSON);
+            }
+
+            @ParameterizedTest
+            @EnumSource(TestCountry.class)
+            void shouldThrowBindExceptionWhenInvalidPeriod(TestCountry country) throws Exception {
+                Map<String, String> messages = getMessagesAccordingToLocale(country);
+                Locale testedLocale = convertEnumToLocale(country);
+
+                URI uri = new URI("http://localhost:" + port + "/offer/"+existingDocumentId);
+
+                HttpHeaders headers = new HttpHeaders();
+                headers.set("Accept-Language", testedLocale.toString());
+                headers.set("Authorization", managerToken);
+                headers.setContentType(MediaType.APPLICATION_JSON);
+
+
+                HttpEntity<Object> request = new HttpEntity<>(invalidPeriodRequestContent, headers);
+                String expectedMessage = messages.get("request.bind.exception");
+
+                ResponseEntity<JsonNode> responseEntity = restTemplate
+                        .exchange(uri, HttpMethod.PUT, request, JsonNode.class);
+
+                assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+                assertThat(Objects.requireNonNull(responseEntity.getBody().get("message").textValue())).isEqualTo(expectedMessage);
+                assertThat(responseEntity.getBody().get("errors").get("title").textValue())
+                        .isEqualTo(messages.get("field.required"));
+                assertThat(responseEntity.getBody().get("errors").get("period").textValue())
+                        .isEqualTo(messages.get("field.period.failure"));
+                assertThat(responseEntity.getHeaders().getContentType()).isEqualTo(MediaType.APPLICATION_JSON);
+            }
+
+            @ParameterizedTest
+            @EnumSource(TestCountry.class)
+            void shouldThrowBindExceptionWhenInvalidSynopsis(TestCountry country) throws Exception {
+                Map<String, String> messages = getMessagesAccordingToLocale(country);
+                Locale testedLocale = convertEnumToLocale(country);
+
+                URI uri = new URI("http://localhost:" + port + "/offer/"+existingDocumentId);
+
+                HttpHeaders headers = new HttpHeaders();
+                headers.set("Accept-Language", testedLocale.toString());
+                headers.set("Authorization", managerToken);
+                headers.setContentType(MediaType.APPLICATION_JSON);
+
+
+                HttpEntity<Object> request = new HttpEntity<>(invalidSynopsisRequestContent, headers);
+                String expectedMessage = messages.get("request.bind.exception");
+
+                ResponseEntity<JsonNode> responseEntity = restTemplate
+                        .exchange(uri, HttpMethod.PUT, request, JsonNode.class);
+
+                assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+                assertThat(Objects.requireNonNull(responseEntity.getBody().get("message").textValue())).isEqualTo(expectedMessage);
+                assertThat(responseEntity.getBody().get("errors").get("title").textValue())
+                        .isEqualTo(messages.get("field.required"));
+                assertThat(responseEntity.getBody().get("errors").get("period").textValue())
+                        .isEqualTo(messages.get("field.required"));
+                assertThat(responseEntity.getBody().get("errors").get("synopsis").textValue())
+                        .isEqualTo(messages.get("field.synopsis.failure"));
+                assertThat(responseEntity.getHeaders().getContentType()).isEqualTo(MediaType.APPLICATION_JSON);
+            }
+
+            @ParameterizedTest
+            @EnumSource(TestCountry.class)
+            void shouldThrowBindExceptionWhenInvalidFeatures(TestCountry country) throws Exception {
+                Map<String, String> messages = getMessagesAccordingToLocale(country);
+                Locale testedLocale = convertEnumToLocale(country);
+
+                URI uri = new URI("http://localhost:" + port + "/offer/"+existingDocumentId);
+
+                HttpHeaders headers = new HttpHeaders();
+                headers.set("Accept-Language", testedLocale.toString());
+                headers.set("Authorization", managerToken);
+                headers.setContentType(MediaType.APPLICATION_JSON);
+
+
+                HttpEntity<Object> request = new HttpEntity<>(invalidFeaturesRequestContent, headers);
+                String expectedMessage = messages.get("request.bind.exception");
+
+                ResponseEntity<JsonNode> responseEntity = restTemplate
+                        .exchange(uri, HttpMethod.PUT, request, JsonNode.class);
+
+                assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+                assertThat(Objects.requireNonNull(responseEntity.getBody().get("message").textValue())).isEqualTo(expectedMessage);
+                assertThat(responseEntity.getBody().get("errors").get("title").textValue())
+                        .isEqualTo(messages.get("field.required"));
+                assertThat(responseEntity.getBody().get("errors").get("period").textValue())
+                        .isEqualTo(messages.get("field.required"));
+                assertThat(responseEntity.getBody().get("errors").get("features").textValue())
+                        .isEqualTo(messages.get("field.features.failure"));
+                assertThat(responseEntity.getHeaders().getContentType()).isEqualTo(MediaType.APPLICATION_JSON);
+            }
+        }
     }
 
 

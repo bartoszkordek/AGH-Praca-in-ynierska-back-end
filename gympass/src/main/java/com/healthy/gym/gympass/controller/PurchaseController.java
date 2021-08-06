@@ -2,8 +2,10 @@ package com.healthy.gym.gympass.controller;
 
 import com.healthy.gym.gympass.component.Translator;
 import com.healthy.gym.gympass.dto.PurchasedGymPassDTO;
+import com.healthy.gym.gympass.exception.OfferNotFoundException;
 import com.healthy.gym.gympass.exception.RequestBindException;
 import com.healthy.gym.gympass.exception.RetroPurchasedException;
+import com.healthy.gym.gympass.exception.UserNotFoundException;
 import com.healthy.gym.gympass.pojo.request.PurchasedGymPassRequest;
 import com.healthy.gym.gympass.pojo.response.PurchasedGymPassResponse;
 import com.healthy.gym.gympass.service.PurchaseService;
@@ -67,8 +69,16 @@ public class PurchaseController {
             String reason = translator.toLocale("request.bind.exception");
             throw new RequestBindException(HttpStatus.BAD_REQUEST, reason, exception);
 
+        } catch (OfferNotFoundException exception) {
+                String reason = translator.toLocale("exception.offer.not.found");
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, exception);
+
+        } catch (UserNotFoundException exception) {
+            String reason = translator.toLocale("exception.user.not.found");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, exception);
+
         } catch (RetroPurchasedException exception) {
-            String reason = translator.toLocale("retro.purchased.exception");
+            String reason = translator.toLocale("exception.retro.purchased");
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, exception);
 
         } catch (Exception exception){

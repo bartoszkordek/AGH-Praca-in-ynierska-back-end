@@ -8,5 +8,4 @@ public class RetroPurchasedException extends Exception {
         super(message);
     }
 
-
 }

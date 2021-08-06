@@ -226,7 +226,7 @@ class CreateOfferIntegrationTest {
                 headers.set("Accept-Language", testedLocale.toString());
                 headers.setContentType(MediaType.APPLICATION_JSON);
 
-                HttpEntity<Object> request = new HttpEntity<>(null, headers);
+                HttpEntity<Object> request = new HttpEntity<>(requestContent, headers);
 
                 ResponseEntity<JsonNode> responseEntity = restTemplate
                         .exchange(uri, HttpMethod.POST, request, JsonNode.class);

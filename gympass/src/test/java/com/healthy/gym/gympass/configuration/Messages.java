@@ -21,7 +21,8 @@ public class Messages {
                 {"field.features.failure", "Oferta może maksymalnie zawierać 20 szczególów."},
                 {"request.bind.exception", "Podano nieprawidłowy format danych."},
                 {"exception.duplicated.offers", "Zduplikowana nazwa oferty."},
-                {"exception.invalid.offer.id", "Blędne ID oferty."}
+                {"exception.invalid.offer.id", "Blędne ID oferty."},
+                {"gympass.purchased", "Karnet został zakupiony."}
 
         }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
     }
@@ -42,7 +43,8 @@ public class Messages {
                 {"field.features.failure", "Offer should contain max 20 features."},
                 {"request.bind.exception", "An invalid data format has been provided."},
                 {"exception.duplicated.offers", "Duplicated offer name."},
-                {"exception.invalid.offer.id", "Invalid offer ID."}
+                {"exception.invalid.offer.id", "Invalid offer ID."},
+                {"gympass.purchased", "Gympass has been purchased."}
 
         }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
     }

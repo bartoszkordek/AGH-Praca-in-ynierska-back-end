@@ -2,7 +2,6 @@ package com.healthy.gym.trainings.service.group.training;
 
 import com.healthy.gym.trainings.data.document.GroupTrainingDocument;
 import com.healthy.gym.trainings.data.document.TrainingTypeDocument;
-import com.healthy.gym.trainings.data.document.UserDocument;
 import com.healthy.gym.trainings.data.repository.GroupTrainingsDAO;
 import com.healthy.gym.trainings.data.repository.GroupTrainingsRepository;
 import com.healthy.gym.trainings.data.repository.ReviewDAO;
@@ -15,7 +14,6 @@ import com.healthy.gym.trainings.exception.notfound.TrainingTypeNotFoundExceptio
 import com.healthy.gym.trainings.model.response.GroupTrainingPublicResponse;
 import com.healthy.gym.trainings.model.response.GroupTrainingResponseOld;
 import com.healthy.gym.trainings.model.response.GroupTrainingReviewResponse;
-import com.healthy.gym.trainings.model.response.UserResponse;
 import com.healthy.gym.trainings.utils.DateFormatter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
@@ -57,80 +55,6 @@ public class GroupTrainingServiceImpl implements GroupTrainingService {
         this.paging = PageRequest.of(0, 1000000);
     }
 
-    private double getRatingForGroupTrainings(GroupTrainingDocument groupTraining) {
-        List<GroupTrainingReviewResponse> groupTrainingsReviews = reviewDAO
-                .findByDateBetweenAndTrainingTypeId(
-                        null,
-                        null,
-                        groupTraining.getTraining().getTrainingTypeId(),
-                        paging
-                ).getContent();
-
-        double rating = 0.0;
-        double sum = 0;
-        int counter = 0;
-        for (GroupTrainingReviewResponse review : groupTrainingsReviews) {
-            sum += review.getStars();
-            counter++;
-        }
-        if (counter != 0) rating = sum / counter;
-
-        return rating;
-    }
-
-    private double getRatingForGroupTrainingList(@NotNull List<GroupTrainingDocument> groupTrainingsList) {
-        double rating = 0.0;
-        if (!groupTrainingsList.isEmpty()) {
-            List<GroupTrainingReviewResponse> groupTrainingsReviews = reviewDAO
-                    .findByDateBetweenAndTrainingTypeId(
-                            null,
-                            null,
-                            groupTrainingsList.get(0).getTraining().getTrainingTypeId(),
-                            paging
-                    ).getContent();
-
-            double sum = 0;
-            int counter = 0;
-            for (GroupTrainingReviewResponse review : groupTrainingsReviews) {
-                sum += review.getStars();
-                counter++;
-            }
-            if (counter != 0) rating = sum / counter;
-        }
-        return rating;
-    }
-
-    private String getNotExistingGroupTrainingExceptionMessage(String trainingId) {
-        return "Training with ID " + trainingId + " does not exist";
-    }
-
-    private List<GroupTrainingDocument> getGroupTrainingDocumentsBetweenStartAndEndDate(
-            String startDate, String endDate) throws ParseException, StartDateAfterEndDateException {
-        var dates = new DateFormatter(startDate, endDate);
-        LocalDateTime dayBeforeStartDate = dates.getDayDateBeforeStartDate();
-        LocalDateTime dayAfterEndDate = dates.getDayDateAfterEndDate();
-
-        return groupTrainingsDAO
-                .findByStartDateAfterAndEndDateBefore(
-                        dayBeforeStartDate,
-                        dayAfterEndDate);
-    }
-
-    List<GroupTrainingDocument> getGroupTrainingDocumentsByTrainingTypeIdBetweenStartAndEndDate(
-            String trainingTypeId, String startDate, String endDate) throws ParseException, StartDateAfterEndDateException {
-        TrainingTypeDocument trainingTypeDocument = trainingTypeDAO.findByTrainingTypeId(trainingTypeId);
-
-        var dates = new DateFormatter(startDate, endDate);
-        LocalDateTime dayBeforeStartDate = dates.getDayDateBeforeStartDate();
-        LocalDateTime dayAfterEndDate = dates.getDayDateAfterEndDate();
-
-        return
-                groupTrainingsDAO.findByTrainingAndStartDateAfterAndEndDateBefore(
-                        trainingTypeDocument, dayBeforeStartDate, dayAfterEndDate
-                );
-    }
-
-
 
     @Override
     public List<GroupTrainingResponseOld> getGroupTrainings(String startDate, String endDate)
@@ -159,6 +83,39 @@ public class GroupTrainingServiceImpl implements GroupTrainingService {
         return result;
     }
 
+    private List<GroupTrainingDocument> getGroupTrainingDocumentsBetweenStartAndEndDate(
+            String startDate, String endDate) throws ParseException, StartDateAfterEndDateException {
+        var dates = new DateFormatter(startDate, endDate);
+        LocalDateTime dayBeforeStartDate = dates.getDayDateBeforeStartDate();
+        LocalDateTime dayAfterEndDate = dates.getDayDateAfterEndDate();
+
+        return groupTrainingsDAO
+                .findByStartDateAfterAndEndDateBefore(
+                        dayBeforeStartDate,
+                        dayAfterEndDate);
+    }
+
+    private double getRatingForGroupTrainings(GroupTrainingDocument groupTraining) {
+        List<GroupTrainingReviewResponse> groupTrainingsReviews = reviewDAO
+                .findByDateBetweenAndTrainingTypeId(
+                        null,
+                        null,
+                        groupTraining.getTraining().getTrainingTypeId(),
+                        paging
+                ).getContent();
+
+        double rating = 0.0;
+        double sum = 0;
+        int counter = 0;
+        for (GroupTrainingReviewResponse review : groupTrainingsReviews) {
+            sum += review.getStars();
+            counter++;
+        }
+        if (counter != 0) rating = sum / counter;
+
+        return rating;
+    }
+
     @Override
     public List<GroupTrainingPublicResponse> getPublicGroupTrainings(String startDate, String endDate)
             throws InvalidHourException, InvalidDateException, StartDateAfterEndDateException, ParseException {
@@ -184,30 +141,6 @@ public class GroupTrainingServiceImpl implements GroupTrainingService {
         }
 
         return publicResponse;
-    }
-
-    @Override
-    public GroupTrainingResponseOld getGroupTrainingById(String trainingId) throws NotExistingGroupTrainingException,
-            InvalidHourException, InvalidDateException {
-        if (!groupTrainingsDAO.existsById(trainingId))
-            throw new NotExistingGroupTrainingException(
-                    getNotExistingGroupTrainingExceptionMessage(trainingId)
-            );
-
-        GroupTrainingDocument groupTrainingDocument = groupTrainingsDAO.findFirstByGroupTrainingId(trainingId);
-
-        return new GroupTrainingResponseOld(
-                groupTrainingDocument.getGroupTrainingId(),
-                groupTrainingDocument.getTraining().getName(),
-                null, //TODO fix groupTrainingsDbResponse.getTrainerId(),
-                groupTrainingDocument.getStartDate(),
-                groupTrainingDocument.getEndDate(),
-                groupTrainingDocument.getLocation().getLocationId(),
-                groupTrainingDocument.getLimit(),
-                getRatingForGroupTrainings(groupTrainingDocument),
-                getBasicList(groupTrainingDocument),
-                getReserveList(groupTrainingDocument)
-        );
     }
 
     @Override
@@ -246,6 +179,44 @@ public class GroupTrainingServiceImpl implements GroupTrainingService {
             result.add(groupTraining);
         }
         return result;
+    }
+
+    private List<GroupTrainingDocument> getGroupTrainingDocumentsByTrainingTypeIdBetweenStartAndEndDate(
+            String trainingTypeId, String startDate, String endDate
+    ) throws ParseException, StartDateAfterEndDateException {
+
+        TrainingTypeDocument trainingTypeDocument = trainingTypeDAO.findByTrainingTypeId(trainingTypeId);
+
+        var dates = new DateFormatter(startDate, endDate);
+        LocalDateTime dayBeforeStartDate = dates.getDayDateBeforeStartDate();
+        LocalDateTime dayAfterEndDate = dates.getDayDateAfterEndDate();
+
+        return
+                groupTrainingsDAO.findByTrainingAndStartDateAfterAndEndDateBefore(
+                        trainingTypeDocument, dayBeforeStartDate, dayAfterEndDate
+                );
+    }
+
+    private double getRatingForGroupTrainingList(@NotNull List<GroupTrainingDocument> groupTrainingsList) {
+        double rating = 0.0;
+        if (!groupTrainingsList.isEmpty()) {
+            List<GroupTrainingReviewResponse> groupTrainingsReviews = reviewDAO
+                    .findByDateBetweenAndTrainingTypeId(
+                            null,
+                            null,
+                            groupTrainingsList.get(0).getTraining().getTrainingTypeId(),
+                            paging
+                    ).getContent();
+
+            double sum = 0;
+            int counter = 0;
+            for (GroupTrainingReviewResponse review : groupTrainingsReviews) {
+                sum += review.getStars();
+                counter++;
+            }
+            if (counter != 0) rating = sum / counter;
+        }
+        return rating;
     }
 
     @Override
@@ -300,36 +271,11 @@ public class GroupTrainingServiceImpl implements GroupTrainingService {
         TrainingTypeDocument trainingTypeDocument = trainingTypeDAO.findByTrainingTypeId(trainingTypeId);
 
         return groupTrainingsDAO.findByTrainingAndStartDateAfterAndEndDateBefore(
-                        trainingTypeDocument,
-                        dayBeforeStartDate,
-                        dayAfterEndDate
-                );
+                trainingTypeDocument,
+                dayBeforeStartDate,
+                dayAfterEndDate
+        );
     }
 
 
-    @Override
-    public List<UserResponse> getTrainingParticipants(String trainingId)
-            throws NotExistingGroupTrainingException {
-
-        if (!groupTrainingsRepository.existsByTrainingId(trainingId))
-            throw new NotExistingGroupTrainingException(
-                    getNotExistingGroupTrainingExceptionMessage(trainingId)
-            );
-
-        List<UserResponse> participantsResponses = new ArrayList<>();
-        List<UserDocument> participants = groupTrainingsRepository
-                .getFirstByTrainingId(trainingId)
-                .getParticipants();
-
-        for (UserDocument userDocument : participants) {
-            UserResponse participantsResponse = new UserResponse(
-                    userDocument.getUserId(),
-                    userDocument.getName(),
-                    userDocument.getSurname()
-            );
-            participantsResponses.add(participantsResponse);
-        }
-
-        return participantsResponses;
-    }
 }

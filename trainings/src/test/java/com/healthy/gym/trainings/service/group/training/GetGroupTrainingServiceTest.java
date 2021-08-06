@@ -192,7 +192,7 @@ public class GetGroupTrainingServiceTest {
         when(groupTrainingsDAO.existsById(invalidTrainingId)).thenReturn(false);
 
         //then
-        groupTrainingService.getGroupTrainingById(invalidTrainingId);
+        //groupTrainingService.getGroupTrainingById(invalidTrainingId);
     }
 
     @Test
@@ -231,7 +231,7 @@ public class GetGroupTrainingServiceTest {
         when(groupTrainingsRepository.existsByTrainingId(invalidTrainingId)).thenReturn(false);
 
         //then
-        groupTrainingService.getTrainingParticipants(invalidTrainingId);
+        //groupTrainingService.getTrainingParticipants(invalidTrainingId);
     }
 
     @Test

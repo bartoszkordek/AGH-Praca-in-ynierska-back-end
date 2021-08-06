@@ -7,7 +7,6 @@ import com.healthy.gym.trainings.exception.notexisting.NotExistingGroupTrainingE
 import com.healthy.gym.trainings.exception.notfound.TrainingTypeNotFoundException;
 import com.healthy.gym.trainings.model.response.GroupTrainingPublicResponse;
 import com.healthy.gym.trainings.model.response.GroupTrainingResponseOld;
-import com.healthy.gym.trainings.model.response.UserResponse;
 
 import java.text.ParseException;
 import java.util.List;
@@ -15,26 +14,33 @@ import java.util.List;
 public interface GroupTrainingService {
 
     List<GroupTrainingResponseOld> getGroupTrainings(String startDate, String endDate)
-            throws InvalidHourException, StartDateAfterEndDateException, ParseException, InvalidDateException;
+            throws InvalidHourException,
+            StartDateAfterEndDateException,
+            ParseException,
+            InvalidDateException;
 
     List<GroupTrainingPublicResponse> getPublicGroupTrainings(String startDate, String endDate)
-            throws InvalidHourException, InvalidDateException, StartDateAfterEndDateException, ParseException;
-
-    GroupTrainingResponseOld getGroupTrainingById(String trainingId)
-            throws NotExistingGroupTrainingException, InvalidHourException, InvalidDateException;
+            throws InvalidHourException,
+            InvalidDateException,
+            StartDateAfterEndDateException,
+            ParseException;
 
     List<GroupTrainingResponseOld> getGroupTrainingsByType(String trainingTypeId, String startDate, String endDate)
-            throws NotExistingGroupTrainingException, InvalidDateException, InvalidHourException,
-            StartDateAfterEndDateException, ParseException, TrainingTypeNotFoundException;
+            throws NotExistingGroupTrainingException,
+            InvalidDateException,
+            InvalidHourException,
+            StartDateAfterEndDateException,
+            ParseException,
+            TrainingTypeNotFoundException;
 
     List<GroupTrainingPublicResponse> getGroupTrainingsPublicByType(
             String trainingTypeId,
             String startDate,
             String endDate
     ) throws TrainingTypeNotFoundException,
-            NotExistingGroupTrainingException, InvalidDateException, InvalidHourException,
-            StartDateAfterEndDateException, ParseException;
-
-    List<UserResponse> getTrainingParticipants(String trainingId)
-            throws NotExistingGroupTrainingException;
+            NotExistingGroupTrainingException,
+            InvalidDateException,
+            InvalidHourException,
+            StartDateAfterEndDateException,
+            ParseException;
 }

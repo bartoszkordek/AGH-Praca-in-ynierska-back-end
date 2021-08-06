@@ -6,7 +6,7 @@ import com.healthy.gym.trainings.exception.invalid.InvalidHourException;
 import com.healthy.gym.trainings.exception.notexisting.NotExistingGroupTrainingException;
 import com.healthy.gym.trainings.model.response.GroupTrainingResponseOld;
 import com.healthy.gym.trainings.model.response.UserResponse;
-import com.healthy.gym.trainings.service.group.training.GroupTrainingService;
+import com.healthy.gym.trainings.service.group.training.EmployeeGroupTrainingService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -27,15 +27,15 @@ import java.util.List;
 public class EmployeeGroupTrainingController {
 
     private final Translator translator;
-    private final GroupTrainingService groupTrainingsService;
+    private final EmployeeGroupTrainingService employeeGroupTrainingService;
 
     @Autowired
     public EmployeeGroupTrainingController(
             Translator translator,
-            GroupTrainingService groupTrainingsService
+            EmployeeGroupTrainingService employeeGroupTrainingService
     ) {
         this.translator = translator;
-        this.groupTrainingsService = groupTrainingsService;
+        this.employeeGroupTrainingService = employeeGroupTrainingService;
     }
 
     @GetMapping("/{trainingId}/participants")
@@ -43,7 +43,7 @@ public class EmployeeGroupTrainingController {
             @PathVariable("trainingId") final String trainingId
     ) {
         try {
-            return groupTrainingsService.getTrainingParticipants(trainingId);
+            return employeeGroupTrainingService.getTrainingParticipants(trainingId);
 
         } catch (NotExistingGroupTrainingException e) {
             String reason = translator.toLocale("exception.not.found.training.id");
@@ -61,7 +61,7 @@ public class EmployeeGroupTrainingController {
             @PathVariable("trainingId") final String trainingId
     ) {
         try {
-            return groupTrainingsService.getGroupTrainingById(trainingId);
+            return employeeGroupTrainingService.getGroupTrainingById(trainingId);
 
         } catch (InvalidHourException | InvalidDateException e) {
             String reason = translator.toLocale("exception.date.or.hour.parse");

@@ -59,6 +59,7 @@ public class PurchaseGymPassControllerUnitTest {
     private String employeeToken;
     private String userToken;
     private String timeLimitedRequestContent;
+    private String entriesLimitedRequestContent;
     private String validUserId;
     private String validGymPassOfferId;
     private URI uri;
@@ -84,8 +85,8 @@ public class PurchaseGymPassControllerUnitTest {
         PurchasedGymPassRequest timeLimitedPurchasedGymPassRequest = new PurchasedGymPassRequest();
         timeLimitedPurchasedGymPassRequest.setGymPassOfferId(validGymPassOfferId);
         timeLimitedPurchasedGymPassRequest.setUserId(validUserId);
-        timeLimitedPurchasedGymPassRequest.setStartDate("9999-01-01");
-        timeLimitedPurchasedGymPassRequest.setEndDate("9999-02-01");
+        timeLimitedPurchasedGymPassRequest.setStartDate(LocalDateTime.now().format(DateTimeFormatter.ISO_DATE));
+        timeLimitedPurchasedGymPassRequest.setEndDate(LocalDateTime.now().plusMonths(1).format(DateTimeFormatter.ISO_DATE));
         timeLimitedPurchasedGymPassRequest.setEntries(Integer.MAX_VALUE);
 
         timeLimitedRequestContent = objectMapper.writeValueAsString(timeLimitedPurchasedGymPassRequest);
@@ -121,8 +122,8 @@ public class PurchaseGymPassControllerUnitTest {
             String surname = "Kowalski";
             BasicUserInfoDTO user = new BasicUserInfoDTO(validUserId, name, surname);
             String purchaseDateAndTime = LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME);
-            String startDate = "9999-01-01";
-            String endDate = "9999-02-01";
+            String startDate = LocalDateTime.now().format(DateTimeFormatter.ISO_DATE);
+            String endDate = LocalDateTime.now().plusMonths(1).format(DateTimeFormatter.ISO_DATE);
             int entries = Integer.MAX_VALUE;
 
             when(purchaseService.purchaseGymPass(any()))
@@ -145,7 +146,23 @@ public class PurchaseGymPassControllerUnitTest {
                             status().isCreated(),
                             content().contentType(MediaType.APPLICATION_JSON),
                             jsonPath("$.message").value(is(expectedMessage)),
-                            jsonPath("$.purchasedGymPass").exists()
+                            jsonPath("$.purchasedGymPass").exists(),
+                            jsonPath("$.purchasedGymPass.gymPassOffer").exists(),
+                            jsonPath("$.purchasedGymPass.gymPassOffer.gymPassOfferId")
+                                    .value(is(validGymPassOfferId)),
+                            jsonPath("$.purchasedGymPass.gymPassOffer.title").value(is(title)),
+                            jsonPath("$.purchasedGymPass.gymPassOffer.price").exists(),
+                            jsonPath("$.purchasedGymPass.gymPassOffer.price.amount").value(is(amount)),
+                            jsonPath("$.purchasedGymPass.gymPassOffer.price.currency").value(is(currency)),
+                            jsonPath("$.purchasedGymPass.gymPassOffer.price.period").value(is(period)),
+                            jsonPath("$.purchasedGymPass.user").exists(),
+                            jsonPath("$.purchasedGymPass.user.userId").value(is(validUserId)),
+                            jsonPath("$.purchasedGymPass.user.name").value(is(name)),
+                            jsonPath("$.purchasedGymPass.user.surname").value(is(surname)),
+                            jsonPath("$.purchasedGymPass.purchaseDateAndTime").value(is(purchaseDateAndTime)),
+                            jsonPath("$.purchasedGymPass.startDate").value(is(startDate)),
+                            jsonPath("$.purchasedGymPass.endDate").value(is(endDate)),
+                            jsonPath("$.purchasedGymPass.entries").value(is(entries))
                     ));
         }
     }

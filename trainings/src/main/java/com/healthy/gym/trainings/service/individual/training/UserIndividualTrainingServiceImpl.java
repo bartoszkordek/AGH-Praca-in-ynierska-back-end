@@ -4,11 +4,13 @@ import com.healthy.gym.trainings.data.document.IndividualTrainings;
 import com.healthy.gym.trainings.data.document.UserDocument;
 import com.healthy.gym.trainings.data.repository.IndividualTrainingsRepository;
 import com.healthy.gym.trainings.data.repository.UserDAO;
-import com.healthy.gym.trainings.exception.NotAuthorizedClientException;
-import com.healthy.gym.trainings.exception.RetroIndividualTrainingException;
-import com.healthy.gym.trainings.exception.invalid.InvalidHourException;
+import com.healthy.gym.trainings.dto.IndividualTrainingDTO;
+import com.healthy.gym.trainings.exception.PastDateException;
+import com.healthy.gym.trainings.exception.StartDateAfterEndDateException;
 import com.healthy.gym.trainings.exception.notexisting.NotExistingIndividualTrainingException;
+import com.healthy.gym.trainings.exception.notfound.TrainerNotFoundException;
 import com.healthy.gym.trainings.exception.notfound.UserNotFoundException;
+import com.healthy.gym.trainings.exception.occupied.TrainerOccupiedException;
 import com.healthy.gym.trainings.model.request.IndividualTrainingRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -34,37 +36,40 @@ public class UserIndividualTrainingServiceImpl implements UserIndividualTraining
     }
 
     @Override
-    public List<IndividualTrainings> getMyAllTrainings(String clientId) throws UserNotFoundException {
+    public List<IndividualTrainingDTO> getMyAllTrainings(String clientId) throws UserNotFoundException {
         UserDocument user = userDAO.findByUserId(clientId);
         if (user == null) throw new UserNotFoundException();
-        return individualTrainingsRepository.findIndividualTrainingsByClientIdEquals(clientId);
+        //return individualTrainingsRepository.findIndividualTrainingsByClientIdEquals(clientId);
+        return null;
     }
 
     @Override
-    public IndividualTrainings createIndividualTrainingRequest(
+    public IndividualTrainingDTO createIndividualTrainingRequest(
             final IndividualTrainingRequest individualTrainingsRequestModel,
             final String clientId
-    ) throws InvalidHourException, ParseException, RetroIndividualTrainingException {
+    ) throws PastDateException, StartDateAfterEndDateException, TrainerOccupiedException,
+            TrainerNotFoundException, UserNotFoundException {
 
         String individualTrainingDate = individualTrainingsRequestModel.getDate();
         String individualTrainingStartTime = individualTrainingsRequestModel.getStartTime();
-        if (isTrainingRetroDateAndTime(individualTrainingDate, individualTrainingStartTime)) {
-            throw new RetroIndividualTrainingException("Retro date");
-        }
+//        if (isTrainingRetroDateAndTime(individualTrainingDate, individualTrainingStartTime)) {
+//            throw new RetroIndividualTrainingException("Retro date");
+//        }
 
-        return individualTrainingsRepository.insert(
-                new IndividualTrainings(
-                        clientId,
-                        individualTrainingsRequestModel.getTrainerId(),
-                        individualTrainingsRequestModel.getDate(),
-                        individualTrainingsRequestModel.getStartTime(),
-                        individualTrainingsRequestModel.getEndTime(),
-                        -1,
-                        individualTrainingsRequestModel.getRemarks(),
-                        false,
-                        false
-                )
-        );
+        return null;
+//        return individualTrainingsRepository.insert(
+//                new IndividualTrainings(
+//                        clientId,
+//                        individualTrainingsRequestModel.getTrainerId(),
+//                        individualTrainingsRequestModel.getDate(),
+//                        individualTrainingsRequestModel.getStartTime(),
+//                        individualTrainingsRequestModel.getEndTime(),
+//                        -1,
+//                        individualTrainingsRequestModel.getRemarks(),
+//                        false,
+//                        false
+//                )
+//        );
     }
 
     private boolean isTrainingRetroDateAndTime(String date, String startDate) throws ParseException {
@@ -78,9 +83,8 @@ public class UserIndividualTrainingServiceImpl implements UserIndividualTraining
     }
 
     @Override
-    public IndividualTrainings cancelIndividualTrainingRequest(String trainingId, String clientId)
-            throws NotExistingIndividualTrainingException, NotAuthorizedClientException,
-            ParseException, RetroIndividualTrainingException {
+    public IndividualTrainingDTO cancelIndividualTrainingRequest(String trainingId, String clientId)
+            throws NotExistingIndividualTrainingException, UserNotFoundException, PastDateException {
 
         IndividualTrainings individualTraining = individualTrainingsRepository
                 .findIndividualTrainingsById(trainingId);
@@ -90,15 +94,15 @@ public class UserIndividualTrainingServiceImpl implements UserIndividualTraining
         boolean clientIdEquals = individualTrainingsRepository
                 .existsIndividualTrainingsByIdAndClientIdEquals(trainingId, clientId);
 
-        if (!clientIdEquals) throw new NotAuthorizedClientException("Training is not authorized by client");
+//        if (!clientIdEquals) throw new NotAuthorizedClientException("Training is not authorized by client");
 
         String individualTrainingDate = individualTraining.getDate();
         String individualTrainingStartTime = individualTraining.getStartTime();
-        if (isTrainingRetroDateAndTime(individualTrainingDate, individualTrainingStartTime)) {
-            throw new RetroIndividualTrainingException("Retro date");
-        }
+//        if (isTrainingRetroDateAndTime(individualTrainingDate, individualTrainingStartTime)) {
+//            throw new RetroIndividualTrainingException("Retro date");
+//        }
 
         individualTrainingsRepository.deleteIndividualTrainingsById(trainingId);
-        return individualTraining;
+        return null;
     }
 }

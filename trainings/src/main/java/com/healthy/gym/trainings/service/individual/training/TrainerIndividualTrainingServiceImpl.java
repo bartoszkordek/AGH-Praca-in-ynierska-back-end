@@ -3,6 +3,7 @@ package com.healthy.gym.trainings.service.individual.training;
 import com.healthy.gym.trainings.configuration.EmailConfiguration;
 import com.healthy.gym.trainings.data.document.IndividualTrainings;
 import com.healthy.gym.trainings.data.repository.IndividualTrainingsRepository;
+import com.healthy.gym.trainings.dto.IndividualTrainingDTO;
 import com.healthy.gym.trainings.exception.*;
 import com.healthy.gym.trainings.exception.notexisting.NotExistingIndividualTrainingException;
 import com.healthy.gym.trainings.model.other.EmailSendModel;
@@ -33,7 +34,7 @@ public class TrainerIndividualTrainingServiceImpl implements TrainerIndividualTr
     }
 
     @Override
-    public IndividualTrainings acceptIndividualTraining(
+    public IndividualTrainingDTO acceptIndividualTraining(
             String trainingId,
             IndividualTrainingAcceptanceRequest individualTrainingsAcceptModel
     ) throws NotExistingIndividualTrainingException,
@@ -76,7 +77,8 @@ public class TrainerIndividualTrainingServiceImpl implements TrainerIndividualTr
         } catch (Exception e) {
             throw new EmailSendingException("Cannot send email");
         }
-        return response;
+        //return response;
+        return null;
     }
 
     private boolean isTrainingRetroDateAndTime(String date, String startDate) throws ParseException {
@@ -111,7 +113,7 @@ public class TrainerIndividualTrainingServiceImpl implements TrainerIndividualTr
     }
 
     @Override
-    public IndividualTrainings rejectIndividualTraining(String trainingId)
+    public IndividualTrainingDTO rejectIndividualTraining(String trainingId)
             throws NotExistingIndividualTrainingException,
             AlreadyDeclinedIndividualTrainingException,
             EmailSendingException {
@@ -136,6 +138,7 @@ public class TrainerIndividualTrainingServiceImpl implements TrainerIndividualTr
         } catch (Exception e) {
             throw new EmailSendingException("Cannot send email");
         }
-        return response;
+//        return response;
+        return null;
     }
 }

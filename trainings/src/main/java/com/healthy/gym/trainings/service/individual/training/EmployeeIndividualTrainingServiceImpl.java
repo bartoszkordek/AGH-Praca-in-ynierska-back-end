@@ -2,7 +2,10 @@ package com.healthy.gym.trainings.service.individual.training;
 
 import com.healthy.gym.trainings.data.document.IndividualTrainings;
 import com.healthy.gym.trainings.data.repository.IndividualTrainingsRepository;
+import com.healthy.gym.trainings.dto.IndividualTrainingDTO;
+import com.healthy.gym.trainings.exception.StartDateAfterEndDateException;
 import com.healthy.gym.trainings.exception.notexisting.NotExistingIndividualTrainingException;
+import com.healthy.gym.trainings.exception.notfound.NoIndividualTrainingFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -19,22 +22,36 @@ public class EmployeeIndividualTrainingServiceImpl implements EmployeeIndividual
     }
 
     @Override
-    public List<IndividualTrainings> getAllIndividualTrainings() {
-        return individualTrainingsRepository.findAll();
+    public List<IndividualTrainingDTO> getIndividualTrainings(
+            final String startDate,
+            final String endDate,
+            final int page,
+            final int size
+    ) throws StartDateAfterEndDateException, NoIndividualTrainingFoundException {
+        //return individualTrainingsRepository.findAll();
+        return List.of();
     }
 
     @Override
-    public IndividualTrainings getIndividualTrainingById(String trainingId)
-            throws NotExistingIndividualTrainingException {
+    public IndividualTrainingDTO getIndividualTrainingById(
+            final String trainingId
+    ) throws NotExistingIndividualTrainingException {
 
         IndividualTrainings individualTraining = individualTrainingsRepository
                 .findIndividualTrainingsById(trainingId);
         if (individualTraining == null) throw new NotExistingIndividualTrainingException();
-        return individualTraining;
+        //return individualTraining;
+        return null;
     }
 
     @Override
-    public List<IndividualTrainings> getAllAcceptedIndividualTrainings() {
-        return individualTrainingsRepository.findAllByAccepted(true);
+    public List<IndividualTrainingDTO> getAllAcceptedIndividualTrainings(
+            final String startDate,
+            final String endDate,
+            final int page,
+            final int size
+    ) throws StartDateAfterEndDateException, NoIndividualTrainingFoundException {
+        //return individualTrainingsRepository.findAllByAccepted(true);
+        return List.of();
     }
 }

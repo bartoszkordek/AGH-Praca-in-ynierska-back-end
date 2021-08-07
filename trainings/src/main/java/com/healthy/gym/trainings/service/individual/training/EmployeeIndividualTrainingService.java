@@ -1,16 +1,18 @@
 package com.healthy.gym.trainings.service.individual.training;
 
-import com.healthy.gym.trainings.data.document.IndividualTrainings;
+import com.healthy.gym.trainings.dto.IndividualTrainingDTO;
+import com.healthy.gym.trainings.exception.StartDateAfterEndDateException;
 import com.healthy.gym.trainings.exception.notexisting.NotExistingIndividualTrainingException;
+import com.healthy.gym.trainings.exception.notfound.NoIndividualTrainingFoundException;
 
 import java.util.List;
 
 public interface EmployeeIndividualTrainingService {
-    List<IndividualTrainings> getAllIndividualTrainings();
+    List<IndividualTrainingDTO> getIndividualTrainings(String startDate, String endDate, int page, int size)
+            throws StartDateAfterEndDateException, NoIndividualTrainingFoundException;
 
-    IndividualTrainings getIndividualTrainingById(String trainingId)
-            throws NotExistingIndividualTrainingException;
+    IndividualTrainingDTO getIndividualTrainingById(String trainingId) throws NotExistingIndividualTrainingException;
 
-    List<IndividualTrainings> getAllAcceptedIndividualTrainings();
-
+    List<IndividualTrainingDTO> getAllAcceptedIndividualTrainings(String startDate, String endDate, int page, int size)
+            throws StartDateAfterEndDateException, NoIndividualTrainingFoundException;
 }

@@ -6,10 +6,7 @@ import com.healthy.gym.gympass.controller.PurchaseController;
 import com.healthy.gym.gympass.dto.BasicUserInfoDTO;
 import com.healthy.gym.gympass.dto.PurchasedGymPassDTO;
 import com.healthy.gym.gympass.dto.SimpleGymPassDTO;
-import com.healthy.gym.gympass.exception.NotSpecifiedGymPassTypeException;
-import com.healthy.gym.gympass.exception.OfferNotFoundException;
-import com.healthy.gym.gympass.exception.RetroPurchasedException;
-import com.healthy.gym.gympass.exception.UserNotFoundException;
+import com.healthy.gym.gympass.exception.*;
 import com.healthy.gym.gympass.pojo.request.PurchasedGymPassRequest;
 import com.healthy.gym.gympass.service.PurchaseService;
 import com.healthy.gym.gympass.shared.Price;
@@ -69,8 +66,13 @@ public class PurchaseGymPassControllerUnitTest {
     private String userToken;
     private String timeLimitedRequestContent;
     private String entriesLimitedRequestContent;
+    private String invalidRequestContent;
+    private PurchasedGymPassRequest invalidPurchasedGymPassRequest;
     private String validUserId;
     private String validGymPassOfferId;
+    private int entriesForEntriesGymPass;
+    private String invalidUserId;
+    private String invalidGymPassOfferId;
     private URI uri;
 
     @BeforeEach
@@ -100,14 +102,28 @@ public class PurchaseGymPassControllerUnitTest {
 
         timeLimitedRequestContent = objectMapper.writeValueAsString(timeLimitedPurchasedGymPassRequest);
 
+        entriesForEntriesGymPass = 5;
+
         PurchasedGymPassRequest entriesLimitedPurchasedGymPassRequest = new PurchasedGymPassRequest();
         entriesLimitedPurchasedGymPassRequest.setGymPassOfferId(validGymPassOfferId);
         entriesLimitedPurchasedGymPassRequest.setUserId(validUserId);
         entriesLimitedPurchasedGymPassRequest.setStartDate(LocalDateTime.now().format(DateTimeFormatter.ISO_DATE));
         entriesLimitedPurchasedGymPassRequest.setEndDate(LocalDateTime.MAX.format(DateTimeFormatter.ISO_DATE));
-        entriesLimitedPurchasedGymPassRequest.setEntries(5);
+        entriesLimitedPurchasedGymPassRequest.setEntries(entriesForEntriesGymPass);
 
         entriesLimitedRequestContent = objectMapper.writeValueAsString(entriesLimitedPurchasedGymPassRequest);
+
+        invalidGymPassOfferId = UUID.randomUUID().toString();
+        invalidUserId = UUID.randomUUID().toString();
+
+        invalidPurchasedGymPassRequest = new PurchasedGymPassRequest();
+        invalidPurchasedGymPassRequest.setGymPassOfferId(invalidGymPassOfferId);
+        invalidPurchasedGymPassRequest.setUserId(invalidUserId);
+        invalidPurchasedGymPassRequest.setStartDate(LocalDateTime.now().format(DateTimeFormatter.ISO_DATE));
+        invalidPurchasedGymPassRequest.setEndDate(LocalDateTime.MAX.format(DateTimeFormatter.ISO_DATE));
+        invalidPurchasedGymPassRequest.setEntries(Integer.MAX_VALUE);
+
+        invalidRequestContent = objectMapper.writeValueAsString(invalidPurchasedGymPassRequest);
 
         uri = new URI("/purchase");
 
@@ -194,7 +210,7 @@ public class PurchaseGymPassControllerUnitTest {
                     .post(uri)
                     .header("Accept-Language", testedLocale.toString())
                     .header("Authorization", employeeToken)
-                    .content(timeLimitedRequestContent)
+                    .content(entriesLimitedRequestContent)
                     .contentType(MediaType.APPLICATION_JSON);
 
             String title = "Karnet miesięczny";
@@ -210,7 +226,6 @@ public class PurchaseGymPassControllerUnitTest {
             String purchaseDateAndTime = LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME);
             String startDate = LocalDateTime.now().format(DateTimeFormatter.ISO_DATE);
             String endDate = LocalDateTime.MAX.format(DateTimeFormatter.ISO_DATE);
-            int entries = 4;
 
             when(purchaseService.purchaseGymPass(any()))
                     .thenReturn(
@@ -220,7 +235,7 @@ public class PurchaseGymPassControllerUnitTest {
                                     purchaseDateAndTime,
                                     startDate,
                                     endDate,
-                                    entries
+                                    entriesForEntriesGymPass
                             )
                     );
 
@@ -248,7 +263,7 @@ public class PurchaseGymPassControllerUnitTest {
                             jsonPath("$.purchasedGymPass.purchaseDateAndTime").value(is(purchaseDateAndTime)),
                             jsonPath("$.purchasedGymPass.startDate").value(is(startDate)),
                             jsonPath("$.purchasedGymPass.endDate").value(is(endDate)),
-                            jsonPath("$.purchasedGymPass.entries").value(is(entries))
+                            jsonPath("$.purchasedGymPass.entries").value(is(entriesForEntriesGymPass))
                     ));
         }
     }
@@ -352,14 +367,14 @@ public class PurchaseGymPassControllerUnitTest {
                     .post(uri)
                     .header("Accept-Language", testedLocale.toString())
                     .header("Authorization", employeeToken)
-                    .content(timeLimitedRequestContent)
+                    .content(invalidRequestContent)
                     .contentType(MediaType.APPLICATION_JSON);
 
             String expectedMessage = messages.get("exception.offer.not.found");
 
             doThrow(OfferNotFoundException.class)
                     .when(purchaseService)
-                    .purchaseGymPass(any());
+                    .purchaseGymPass(invalidPurchasedGymPassRequest);
 
             mockMvc.perform(request)
                     .andDo(print())
@@ -381,14 +396,14 @@ public class PurchaseGymPassControllerUnitTest {
                     .post(uri)
                     .header("Accept-Language", testedLocale.toString())
                     .header("Authorization", employeeToken)
-                    .content(timeLimitedRequestContent)
+                    .content(invalidRequestContent)
                     .contentType(MediaType.APPLICATION_JSON);
 
             String expectedMessage = messages.get("exception.user.not.found");
 
             doThrow(UserNotFoundException.class)
                     .when(purchaseService)
-                    .purchaseGymPass(any());
+                    .purchaseGymPass(invalidPurchasedGymPassRequest);
 
             mockMvc.perform(request)
                     .andDo(print())
@@ -410,14 +425,14 @@ public class PurchaseGymPassControllerUnitTest {
                     .post(uri)
                     .header("Accept-Language", testedLocale.toString())
                     .header("Authorization", employeeToken)
-                    .content(timeLimitedRequestContent)
+                    .content(invalidRequestContent)
                     .contentType(MediaType.APPLICATION_JSON);
 
             String expectedMessage = messages.get("exception.retro.purchased");
 
             doThrow(RetroPurchasedException.class)
                     .when(purchaseService)
-                    .purchaseGymPass(any());
+                    .purchaseGymPass(invalidPurchasedGymPassRequest);
 
             mockMvc.perform(request)
                     .andDo(print())
@@ -431,6 +446,36 @@ public class PurchaseGymPassControllerUnitTest {
 
         @ParameterizedTest
         @EnumSource(TestCountry.class)
+        void shouldThrowStartDateAfterEndDateException(TestCountry country)
+                throws Exception {
+            Map<String, String> messages = getMessagesAccordingToLocale(country);
+            Locale testedLocale = convertEnumToLocale(country);
+
+            RequestBuilder request = MockMvcRequestBuilders
+                    .post(uri)
+                    .header("Accept-Language", testedLocale.toString())
+                    .header("Authorization", adminToken)
+                    .content(invalidRequestContent)
+                    .contentType(MediaType.APPLICATION_JSON);
+
+            doThrow(StartDateAfterEndDateException.class)
+                    .when(purchaseService)
+                    .purchaseGymPass(invalidPurchasedGymPassRequest);
+
+            String expectedMessage = messages.get("exception.start.after.end");
+
+            mockMvc.perform(request)
+                    .andDo(print())
+                    .andExpect(status().isBadRequest())
+                    .andExpect(status().reason(is(expectedMessage)))
+                    .andExpect(result ->
+                            assertThat(Objects.requireNonNull(result.getResolvedException()).getCause())
+                                    .isInstanceOf(StartDateAfterEndDateException.class)
+                    );
+        }
+
+        @ParameterizedTest
+        @EnumSource(TestCountry.class)
         void shouldThrowNotSpecifiedGymPassTypeException(TestCountry country) throws Exception {
             Map<String, String> messages = getMessagesAccordingToLocale(country);
             Locale testedLocale = convertEnumToLocale(country);
@@ -439,14 +484,14 @@ public class PurchaseGymPassControllerUnitTest {
                     .post(uri)
                     .header("Accept-Language", testedLocale.toString())
                     .header("Authorization", employeeToken)
-                    .content(timeLimitedRequestContent)
+                    .content(invalidRequestContent)
                     .contentType(MediaType.APPLICATION_JSON);
 
             String expectedMessage = messages.get("exception.gympass.type");
 
             doThrow(NotSpecifiedGymPassTypeException.class)
                     .when(purchaseService)
-                    .purchaseGymPass(any());
+                    .purchaseGymPass(invalidPurchasedGymPassRequest);
 
             mockMvc.perform(request)
                     .andDo(print())
@@ -469,12 +514,12 @@ public class PurchaseGymPassControllerUnitTest {
                     .post(uri)
                     .header("Accept-Language", testedLocale.toString())
                     .header("Authorization", adminToken)
-                    .content(timeLimitedRequestContent)
+                    .content(invalidRequestContent)
                     .contentType(MediaType.APPLICATION_JSON);
 
             doThrow(IllegalStateException.class)
                     .when(purchaseService)
-                    .purchaseGymPass(any());
+                    .purchaseGymPass(invalidPurchasedGymPassRequest);
 
             String expectedMessage = messages.get("exception.internal.error");
 

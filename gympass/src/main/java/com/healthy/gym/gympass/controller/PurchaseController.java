@@ -78,6 +78,10 @@ public class PurchaseController {
             String reason = translator.toLocale("exception.retro.purchased");
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, exception);
 
+        } catch (StartDateAfterEndDateException exception) {
+            String reason = translator.toLocale("exception.start.after.end");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, exception);
+
         } catch (NotSpecifiedGymPassTypeException exception) {
             String reason = translator.toLocale("exception.gympass.type");
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, exception);

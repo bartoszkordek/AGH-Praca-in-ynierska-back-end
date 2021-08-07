@@ -13,17 +13,15 @@ import com.healthy.gym.trainings.exception.notexisting.NotExistingGroupTrainingE
 import com.healthy.gym.trainings.exception.notfound.UserNotFoundException;
 import com.healthy.gym.trainings.exception.training.TrainingEnrollmentException;
 import com.healthy.gym.trainings.utils.GroupTrainingMapper;
+import com.healthy.gym.trainings.utils.StartEndDateValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.Clock;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.healthy.gym.trainings.utils.DateParser.parseDate;
 import static com.healthy.gym.trainings.utils.GroupTrainingMapper.mapGroupTrainingsDocumentToDTO;
 import static com.healthy.gym.trainings.utils.ParticipantsExtractor.*;
 
@@ -49,18 +47,15 @@ public class UserGroupTrainingServiceImpl implements UserGroupTrainingService {
     }
 
     @Override
-    public List<GroupTrainingDTO> getMyAllTrainings(String clientId, String startDateStr, String endDateStr)
+    public List<GroupTrainingDTO> getMyAllTrainings(String clientId, String startDate, String endDate)
             throws UserNotFoundException, StartDateAfterEndDateException {
 
         UserDocument user = userDAO.findByUserId(clientId);
         if (user == null) throw new UserNotFoundException();
 
-        LocalDate startDate = parseDate(startDateStr);
-        LocalDate endDate = parseDate(endDateStr);
-        if (startDate.isAfter(endDate)) throw new StartDateAfterEndDateException();
-
-        LocalDateTime startDateTime = LocalDateTime.of(startDate, LocalTime.MIN);
-        LocalDateTime endDateTIme = LocalDateTime.of(endDate, LocalTime.MAX);
+        StartEndDateValidator validator = new StartEndDateValidator(startDate, endDate);
+        LocalDateTime startDateTime = validator.getBeginningOfStartDate();
+        LocalDateTime endDateTIme = validator.getEndOfEndDate();
 
         List<GroupTrainingDocument> groupTrainingDocumentList = userGroupTrainingsDAO
                 .findAllGroupTrainings(user, startDateTime, endDateTIme);

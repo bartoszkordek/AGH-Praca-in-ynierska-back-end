@@ -1,6 +1,6 @@
 package com.healthy.gym.trainings.component;
 
-import com.healthy.gym.trainings.configuration.EmailConfig;
+import com.healthy.gym.trainings.configuration.EmailConfiguration;
 import com.healthy.gym.trainings.model.other.EmailSendModel;
 import com.healthy.gym.trainings.service.email.EmailService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,10 +11,10 @@ import java.util.List;
 @Component
 public class EmailSenderImpl implements EmailSender {
 
-    private final EmailConfig emailConfig;
+    private final EmailConfiguration emailConfig;
 
     @Autowired
-    public EmailSenderImpl(EmailConfig emailConfig) {
+    public EmailSenderImpl(EmailConfiguration emailConfig) {
         this.emailConfig = emailConfig;
     }
 

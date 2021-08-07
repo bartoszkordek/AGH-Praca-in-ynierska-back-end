@@ -6,7 +6,7 @@ import org.springframework.context.annotation.PropertySource;
 
 @Configuration
 @PropertySource(value = "classpath:email.properties", ignoreResourceNotFound = true)
-public class EmailConfig {
+public class EmailConfiguration {
 
     @Value("${spring.mail.username:username}")
     private String emailName;

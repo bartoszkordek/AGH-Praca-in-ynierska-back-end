@@ -16,7 +16,7 @@ import java.util.Locale;
 
 @Configuration
 @ComponentScan({"com.healthy.gym.trainings"})
-public class MessageSourceConfig extends AcceptHeaderLocaleResolver implements WebMvcConfigurer {
+public class MessageSourceConfiguration extends AcceptHeaderLocaleResolver implements WebMvcConfigurer {
 
     private final Locale poland = new Locale("pl", "PL");
     private final List<Locale> locales = Arrays.asList(poland, Locale.ENGLISH);

@@ -1,6 +1,6 @@
 package com.healthy.gym.trainings.service;
 
-import com.healthy.gym.trainings.configuration.EmailConfig;
+import com.healthy.gym.trainings.configuration.EmailConfiguration;
 import com.healthy.gym.trainings.data.document.IndividualTrainings;
 import com.healthy.gym.trainings.data.document.UserDocument;
 import com.healthy.gym.trainings.data.repository.IndividualTrainingsRepository;
@@ -25,13 +25,13 @@ import java.util.List;
 @Service
 public class IndividualTrainingServiceImpl implements IndividualTrainingService {
 
-    private final EmailConfig emailConfig;
+    private final EmailConfiguration emailConfig;
     private final IndividualTrainingsRepository individualTrainingsRepository;
     private final UserDAO userDAO;
 
     @Autowired
     public IndividualTrainingServiceImpl(
-            EmailConfig emailConfig,
+            EmailConfiguration emailConfig,
             IndividualTrainingsRepository individualTrainingsRepository,
             UserDAO userDAO
     ) {

@@ -9,12 +9,12 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Service
-public class IndividualTrainingServiceImpl implements IndividualTrainingService {
+public class EmployeeIndividualTrainingServiceImpl implements EmployeeIndividualTrainingService {
 
     private final IndividualTrainingsRepository individualTrainingsRepository;
 
     @Autowired
-    public IndividualTrainingServiceImpl(IndividualTrainingsRepository individualTrainingsRepository) {
+    public EmployeeIndividualTrainingServiceImpl(IndividualTrainingsRepository individualTrainingsRepository) {
         this.individualTrainingsRepository = individualTrainingsRepository;
     }
 

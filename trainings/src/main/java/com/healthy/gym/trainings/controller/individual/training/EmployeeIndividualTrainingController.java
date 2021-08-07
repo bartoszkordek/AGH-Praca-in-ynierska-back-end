@@ -3,7 +3,7 @@ package com.healthy.gym.trainings.controller.individual.training;
 import com.healthy.gym.trainings.data.document.IndividualTrainings;
 import com.healthy.gym.trainings.exception.RestException;
 import com.healthy.gym.trainings.exception.notexisting.NotExistingIndividualTrainingException;
-import com.healthy.gym.trainings.service.individual.training.IndividualTrainingService;
+import com.healthy.gym.trainings.service.individual.training.EmployeeIndividualTrainingService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -15,12 +15,12 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/individual")
-public class IndividualTrainingController {
+public class EmployeeIndividualTrainingController {
 
-    private final IndividualTrainingService individualTrainingsService;
+    private final EmployeeIndividualTrainingService individualTrainingsService;
 
     @Autowired
-    public IndividualTrainingController(IndividualTrainingService individualTrainingsService) {
+    public EmployeeIndividualTrainingController(EmployeeIndividualTrainingService individualTrainingsService) {
         this.individualTrainingsService = individualTrainingsService;
     }
 

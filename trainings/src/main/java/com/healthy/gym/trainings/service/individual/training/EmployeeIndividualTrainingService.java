@@ -5,7 +5,7 @@ import com.healthy.gym.trainings.exception.notexisting.NotExistingIndividualTrai
 
 import java.util.List;
 
-public interface IndividualTrainingService {
+public interface EmployeeIndividualTrainingService {
     List<IndividualTrainings> getAllIndividualTrainings();
 
     IndividualTrainings getIndividualTrainingById(String trainingId)

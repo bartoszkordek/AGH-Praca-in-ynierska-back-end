@@ -82,7 +82,7 @@ public class UserIndividualTrainingController {
 
             IndividualTrainingDTO individualTrainingDTO = userIndividualTrainingService
                     .createIndividualTrainingRequest(individualTrainingsRequestModel, userId);
-            String message = translator.toLocale("enrollment.success.basic.list");
+            String message = translator.toLocale("enrollment.success.individual");
 
             return ResponseEntity
                     .status(HttpStatus.OK)

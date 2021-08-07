@@ -59,7 +59,7 @@ public class TrainerIndividualTrainerController {
                     .body(new IndividualTrainingResponse(message, removedEnrolmentTraining));
 
         } catch (AlreadyAcceptedIndividualTrainingException exception) {
-            String reason = translator.toLocale("exception.not.existing.individual.training");
+            String reason = translator.toLocale("exception.already.accepted.individual.training");
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, exception);
 
         } catch (BindException exception) {

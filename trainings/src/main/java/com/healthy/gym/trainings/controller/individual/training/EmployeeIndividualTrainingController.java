@@ -1,50 +1,111 @@
 package com.healthy.gym.trainings.controller.individual.training;
 
-import com.healthy.gym.trainings.data.document.IndividualTrainings;
-import com.healthy.gym.trainings.exception.RestException;
+import com.healthy.gym.trainings.component.Translator;
+import com.healthy.gym.trainings.dto.IndividualTrainingDTO;
+import com.healthy.gym.trainings.exception.StartDateAfterEndDateException;
 import com.healthy.gym.trainings.exception.notexisting.NotExistingIndividualTrainingException;
+import com.healthy.gym.trainings.exception.notfound.NoIndividualTrainingFoundException;
 import com.healthy.gym.trainings.service.individual.training.EmployeeIndividualTrainingService;
+import com.healthy.gym.trainings.validation.ValidDateFormat;
+import com.healthy.gym.trainings.validation.ValidIDFormat;
+import com.healthy.gym.trainings.validation.ValidPage;
+import com.healthy.gym.trainings.validation.ValidSize;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.MediaType;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/individual")
+@RequestMapping(value = "/individual/employee", produces = MediaType.APPLICATION_JSON_VALUE)
+@PreAuthorize("hasRole('ADMIN') or hasRole('MANAGER') or hasRole('EMPLOYEE')")
+@Validated
 public class EmployeeIndividualTrainingController {
 
+    private static final String EXCEPTION_INTERNAL_ERROR = "exception.internal.error";
+
     private final EmployeeIndividualTrainingService individualTrainingsService;
+    private final Translator translator;
 
     @Autowired
-    public EmployeeIndividualTrainingController(EmployeeIndividualTrainingService individualTrainingsService) {
+    public EmployeeIndividualTrainingController(
+            EmployeeIndividualTrainingService individualTrainingsService,
+            Translator translator
+    ) {
         this.individualTrainingsService = individualTrainingsService;
+        this.translator = translator;
     }
 
     @GetMapping("/{trainingId}")
-    public IndividualTrainings getIndividualTrainingById(
-            @PathVariable("trainingId") final String trainingId
-    ) throws RestException {
+    public IndividualTrainingDTO getIndividualTrainingById(@PathVariable @ValidIDFormat final String trainingId) {
         try {
             return individualTrainingsService.getIndividualTrainingById(trainingId);
-        } catch (NotExistingIndividualTrainingException e) {
-            throw new RestException(e.getMessage(), HttpStatus.BAD_REQUEST, e);
+
+        } catch (NotExistingIndividualTrainingException exception) {
+            String reason = translator.toLocale("exception.not.existing.individual.training");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, reason, exception);
+
+        } catch (Exception exception) {
+            String reason = translator.toLocale(EXCEPTION_INTERNAL_ERROR);
+            exception.printStackTrace();
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, reason, exception);
         }
     }
 
-    //TODO only for admin, paginacja, filtrowanie po datach
     @GetMapping
-    public List<IndividualTrainings> getAllIndividualTrainingRequests() {
-        return individualTrainingsService.getAllIndividualTrainings();
+    public List<IndividualTrainingDTO> getAllIndividualTrainingRequests(
+            @RequestParam @ValidDateFormat final String startDate,
+            @RequestParam @ValidDateFormat final String endDate,
+            @RequestParam @ValidPage final int page,
+            @RequestParam @ValidSize final int size
+    ) {
+        try {
+            return individualTrainingsService
+                    .getIndividualTrainings(startDate, endDate, page, size);
+
+        } catch (NoIndividualTrainingFoundException exception) {
+            String reason = translator.toLocale("exception.no.individual.training.found");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, reason, exception);
+
+        } catch (StartDateAfterEndDateException exception) {
+            String reason = translator.toLocale("exception.start.date.after.end.date");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, exception);
+
+        } catch (Exception exception) {
+            String reason = translator.toLocale(EXCEPTION_INTERNAL_ERROR);
+            exception.printStackTrace();
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, reason, exception);
+        }
     }
 
-    //TODO only for admin, paginacja, filtrowanie po datach
     @GetMapping("/all/accepted")
-    public List<IndividualTrainings> getAllAcceptedIndividualTrainingRequests() {
-        return individualTrainingsService.getAllAcceptedIndividualTrainings();
+    public List<IndividualTrainingDTO> getAllAcceptedIndividualTrainingRequests(
+            @RequestParam @ValidDateFormat final String startDate,
+            @RequestParam @ValidDateFormat final String endDate,
+            @RequestParam @ValidPage final int page,
+            @RequestParam @ValidSize final int size
+    ) {
+        try {
+            return individualTrainingsService
+                    .getAllAcceptedIndividualTrainings(startDate, endDate, page, size);
+
+        } catch (NoIndividualTrainingFoundException exception) {
+            String reason = translator.toLocale("exception.no.individual.training.found");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, reason, exception);
+
+        } catch (StartDateAfterEndDateException exception) {
+            String reason = translator.toLocale("exception.start.date.after.end.date");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, exception);
+
+        } catch (Exception exception) {
+            String reason = translator.toLocale(EXCEPTION_INTERNAL_ERROR);
+            exception.printStackTrace();
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, reason, exception);
+        }
     }
 
 

@@ -40,8 +40,8 @@ public class UniversalGroupTrainingController {
 
     @GetMapping("/public")
     public List<GroupTrainingWithoutParticipantsDTO> getGroupTrainingsWithoutParticipants(
-            @RequestParam @ValidDateFormat String startDate,
-            @RequestParam @ValidDateFormat String endDate
+            @RequestParam @ValidDateFormat final String startDate,
+            @RequestParam @ValidDateFormat final String endDate
     ) {
         try {
             return groupTrainingsService.getGroupTrainingsWithoutParticipants(startDate, endDate);
@@ -60,8 +60,8 @@ public class UniversalGroupTrainingController {
     @PreAuthorize("hasRole('USER')")
     @GetMapping
     public List<GroupTrainingDTO> getGroupTrainingsWithParticipants(
-            @RequestParam @ValidDateFormat String startDate,
-            @RequestParam @ValidDateFormat String endDate
+            @RequestParam @ValidDateFormat final String startDate,
+            @RequestParam @ValidDateFormat final String endDate
     ) {
         try {
             return groupTrainingsService.getGroupTrainingsWithParticipants(startDate, endDate);
@@ -79,9 +79,9 @@ public class UniversalGroupTrainingController {
 
     @GetMapping("/public/type/{trainingTypeId}")
     public List<GroupTrainingWithoutParticipantsDTO> getGroupTrainingsByTypeWithoutParticipants(
-            @PathVariable @ValidIDFormat String trainingTypeId,
-            @RequestParam @ValidDateFormat String startDate,
-            @RequestParam @ValidDateFormat String endDate
+            @PathVariable @ValidIDFormat final String trainingTypeId,
+            @RequestParam @ValidDateFormat final String startDate,
+            @RequestParam @ValidDateFormat final String endDate
     ) {
         try {
             return groupTrainingsService
@@ -105,9 +105,9 @@ public class UniversalGroupTrainingController {
     @PreAuthorize("hasRole('USER')")
     @GetMapping("/type/{trainingTypeId}")
     public List<GroupTrainingDTO> getGroupTrainingsByTypeWithParticipants(
-            @PathVariable @ValidIDFormat String trainingTypeId,
-            @RequestParam @ValidDateFormat String startDate,
-            @RequestParam @ValidDateFormat String endDate
+            @PathVariable @ValidIDFormat final String trainingTypeId,
+            @RequestParam @ValidDateFormat final String startDate,
+            @RequestParam @ValidDateFormat final String endDate
     ) {
         try {
             return groupTrainingsService.getGroupTrainingsByTypeWithParticipants(trainingTypeId, startDate, endDate);

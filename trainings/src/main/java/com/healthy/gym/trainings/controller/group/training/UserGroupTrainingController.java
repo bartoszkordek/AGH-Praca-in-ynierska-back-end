@@ -1,6 +1,7 @@
 package com.healthy.gym.trainings.controller.group.training;
 
 import com.healthy.gym.trainings.component.Translator;
+import com.healthy.gym.trainings.dto.GroupTrainingDTO;
 import com.healthy.gym.trainings.exception.PastDateException;
 import com.healthy.gym.trainings.exception.StartDateAfterEndDateException;
 import com.healthy.gym.trainings.exception.UserAlreadyEnrolledToTrainingException;
@@ -9,7 +10,6 @@ import com.healthy.gym.trainings.exception.notfound.UserNotFoundException;
 import com.healthy.gym.trainings.exception.training.TrainingEnrollmentException;
 import com.healthy.gym.trainings.model.response.GroupTrainingResponse;
 import com.healthy.gym.trainings.service.group.training.UserGroupTrainingService;
-import com.healthy.gym.trainings.dto.GroupTrainingDTO;
 import com.healthy.gym.trainings.validation.ValidDateFormat;
 import com.healthy.gym.trainings.validation.ValidIDFormat;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,9 +51,9 @@ public class UserGroupTrainingController {
     @PreAuthorize("hasRole('ADMIN') or hasRole('EMPLOYEE') or principal==#userId")
     @GetMapping("/trainings/{userId}")
     public List<GroupTrainingDTO> getAllGroupTrainingsByUserId(
-            @PathVariable @ValidIDFormat String userId,
-            @RequestParam @ValidDateFormat String startDate,
-            @RequestParam @ValidDateFormat String endDate
+            @PathVariable @ValidIDFormat final String userId,
+            @RequestParam @ValidDateFormat final String startDate,
+            @RequestParam @ValidDateFormat final String endDate
     ) {
         try {
             return userGroupTrainingService.getMyAllTrainings(userId, startDate, endDate);
@@ -76,8 +76,8 @@ public class UserGroupTrainingController {
     @PreAuthorize("hasRole('ADMIN') or hasRole('EMPLOYEE') or principal==#userId")
     @PostMapping("/{trainingId}/enroll")
     public ResponseEntity<GroupTrainingResponse> enrollToGroupTraining(
-            @PathVariable @ValidIDFormat String trainingId,
-            @RequestParam("clientId") @ValidIDFormat String userId
+            @PathVariable @ValidIDFormat final String trainingId,
+            @RequestParam("clientId") @ValidIDFormat final String userId
     ) {
         try {
             GroupTrainingDTO enrolledTraining
@@ -112,15 +112,17 @@ public class UserGroupTrainingController {
     }
 
     private String getProperMessage(GroupTrainingDTO enrolledTraining, String userId) {
-        if (userIsInBasicList(enrolledTraining, userId)) return translator.toLocale("enrollment.success.basic.list");
+        if (userIsInBasicList(enrolledTraining, userId)) {
+            return translator.toLocale("enrollment.success.basic.list");
+        }
         return translator.toLocale("enrollment.success.reserve.list");
     }
 
     @PreAuthorize("hasRole('ADMIN') or hasRole('EMPLOYEE') or principal==#userId")
     @DeleteMapping("/{trainingId}/enroll")
     public ResponseEntity<GroupTrainingResponse> removeGroupTrainingEnrollment(
-            @PathVariable @ValidIDFormat String trainingId,
-            @RequestParam("clientId") @ValidIDFormat String userId
+            @PathVariable @ValidIDFormat final String trainingId,
+            @RequestParam("clientId") @ValidIDFormat final String userId
     ) {
         try {
             GroupTrainingDTO removedEnrolmentTraining =

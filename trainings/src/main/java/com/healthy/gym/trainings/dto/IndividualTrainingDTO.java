@@ -39,6 +39,7 @@ public class IndividualTrainingDTO {
         this.allDay = allDay;
         this.location = location;
         this.trainers = trainers;
+        this.participants = new ParticipantsDTO();
     }
 
     public String getIndividualTrainingId() {

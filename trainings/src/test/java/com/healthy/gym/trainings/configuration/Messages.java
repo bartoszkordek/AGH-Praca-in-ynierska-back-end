@@ -8,6 +8,8 @@ public class Messages {
     private static Map<String, String> getMessagesPL() {
         return Stream.of(new String[][]{
                 {"exception.access.denied", "Nie masz uprawnień do wykonania tej operacji."},
+                {"exception.already.accepted.individual.training",
+                        "Zapytanie o trening indywidualny zostało już zaakceptowane."},
                 {"exception.location.not.found", "Nie znaleziono określonej lokalizacji."},
                 {"exception.constraint.violation", "Nieprawidłowy format danych."},
                 {"exception.create.group.training.location.occupied", "Sala jest niedostępna we wskazanym czasie."},
@@ -30,7 +32,12 @@ public class Messages {
                 {"exception.invalid.date.format", "Nieprawidłowy format daty. Zastosuj format 'YYYY-MM-dd'."},
                 {"exception.invalid.date.time.format",
                         "Nieprawidłowy format daty i czasu. Zastosuj format 'YYYY-MM-dd'T'HH:mm'."},
+                {"exception.invalid.page.size.format", "Nieprawidłowy format. Zastosuj jedną z liczb: 5, 10, 20, 50 or 100."},
+                {"exception.invalid.page.number.format",
+                        "Nieprawidłowy format. Zastosuj liczbę całkowitą z przedziału od 1 do 2147483647."},
                 {"exception.multipart.body", "Źle wypełniony formularz."},
+                {"exception.no.individual.training.found", "Brak indywidualnych treningów do wyświetlenia."},
+                {"exception.not.existing.individual.training", "Nie znaleziono określonego treningu indywidualnego."},
                 {"exception.not.found.review.id", "Błędne id recenzji"},
                 {"exception.not.found.training.id", "Blędne id treningu."},
                 {"exception.not.found.training.type.all", "Brak typów treningów do wyświetlenia."},
@@ -41,7 +48,7 @@ public class Messages {
                 {"exception.past.date", "Data rozpoczęcia nie może być datą przeszłą."},
                 {"exception.past.date.enrollment", "Nie można się zapisać na zajęcia, które już się odbyły."},
                 {"exception.past.date.enrollment.remove",
-                        "Nie można zrezygnować z uczestnictwa z zajęć grupowych, które już się odbyły."},
+                        "Nie można zrezygnować z uczestnictwa z zajęć, które już się odbyły."},
                 {"exception.unsupported.data.type", "Błąd. Dopuszczalny format pliku to JPEG lub PNG."},
                 {"exception.user.already.enrolled.to.training", "Użytkownik jest już zapisany na dane zajęcia."},
                 {"field.invalid.date.time.format", "Nieprawidłowy format daty lub czasu."},
@@ -61,6 +68,7 @@ public class Messages {
                 {"training.type.updated", "Typ treningu został zaktualizowany."},
                 {"enrollment.success.basic.list", "Pomyślnie zapisano się na zajęcia."},
                 {"enrollment.success.reserve.list", "Brak miejsc na liście podstawowej. Zapisano na listę rezerwową."},
+                {"enrollment.success.individual", "Zapytanie o trening indywidualny zostało stworzone."},
                 {"enrollment.remove", "Zrezygnowano z uczestnictwa w zajęciach."}
         }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
     }
@@ -68,6 +76,8 @@ public class Messages {
     private static Map<String, String> getMessagesEN() {
         return Stream.of(new String[][]{
                 {"exception.access.denied", "You are not allowed to perform this operation."},
+                {"exception.already.accepted.individual.training",
+                        "Individual training request has been already accepted."},
                 {"exception.location.not.found", "Specified location is not found."},
                 {"exception.constraint.violation", "Invalid data format."},
                 {"exception.create.group.training.location.occupied", "The location is unavailable at the indicated time."},
@@ -90,7 +100,11 @@ public class Messages {
                 {"exception.invalid.date.format", "Invalid date format. Use the 'YYYY-MM-dd' format."},
                 {"exception.invalid.date.time.format",
                         "Invalid date and time format. Use the 'YYYY-MM-dd'T'HH:mm' format."},
+                {"exception.invalid.page.size.format", "Invalid format. Use one of the numbers: 5, 10, 20, 50 or 100."},
+                {"exception.invalid.page.number.format", "Invalid format. Use an integer between 1 and 2,147,483,647."},
                 {"exception.multipart.body", "Incorrectly completed form."},
+                {"exception.no.individual.training.found", "There are no individual workouts to display."},
+                {"exception.not.existing.individual.training", "Specified individual training is not found."},
                 {"exception.not.found.review.id", "Incorrect review id."},
                 {"exception.not.found.training.id", "Incorrect training id."},
                 {"exception.not.found.training.type.all", "There are no workout types to display."},
@@ -101,7 +115,7 @@ public class Messages {
                 {"exception.past.date", "The start date cannot be in the past."},
                 {"exception.past.date.enrollment", "You cannot enroll to past event."},
                 {"exception.past.date.enrollment.remove",
-                        "Participation in group activities that have already taken place cannot be canceled."},
+                        "Participation in activities that have already taken place cannot be canceled."},
                 {"exception.unsupported.data.type", "Error. The acceptable file format is JPEG or PNG."},
                 {"exception.user.already.enrolled.to.training", "The user is already enrolled to the group training."},
                 {"field.invalid.date.time.format", "Invalid date or time format."},
@@ -121,6 +135,7 @@ public class Messages {
                 {"training.type.updated", "Training type has been updated."},
                 {"enrollment.success.basic.list", "Successfully enrolled to group training."},
                 {"enrollment.success.reserve.list", "Basic list is full. You have been enrolled to reserve list."},
+                {"enrollment.success.individual", "Individual training request has been created."},
                 {"enrollment.remove", "Participation in the classes was resigned."}
         }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
     }

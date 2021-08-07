@@ -49,7 +49,9 @@
         <java.version>11</java.version>
         <spring-cloud.version>Hoxton.SR10</spring-cloud.version>
         <docker-hub-repo>gza73/agh-praca-inzynierska</docker-hub-repo>
-        <spring-boot.build-image.imageName>${docker-hub-repo}-${project.artifactId}:latest</spring-boot.build-image.imageName>
+        <spring-boot.build-image.imageName>
+            ${docker-hub-repo}-${project.artifactId}:latest
+        </spring-boot.build-image.imageName>
     </properties>
 
     <dependencies>
@@ -72,6 +74,10 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-mongodb</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-mail</artifactId>
         </dependency>
         <dependency>
             <groupId>org.modelmapper</groupId>
@@ -98,6 +104,12 @@
             <artifactId>spring-boot-devtools</artifactId>
             <scope>runtime</scope>
             <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>com.icegreen</groupId>
+            <artifactId>greenmail-spring</artifactId>
+            <version>1.6.4</version>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.springframework.security</groupId>

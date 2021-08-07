@@ -13,12 +13,12 @@ import org.springframework.data.mongodb.repository.config.EnableMongoRepositorie
 
 @EnableMongoRepositories(basePackages = "com.healthy.gym.trainings.data.repository")
 @Configuration
-public class MongoConfig extends AbstractMongoClientConfiguration {
+public class MongoConfiguration extends AbstractMongoClientConfiguration {
 
     private final Environment environment;
 
     @Autowired
-    public MongoConfig(Environment environment) {
+    public MongoConfiguration(Environment environment) {
         this.environment = environment;
     }
 

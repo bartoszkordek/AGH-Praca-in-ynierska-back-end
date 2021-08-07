@@ -20,6 +20,8 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
+import static java.lang.Integer.parseInt;
+
 @RestController
 @PreAuthorize("hasRole('ADMIN') or hasRole('MANAGER') or hasRole('EMPLOYEE')")
 @RequestMapping(value = "/individual/employee", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -58,14 +60,14 @@ public class EmployeeIndividualTrainingController {
 
     @GetMapping
     public List<IndividualTrainingDTO> getAllIndividualTrainingRequests(
-            @RequestParam @ValidDateFormat String startDate,
-            @RequestParam @ValidDateFormat String endDate,
-            @RequestParam @ValidPageNumber int pageNumber,
-            @RequestParam @ValidPageSize int pageSize
+            @RequestParam @ValidDateFormat final String startDate,
+            @RequestParam @ValidDateFormat final String endDate,
+            @RequestParam @ValidPageNumber final String pageNumber,
+            @RequestParam @ValidPageSize final String pageSize
     ) {
         try {
             return individualTrainingsService
-                    .getIndividualTrainings(startDate, endDate, pageNumber, pageSize);
+                    .getIndividualTrainings(startDate, endDate, parseInt(pageNumber), parseInt(pageSize));
 
         } catch (NoIndividualTrainingFoundException exception) {
             String reason = translator.toLocale("exception.no.individual.training.found");
@@ -86,12 +88,12 @@ public class EmployeeIndividualTrainingController {
     public List<IndividualTrainingDTO> getAllAcceptedIndividualTrainingRequests(
             @RequestParam @ValidDateFormat final String startDate,
             @RequestParam @ValidDateFormat final String endDate,
-            @RequestParam @ValidPageNumber final int pageNumber,
-            @RequestParam @ValidPageSize final int pageSize
+            @RequestParam @ValidPageNumber final String pageNumber,
+            @RequestParam @ValidPageSize final String pageSize
     ) {
         try {
             return individualTrainingsService
-                    .getAllAcceptedIndividualTrainings(startDate, endDate, pageNumber, pageSize);
+                    .getAllAcceptedIndividualTrainings(startDate, endDate, parseInt(pageNumber), parseInt(pageSize));
 
         } catch (NoIndividualTrainingFoundException exception) {
             String reason = translator.toLocale("exception.no.individual.training.found");

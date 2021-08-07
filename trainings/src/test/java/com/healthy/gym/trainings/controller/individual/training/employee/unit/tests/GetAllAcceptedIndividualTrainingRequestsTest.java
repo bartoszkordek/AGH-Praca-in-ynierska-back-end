@@ -37,7 +37,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(EmployeeIndividualTrainingController.class)
-class GetAllIndividualTrainingRequestsTest {
+class GetAllAcceptedIndividualTrainingRequestsTest {
 
     @Autowired
     private MockMvc mockMvc;
@@ -78,7 +78,7 @@ class GetAllIndividualTrainingRequestsTest {
 
     private URI getUri(String startDate, String endDate, String pageNumber, String pageSize)
             throws URISyntaxException {
-        return new URI("/individual/employee"
+        return new URI("/individual/employee/accepted"
                 + "?startDate=" + startDate
                 + "&endDate=" + endDate
                 + "&pageNumber=" + pageNumber
@@ -86,17 +86,16 @@ class GetAllIndividualTrainingRequestsTest {
         );
     }
 
-
     @ParameterizedTest
     @EnumSource(TestCountry.class)
-    void shouldGetAllIndividualTrainingRequestsList(TestCountry country) throws Exception {
+    void shouldGetAllAcceptedIndividualTrainingRequestsList(TestCountry country) throws Exception {
         Locale testedLocale = convertEnumToLocale(country);
 
         int number = Integer.parseInt(pageNumber);
         int size = Integer.parseInt(pageSize);
 
         when(individualTrainingsService
-                .getIndividualTrainings(startDate, endDate, number, size))
+                .getAllAcceptedIndividualTrainings(startDate, endDate, number, size))
                 .thenReturn(List.of(getIndividualTrainingDTO()));
 
         RequestBuilder request = getValidRequest(managerToken, testedLocale);
@@ -173,7 +172,7 @@ class GetAllIndividualTrainingRequestsTest {
             Map<String, String> messages = getMessagesAccordingToLocale(country);
             Locale testedLocale = convertEnumToLocale(country);
 
-            uri = getUri("2020da0101", "20200fdf102", "rwe-1", "6342qf");
+            uri = getUri("fdsg", "202df", "-1fds", "jiuoh");
             request = MockMvcRequestBuilders
                     .get(uri)
                     .header("Accept-Language", testedLocale.toString())
@@ -216,7 +215,7 @@ class GetAllIndividualTrainingRequestsTest {
 
             doThrow(NoIndividualTrainingFoundException.class)
                     .when(individualTrainingsService)
-                    .getIndividualTrainings(startDate, endDate, number, size);
+                    .getAllAcceptedIndividualTrainings(startDate, endDate, number, size);
 
             request = getValidRequest(employeeToken, testedLocale);
             expectedMessage = messages.get("exception.no.individual.training.found");
@@ -249,7 +248,7 @@ class GetAllIndividualTrainingRequestsTest {
 
             doThrow(IllegalStateException.class)
                     .when(individualTrainingsService)
-                    .getIndividualTrainings(startDate, endDate, number, size);
+                    .getAllAcceptedIndividualTrainings(startDate, endDate, number, size);
 
             request = getValidRequest(managerToken, testedLocale);
             expectedMessage = messages.get("exception.internal.error");

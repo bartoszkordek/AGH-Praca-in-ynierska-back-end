@@ -401,7 +401,7 @@ public class PurchaseGymPassControllerUnitTest {
 
         @ParameterizedTest
         @EnumSource(TestCountry.class)
-        void shouldThrowRetroPurchasedException_whenInvalidUserId(TestCountry country) throws Exception {
+        void shouldThrowRetroPurchasedException_whenRetroDates(TestCountry country) throws Exception {
             Map<String, String> messages = getMessagesAccordingToLocale(country);
             Locale testedLocale = convertEnumToLocale(country);
 

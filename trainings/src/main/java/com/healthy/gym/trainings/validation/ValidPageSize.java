@@ -7,11 +7,11 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-@Constraint(validatedBy = PageValidator.class)
+@Constraint(validatedBy = PageSizeValidator.class)
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.FIELD, ElementType.PARAMETER})
-public @interface ValidPage {
-    String message() default "{exception.invalid.page.format}";
+public @interface ValidPageSize {
+    String message() default "{exception.invalid.page.size.format}";
 
     Class<?>[] groups() default {};
 

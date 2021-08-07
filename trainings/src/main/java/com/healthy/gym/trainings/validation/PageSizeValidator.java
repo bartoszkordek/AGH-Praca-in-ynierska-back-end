@@ -2,13 +2,16 @@ package com.healthy.gym.trainings.validation;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
+import java.util.Set;
 
-public class PageValidator implements ConstraintValidator<ValidPage, String> {
+public class PageSizeValidator implements ConstraintValidator<ValidPageSize, String> {
+
     @Override
     public boolean isValid(String value, ConstraintValidatorContext context) {
         try {
             int number = Integer.parseInt(value);
-            return number > 0;
+            Set<Integer> validSizes = Set.of(5, 10, 20, 50, 100);
+            return validSizes.contains(number);
         } catch (Exception e) {
             return false;
         }

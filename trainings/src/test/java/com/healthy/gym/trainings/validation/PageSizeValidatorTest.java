@@ -6,23 +6,24 @@ import org.junit.jupiter.params.provider.ValueSource;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class PageValidatorTest {
-    private PageValidator pageValidator;
+class PageSizeValidatorTest {
+
+    private PageSizeValidator pageSizeValidator;
 
     @BeforeEach
     void setUp() {
-        pageValidator = new PageValidator();
+        pageSizeValidator = new PageSizeValidator();
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {"1", "2", "10", "20", "50", "100", "100000", "2147483647"})
+    @ValueSource(strings = {"5", "10", "20", "50", "100"})
     void shouldReturnTrue(String value) {
-        assertThat(pageValidator.isValid(value, null)).isTrue();
+        assertThat(pageSizeValidator.isValid(value, null)).isTrue();
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {"-1", "asdas", "$332", "-100000", "-2147483648"})
+    @ValueSource(strings = {"1", "2", "-10", "sada", "0.1312", "12.0", "20.0"})
     void shouldReturnFalse(String value) {
-        assertThat(pageValidator.isValid(value, null)).isFalse();
+        assertThat(pageSizeValidator.isValid(value, null)).isFalse();
     }
 }

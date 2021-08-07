@@ -7,6 +7,7 @@ import com.healthy.gym.gympass.dto.BasicUserInfoDTO;
 import com.healthy.gym.gympass.dto.PurchasedGymPassDTO;
 import com.healthy.gym.gympass.dto.SimpleGymPassDTO;
 import com.healthy.gym.gympass.exception.OfferNotFoundException;
+import com.healthy.gym.gympass.exception.RetroPurchasedException;
 import com.healthy.gym.gympass.exception.UserNotFoundException;
 import com.healthy.gym.gympass.pojo.request.PurchasedGymPassRequest;
 import com.healthy.gym.gympass.service.PurchaseService;
@@ -395,6 +396,35 @@ public class PurchaseGymPassControllerUnitTest {
                     .andExpect(result ->
                             assertThat(Objects.requireNonNull(result.getResolvedException()).getCause())
                                     .isInstanceOf(UserNotFoundException.class)
+                    );
+        }
+
+        @ParameterizedTest
+        @EnumSource(TestCountry.class)
+        void shouldThrowRetroPurchasedException_whenInvalidUserId(TestCountry country) throws Exception {
+            Map<String, String> messages = getMessagesAccordingToLocale(country);
+            Locale testedLocale = convertEnumToLocale(country);
+
+            RequestBuilder request = MockMvcRequestBuilders
+                    .post(uri)
+                    .header("Accept-Language", testedLocale.toString())
+                    .header("Authorization", employeeToken)
+                    .content(timeLimitedRequestContent)
+                    .contentType(MediaType.APPLICATION_JSON);
+
+            String expectedMessage = messages.get("exception.retro.purchased");
+
+            doThrow(RetroPurchasedException.class)
+                    .when(purchaseService)
+                    .purchaseGymPass(any());
+
+            mockMvc.perform(request)
+                    .andDo(print())
+                    .andExpect(status().isBadRequest())
+                    .andExpect(status().reason(is(expectedMessage)))
+                    .andExpect(result ->
+                            assertThat(Objects.requireNonNull(result.getResolvedException()).getCause())
+                                    .isInstanceOf(RetroPurchasedException.class)
                     );
         }
     }

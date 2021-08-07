@@ -20,9 +20,9 @@ public class EmailSenderImpl implements EmailSender {
 
     @Override
     public void sendEmailWithoutAttachment(List<String> recipients, String subject, String body) {
-        String fromEmail = emailConfig.getEmailName();
+        String fromEmail = emailConfig.getMailUsername();
         String personal = emailConfig.getEmailPersonal();
-        String password = emailConfig.getEmailPassword();
+        String password = emailConfig.getMailPassword();
         String filePath = null;
         EmailSendModel emailSendModel = new EmailSendModel(
                 fromEmail,
@@ -34,8 +34,8 @@ public class EmailSenderImpl implements EmailSender {
                 filePath
         );
         EmailService emailService = new EmailService();
-        String host = emailConfig.getSmtpHost();
-        String port = emailConfig.getSmtpPort();
+        String host = emailConfig.getMailHost();
+        String port = emailConfig.getMailPort();
         emailService.overrideDefaultSmptCredentials(host, port);
         emailService.sendEmailTLS(emailSendModel);
     }

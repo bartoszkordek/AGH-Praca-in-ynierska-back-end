@@ -7,7 +7,7 @@ import com.healthy.gym.trainings.exception.notexisting.NotExistingIndividualTrai
 import com.healthy.gym.trainings.exception.notfound.UserNotFoundException;
 import com.healthy.gym.trainings.model.request.IndividualTrainingAcceptanceRequest;
 import com.healthy.gym.trainings.model.request.IndividualTrainingRequest;
-import com.healthy.gym.trainings.service.IndividualTrainingService;
+import com.healthy.gym.trainings.service.individual.training.IndividualTrainingService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;

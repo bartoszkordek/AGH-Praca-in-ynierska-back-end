@@ -1,4 +1,4 @@
-package com.healthy.gym.trainings.service;
+package com.healthy.gym.trainings.service.individual.training;
 
 import com.healthy.gym.trainings.data.document.IndividualTrainings;
 import com.healthy.gym.trainings.exception.*;

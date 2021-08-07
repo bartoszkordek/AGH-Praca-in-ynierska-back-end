@@ -6,6 +6,7 @@ import com.healthy.gym.gympass.controller.PurchaseController;
 import com.healthy.gym.gympass.dto.BasicUserInfoDTO;
 import com.healthy.gym.gympass.dto.PurchasedGymPassDTO;
 import com.healthy.gym.gympass.dto.SimpleGymPassDTO;
+import com.healthy.gym.gympass.exception.NotSpecifiedGymPassTypeException;
 import com.healthy.gym.gympass.exception.OfferNotFoundException;
 import com.healthy.gym.gympass.exception.RetroPurchasedException;
 import com.healthy.gym.gympass.exception.UserNotFoundException;
@@ -401,7 +402,7 @@ public class PurchaseGymPassControllerUnitTest {
 
         @ParameterizedTest
         @EnumSource(TestCountry.class)
-        void shouldThrowRetroPurchasedException_whenRetroDates(TestCountry country) throws Exception {
+        void shouldThrowRetroPurchasedException(TestCountry country) throws Exception {
             Map<String, String> messages = getMessagesAccordingToLocale(country);
             Locale testedLocale = convertEnumToLocale(country);
 
@@ -425,6 +426,35 @@ public class PurchaseGymPassControllerUnitTest {
                     .andExpect(result ->
                             assertThat(Objects.requireNonNull(result.getResolvedException()).getCause())
                                     .isInstanceOf(RetroPurchasedException.class)
+                    );
+        }
+
+        @ParameterizedTest
+        @EnumSource(TestCountry.class)
+        void shouldThrowNotSpecifiedGymPassTypeException(TestCountry country) throws Exception {
+            Map<String, String> messages = getMessagesAccordingToLocale(country);
+            Locale testedLocale = convertEnumToLocale(country);
+
+            RequestBuilder request = MockMvcRequestBuilders
+                    .post(uri)
+                    .header("Accept-Language", testedLocale.toString())
+                    .header("Authorization", employeeToken)
+                    .content(timeLimitedRequestContent)
+                    .contentType(MediaType.APPLICATION_JSON);
+
+            String expectedMessage = messages.get("exception.gympass.type");
+
+            doThrow(NotSpecifiedGymPassTypeException.class)
+                    .when(purchaseService)
+                    .purchaseGymPass(any());
+
+            mockMvc.perform(request)
+                    .andDo(print())
+                    .andExpect(status().isBadRequest())
+                    .andExpect(status().reason(is(expectedMessage)))
+                    .andExpect(result ->
+                            assertThat(Objects.requireNonNull(result.getResolvedException()).getCause())
+                                    .isInstanceOf(NotSpecifiedGymPassTypeException.class)
                     );
         }
     }

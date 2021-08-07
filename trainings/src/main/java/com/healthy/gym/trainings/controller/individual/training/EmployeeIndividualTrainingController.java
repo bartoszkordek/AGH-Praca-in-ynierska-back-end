@@ -8,8 +8,8 @@ import com.healthy.gym.trainings.exception.notfound.NoIndividualTrainingFoundExc
 import com.healthy.gym.trainings.service.individual.training.EmployeeIndividualTrainingService;
 import com.healthy.gym.trainings.validation.ValidDateFormat;
 import com.healthy.gym.trainings.validation.ValidIDFormat;
-import com.healthy.gym.trainings.validation.ValidPage;
-import com.healthy.gym.trainings.validation.ValidSize;
+import com.healthy.gym.trainings.validation.ValidPageNumber;
+import com.healthy.gym.trainings.validation.ValidPageSize;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -21,8 +21,8 @@ import org.springframework.web.server.ResponseStatusException;
 import java.util.List;
 
 @RestController
-@RequestMapping(value = "/individual/employee", produces = MediaType.APPLICATION_JSON_VALUE)
 @PreAuthorize("hasRole('ADMIN') or hasRole('MANAGER') or hasRole('EMPLOYEE')")
+@RequestMapping(value = "/individual/employee", produces = MediaType.APPLICATION_JSON_VALUE)
 @Validated
 public class EmployeeIndividualTrainingController {
 
@@ -58,14 +58,14 @@ public class EmployeeIndividualTrainingController {
 
     @GetMapping
     public List<IndividualTrainingDTO> getAllIndividualTrainingRequests(
-            @RequestParam @ValidDateFormat final String startDate,
-            @RequestParam @ValidDateFormat final String endDate,
-            @RequestParam @ValidPage final int page,
-            @RequestParam @ValidSize final int size
+            @RequestParam @ValidDateFormat String startDate,
+            @RequestParam @ValidDateFormat String endDate,
+            @RequestParam @ValidPageNumber int pageNumber,
+            @RequestParam @ValidPageSize int pageSize
     ) {
         try {
             return individualTrainingsService
-                    .getIndividualTrainings(startDate, endDate, page, size);
+                    .getIndividualTrainings(startDate, endDate, pageNumber, pageSize);
 
         } catch (NoIndividualTrainingFoundException exception) {
             String reason = translator.toLocale("exception.no.individual.training.found");
@@ -82,16 +82,16 @@ public class EmployeeIndividualTrainingController {
         }
     }
 
-    @GetMapping("/all/accepted")
+    @GetMapping("/accepted")
     public List<IndividualTrainingDTO> getAllAcceptedIndividualTrainingRequests(
             @RequestParam @ValidDateFormat final String startDate,
             @RequestParam @ValidDateFormat final String endDate,
-            @RequestParam @ValidPage final int page,
-            @RequestParam @ValidSize final int size
+            @RequestParam @ValidPageNumber final int pageNumber,
+            @RequestParam @ValidPageSize final int pageSize
     ) {
         try {
             return individualTrainingsService
-                    .getAllAcceptedIndividualTrainings(startDate, endDate, page, size);
+                    .getAllAcceptedIndividualTrainings(startDate, endDate, pageNumber, pageSize);
 
         } catch (NoIndividualTrainingFoundException exception) {
             String reason = translator.toLocale("exception.no.individual.training.found");

@@ -36,7 +36,7 @@ public class EmployeeGroupTrainingController {
     }
 
     @GetMapping("/{trainingId}/participants")
-    public ParticipantsDTO getTrainingParticipants(@PathVariable @ValidIDFormat String trainingId) {
+    public ParticipantsDTO getTrainingParticipants(@PathVariable @ValidIDFormat final String trainingId) {
         try {
             return employeeGroupTrainingService.getTrainingParticipants(trainingId);
 
@@ -52,7 +52,7 @@ public class EmployeeGroupTrainingController {
     }
 
     @GetMapping("/{trainingId}")
-    public GroupTrainingDTO getGroupTrainingById(@PathVariable @ValidIDFormat String trainingId) {
+    public GroupTrainingDTO getGroupTrainingById(@PathVariable @ValidIDFormat final String trainingId) {
         try {
             return employeeGroupTrainingService.getGroupTrainingById(trainingId);
 

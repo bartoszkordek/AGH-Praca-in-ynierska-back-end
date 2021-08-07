@@ -91,6 +91,15 @@ public class PurchaseGymPassControllerUnitTest {
 
         timeLimitedRequestContent = objectMapper.writeValueAsString(timeLimitedPurchasedGymPassRequest);
 
+        PurchasedGymPassRequest entriesLimitedPurchasedGymPassRequest = new PurchasedGymPassRequest();
+        entriesLimitedPurchasedGymPassRequest.setGymPassOfferId(validGymPassOfferId);
+        entriesLimitedPurchasedGymPassRequest.setUserId(validUserId);
+        entriesLimitedPurchasedGymPassRequest.setStartDate(LocalDateTime.now().format(DateTimeFormatter.ISO_DATE));
+        entriesLimitedPurchasedGymPassRequest.setEndDate(LocalDateTime.MAX.format(DateTimeFormatter.ISO_DATE));
+        entriesLimitedPurchasedGymPassRequest.setEntries(5);
+
+        entriesLimitedRequestContent = objectMapper.writeValueAsString(entriesLimitedPurchasedGymPassRequest);
+
         uri = new URI("/purchase");
 
     }
@@ -135,6 +144,74 @@ public class PurchaseGymPassControllerUnitTest {
                                 startDate,
                                 endDate,
                                 entries
+                            )
+                    );
+
+            String expectedMessage = messages.get("gympass.purchased");
+
+            mockMvc.perform(request)
+                    .andDo(print())
+                    .andExpect(matchAll(
+                            status().isCreated(),
+                            content().contentType(MediaType.APPLICATION_JSON),
+                            jsonPath("$.message").value(is(expectedMessage)),
+                            jsonPath("$.purchasedGymPass").exists(),
+                            jsonPath("$.purchasedGymPass.gymPassOffer").exists(),
+                            jsonPath("$.purchasedGymPass.gymPassOffer.gymPassOfferId")
+                                    .value(is(validGymPassOfferId)),
+                            jsonPath("$.purchasedGymPass.gymPassOffer.title").value(is(title)),
+                            jsonPath("$.purchasedGymPass.gymPassOffer.price").exists(),
+                            jsonPath("$.purchasedGymPass.gymPassOffer.price.amount").value(is(amount)),
+                            jsonPath("$.purchasedGymPass.gymPassOffer.price.currency").value(is(currency)),
+                            jsonPath("$.purchasedGymPass.gymPassOffer.price.period").value(is(period)),
+                            jsonPath("$.purchasedGymPass.user").exists(),
+                            jsonPath("$.purchasedGymPass.user.userId").value(is(validUserId)),
+                            jsonPath("$.purchasedGymPass.user.name").value(is(name)),
+                            jsonPath("$.purchasedGymPass.user.surname").value(is(surname)),
+                            jsonPath("$.purchasedGymPass.purchaseDateAndTime").value(is(purchaseDateAndTime)),
+                            jsonPath("$.purchasedGymPass.startDate").value(is(startDate)),
+                            jsonPath("$.purchasedGymPass.endDate").value(is(endDate)),
+                            jsonPath("$.purchasedGymPass.entries").value(is(entries))
+                    ));
+        }
+
+        @ParameterizedTest
+        @EnumSource(TestCountry.class)
+        void shouldPurchaseGymPassWhenValidRequest_entriesLimitedGymPass(TestCountry country) throws Exception {
+            Map<String, String> messages = getMessagesAccordingToLocale(country);
+            Locale testedLocale = convertEnumToLocale(country);
+
+            RequestBuilder request = MockMvcRequestBuilders
+                    .post(uri)
+                    .header("Accept-Language", testedLocale.toString())
+                    .header("Authorization", employeeToken)
+                    .content(timeLimitedRequestContent)
+                    .contentType(MediaType.APPLICATION_JSON);
+
+            String title = "Karnet miesięczny";
+            double amount = 139.99;
+            String currency = "zł";
+            String period = "miesiąc";
+            Price price = new Price(amount, currency, period);
+            boolean isPremium = false;
+            SimpleGymPassDTO gymPassOffer = new SimpleGymPassDTO(validGymPassOfferId, title, price, isPremium);
+            String name = "Jan";
+            String surname = "Kowalski";
+            BasicUserInfoDTO user = new BasicUserInfoDTO(validUserId, name, surname);
+            String purchaseDateAndTime = LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME);
+            String startDate = LocalDateTime.now().format(DateTimeFormatter.ISO_DATE);
+            String endDate = LocalDateTime.MAX.format(DateTimeFormatter.ISO_DATE);
+            int entries = 4;
+
+            when(purchaseService.purchaseGymPass(any()))
+                    .thenReturn(
+                            new PurchasedGymPassDTO(
+                                    gymPassOffer,
+                                    user,
+                                    purchaseDateAndTime,
+                                    startDate,
+                                    endDate,
+                                    entries
                             )
                     );
 

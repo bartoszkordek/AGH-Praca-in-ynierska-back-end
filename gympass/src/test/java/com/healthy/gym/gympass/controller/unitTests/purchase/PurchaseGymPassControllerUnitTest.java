@@ -6,6 +6,7 @@ import com.healthy.gym.gympass.controller.PurchaseController;
 import com.healthy.gym.gympass.dto.BasicUserInfoDTO;
 import com.healthy.gym.gympass.dto.PurchasedGymPassDTO;
 import com.healthy.gym.gympass.dto.SimpleGymPassDTO;
+import com.healthy.gym.gympass.exception.OfferNotFoundException;
 import com.healthy.gym.gympass.pojo.request.PurchasedGymPassRequest;
 import com.healthy.gym.gympass.service.PurchaseService;
 import com.healthy.gym.gympass.shared.Price;
@@ -30,11 +31,14 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 
 import static com.healthy.gym.gympass.configuration.LocaleConverter.convertEnumToLocale;
@@ -293,50 +297,75 @@ public class PurchaseGymPassControllerUnitTest {
 
         }
 
-        @Nested
-        class ShouldThrowBindExceptionWhenInvalidRequest{
+        @ParameterizedTest
+        @EnumSource(TestCountry.class)
+        void shouldThrowBindException_whenInvalidRequest(TestCountry country) throws Exception {
+            Map<String, String> messages = getMessagesAccordingToLocale(country);
+            Locale testedLocale = convertEnumToLocale(country);
 
-            @ParameterizedTest
-            @EnumSource(TestCountry.class)
-            void shouldThrowBindException_whenInvalidRequest(TestCountry country) throws Exception {
-                Map<String, String> messages = getMessagesAccordingToLocale(country);
-                Locale testedLocale = convertEnumToLocale(country);
+            ObjectMapper objectMapper = new ObjectMapper();
+            PurchasedGymPassRequest purchasedGymPassRequest = new PurchasedGymPassRequest();
+            purchasedGymPassRequest.setGymPassOfferId("A");
+            purchasedGymPassRequest.setUserId("U");
+            purchasedGymPassRequest.setStartDate("2021");
+            purchasedGymPassRequest.setEndDate("X");
+            String invalidRequestContent = objectMapper.writeValueAsString(purchasedGymPassRequest);
 
-                ObjectMapper objectMapper = new ObjectMapper();
-                PurchasedGymPassRequest purchasedGymPassRequest = new PurchasedGymPassRequest();
-                purchasedGymPassRequest.setGymPassOfferId("A");
-                purchasedGymPassRequest.setUserId("U");
-                purchasedGymPassRequest.setStartDate("2021");
-                purchasedGymPassRequest.setEndDate("X");
-                String invalidRequestContent = objectMapper.writeValueAsString(purchasedGymPassRequest);
+            RequestBuilder request = MockMvcRequestBuilders
+                    .post(uri)
+                    .header("Accept-Language", testedLocale.toString())
+                    .header("Authorization", managerToken)
+                    .content(invalidRequestContent)
+                    .contentType(MediaType.APPLICATION_JSON);
 
-                RequestBuilder request = MockMvcRequestBuilders
-                        .post(uri)
-                        .header("Accept-Language", testedLocale.toString())
-                        .header("Authorization", managerToken)
-                        .content(invalidRequestContent)
-                        .contentType(MediaType.APPLICATION_JSON);
+            String expectedMessage = messages.get("request.bind.exception");
 
-                String expectedMessage = messages.get("request.bind.exception");
+            mockMvc.perform(request)
+                    .andDo(print())
+                    .andExpect(matchAll(
+                            status().isBadRequest(),
+                            content().contentType(MediaType.APPLICATION_JSON),
+                            jsonPath("$.error").value(is(HttpStatus.BAD_REQUEST.getReasonPhrase())),
+                            jsonPath("$.message").value(is(expectedMessage)),
+                            jsonPath("$.errors").value(is(notNullValue())),
+                            jsonPath("$.errors.gymPassOfferId")
+                                    .value(is(messages.get("exception.invalid.id.format"))),
+                            jsonPath("$.errors.userId")
+                                    .value(is(messages.get("exception.invalid.id.format"))),
+                            jsonPath("$.errors.startDate")
+                                    .value(is(messages.get("exception.invalid.date.format"))),
+                            jsonPath("$.errors.endDate")
+                                    .value(is(messages.get("exception.invalid.date.format")))
+                    ));
+        }
 
-                mockMvc.perform(request)
-                        .andDo(print())
-                        .andExpect(matchAll(
-                                status().isBadRequest(),
-                                content().contentType(MediaType.APPLICATION_JSON),
-                                jsonPath("$.error").value(is(HttpStatus.BAD_REQUEST.getReasonPhrase())),
-                                jsonPath("$.message").value(is(expectedMessage)),
-                                jsonPath("$.errors").value(is(notNullValue())),
-                                jsonPath("$.errors.gymPassOfferId")
-                                        .value(is(messages.get("exception.invalid.id.format"))),
-                                jsonPath("$.errors.userId")
-                                        .value(is(messages.get("exception.invalid.id.format"))),
-                                jsonPath("$.errors.startDate")
-                                        .value(is(messages.get("exception.invalid.date.format"))),
-                                jsonPath("$.errors.endDate")
-                                        .value(is(messages.get("exception.invalid.date.format")))
-                        ));
-            }
+        @ParameterizedTest
+        @EnumSource(TestCountry.class)
+        void shouldThrowOfferNotFoundException_whenInvalidOfferId(TestCountry country) throws Exception {
+            Map<String, String> messages = getMessagesAccordingToLocale(country);
+            Locale testedLocale = convertEnumToLocale(country);
+
+            RequestBuilder request = MockMvcRequestBuilders
+                    .post(uri)
+                    .header("Accept-Language", testedLocale.toString())
+                    .header("Authorization", employeeToken)
+                    .content(timeLimitedRequestContent)
+                    .contentType(MediaType.APPLICATION_JSON);
+
+            String expectedMessage = messages.get("exception.offer.not.found");
+
+            doThrow(OfferNotFoundException.class)
+                    .when(purchaseService)
+                    .purchaseGymPass(any());
+
+            mockMvc.perform(request)
+                    .andDo(print())
+                    .andExpect(status().isBadRequest())
+                    .andExpect(status().reason(is(expectedMessage)))
+                    .andExpect(result ->
+                            assertThat(Objects.requireNonNull(result.getResolvedException()).getCause())
+                                    .isInstanceOf(OfferNotFoundException.class)
+                    );
         }
     }
 }

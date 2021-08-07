@@ -18,12 +18,14 @@ class PageSizeValidatorTest {
     @ParameterizedTest
     @ValueSource(strings = {"5", "10", "20", "50", "100"})
     void shouldReturnTrue(String value) {
-        assertThat(pageSizeValidator.isValid(value, null)).isTrue();
+        int number = Integer.parseInt(value);
+        assertThat(pageSizeValidator.isValid(number, null)).isTrue();
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {"1", "2", "-10", "sada", "0.1312", "12.0", "20.0"})
+    @ValueSource(strings = {"1", "2", "-10", "0.1312", "12.0", "20.0"})
     void shouldReturnFalse(String value) {
-        assertThat(pageSizeValidator.isValid(value, null)).isFalse();
+        int number = Integer.parseInt(value);
+        assertThat(pageSizeValidator.isValid(number, null)).isFalse();
     }
 }

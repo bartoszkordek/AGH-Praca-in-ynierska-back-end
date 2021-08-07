@@ -17,12 +17,14 @@ class PageNumberValidatorTest {
     @ParameterizedTest
     @ValueSource(strings = {"1", "2", "10", "20", "50", "100", "100000", "2147483647"})
     void shouldReturnTrue(String value) {
-        assertThat(pageNumberValidator.isValid(value, null)).isTrue();
+        int number = Integer.parseInt(value);
+        assertThat(pageNumberValidator.isValid(number, null)).isTrue();
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {"-1", "asdas", "$332", "-100000", "-2147483648"})
+    @ValueSource(strings = {"-1", "0", "-100000", "-2147483648"})
     void shouldReturnFalse(String value) {
-        assertThat(pageNumberValidator.isValid(value, null)).isFalse();
+        int number = Integer.parseInt(value);
+        assertThat(pageNumberValidator.isValid(number, null)).isFalse();
     }
 }

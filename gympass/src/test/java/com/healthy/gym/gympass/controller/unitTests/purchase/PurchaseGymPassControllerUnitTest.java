@@ -244,5 +244,51 @@ public class PurchaseGymPassControllerUnitTest {
         }
     }
 
+    @Nested
+    class ShouldNotPurchaseGymPass{
 
+        @Nested
+        class ShouldNotCreateOfferWhenNotAuthorized{
+
+            @ParameterizedTest
+            @EnumSource(TestCountry.class)
+            void whenUserIsNotLogIn(TestCountry country) throws Exception {
+                Locale testedLocale = convertEnumToLocale(country);
+
+                RequestBuilder request = MockMvcRequestBuilders
+                        .post(uri)
+                        .header("Accept-Language", testedLocale.toString());
+
+                mockMvc.perform(request)
+                        .andDo(print())
+                        .andExpect(status().isForbidden());
+            }
+
+            @ParameterizedTest
+            @EnumSource(TestCountry.class)
+            void whenUserIsNotLogInAsUsualUser(TestCountry country) throws Exception {
+                Map<String, String> messages = getMessagesAccordingToLocale(country);
+                Locale testedLocale = convertEnumToLocale(country);
+
+                RequestBuilder request = MockMvcRequestBuilders
+                        .post(uri)
+                        .header("Accept-Language", testedLocale.toString())
+                        .header("Authorization", userToken)
+                        .content(timeLimitedRequestContent)
+                        .contentType(MediaType.APPLICATION_JSON);
+
+                String expectedMessage = messages.get("exception.access.denied");
+
+                mockMvc.perform(request)
+                        .andDo(print())
+                        .andExpect(status().isForbidden())
+                        .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                        .andExpect(jsonPath("$.message").value(is(expectedMessage)))
+                        .andExpect(jsonPath("$.error").value(is("Forbidden")))
+                        .andExpect(jsonPath("$.status").value(403))
+                        .andExpect(jsonPath("$.timestamp").exists());
+            }
+
+        }
+    }
 }

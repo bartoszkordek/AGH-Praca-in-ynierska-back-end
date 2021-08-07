@@ -179,7 +179,7 @@ class CreateOfferUnitTest {
     }
 
     @Nested
-    class shouldNotCreateOfferWhenNotAuthorized{
+    class ShouldNotCreateOfferWhenNotAuthorized{
 
         @ParameterizedTest
         @EnumSource(TestCountry.class)

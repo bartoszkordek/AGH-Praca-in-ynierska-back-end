@@ -22,11 +22,9 @@ public class PurchasedGymPassRequest {
     @ValidDateFormat
     private String startDate;
 
-    @NotNull(message = "{field.required}")
     @ValidDateFormat
     private String endDate;
 
-    @NotNull(message = "{field.required}")
     private int entries;
 
 

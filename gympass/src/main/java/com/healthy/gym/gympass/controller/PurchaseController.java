@@ -2,10 +2,7 @@ package com.healthy.gym.gympass.controller;
 
 import com.healthy.gym.gympass.component.Translator;
 import com.healthy.gym.gympass.dto.PurchasedGymPassDTO;
-import com.healthy.gym.gympass.exception.OfferNotFoundException;
-import com.healthy.gym.gympass.exception.RequestBindException;
-import com.healthy.gym.gympass.exception.RetroPurchasedException;
-import com.healthy.gym.gympass.exception.UserNotFoundException;
+import com.healthy.gym.gympass.exception.*;
 import com.healthy.gym.gympass.pojo.request.PurchasedGymPassRequest;
 import com.healthy.gym.gympass.pojo.response.PurchasedGymPassResponse;
 import com.healthy.gym.gympass.service.PurchaseService;
@@ -79,6 +76,10 @@ public class PurchaseController {
 
         } catch (RetroPurchasedException exception) {
             String reason = translator.toLocale("exception.retro.purchased");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, exception);
+
+        } catch (NotSpecifiedGymPassTypeException exception) {
+            String reason = translator.toLocale("exception.gympass.type");
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, exception);
 
         } catch (Exception exception){

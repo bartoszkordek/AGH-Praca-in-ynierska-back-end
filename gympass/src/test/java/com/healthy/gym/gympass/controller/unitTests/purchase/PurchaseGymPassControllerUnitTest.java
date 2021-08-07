@@ -16,6 +16,7 @@ import org.junit.jupiter.params.provider.EnumSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.RequestBuilder;
@@ -32,6 +33,7 @@ import java.util.Map;
 import java.util.UUID;
 
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
@@ -289,6 +291,52 @@ public class PurchaseGymPassControllerUnitTest {
                         .andExpect(jsonPath("$.timestamp").exists());
             }
 
+        }
+
+        @Nested
+        class ShouldThrowBindExceptionWhenInvalidRequest{
+
+            @ParameterizedTest
+            @EnumSource(TestCountry.class)
+            void shouldThrowBindException_whenInvalidRequest(TestCountry country) throws Exception {
+                Map<String, String> messages = getMessagesAccordingToLocale(country);
+                Locale testedLocale = convertEnumToLocale(country);
+
+                ObjectMapper objectMapper = new ObjectMapper();
+                PurchasedGymPassRequest purchasedGymPassRequest = new PurchasedGymPassRequest();
+                purchasedGymPassRequest.setGymPassOfferId("A");
+                purchasedGymPassRequest.setUserId("U");
+                purchasedGymPassRequest.setStartDate("2021");
+                purchasedGymPassRequest.setEndDate("X");
+                String invalidRequestContent = objectMapper.writeValueAsString(purchasedGymPassRequest);
+
+                RequestBuilder request = MockMvcRequestBuilders
+                        .post(uri)
+                        .header("Accept-Language", testedLocale.toString())
+                        .header("Authorization", managerToken)
+                        .content(invalidRequestContent)
+                        .contentType(MediaType.APPLICATION_JSON);
+
+                String expectedMessage = messages.get("request.bind.exception");
+
+                mockMvc.perform(request)
+                        .andDo(print())
+                        .andExpect(matchAll(
+                                status().isBadRequest(),
+                                content().contentType(MediaType.APPLICATION_JSON),
+                                jsonPath("$.error").value(is(HttpStatus.BAD_REQUEST.getReasonPhrase())),
+                                jsonPath("$.message").value(is(expectedMessage)),
+                                jsonPath("$.errors").value(is(notNullValue())),
+                                jsonPath("$.errors.gymPassOfferId")
+                                        .value(is(messages.get("exception.invalid.id.format"))),
+                                jsonPath("$.errors.userId")
+                                        .value(is(messages.get("exception.invalid.id.format"))),
+                                jsonPath("$.errors.startDate")
+                                        .value(is(messages.get("exception.invalid.date.format"))),
+                                jsonPath("$.errors.endDate")
+                                        .value(is(messages.get("exception.invalid.date.format")))
+                        ));
+            }
         }
     }
 }

@@ -242,6 +242,7 @@ public class PurchaseGymPassIntegrationTest {
 
             assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.CREATED);
             assertThat(Objects.requireNonNull(responseEntity.getBody().get("message").textValue())).isEqualTo(expectedMessage);
+            assertThat(responseEntity.getBody().get("purchasedGymPass").get("purchasedGymPassDocumentId")).isNotNull();
             assertThat(responseEntity.getBody().get("purchasedGymPass").get("gymPassOffer").get("gymPassOfferId").textValue())
                     .isEqualTo(gymPassOfferId);
             assertThat(responseEntity.getBody().get("purchasedGymPass").get("gymPassOffer").get("title").textValue())
@@ -291,6 +292,7 @@ public class PurchaseGymPassIntegrationTest {
 
             assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.CREATED);
             assertThat(Objects.requireNonNull(responseEntity.getBody().get("message").textValue())).isEqualTo(expectedMessage);
+            assertThat(responseEntity.getBody().get("purchasedGymPass").get("purchasedGymPassDocumentId")).isNotNull();
             assertThat(responseEntity.getBody().get("purchasedGymPass").get("gymPassOffer").get("gymPassOfferId").textValue())
                     .isEqualTo(gymPassOfferId);
             assertThat(responseEntity.getBody().get("purchasedGymPass").get("gymPassOffer").get("title").textValue())

@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.UUID;
 
 @Service
 public class PurchaseServiceImpl implements PurchaseService{
@@ -68,6 +69,7 @@ public class PurchaseServiceImpl implements PurchaseService{
             throw new NotSpecifiedGymPassTypeException("Not specified gympass type");
 
         PurchasedGymPassDocument purchasedGymPassDocumentToSave = new PurchasedGymPassDocument(
+                UUID.randomUUID().toString(),
                 gymPassOfferDocument,
                 userDocument,
                 LocalDateTime.now(),
@@ -82,6 +84,7 @@ public class PurchaseServiceImpl implements PurchaseService{
 
     @Override
     public PurchasedGymPassDTO suspendGymPass(String individualGymPassId, String date) throws OfferNotFoundException{
+
         return null;
     }
 }

@@ -9,6 +9,7 @@ import java.util.Objects;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class PurchasedGymPassDTO {
 
+    private String purchasedGymPassDocumentId;
     private SimpleGymPassDTO gymPassOffer;
     private BasicUserInfoDTO user;
     private LocalDateTime purchaseDateAndTime;
@@ -21,6 +22,7 @@ public class PurchasedGymPassDTO {
     public PurchasedGymPassDTO(){}
 
     public PurchasedGymPassDTO(
+            String purchasedGymPassDocumentId,
             SimpleGymPassDTO gymPassOffer,
             BasicUserInfoDTO user,
             LocalDateTime purchaseDateAndTime,
@@ -28,6 +30,7 @@ public class PurchasedGymPassDTO {
             LocalDate endDate,
             int entries
     ){
+        this.purchasedGymPassDocumentId = purchasedGymPassDocumentId;
         this.gymPassOffer = gymPassOffer;
         this.user = user;
         this.purchaseDateAndTime = purchaseDateAndTime;
@@ -37,6 +40,7 @@ public class PurchasedGymPassDTO {
     }
 
     public PurchasedGymPassDTO(
+            String purchasedGymPassDocumentId,
             SimpleGymPassDTO gymPassOffer,
             BasicUserInfoDTO user,
             LocalDateTime purchaseDateAndTime,
@@ -45,6 +49,7 @@ public class PurchasedGymPassDTO {
             int entries,
             LocalDate suspensionDate
     ){
+        this.purchasedGymPassDocumentId = purchasedGymPassDocumentId;
         this.gymPassOffer = gymPassOffer;
         this.user = user;
         this.purchaseDateAndTime = purchaseDateAndTime;
@@ -52,6 +57,10 @@ public class PurchasedGymPassDTO {
         this.endDate = endDate;
         this.entries = entries;
         this.suspensionDate = suspensionDate;
+    }
+
+    public String getPurchasedGymPassDocumentId() {
+        return purchasedGymPassDocumentId;
     }
 
     public SimpleGymPassDTO getGymPassOffer() {
@@ -80,6 +89,10 @@ public class PurchasedGymPassDTO {
 
     public LocalDate getSuspensionDate() {
         return suspensionDate;
+    }
+
+    public void setPurchasedGymPassDocumentId(String purchasedGymPassDocumentId) {
+        this.purchasedGymPassDocumentId = purchasedGymPassDocumentId;
     }
 
     public void setGymPassOffer(SimpleGymPassDTO gymPassOffer) {
@@ -113,7 +126,8 @@ public class PurchasedGymPassDTO {
     @Override
     public String toString() {
         return "PurchasedGymPassDTO{" +
-                "gymPassOffer=" + gymPassOffer +
+                "purchasedGymPassDocumentId='" + purchasedGymPassDocumentId + '\'' +
+                ", gymPassOffer=" + gymPassOffer +
                 ", user=" + user +
                 ", purchaseDateAndTime=" + purchaseDateAndTime +
                 ", startDate=" + startDate +
@@ -129,6 +143,7 @@ public class PurchasedGymPassDTO {
         if (o == null || getClass() != o.getClass()) return false;
         PurchasedGymPassDTO that = (PurchasedGymPassDTO) o;
         return entries == that.entries &&
+                Objects.equals(purchasedGymPassDocumentId, that.purchasedGymPassDocumentId) &&
                 Objects.equals(gymPassOffer, that.gymPassOffer) &&
                 Objects.equals(user, that.user) &&
                 Objects.equals(purchaseDateAndTime, that.purchaseDateAndTime) &&
@@ -140,6 +155,7 @@ public class PurchasedGymPassDTO {
     @Override
     public int hashCode() {
         return Objects.hash(
+                purchasedGymPassDocumentId,
                 gymPassOffer,
                 user,
                 purchaseDateAndTime,

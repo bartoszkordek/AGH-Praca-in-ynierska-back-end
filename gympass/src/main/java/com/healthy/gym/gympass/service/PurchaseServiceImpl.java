@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 @Service
@@ -67,6 +68,7 @@ public class PurchaseServiceImpl implements PurchaseService{
         PurchasedGymPassDocument purchasedGymPassDocumentToSave = new PurchasedGymPassDocument(
                 gymPassOfferDocument,
                 userDocument,
+                LocalDateTime.now(),
                 parsedStartDate,
                 parsedEndDate,
                 entries

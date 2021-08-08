@@ -2,16 +2,20 @@ package com.healthy.gym.gympass.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.Objects;
+
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class PurchasedGymPassDTO {
 
     private SimpleGymPassDTO gymPassOffer;
     private BasicUserInfoDTO user;
-    private String purchaseDateAndTime;
-    private String startDate;
-    private String endDate;
+    private LocalDateTime purchaseDateAndTime;
+    private LocalDate startDate;
+    private LocalDate endDate;
     private int entries;
-    private String suspensionDate;
+    private LocalDate suspensionDate;
 
 
     public PurchasedGymPassDTO(){}
@@ -19,9 +23,9 @@ public class PurchasedGymPassDTO {
     public PurchasedGymPassDTO(
             SimpleGymPassDTO gymPassOffer,
             BasicUserInfoDTO user,
-            String purchaseDateAndTime,
-            String startDate,
-            String endDate,
+            LocalDateTime purchaseDateAndTime,
+            LocalDate startDate,
+            LocalDate endDate,
             int entries
     ){
         this.gymPassOffer = gymPassOffer;
@@ -35,11 +39,11 @@ public class PurchasedGymPassDTO {
     public PurchasedGymPassDTO(
             SimpleGymPassDTO gymPassOffer,
             BasicUserInfoDTO user,
-            String purchaseDateAndTime,
-            String startDate,
-            String endDate,
+            LocalDateTime purchaseDateAndTime,
+            LocalDate startDate,
+            LocalDate endDate,
             int entries,
-            String suspensionDate
+            LocalDate suspensionDate
     ){
         this.gymPassOffer = gymPassOffer;
         this.user = user;
@@ -58,15 +62,15 @@ public class PurchasedGymPassDTO {
         return user;
     }
 
-    public String getPurchaseDateAndTime() {
+    public LocalDateTime getPurchaseDateAndTime() {
         return purchaseDateAndTime;
     }
 
-    public String getStartDate() {
+    public LocalDate getStartDate() {
         return startDate;
     }
 
-    public String getEndDate() {
+    public LocalDate getEndDate() {
         return endDate;
     }
 
@@ -74,7 +78,7 @@ public class PurchasedGymPassDTO {
         return entries;
     }
 
-    public String getSuspensionDate() {
+    public LocalDate getSuspensionDate() {
         return suspensionDate;
     }
 
@@ -86,15 +90,15 @@ public class PurchasedGymPassDTO {
         this.user = user;
     }
 
-    public void setPurchaseDateAndTime(String purchaseDateAndTime) {
+    public void setPurchaseDateAndTime(LocalDateTime purchaseDateAndTime) {
         this.purchaseDateAndTime = purchaseDateAndTime;
     }
 
-    public void setStartDate(String startDate) {
+    public void setStartDate(LocalDate startDate) {
         this.startDate = startDate;
     }
 
-    public void setEndDate(String endDate) {
+    public void setEndDate(LocalDate endDate) {
         this.endDate = endDate;
     }
 
@@ -102,8 +106,47 @@ public class PurchasedGymPassDTO {
         this.entries = entries;
     }
 
-    public void setSuspensionDate(String suspensionDate) {
+    public void setSuspensionDate(LocalDate suspensionDate) {
         this.suspensionDate = suspensionDate;
     }
 
+    @Override
+    public String toString() {
+        return "PurchasedGymPassDTO{" +
+                "gymPassOffer=" + gymPassOffer +
+                ", user=" + user +
+                ", purchaseDateAndTime=" + purchaseDateAndTime +
+                ", startDate=" + startDate +
+                ", endDate=" + endDate +
+                ", entries=" + entries +
+                ", suspensionDate=" + suspensionDate +
+                '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        PurchasedGymPassDTO that = (PurchasedGymPassDTO) o;
+        return entries == that.entries &&
+                Objects.equals(gymPassOffer, that.gymPassOffer) &&
+                Objects.equals(user, that.user) &&
+                Objects.equals(purchaseDateAndTime, that.purchaseDateAndTime) &&
+                Objects.equals(startDate, that.startDate) &&
+                Objects.equals(endDate, that.endDate) &&
+                Objects.equals(suspensionDate, that.suspensionDate);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(
+                gymPassOffer,
+                user,
+                purchaseDateAndTime,
+                startDate,
+                endDate,
+                entries,
+                suspensionDate
+        );
+    }
 }

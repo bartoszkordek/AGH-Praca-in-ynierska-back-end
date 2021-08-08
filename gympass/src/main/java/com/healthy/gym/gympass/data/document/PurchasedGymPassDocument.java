@@ -14,9 +14,9 @@ public class PurchasedGymPassDocument {
     @Id
     private String id;
     @DBRef
-    private GymPassDocument gymPassDocument;
+    private GymPassDocument gymPassOffer;
     @DBRef
-    private UserDocument userDocument;
+    private UserDocument user;
     private LocalDateTime purchaseDateAndTime;
     private LocalDate startDate;
     private LocalDate endDate;
@@ -28,15 +28,17 @@ public class PurchasedGymPassDocument {
     }
 
     public PurchasedGymPassDocument(
-            GymPassDocument gymPassDocument,
-            UserDocument userDocument,
+            GymPassDocument gymPassOffer,
+            UserDocument user,
+            LocalDateTime purchaseDateAndTime,
             LocalDate startDate,
             LocalDate endDate,
             int entries,
             LocalDate suspensionDate
     ){
-        this.gymPassDocument = gymPassDocument;
-        this.userDocument = userDocument;
+        this.gymPassOffer = gymPassOffer;
+        this.user = user;
+        this.purchaseDateAndTime = purchaseDateAndTime;
         this.startDate = startDate;
         this.endDate = endDate;
         this.entries = entries;
@@ -44,14 +46,16 @@ public class PurchasedGymPassDocument {
     }
 
     public PurchasedGymPassDocument(
-            GymPassDocument gymPassDocument,
-            UserDocument userDocument,
+            GymPassDocument gymPassOffer,
+            UserDocument user,
+            LocalDateTime purchaseDateAndTime,
             LocalDate startDate,
             LocalDate endDate,
             int entries
     ){
-        this.gymPassDocument = gymPassDocument;
-        this.userDocument = userDocument;
+        this.gymPassOffer = gymPassOffer;
+        this.user = user;
+        this.purchaseDateAndTime = purchaseDateAndTime;
         this.startDate = startDate;
         this.endDate = endDate;
         this.entries = entries;
@@ -61,12 +65,12 @@ public class PurchasedGymPassDocument {
         return id;
     }
 
-    public GymPassDocument getGymPassDocument() {
-        return gymPassDocument;
+    public GymPassDocument getGymPassOffer() {
+        return gymPassOffer;
     }
 
-    public UserDocument getUserDocument() {
-        return userDocument;
+    public UserDocument getUser() {
+        return user;
     }
 
     public LocalDateTime getPurchaseDateAndTime() {
@@ -93,12 +97,12 @@ public class PurchasedGymPassDocument {
         this.id = id;
     }
 
-    public void setGymPassDocument(GymPassDocument gymPassDocument) {
-        this.gymPassDocument = gymPassDocument;
+    public void setGymPassOffer(GymPassDocument gymPassOffer) {
+        this.gymPassOffer = gymPassOffer;
     }
 
-    public void setUserDocument(UserDocument userDocument) {
-        this.userDocument = userDocument;
+    public void setUser(UserDocument user) {
+        this.user = user;
     }
 
     public void setPurchaseDateAndTime(LocalDateTime purchaseDateAndTime) {
@@ -125,8 +129,8 @@ public class PurchasedGymPassDocument {
     public String toString() {
         return "PurchasedGymPassDocument{" +
                 "id='" + id + '\'' +
-                ", gymPassDocument=" + gymPassDocument +
-                ", userDocument=" + userDocument +
+                ", gymPassOffer=" + gymPassOffer +
+                ", user=" + user +
                 ", purchaseDateAndTime=" + purchaseDateAndTime +
                 ", startDate=" + startDate +
                 ", endDate=" + endDate +
@@ -142,8 +146,8 @@ public class PurchasedGymPassDocument {
         PurchasedGymPassDocument that = (PurchasedGymPassDocument) o;
         return entries == that.entries &&
                 Objects.equals(id, that.id) &&
-                Objects.equals(gymPassDocument, that.gymPassDocument) &&
-                Objects.equals(userDocument, that.userDocument) &&
+                Objects.equals(gymPassOffer, that.gymPassOffer) &&
+                Objects.equals(user, that.user) &&
                 Objects.equals(purchaseDateAndTime, that.purchaseDateAndTime) &&
                 Objects.equals(startDate, that.startDate) &&
                 Objects.equals(endDate, that.endDate) &&
@@ -154,8 +158,8 @@ public class PurchasedGymPassDocument {
     public int hashCode() {
         return Objects.hash(
                 id,
-                gymPassDocument,
-                userDocument,
+                gymPassOffer,
+                user,
                 purchaseDateAndTime,
                 startDate,
                 endDate,

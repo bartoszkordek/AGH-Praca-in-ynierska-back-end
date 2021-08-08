@@ -93,13 +93,12 @@ public class PurchaseController {
     }
 
     @PreAuthorize("hasRole('ADMIN') or hasRole('MANAGER') or hasRole('EMPLOYEE')")
-    @PutMapping("/{id}")
+    @PutMapping("/{id}/suspend/{suspensionDate}")
     public ResponseEntity<PurchasedGymPassResponse> suspendGymPass(
             @PathVariable("id") @ValidIDFormat final String id,
-            @RequestParam(value = "suspensionDate", required = false) @ValidDateFormat String suspensionDate
+            @PathVariable @ValidDateFormat String suspensionDate
     ) {
         try{
-
             String message = translator.toLocale("gympass.suspended");
 
             PurchasedGymPassDTO suspendedPurchasedGymPass  = purchaseService.suspendGymPass(id, suspensionDate);
@@ -114,8 +113,16 @@ public class PurchaseController {
             String reason = translator.toLocale("exception.gympass.not.found");
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, exception);
 
-        } catch (RetroSuspensionDate exception) {
+        } catch (AlreadySuspendedGymPassException exception) {
+            String reason = translator.toLocale("exception.gympass.already.suspended");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, exception);
+
+        } catch (RetroSuspensionDateException exception) {
             String reason = translator.toLocale("exception.retro.date.suspension");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, exception);
+
+        } catch (SuspensionDateAfterEndDateException exception) {
+            String reason = translator.toLocale("exception.suspension.after.end");
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, exception);
 
         } catch (Exception exception){

@@ -33,6 +33,7 @@ import org.testcontainers.shaded.com.fasterxml.jackson.databind.ObjectMapper;
 import org.testcontainers.utility.DockerImageName;
 
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -66,8 +67,11 @@ public class PurchaseGymPassIntegrationTest {
     private String managerToken;
     private String timePurchasedGymPassRequestContent;
     private String entriesPurchasedGymPassRequestContent;
+    private String invalidBindPurchasedGymPassRequestContent;
     private String gymPassOfferId;
+    private String invalidFormatGymPassOfferId;
     private String userId;
+    private String invalidFormatUserId;
     private String title;
     private double amount;
     private String currency;
@@ -76,6 +80,7 @@ public class PurchaseGymPassIntegrationTest {
     private String name;
     private String surname;
     private String requestStartDate;
+    private String invalidFormatDate = "01/03/2030";
     private String timePurchasedRequestEndDate;
     private String entriesPurchasedRequestEndDate;
     private int timePurchasedEntries;
@@ -148,6 +153,17 @@ public class PurchaseGymPassIntegrationTest {
         entriesPurchasedGymPassRequest.setEntries(entriesPurchasedEntries);
 
         entriesPurchasedGymPassRequestContent= objectMapper.writeValueAsString(entriesPurchasedGymPassRequest);
+
+        invalidFormatGymPassOfferId = "XSW";
+        invalidFormatUserId = "123";
+        PurchasedGymPassRequest invalidBindPurchasedGymPassRequest = new PurchasedGymPassRequest();
+        invalidBindPurchasedGymPassRequest.setGymPassOfferId(invalidFormatGymPassOfferId);
+        invalidBindPurchasedGymPassRequest.setUserId(invalidFormatUserId);
+        invalidBindPurchasedGymPassRequest.setStartDate(invalidFormatDate);
+        invalidBindPurchasedGymPassRequest.setEndDate(invalidFormatDate);
+        invalidBindPurchasedGymPassRequest.setEntries(entriesPurchasedEntries);
+
+        invalidBindPurchasedGymPassRequestContent = objectMapper.writeValueAsString(invalidBindPurchasedGymPassRequest);
     }
 
     @AfterEach
@@ -219,7 +235,7 @@ public class PurchaseGymPassIntegrationTest {
 
             HttpHeaders headers = new HttpHeaders();
             headers.set("Accept-Language", testedLocale.toString());
-            headers.set("Authorization", managerToken);
+            headers.set("Authorization", employeeToken);
             headers.setContentType(MediaType.APPLICATION_JSON);
 
             HttpEntity<Object> request = new HttpEntity<>(entriesPurchasedGymPassRequestContent, headers);
@@ -262,6 +278,40 @@ public class PurchaseGymPassIntegrationTest {
 
     @Nested
     class ShouldNotPurchaseGymPass{
+
+        @ParameterizedTest
+        @EnumSource(TestCountry.class)
+        void shouldNotGetOffersWhenNoToken_whenInvalidFormatRequest(TestCountry country) throws URISyntaxException {
+            Map<String, String> messages = getMessagesAccordingToLocale(country);
+            Locale testedLocale = convertEnumToLocale(country);
+
+            URI uri = new URI("http://localhost:" + port + "/purchase");
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.set("Accept-Language", testedLocale.toString());
+            headers.set("Authorization", employeeToken);
+            headers.setContentType(MediaType.APPLICATION_JSON);
+
+            HttpEntity<Object> request = new HttpEntity<>(invalidBindPurchasedGymPassRequestContent, headers);
+
+            String expectedMessage = messages.get("request.bind.exception");
+
+            ResponseEntity<JsonNode> responseEntity = restTemplate
+                    .exchange(uri, HttpMethod.POST, request, JsonNode.class);
+
+            assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+            assertThat(Objects.requireNonNull(responseEntity.getBody().get("message").textValue()))
+                    .isEqualTo(expectedMessage);
+            assertThat(responseEntity.getBody().get("errors").get("gymPassOfferId").textValue())
+                    .isEqualTo(messages.get("exception.invalid.id.format"));
+            assertThat(responseEntity.getBody().get("errors").get("userId").textValue())
+                    .isEqualTo(messages.get("exception.invalid.id.format"));
+            assertThat(responseEntity.getBody().get("errors").get("startDate").textValue())
+                    .isEqualTo(messages.get("exception.invalid.date.format"));
+            assertThat(responseEntity.getBody().get("errors").get("endDate").textValue())
+                    .isEqualTo(messages.get("exception.invalid.date.format"));
+            assertThat(responseEntity.getBody().get("timestamp")).isNotNull();
+        }
 
         @Nested
         class ShouldNotCreateOfferWhenNotAuthorized{

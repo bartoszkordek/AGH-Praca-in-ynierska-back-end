@@ -70,6 +70,7 @@ public class PurchaseGymPassIntegrationTest {
     private String invalidBindPurchasedGymPassRequestContent;
     private String invalidOfferIdPurchasedGymPassRequestContent;
     private String invalidUserIdPurchasedGymPassRequestContent;
+    private String retroPurchasedGymPassRequestContent;
     private String gymPassOfferId;
     private String invalidFormatGymPassOfferId;
     private String userId;
@@ -182,6 +183,14 @@ public class PurchaseGymPassIntegrationTest {
         invalidUserIdPurchasedGymPassRequest.setEndDate(timePurchasedRequestEndDate);
         invalidUserIdPurchasedGymPassRequest.setEntries(timePurchasedEntries);
         invalidUserIdPurchasedGymPassRequestContent = objectMapper.writeValueAsString(invalidUserIdPurchasedGymPassRequest);
+
+        PurchasedGymPassRequest retroPurchasedGymPassRequest = timePurchasedGymPassRequest;
+        retroPurchasedGymPassRequest.setGymPassOfferId(gymPassOfferId);
+        retroPurchasedGymPassRequest.setUserId(userId);
+        retroPurchasedGymPassRequest.setStartDate("2000-01-01");
+        retroPurchasedGymPassRequest.setEndDate(timePurchasedRequestEndDate);
+        retroPurchasedGymPassRequest.setEntries(timePurchasedEntries);
+        retroPurchasedGymPassRequestContent = objectMapper.writeValueAsString(retroPurchasedGymPassRequest);
 
     }
 
@@ -373,6 +382,32 @@ public class PurchaseGymPassIntegrationTest {
             HttpEntity<Object> request = new HttpEntity<>(invalidUserIdPurchasedGymPassRequestContent, headers);
 
             String expectedMessage = messages.get("exception.user.not.found");
+
+            ResponseEntity<JsonNode> responseEntity = restTemplate
+                    .exchange(uri, HttpMethod.POST, request, JsonNode.class);
+
+            assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+            assertThat(Objects.requireNonNull(responseEntity.getBody().get("message").textValue()))
+                    .isEqualTo(expectedMessage);
+            assertThat(responseEntity.getBody().get("timestamp")).isNotNull();
+        }
+
+        @ParameterizedTest
+        @EnumSource(TestCountry.class)
+        void shouldNotGetOffersWhenRetroDate(TestCountry country) throws URISyntaxException {
+            Map<String, String> messages = getMessagesAccordingToLocale(country);
+            Locale testedLocale = convertEnumToLocale(country);
+
+            URI uri = new URI("http://localhost:" + port + "/purchase");
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.set("Accept-Language", testedLocale.toString());
+            headers.set("Authorization", employeeToken);
+            headers.setContentType(MediaType.APPLICATION_JSON);
+
+            HttpEntity<Object> request = new HttpEntity<>(retroPurchasedGymPassRequestContent, headers);
+
+            String expectedMessage = messages.get("exception.retro.purchased");
 
             ResponseEntity<JsonNode> responseEntity = restTemplate
                     .exchange(uri, HttpMethod.POST, request, JsonNode.class);

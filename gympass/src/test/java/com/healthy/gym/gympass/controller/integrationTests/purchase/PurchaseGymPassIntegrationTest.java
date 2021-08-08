@@ -69,6 +69,7 @@ public class PurchaseGymPassIntegrationTest {
     private String entriesPurchasedGymPassRequestContent;
     private String invalidBindPurchasedGymPassRequestContent;
     private String invalidOfferIdPurchasedGymPassRequestContent;
+    private String invalidUserIdPurchasedGymPassRequestContent;
     private String gymPassOfferId;
     private String invalidFormatGymPassOfferId;
     private String userId;
@@ -166,9 +167,22 @@ public class PurchaseGymPassIntegrationTest {
 
         invalidBindPurchasedGymPassRequestContent = objectMapper.writeValueAsString(invalidBindPurchasedGymPassRequest);
 
-        PurchasedGymPassRequest invalidOfferIdPurchasedGymPassRequest = timePurchasedGymPassRequest;
+        PurchasedGymPassRequest invalidOfferIdPurchasedGymPassRequest = new PurchasedGymPassRequest();
         invalidOfferIdPurchasedGymPassRequest.setGymPassOfferId(UUID.randomUUID().toString());
+        invalidOfferIdPurchasedGymPassRequest.setUserId(userId);
+        invalidOfferIdPurchasedGymPassRequest.setStartDate(requestStartDate);
+        invalidOfferIdPurchasedGymPassRequest.setEndDate(timePurchasedRequestEndDate);
+        invalidOfferIdPurchasedGymPassRequest.setEntries(timePurchasedEntries);
         invalidOfferIdPurchasedGymPassRequestContent = objectMapper.writeValueAsString(invalidOfferIdPurchasedGymPassRequest);
+
+        PurchasedGymPassRequest invalidUserIdPurchasedGymPassRequest = timePurchasedGymPassRequest;
+        invalidUserIdPurchasedGymPassRequest.setGymPassOfferId(gymPassOfferId);
+        invalidUserIdPurchasedGymPassRequest.setUserId(UUID.randomUUID().toString());
+        invalidUserIdPurchasedGymPassRequest.setStartDate(requestStartDate);
+        invalidUserIdPurchasedGymPassRequest.setEndDate(timePurchasedRequestEndDate);
+        invalidUserIdPurchasedGymPassRequest.setEntries(timePurchasedEntries);
+        invalidUserIdPurchasedGymPassRequestContent = objectMapper.writeValueAsString(invalidUserIdPurchasedGymPassRequest);
+
     }
 
     @AfterEach
@@ -249,7 +263,6 @@ public class PurchaseGymPassIntegrationTest {
             ResponseEntity<JsonNode> responseEntity = restTemplate
                     .exchange(uri, HttpMethod.POST, request, JsonNode.class);
 
-            System.out.println("BODY " +responseEntity.getBody());
             assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.CREATED);
             assertThat(Objects.requireNonNull(responseEntity.getBody().get("message").textValue())).isEqualTo(expectedMessage);
             assertThat(responseEntity.getBody().get("purchasedGymPass").get("gymPassOffer").get("gymPassOfferId").textValue())
@@ -334,6 +347,32 @@ public class PurchaseGymPassIntegrationTest {
             HttpEntity<Object> request = new HttpEntity<>(invalidOfferIdPurchasedGymPassRequestContent, headers);
 
             String expectedMessage = messages.get("exception.offer.not.found");
+
+            ResponseEntity<JsonNode> responseEntity = restTemplate
+                    .exchange(uri, HttpMethod.POST, request, JsonNode.class);
+
+            assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+            assertThat(Objects.requireNonNull(responseEntity.getBody().get("message").textValue()))
+                    .isEqualTo(expectedMessage);
+            assertThat(responseEntity.getBody().get("timestamp")).isNotNull();
+        }
+
+        @ParameterizedTest
+        @EnumSource(TestCountry.class)
+        void shouldNotGetOffersWhenInvalidUserId(TestCountry country) throws URISyntaxException {
+            Map<String, String> messages = getMessagesAccordingToLocale(country);
+            Locale testedLocale = convertEnumToLocale(country);
+
+            URI uri = new URI("http://localhost:" + port + "/purchase");
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.set("Accept-Language", testedLocale.toString());
+            headers.set("Authorization", employeeToken);
+            headers.setContentType(MediaType.APPLICATION_JSON);
+
+            HttpEntity<Object> request = new HttpEntity<>(invalidUserIdPurchasedGymPassRequestContent, headers);
+
+            String expectedMessage = messages.get("exception.user.not.found");
 
             ResponseEntity<JsonNode> responseEntity = restTemplate
                     .exchange(uri, HttpMethod.POST, request, JsonNode.class);

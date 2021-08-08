@@ -26,6 +26,8 @@ public class PurchaseServiceImpl implements PurchaseService{
     private final UserDAO userDAO;
     private final ModelMapper modelMapper;
 
+    private static final String MAX_END_DATE = "9999-12-31";
+
     @Autowired
     public PurchaseServiceImpl(
             PurchasedGymPassDAO purchasedGymPassDAO,
@@ -62,7 +64,7 @@ public class PurchaseServiceImpl implements PurchaseService{
             throw new StartDateAfterEndDateException("Start date after end date");
 
         int entries = request.getEntries();
-        if(parsedEndDate.isEqual(LocalDate.MAX) && entries == Integer.MAX_VALUE)
+        if(endDate.equals(MAX_END_DATE) && entries == Integer.MAX_VALUE)
             throw new NotSpecifiedGymPassTypeException("Not specified gympass type");
 
         PurchasedGymPassDocument purchasedGymPassDocumentToSave = new PurchasedGymPassDocument(

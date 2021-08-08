@@ -33,7 +33,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 @SpringBootTest
-public class PurchaseGymPassServiceUnitTest {
+class PurchaseGymPassServiceUnitTest {
 
     @Autowired
     private PurchaseService purchaseService;
@@ -336,7 +336,7 @@ public class PurchaseGymPassServiceUnitTest {
         String gymPassOfferId = UUID.randomUUID().toString();
         String userId = UUID.randomUUID().toString();
         String requestStartDate = LocalDate.now().plusMonths(1).format(DateTimeFormatter.ISO_DATE);
-        String requestEndDate = LocalDate.MAX.format(DateTimeFormatter.ISO_DATE);
+        String requestEndDate = "9999-12-31";
         int entries = Integer.MAX_VALUE;
         PurchasedGymPassRequest purchasedGymPassRequest = new PurchasedGymPassRequest();
         purchasedGymPassRequest.setGymPassOfferId(gymPassOfferId);

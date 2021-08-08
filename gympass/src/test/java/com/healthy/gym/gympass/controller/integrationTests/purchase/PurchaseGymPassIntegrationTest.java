@@ -65,6 +65,7 @@ public class PurchaseGymPassIntegrationTest {
     private String employeeToken;
     private String managerToken;
     private String timePurchasedGymPassRequestContent;
+    private String entriesPurchasedGymPassRequestContent;
     private String gymPassOfferId;
     private String userId;
     private String title;
@@ -75,8 +76,10 @@ public class PurchaseGymPassIntegrationTest {
     private String name;
     private String surname;
     private String requestStartDate;
-    private String requestEndDate;
-    private int entries;
+    private String timePurchasedRequestEndDate;
+    private String entriesPurchasedRequestEndDate;
+    private int timePurchasedEntries;
+    private int entriesPurchasedEntries;
 
     @DynamicPropertySource
     static void setProperties(DynamicPropertyRegistry registry) {
@@ -124,16 +127,27 @@ public class PurchaseGymPassIntegrationTest {
         ObjectMapper objectMapper = new ObjectMapper();
 
         requestStartDate = LocalDate.now().format(DateTimeFormatter.ISO_DATE);
-        requestEndDate = LocalDate.now().plusMonths(1).format(DateTimeFormatter.ISO_DATE);
-        entries = Integer.MAX_VALUE;
+        timePurchasedRequestEndDate = LocalDate.now().plusMonths(1).format(DateTimeFormatter.ISO_DATE);
+        entriesPurchasedRequestEndDate = "9999-12-31";
+        timePurchasedEntries = Integer.MAX_VALUE;
+        entriesPurchasedEntries = 10;
         PurchasedGymPassRequest timePurchasedGymPassRequest = new PurchasedGymPassRequest();
         timePurchasedGymPassRequest.setGymPassOfferId(gymPassOfferId);
         timePurchasedGymPassRequest.setUserId(userId);
         timePurchasedGymPassRequest.setStartDate(requestStartDate);
-        timePurchasedGymPassRequest.setEndDate(requestEndDate);
-        timePurchasedGymPassRequest.setEntries(entries);
+        timePurchasedGymPassRequest.setEndDate(timePurchasedRequestEndDate);
+        timePurchasedGymPassRequest.setEntries(timePurchasedEntries);
 
         timePurchasedGymPassRequestContent = objectMapper.writeValueAsString(timePurchasedGymPassRequest);
+
+        PurchasedGymPassRequest entriesPurchasedGymPassRequest = new PurchasedGymPassRequest();
+        entriesPurchasedGymPassRequest.setGymPassOfferId(gymPassOfferId);
+        entriesPurchasedGymPassRequest.setUserId(userId);
+        entriesPurchasedGymPassRequest.setStartDate(requestStartDate);
+        entriesPurchasedGymPassRequest.setEndDate(entriesPurchasedRequestEndDate);
+        entriesPurchasedGymPassRequest.setEntries(entriesPurchasedEntries);
+
+        entriesPurchasedGymPassRequestContent= objectMapper.writeValueAsString(entriesPurchasedGymPassRequest);
     }
 
     @AfterEach
@@ -190,9 +204,59 @@ public class PurchaseGymPassIntegrationTest {
             assertThat(responseEntity.getBody().get("purchasedGymPass").get("startDate").textValue())
                     .isEqualTo(requestStartDate);
             assertThat(responseEntity.getBody().get("purchasedGymPass").get("endDate").textValue())
-                    .isEqualTo(requestEndDate);
+                    .isEqualTo(timePurchasedRequestEndDate);
             assertThat(responseEntity.getBody().get("purchasedGymPass").get("entries").intValue())
-                    .isEqualTo(entries);
+                    .isEqualTo(timePurchasedEntries);
+        }
+
+        @ParameterizedTest
+        @EnumSource(TestCountry.class)
+        void shouldPurchaseEntriesGymPass_whenValidRequest(TestCountry country) throws Exception {
+            Map<String, String> messages = getMessagesAccordingToLocale(country);
+            Locale testedLocale = convertEnumToLocale(country);
+
+            URI uri = new URI("http://localhost:" + port + "/purchase");
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.set("Accept-Language", testedLocale.toString());
+            headers.set("Authorization", managerToken);
+            headers.setContentType(MediaType.APPLICATION_JSON);
+
+            HttpEntity<Object> request = new HttpEntity<>(entriesPurchasedGymPassRequestContent, headers);
+            String expectedMessage = messages.get("gympass.purchased");
+
+            ResponseEntity<JsonNode> responseEntity = restTemplate
+                    .exchange(uri, HttpMethod.POST, request, JsonNode.class);
+
+            System.out.println("BODY " +responseEntity.getBody());
+            assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.CREATED);
+            assertThat(Objects.requireNonNull(responseEntity.getBody().get("message").textValue())).isEqualTo(expectedMessage);
+            assertThat(responseEntity.getBody().get("purchasedGymPass").get("gymPassOffer").get("gymPassOfferId").textValue())
+                    .isEqualTo(gymPassOfferId);
+            assertThat(responseEntity.getBody().get("purchasedGymPass").get("gymPassOffer").get("title").textValue())
+                    .isEqualTo(title);
+            assertThat(responseEntity.getBody().get("purchasedGymPass").get("gymPassOffer").get("price").get("amount").doubleValue())
+                    .isEqualTo(amount);
+            assertThat(responseEntity.getBody().get("purchasedGymPass").get("gymPassOffer").get("price").get("currency").textValue())
+                    .isEqualTo(currency);
+            assertThat(responseEntity.getBody().get("purchasedGymPass").get("gymPassOffer").get("price").get("period").textValue())
+                    .isEqualTo(period);
+            assertThat(responseEntity.getBody().get("purchasedGymPass").get("gymPassOffer").get("premium").booleanValue())
+                    .isFalse();
+            assertThat(responseEntity.getBody().get("purchasedGymPass").get("user").get("userId").textValue())
+                    .isEqualTo(userId);
+            assertThat(responseEntity.getBody().get("purchasedGymPass").get("user").get("name").textValue())
+                    .isEqualTo(name);
+            assertThat(responseEntity.getBody().get("purchasedGymPass").get("user").get("surname").textValue())
+                    .isEqualTo(surname);
+            assertThat(responseEntity.getBody().get("purchasedGymPass").get("purchaseDateAndTime"))
+                    .isNotNull();
+            assertThat(responseEntity.getBody().get("purchasedGymPass").get("startDate").textValue())
+                    .isEqualTo(requestStartDate);
+            assertThat(responseEntity.getBody().get("purchasedGymPass").get("endDate").textValue())
+                    .isEqualTo(entriesPurchasedRequestEndDate);
+            assertThat(responseEntity.getBody().get("purchasedGymPass").get("entries").intValue())
+                    .isEqualTo(entriesPurchasedEntries);
         }
     }
 

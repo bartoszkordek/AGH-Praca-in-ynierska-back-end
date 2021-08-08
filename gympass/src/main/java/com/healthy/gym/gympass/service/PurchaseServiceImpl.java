@@ -79,4 +79,9 @@ public class PurchaseServiceImpl implements PurchaseService{
         return modelMapper.map(purchasedGymPassDocumentSaved, PurchasedGymPassDTO.class);
 
     }
+
+    @Override
+    public PurchasedGymPassDTO suspendGymPass(String individualGymPassId, String date) throws OfferNotFoundException{
+        return null;
+    }
 }

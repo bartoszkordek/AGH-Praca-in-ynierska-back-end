@@ -96,7 +96,7 @@ public class PurchaseController {
     @PutMapping("/{id}")
     public ResponseEntity<PurchasedGymPassResponse> suspendGymPass(
             @PathVariable("id") @ValidIDFormat final String id,
-            @RequestParam("suspensionDate") @ValidDateFormat String suspensionDate
+            @RequestParam(value = "suspensionDate", required = false) @ValidDateFormat String suspensionDate
     ) {
         try{
 
@@ -110,9 +110,14 @@ public class PurchaseController {
                             suspendedPurchasedGymPass
                     ));
 
-        } catch (OfferNotFoundException exception) {
-            String reason = translator.toLocale("exception.offer.not.found");
+        } catch (GymPassNotFoundException exception) {
+            String reason = translator.toLocale("exception.gympass.not.found");
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, exception);
+
+        } catch (RetroSuspensionDate exception) {
+            String reason = translator.toLocale("exception.retro.date.suspension");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, exception);
+
         } catch (Exception exception){
             String reason = translator.toLocale(INTERNAL_ERROR_EXCEPTION);
             exception.printStackTrace();

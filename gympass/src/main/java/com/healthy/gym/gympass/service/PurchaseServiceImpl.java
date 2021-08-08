@@ -83,8 +83,22 @@ public class PurchaseServiceImpl implements PurchaseService{
     }
 
     @Override
-    public PurchasedGymPassDTO suspendGymPass(String individualGymPassId, String date) throws OfferNotFoundException{
+    public PurchasedGymPassDTO suspendGymPass(String individualGymPassId, String date)
+            throws GymPassNotFoundException, RetroSuspensionDate {
 
-        return null;
+        PurchasedGymPassDocument purchasedGymPassDocument = purchasedGymPassDAO.findByPurchasedGymPassDocumentId(individualGymPassId);
+        if(purchasedGymPassDocument == null) throw new GymPassNotFoundException("Gympass with current ID does not exist");
+
+        LocalDate now = LocalDate.now();
+        LocalDate suspensionDate = now;
+        if(date != null){
+            suspensionDate = LocalDate.parse(date, DateTimeFormatter.ISO_DATE);
+            if(suspensionDate.isBefore(now) || suspensionDate.isEqual(now))
+                throw new RetroSuspensionDate("Retro suspension date");
+        }
+
+        purchasedGymPassDocument.setSuspensionDate(suspensionDate);
+        PurchasedGymPassDocument purchasedGymPassDocumentSaved = purchasedGymPassDAO.save(purchasedGymPassDocument);
+        return modelMapper.map(purchasedGymPassDocumentSaved, PurchasedGymPassDTO.class);
     }
 }

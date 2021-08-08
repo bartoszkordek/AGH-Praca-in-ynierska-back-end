@@ -10,5 +10,6 @@ public interface PurchaseService {
             throws OfferNotFoundException, UserNotFoundException, RetroPurchasedException,
             StartDateAfterEndDateException, NotSpecifiedGymPassTypeException;
 
-    PurchasedGymPassDTO suspendGymPass(String individualGymPassId, String suspensionDate) throws OfferNotFoundException;
+    PurchasedGymPassDTO suspendGymPass(String individualGymPassId, String suspensionDate)
+            throws GymPassNotFoundException, RetroSuspensionDate;
 }

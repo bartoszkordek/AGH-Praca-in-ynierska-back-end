@@ -5,7 +5,7 @@ import com.healthy.gym.gympass.configuration.TestRoleTokenFactory;
 import com.healthy.gym.gympass.controller.OfferController;
 import com.healthy.gym.gympass.dto.GymPassDTO;
 import com.healthy.gym.gympass.exception.DuplicatedOffersException;
-import com.healthy.gym.gympass.exception.GymPassNotFoundException;
+import com.healthy.gym.gympass.exception.OfferNotFoundException;
 import com.healthy.gym.gympass.pojo.request.GymPassOfferRequest;
 import com.healthy.gym.gympass.service.OfferService;
 import com.healthy.gym.gympass.shared.Description;
@@ -412,7 +412,7 @@ class UpdateOfferUnitTest {
 
             String expectedMessage = messages.get("exception.invalid.offer.id");
 
-            doThrow(GymPassNotFoundException.class)
+            doThrow(OfferNotFoundException.class)
                     .when(offerService)
                     .updateGymPassOffer(invalidId, gymPassOfferRequest);
 
@@ -422,7 +422,7 @@ class UpdateOfferUnitTest {
                     .andExpect(status().reason(is(expectedMessage)))
                     .andExpect(result ->
                             assertThat(Objects.requireNonNull(result.getResolvedException()).getCause())
-                                    .isInstanceOf(GymPassNotFoundException.class)
+                                    .isInstanceOf(OfferNotFoundException.class)
                     );
         }
 

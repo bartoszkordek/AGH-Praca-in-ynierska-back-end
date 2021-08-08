@@ -4,8 +4,8 @@ import com.healthy.gym.gympass.data.document.GymPassDocument;
 import com.healthy.gym.gympass.data.repository.GymPassOfferDAO;
 import com.healthy.gym.gympass.dto.GymPassDTO;
 import com.healthy.gym.gympass.exception.DuplicatedOffersException;
-import com.healthy.gym.gympass.exception.GymPassNotFoundException;
 import com.healthy.gym.gympass.exception.NoOffersException;
+import com.healthy.gym.gympass.exception.OfferNotFoundException;
 import com.healthy.gym.gympass.pojo.request.GymPassOfferRequest;
 import com.healthy.gym.gympass.shared.Description;
 import com.healthy.gym.gympass.shared.Price;
@@ -73,11 +73,11 @@ public class OfferServiceImpl implements OfferService{
 
     @Override
     public GymPassDTO updateGymPassOffer(String id, GymPassOfferRequest request)
-            throws DuplicatedOffersException, GymPassNotFoundException {
+            throws DuplicatedOffersException, OfferNotFoundException {
 
         GymPassDocument gymPassDocument = gymPassOfferDAO.findByDocumentId(id);
         if(gymPassDocument == null)
-            throw new GymPassNotFoundException("Offer does not exist");
+            throw new OfferNotFoundException("Offer does not exist");
 
         String requestTitle = request.getTitle();
         GymPassDocument documentWithRequestTitle = gymPassOfferDAO.findByTitle(requestTitle);
@@ -107,11 +107,11 @@ public class OfferServiceImpl implements OfferService{
     }
 
     @Override
-    public GymPassDTO deleteGymPassOffer(String id) throws GymPassNotFoundException {
+    public GymPassDTO deleteGymPassOffer(String id) throws OfferNotFoundException {
 
         GymPassDocument gymPassDocument = gymPassOfferDAO.findByDocumentId(id);
         if(gymPassDocument == null)
-            throw new GymPassNotFoundException("Offer does not exist");
+            throw new OfferNotFoundException("Offer does not exist");
         gymPassOfferDAO.delete(gymPassDocument);
 
         return modelMapper.map(gymPassDocument, GymPassDTO.class);

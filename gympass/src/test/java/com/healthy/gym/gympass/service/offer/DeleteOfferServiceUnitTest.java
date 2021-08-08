@@ -1,9 +1,10 @@
-package com.healthy.gym.gympass.service;
+package com.healthy.gym.gympass.service.offer;
 
 import com.healthy.gym.gympass.data.document.GymPassDocument;
 import com.healthy.gym.gympass.data.repository.GymPassOfferDAO;
 import com.healthy.gym.gympass.dto.GymPassDTO;
-import com.healthy.gym.gympass.exception.InvalidGymPassOfferIdException;
+import com.healthy.gym.gympass.exception.GymPassNotFoundException;
+import com.healthy.gym.gympass.service.OfferService;
 import com.healthy.gym.gympass.shared.Description;
 import com.healthy.gym.gympass.shared.Price;
 import org.junit.jupiter.api.BeforeEach;
@@ -80,7 +81,7 @@ public class DeleteOfferServiceUnitTest {
     class ShouldDeleteOffer{
 
         @Test
-        void shouldDeleteOffer_whenValidDocumentId() throws InvalidGymPassOfferIdException {
+        void shouldDeleteOffer_whenValidDocumentId() throws GymPassNotFoundException {
 
             //when
             when(gymPassOfferDAO.findByDocumentId(documentId)).thenReturn(existingGymPassDocument);
@@ -95,7 +96,7 @@ public class DeleteOfferServiceUnitTest {
     class ShouldNotDeleteOffer{
 
         @Test
-        void shouldDeleteOffer_whenInvalidDocumentId() throws InvalidGymPassOfferIdException {
+        void shouldDeleteOffer_whenInvalidDocumentId() throws GymPassNotFoundException {
 
             //when
             when(gymPassOfferDAO.findByDocumentId(documentId)).thenReturn(null);
@@ -104,7 +105,7 @@ public class DeleteOfferServiceUnitTest {
             //then
             assertThatThrownBy(() ->
                     offerService.deleteGymPassOffer(documentId)
-            ).isInstanceOf(InvalidGymPassOfferIdException.class);
+            ).isInstanceOf(GymPassNotFoundException.class);
         }
     }
 

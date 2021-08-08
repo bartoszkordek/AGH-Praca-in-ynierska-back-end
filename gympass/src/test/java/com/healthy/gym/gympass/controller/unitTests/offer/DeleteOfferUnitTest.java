@@ -1,10 +1,10 @@
-package com.healthy.gym.gympass.controller.unitTests;
+package com.healthy.gym.gympass.controller.unitTests.offer;
 
 import com.healthy.gym.gympass.configuration.TestCountry;
 import com.healthy.gym.gympass.configuration.TestRoleTokenFactory;
 import com.healthy.gym.gympass.controller.OfferController;
 import com.healthy.gym.gympass.dto.GymPassDTO;
-import com.healthy.gym.gympass.exception.InvalidGymPassOfferIdException;
+import com.healthy.gym.gympass.exception.GymPassNotFoundException;
 import com.healthy.gym.gympass.service.OfferService;
 import com.healthy.gym.gympass.shared.Description;
 import com.healthy.gym.gympass.shared.Price;
@@ -184,7 +184,7 @@ class DeleteOfferUnitTest {
 
         String expectedMessage = messages.get("exception.invalid.offer.id");
 
-        doThrow(InvalidGymPassOfferIdException.class)
+        doThrow(GymPassNotFoundException.class)
                 .when(offerService)
                 .deleteGymPassOffer(any());
 
@@ -194,7 +194,7 @@ class DeleteOfferUnitTest {
                 .andExpect(status().reason(is(expectedMessage)))
                 .andExpect(result ->
                         assertThat(Objects.requireNonNull(result.getResolvedException()).getCause())
-                                .isInstanceOf(InvalidGymPassOfferIdException.class)
+                                .isInstanceOf(GymPassNotFoundException.class)
                 );
     }
 

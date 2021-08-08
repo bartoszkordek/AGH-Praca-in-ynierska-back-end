@@ -19,6 +19,7 @@ public class GymPassDocument {
     private Description description;
 
     public GymPassDocument() {
+        //empty constructor required spring data mapper
     }
 
     public GymPassDocument(

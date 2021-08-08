@@ -1,11 +1,12 @@
-package com.healthy.gym.gympass.service;
+package com.healthy.gym.gympass.service.offer;
 
 import com.healthy.gym.gympass.data.document.GymPassDocument;
 import com.healthy.gym.gympass.data.repository.GymPassOfferDAO;
 import com.healthy.gym.gympass.dto.GymPassDTO;
 import com.healthy.gym.gympass.exception.DuplicatedOffersException;
-import com.healthy.gym.gympass.exception.InvalidGymPassOfferIdException;
+import com.healthy.gym.gympass.exception.GymPassNotFoundException;
 import com.healthy.gym.gympass.pojo.request.GymPassOfferRequest;
+import com.healthy.gym.gympass.service.OfferService;
 import com.healthy.gym.gympass.shared.Description;
 import com.healthy.gym.gympass.shared.Price;
 import org.junit.jupiter.api.BeforeEach;
@@ -110,7 +111,7 @@ class UpdateOfferServiceUnitTest {
     @Nested
     class ShouldUpdateOffer{
         @Test
-        void shouldUpdateOffer_whenValidRequestAndDocumentId_updatedPrice() throws InvalidGymPassOfferIdException, DuplicatedOffersException {
+        void shouldUpdateOffer_whenValidRequestAndDocumentId_updatedPrice() throws GymPassNotFoundException, DuplicatedOffersException {
 
             //request
             double amount = 149.99;
@@ -134,7 +135,7 @@ class UpdateOfferServiceUnitTest {
         }
 
         @Test
-        void shouldUpdateOffer_whenValidRequestAndDocumentId_updatedTitle() throws InvalidGymPassOfferIdException, DuplicatedOffersException {
+        void shouldUpdateOffer_whenValidRequestAndDocumentId_updatedTitle() throws GymPassNotFoundException, DuplicatedOffersException {
 
             //request
             String title = "Karnet miesięczny plus";
@@ -168,7 +169,7 @@ class UpdateOfferServiceUnitTest {
             //then
             assertThatThrownBy(() ->
                     offerService.updateGymPassOffer(any(),gymPassOfferRequest)
-            ).isInstanceOf(InvalidGymPassOfferIdException.class);
+            ).isInstanceOf(GymPassNotFoundException.class);
         }
 
         @Test

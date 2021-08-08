@@ -4,12 +4,13 @@ package com.healthy.gym.gympass.controller;
 import com.healthy.gym.gympass.component.Translator;
 import com.healthy.gym.gympass.dto.GymPassDTO;
 import com.healthy.gym.gympass.exception.DuplicatedOffersException;
-import com.healthy.gym.gympass.exception.InvalidGymPassOfferIdException;
+import com.healthy.gym.gympass.exception.GymPassNotFoundException;
 import com.healthy.gym.gympass.exception.NoOffersException;
 import com.healthy.gym.gympass.exception.RequestBindException;
 import com.healthy.gym.gympass.pojo.request.GymPassOfferRequest;
 import com.healthy.gym.gympass.pojo.response.GymPassOfferResponse;
 import com.healthy.gym.gympass.service.OfferService;
+import com.healthy.gym.gympass.validation.ValidIDFormat;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -104,7 +105,7 @@ public class OfferController {
     @PreAuthorize("hasRole('ADMIN') or hasRole('MANAGER')")
     @PutMapping("/{id}")
     public ResponseEntity<GymPassOfferResponse> updateGymPassOffer(
-            @PathVariable("id") final String id,
+            @PathVariable("id") @ValidIDFormat final String id,
             @Valid @RequestBody final GymPassOfferRequest request,
             final BindingResult bindingResult
     ) throws RequestBindException {
@@ -126,7 +127,7 @@ public class OfferController {
             String reason = translator.toLocale("request.bind.exception");
             throw new RequestBindException(HttpStatus.BAD_REQUEST, reason, exception);
 
-        } catch (InvalidGymPassOfferIdException exception) {
+        } catch (GymPassNotFoundException exception) {
             String reason = translator.toLocale("exception.invalid.offer.id");
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, exception);
 
@@ -144,7 +145,7 @@ public class OfferController {
     @PreAuthorize("hasRole('ADMIN') or hasRole('MANAGER')")
     @DeleteMapping("/{id}")
     public ResponseEntity<GymPassOfferResponse> deleteGymPassOffer(
-            @PathVariable("id") final String id
+            @PathVariable("id") @ValidIDFormat final String id
     ) {
         try{
             String message = translator.toLocale("offer.removed");
@@ -158,7 +159,7 @@ public class OfferController {
                     ));
         }
 
-        catch (InvalidGymPassOfferIdException exception) {
+        catch (GymPassNotFoundException exception) {
             String reason = translator.toLocale("exception.invalid.offer.id");
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, exception);
 

@@ -21,7 +21,17 @@ public class Messages {
                 {"field.features.failure", "Oferta może maksymalnie zawierać 20 szczególów."},
                 {"request.bind.exception", "Podano nieprawidłowy format danych."},
                 {"exception.duplicated.offers", "Zduplikowana nazwa oferty."},
-                {"exception.invalid.offer.id", "Blędne ID oferty."}
+                {"exception.invalid.offer.id", "Blędne ID oferty."},
+                {"gympass.purchased", "Karnet został zakupiony."},
+                {"exception.offer.not.found", "Nie znaleziono oferty."},
+                {"exception.user.not.found", "Nie znaleziono użytkownika."},
+                {"exception.gympass.type","Nie sprecyzowany typ karnetu."},
+                {"exception.retro.purchased", "Nie można zakupić karnetu z datą wsteczną."},
+                {"exception.start.after.end", "Data rozpoczęcia po dacie zakończenia."},
+                {"exception.invalid.id.format", "Nieprawidłowy format id. Zastosuj format UUID."},
+                {"exception.invalid.date.format", "Nieprawidłowy format daty. Zastosuj format 'YYYY-MM-dd'."},
+                {"exception.invalid.date.time.format",
+                        "Nieprawidłowy format daty i czasu. Zastosuj format 'YYYY-MM-dd'T'HH:mm'."}
 
         }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
     }
@@ -42,7 +52,17 @@ public class Messages {
                 {"field.features.failure", "Offer should contain max 20 features."},
                 {"request.bind.exception", "An invalid data format has been provided."},
                 {"exception.duplicated.offers", "Duplicated offer name."},
-                {"exception.invalid.offer.id", "Invalid offer ID."}
+                {"exception.invalid.offer.id", "Invalid offer ID."},
+                {"gympass.purchased", "Gympass has been purchased."},
+                {"exception.offer.not.found", "Offer not found."},
+                {"exception.user.not.found", "User not found."},
+                {"exception.gympass.type", "Not specified gympass type."},
+                {"exception.retro.purchased", "Cannot purchase gympass with retro date."},
+                {"exception.start.after.end", "Start date after end date."},
+                {"exception.invalid.id.format", "Invalid id format. Use UUID format."},
+                {"exception.invalid.date.format","Invalid date format. Use the 'YYYY-MM-dd' format."},
+                {"exception.invalid.date.time.format",
+                        "Invalid date and time format. Use the 'YYYY-MM-dd'T'HH:mm' format."}
 
         }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
     }

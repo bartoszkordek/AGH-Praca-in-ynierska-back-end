@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
@@ -125,5 +126,77 @@ public class PurchaseGymPassServiceUnitTest {
 
         //then
         assertThat(purchaseService.purchaseGymPass(purchasedGymPassRequest)).isEqualTo(purchasedGymPassDTO);
+    }
+
+    @Test
+    void shouldNotPurchaseGymPass_whenInvalidOfferId(){
+
+        //before
+        //request
+        String gymPassOfferId = UUID.randomUUID().toString();
+        String userId = UUID.randomUUID().toString();
+        String requestStartDate = LocalDate.now().format(DateTimeFormatter.ISO_DATE);
+        String requestEndDate = LocalDate.now().plusMonths(1).format(DateTimeFormatter.ISO_DATE);
+        int entries = Integer.MAX_VALUE;
+        PurchasedGymPassRequest purchasedGymPassRequest = new PurchasedGymPassRequest();
+        purchasedGymPassRequest.setGymPassOfferId(gymPassOfferId);
+        purchasedGymPassRequest.setUserId(userId);
+        purchasedGymPassRequest.setStartDate(requestStartDate);
+        purchasedGymPassRequest.setEndDate(requestEndDate);
+        purchasedGymPassRequest.setEntries(entries);
+
+        //response
+        String title = "Karnet miesięczny";
+        double amount = 139.99;
+        String currency = "zł";
+        String period = "miesiąc";
+        boolean isPremium = false;
+        String name = "Jan";
+        String surname = "kowalski";
+        LocalDateTime purchaseDateAndTime = LocalDateTime.now();
+        LocalDate responseStartDate = LocalDate.now();
+        LocalDate responseEndDate = LocalDate.now().plusMonths(1);
+        PurchasedGymPassDTO purchasedGymPassDTO = new PurchasedGymPassDTO(
+                new SimpleGymPassDTO(
+                        gymPassOfferId,
+                        title,
+                        new Price(amount, currency, period),
+                        isPremium
+                ),
+                new BasicUserInfoDTO(userId, name, surname),
+                purchaseDateAndTime,
+                responseStartDate,
+                responseEndDate,
+                entries
+        );
+
+        //DB documents
+        UserDocument userDocument = new UserDocument();
+        userDocument.setName(name);
+        userDocument.setSurname(surname);
+        userDocument.setUserId(userId);
+        userDocument.setGymRoles(List.of(GymRole.USER));
+        userDocument.setId("507f1f77bcf86cd799435213");
+
+        String subheader = "Najepszy wybór dla regularnie uprawiających sport";
+        String synopsis = "Nielimitowana liczba wejść";
+        List<String> features = List.of("siłownia", "fitness", "TRX", "rowery");
+        GymPassDocument gymPassOfferDocument = new GymPassDocument(
+                gymPassOfferId,
+                title,
+                subheader,
+                new Price(amount, currency, period),
+                isPremium,
+                new Description(synopsis,features)
+        );
+        gymPassOfferDocument.setId("507f1f77bcf86cd799439011");
+
+        //when
+        when(gymPassOfferDAO.findByDocumentId(gymPassOfferId)).thenReturn(null);
+
+        //then
+        assertThatThrownBy(() ->
+                purchaseService.purchaseGymPass(purchasedGymPassRequest)
+        ).isInstanceOf(OfferNotFoundException.class);
     }
 }

@@ -68,6 +68,7 @@ public class PurchaseGymPassIntegrationTest {
     private String timePurchasedGymPassRequestContent;
     private String entriesPurchasedGymPassRequestContent;
     private String invalidBindPurchasedGymPassRequestContent;
+    private String invalidOfferIdPurchasedGymPassRequestContent;
     private String gymPassOfferId;
     private String invalidFormatGymPassOfferId;
     private String userId;
@@ -164,6 +165,10 @@ public class PurchaseGymPassIntegrationTest {
         invalidBindPurchasedGymPassRequest.setEntries(entriesPurchasedEntries);
 
         invalidBindPurchasedGymPassRequestContent = objectMapper.writeValueAsString(invalidBindPurchasedGymPassRequest);
+
+        PurchasedGymPassRequest invalidOfferIdPurchasedGymPassRequest = timePurchasedGymPassRequest;
+        invalidOfferIdPurchasedGymPassRequest.setGymPassOfferId(UUID.randomUUID().toString());
+        invalidOfferIdPurchasedGymPassRequestContent = objectMapper.writeValueAsString(invalidOfferIdPurchasedGymPassRequest);
     }
 
     @AfterEach
@@ -281,7 +286,7 @@ public class PurchaseGymPassIntegrationTest {
 
         @ParameterizedTest
         @EnumSource(TestCountry.class)
-        void shouldNotGetOffersWhenNoToken_whenInvalidFormatRequest(TestCountry country) throws URISyntaxException {
+        void shouldNotGetOffersWhenInvalidFormatRequest(TestCountry country) throws URISyntaxException {
             Map<String, String> messages = getMessagesAccordingToLocale(country);
             Locale testedLocale = convertEnumToLocale(country);
 
@@ -310,6 +315,32 @@ public class PurchaseGymPassIntegrationTest {
                     .isEqualTo(messages.get("exception.invalid.date.format"));
             assertThat(responseEntity.getBody().get("errors").get("endDate").textValue())
                     .isEqualTo(messages.get("exception.invalid.date.format"));
+            assertThat(responseEntity.getBody().get("timestamp")).isNotNull();
+        }
+
+        @ParameterizedTest
+        @EnumSource(TestCountry.class)
+        void shouldNotGetOffersWhenInvalidOfferId(TestCountry country) throws URISyntaxException {
+            Map<String, String> messages = getMessagesAccordingToLocale(country);
+            Locale testedLocale = convertEnumToLocale(country);
+
+            URI uri = new URI("http://localhost:" + port + "/purchase");
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.set("Accept-Language", testedLocale.toString());
+            headers.set("Authorization", employeeToken);
+            headers.setContentType(MediaType.APPLICATION_JSON);
+
+            HttpEntity<Object> request = new HttpEntity<>(invalidOfferIdPurchasedGymPassRequestContent, headers);
+
+            String expectedMessage = messages.get("exception.offer.not.found");
+
+            ResponseEntity<JsonNode> responseEntity = restTemplate
+                    .exchange(uri, HttpMethod.POST, request, JsonNode.class);
+
+            assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+            assertThat(Objects.requireNonNull(responseEntity.getBody().get("message").textValue()))
+                    .isEqualTo(expectedMessage);
             assertThat(responseEntity.getBody().get("timestamp")).isNotNull();
         }
 

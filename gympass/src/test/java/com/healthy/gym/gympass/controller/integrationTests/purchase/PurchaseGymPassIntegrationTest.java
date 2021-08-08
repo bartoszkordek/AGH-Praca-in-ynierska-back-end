@@ -72,6 +72,7 @@ public class PurchaseGymPassIntegrationTest {
     private String invalidUserIdPurchasedGymPassRequestContent;
     private String retroPurchasedGymPassRequestContent;
     private String startDateAfterEndDatePurchasedGymPassRequestContent;
+    private String notSpecifiedTypePurchasedGymPassRequestContent;
     private String gymPassOfferId;
     private String invalidFormatGymPassOfferId;
     private String userId;
@@ -201,6 +202,13 @@ public class PurchaseGymPassIntegrationTest {
         startDateAfterEndDatePurchasedGymPassRequest.setEntries(timePurchasedEntries);
         startDateAfterEndDatePurchasedGymPassRequestContent = objectMapper.writeValueAsString(startDateAfterEndDatePurchasedGymPassRequest);
 
+        PurchasedGymPassRequest notSpecifiedTypePurchasedGymPassRequest = timePurchasedGymPassRequest;
+        notSpecifiedTypePurchasedGymPassRequest.setGymPassOfferId(gymPassOfferId);
+        notSpecifiedTypePurchasedGymPassRequest.setUserId(userId);
+        notSpecifiedTypePurchasedGymPassRequest.setStartDate(LocalDate.now().plusMonths(1).format(DateTimeFormatter.ISO_DATE));
+        notSpecifiedTypePurchasedGymPassRequest.setEndDate("9999-12-31");
+        notSpecifiedTypePurchasedGymPassRequest.setEntries(Integer.MAX_VALUE);
+        notSpecifiedTypePurchasedGymPassRequestContent = objectMapper.writeValueAsString(notSpecifiedTypePurchasedGymPassRequest);
     }
 
     @AfterEach
@@ -443,6 +451,32 @@ public class PurchaseGymPassIntegrationTest {
             HttpEntity<Object> request = new HttpEntity<>(startDateAfterEndDatePurchasedGymPassRequestContent, headers);
 
             String expectedMessage = messages.get("exception.start.after.end");
+
+            ResponseEntity<JsonNode> responseEntity = restTemplate
+                    .exchange(uri, HttpMethod.POST, request, JsonNode.class);
+
+            assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+            assertThat(Objects.requireNonNull(responseEntity.getBody().get("message").textValue()))
+                    .isEqualTo(expectedMessage);
+            assertThat(responseEntity.getBody().get("timestamp")).isNotNull();
+        }
+
+        @ParameterizedTest
+        @EnumSource(TestCountry.class)
+        void shouldNotGetOffersWhenNotSpecifiedType(TestCountry country) throws URISyntaxException {
+            Map<String, String> messages = getMessagesAccordingToLocale(country);
+            Locale testedLocale = convertEnumToLocale(country);
+
+            URI uri = new URI("http://localhost:" + port + "/purchase");
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.set("Accept-Language", testedLocale.toString());
+            headers.set("Authorization", employeeToken);
+            headers.setContentType(MediaType.APPLICATION_JSON);
+
+            HttpEntity<Object> request = new HttpEntity<>(notSpecifiedTypePurchasedGymPassRequestContent, headers);
+
+            String expectedMessage = messages.get("exception.gympass.type");
 
             ResponseEntity<JsonNode> responseEntity = restTemplate
                     .exchange(uri, HttpMethod.POST, request, JsonNode.class);

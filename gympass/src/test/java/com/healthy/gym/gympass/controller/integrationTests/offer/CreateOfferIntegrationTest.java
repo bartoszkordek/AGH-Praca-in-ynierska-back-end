@@ -1,4 +1,4 @@
-package com.healthy.gym.gympass.controller.integrationTests;
+package com.healthy.gym.gympass.controller.integrationTests.offer;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.healthy.gym.gympass.configuration.FixedClockConfig;
@@ -42,7 +42,7 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
         "eureka.client.fetch-registry=false",
         "eureka.client.register-with-eureka=false"
 })
-public class UpdateOfferIntegrationTest {
+class CreateOfferIntegrationTest {
 
     @Container
     static MongoDBContainer mongoDBContainer =
@@ -58,7 +58,6 @@ public class UpdateOfferIntegrationTest {
     private Integer port;
     private String userToken;
     private String managerToken;
-    private String existingDocumentId;
     private String requestContent;
     private String invalidTitleRequestContent;
     private String invalidSubheaderRequestContent;
@@ -76,17 +75,6 @@ public class UpdateOfferIntegrationTest {
 
         userToken = tokenFactory.getUserToken(UUID.randomUUID().toString());
         managerToken = tokenFactory.getMangerToken(UUID.randomUUID().toString());
-
-        existingDocumentId = UUID.randomUUID().toString();
-        mongoTemplate.save(new GymPassDocument(
-                existingDocumentId,
-                "Pojedyncze wejście",
-                "Zapraszamy jeżeli chcesz sprawdzić jak wygląda nasza siłownia",
-                new Price(19.99, "zł", "jednorazowy"),
-                false,
-                new Description("Karnet uprawniający do jednorazowego skorzystania w pełni z usług ośrodka",
-                        List.of("sauna", "siłownia", "basen"))
-        ));
 
         ObjectMapper objectMapper = new ObjectMapper();
 
@@ -133,18 +121,20 @@ public class UpdateOfferIntegrationTest {
     }
 
     @AfterEach
-    void tearDown() { mongoTemplate.dropCollection(GymPassDocument.class); }
+    void tearDown() {
+        mongoTemplate.dropCollection(GymPassDocument.class);
+    }
 
     @Nested
-    class ShouldUpdateOffer{
+    class ShouldCreateOffer{
 
         @ParameterizedTest
         @EnumSource(TestCountry.class)
-        void shouldUpdateGymPassOfferWhenValidIdAndRequestBody(TestCountry country) throws Exception {
+        void shouldCreateNewGymPassOffer(TestCountry country) throws Exception {
             Map<String, String> messages = getMessagesAccordingToLocale(country);
             Locale testedLocale = convertEnumToLocale(country);
 
-            URI uri = new URI("http://localhost:" + port + "/offer/"+existingDocumentId);
+            URI uri = new URI("http://localhost:" + port + "/offer");
 
             HttpHeaders headers = new HttpHeaders();
             headers.set("Accept-Language", testedLocale.toString());
@@ -152,12 +142,12 @@ public class UpdateOfferIntegrationTest {
             headers.setContentType(MediaType.APPLICATION_JSON);
 
             HttpEntity<Object> request = new HttpEntity<>(requestContent, headers);
-            String expectedMessage = messages.get("offer.updated");
+            String expectedMessage = messages.get("offer.created");
 
             ResponseEntity<JsonNode> responseEntity = restTemplate
-                    .exchange(uri, HttpMethod.PUT, request, JsonNode.class);
+                    .exchange(uri, HttpMethod.POST, request, JsonNode.class);
 
-            assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
+            assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.CREATED);
             assertThat(Objects.requireNonNull(responseEntity.getBody().get("message").textValue())).isEqualTo(expectedMessage);
             assertThat(responseEntity.getBody().get("gymPass").get("title").textValue()).isEqualTo("Karnet miesięczny");
             assertThat(responseEntity.getBody().get("gymPass").get("subheader").textValue())
@@ -183,12 +173,13 @@ public class UpdateOfferIntegrationTest {
         }
     }
 
+
     @Nested
-    class ShouldNotUpdateOffer{
+    class ShouldNotCreateOffer{
 
         @ParameterizedTest
         @EnumSource(TestCountry.class)
-        void shouldThrowDuplicatedGymPassDocumentsWhenUpdateExistingOffer(TestCountry country) throws Exception {
+        void shouldThrowDuplicatedGymPassDocumentsWhenCreateNewOffer(TestCountry country) throws Exception {
             mongoTemplate.save(new GymPassDocument(
                     UUID.randomUUID().toString(),
                     "Karnet miesięczny",
@@ -202,7 +193,7 @@ public class UpdateOfferIntegrationTest {
             Map<String, String> messages = getMessagesAccordingToLocale(country);
             Locale testedLocale = convertEnumToLocale(country);
 
-            URI uri = new URI("http://localhost:" + port + "/offer/"+existingDocumentId);
+            URI uri = new URI("http://localhost:" + port + "/offer");
 
             HttpHeaders headers = new HttpHeaders();
             headers.set("Accept-Language", testedLocale.toString());
@@ -214,39 +205,10 @@ public class UpdateOfferIntegrationTest {
             String expectedMessage = messages.get("exception.duplicated.offers");
 
             ResponseEntity<JsonNode> responseEntity = restTemplate
-                    .exchange(uri, HttpMethod.PUT, request, JsonNode.class);
+                    .exchange(uri, HttpMethod.POST, request, JsonNode.class);
 
             assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.CONFLICT);
-            assertThat(Objects.requireNonNull(responseEntity.getBody().get("message")
-                    .textValue())).isEqualTo(expectedMessage);
-            assertThat(responseEntity.getHeaders().getContentType()).isEqualTo(MediaType.APPLICATION_JSON);
-        }
-
-        @ParameterizedTest
-        @EnumSource(TestCountry.class)
-        void shouldThrowInvalidGymPassOfferIdExceptionWhenInvalidId(TestCountry country) throws Exception {
-            Map<String, String> messages = getMessagesAccordingToLocale(country);
-            Locale testedLocale = convertEnumToLocale(country);
-
-            String invalidDocumentId = UUID.randomUUID().toString();
-
-            URI uri = new URI("http://localhost:" + port + "/offer/"+invalidDocumentId);
-
-            HttpHeaders headers = new HttpHeaders();
-            headers.set("Accept-Language", testedLocale.toString());
-            headers.set("Authorization", managerToken);
-            headers.setContentType(MediaType.APPLICATION_JSON);
-
-
-            HttpEntity<Object> request = new HttpEntity<>(requestContent, headers);
-            String expectedMessage = messages.get("exception.invalid.offer.id");
-
-            ResponseEntity<JsonNode> responseEntity = restTemplate
-                    .exchange(uri, HttpMethod.PUT, request, JsonNode.class);
-
-            assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
-            assertThat(Objects.requireNonNull(responseEntity.getBody().get("message").textValue()))
-                    .isEqualTo(expectedMessage);
+            assertThat(Objects.requireNonNull(responseEntity.getBody().get("message").textValue())).isEqualTo(expectedMessage);
             assertThat(responseEntity.getHeaders().getContentType()).isEqualTo(MediaType.APPLICATION_JSON);
         }
 
@@ -258,7 +220,7 @@ public class UpdateOfferIntegrationTest {
             void shouldNotGetOffersWhenNoToken(TestCountry country) throws Exception {
                 Locale testedLocale = convertEnumToLocale(country);
 
-                URI uri = new URI("http://localhost:" + port + "/offer/"+existingDocumentId);
+                URI uri = new URI("http://localhost:" + port + "/offer");
 
                 HttpHeaders headers = new HttpHeaders();
                 headers.set("Accept-Language", testedLocale.toString());
@@ -267,7 +229,7 @@ public class UpdateOfferIntegrationTest {
                 HttpEntity<Object> request = new HttpEntity<>(requestContent, headers);
 
                 ResponseEntity<JsonNode> responseEntity = restTemplate
-                        .exchange(uri, HttpMethod.PUT, request, JsonNode.class);
+                        .exchange(uri, HttpMethod.POST, request, JsonNode.class);
 
 
                 assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
@@ -283,7 +245,7 @@ public class UpdateOfferIntegrationTest {
                 Map<String, String> messages = getMessagesAccordingToLocale(country);
                 Locale testedLocale = convertEnumToLocale(country);
 
-                URI uri = new URI("http://localhost:" + port + "/offer/"+existingDocumentId);
+                URI uri = new URI("http://localhost:" + port + "/offer");
 
                 HttpHeaders headers = new HttpHeaders();
                 headers.set("Accept-Language", testedLocale.toString());
@@ -293,7 +255,7 @@ public class UpdateOfferIntegrationTest {
                 HttpEntity<Object> request = new HttpEntity<>(requestContent, headers);
 
                 ResponseEntity<JsonNode> responseEntity = restTemplate
-                        .exchange(uri, HttpMethod.PUT, request, JsonNode.class);
+                        .exchange(uri, HttpMethod.POST, request, JsonNode.class);
 
                 String expectedMessage = messages.get("exception.access.denied");
 
@@ -314,7 +276,7 @@ public class UpdateOfferIntegrationTest {
                 Map<String, String> messages = getMessagesAccordingToLocale(country);
                 Locale testedLocale = convertEnumToLocale(country);
 
-                URI uri = new URI("http://localhost:" + port + "/offer/"+existingDocumentId);
+                URI uri = new URI("http://localhost:" + port + "/offer");
 
                 HttpHeaders headers = new HttpHeaders();
                 headers.set("Accept-Language", testedLocale.toString());
@@ -326,7 +288,7 @@ public class UpdateOfferIntegrationTest {
                 String expectedMessage = messages.get("request.bind.exception");
 
                 ResponseEntity<JsonNode> responseEntity = restTemplate
-                        .exchange(uri, HttpMethod.PUT, request, JsonNode.class);
+                        .exchange(uri, HttpMethod.POST, request, JsonNode.class);
 
                 assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
                 assertThat(Objects.requireNonNull(responseEntity.getBody().get("message").textValue())).isEqualTo(expectedMessage);
@@ -343,7 +305,7 @@ public class UpdateOfferIntegrationTest {
                 Map<String, String> messages = getMessagesAccordingToLocale(country);
                 Locale testedLocale = convertEnumToLocale(country);
 
-                URI uri = new URI("http://localhost:" + port + "/offer/"+existingDocumentId);
+                URI uri = new URI("http://localhost:" + port + "/offer");
 
                 HttpHeaders headers = new HttpHeaders();
                 headers.set("Accept-Language", testedLocale.toString());
@@ -355,7 +317,7 @@ public class UpdateOfferIntegrationTest {
                 String expectedMessage = messages.get("request.bind.exception");
 
                 ResponseEntity<JsonNode> responseEntity = restTemplate
-                        .exchange(uri, HttpMethod.PUT, request, JsonNode.class);
+                        .exchange(uri, HttpMethod.POST, request, JsonNode.class);
 
                 assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
                 assertThat(Objects.requireNonNull(responseEntity.getBody().get("message").textValue())).isEqualTo(expectedMessage);
@@ -374,7 +336,7 @@ public class UpdateOfferIntegrationTest {
                 Map<String, String> messages = getMessagesAccordingToLocale(country);
                 Locale testedLocale = convertEnumToLocale(country);
 
-                URI uri = new URI("http://localhost:" + port + "/offer/"+existingDocumentId);
+                URI uri = new URI("http://localhost:" + port + "/offer");
 
                 HttpHeaders headers = new HttpHeaders();
                 headers.set("Accept-Language", testedLocale.toString());
@@ -386,7 +348,7 @@ public class UpdateOfferIntegrationTest {
                 String expectedMessage = messages.get("request.bind.exception");
 
                 ResponseEntity<JsonNode> responseEntity = restTemplate
-                        .exchange(uri, HttpMethod.PUT, request, JsonNode.class);
+                        .exchange(uri, HttpMethod.POST, request, JsonNode.class);
 
                 assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
                 assertThat(Objects.requireNonNull(responseEntity.getBody().get("message").textValue())).isEqualTo(expectedMessage);
@@ -403,7 +365,7 @@ public class UpdateOfferIntegrationTest {
                 Map<String, String> messages = getMessagesAccordingToLocale(country);
                 Locale testedLocale = convertEnumToLocale(country);
 
-                URI uri = new URI("http://localhost:" + port + "/offer/"+existingDocumentId);
+                URI uri = new URI("http://localhost:" + port + "/offer");
 
                 HttpHeaders headers = new HttpHeaders();
                 headers.set("Accept-Language", testedLocale.toString());
@@ -415,7 +377,7 @@ public class UpdateOfferIntegrationTest {
                 String expectedMessage = messages.get("request.bind.exception");
 
                 ResponseEntity<JsonNode> responseEntity = restTemplate
-                        .exchange(uri, HttpMethod.PUT, request, JsonNode.class);
+                        .exchange(uri, HttpMethod.POST, request, JsonNode.class);
 
                 assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
                 assertThat(Objects.requireNonNull(responseEntity.getBody().get("message").textValue())).isEqualTo(expectedMessage);
@@ -434,7 +396,7 @@ public class UpdateOfferIntegrationTest {
                 Map<String, String> messages = getMessagesAccordingToLocale(country);
                 Locale testedLocale = convertEnumToLocale(country);
 
-                URI uri = new URI("http://localhost:" + port + "/offer/"+existingDocumentId);
+                URI uri = new URI("http://localhost:" + port + "/offer");
 
                 HttpHeaders headers = new HttpHeaders();
                 headers.set("Accept-Language", testedLocale.toString());
@@ -446,7 +408,7 @@ public class UpdateOfferIntegrationTest {
                 String expectedMessage = messages.get("request.bind.exception");
 
                 ResponseEntity<JsonNode> responseEntity = restTemplate
-                        .exchange(uri, HttpMethod.PUT, request, JsonNode.class);
+                        .exchange(uri, HttpMethod.POST, request, JsonNode.class);
 
                 assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
                 assertThat(Objects.requireNonNull(responseEntity.getBody().get("message").textValue())).isEqualTo(expectedMessage);
@@ -459,8 +421,7 @@ public class UpdateOfferIntegrationTest {
                 assertThat(responseEntity.getHeaders().getContentType()).isEqualTo(MediaType.APPLICATION_JSON);
             }
         }
+
     }
-
-
 
 }

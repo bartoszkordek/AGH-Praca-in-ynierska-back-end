@@ -1,4 +1,4 @@
-package com.healthy.gym.gympass.controller.integrationTests;
+package com.healthy.gym.gympass.controller.integrationTests.offer;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.healthy.gym.gympass.configuration.FixedClockConfig;

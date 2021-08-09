@@ -1,6 +1,7 @@
 package com.healthy.gym.gympass.service;
 
 import com.healthy.gym.gympass.dto.PurchasedGymPassDTO;
+import com.healthy.gym.gympass.dto.PurchasedGymPassStatusValidationResultDTO;
 import com.healthy.gym.gympass.exception.*;
 import com.healthy.gym.gympass.pojo.request.PurchasedGymPassRequest;
 
@@ -14,5 +15,6 @@ public interface PurchaseService {
             throws GymPassNotFoundException, AlreadySuspendedGymPassException, RetroSuspensionDateException,
             SuspensionDateAfterEndDateException;
 
-    boolean isGymPassValid(String individualGymPassId) throws GymPassNotFoundException;
+    PurchasedGymPassStatusValidationResultDTO isGymPassValid(String individualGymPassId)
+            throws GymPassNotFoundException;
 }

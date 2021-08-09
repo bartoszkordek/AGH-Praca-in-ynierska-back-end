@@ -7,6 +7,7 @@ import com.healthy.gym.gympass.data.repository.GymPassOfferDAO;
 import com.healthy.gym.gympass.data.repository.PurchasedGymPassDAO;
 import com.healthy.gym.gympass.data.repository.UserDAO;
 import com.healthy.gym.gympass.dto.PurchasedGymPassDTO;
+import com.healthy.gym.gympass.dto.PurchasedGymPassStatusValidationResultDTO;
 import com.healthy.gym.gympass.exception.*;
 import com.healthy.gym.gympass.pojo.request.PurchasedGymPassRequest;
 import org.modelmapper.ModelMapper;
@@ -113,7 +114,8 @@ public class PurchaseServiceImpl implements PurchaseService{
     }
 
     @Override
-    public boolean isGymPassValid(String individualGymPassId) throws GymPassNotFoundException {
+    public PurchasedGymPassStatusValidationResultDTO isGymPassValid(String individualGymPassId)
+            throws GymPassNotFoundException {
 
         PurchasedGymPassDocument purchasedGymPassDocument = purchasedGymPassDAO
                 .findByPurchasedGymPassDocumentId(individualGymPassId);
@@ -124,8 +126,23 @@ public class PurchaseServiceImpl implements PurchaseService{
         LocalDate suspensionDate = purchasedGymPassDocument.getSuspensionDate();
         int entries = purchasedGymPassDocument.getEntries();
 
-        if(now.isAfter(endDate) || now.isBefore(suspensionDate) || entries<1) return false;
+        boolean valid = true;
 
-        return true;
+        if(now.isAfter(endDate) || now.isBefore(suspensionDate) || entries<1) valid = false;
+
+        if(endDate.isEqual(LocalDate.parse(MAX_END_DATE, DateTimeFormatter.ISO_LOCAL_DATE))){
+            return new PurchasedGymPassStatusValidationResultDTO(
+                    valid,
+                    endDate.format(DateTimeFormatter.ISO_LOCAL_DATE),
+                    suspensionDate.format(DateTimeFormatter.ISO_LOCAL_DATE)
+            );
+        }
+
+        return new PurchasedGymPassStatusValidationResultDTO(
+                valid,
+                suspensionDate.format(DateTimeFormatter.ISO_LOCAL_DATE),
+                entries
+        );
+
     }
 }

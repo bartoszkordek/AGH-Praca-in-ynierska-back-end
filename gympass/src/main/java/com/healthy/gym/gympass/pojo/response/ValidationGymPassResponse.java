@@ -1,31 +1,33 @@
 package com.healthy.gym.gympass.pojo.response;
 
+import com.healthy.gym.gympass.dto.PurchasedGymPassStatusValidationResultDTO;
+
 import java.util.Objects;
 
 public class ValidationGymPassResponse extends AbstractResponse{
 
-    private boolean valid;
+    private PurchasedGymPassStatusValidationResultDTO result;
 
     public ValidationGymPassResponse() {
     }
 
-    public ValidationGymPassResponse(String message, boolean valid) {
+    public ValidationGymPassResponse(String message, PurchasedGymPassStatusValidationResultDTO result) {
         super(message);
-        this.valid = valid;
+        this.result = result;
     }
 
-    public boolean isValid() {
-        return valid;
+    public PurchasedGymPassStatusValidationResultDTO getResult() {
+        return result;
     }
 
-    public void setValid(boolean valid) {
-        this.valid = valid;
+    public void setResult(PurchasedGymPassStatusValidationResultDTO result) {
+        this.result = result;
     }
 
     @Override
     public String toString() {
         return "ValidationGymPassResponse{" +
-                "valid=" + valid +
+                "result=" + result +
                 '}';
     }
 
@@ -35,14 +37,14 @@ public class ValidationGymPassResponse extends AbstractResponse{
         if (o == null || getClass() != o.getClass()) return false;
         if (!super.equals(o)) return false;
         ValidationGymPassResponse that = (ValidationGymPassResponse) o;
-        return valid == that.valid;
+        return Objects.equals(result, that.result);
     }
 
     @Override
     public int hashCode() {
         return Objects.hash(
                 super.hashCode(),
-                valid
+                result
         );
     }
 }

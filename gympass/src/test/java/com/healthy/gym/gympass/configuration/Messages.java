@@ -25,6 +25,8 @@ public class Messages {
                 {"exception.gympass.not.found", "Karnet nie istnieje."},
                 {"gympass.purchased", "Karnet został zakupiony."},
                 {"gympass.suspended", "Karnet został zawieszony."},
+                {"gympass.valid", "Karnet jest ważny."},
+                {"gympass.not.valid", "Karnet nie jest ważny."},
                 {"exception.offer.not.found", "Nie znaleziono oferty."},
                 {"exception.user.not.found", "Nie znaleziono użytkownika."},
                 {"exception.gympass.type","Nie sprecyzowany typ karnetu."},

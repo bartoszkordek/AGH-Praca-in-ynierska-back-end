@@ -70,6 +70,7 @@ public class Messages {
                 {"enrollment.success.basic.list", "Pomyślnie zapisano się na zajęcia."},
                 {"enrollment.success.reserve.list", "Brak miejsc na liście podstawowej. Zapisano na listę rezerwową."},
                 {"enrollment.success.individual", "Zapytanie o trening indywidualny zostało stworzone."},
+                {"enrollment.individual.accepted", "Zapytanie o trening indywidualny zostało zaakceptowane."},
                 {"enrollment.remove", "Zrezygnowano z uczestnictwa w zajęciach."}
         }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
     }
@@ -138,6 +139,7 @@ public class Messages {
                 {"enrollment.success.basic.list", "Successfully enrolled to group training."},
                 {"enrollment.success.reserve.list", "Basic list is full. You have been enrolled to reserve list."},
                 {"enrollment.success.individual", "Individual training request has been created."},
+                {"enrollment.individual.accepted", "Individual training request has been accepted."},
                 {"enrollment.remove", "Participation in the classes was resigned."}
         }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
     }

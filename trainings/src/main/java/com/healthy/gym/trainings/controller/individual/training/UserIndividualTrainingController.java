@@ -138,11 +138,11 @@ public class UserIndividualTrainingController {
 
         } catch (NotExistingIndividualTrainingException exception) {
             String reason = translator.toLocale("exception.not.existing.individual.training");
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, exception);
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, reason, exception);
 
         } catch (UserNotFoundException exception) {
             String reason = translator.toLocale(EXCEPTION_NOT_FOUND_USER_ID);
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, exception);
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, reason, exception);
 
         } catch (Exception exception) {
             String reason = translator.toLocale(EXCEPTION_INTERNAL_ERROR);

@@ -29,7 +29,6 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/individual/user/{userId}")
-@Validated
 public class UserIndividualTrainingController {
 
     private static final String EXCEPTION_INTERNAL_ERROR = "exception.internal.error";
@@ -49,9 +48,7 @@ public class UserIndividualTrainingController {
 
     @PreAuthorize("hasRole('ADMIN') or hasRole('EMPLOYEE') or principal==#userId")
     @GetMapping
-    public List<IndividualTrainingDTO> getMyAllIndividualTrainings(
-            @PathVariable @ValidIDFormat final String userId
-    ) {
+    public List<IndividualTrainingDTO> getMyAllIndividualTrainings(@PathVariable final String userId) {
         try {
             return userIndividualTrainingService.getMyAllTrainings(userId);
 
@@ -73,8 +70,8 @@ public class UserIndividualTrainingController {
     @PreAuthorize("hasRole('ADMIN') or hasRole('EMPLOYEE') or principal==#userId")
     @PostMapping
     public ResponseEntity<IndividualTrainingResponse> createIndividualTrainingRequest(
+            @PathVariable final String userId,
             @Valid @RequestBody final IndividualTrainingRequest individualTrainingsRequestModel,
-            @PathVariable @ValidIDFormat final String userId,
             final BindingResult bindingResult
     ) throws ResponseBindException {
         try {
@@ -93,7 +90,7 @@ public class UserIndividualTrainingController {
             throw new ResponseBindException(HttpStatus.BAD_REQUEST, reason, exception);
 
         } catch (PastDateException exception) {
-            String reason = translator.toLocale("exception.past.date.enrollment.remove");
+            String reason = translator.toLocale("exception.past.date");
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, exception);
 
         } catch (StartDateAfterEndDateException exception) {
@@ -106,11 +103,11 @@ public class UserIndividualTrainingController {
 
         } catch (TrainerNotFoundException exception) {
             String reason = translator.toLocale("exception.create.group.training.trainer.not.found");
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, exception);
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, reason, exception);
 
         } catch (UserNotFoundException exception) {
             String reason = translator.toLocale(EXCEPTION_NOT_FOUND_USER_ID);
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, exception);
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, reason, exception);
 
         } catch (Exception exception) {
             String reason = translator.toLocale(EXCEPTION_INTERNAL_ERROR);
@@ -121,6 +118,7 @@ public class UserIndividualTrainingController {
 
     @PreAuthorize("hasRole('ADMIN') or hasRole('EMPLOYEE') or principal==#userId")
     @DeleteMapping("/training/{trainingId}")
+    @Validated
     public ResponseEntity<IndividualTrainingResponse> cancelIndividualTrainingRequest(
             @PathVariable @ValidIDFormat final String userId,
             @PathVariable @ValidIDFormat final String trainingId

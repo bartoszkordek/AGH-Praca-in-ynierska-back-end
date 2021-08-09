@@ -13,46 +13,50 @@ public class IndividualTrainingRequest {
 
     @NotNull(message = "{field.required}")
     @ValidIDFormat
-    private final String trainerId;
+    private String trainerId;
 
     @NotNull(message = "{field.required}")
     @ValidDateTimeFormat
-    private final String startDateTime;
+    private String startDateTime;
 
     @NotNull(message = "{field.required}")
     @ValidDateTimeFormat
-    private final String endDateTime;
+    private String endDateTime;
 
     @NotNull(message = "{field.required}")
     @Size(max = 280, message = "{field.remarks.size}")
-    private final String remarks;
-
-    public IndividualTrainingRequest(
-            String trainerId,
-            String startDateTime,
-            String endDateTime,
-            String remarks
-    ) {
-        this.trainerId = trainerId;
-        this.startDateTime = startDateTime;
-        this.endDateTime = endDateTime;
-        this.remarks = remarks;
-    }
+    private String remarks;
 
     public String getTrainerId() {
         return trainerId;
+    }
+
+    public void setTrainerId(String trainerId) {
+        this.trainerId = trainerId;
     }
 
     public String getStartDateTime() {
         return startDateTime;
     }
 
+    public void setStartDateTime(String startDateTime) {
+        this.startDateTime = startDateTime;
+    }
+
     public String getEndDateTime() {
         return endDateTime;
     }
 
+    public void setEndDateTime(String endDateTime) {
+        this.endDateTime = endDateTime;
+    }
+
     public String getRemarks() {
         return remarks;
+    }
+
+    public void setRemarks(String remarks) {
+        this.remarks = remarks;
     }
 
     @Override

@@ -50,11 +50,9 @@ public class LocationController {
 
             LocationDTO createdLocation = locationService.createLocation(request);
             String message = translator.toLocale("location.created");
-            LocationResponse response = new LocationResponse(message, createdLocation);
-
             return ResponseEntity
                     .status(HttpStatus.CREATED)
-                    .body(response);
+                    .body(new LocationResponse(message, createdLocation));
 
         } catch (BindException exception) {
             String reason = translator.toLocale("request.bind.exception");

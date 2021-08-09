@@ -361,7 +361,7 @@ public class PurchaseGymPassIntegrationTest {
 
         @ParameterizedTest
         @EnumSource(TestCountry.class)
-        void shouldNotGetOffersWhenInvalidOfferId(TestCountry country) throws URISyntaxException {
+        void shouldNotPurchaseGymPassWhenInvalidOfferId(TestCountry country) throws URISyntaxException {
             Map<String, String> messages = getMessagesAccordingToLocale(country);
             Locale testedLocale = convertEnumToLocale(country);
 
@@ -387,7 +387,7 @@ public class PurchaseGymPassIntegrationTest {
 
         @ParameterizedTest
         @EnumSource(TestCountry.class)
-        void shouldNotGetOffersWhenInvalidUserId(TestCountry country) throws URISyntaxException {
+        void shouldNotPurchaseGymPassWhenInvalidUserId(TestCountry country) throws URISyntaxException {
             Map<String, String> messages = getMessagesAccordingToLocale(country);
             Locale testedLocale = convertEnumToLocale(country);
 
@@ -413,7 +413,7 @@ public class PurchaseGymPassIntegrationTest {
 
         @ParameterizedTest
         @EnumSource(TestCountry.class)
-        void shouldNotGetOffersWhenRetroDate(TestCountry country) throws URISyntaxException {
+        void shouldNotPurchaseGymPassWhenRetroDate(TestCountry country) throws URISyntaxException {
             Map<String, String> messages = getMessagesAccordingToLocale(country);
             Locale testedLocale = convertEnumToLocale(country);
 
@@ -439,7 +439,7 @@ public class PurchaseGymPassIntegrationTest {
 
         @ParameterizedTest
         @EnumSource(TestCountry.class)
-        void shouldNotGetOffersWhenStartDateAfterEndDate(TestCountry country) throws URISyntaxException {
+        void shouldNotPurchaseGymPassWhenStartDateAfterEndDate(TestCountry country) throws URISyntaxException {
             Map<String, String> messages = getMessagesAccordingToLocale(country);
             Locale testedLocale = convertEnumToLocale(country);
 
@@ -465,7 +465,7 @@ public class PurchaseGymPassIntegrationTest {
 
         @ParameterizedTest
         @EnumSource(TestCountry.class)
-        void shouldNotGetOffersWhenNotSpecifiedType(TestCountry country) throws URISyntaxException {
+        void shouldNotPurchaseGymPassWhenNotSpecifiedType(TestCountry country) throws URISyntaxException {
             Map<String, String> messages = getMessagesAccordingToLocale(country);
             Locale testedLocale = convertEnumToLocale(country);
 
@@ -494,7 +494,7 @@ public class PurchaseGymPassIntegrationTest {
 
             @ParameterizedTest
             @EnumSource(TestCountry.class)
-            void shouldNotGetOffersWhenNoToken(TestCountry country) throws Exception {
+            void shouldNotPurchaseGymPassWhenNoToken(TestCountry country) throws Exception {
                 Locale testedLocale = convertEnumToLocale(country);
 
                 URI uri = new URI("http://localhost:" + port + "/purchase");
@@ -518,7 +518,7 @@ public class PurchaseGymPassIntegrationTest {
 
             @ParameterizedTest
             @EnumSource(TestCountry.class)
-            void shouldNotGetOffersWhenLoggedAsUser(TestCountry country) throws Exception {
+            void shouldNotPurchaseGymPassWhenLoggedAsUser(TestCountry country) throws Exception {
                 Map<String, String> messages = getMessagesAccordingToLocale(country);
                 Locale testedLocale = convertEnumToLocale(country);
 

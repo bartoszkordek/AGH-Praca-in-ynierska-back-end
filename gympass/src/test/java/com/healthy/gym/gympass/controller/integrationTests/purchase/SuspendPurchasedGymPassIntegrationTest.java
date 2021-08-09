@@ -30,6 +30,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
 
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -209,12 +210,42 @@ public class SuspendPurchasedGymPassIntegrationTest {
     @Nested
     class ShouldNotSuspendGymPass{
 
+        @ParameterizedTest
+        @EnumSource(TestCountry.class)
+        void shouldNotSuspendGymPassWhenInvalidPurchasedGymPassId(TestCountry country) throws URISyntaxException {
+            Map<String, String> messages = getMessagesAccordingToLocale(country);
+            Locale testedLocale = convertEnumToLocale(country);
+
+            String invalidOfferIdPurchasedGymPassId = UUID.randomUUID().toString();
+            String suspensionDate = LocalDate.now().plusDays(2).format(DateTimeFormatter.ISO_LOCAL_DATE);
+
+            URI uri = new URI("http://localhost:" + port + "/purchase/"+invalidOfferIdPurchasedGymPassId+
+                    "/suspend/"+suspensionDate);
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.set("Accept-Language", testedLocale.toString());
+            headers.set("Authorization", employeeToken);
+            headers.setContentType(MediaType.APPLICATION_JSON);
+
+            HttpEntity<Object> request = new HttpEntity<>(invalidOfferIdPurchasedGymPassId, headers);
+
+            String expectedMessage = messages.get("exception.gympass.not.found");
+
+            ResponseEntity<JsonNode> responseEntity = restTemplate
+                    .exchange(uri, HttpMethod.PUT, request, JsonNode.class);
+
+            assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+            assertThat(Objects.requireNonNull(responseEntity.getBody().get("message").textValue()))
+                    .isEqualTo(expectedMessage);
+            assertThat(responseEntity.getBody().get("timestamp")).isNotNull();
+        }
+
         @Nested
         class ShouldNotSuspendGymPassWhenNotAuthorized{
 
             @ParameterizedTest
             @EnumSource(TestCountry.class)
-            void shouldNotGetOffersWhenNoToken(TestCountry country) throws Exception {
+            void shouldNotSuspendGymPassWhenNoToken(TestCountry country) throws Exception {
                 Locale testedLocale = convertEnumToLocale(country);
 
                 String suspensionDate = LocalDate.now().plusDays(2).format(DateTimeFormatter.ISO_LOCAL_DATE);
@@ -241,7 +272,7 @@ public class SuspendPurchasedGymPassIntegrationTest {
 
             @ParameterizedTest
             @EnumSource(TestCountry.class)
-            void shouldNotGetOffersWhenLoggedAsUser(TestCountry country) throws Exception {
+            void shouldNotSuspendGymPassWhenLoggedAsUser(TestCountry country) throws Exception {
                 Map<String, String> messages = getMessagesAccordingToLocale(country);
                 Locale testedLocale = convertEnumToLocale(country);
 

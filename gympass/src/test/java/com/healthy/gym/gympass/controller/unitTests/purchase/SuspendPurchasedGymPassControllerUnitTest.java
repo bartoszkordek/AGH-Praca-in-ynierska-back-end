@@ -316,5 +316,35 @@ class SuspendPurchasedGymPassControllerUnitTest {
                                     .isInstanceOf(RetroSuspensionDateException.class)
                     );
         }
+
+        @ParameterizedTest
+        @EnumSource(TestCountry.class)
+        void shouldThrowSuspensionDateAfterEndDateException(TestCountry country) throws Exception {
+            Map<String, String> messages = getMessagesAccordingToLocale(country);
+            Locale testedLocale = convertEnumToLocale(country);
+
+            String veryFutureDate = LocalDateTime.now().plusYears(1000).format(DateTimeFormatter.ISO_DATE);
+
+            RequestBuilder request = MockMvcRequestBuilders
+                    .put(uri+"/"+purchasedGymPassDocumentId+"/suspend/"+veryFutureDate)
+                    .header("Accept-Language", testedLocale.toString())
+                    .header("Authorization", employeeToken)
+                    .contentType(MediaType.APPLICATION_JSON);
+
+            String expectedMessage = messages.get("exception.suspension.after.end");
+
+            doThrow(SuspensionDateAfterEndDateException.class)
+                    .when(purchaseService)
+                    .suspendGymPass(purchasedGymPassDocumentId, veryFutureDate);
+
+            mockMvc.perform(request)
+                    .andDo(print())
+                    .andExpect(status().isBadRequest())
+                    .andExpect(status().reason(is(expectedMessage)))
+                    .andExpect(result ->
+                            assertThat(Objects.requireNonNull(result.getResolvedException()).getCause())
+                                    .isInstanceOf(SuspensionDateAfterEndDateException.class)
+                    );
+        }
     }
 }

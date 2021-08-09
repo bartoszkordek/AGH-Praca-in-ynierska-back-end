@@ -346,5 +346,40 @@ class SuspendPurchasedGymPassControllerUnitTest {
                                     .isInstanceOf(SuspensionDateAfterEndDateException.class)
                     );
         }
+
+        @ParameterizedTest
+        @EnumSource(TestCountry.class)
+        void shouldThrowIllegalStateExceptionWhenInternalErrorOccurs(TestCountry country) throws Exception {
+            Map<String, String> messages = getMessagesAccordingToLocale(country);
+            Locale testedLocale = convertEnumToLocale(country);
+
+            String incorrectPurchasedGymPassDocumentIdForIllegalStateException = "adbvi8q31";
+            String incorrectDateForIllegalStateException = "13rrrr31";
+
+            RequestBuilder request = MockMvcRequestBuilders
+                    .put(uri+"/"+incorrectPurchasedGymPassDocumentIdForIllegalStateException
+                            +"/suspend/"+incorrectDateForIllegalStateException)
+                    .header("Accept-Language", testedLocale.toString())
+                    .header("Authorization", adminToken)
+                    .contentType(MediaType.APPLICATION_JSON);
+
+            doThrow(IllegalStateException.class)
+                    .when(purchaseService)
+                    .suspendGymPass(
+                            incorrectPurchasedGymPassDocumentIdForIllegalStateException,
+                            incorrectDateForIllegalStateException
+                    );
+
+            String expectedMessage = messages.get("exception.internal.error");
+
+            mockMvc.perform(request)
+                    .andDo(print())
+                    .andExpect(status().isInternalServerError())
+                    .andExpect(status().reason(is(expectedMessage)))
+                    .andExpect(result ->
+                            assertThat(Objects.requireNonNull(result.getResolvedException()).getCause())
+                                    .isInstanceOf(IllegalStateException.class)
+                    );
+        }
     }
 }

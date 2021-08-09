@@ -29,7 +29,6 @@ public class Messages {
                 {"exception.user.not.found", "Nie znaleziono użytkownika."},
                 {"exception.gympass.type","Nie sprecyzowany typ karnetu."},
                 {"exception.retro.purchased", "Nie można zakupić karnetu z datą wsteczną."},
-                {"exception.retro.date.suspension", "Cannot suspend gympass with retro date."},
                 {"exception.retro.date.suspension", "Nie można zawiesić karnetu z datą wsteczną."},
                 {"exception.start.after.end", "Data rozpoczęcia po dacie zakończenia."},
                 {"exception.suspension.after.end", "Data zawieszenia nie może być późniejsza niż data zakończenia."},

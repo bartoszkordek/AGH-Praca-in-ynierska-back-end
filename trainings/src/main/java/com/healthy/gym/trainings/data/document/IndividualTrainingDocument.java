@@ -1,70 +1,52 @@
 package com.healthy.gym.trainings.data.document;
 
-import com.healthy.gym.trainings.exception.invalid.InvalidHourException;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import static com.healthy.gym.trainings.utils.Time24HoursValidator.validate;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Objects;
 
-@Document(collection = "IndividualTrainings")
+@Document(collection = "individualTraining")
 public class IndividualTrainingDocument {
 
     @Id
     private String id;
-    private String clientId;
-    private String trainerId;
-    private String date;
-    private String startTime;
-    private String endTime;
-    private int hallNo;
+    private String individualTrainingId;
+    @DBRef
+    private List<UserDocument> basicList;
+    @DBRef
+    private List<UserDocument> trainers;
+    private LocalDateTime startDateTime;
+    private LocalDateTime endDateTime;
+    @DBRef
+    private LocationDocument location;
     private String remarks;
     private boolean accepted;
-    private boolean declined;
+    private boolean rejected;
+    private boolean cancelled;
 
     public IndividualTrainingDocument() {
-
+        // empty constructor required by spring data mapper
     }
 
     public IndividualTrainingDocument(
-            String clientId,
-            String trainerId,
-            String date,
-            String startTime,
-            String endTime,
-            int hallNo,
-            String remarks,
-            boolean accepted,
-            boolean declined
-    ) throws InvalidHourException {
-
-        if (!validate(startTime)) throw new InvalidHourException("Wrong start time");
-        if (!validate(endTime)) throw new InvalidHourException("Wrong end time");
-
-        this.clientId = clientId;
-        this.trainerId = trainerId;
-        this.date = date;
-        this.startTime = startTime;
-        this.endTime = endTime;
-        this.hallNo = hallNo;
+            String individualTrainingId,
+            List<UserDocument> basicList,
+            List<UserDocument> trainers,
+            LocalDateTime startDateTime,
+            LocalDateTime endDateTime,
+            LocationDocument location,
+            String remarks
+    ) {
+        this.individualTrainingId = individualTrainingId;
+        this.basicList = basicList;
+        this.trainers = trainers;
+        this.startDateTime = startDateTime;
+        this.endDateTime = endDateTime;
+        this.location = location;
         this.remarks = remarks;
-        this.accepted = accepted;
-        this.declined = declined;
-    }
-
-    @Override
-    public String toString() {
-        return "IndividualTrainings{" +
-                "id='" + id + '\'' +
-                ", clientId='" + clientId + '\'' +
-                ", trainerId='" + trainerId + '\'' +
-                ", date='" + date + '\'' +
-                ", startTime='" + startTime + '\'' +
-                ", endTime='" + endTime + '\'' +
-                ", hallNo=" + hallNo +
-                ", remarks='" + remarks + '\'' +
-                ", accepted=" + accepted +
-                ", declined=" + declined +
-                '}';
     }
 
     public String getId() {
@@ -75,54 +57,52 @@ public class IndividualTrainingDocument {
         this.id = id;
     }
 
-    public String getClientId() {
-        return clientId;
+    public String getIndividualTrainingId() {
+        return individualTrainingId;
     }
 
-    public void setClientId(String clientId) {
-        this.clientId = clientId;
+    public void setIndividualTrainingId(String individualTrainingId) {
+        this.individualTrainingId = individualTrainingId;
     }
 
-    public String getTrainerId() {
-        return trainerId;
+    public List<UserDocument> getBasicList() {
+        return basicList;
     }
 
-    public void setTrainerId(String trainerId) {
-        this.trainerId = trainerId;
+    public void setBasicList(List<UserDocument> basicList) {
+        this.basicList = basicList;
     }
 
-    public String getDate() {
-        return date;
+    public List<UserDocument> getTrainers() {
+        return trainers;
     }
 
-    public void setDate(String date) {
-        this.date = date;
+    public void setTrainers(List<UserDocument> trainers) {
+        this.trainers = trainers;
     }
 
-    public String getStartTime() {
-        return startTime;
+    public LocalDateTime getStartDateTime() {
+        return startDateTime;
     }
 
-    public void setStartTime(String startTime) throws InvalidHourException {
-        if (!validate(startTime)) throw new InvalidHourException("Wrong start time");
-        this.startTime = startTime;
+    public void setStartDateTime(LocalDateTime startDateTime) {
+        this.startDateTime = startDateTime;
     }
 
-    public String getEndTime() {
-        return endTime;
+    public LocalDateTime getEndDateTime() {
+        return endDateTime;
     }
 
-    public void setEndTime(String endTime) throws InvalidHourException {
-        if (!validate(endTime)) throw new InvalidHourException("Wrong end time");
-        this.endTime = endTime;
+    public void setEndDateTime(LocalDateTime endDateTime) {
+        this.endDateTime = endDateTime;
     }
 
-    public int getHallNo() {
-        return hallNo;
+    public LocationDocument getLocation() {
+        return location;
     }
 
-    public void setHallNo(int hallNo) {
-        this.hallNo = hallNo;
+    public void setLocation(LocationDocument location) {
+        this.location = location;
     }
 
     public String getRemarks() {
@@ -141,11 +121,71 @@ public class IndividualTrainingDocument {
         this.accepted = accepted;
     }
 
-    public boolean isDeclined() {
-        return declined;
+    public boolean isRejected() {
+        return rejected;
     }
 
-    public void setDeclined(boolean declined) {
-        this.declined = declined;
+    public void setRejected(boolean rejected) {
+        this.rejected = rejected;
+    }
+
+    public boolean isCancelled() {
+        return cancelled;
+    }
+
+    public void setCancelled(boolean cancelled) {
+        this.cancelled = cancelled;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        IndividualTrainingDocument that = (IndividualTrainingDocument) o;
+        return accepted == that.accepted
+                && rejected == that.rejected
+                && cancelled == that.cancelled
+                && Objects.equals(id, that.id)
+                && Objects.equals(individualTrainingId, that.individualTrainingId)
+                && Objects.equals(basicList, that.basicList)
+                && Objects.equals(trainers, that.trainers)
+                && Objects.equals(startDateTime, that.startDateTime)
+                && Objects.equals(endDateTime, that.endDateTime)
+                && Objects.equals(location, that.location)
+                && Objects.equals(remarks, that.remarks);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(
+                id,
+                individualTrainingId,
+                basicList,
+                trainers,
+                startDateTime,
+                endDateTime,
+                location,
+                remarks,
+                accepted,
+                rejected,
+                cancelled
+        );
+    }
+
+    @Override
+    public String toString() {
+        return "IndividualTrainingDocument{" +
+                "id='" + id + '\'' +
+                ", individualTrainingId='" + individualTrainingId + '\'' +
+                ", basicList=" + basicList +
+                ", trainers=" + trainers +
+                ", startDateTime=" + startDateTime +
+                ", endDateTime=" + endDateTime +
+                ", location=" + location +
+                ", remarks='" + remarks + '\'' +
+                ", accepted=" + accepted +
+                ", rejected=" + rejected +
+                ", cancelled=" + cancelled +
+                '}';
     }
 }

@@ -3,10 +3,11 @@ package com.healthy.gym.trainings.controller.individual.training;
 import com.healthy.gym.trainings.component.Translator;
 import com.healthy.gym.trainings.dto.IndividualTrainingDTO;
 import com.healthy.gym.trainings.exception.AlreadyAcceptedIndividualTrainingException;
-import com.healthy.gym.trainings.exception.AlreadyDeclinedIndividualTrainingException;
+import com.healthy.gym.trainings.exception.AlreadyRejectedIndividualTrainingException;
 import com.healthy.gym.trainings.exception.PastDateException;
 import com.healthy.gym.trainings.exception.notexisting.NotExistingIndividualTrainingException;
 import com.healthy.gym.trainings.exception.notfound.LocationNotFoundException;
+import com.healthy.gym.trainings.exception.notfound.UserNotFoundException;
 import com.healthy.gym.trainings.exception.occupied.LocationOccupiedException;
 import com.healthy.gym.trainings.model.response.IndividualTrainingResponse;
 import com.healthy.gym.trainings.service.individual.training.TrainerIndividualTrainingService;
@@ -72,6 +73,10 @@ public class TrainerIndividualTrainerController {
             String reason = translator.toLocale("exception.past.date");
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, exception);
 
+        } catch (UserNotFoundException exception) {
+            String reason = translator.toLocale("exception.not.found.user.id");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, reason, exception);
+
         } catch (Exception exception) {
             String reason = translator.toLocale("exception.internal.error");
             exception.printStackTrace();
@@ -88,19 +93,27 @@ public class TrainerIndividualTrainerController {
         try {
             IndividualTrainingDTO removedEnrolmentTraining = trainerIndividualTrainingService
                     .rejectIndividualTraining(userId, trainingId);
-            String message = translator.toLocale("enrollment.remove");
+            String message = translator.toLocale("enrollment.individual.rejected");
 
             return ResponseEntity
                     .status(HttpStatus.OK)
                     .body(new IndividualTrainingResponse(message, removedEnrolmentTraining));
 
-        } catch (AlreadyDeclinedIndividualTrainingException exception) {
-            String reason = translator.toLocale("exception.already.declined.individual.training");
+        } catch (AlreadyRejectedIndividualTrainingException exception) {
+            String reason = translator.toLocale("exception.already.rejected.individual.training");
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, exception);
 
         } catch (NotExistingIndividualTrainingException exception) {
             String reason = translator.toLocale("exception.not.existing.individual.training");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, reason, exception);
+
+        } catch (PastDateException exception) {
+            String reason = translator.toLocale("exception.past.date.individual.training.reject");
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, exception);
+
+        } catch (UserNotFoundException exception) {
+            String reason = translator.toLocale("exception.not.found.user.id");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, reason, exception);
 
         } catch (Exception exception) {
             String reason = translator.toLocale("exception.internal.error");

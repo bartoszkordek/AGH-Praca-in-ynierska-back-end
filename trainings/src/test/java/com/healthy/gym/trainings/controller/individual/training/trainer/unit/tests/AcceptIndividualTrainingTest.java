@@ -10,6 +10,7 @@ import com.healthy.gym.trainings.exception.AlreadyAcceptedIndividualTrainingExce
 import com.healthy.gym.trainings.exception.PastDateException;
 import com.healthy.gym.trainings.exception.notexisting.NotExistingIndividualTrainingException;
 import com.healthy.gym.trainings.exception.notfound.LocationNotFoundException;
+import com.healthy.gym.trainings.exception.notfound.UserNotFoundException;
 import com.healthy.gym.trainings.exception.occupied.LocationOccupiedException;
 import com.healthy.gym.trainings.service.individual.training.TrainerIndividualTrainingService;
 import org.junit.jupiter.api.BeforeEach;
@@ -308,6 +309,21 @@ class AcceptIndividualTrainingTest {
             expectedMessage = messages.get("exception.past.date");
 
             performRequestAndTestErrorResponse(status().isBadRequest(), PastDateException.class);
+        }
+
+        @ParameterizedTest
+        @EnumSource(TestCountry.class)
+        void shouldThrowUserNotFoundException(TestCountry country) throws Exception {
+            Map<String, String> messages = getMessagesAccordingToLocale(country);
+            Locale testedLocale = convertEnumToLocale(country);
+
+            doThrow(UserNotFoundException.class)
+                    .when(trainerIndividualTrainingService)
+                    .acceptIndividualTraining(trainerId, trainingId, locationId);
+            request = getValidRequest(trainerToken, testedLocale);
+            expectedMessage = messages.get("exception.not.found.user.id");
+
+            performRequestAndTestErrorResponse(status().isNotFound(), UserNotFoundException.class);
         }
 
         @ParameterizedTest

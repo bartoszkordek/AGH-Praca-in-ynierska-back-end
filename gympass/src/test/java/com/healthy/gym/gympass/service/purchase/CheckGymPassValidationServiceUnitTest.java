@@ -164,6 +164,7 @@ class CheckGymPassValidationServiceUnitTest {
         );
 
         notSuspendedEntriesTypeGymPassDocumentId = UUID.randomUUID().toString();
+        String endDateForEntriesTypeDocuments = "9999-12-31";
         int entriesTypeEntries = 10;
         notSuspendedEntriesTypePurchasedGymPassDocument = new PurchasedGymPassDocument(
                 notSuspendedEntriesTypeGymPassDocumentId ,
@@ -171,7 +172,7 @@ class CheckGymPassValidationServiceUnitTest {
                 userDocument,
                 purchaseDateAndTime,
                 LocalDate.parse(startDate, DateTimeFormatter.ISO_DATE),
-                LocalDate.parse(endDate, DateTimeFormatter.ISO_DATE),
+                LocalDate.parse(endDateForEntriesTypeDocuments, DateTimeFormatter.ISO_DATE),
                 entriesTypeEntries
         );
 
@@ -189,7 +190,7 @@ class CheckGymPassValidationServiceUnitTest {
                 userDocument,
                 purchaseDateAndTime,
                 LocalDate.parse(startDate, DateTimeFormatter.ISO_DATE),
-                LocalDate.parse(endDate, DateTimeFormatter.ISO_DATE).plusDays(suspendedDays),
+                LocalDate.parse(endDateForEntriesTypeDocuments, DateTimeFormatter.ISO_DATE).plusDays(suspendedDays),
                 entriesTypeEntries,
                 LocalDate.parse(suspensionDate, DateTimeFormatter.ISO_DATE)
         );
@@ -230,6 +231,16 @@ class CheckGymPassValidationServiceUnitTest {
         //then
         assertThat(purchaseService.isGymPassValid(notSuspendedNotValidTimeTypeGymPassDocumentId))
                 .isEqualTo(notSuspendedNotValidTimeTypePurchasedGymPassDTO);
+    }
+
+    @Test
+    void shouldReturnValidStatus_whenNotSuspendedEntriesTypeDocument() throws GymPassNotFoundException {
+        //when
+        when(purchasedGymPassDAO.findByPurchasedGymPassDocumentId(notSuspendedEntriesTypeGymPassDocumentId))
+                .thenReturn(notSuspendedEntriesTypePurchasedGymPassDocument);
+        //then
+        assertThat(purchaseService.isGymPassValid(notSuspendedEntriesTypeGymPassDocumentId))
+                .isEqualTo(notSuspendedEntriesTypePurchasedGymPassDTO);
     }
 
 

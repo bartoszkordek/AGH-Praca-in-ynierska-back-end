@@ -95,9 +95,9 @@ public class UserIndividualTrainingServiceImpl implements UserIndividualTraining
                 .existsIndividualTrainingsByIdAndClientIdEquals(trainingId, clientId);
 
 //        if (!clientIdEquals) throw new NotAuthorizedClientException("Training is not authorized by client");
-
-        String individualTrainingDate = individualTraining.getDate();
-        String individualTrainingStartTime = individualTraining.getStartTime();
+//
+//        String individualTrainingDate = individualTraining.getDate();
+//        String individualTrainingStartTime = individualTraining.getStartTime();
 //        if (isTrainingRetroDateAndTime(individualTrainingDate, individualTrainingStartTime)) {
 //            throw new RetroIndividualTrainingException("Retro date");
 //        }

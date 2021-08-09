@@ -15,6 +15,8 @@ public class IndividualTrainingDocument {
     private String id;
     private String individualTrainingId;
     @DBRef
+    private TrainingTypeDocument training;
+    @DBRef
     private List<UserDocument> basicList;
     @DBRef
     private List<UserDocument> trainers;
@@ -33,6 +35,7 @@ public class IndividualTrainingDocument {
 
     public IndividualTrainingDocument(
             String individualTrainingId,
+            TrainingTypeDocument training,
             List<UserDocument> basicList,
             List<UserDocument> trainers,
             LocalDateTime startDateTime,
@@ -41,12 +44,21 @@ public class IndividualTrainingDocument {
             String remarks
     ) {
         this.individualTrainingId = individualTrainingId;
+        this.training = training;
         this.basicList = basicList;
         this.trainers = trainers;
         this.startDateTime = startDateTime;
         this.endDateTime = endDateTime;
         this.location = location;
         this.remarks = remarks;
+    }
+
+    public TrainingTypeDocument getTraining() {
+        return training;
+    }
+
+    public void setTraining(TrainingTypeDocument training) {
+        this.training = training;
     }
 
     public String getId() {

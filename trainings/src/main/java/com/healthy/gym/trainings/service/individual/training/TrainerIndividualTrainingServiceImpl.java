@@ -115,27 +115,27 @@ public class TrainerIndividualTrainingServiceImpl implements TrainerIndividualTr
             AlreadyRejectedIndividualTrainingException,
             EmailSendingException, PastDateException {
 
-        IndividualTrainingDocument individualTraining = individualTrainingRepository
-                .findIndividualTrainingsById(trainingId);
-
-        if (individualTraining == null) throw new NotExistingIndividualTrainingException();
-        if (individualTraining.isDeclined()) throw new AlreadyRejectedIndividualTrainingException();
-
-        individualTraining.setDeclined(true);
-        IndividualTrainingDocument response = individualTrainingRepository.save(individualTraining);
-
-        String clientId = response.getClientId();
-        List<String> recipients = new ArrayList<>();
-        recipients.add(clientId);
-        String subject = "Training has been declined";
-        String body = "Training with" + response.getTrainerId() + " on " + response.getDate() + " at "
-                + response.getStartTime() + " has been declined.";
-        try {
-            sendEmailWithoutAttachment(recipients, subject, body);
-        } catch (Exception e) {
-            throw new EmailSendingException("Cannot send email");
-        }
-//        return response;
+//        IndividualTrainingDocument individualTraining = individualTrainingRepository
+//                .findIndividualTrainingsById(trainingId);
+//
+//        if (individualTraining == null) throw new NotExistingIndividualTrainingException();
+//        if (individualTraining.isDeclined()) throw new AlreadyRejectedIndividualTrainingException();
+//
+//        individualTraining.setDeclined(true);
+//        IndividualTrainingDocument response = individualTrainingRepository.save(individualTraining);
+//
+//        String clientId = response.getClientId();
+//        List<String> recipients = new ArrayList<>();
+//        recipients.add(clientId);
+//        String subject = "Training has been declined";
+//        String body = "Training with" + response.getTrainerId() + " on " + response.getDate() + " at "
+//                + response.getStartTime() + " has been declined.";
+//        try {
+//            sendEmailWithoutAttachment(recipients, subject, body);
+//        } catch (Exception e) {
+//            throw new EmailSendingException("Cannot send email");
+//        }
+////        return response;
         return null;
     }
 }

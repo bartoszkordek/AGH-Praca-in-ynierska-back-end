@@ -490,7 +490,7 @@ public class PurchaseGymPassIntegrationTest {
         }
 
         @Nested
-        class ShouldNotCreateOfferWhenNotAuthorized{
+        class ShouldNotPurchaseGymPassWhenNotAuthorized{
 
             @ParameterizedTest
             @EnumSource(TestCountry.class)

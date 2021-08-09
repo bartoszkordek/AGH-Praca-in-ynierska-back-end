@@ -78,6 +78,8 @@ public class SuspendPurchasedGymPassIntegrationTest {
     private LocalDate endDate;
     private int entries;
     private PurchasedGymPassDocument purchasedGymPassDocument;
+    private String alreadySuspendedPurchasedGymPassDocumentId;
+    private PurchasedGymPassDocument alreadySuspendedPurchasedGymPassDocument;
 
     @DynamicPropertySource
     static void setProperties(DynamicPropertyRegistry registry) {
@@ -138,6 +140,24 @@ public class SuspendPurchasedGymPassIntegrationTest {
         );
 
         mongoTemplate.save(purchasedGymPassDocument);
+
+        alreadySuspendedPurchasedGymPassDocumentId = UUID.randomUUID().toString();
+        purchaseDateAndTime = LocalDateTime.now();
+        startDate = LocalDate.now().minusDays(2);
+        endDate = startDate.plusMonths(1);
+        entries = Integer.MAX_VALUE;
+        alreadySuspendedPurchasedGymPassDocument = new PurchasedGymPassDocument(
+                alreadySuspendedPurchasedGymPassDocumentId,
+                gymPassOfferDocument,
+                userDocument,
+                purchaseDateAndTime,
+                startDate,
+                endDate,
+                entries,
+                LocalDate.now().plusDays(10)
+        );
+
+        mongoTemplate.save(alreadySuspendedPurchasedGymPassDocument);
     }
 
     @AfterEach
@@ -227,9 +247,38 @@ public class SuspendPurchasedGymPassIntegrationTest {
             headers.set("Authorization", employeeToken);
             headers.setContentType(MediaType.APPLICATION_JSON);
 
-            HttpEntity<Object> request = new HttpEntity<>(invalidOfferIdPurchasedGymPassId, headers);
+            HttpEntity<Object> request = new HttpEntity<>(null, headers);
 
             String expectedMessage = messages.get("exception.gympass.not.found");
+
+            ResponseEntity<JsonNode> responseEntity = restTemplate
+                    .exchange(uri, HttpMethod.PUT, request, JsonNode.class);
+
+            assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+            assertThat(Objects.requireNonNull(responseEntity.getBody().get("message").textValue()))
+                    .isEqualTo(expectedMessage);
+            assertThat(responseEntity.getBody().get("timestamp")).isNotNull();
+        }
+
+        @ParameterizedTest
+        @EnumSource(TestCountry.class)
+        void shouldNotSuspendGymPassWhenPurchasedGymPassAlreadySuspended(TestCountry country) throws URISyntaxException {
+            Map<String, String> messages = getMessagesAccordingToLocale(country);
+            Locale testedLocale = convertEnumToLocale(country);
+
+            String suspensionDate = LocalDate.now().plusDays(2).format(DateTimeFormatter.ISO_LOCAL_DATE);
+
+            URI uri = new URI("http://localhost:" + port + "/purchase/"+alreadySuspendedPurchasedGymPassDocumentId+
+                    "/suspend/"+suspensionDate);
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.set("Accept-Language", testedLocale.toString());
+            headers.set("Authorization", employeeToken);
+            headers.setContentType(MediaType.APPLICATION_JSON);
+
+            HttpEntity<Object> request = new HttpEntity<>(null, headers);
+
+            String expectedMessage = messages.get("exception.gympass.already.suspended");
 
             ResponseEntity<JsonNode> responseEntity = restTemplate
                     .exchange(uri, HttpMethod.PUT, request, JsonNode.class);

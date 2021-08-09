@@ -28,7 +28,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 @SpringBootTest
-public class CheckGymPassValidationServiceUnitTest {
+class CheckGymPassValidationServiceUnitTest {
 
     @Autowired
     private PurchaseService purchaseService;
@@ -69,6 +69,8 @@ public class CheckGymPassValidationServiceUnitTest {
         String suspensionDate = LocalDate.now().plusDays(suspendedDays).format(DateTimeFormatter.ISO_DATE);
         String startDate = LocalDate.now().minusDays(pastDays).format(DateTimeFormatter.ISO_DATE);
         String endDate = LocalDate.now().minusDays(pastDays).plusMonths(1).format(DateTimeFormatter.ISO_DATE);
+        String endDateForSuspendedDocuments = LocalDate.now()
+                .minusDays(pastDays).plusMonths(1).plusDays(suspendedDays).format(DateTimeFormatter.ISO_DATE);
 
         //DB documents
         String gymPassOfferId = UUID.randomUUID().toString();
@@ -137,7 +139,7 @@ public class CheckGymPassValidationServiceUnitTest {
         suspendedTimeTypePurchasedGymPassDTO
                 = new PurchasedGymPassStatusValidationResultDTO(
                 false,
-                endDate,
+                endDateForSuspendedDocuments,
                 suspensionDate
         );
 
@@ -207,6 +209,16 @@ public class CheckGymPassValidationServiceUnitTest {
         //then
         assertThat(purchaseService.isGymPassValid(notSuspendedTimeTypeGymPassDocumentId))
                 .isEqualTo(notSuspendedTimeTypePurchasedGymPassDTO);
+    }
+
+    @Test
+    void shouldReturnNotValidStatus_whenSuspendedTimeTypeDocument() throws GymPassNotFoundException {
+        //when
+        when(purchasedGymPassDAO.findByPurchasedGymPassDocumentId(suspendedTimeTypeGymPassDocumentId))
+                .thenReturn(suspendedTimeTypePurchasedGymPassDocument);
+        //then
+        assertThat(purchaseService.isGymPassValid(suspendedTimeTypeGymPassDocumentId))
+                .isEqualTo(suspendedTimeTypePurchasedGymPassDTO);
     }
 
 

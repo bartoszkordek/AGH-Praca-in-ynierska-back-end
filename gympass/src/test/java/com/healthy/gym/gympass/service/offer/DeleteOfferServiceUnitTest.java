@@ -3,7 +3,7 @@ package com.healthy.gym.gympass.service.offer;
 import com.healthy.gym.gympass.data.document.GymPassDocument;
 import com.healthy.gym.gympass.data.repository.GymPassOfferDAO;
 import com.healthy.gym.gympass.dto.GymPassDTO;
-import com.healthy.gym.gympass.exception.GymPassNotFoundException;
+import com.healthy.gym.gympass.exception.OfferNotFoundException;
 import com.healthy.gym.gympass.service.OfferService;
 import com.healthy.gym.gympass.shared.Description;
 import com.healthy.gym.gympass.shared.Price;
@@ -81,7 +81,7 @@ public class DeleteOfferServiceUnitTest {
     class ShouldDeleteOffer{
 
         @Test
-        void shouldDeleteOffer_whenValidDocumentId() throws GymPassNotFoundException {
+        void shouldDeleteOffer_whenValidDocumentId() throws OfferNotFoundException {
 
             //when
             when(gymPassOfferDAO.findByDocumentId(documentId)).thenReturn(existingGymPassDocument);
@@ -96,16 +96,15 @@ public class DeleteOfferServiceUnitTest {
     class ShouldNotDeleteOffer{
 
         @Test
-        void shouldDeleteOffer_whenInvalidDocumentId() throws GymPassNotFoundException {
+        void shouldDeleteOffer_whenInvalidDocumentId() throws OfferNotFoundException {
 
             //when
             when(gymPassOfferDAO.findByDocumentId(documentId)).thenReturn(null);
 
             //then
-            //then
             assertThatThrownBy(() ->
                     offerService.deleteGymPassOffer(documentId)
-            ).isInstanceOf(GymPassNotFoundException.class);
+            ).isInstanceOf(OfferNotFoundException.class);
         }
     }
 

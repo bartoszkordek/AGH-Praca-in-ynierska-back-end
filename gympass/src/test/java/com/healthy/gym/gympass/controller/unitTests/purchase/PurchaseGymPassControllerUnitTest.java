@@ -65,6 +65,7 @@ public class PurchaseGymPassControllerUnitTest {
     private String managerToken;
     private String employeeToken;
     private String userToken;
+    private String purchasedGymPassDocumentId;
     private String timeLimitedRequestContent;
     private String entriesLimitedRequestContent;
     private String invalidRequestContent;
@@ -92,6 +93,8 @@ public class PurchaseGymPassControllerUnitTest {
 
         validGymPassOfferId = UUID.randomUUID().toString();
         validUserId = UUID.randomUUID().toString();
+
+        purchasedGymPassDocumentId = UUID.randomUUID().toString();
 
         ObjectMapper objectMapper = new ObjectMapper();
         PurchasedGymPassRequest timeLimitedPurchasedGymPassRequest = new PurchasedGymPassRequest();
@@ -165,6 +168,7 @@ public class PurchaseGymPassControllerUnitTest {
             when(purchaseService.purchaseGymPass(any()))
                     .thenReturn(
                             new PurchasedGymPassDTO(
+                                    purchasedGymPassDocumentId,
                                 gymPassOffer,
                                 user,
                                 purchaseDateAndTime,
@@ -183,6 +187,8 @@ public class PurchaseGymPassControllerUnitTest {
                             content().contentType(MediaType.APPLICATION_JSON),
                             jsonPath("$.message").value(is(expectedMessage)),
                             jsonPath("$.purchasedGymPass").exists(),
+                            jsonPath("$.purchasedGymPass.purchasedGymPassDocumentId")
+                                    .value(is(purchasedGymPassDocumentId)),
                             jsonPath("$.purchasedGymPass.gymPassOffer").exists(),
                             jsonPath("$.purchasedGymPass.gymPassOffer.gymPassOfferId")
                                     .value(is(validGymPassOfferId)),
@@ -234,6 +240,7 @@ public class PurchaseGymPassControllerUnitTest {
             when(purchaseService.purchaseGymPass(any()))
                     .thenReturn(
                             new PurchasedGymPassDTO(
+                                    purchasedGymPassDocumentId,
                                     gymPassOffer,
                                     user,
                                     purchaseDateAndTime,
@@ -252,6 +259,8 @@ public class PurchaseGymPassControllerUnitTest {
                             content().contentType(MediaType.APPLICATION_JSON),
                             jsonPath("$.message").value(is(expectedMessage)),
                             jsonPath("$.purchasedGymPass").exists(),
+                            jsonPath("$.purchasedGymPass.purchasedGymPassDocumentId")
+                                    .value(is(purchasedGymPassDocumentId)),
                             jsonPath("$.purchasedGymPass.gymPassOffer").exists(),
                             jsonPath("$.purchasedGymPass.gymPassOffer.gymPassOfferId")
                                     .value(is(validGymPassOfferId)),

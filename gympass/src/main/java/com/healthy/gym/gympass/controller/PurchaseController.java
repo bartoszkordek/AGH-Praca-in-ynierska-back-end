@@ -6,6 +6,8 @@ import com.healthy.gym.gympass.exception.*;
 import com.healthy.gym.gympass.pojo.request.PurchasedGymPassRequest;
 import com.healthy.gym.gympass.pojo.response.PurchasedGymPassResponse;
 import com.healthy.gym.gympass.service.PurchaseService;
+import com.healthy.gym.gympass.validation.ValidDateFormat;
+import com.healthy.gym.gympass.validation.ValidIDFormat;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -13,10 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindException;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import javax.validation.Valid;
@@ -93,5 +92,44 @@ public class PurchaseController {
         }
     }
 
+    @PreAuthorize("hasRole('ADMIN') or hasRole('MANAGER') or hasRole('EMPLOYEE')")
+    @PutMapping("/{id}/suspend/{suspensionDate}")
+    public ResponseEntity<PurchasedGymPassResponse> suspendGymPass(
+            @PathVariable("id") @ValidIDFormat final String id,
+            @PathVariable @ValidDateFormat String suspensionDate
+    ) {
+        try{
+            String message = translator.toLocale("gympass.suspended");
+
+            PurchasedGymPassDTO suspendedPurchasedGymPass  = purchaseService.suspendGymPass(id, suspensionDate);
+            return ResponseEntity
+                    .status(HttpStatus.OK)
+                    .body(new PurchasedGymPassResponse(
+                            message,
+                            suspendedPurchasedGymPass
+                    ));
+
+        } catch (GymPassNotFoundException exception) {
+            String reason = translator.toLocale("exception.gympass.not.found");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, exception);
+
+        } catch (AlreadySuspendedGymPassException exception) {
+            String reason = translator.toLocale("exception.gympass.already.suspended");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, exception);
+
+        } catch (RetroSuspensionDateException exception) {
+            String reason = translator.toLocale("exception.retro.date.suspension");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, exception);
+
+        } catch (SuspensionDateAfterEndDateException exception) {
+            String reason = translator.toLocale("exception.suspension.after.end");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, exception);
+
+        } catch (Exception exception){
+            String reason = translator.toLocale(INTERNAL_ERROR_EXCEPTION);
+            exception.printStackTrace();
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, reason, exception);
+        }
+    }
 
 }

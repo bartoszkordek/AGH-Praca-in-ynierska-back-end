@@ -17,6 +17,8 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
+import java.util.UUID;
 
 @Service
 public class PurchaseServiceImpl implements PurchaseService{
@@ -68,6 +70,7 @@ public class PurchaseServiceImpl implements PurchaseService{
             throw new NotSpecifiedGymPassTypeException("Not specified gympass type");
 
         PurchasedGymPassDocument purchasedGymPassDocumentToSave = new PurchasedGymPassDocument(
+                UUID.randomUUID().toString(),
                 gymPassOfferDocument,
                 userDocument,
                 LocalDateTime.now(),
@@ -78,5 +81,33 @@ public class PurchaseServiceImpl implements PurchaseService{
         PurchasedGymPassDocument purchasedGymPassDocumentSaved = purchasedGymPassDAO.save(purchasedGymPassDocumentToSave);
         return modelMapper.map(purchasedGymPassDocumentSaved, PurchasedGymPassDTO.class);
 
+    }
+
+    @Override
+    public PurchasedGymPassDTO suspendGymPass(String individualGymPassId, String requestedSuspensionDate)
+            throws GymPassNotFoundException, AlreadySuspendedGymPassException, RetroSuspensionDateException,
+            SuspensionDateAfterEndDateException {
+
+        PurchasedGymPassDocument purchasedGymPassDocument = purchasedGymPassDAO.findByPurchasedGymPassDocumentId(individualGymPassId);
+        if(purchasedGymPassDocument == null) throw new GymPassNotFoundException("Gympass with current ID does not exist");
+
+        LocalDate endDate = purchasedGymPassDocument.getEndDate();
+        LocalDate now = LocalDate.now();
+        LocalDate suspensionDate = LocalDate.parse(requestedSuspensionDate, DateTimeFormatter.ISO_DATE);
+        if(suspensionDate.isBefore(now) || suspensionDate.isEqual(now))
+            throw new RetroSuspensionDateException("Retro suspension date");
+        if(suspensionDate.isAfter(endDate) || suspensionDate.isEqual(endDate))
+                throw new SuspensionDateAfterEndDateException("Suspension date after end date");
+
+        LocalDate currentSuspensionDate = purchasedGymPassDocument.getSuspensionDate();
+        if(currentSuspensionDate != null){
+            if(currentSuspensionDate.isAfter(suspensionDate)) throw new AlreadySuspendedGymPassException("Gympass is suspended.");
+        }
+
+        purchasedGymPassDocument.setSuspensionDate(suspensionDate);
+        long suspensionDateFromNow = now.until(endDate, ChronoUnit.DAYS);
+        purchasedGymPassDocument.setEndDate(endDate.plusDays(suspensionDateFromNow));
+        PurchasedGymPassDocument purchasedGymPassDocumentSaved = purchasedGymPassDAO.save(purchasedGymPassDocument);
+        return modelMapper.map(purchasedGymPassDocumentSaved, PurchasedGymPassDTO.class);
     }
 }

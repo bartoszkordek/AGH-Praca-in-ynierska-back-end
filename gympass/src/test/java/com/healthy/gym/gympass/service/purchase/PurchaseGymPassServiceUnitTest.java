@@ -65,6 +65,7 @@ class PurchaseGymPassServiceUnitTest {
         purchasedGymPassRequest.setEntries(entries);
 
         //response
+        String purchasedGymPassDocumentId = UUID.randomUUID().toString();
         String title = "Karnet miesięczny";
         double amount = 139.99;
         String currency = "zł";
@@ -76,6 +77,7 @@ class PurchaseGymPassServiceUnitTest {
         LocalDate responseStartDate = LocalDate.now();
         LocalDate responseEndDate = LocalDate.now().plusMonths(1);
         PurchasedGymPassDTO purchasedGymPassDTO = new PurchasedGymPassDTO(
+                purchasedGymPassDocumentId,
                 new SimpleGymPassDTO(
                         gymPassOfferId,
                         title,
@@ -110,7 +112,9 @@ class PurchaseGymPassServiceUnitTest {
         );
         gymPassOfferDocument.setId("507f1f77bcf86cd799439011");
 
+
         PurchasedGymPassDocument purchasedGymPassDocumentSaved = new PurchasedGymPassDocument(
+                purchasedGymPassDocumentId,
                 gymPassOfferDocument,
                 userDocument,
                 purchaseDateAndTime,

@@ -13,6 +13,7 @@ public class PurchasedGymPassDocument {
 
     @Id
     private String id;
+    private String purchasedGymPassDocumentId;
     @DBRef
     private GymPassDocument gymPassOffer;
     @DBRef
@@ -28,6 +29,7 @@ public class PurchasedGymPassDocument {
     }
 
     public PurchasedGymPassDocument(
+            String purchasedGymPassDocumentId,
             GymPassDocument gymPassOffer,
             UserDocument user,
             LocalDateTime purchaseDateAndTime,
@@ -36,6 +38,7 @@ public class PurchasedGymPassDocument {
             int entries,
             LocalDate suspensionDate
     ){
+        this.purchasedGymPassDocumentId = purchasedGymPassDocumentId;
         this.gymPassOffer = gymPassOffer;
         this.user = user;
         this.purchaseDateAndTime = purchaseDateAndTime;
@@ -46,6 +49,7 @@ public class PurchasedGymPassDocument {
     }
 
     public PurchasedGymPassDocument(
+            String purchasedGymPassDocumentId,
             GymPassDocument gymPassOffer,
             UserDocument user,
             LocalDateTime purchaseDateAndTime,
@@ -53,6 +57,7 @@ public class PurchasedGymPassDocument {
             LocalDate endDate,
             int entries
     ){
+        this.purchasedGymPassDocumentId = purchasedGymPassDocumentId;
         this.gymPassOffer = gymPassOffer;
         this.user = user;
         this.purchaseDateAndTime = purchaseDateAndTime;
@@ -63,6 +68,10 @@ public class PurchasedGymPassDocument {
 
     public String getId() {
         return id;
+    }
+
+    public String getPurchasedGymPassDocumentId() {
+        return purchasedGymPassDocumentId;
     }
 
     public GymPassDocument getGymPassOffer() {
@@ -97,6 +106,10 @@ public class PurchasedGymPassDocument {
         this.id = id;
     }
 
+    public void setPurchasedGymPassDocumentId(String purchasedGymPassDocumentId) {
+        this.purchasedGymPassDocumentId = purchasedGymPassDocumentId;
+    }
+
     public void setGymPassOffer(GymPassDocument gymPassOffer) {
         this.gymPassOffer = gymPassOffer;
     }
@@ -129,6 +142,7 @@ public class PurchasedGymPassDocument {
     public String toString() {
         return "PurchasedGymPassDocument{" +
                 "id='" + id + '\'' +
+                ", purchasedGymPassDocumentId='" + purchasedGymPassDocumentId + '\'' +
                 ", gymPassOffer=" + gymPassOffer +
                 ", user=" + user +
                 ", purchaseDateAndTime=" + purchaseDateAndTime +
@@ -146,6 +160,7 @@ public class PurchasedGymPassDocument {
         PurchasedGymPassDocument that = (PurchasedGymPassDocument) o;
         return entries == that.entries &&
                 Objects.equals(id, that.id) &&
+                Objects.equals(purchasedGymPassDocumentId, that.purchasedGymPassDocumentId) &&
                 Objects.equals(gymPassOffer, that.gymPassOffer) &&
                 Objects.equals(user, that.user) &&
                 Objects.equals(purchaseDateAndTime, that.purchaseDateAndTime) &&
@@ -158,6 +173,7 @@ public class PurchasedGymPassDocument {
     public int hashCode() {
         return Objects.hash(
                 id,
+                purchasedGymPassDocumentId,
                 gymPassOffer,
                 user,
                 purchaseDateAndTime,

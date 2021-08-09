@@ -10,6 +10,8 @@ public class Messages {
                 {"exception.access.denied", "Nie masz uprawnień do wykonania tej operacji."},
                 {"exception.already.accepted.individual.training",
                         "Zapytanie o trening indywidualny zostało już zaakceptowane."},
+                {"exception.already.rejected.individual.training",
+                        "Zapytanie o trening indywidualny zostało już odrzucone."},
                 {"exception.location.not.found", "Nie znaleziono określonej lokalizacji."},
                 {"exception.constraint.violation", "Nieprawidłowy format danych."},
                 {"exception.create.group.training.location.occupied", "Sala jest niedostępna we wskazanym czasie."},
@@ -76,6 +78,7 @@ public class Messages {
                 {"enrollment.success.reserve.list", "Brak miejsc na liście podstawowej. Zapisano na listę rezerwową."},
                 {"enrollment.success.individual", "Zapytanie o trening indywidualny zostało stworzone."},
                 {"enrollment.individual.accepted", "Zapytanie o trening indywidualny zostało zaakceptowane."},
+                {"enrollment.individual.rejected", "Zapytanie o trening indywidualny zostało odrzucone."},
                 {"enrollment.remove", "Zrezygnowano z uczestnictwa w zajęciach."}
         }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
     }
@@ -85,6 +88,8 @@ public class Messages {
                 {"exception.access.denied", "You are not allowed to perform this operation."},
                 {"exception.already.accepted.individual.training",
                         "Individual training request has been already accepted."},
+                {"exception.already.rejected.individual.training",
+                        "Individual training request has been already rejected."},
                 {"exception.location.not.found", "Specified location is not found."},
                 {"exception.constraint.violation", "Invalid data format."},
                 {"exception.create.group.training.location.occupied",
@@ -149,6 +154,7 @@ public class Messages {
                 {"enrollment.success.reserve.list", "Basic list is full. You have been enrolled to reserve list."},
                 {"enrollment.success.individual", "Individual training request has been created."},
                 {"enrollment.individual.accepted", "Individual training request has been accepted."},
+                {"enrollment.individual.rejected", "Individual training request has been rejected."},
                 {"enrollment.remove", "Participation in the classes was resigned."}
         }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
     }

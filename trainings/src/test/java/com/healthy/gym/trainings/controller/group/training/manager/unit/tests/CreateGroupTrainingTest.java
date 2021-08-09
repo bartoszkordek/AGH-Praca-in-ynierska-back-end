@@ -200,13 +200,13 @@ class CreateGroupTrainingTest {
                             jsonPath("$.message").value(is(expectedMessage)),
                             jsonPath("$.errors").value(is(notNullValue())),
                             jsonPath("$.errors.endDate")
-                                    .value(is(messages.get("field.invalid.date.time.format"))),
+                                    .value(is(messages.get("exception.invalid.date.time.format"))),
                             jsonPath("$.errors.locationId")
                                     .value(is(messages.get("exception.invalid.id.format"))),
                             jsonPath("$.errors.limit")
                                     .value(is(messages.get("field.training.limit.min.value"))),
                             jsonPath("$.errors.startDate")
-                                    .value(is(messages.get("field.invalid.date.time.format")))
+                                    .value(is(messages.get("exception.invalid.date.time.format")))
                     ));
         }
 

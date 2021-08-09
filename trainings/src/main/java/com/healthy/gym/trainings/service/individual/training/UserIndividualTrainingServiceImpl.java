@@ -50,8 +50,8 @@ public class UserIndividualTrainingServiceImpl implements UserIndividualTraining
     ) throws PastDateException, StartDateAfterEndDateException, TrainerOccupiedException,
             TrainerNotFoundException, UserNotFoundException {
 
-        String individualTrainingDate = individualTrainingsRequestModel.getDate();
-        String individualTrainingStartTime = individualTrainingsRequestModel.getStartTime();
+//        String individualTrainingDate = individualTrainingsRequestModel.getDate();
+//        String individualTrainingStartTime = individualTrainingsRequestModel.getStartDateTime();
 //        if (isTrainingRetroDateAndTime(individualTrainingDate, individualTrainingStartTime)) {
 //            throw new RetroIndividualTrainingException("Retro date");
 //        }

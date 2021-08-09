@@ -7,7 +7,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import static com.healthy.gym.trainings.utils.Time24HoursValidator.validate;
 
 @Document(collection = "IndividualTrainings")
-public class IndividualTrainings {
+public class IndividualTrainingDocument {
 
     @Id
     private String id;
@@ -21,11 +21,11 @@ public class IndividualTrainings {
     private boolean accepted;
     private boolean declined;
 
-    public IndividualTrainings() {
+    public IndividualTrainingDocument() {
 
     }
 
-    public IndividualTrainings(
+    public IndividualTrainingDocument(
             String clientId,
             String trainerId,
             String date,

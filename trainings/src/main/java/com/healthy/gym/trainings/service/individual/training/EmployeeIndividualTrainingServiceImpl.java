@@ -1,7 +1,7 @@
 package com.healthy.gym.trainings.service.individual.training;
 
-import com.healthy.gym.trainings.data.document.IndividualTrainings;
-import com.healthy.gym.trainings.data.repository.IndividualTrainingsRepository;
+import com.healthy.gym.trainings.data.document.IndividualTrainingDocument;
+import com.healthy.gym.trainings.data.repository.IndividualTrainingRepository;
 import com.healthy.gym.trainings.dto.IndividualTrainingDTO;
 import com.healthy.gym.trainings.exception.StartDateAfterEndDateException;
 import com.healthy.gym.trainings.exception.notexisting.NotExistingIndividualTrainingException;
@@ -14,11 +14,11 @@ import java.util.List;
 @Service
 public class EmployeeIndividualTrainingServiceImpl implements EmployeeIndividualTrainingService {
 
-    private final IndividualTrainingsRepository individualTrainingsRepository;
+    private final IndividualTrainingRepository individualTrainingRepository;
 
     @Autowired
-    public EmployeeIndividualTrainingServiceImpl(IndividualTrainingsRepository individualTrainingsRepository) {
-        this.individualTrainingsRepository = individualTrainingsRepository;
+    public EmployeeIndividualTrainingServiceImpl(IndividualTrainingRepository individualTrainingRepository) {
+        this.individualTrainingRepository = individualTrainingRepository;
     }
 
     @Override
@@ -37,7 +37,7 @@ public class EmployeeIndividualTrainingServiceImpl implements EmployeeIndividual
             final String trainingId
     ) throws NotExistingIndividualTrainingException {
 
-        IndividualTrainings individualTraining = individualTrainingsRepository
+        IndividualTrainingDocument individualTraining = individualTrainingRepository
                 .findIndividualTrainingsById(trainingId);
         if (individualTraining == null) throw new NotExistingIndividualTrainingException();
         //return individualTraining;

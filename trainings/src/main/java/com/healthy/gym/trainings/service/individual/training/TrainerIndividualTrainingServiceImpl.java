@@ -1,8 +1,8 @@
 package com.healthy.gym.trainings.service.individual.training;
 
 import com.healthy.gym.trainings.configuration.EmailConfiguration;
-import com.healthy.gym.trainings.data.document.IndividualTrainings;
-import com.healthy.gym.trainings.data.repository.IndividualTrainingsRepository;
+import com.healthy.gym.trainings.data.document.IndividualTrainingDocument;
+import com.healthy.gym.trainings.data.repository.IndividualTrainingRepository;
 import com.healthy.gym.trainings.dto.IndividualTrainingDTO;
 import com.healthy.gym.trainings.exception.*;
 import com.healthy.gym.trainings.exception.notexisting.NotExistingIndividualTrainingException;
@@ -21,15 +21,15 @@ import java.util.List;
 public class TrainerIndividualTrainingServiceImpl implements TrainerIndividualTrainingService {
 
     private final EmailConfiguration emailConfig;
-    private final IndividualTrainingsRepository individualTrainingsRepository;
+    private final IndividualTrainingRepository individualTrainingRepository;
 
     @Autowired
     public TrainerIndividualTrainingServiceImpl(
             EmailConfiguration emailConfig,
-            IndividualTrainingsRepository individualTrainingsRepository
+            IndividualTrainingRepository individualTrainingRepository
     ) {
         this.emailConfig = emailConfig;
-        this.individualTrainingsRepository = individualTrainingsRepository;
+        this.individualTrainingRepository = individualTrainingRepository;
     }
 
     @Override
@@ -115,14 +115,14 @@ public class TrainerIndividualTrainingServiceImpl implements TrainerIndividualTr
             AlreadyRejectedIndividualTrainingException,
             EmailSendingException, PastDateException {
 
-        IndividualTrainings individualTraining = individualTrainingsRepository
+        IndividualTrainingDocument individualTraining = individualTrainingRepository
                 .findIndividualTrainingsById(trainingId);
 
         if (individualTraining == null) throw new NotExistingIndividualTrainingException();
         if (individualTraining.isDeclined()) throw new AlreadyRejectedIndividualTrainingException();
 
         individualTraining.setDeclined(true);
-        IndividualTrainings response = individualTrainingsRepository.save(individualTraining);
+        IndividualTrainingDocument response = individualTrainingRepository.save(individualTraining);
 
         String clientId = response.getClientId();
         List<String> recipients = new ArrayList<>();

@@ -1,8 +1,8 @@
 package com.healthy.gym.trainings.service.individual.training;
 
-import com.healthy.gym.trainings.data.document.IndividualTrainings;
+import com.healthy.gym.trainings.data.document.IndividualTrainingDocument;
 import com.healthy.gym.trainings.data.document.UserDocument;
-import com.healthy.gym.trainings.data.repository.IndividualTrainingsRepository;
+import com.healthy.gym.trainings.data.repository.IndividualTrainingRepository;
 import com.healthy.gym.trainings.data.repository.UserDAO;
 import com.healthy.gym.trainings.dto.IndividualTrainingDTO;
 import com.healthy.gym.trainings.exception.PastDateException;
@@ -23,15 +23,15 @@ import java.util.List;
 @Service
 public class UserIndividualTrainingServiceImpl implements UserIndividualTrainingService {
 
-    private final IndividualTrainingsRepository individualTrainingsRepository;
+    private final IndividualTrainingRepository individualTrainingRepository;
     private final UserDAO userDAO;
 
     @Autowired
     public UserIndividualTrainingServiceImpl(
-            IndividualTrainingsRepository individualTrainingsRepository,
+            IndividualTrainingRepository individualTrainingRepository,
             UserDAO userDAO
     ) {
-        this.individualTrainingsRepository = individualTrainingsRepository;
+        this.individualTrainingRepository = individualTrainingRepository;
         this.userDAO = userDAO;
     }
 
@@ -86,12 +86,12 @@ public class UserIndividualTrainingServiceImpl implements UserIndividualTraining
     public IndividualTrainingDTO cancelIndividualTrainingRequest(String trainingId, String clientId)
             throws NotExistingIndividualTrainingException, UserNotFoundException, PastDateException {
 
-        IndividualTrainings individualTraining = individualTrainingsRepository
+        IndividualTrainingDocument individualTraining = individualTrainingRepository
                 .findIndividualTrainingsById(trainingId);
 
         if (individualTraining == null) throw new NotExistingIndividualTrainingException();
 
-        boolean clientIdEquals = individualTrainingsRepository
+        boolean clientIdEquals = individualTrainingRepository
                 .existsIndividualTrainingsByIdAndClientIdEquals(trainingId, clientId);
 
 //        if (!clientIdEquals) throw new NotAuthorizedClientException("Training is not authorized by client");
@@ -102,7 +102,7 @@ public class UserIndividualTrainingServiceImpl implements UserIndividualTraining
 //            throw new RetroIndividualTrainingException("Retro date");
 //        }
 
-        individualTrainingsRepository.deleteIndividualTrainingsById(trainingId);
+        individualTrainingRepository.deleteIndividualTrainingsById(trainingId);
         return null;
     }
 }

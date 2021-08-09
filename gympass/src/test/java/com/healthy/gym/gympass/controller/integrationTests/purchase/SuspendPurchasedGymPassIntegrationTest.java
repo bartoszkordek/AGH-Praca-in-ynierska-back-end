@@ -289,7 +289,6 @@ public class SuspendPurchasedGymPassIntegrationTest {
             assertThat(responseEntity.getBody().get("timestamp")).isNotNull();
         }
 
-
         @ParameterizedTest
         @EnumSource(TestCountry.class)
         void shouldNotSuspendGymPassWhenRetroSuspensionDate(TestCountry country) throws URISyntaxException {
@@ -309,6 +308,35 @@ public class SuspendPurchasedGymPassIntegrationTest {
             HttpEntity<Object> request = new HttpEntity<>(null, headers);
 
             String expectedMessage = messages.get("exception.retro.date.suspension");
+
+            ResponseEntity<JsonNode> responseEntity = restTemplate
+                    .exchange(uri, HttpMethod.PUT, request, JsonNode.class);
+
+            assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+            assertThat(Objects.requireNonNull(responseEntity.getBody().get("message").textValue()))
+                    .isEqualTo(expectedMessage);
+            assertThat(responseEntity.getBody().get("timestamp")).isNotNull();
+        }
+
+        @ParameterizedTest
+        @EnumSource(TestCountry.class)
+        void shouldNotSuspendGymPassWhenSuspensionDateAfterEndDate(TestCountry country) throws URISyntaxException {
+            Map<String, String> messages = getMessagesAccordingToLocale(country);
+            Locale testedLocale = convertEnumToLocale(country);
+
+            String suspensionDate = LocalDate.now().plusYears(1000).format(DateTimeFormatter.ISO_LOCAL_DATE);
+
+            URI uri = new URI("http://localhost:" + port + "/purchase/"+purchasedGymPassDocumentId+
+                    "/suspend/"+suspensionDate);
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.set("Accept-Language", testedLocale.toString());
+            headers.set("Authorization", employeeToken);
+            headers.setContentType(MediaType.APPLICATION_JSON);
+
+            HttpEntity<Object> request = new HttpEntity<>(null, headers);
+
+            String expectedMessage = messages.get("exception.suspension.after.end");
 
             ResponseEntity<JsonNode> responseEntity = restTemplate
                     .exchange(uri, HttpMethod.PUT, request, JsonNode.class);

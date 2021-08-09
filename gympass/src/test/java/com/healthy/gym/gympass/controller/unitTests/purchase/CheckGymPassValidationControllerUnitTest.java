@@ -60,7 +60,9 @@ public class CheckGymPassValidationControllerUnitTest {
     private String employeeToken;
     private String userToken;
     private String validTimeValidPurchasedGymPassDocumentId;
+    private String notValidTimeValidPurchasedGymPassDocumentId;
     private String validEntriesValidPurchasedGymPassDocumentId;
+    private String notValidEntriesValidPurchasedGymPassDocumentId;
     private URI uri;
 
     @BeforeEach
@@ -79,6 +81,8 @@ public class CheckGymPassValidationControllerUnitTest {
 
         validTimeValidPurchasedGymPassDocumentId = UUID.randomUUID().toString();
         validEntriesValidPurchasedGymPassDocumentId = UUID.randomUUID().toString();
+        notValidTimeValidPurchasedGymPassDocumentId = UUID.randomUUID().toString();
+        notValidEntriesValidPurchasedGymPassDocumentId = UUID.randomUUID().toString();
 
         uri = new URI("/purchase");
     }
@@ -88,7 +92,7 @@ public class CheckGymPassValidationControllerUnitTest {
 
         @ParameterizedTest
         @EnumSource(TestCountry.class)
-        void shouldReturnValid_timeValidGymPass(TestCountry country) throws Exception {
+        void shouldReturnValid_timeValidTypeGymPass(TestCountry country) throws Exception {
             Map<String, String> messages = getMessagesAccordingToLocale(country);
             Locale testedLocale = convertEnumToLocale(country);
 
@@ -124,7 +128,7 @@ public class CheckGymPassValidationControllerUnitTest {
 
         @ParameterizedTest
         @EnumSource(TestCountry.class)
-        void shouldReturnValid_entriesValidGymPass(TestCountry country) throws Exception {
+        void shouldReturnValid_entriesValidTypeGymPass(TestCountry country) throws Exception {
             Map<String, String> messages = getMessagesAccordingToLocale(country);
             Locale testedLocale = convertEnumToLocale(country);
 
@@ -154,6 +158,41 @@ public class CheckGymPassValidationControllerUnitTest {
                             jsonPath("$.result.valid").value(is(true)),
                             jsonPath("$.result.suspensionDate").doesNotExist(),
                             jsonPath("$.result.entries").value(is(entries))
+                    ));
+        }
+
+        @ParameterizedTest
+        @EnumSource(TestCountry.class)
+        void shouldReturnNotValidWhenRetroEndDate_timeValidTypeGymPass(TestCountry country) throws Exception {
+            Map<String, String> messages = getMessagesAccordingToLocale(country);
+            Locale testedLocale = convertEnumToLocale(country);
+
+            String endDate = LocalDateTime.now().minusDays(5).format(DateTimeFormatter.ISO_DATE);
+
+            RequestBuilder request = MockMvcRequestBuilders
+                    .get(uri+"/"+notValidTimeValidPurchasedGymPassDocumentId)
+                    .header("Accept-Language", testedLocale.toString())
+                    .header("Authorization", managerToken)
+                    .contentType(MediaType.APPLICATION_JSON);
+
+            when(purchaseService.isGymPassValid(notValidTimeValidPurchasedGymPassDocumentId))
+                    .thenReturn(new PurchasedGymPassStatusValidationResultDTO(
+                            false,
+                            endDate,
+                            null
+                    ));
+
+            String expectedMessage = messages.get("gympass.not.valid");
+
+            mockMvc.perform(request)
+                    .andDo(print())
+                    .andExpect(matchAll(
+                            status().isOk(),
+                            content().contentType(MediaType.APPLICATION_JSON),
+                            jsonPath("$.message").value(is(expectedMessage)),
+                            jsonPath("$.result.valid").value(is(false)),
+                            jsonPath("$.result.endDate").value(is(endDate)),
+                            jsonPath("$.result.suspensionDate").doesNotExist()
                     ));
 
         }

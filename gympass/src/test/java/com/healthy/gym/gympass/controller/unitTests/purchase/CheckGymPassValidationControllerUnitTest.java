@@ -7,6 +7,8 @@ import com.healthy.gym.gympass.dto.BasicUserInfoDTO;
 import com.healthy.gym.gympass.dto.PurchasedGymPassDTO;
 import com.healthy.gym.gympass.dto.PurchasedGymPassStatusValidationResultDTO;
 import com.healthy.gym.gympass.dto.SimpleGymPassDTO;
+import com.healthy.gym.gympass.exception.GymPassNotFoundException;
+import com.healthy.gym.gympass.exception.OfferNotFoundException;
 import com.healthy.gym.gympass.service.PurchaseService;
 import com.healthy.gym.gympass.shared.Price;
 import org.junit.jupiter.api.BeforeEach;
@@ -27,11 +29,14 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 
 import static com.healthy.gym.gympass.configuration.LocaleConverter.convertEnumToLocale;
 import static com.healthy.gym.gympass.configuration.Messages.getMessagesAccordingToLocale;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.is;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.ResultMatcher.matchAll;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -150,6 +155,41 @@ public class CheckGymPassValidationControllerUnitTest {
                             jsonPath("$.result.suspensionDate").doesNotExist(),
                             jsonPath("$.result.entries").value(is(entries))
                     ));
+
+        }
+    }
+
+    @Nested
+    class ShouldNotReturnValidationStatus{
+
+        @ParameterizedTest
+        @EnumSource(TestCountry.class)
+        void shouldNotReturnValidStatus_whenInvalidGymPassDocumentId(TestCountry country) throws Exception {
+            Map<String, String> messages = getMessagesAccordingToLocale(country);
+            Locale testedLocale = convertEnumToLocale(country);
+
+            String invalidGymPassDocumentId = UUID.randomUUID().toString();
+
+            RequestBuilder request = MockMvcRequestBuilders
+                    .get(uri+"/"+invalidGymPassDocumentId)
+                    .header("Accept-Language", testedLocale.toString())
+                    .header("Authorization", managerToken)
+                    .contentType(MediaType.APPLICATION_JSON);
+
+            String expectedMessage = messages.get("exception.gympass.not.found");
+
+            doThrow(GymPassNotFoundException.class)
+                    .when(purchaseService)
+                    .isGymPassValid(invalidGymPassDocumentId);
+
+            mockMvc.perform(request)
+                    .andDo(print())
+                    .andExpect(status().isBadRequest())
+                    .andExpect(status().reason(is(expectedMessage)))
+                    .andExpect(result ->
+                            assertThat(Objects.requireNonNull(result.getResolvedException()).getCause())
+                                    .isInstanceOf(GymPassNotFoundException.class)
+                    );
 
         }
     }

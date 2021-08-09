@@ -155,7 +155,7 @@ public class Messages {
                 {"enrollment.success.individual", "Individual training request has been created."},
                 {"enrollment.individual.accepted", "Individual training request has been accepted."},
                 {"enrollment.individual.rejected", "Individual training request has been rejected."},
-                {"enrollment.remove", "Participation in the classes was resigned."}
+                {"enrollment.remove", "Participation has been cancelled."}
         }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
     }
 

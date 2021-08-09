@@ -112,14 +112,14 @@ public class TrainerIndividualTrainingServiceImpl implements TrainerIndividualTr
     @Override
     public IndividualTrainingDTO rejectIndividualTraining(String userId, String trainingId)
             throws NotExistingIndividualTrainingException,
-            AlreadyDeclinedIndividualTrainingException,
-            EmailSendingException {
+            AlreadyRejectedIndividualTrainingException,
+            EmailSendingException, PastDateException {
 
         IndividualTrainings individualTraining = individualTrainingsRepository
                 .findIndividualTrainingsById(trainingId);
 
         if (individualTraining == null) throw new NotExistingIndividualTrainingException();
-        if (individualTraining.isDeclined()) throw new AlreadyDeclinedIndividualTrainingException();
+        if (individualTraining.isDeclined()) throw new AlreadyRejectedIndividualTrainingException();
 
         individualTraining.setDeclined(true);
         IndividualTrainings response = individualTrainingsRepository.save(individualTraining);

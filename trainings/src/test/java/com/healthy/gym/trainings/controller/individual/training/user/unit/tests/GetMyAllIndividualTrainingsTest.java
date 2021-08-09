@@ -1,19 +1,13 @@
 package com.healthy.gym.trainings.controller.individual.training.user.unit.tests;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.healthy.gym.trainings.configuration.TestCountry;
 import com.healthy.gym.trainings.configuration.TestRoleTokenFactory;
 import com.healthy.gym.trainings.controller.individual.training.UserIndividualTrainingController;
 import com.healthy.gym.trainings.dto.BasicUserInfoDTO;
 import com.healthy.gym.trainings.dto.IndividualTrainingDTO;
 import com.healthy.gym.trainings.dto.ParticipantsDTO;
-import com.healthy.gym.trainings.exception.PastDateException;
-import com.healthy.gym.trainings.exception.StartDateAfterEndDateException;
-import com.healthy.gym.trainings.exception.notfound.TrainerNotFoundException;
+import com.healthy.gym.trainings.exception.notfound.NoIndividualTrainingFoundException;
 import com.healthy.gym.trainings.exception.notfound.UserNotFoundException;
-import com.healthy.gym.trainings.exception.occupied.TrainerOccupiedException;
-import com.healthy.gym.trainings.model.request.IndividualTrainingRequest;
 import com.healthy.gym.trainings.service.individual.training.UserIndividualTrainingService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -22,7 +16,6 @@ import org.junit.jupiter.params.provider.EnumSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.RequestBuilder;
@@ -37,7 +30,6 @@ import static com.healthy.gym.trainings.configuration.LocaleConverter.convertEnu
 import static com.healthy.gym.trainings.configuration.Messages.getMessagesAccordingToLocale;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.notNullValue;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.ResultMatcher.matchAll;
@@ -45,7 +37,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(UserIndividualTrainingController.class)
-class CreateIndividualTrainingRequestTest {
+class GetMyAllIndividualTrainingsTest {
 
     @Autowired
     private MockMvc mockMvc;
@@ -63,27 +55,15 @@ class CreateIndividualTrainingRequestTest {
     private String trainerToken;
     private String userToken;
     private URI uri;
-    private String content;
-    private String invalidRequestContent;
-    private String trainingId;
-    private IndividualTrainingRequest individualTrainingsRequestModel;
 
     @BeforeEach
-    void setUp() throws URISyntaxException, JsonProcessingException {
+    void setUp() throws URISyntaxException {
         adminToken = tokenFactory.getAdminToken();
         employeeToken = tokenFactory.getEmployeeToken();
         managerToken = tokenFactory.getManagerToken();
-        trainingId = UUID.randomUUID().toString();
         trainerToken = tokenFactory.getTrainerToken();
         userId = UUID.randomUUID().toString();
         userToken = tokenFactory.getUserToken(userId);
-
-        individualTrainingsRequestModel = getIndividualTrainingsRequest();
-        IndividualTrainingRequest invalidRequest = getInvalidIndividualTrainingsRequest();
-        ObjectMapper objectMapper = new ObjectMapper();
-
-        content = objectMapper.writeValueAsString(individualTrainingsRequestModel);
-        invalidRequestContent = objectMapper.writeValueAsString(invalidRequest);
 
         uri = getUri(userId);
     }
@@ -92,49 +72,22 @@ class CreateIndividualTrainingRequestTest {
         return new URI("/individual/user/" + userId);
     }
 
-    private IndividualTrainingRequest getIndividualTrainingsRequest() {
-        IndividualTrainingRequest request = new IndividualTrainingRequest();
-        request.setTrainerId(trainingId);
-        request.setStartDateTime("2020-10-10T20:00");
-        request.setEndDateTime("2020-10-10T21:00");
-        request.setRemarks("Test remarks");
-        return request;
-    }
-
-    private IndividualTrainingRequest getInvalidIndividualTrainingsRequest() {
-        IndividualTrainingRequest request = new IndividualTrainingRequest();
-        request.setTrainerId("testInvalidId");
-        request.setStartDateTime("2020101020:00");
-        request.setEndDateTime("2020101021:00");
-        request.setRemarks("Lorem ipsum dolor sit amet, consectetur adipiscing elit. " +
-                "Aliquam ullamcorper ultrices pellentesque. Mauris vehicula elementum dui, " +
-                "sit amet fringilla arcu faucibus in. Donec neque arcu, pharetra a maximus a, " +
-                "dignissim in sem. Pellentesque lacinia tempor enim, vel pretium diam est.");
-
-        return request;
-    }
 
     private RequestBuilder getValidRequest(String token, Locale locale) {
         return MockMvcRequestBuilders
-                .post(uri)
+                .get(uri)
                 .header("Accept-Language", locale.toString())
                 .header("Authorization", token)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(content);
+                .contentType(MediaType.APPLICATION_JSON);
     }
 
     @ParameterizedTest
     @EnumSource(TestCountry.class)
-    void shouldCreateIndividualTrainingRequest(TestCountry country) throws Exception {
-        Map<String, String> messages = getMessagesAccordingToLocale(country);
+    void shouldGetMyAllIndividualTrainings(TestCountry country) throws Exception {
         Locale testedLocale = convertEnumToLocale(country);
 
-        when(userIndividualTrainingService.createIndividualTrainingRequest(individualTrainingsRequestModel, userId))
-                .thenReturn(getIndividualTrainingDTO());
-
+        when(userIndividualTrainingService.getMyAllTrainings(userId)).thenReturn(List.of(getIndividualTrainingDTO()));
         RequestBuilder request = getValidRequest(userToken, testedLocale);
-
-        String expectedMessage = messages.get("enrollment.success.individual");
 
         mockMvc.perform(request)
                 .andDo(print())
@@ -142,37 +95,37 @@ class CreateIndividualTrainingRequestTest {
                         matchAll(
                                 status().isOk(),
                                 content().contentType(MediaType.APPLICATION_JSON),
-                                jsonPath("$.message").value(is(expectedMessage))
+                                jsonPath("$.message").doesNotHaveJsonPath()
                         )
                 )
                 .andExpect(
                         matchAll(
-                                jsonPath("$.training.id")
+                                jsonPath("$[0].id")
                                         .value(is("74fe07a5-fb18-4006-a721-1a312dc2d398")),
-                                jsonPath("$.training.title").value(is("Test training title")),
-                                jsonPath("$.training.startDate").value(is("2020-10-10T16:00")),
-                                jsonPath("$.training.endDate").value(is("2020-10-10T16:30")),
-                                jsonPath("$.training.allDay").value(is(false)),
-                                jsonPath("$.training.location").value(is("Room no 2"))
+                                jsonPath("$[0].title").value(is("Test training title")),
+                                jsonPath("$[0].startDate").value(is("2020-10-10T16:00")),
+                                jsonPath("$[0].endDate").value(is("2020-10-10T16:30")),
+                                jsonPath("$[0].allDay").value(is(false)),
+                                jsonPath("$[0].location").value(is("Room no 2"))
                         )
                 ).andExpect(
                         matchAll(
-                                jsonPath("$.training.trainers[0].name").value(is("TestName")),
-                                jsonPath("$.training.trainers[0].surname").value(is("TestSurname")),
-                                jsonPath("$.training.trainers[0].avatar").value(is("testAvatarUrl"))
+                                jsonPath("$[0].trainers[0].name").value(is("TestName")),
+                                jsonPath("$[0].trainers[0].surname").value(is("TestSurname")),
+                                jsonPath("$[0].trainers[0].avatar").value(is("testAvatarUrl"))
                         )
                 ).andExpect(
                         matchAll(
-                                jsonPath("$.training.participants.basicList").isArray(),
-                                jsonPath("$.training.participants.basicList[0].userId")
+                                jsonPath("$[0].participants.basicList").isArray(),
+                                jsonPath("$[0].participants.basicList[0].userId")
                                         .value(is("20fe07a5-fb18-4006-a721-1a312dc2d370")),
-                                jsonPath("$.training.participants.basicList[0].name")
+                                jsonPath("$[0].participants.basicList[0].name")
                                         .value(is("TestUserName")),
-                                jsonPath("$.training.participants.basicList[0].surname")
+                                jsonPath("$[0].participants.basicList[0].surname")
                                         .value(is("TestUserSurname")),
-                                jsonPath("$.training.participants.basicList[0].avatar")
+                                jsonPath("$[0].participants.basicList[0].avatar")
                                         .value(is("TestAvatarUserUrl")),
-                                jsonPath("$.training.participants.reserveList").isEmpty()
+                                jsonPath("$[0].participants.reserveList").isEmpty()
                         )
                 );
     }
@@ -217,54 +170,18 @@ class CreateIndividualTrainingRequestTest {
 
         @ParameterizedTest
         @EnumSource(TestCountry.class)
-        void shouldThrowBindException(TestCountry country) throws Exception {
+        void shouldThrowNoIndividualTrainingFoundException(TestCountry country) throws Exception {
             Map<String, String> messages = getMessagesAccordingToLocale(country);
             Locale testedLocale = convertEnumToLocale(country);
 
-            request = MockMvcRequestBuilders
-                    .post(uri)
-                    .header("Accept-Language", testedLocale.toString())
-                    .header("Authorization", userToken)
-                    .content(invalidRequestContent)
-                    .contentType(MediaType.APPLICATION_JSON);
-
-            expectedMessage = messages.get("request.bind.exception");
-
-            mockMvc.perform(request)
-                    .andDo(print())
-                    .andExpect(
-                            matchAll(
-                                    status().isBadRequest(),
-                                    content().contentType(MediaType.APPLICATION_JSON),
-                                    jsonPath("$.error")
-                                            .value(is(HttpStatus.BAD_REQUEST.getReasonPhrase())),
-                                    jsonPath("$.message").value(is(expectedMessage)),
-                                    jsonPath("$.errors").value(is(notNullValue())),
-                                    jsonPath("$.errors.trainerId")
-                                            .value(is(messages.get("exception.invalid.id.format"))),
-                                    jsonPath("$.errors.startDateTime")
-                                            .value(is(messages.get("exception.invalid.date.time.format"))),
-                                    jsonPath("$.errors.endDateTime")
-                                            .value(is(messages.get("exception.invalid.date.time.format"))),
-                                    jsonPath("$.errors.remarks")
-                                            .value(is(messages.get("field.remarks.size")))
-                            )
-                    );
-        }
-
-        @ParameterizedTest
-        @EnumSource(TestCountry.class)
-        void shouldThrowPastDateException(TestCountry country) throws Exception {
-            Map<String, String> messages = getMessagesAccordingToLocale(country);
-            Locale testedLocale = convertEnumToLocale(country);
-
-            doThrow(PastDateException.class)
+            doThrow(NoIndividualTrainingFoundException.class)
                     .when(userIndividualTrainingService)
-                    .createIndividualTrainingRequest(individualTrainingsRequestModel, userId);
-            request = getValidRequest(userToken, testedLocale);
-            expectedMessage = messages.get("exception.past.date");
+                    .getMyAllTrainings(userId);
 
-            performRequestAndTestErrorResponse(status().isBadRequest(), PastDateException.class);
+            request = getValidRequest(userToken, testedLocale);
+            expectedMessage = messages.get("exception.no.individual.training.found");
+
+            performRequestAndTestErrorResponse(status().isNotFound(), NoIndividualTrainingFoundException.class);
         }
 
         private void performRequestAndTestErrorResponse(
@@ -283,58 +200,13 @@ class CreateIndividualTrainingRequestTest {
 
         @ParameterizedTest
         @EnumSource(TestCountry.class)
-        void shouldThrowStartDateAfterEndDateException(TestCountry country) throws Exception {
-            Map<String, String> messages = getMessagesAccordingToLocale(country);
-            Locale testedLocale = convertEnumToLocale(country);
-
-            doThrow(StartDateAfterEndDateException.class)
-                    .when(userIndividualTrainingService)
-                    .createIndividualTrainingRequest(individualTrainingsRequestModel, userId);
-            request = getValidRequest(userToken, testedLocale);
-            expectedMessage = messages.get("exception.start.date.after.end.date");
-
-            performRequestAndTestErrorResponse(status().isBadRequest(), StartDateAfterEndDateException.class);
-        }
-
-        @ParameterizedTest
-        @EnumSource(TestCountry.class)
-        void shouldThrowTrainerOccupiedException(TestCountry country) throws Exception {
-            Map<String, String> messages = getMessagesAccordingToLocale(country);
-            Locale testedLocale = convertEnumToLocale(country);
-
-            doThrow(TrainerOccupiedException.class)
-                    .when(userIndividualTrainingService)
-                    .createIndividualTrainingRequest(individualTrainingsRequestModel, userId);
-            request = getValidRequest(employeeToken, testedLocale);
-            expectedMessage = messages.get("exception.create.group.training.trainer.occupied");
-
-            performRequestAndTestErrorResponse(status().isBadRequest(), TrainerOccupiedException.class);
-        }
-
-        @ParameterizedTest
-        @EnumSource(TestCountry.class)
-        void shouldThrowTrainerNotFoundException(TestCountry country) throws Exception {
-            Map<String, String> messages = getMessagesAccordingToLocale(country);
-            Locale testedLocale = convertEnumToLocale(country);
-
-            doThrow(TrainerNotFoundException.class)
-                    .when(userIndividualTrainingService)
-                    .createIndividualTrainingRequest(individualTrainingsRequestModel, userId);
-            request = getValidRequest(employeeToken, testedLocale);
-            expectedMessage = messages.get("exception.create.group.training.trainer.not.found");
-
-            performRequestAndTestErrorResponse(status().isNotFound(), TrainerNotFoundException.class);
-        }
-
-        @ParameterizedTest
-        @EnumSource(TestCountry.class)
         void shouldThrowUserNotFoundException(TestCountry country) throws Exception {
             Map<String, String> messages = getMessagesAccordingToLocale(country);
             Locale testedLocale = convertEnumToLocale(country);
 
             doThrow(UserNotFoundException.class)
                     .when(userIndividualTrainingService)
-                    .createIndividualTrainingRequest(individualTrainingsRequestModel, userId);
+                    .getMyAllTrainings(userId);
             request = getValidRequest(employeeToken, testedLocale);
             expectedMessage = messages.get("exception.not.found.user.id");
 
@@ -349,7 +221,7 @@ class CreateIndividualTrainingRequestTest {
 
             doThrow(IllegalStateException.class)
                     .when(userIndividualTrainingService)
-                    .createIndividualTrainingRequest(individualTrainingsRequestModel, userId);
+                    .getMyAllTrainings(userId);
             request = getValidRequest(adminToken, testedLocale);
             expectedMessage = messages.get("exception.internal.error");
 
@@ -392,7 +264,6 @@ class CreateIndividualTrainingRequestTest {
             Map<String, String> messages = getMessagesAccordingToLocale(country);
             Locale testedLocale = convertEnumToLocale(country);
 
-            uri = getUri(UUID.randomUUID().toString());
             request = getValidRequest(trainerToken, testedLocale);
             expectedMessage = messages.get("exception.access.denied");
 
@@ -419,7 +290,7 @@ class CreateIndividualTrainingRequestTest {
             Locale testedLocale = convertEnumToLocale(country);
 
             RequestBuilder request = MockMvcRequestBuilders
-                    .post(uri)
+                    .get(uri)
                     .header("Accept-Language", testedLocale.toString())
                     .contentType(MediaType.APPLICATION_JSON);
 

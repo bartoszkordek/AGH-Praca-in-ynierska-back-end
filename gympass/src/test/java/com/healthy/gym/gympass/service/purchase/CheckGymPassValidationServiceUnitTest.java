@@ -190,7 +190,7 @@ class CheckGymPassValidationServiceUnitTest {
                 userDocument,
                 purchaseDateAndTime,
                 LocalDate.parse(startDate, DateTimeFormatter.ISO_DATE),
-                LocalDate.parse(endDateForEntriesTypeDocuments, DateTimeFormatter.ISO_DATE).plusDays(suspendedDays),
+                LocalDate.parse(endDateForEntriesTypeDocuments, DateTimeFormatter.ISO_DATE),
                 entriesTypeEntries,
                 LocalDate.parse(suspensionDate, DateTimeFormatter.ISO_DATE)
         );
@@ -241,6 +241,16 @@ class CheckGymPassValidationServiceUnitTest {
         //then
         assertThat(purchaseService.isGymPassValid(notSuspendedEntriesTypeGymPassDocumentId))
                 .isEqualTo(notSuspendedEntriesTypePurchasedGymPassDTO);
+    }
+
+    @Test
+    void shouldReturnNotValidStatus_whenSuspendedEntriesTypeDocument() throws GymPassNotFoundException {
+        //when
+        when(purchasedGymPassDAO.findByPurchasedGymPassDocumentId(suspendedEntriesTypeGymPassDocumentId))
+                .thenReturn(suspendedEntriesTypePurchasedGymPassDocument);
+        //then
+        assertThat(purchaseService.isGymPassValid(suspendedEntriesTypeGymPassDocumentId))
+                .isEqualTo(suspendedEntriesTypePurchasedGymPassDTO);
     }
 
 

@@ -5,6 +5,7 @@ import com.healthy.gym.gympass.dto.PurchasedGymPassDTO;
 import com.healthy.gym.gympass.exception.*;
 import com.healthy.gym.gympass.pojo.request.PurchasedGymPassRequest;
 import com.healthy.gym.gympass.pojo.response.PurchasedGymPassResponse;
+import com.healthy.gym.gympass.pojo.response.ValidationGymPassResponse;
 import com.healthy.gym.gympass.service.PurchaseService;
 import com.healthy.gym.gympass.validation.ValidDateFormat;
 import com.healthy.gym.gympass.validation.ValidIDFormat;
@@ -96,7 +97,7 @@ public class PurchaseController {
     @PutMapping("/{id}/suspend/{suspensionDate}")
     public ResponseEntity<PurchasedGymPassResponse> suspendGymPass(
             @PathVariable("id") @ValidIDFormat final String id,
-            @PathVariable @ValidDateFormat String suspensionDate
+            @PathVariable @ValidDateFormat final String suspensionDate
     ) {
         try{
             String message = translator.toLocale("gympass.suspended");
@@ -123,6 +124,45 @@ public class PurchaseController {
 
         } catch (SuspensionDateAfterEndDateException exception) {
             String reason = translator.toLocale("exception.suspension.after.end");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, exception);
+
+        } catch (Exception exception){
+            String reason = translator.toLocale(INTERNAL_ERROR_EXCEPTION);
+            exception.printStackTrace();
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, reason, exception);
+        }
+    }
+
+    @PreAuthorize("hasRole('ADMIN') or hasRole('MANAGER') or hasRole('EMPLOYEE')")
+    @GetMapping("/{id}")
+    public ResponseEntity<ValidationGymPassResponse> checkGymPassValidation(
+            @PathVariable("id") @ValidIDFormat final String id
+    ){
+        try{
+            String validGymPassMessage = translator.toLocale("gympass.valid");
+            String notValidGymPassMessage = translator.toLocale("gympass.not.valid");
+
+            boolean valid  = purchaseService.isGymPassValid(id);
+
+            if(valid){
+                return ResponseEntity
+                        .status(HttpStatus.OK)
+                        .body(new ValidationGymPassResponse(
+                                validGymPassMessage,
+                                true
+                        ));
+            }
+
+            return ResponseEntity
+                    .status(HttpStatus.OK)
+                    .body(new ValidationGymPassResponse(
+                            notValidGymPassMessage,
+                            false
+                    ));
+
+
+        } catch (GymPassNotFoundException exception) {
+            String reason = translator.toLocale("exception.gympass.not.found");
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, exception);
 
         } catch (Exception exception){

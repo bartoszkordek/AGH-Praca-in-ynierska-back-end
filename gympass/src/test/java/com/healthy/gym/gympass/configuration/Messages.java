@@ -61,6 +61,8 @@ public class Messages {
                 {"exception.gympass.not.found", "Gympass not found."},
                 {"gympass.purchased", "Gympass has been purchased."},
                 {"gympass.suspended", "Gympass has been suspended."},
+                {"gympass.valid", "Gympass is valid."},
+                {"gympass.not.valid", "Gympass is not valid."},
                 {"exception.offer.not.found", "Offer not found."},
                 {"exception.user.not.found", "User not found."},
                 {"exception.gympass.type", "Not specified gympass type."},

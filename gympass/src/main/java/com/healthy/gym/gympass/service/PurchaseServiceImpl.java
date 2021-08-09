@@ -110,4 +110,9 @@ public class PurchaseServiceImpl implements PurchaseService{
         PurchasedGymPassDocument purchasedGymPassDocumentSaved = purchasedGymPassDAO.save(purchasedGymPassDocument);
         return modelMapper.map(purchasedGymPassDocumentSaved, PurchasedGymPassDTO.class);
     }
+
+    @Override
+    public boolean isGymPassValid(String individualGymPassId) throws GymPassNotFoundException {
+        return false;
+    }
 }

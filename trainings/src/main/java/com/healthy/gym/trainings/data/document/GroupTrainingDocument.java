@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 
-@Document(collection = "groupTraining")
+@Document(collection = "groupTrainings")
 public class GroupTrainingDocument {
 
     @Id

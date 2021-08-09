@@ -6,9 +6,7 @@ import com.healthy.gym.gympass.controller.PurchaseController;
 import com.healthy.gym.gympass.dto.BasicUserInfoDTO;
 import com.healthy.gym.gympass.dto.PurchasedGymPassDTO;
 import com.healthy.gym.gympass.dto.SimpleGymPassDTO;
-import com.healthy.gym.gympass.exception.AlreadySuspendedGymPassException;
-import com.healthy.gym.gympass.exception.GymPassNotFoundException;
-import com.healthy.gym.gympass.exception.OfferNotFoundException;
+import com.healthy.gym.gympass.exception.*;
 import com.healthy.gym.gympass.pojo.request.PurchasedGymPassRequest;
 import com.healthy.gym.gympass.service.PurchaseService;
 import com.healthy.gym.gympass.shared.Price;
@@ -286,6 +284,36 @@ class SuspendPurchasedGymPassControllerUnitTest {
                     .andExpect(result ->
                             assertThat(Objects.requireNonNull(result.getResolvedException()).getCause())
                                     .isInstanceOf(AlreadySuspendedGymPassException.class)
+                    );
+        }
+
+        @ParameterizedTest
+        @EnumSource(TestCountry.class)
+        void shouldThrowRetroSuspensionDateException_whenRetroSuspensionDate(TestCountry country) throws Exception {
+            Map<String, String> messages = getMessagesAccordingToLocale(country);
+            Locale testedLocale = convertEnumToLocale(country);
+
+            String retroDate = LocalDateTime.now().minusDays(3).format(DateTimeFormatter.ISO_DATE);
+
+            RequestBuilder request = MockMvcRequestBuilders
+                    .put(uri+"/"+purchasedGymPassDocumentId+"/suspend/"+retroDate)
+                    .header("Accept-Language", testedLocale.toString())
+                    .header("Authorization", employeeToken)
+                    .contentType(MediaType.APPLICATION_JSON);
+
+            String expectedMessage = messages.get("exception.retro.date.suspension");
+
+            doThrow(RetroSuspensionDateException.class)
+                    .when(purchaseService)
+                    .suspendGymPass(purchasedGymPassDocumentId, retroDate);
+
+            mockMvc.perform(request)
+                    .andDo(print())
+                    .andExpect(status().isBadRequest())
+                    .andExpect(status().reason(is(expectedMessage)))
+                    .andExpect(result ->
+                            assertThat(Objects.requireNonNull(result.getResolvedException()).getCause())
+                                    .isInstanceOf(RetroSuspensionDateException.class)
                     );
         }
     }

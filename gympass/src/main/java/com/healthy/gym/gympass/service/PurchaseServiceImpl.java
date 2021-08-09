@@ -127,21 +127,26 @@ public class PurchaseServiceImpl implements PurchaseService{
         int entries = purchasedGymPassDocument.getEntries();
 
         boolean valid = true;
+        String suspensionDateResponse = null;
 
-        if(now.isAfter(endDate) || now.isBefore(suspensionDate) || entries<1) valid = false;
+        if(now.isAfter(endDate) || entries<1) valid = false;
+        if(suspensionDate != null){
+            suspensionDateResponse = suspensionDate.format(DateTimeFormatter.ISO_LOCAL_DATE);
+            if(now.isBefore(suspensionDate)) valid = false;
+        }
 
         if(endDate.isEqual(LocalDate.parse(MAX_END_DATE, DateTimeFormatter.ISO_LOCAL_DATE))){
             return new PurchasedGymPassStatusValidationResultDTO(
                     valid,
-                    endDate.format(DateTimeFormatter.ISO_LOCAL_DATE),
-                    suspensionDate.format(DateTimeFormatter.ISO_LOCAL_DATE)
+                    suspensionDateResponse,
+                    entries
             );
         }
 
         return new PurchasedGymPassStatusValidationResultDTO(
                 valid,
-                suspensionDate.format(DateTimeFormatter.ISO_LOCAL_DATE),
-                entries
+                endDate.format(DateTimeFormatter.ISO_LOCAL_DATE),
+                suspensionDateResponse
         );
 
     }

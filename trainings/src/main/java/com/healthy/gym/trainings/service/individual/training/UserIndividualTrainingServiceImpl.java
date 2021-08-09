@@ -1,9 +1,7 @@
 package com.healthy.gym.trainings.service.individual.training;
 
-import com.healthy.gym.trainings.data.document.IndividualTrainingDocument;
-import com.healthy.gym.trainings.data.document.UserDocument;
-import com.healthy.gym.trainings.data.repository.individual.training.IndividualTrainingRepository;
 import com.healthy.gym.trainings.data.repository.UserDAO;
+import com.healthy.gym.trainings.data.repository.individual.training.IndividualTrainingRepository;
 import com.healthy.gym.trainings.dto.IndividualTrainingDTO;
 import com.healthy.gym.trainings.exception.PastDateException;
 import com.healthy.gym.trainings.exception.StartDateAfterEndDateException;
@@ -15,9 +13,6 @@ import com.healthy.gym.trainings.model.request.IndividualTrainingRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.List;
 
 @Service
@@ -37,8 +32,8 @@ public class UserIndividualTrainingServiceImpl implements UserIndividualTraining
 
     @Override
     public List<IndividualTrainingDTO> getMyAllTrainings(String clientId) throws UserNotFoundException {
-        UserDocument user = userDAO.findByUserId(clientId);
-        if (user == null) throw new UserNotFoundException();
+//        UserDocument user = userDAO.findByUserId(clientId);
+//        if (user == null) throw new UserNotFoundException();
         //return individualTrainingsRepository.findIndividualTrainingsByClientIdEquals(clientId);
         return null;
     }
@@ -72,37 +67,37 @@ public class UserIndividualTrainingServiceImpl implements UserIndividualTraining
 //        );
     }
 
-    private boolean isTrainingRetroDateAndTime(String date, String startDate) throws ParseException {
-        String startDateAndTime = date.concat("-").concat(startDate);
-        SimpleDateFormat sdfDateAndTime = new SimpleDateFormat("yyyy-MM-dd-HH:mm");
-        Date requestDateParsed = sdfDateAndTime.parse(startDateAndTime);
-
-        Date now = new Date();
-
-        return requestDateParsed.before(now);
-    }
+//    private boolean isTrainingRetroDateAndTime(String date, String startDate) throws ParseException {
+//        String startDateAndTime = date.concat("-").concat(startDate);
+//        SimpleDateFormat sdfDateAndTime = new SimpleDateFormat("yyyy-MM-dd-HH:mm");
+//        Date requestDateParsed = sdfDateAndTime.parse(startDateAndTime);
+//
+//        Date now = new Date();
+//
+//        return requestDateParsed.before(now);
+//    }
 
     @Override
     public IndividualTrainingDTO cancelIndividualTrainingRequest(String trainingId, String clientId)
             throws NotExistingIndividualTrainingException, UserNotFoundException, PastDateException {
 
-        IndividualTrainingDocument individualTraining = individualTrainingRepository
-                .findIndividualTrainingsById(trainingId);
-
-        if (individualTraining == null) throw new NotExistingIndividualTrainingException();
-
-        boolean clientIdEquals = individualTrainingRepository
-                .existsIndividualTrainingsByIdAndClientIdEquals(trainingId, clientId);
-
-//        if (!clientIdEquals) throw new NotAuthorizedClientException("Training is not authorized by client");
+//        IndividualTrainingDocument individualTraining = individualTrainingRepository
+//                .findIndividualTrainingsById(trainingId);
 //
-//        String individualTrainingDate = individualTraining.getDate();
-//        String individualTrainingStartTime = individualTraining.getStartTime();
-//        if (isTrainingRetroDateAndTime(individualTrainingDate, individualTrainingStartTime)) {
-//            throw new RetroIndividualTrainingException("Retro date");
-//        }
-
-        individualTrainingRepository.deleteIndividualTrainingsById(trainingId);
+//        if (individualTraining == null) throw new NotExistingIndividualTrainingException();
+//
+//        boolean clientIdEquals = individualTrainingRepository
+//                .existsIndividualTrainingsByIdAndClientIdEquals(trainingId, clientId);
+//
+////        if (!clientIdEquals) throw new NotAuthorizedClientException("Training is not authorized by client");
+////
+////        String individualTrainingDate = individualTraining.getDate();
+////        String individualTrainingStartTime = individualTraining.getStartTime();
+////        if (isTrainingRetroDateAndTime(individualTrainingDate, individualTrainingStartTime)) {
+////            throw new RetroIndividualTrainingException("Retro date");
+////        }
+//
+//        individualTrainingRepository.deleteIndividualTrainingsById(trainingId);
         return null;
     }
 }

@@ -5,15 +5,10 @@ import com.healthy.gym.trainings.data.repository.individual.training.IndividualT
 import com.healthy.gym.trainings.dto.IndividualTrainingDTO;
 import com.healthy.gym.trainings.exception.*;
 import com.healthy.gym.trainings.exception.notexisting.NotExistingIndividualTrainingException;
-import com.healthy.gym.trainings.model.other.EmailSendModel;
-import com.healthy.gym.trainings.service.email.EmailService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.List;
 
 @Service
 public class TrainerIndividualTrainingServiceImpl implements TrainerIndividualTrainingService {
@@ -76,36 +71,36 @@ public class TrainerIndividualTrainingServiceImpl implements TrainerIndividualTr
         return null;
     }
 
-    private boolean isTrainingRetroDateAndTime(String date, String startDate) throws ParseException {
-        String startDateAndTime = date.concat("-").concat(startDate);
-        SimpleDateFormat sdfDateAndTime = new SimpleDateFormat("yyyy-MM-dd-HH:mm");
-        Date requestDateParsed = sdfDateAndTime.parse(startDateAndTime);
-
-        Date now = new Date();
-
-        return requestDateParsed.before(now);
-    }
-
-    private void sendEmailWithoutAttachment(List<String> recipients, String subject, String body) {
-        String fromEmail = emailConfig.getMailUsername();
-        String personal = emailConfig.getEmailPersonal();
-        String password = emailConfig.getMailPassword();
-        String filePath = null;
-        EmailSendModel emailSendModel = new EmailSendModel(
-                fromEmail,
-                personal,
-                recipients,
-                password,
-                subject,
-                body,
-                filePath
-        );
-        EmailService emailService = new EmailService();
-        String host = emailConfig.getMailHost();
-        String port = emailConfig.getMailPort();
-        emailService.overrideDefaultSmptCredentials(host, port);
-        emailService.sendEmailTLS(emailSendModel);
-    }
+//    private boolean isTrainingRetroDateAndTime(String date, String startDate) throws ParseException {
+//        String startDateAndTime = date.concat("-").concat(startDate);
+//        SimpleDateFormat sdfDateAndTime = new SimpleDateFormat("yyyy-MM-dd-HH:mm");
+//        Date requestDateParsed = sdfDateAndTime.parse(startDateAndTime);
+//
+//        Date now = new Date();
+//
+//        return requestDateParsed.before(now);
+//    }
+//
+//    private void sendEmailWithoutAttachment(List<String> recipients, String subject, String body) {
+//        String fromEmail = emailConfig.getMailUsername();
+//        String personal = emailConfig.getEmailPersonal();
+//        String password = emailConfig.getMailPassword();
+//        String filePath = null;
+//        EmailSendModel emailSendModel = new EmailSendModel(
+//                fromEmail,
+//                personal,
+//                recipients,
+//                password,
+//                subject,
+//                body,
+//                filePath
+//        );
+//        EmailService emailService = new EmailService();
+//        String host = emailConfig.getMailHost();
+//        String port = emailConfig.getMailPort();
+//        emailService.overrideDefaultSmptCredentials(host, port);
+//        emailService.sendEmailTLS(emailSendModel);
+//    }
 
     @Override
     public IndividualTrainingDTO rejectIndividualTraining(String userId, String trainingId)

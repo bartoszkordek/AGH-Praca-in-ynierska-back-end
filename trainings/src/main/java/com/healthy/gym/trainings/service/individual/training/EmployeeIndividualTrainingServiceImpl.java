@@ -37,9 +37,9 @@ public class EmployeeIndividualTrainingServiceImpl implements EmployeeIndividual
             final String trainingId
     ) throws NotExistingIndividualTrainingException {
 
-        IndividualTrainingDocument individualTraining = individualTrainingRepository
-                .findIndividualTrainingsById(trainingId);
-        if (individualTraining == null) throw new NotExistingIndividualTrainingException();
+//        IndividualTrainingDocument individualTraining = individualTrainingRepository
+//                .findIndividualTrainingsById(trainingId);
+//        if (individualTraining == null) throw new NotExistingIndividualTrainingException();
         //return individualTraining;
         return null;
     }

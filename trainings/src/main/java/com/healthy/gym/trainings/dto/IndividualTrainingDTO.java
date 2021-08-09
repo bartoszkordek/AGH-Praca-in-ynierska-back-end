@@ -106,6 +106,10 @@ public class IndividualTrainingDTO {
         this.participants = participants;
     }
 
+    public void setBasicList(List<BasicUserInfoDTO> basicList) {
+        this.participants.setBasicList(basicList);
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

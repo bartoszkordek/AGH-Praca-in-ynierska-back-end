@@ -84,7 +84,7 @@ public class CheckGymPassValidationControllerUnitTest {
         notValidTimeValidPurchasedGymPassDocumentId = UUID.randomUUID().toString();
         notValidEntriesValidPurchasedGymPassDocumentId = UUID.randomUUID().toString();
 
-        uri = new URI("/purchase");
+        uri = new URI("/purchase/valid");
     }
 
     @Nested
@@ -193,6 +193,43 @@ public class CheckGymPassValidationControllerUnitTest {
                             jsonPath("$.result.valid").value(is(false)),
                             jsonPath("$.result.endDate").value(is(endDate)),
                             jsonPath("$.result.suspensionDate").doesNotExist()
+                    ));
+
+        }
+
+        @ParameterizedTest
+        @EnumSource(TestCountry.class)
+        void shouldReturnNotValidWhenSuspended_entriesValidTypeGymPass(TestCountry country) throws Exception {
+            Map<String, String> messages = getMessagesAccordingToLocale(country);
+            Locale testedLocale = convertEnumToLocale(country);
+
+            String suspensionDate = LocalDateTime.now().plusDays(5).format(DateTimeFormatter.ISO_DATE);
+            int entries = 5;
+
+            RequestBuilder request = MockMvcRequestBuilders
+                    .get(uri+"/"+notValidEntriesValidPurchasedGymPassDocumentId)
+                    .header("Accept-Language", testedLocale.toString())
+                    .header("Authorization", managerToken)
+                    .contentType(MediaType.APPLICATION_JSON);
+
+            when(purchaseService.isGymPassValid(notValidEntriesValidPurchasedGymPassDocumentId))
+                    .thenReturn(new PurchasedGymPassStatusValidationResultDTO(
+                            false,
+                            suspensionDate,
+                            entries
+                    ));
+
+            String expectedMessage = messages.get("gympass.not.valid");
+
+            mockMvc.perform(request)
+                    .andDo(print())
+                    .andExpect(matchAll(
+                            status().isOk(),
+                            content().contentType(MediaType.APPLICATION_JSON),
+                            jsonPath("$.message").value(is(expectedMessage)),
+                            jsonPath("$.result.valid").value(is(false)),
+                            jsonPath("$.result.suspensionDate").value(is(suspensionDate)),
+                            jsonPath("$.result.entries").value(is(entries))
                     ));
 
         }

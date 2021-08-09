@@ -135,7 +135,7 @@ public class PurchaseController {
     }
 
     @PreAuthorize("hasRole('ADMIN') or hasRole('MANAGER') or hasRole('EMPLOYEE')")
-    @GetMapping("/{id}")
+    @GetMapping("/valid/{id}")
     public ResponseEntity<ValidationGymPassResponse> checkGymPassValidation(
             @PathVariable("id") @ValidIDFormat final String id
     ){

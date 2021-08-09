@@ -8,13 +8,11 @@ import com.healthy.gym.gympass.dto.BasicUserInfoDTO;
 import com.healthy.gym.gympass.dto.PurchasedGymPassDTO;
 import com.healthy.gym.gympass.dto.SimpleGymPassDTO;
 import com.healthy.gym.gympass.enums.GymRole;
-import com.healthy.gym.gympass.exception.AlreadySuspendedGymPassException;
-import com.healthy.gym.gympass.exception.GymPassNotFoundException;
-import com.healthy.gym.gympass.exception.RetroSuspensionDateException;
-import com.healthy.gym.gympass.exception.SuspensionDateAfterEndDateException;
+import com.healthy.gym.gympass.exception.*;
 import com.healthy.gym.gympass.service.PurchaseService;
 import com.healthy.gym.gympass.shared.Description;
 import com.healthy.gym.gympass.shared.Price;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -27,6 +25,7 @@ import java.util.List;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.when;
 import static org.mockito.ArgumentMatchers.any;
 
@@ -39,8 +38,14 @@ class SuspendPurchasedGymPassServiceUnitTest {
     @MockBean
     private PurchasedGymPassDAO purchasedGymPassDAO;
 
-    @Test
-    void shouldSuspendPurchasedGymPass_whenValidIdAndDateAndNotSuspended() throws GymPassNotFoundException, RetroSuspensionDateException, SuspensionDateAfterEndDateException, AlreadySuspendedGymPassException {
+    private String purchasedGymPassDocumentId;
+    private PurchasedGymPassDocument existingPurchasedGymPassDocumentSaved;
+    private PurchasedGymPassDocument updatedPurchasedGymPassDocumentSaved;
+    private String suspensionDate;
+    private PurchasedGymPassDTO purchasedGymPassDTO;
+
+    @BeforeEach
+    void setUp() {
 
         //assumptions
         long suspendedDays = 2;
@@ -48,7 +53,7 @@ class SuspendPurchasedGymPassServiceUnitTest {
 
         //request
         String gymPassOfferId = UUID.randomUUID().toString();
-        String suspensionDate = LocalDate.now().plusDays(suspendedDays).format(DateTimeFormatter.ISO_DATE);
+        suspensionDate = LocalDate.now().plusDays(suspendedDays).format(DateTimeFormatter.ISO_DATE);
 
         String userId = UUID.randomUUID().toString();
         String startDate = LocalDate.now().minusDays(pastDays).format(DateTimeFormatter.ISO_DATE);
@@ -56,7 +61,7 @@ class SuspendPurchasedGymPassServiceUnitTest {
         int entries = Integer.MAX_VALUE;
 
         //response
-        String purchasedGymPassDocumentId = UUID.randomUUID().toString();
+        purchasedGymPassDocumentId = UUID.randomUUID().toString();
         String title = "Karnet miesięczny";
         double amount = 139.99;
         String currency = "zł";
@@ -67,7 +72,7 @@ class SuspendPurchasedGymPassServiceUnitTest {
         LocalDateTime purchaseDateAndTime = LocalDateTime.now();
         LocalDate responseStartDate = LocalDate.now().minusDays(pastDays);
         LocalDate responseEndDate = LocalDate.now().minusDays(pastDays).plusMonths(1).plusDays(suspendedDays);
-        PurchasedGymPassDTO purchasedGymPassDTO = new PurchasedGymPassDTO(
+        purchasedGymPassDTO = new PurchasedGymPassDTO(
                 purchasedGymPassDocumentId,
                 new SimpleGymPassDTO(
                         gymPassOfferId,
@@ -103,7 +108,7 @@ class SuspendPurchasedGymPassServiceUnitTest {
                 new Description(synopsis,features)
         );
         gymPassOfferDocument.setId("507f1f77bcf86cd799439011");
-        PurchasedGymPassDocument existingPurchasedGymPassDocumentSaved = new PurchasedGymPassDocument(
+        existingPurchasedGymPassDocumentSaved = new PurchasedGymPassDocument(
                 purchasedGymPassDocumentId,
                 gymPassOfferDocument,
                 userDocument,
@@ -113,7 +118,7 @@ class SuspendPurchasedGymPassServiceUnitTest {
                 entries
         );
 
-        PurchasedGymPassDocument updatedPurchasedGymPassDocumentSaved = new PurchasedGymPassDocument(
+        updatedPurchasedGymPassDocumentSaved = new PurchasedGymPassDocument(
                 purchasedGymPassDocumentId,
                 gymPassOfferDocument,
                 userDocument,
@@ -124,6 +129,11 @@ class SuspendPurchasedGymPassServiceUnitTest {
                 LocalDate.parse(suspensionDate, DateTimeFormatter.ISO_DATE)
         );
 
+    }
+
+    @Test
+    void shouldSuspendPurchasedGymPass_whenValidIdAndDateAndNotSuspended() throws GymPassNotFoundException, RetroSuspensionDateException, SuspensionDateAfterEndDateException, AlreadySuspendedGymPassException {
+
         //when
         when(purchasedGymPassDAO.findByPurchasedGymPassDocumentId(purchasedGymPassDocumentId))
                 .thenReturn(existingPurchasedGymPassDocumentSaved);
@@ -133,6 +143,21 @@ class SuspendPurchasedGymPassServiceUnitTest {
         //then
         assertThat(purchaseService.suspendGymPass(purchasedGymPassDocumentId, suspensionDate))
                 .isEqualTo(purchasedGymPassDTO);
+    }
+
+    @Test
+    void shouldNotSuspendPurchasedGymPass_whenInvalidId(){
+
+        String invalidPurchasedGymPassId = UUID.randomUUID().toString();
+
+        //when
+        when(purchasedGymPassDAO.findByPurchasedGymPassDocumentId(invalidPurchasedGymPassId))
+                .thenReturn(null);
+
+        //then
+        assertThatThrownBy(() ->
+                purchaseService.suspendGymPass(invalidPurchasedGymPassId, suspensionDate)
+        ).isInstanceOf(GymPassNotFoundException.class);
     }
 
 }

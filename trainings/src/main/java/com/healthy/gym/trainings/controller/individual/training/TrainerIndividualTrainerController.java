@@ -20,8 +20,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 @RestController
-@PreAuthorize("hasRole('ADMIN') or hasRole('TRAINER')")
-@RequestMapping("/individual/trainer")
+@RequestMapping("/individual/trainer/{userId}/training/{trainingId}")
 @Validated
 public class TrainerIndividualTrainerController {
 
@@ -37,14 +36,16 @@ public class TrainerIndividualTrainerController {
         this.translator = translator;
     }
 
-    @PutMapping("/{trainingId}/accept")
+    @PutMapping
+    @PreAuthorize("hasRole('ADMIN') or (hasRole('TRAINER') and principal==#userId)")
     public ResponseEntity<IndividualTrainingResponse> acceptIndividualTraining(
+            @PathVariable @ValidIDFormat final String userId,
             @PathVariable @ValidIDFormat final String trainingId,
             @RequestParam @ValidIDFormat final String locationId
     ) {
         try {
             IndividualTrainingDTO removedEnrolmentTraining = trainerIndividualTrainingService
-                    .acceptIndividualTraining(trainingId, locationId);
+                    .acceptIndividualTraining(userId, trainingId, locationId);
             String message = translator.toLocale("enrollment.individual.accepted");
 
             return ResponseEntity
@@ -78,11 +79,15 @@ public class TrainerIndividualTrainerController {
         }
     }
 
-    @PutMapping("/{trainingId}/decline")
-    public ResponseEntity<IndividualTrainingResponse> rejectIndividualTraining(@PathVariable final String trainingId) {
+    @DeleteMapping
+    @PreAuthorize("hasRole('ADMIN') or (hasRole('TRAINER') and principal==#userId)")
+    public ResponseEntity<IndividualTrainingResponse> rejectIndividualTraining(
+            @PathVariable @ValidIDFormat final String userId,
+            @PathVariable @ValidIDFormat final String trainingId
+    ) {
         try {
             IndividualTrainingDTO removedEnrolmentTraining = trainerIndividualTrainingService
-                    .rejectIndividualTraining(trainingId);
+                    .rejectIndividualTraining(userId, trainingId);
             String message = translator.toLocale("enrollment.remove");
 
             return ResponseEntity

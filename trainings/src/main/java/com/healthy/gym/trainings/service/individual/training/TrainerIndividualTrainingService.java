@@ -10,13 +10,13 @@ import java.text.ParseException;
 
 public interface TrainerIndividualTrainingService {
 
-    IndividualTrainingDTO acceptIndividualTraining(String trainingId, String locationId)
+    IndividualTrainingDTO acceptIndividualTraining(String userId, String trainingId, String locationId)
             throws AlreadyAcceptedIndividualTrainingException, NotExistingIndividualTrainingException,
             LocationNotFoundException, LocationOccupiedException, PastDateException,
             HallNoOutOfRangeException, ParseException, RetroIndividualTrainingException,
             EmailSendingException;
 
-    IndividualTrainingDTO rejectIndividualTraining(String trainingId)
+    IndividualTrainingDTO rejectIndividualTraining(String userId, String trainingId)
             throws NotExistingIndividualTrainingException,
             AlreadyDeclinedIndividualTrainingException,
             EmailSendingException;

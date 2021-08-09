@@ -56,6 +56,7 @@ class AcceptIndividualTrainingTest {
     private String adminToken;
     private String employeeToken;
     private String managerToken;
+    private String trainerId;
     private String trainerToken;
     private String userToken;
     private String trainingId;
@@ -67,17 +68,19 @@ class AcceptIndividualTrainingTest {
         adminToken = tokenFactory.getAdminToken();
         employeeToken = tokenFactory.getEmployeeToken();
         managerToken = tokenFactory.getManagerToken();
-        trainerToken = tokenFactory.getTrainerToken();
+        trainerId = UUID.randomUUID().toString();
+        trainerToken = tokenFactory.getTrainerToken(trainerId);
         userToken = tokenFactory.getUserToken();
 
         trainingId = UUID.randomUUID().toString();
         locationId = UUID.randomUUID().toString();
 
-        uri = getUri(trainingId, locationId);
+        uri = getUri(trainerId, trainingId, locationId);
     }
 
-    private URI getUri(String trainingId, String locationId) throws URISyntaxException {
-        return new URI("/individual/trainer/" + trainingId + "/accept?locationId=" + locationId);
+    private URI getUri(String trainerId, String trainingId, String locationId) throws URISyntaxException {
+        return new URI("/individual/trainer/" + trainerId + "/training/"
+                + trainingId + "?locationId=" + locationId);
     }
 
     @ParameterizedTest
@@ -86,7 +89,7 @@ class AcceptIndividualTrainingTest {
         Map<String, String> messages = getMessagesAccordingToLocale(country);
         Locale testedLocale = convertEnumToLocale(country);
 
-        when(trainerIndividualTrainingService.acceptIndividualTraining(trainingId, locationId))
+        when(trainerIndividualTrainingService.acceptIndividualTraining(trainerId, trainingId, locationId))
                 .thenReturn(getIndividualTrainingDTO());
         RequestBuilder request = getValidRequest(adminToken, testedLocale);
         String expectedMessage = messages.get("enrollment.individual.accepted");
@@ -186,7 +189,7 @@ class AcceptIndividualTrainingTest {
             Map<String, String> messages = getMessagesAccordingToLocale(country);
             Locale testedLocale = convertEnumToLocale(country);
 
-            URI invalidUri = getUri("3123", "2131das");
+            URI invalidUri = getUri("dasda", "3123", "2131das");
 
             RequestBuilder request = MockMvcRequestBuilders
                     .put(invalidUri)
@@ -208,6 +211,8 @@ class AcceptIndividualTrainingTest {
                             )
                     ).andExpect(
                             matchAll(
+                                    jsonPath("$.errors.userId")
+                                            .value(is(messages.get("exception.invalid.id.format"))),
                                     jsonPath("$.errors.trainingId")
                                             .value(is(messages.get("exception.invalid.id.format"))),
                                     jsonPath("$.errors.locationId")
@@ -238,7 +243,7 @@ class AcceptIndividualTrainingTest {
 
             doThrow(AlreadyAcceptedIndividualTrainingException.class)
                     .when(trainerIndividualTrainingService)
-                    .acceptIndividualTraining(trainingId, locationId);
+                    .acceptIndividualTraining(trainerId, trainingId, locationId);
             request = getValidRequest(adminToken, testedLocale);
             expectedMessage = messages.get("exception.already.accepted.individual.training");
 
@@ -253,7 +258,7 @@ class AcceptIndividualTrainingTest {
 
             doThrow(LocationNotFoundException.class)
                     .when(trainerIndividualTrainingService)
-                    .acceptIndividualTraining(trainingId, locationId);
+                    .acceptIndividualTraining(trainerId, trainingId, locationId);
             request = getValidRequest(trainerToken, testedLocale);
             expectedMessage = messages.get("exception.location.not.found");
 
@@ -268,7 +273,7 @@ class AcceptIndividualTrainingTest {
 
             doThrow(LocationOccupiedException.class)
                     .when(trainerIndividualTrainingService)
-                    .acceptIndividualTraining(trainingId, locationId);
+                    .acceptIndividualTraining(trainerId, trainingId, locationId);
             request = getValidRequest(trainerToken, testedLocale);
             expectedMessage = messages.get("exception.create.group.training.location.occupied");
 
@@ -283,7 +288,7 @@ class AcceptIndividualTrainingTest {
 
             doThrow(NotExistingIndividualTrainingException.class)
                     .when(trainerIndividualTrainingService)
-                    .acceptIndividualTraining(trainingId, locationId);
+                    .acceptIndividualTraining(trainerId, trainingId, locationId);
             request = getValidRequest(trainerToken, testedLocale);
             expectedMessage = messages.get("exception.not.existing.individual.training");
 
@@ -298,7 +303,7 @@ class AcceptIndividualTrainingTest {
 
             doThrow(PastDateException.class)
                     .when(trainerIndividualTrainingService)
-                    .acceptIndividualTraining(trainingId, locationId);
+                    .acceptIndividualTraining(trainerId, trainingId, locationId);
             request = getValidRequest(trainerToken, testedLocale);
             expectedMessage = messages.get("exception.past.date");
 
@@ -313,7 +318,7 @@ class AcceptIndividualTrainingTest {
 
             doThrow(IllegalStateException.class)
                     .when(trainerIndividualTrainingService)
-                    .acceptIndividualTraining(trainingId, locationId);
+                    .acceptIndividualTraining(trainerId, trainingId, locationId);
             request = getValidRequest(adminToken, testedLocale);
             expectedMessage = messages.get("exception.internal.error");
 
@@ -324,19 +329,22 @@ class AcceptIndividualTrainingTest {
     @Nested
     class ShouldRejectRequest {
 
+        private RequestBuilder request;
+        private String expectedMessage;
+
         @ParameterizedTest
         @EnumSource(TestCountry.class)
-        void whenUserTriesToGetData(TestCountry country) throws Exception {
+        void whenUserTriesTriesToPerformRequest(TestCountry country) throws Exception {
             Map<String, String> messages = getMessagesAccordingToLocale(country);
             Locale testedLocale = convertEnumToLocale(country);
 
-            RequestBuilder request = getValidRequest(userToken, testedLocale);
-            String expectedMessage = messages.get("exception.access.denied");
+            request = getValidRequest(userToken, testedLocale);
+            expectedMessage = messages.get("exception.access.denied");
 
-            performAndTestAccessDenied(request, expectedMessage);
+            performAndTestAccessDenied();
         }
 
-        private void performAndTestAccessDenied(RequestBuilder request, String expectedMessage) throws Exception {
+        private void performAndTestAccessDenied() throws Exception {
             mockMvc.perform(request)
                     .andDo(print())
                     .andExpect(status().isForbidden())
@@ -349,26 +357,56 @@ class AcceptIndividualTrainingTest {
 
         @ParameterizedTest
         @EnumSource(TestCountry.class)
-        void whenManagerTriesToGetData(TestCountry country) throws Exception {
+        void whenManagerTriesTriesToPerformRequest(TestCountry country) throws Exception {
             Map<String, String> messages = getMessagesAccordingToLocale(country);
             Locale testedLocale = convertEnumToLocale(country);
 
-            RequestBuilder request = getValidRequest(managerToken, testedLocale);
-            String expectedMessage = messages.get("exception.access.denied");
+            request = getValidRequest(managerToken, testedLocale);
+            expectedMessage = messages.get("exception.access.denied");
 
-            performAndTestAccessDenied(request, expectedMessage);
+            performAndTestAccessDenied();
         }
 
         @ParameterizedTest
         @EnumSource(TestCountry.class)
-        void whenEmployeeTriesToGetData(TestCountry country) throws Exception {
+        void whenEmployeeTriesTriesToPerformRequest(TestCountry country) throws Exception {
             Map<String, String> messages = getMessagesAccordingToLocale(country);
             Locale testedLocale = convertEnumToLocale(country);
 
-            RequestBuilder request = getValidRequest(employeeToken, testedLocale);
-            String expectedMessage = messages.get("exception.access.denied");
+            request = getValidRequest(employeeToken, testedLocale);
+            expectedMessage = messages.get("exception.access.denied");
 
-            performAndTestAccessDenied(request, expectedMessage);
+            performAndTestAccessDenied();
+        }
+
+
+        @ParameterizedTest
+        @EnumSource(TestCountry.class)
+        void whenAnotherTrainerTriesToPerformRequest(TestCountry country) throws Exception {
+            Map<String, String> messages = getMessagesAccordingToLocale(country);
+            Locale testedLocale = convertEnumToLocale(country);
+
+            uri = getUri(UUID.randomUUID().toString(), trainingId, locationId);
+            request = getValidRequest(trainerToken, testedLocale);
+            expectedMessage = messages.get("exception.access.denied");
+
+            performAndTestAccessDenied();
+        }
+
+        @ParameterizedTest
+        @EnumSource(TestCountry.class)
+        void whenAnotherUserWithoutTrainerRoleTriesToPerformRequest(TestCountry country) throws Exception {
+            Map<String, String> messages = getMessagesAccordingToLocale(country);
+            Locale testedLocale = convertEnumToLocale(country);
+
+            String userId = UUID.randomUUID().toString();
+            userToken = tokenFactory.getUserToken(userId);
+
+            uri = getUri(userId, trainingId, locationId);
+            request = getValidRequest(userToken, testedLocale);
+            expectedMessage = messages.get("exception.access.denied");
+
+            performAndTestAccessDenied();
         }
 
         @ParameterizedTest

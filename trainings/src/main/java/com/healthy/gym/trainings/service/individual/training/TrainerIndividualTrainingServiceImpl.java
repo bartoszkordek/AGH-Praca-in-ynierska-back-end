@@ -33,7 +33,7 @@ public class TrainerIndividualTrainingServiceImpl implements TrainerIndividualTr
     }
 
     @Override
-    public IndividualTrainingDTO acceptIndividualTraining(String trainingId, String locationId)
+    public IndividualTrainingDTO acceptIndividualTraining(String userId, String trainingId, String locationId)
             throws NotExistingIndividualTrainingException,
             AlreadyAcceptedIndividualTrainingException,
             HallNoOutOfRangeException,
@@ -110,7 +110,7 @@ public class TrainerIndividualTrainingServiceImpl implements TrainerIndividualTr
     }
 
     @Override
-    public IndividualTrainingDTO rejectIndividualTraining(String trainingId)
+    public IndividualTrainingDTO rejectIndividualTraining(String userId, String trainingId)
             throws NotExistingIndividualTrainingException,
             AlreadyDeclinedIndividualTrainingException,
             EmailSendingException {

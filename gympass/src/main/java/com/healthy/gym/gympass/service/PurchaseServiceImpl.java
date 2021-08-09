@@ -88,7 +88,8 @@ public class PurchaseServiceImpl implements PurchaseService{
             throws GymPassNotFoundException, AlreadySuspendedGymPassException, RetroSuspensionDateException,
             SuspensionDateAfterEndDateException {
 
-        PurchasedGymPassDocument purchasedGymPassDocument = purchasedGymPassDAO.findByPurchasedGymPassDocumentId(individualGymPassId);
+        PurchasedGymPassDocument purchasedGymPassDocument = purchasedGymPassDAO
+                .findByPurchasedGymPassDocumentId(individualGymPassId);
         if(purchasedGymPassDocument == null) throw new GymPassNotFoundException("Gympass with current ID does not exist");
 
         LocalDate endDate = purchasedGymPassDocument.getEndDate();
@@ -113,6 +114,18 @@ public class PurchaseServiceImpl implements PurchaseService{
 
     @Override
     public boolean isGymPassValid(String individualGymPassId) throws GymPassNotFoundException {
-        return false;
+
+        PurchasedGymPassDocument purchasedGymPassDocument = purchasedGymPassDAO
+                .findByPurchasedGymPassDocumentId(individualGymPassId);
+        if(purchasedGymPassDocument == null) throw new GymPassNotFoundException("Gympass with current ID does not exist");
+
+        LocalDate now = LocalDate.now();
+        LocalDate endDate = purchasedGymPassDocument.getEndDate();
+        LocalDate suspensionDate = purchasedGymPassDocument.getSuspensionDate();
+        int entries = purchasedGymPassDocument.getEntries();
+
+        if(now.isAfter(endDate) || now.isBefore(suspensionDate) || entries<1) return false;
+
+        return true;
     }
 }

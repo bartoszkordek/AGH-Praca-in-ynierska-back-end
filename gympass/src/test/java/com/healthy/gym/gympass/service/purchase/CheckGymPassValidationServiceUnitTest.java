@@ -43,13 +43,11 @@ class CheckGymPassValidationServiceUnitTest {
     @MockBean
     private UserDAO userDAO;
 
-    private PurchasedGymPassStatusValidationResultDTO validGymPassResponse;
     private String notSuspendedTimeTypeGymPassDocumentId;
     private String suspendedTimeTypeGymPassDocumentId;
     private String notSuspendedNotValidTimeTypeGymPassDocumentId;
     private String notSuspendedEntriesTypeGymPassDocumentId;
     private String suspendedEntriesTypeGymPassDocumentId;
-    private String purchasedEntriesTypeGymPassDocumentId;
     private PurchasedGymPassDocument notSuspendedTimeTypePurchasedGymPassDocument;
     private PurchasedGymPassDocument suspendedTimeTypePurchasedGymPassDocument;
     private PurchasedGymPassDocument notSuspendedNotValidTimeTypePurchasedGymPassDocument;

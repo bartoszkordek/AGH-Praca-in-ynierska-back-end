@@ -1,4 +1,4 @@
-package com.healthy.gym.trainings.data.repository;
+package com.healthy.gym.trainings.data.repository.individual.training;
 
 import com.healthy.gym.trainings.data.document.IndividualTrainingDocument;
 import org.springframework.data.mongodb.repository.MongoRepository;

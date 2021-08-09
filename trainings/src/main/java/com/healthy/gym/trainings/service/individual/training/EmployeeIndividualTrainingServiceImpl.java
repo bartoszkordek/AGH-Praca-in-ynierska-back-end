@@ -1,7 +1,7 @@
 package com.healthy.gym.trainings.service.individual.training;
 
 import com.healthy.gym.trainings.data.document.IndividualTrainingDocument;
-import com.healthy.gym.trainings.data.repository.IndividualTrainingRepository;
+import com.healthy.gym.trainings.data.repository.individual.training.IndividualTrainingRepository;
 import com.healthy.gym.trainings.dto.IndividualTrainingDTO;
 import com.healthy.gym.trainings.exception.StartDateAfterEndDateException;
 import com.healthy.gym.trainings.exception.notexisting.NotExistingIndividualTrainingException;

@@ -1,8 +1,7 @@
 package com.healthy.gym.trainings.service.individual.training;
 
 import com.healthy.gym.trainings.configuration.EmailConfiguration;
-import com.healthy.gym.trainings.data.document.IndividualTrainingDocument;
-import com.healthy.gym.trainings.data.repository.IndividualTrainingRepository;
+import com.healthy.gym.trainings.data.repository.individual.training.IndividualTrainingRepository;
 import com.healthy.gym.trainings.dto.IndividualTrainingDTO;
 import com.healthy.gym.trainings.exception.*;
 import com.healthy.gym.trainings.exception.notexisting.NotExistingIndividualTrainingException;
@@ -13,7 +12,6 @@ import org.springframework.stereotype.Service;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 

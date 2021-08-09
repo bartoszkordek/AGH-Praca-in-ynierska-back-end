@@ -190,4 +190,19 @@ class SuspendPurchasedGymPassServiceUnitTest {
         ).isInstanceOf(RetroSuspensionDateException.class);
     }
 
+    @Test
+    void shouldNotSuspendPurchasedGymPass_whenSuspensionDateAfterEndDate(){
+
+        String veryLateSuspensionDate = LocalDate.now().plusYears(1000).toString();
+
+        //when
+        when(purchasedGymPassDAO.findByPurchasedGymPassDocumentId(purchasedGymPassDocumentId))
+                .thenReturn(existingPurchasedGymPassDocumentSaved);
+
+        //then
+        assertThatThrownBy(() ->
+                purchaseService.suspendGymPass(purchasedGymPassDocumentId, veryLateSuspensionDate)
+        ).isInstanceOf(SuspensionDateAfterEndDateException.class);
+    }
+
 }

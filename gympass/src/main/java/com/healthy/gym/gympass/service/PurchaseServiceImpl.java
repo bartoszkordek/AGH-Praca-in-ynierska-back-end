@@ -105,7 +105,7 @@ public class PurchaseServiceImpl implements PurchaseService{
         }
 
         purchasedGymPassDocument.setSuspensionDate(suspensionDate);
-        long suspensionDateFromNow = now.until(endDate, ChronoUnit.DAYS);
+        long suspensionDateFromNow = now.until(suspensionDate, ChronoUnit.DAYS);
         purchasedGymPassDocument.setEndDate(endDate.plusDays(suspensionDateFromNow));
         PurchasedGymPassDocument purchasedGymPassDocumentSaved = purchasedGymPassDAO.save(purchasedGymPassDocument);
         return modelMapper.map(purchasedGymPassDocumentSaved, PurchasedGymPassDTO.class);

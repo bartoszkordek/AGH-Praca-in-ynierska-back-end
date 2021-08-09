@@ -160,4 +160,19 @@ class SuspendPurchasedGymPassServiceUnitTest {
         ).isInstanceOf(GymPassNotFoundException.class);
     }
 
+    @Test
+    void shouldNotSuspendPurchasedGymPass_whenAlreadySuspended(){
+
+        existingPurchasedGymPassDocumentSaved.setSuspensionDate(LocalDate.now().plusDays(10));
+
+        //when
+        when(purchasedGymPassDAO.findByPurchasedGymPassDocumentId(purchasedGymPassDocumentId))
+                .thenReturn(existingPurchasedGymPassDocumentSaved);
+
+        //then
+        assertThatThrownBy(() ->
+                purchaseService.suspendGymPass(purchasedGymPassDocumentId, suspensionDate)
+        ).isInstanceOf(AlreadySuspendedGymPassException.class);
+    }
+
 }

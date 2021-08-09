@@ -112,6 +112,7 @@ class PurchaseGymPassServiceUnitTest {
         );
         gymPassOfferDocument.setId("507f1f77bcf86cd799439011");
 
+
         PurchasedGymPassDocument purchasedGymPassDocumentSaved = new PurchasedGymPassDocument(
                 purchasedGymPassDocumentId,
                 gymPassOfferDocument,

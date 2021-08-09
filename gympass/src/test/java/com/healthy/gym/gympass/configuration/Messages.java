@@ -68,7 +68,7 @@ public class Messages {
                 {"exception.retro.date.suspension", "Cannot suspend gympass with retro date."},
                 {"exception.suspension.after.end", "Suspension date after end date."},
                 {"exception.start.after.end", "Start date after end date."},
-                {"exception.gympass.already.suspended" ,"Karnet został już zawieszony."},
+                {"exception.gympass.already.suspended" ,"Gympass has already been already suspended."},
                 {"exception.invalid.id.format", "Invalid id format. Use UUID format."},
                 {"exception.invalid.date.format","Invalid date format. Use the 'YYYY-MM-dd' format."},
                 {"exception.invalid.date.time.format",

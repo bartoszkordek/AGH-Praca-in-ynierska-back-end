@@ -6,6 +6,7 @@ import com.healthy.gym.gympass.controller.PurchaseController;
 import com.healthy.gym.gympass.dto.BasicUserInfoDTO;
 import com.healthy.gym.gympass.dto.PurchasedGymPassDTO;
 import com.healthy.gym.gympass.dto.SimpleGymPassDTO;
+import com.healthy.gym.gympass.exception.AlreadySuspendedGymPassException;
 import com.healthy.gym.gympass.exception.GymPassNotFoundException;
 import com.healthy.gym.gympass.exception.OfferNotFoundException;
 import com.healthy.gym.gympass.pojo.request.PurchasedGymPassRequest;
@@ -255,6 +256,36 @@ class SuspendPurchasedGymPassControllerUnitTest {
                     .andExpect(result ->
                             assertThat(Objects.requireNonNull(result.getResolvedException()).getCause())
                                     .isInstanceOf(GymPassNotFoundException.class)
+                    );
+        }
+
+        @ParameterizedTest
+        @EnumSource(TestCountry.class)
+        void shouldThrowAlreadySuspendedGymPassException(TestCountry country) throws Exception {
+            Map<String, String> messages = getMessagesAccordingToLocale(country);
+            Locale testedLocale = convertEnumToLocale(country);
+
+            String suspendedPurchasedGymPassId = UUID.randomUUID().toString();
+
+            RequestBuilder request = MockMvcRequestBuilders
+                    .put(uri+"/"+suspendedPurchasedGymPassId+"/suspend/"+suspensionDate)
+                    .header("Accept-Language", testedLocale.toString())
+                    .header("Authorization", employeeToken)
+                    .contentType(MediaType.APPLICATION_JSON);
+
+            String expectedMessage = messages.get("exception.gympass.already.suspended");
+
+            doThrow(AlreadySuspendedGymPassException.class)
+                    .when(purchaseService)
+                    .suspendGymPass(suspendedPurchasedGymPassId, suspensionDate);
+
+            mockMvc.perform(request)
+                    .andDo(print())
+                    .andExpect(status().isBadRequest())
+                    .andExpect(status().reason(is(expectedMessage)))
+                    .andExpect(result ->
+                            assertThat(Objects.requireNonNull(result.getResolvedException()).getCause())
+                                    .isInstanceOf(AlreadySuspendedGymPassException.class)
                     );
         }
     }

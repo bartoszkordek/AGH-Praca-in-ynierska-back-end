@@ -3,14 +3,9 @@ package com.healthy.gym.gympass.controller.unitTests.purchase;
 import com.healthy.gym.gympass.configuration.TestCountry;
 import com.healthy.gym.gympass.configuration.TestRoleTokenFactory;
 import com.healthy.gym.gympass.controller.PurchaseController;
-import com.healthy.gym.gympass.dto.BasicUserInfoDTO;
-import com.healthy.gym.gympass.dto.PurchasedGymPassDTO;
 import com.healthy.gym.gympass.dto.PurchasedGymPassStatusValidationResultDTO;
-import com.healthy.gym.gympass.dto.SimpleGymPassDTO;
 import com.healthy.gym.gympass.exception.GymPassNotFoundException;
-import com.healthy.gym.gympass.exception.OfferNotFoundException;
 import com.healthy.gym.gympass.service.PurchaseService;
-import com.healthy.gym.gympass.shared.Price;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -101,7 +96,7 @@ public class CheckGymPassValidationControllerUnitTest {
             RequestBuilder request = MockMvcRequestBuilders
                     .get(uri+"/"+validTimeValidPurchasedGymPassDocumentId)
                     .header("Accept-Language", testedLocale.toString())
-                    .header("Authorization", managerToken)
+                    .header("Authorization", employeeToken)
                     .contentType(MediaType.APPLICATION_JSON);
 
             when(purchaseService.isGymPassValid(validTimeValidPurchasedGymPassDocumentId))
@@ -266,6 +261,49 @@ public class CheckGymPassValidationControllerUnitTest {
                             assertThat(Objects.requireNonNull(result.getResolvedException()).getCause())
                                     .isInstanceOf(GymPassNotFoundException.class)
                     );
+
+        }
+
+        @Nested
+        class ShouldNotCheckGymPassValidationWhenNotAuthorized{
+
+            @ParameterizedTest
+            @EnumSource(TestCountry.class)
+            void whenUserIsNotLogIn(TestCountry country) throws Exception {
+                Locale testedLocale = convertEnumToLocale(country);
+
+                RequestBuilder request = MockMvcRequestBuilders
+                        .get(uri+"/"+validEntriesValidPurchasedGymPassDocumentId)
+                        .header("Accept-Language", testedLocale.toString());
+
+                mockMvc.perform(request)
+                        .andDo(print())
+                        .andExpect(status().isForbidden());
+            }
+
+            @ParameterizedTest
+            @EnumSource(TestCountry.class)
+            void whenUserIsNotLogInAsUsualUser(TestCountry country) throws Exception {
+                Map<String, String> messages = getMessagesAccordingToLocale(country);
+                Locale testedLocale = convertEnumToLocale(country);
+
+                RequestBuilder request = MockMvcRequestBuilders
+                        .get(uri+"/"+validEntriesValidPurchasedGymPassDocumentId)
+                        .header("Accept-Language", testedLocale.toString())
+                        .header("Authorization", userToken)
+                        .contentType(MediaType.APPLICATION_JSON);
+
+                String expectedMessage = messages.get("exception.access.denied");
+
+                mockMvc.perform(request)
+                        .andDo(print())
+                        .andExpect(status().isForbidden())
+                        .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                        .andExpect(jsonPath("$.message").value(is(expectedMessage)))
+                        .andExpect(jsonPath("$.error").value(is("Forbidden")))
+                        .andExpect(jsonPath("$.status").value(403))
+                        .andExpect(jsonPath("$.timestamp").exists());
+            }
 
         }
 

@@ -175,4 +175,19 @@ class SuspendPurchasedGymPassServiceUnitTest {
         ).isInstanceOf(AlreadySuspendedGymPassException.class);
     }
 
+    @Test
+    void shouldNotSuspendPurchasedGymPass_whenRetroSuspensionDate(){
+
+        String retroSuspensionDate = LocalDate.now().minusDays(1).toString();
+
+        //when
+        when(purchasedGymPassDAO.findByPurchasedGymPassDocumentId(purchasedGymPassDocumentId))
+                .thenReturn(existingPurchasedGymPassDocumentSaved);
+
+        //then
+        assertThatThrownBy(() ->
+                purchaseService.suspendGymPass(purchasedGymPassDocumentId, retroSuspensionDate)
+        ).isInstanceOf(RetroSuspensionDateException.class);
+    }
+
 }

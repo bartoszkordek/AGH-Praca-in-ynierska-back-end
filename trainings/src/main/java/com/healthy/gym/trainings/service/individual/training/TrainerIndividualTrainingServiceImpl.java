@@ -7,7 +7,6 @@ import com.healthy.gym.trainings.dto.IndividualTrainingDTO;
 import com.healthy.gym.trainings.exception.*;
 import com.healthy.gym.trainings.exception.notexisting.NotExistingIndividualTrainingException;
 import com.healthy.gym.trainings.model.other.EmailSendModel;
-import com.healthy.gym.trainings.model.request.IndividualTrainingAcceptanceRequest;
 import com.healthy.gym.trainings.service.email.EmailService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -34,50 +33,48 @@ public class TrainerIndividualTrainingServiceImpl implements TrainerIndividualTr
     }
 
     @Override
-    public IndividualTrainingDTO acceptIndividualTraining(
-            String trainingId,
-            IndividualTrainingAcceptanceRequest individualTrainingsAcceptModel
-    ) throws NotExistingIndividualTrainingException,
+    public IndividualTrainingDTO acceptIndividualTraining(String trainingId, String locationId)
+            throws NotExistingIndividualTrainingException,
             AlreadyAcceptedIndividualTrainingException,
             HallNoOutOfRangeException,
             ParseException,
             RetroIndividualTrainingException,
             EmailSendingException {
 
-        IndividualTrainings individualTraining = individualTrainingsRepository
-                .findIndividualTrainingsById(trainingId);
-
-        if (individualTraining == null) throw new NotExistingIndividualTrainingException();
-        if (individualTraining.isAccepted()) throw new AlreadyAcceptedIndividualTrainingException();
-
-        String individualTrainingDate = individualTraining.getDate();
-        String individualTrainingStartTime = individualTraining.getStartTime();
-
-        if (isTrainingRetroDateAndTime(individualTrainingDate, individualTrainingStartTime)) {
-            throw new RetroIndividualTrainingException("Retro date");
-        }
-        if (individualTrainingsAcceptModel.getHallNo() < 0) {
-            throw new HallNoOutOfRangeException("Hall no: " + individualTrainingsAcceptModel.getHallNo() +
-                    " does not exist");
-        }
-
-        individualTraining.setAccepted(true);
-        individualTraining.setHallNo(individualTrainingsAcceptModel.getHallNo());
-        IndividualTrainings response = individualTrainingsRepository.save(individualTraining);
-
-
-        String clientId = response.getClientId();
-        List<String> recipients = new ArrayList<>();
-        recipients.add(clientId);
-        String subject = "Training has been accepted";
-        String body = "Training with" + response.getTrainerId() + " on " + response.getDate() + " at "
-                + response.getStartTime() + " has been accepted.";
-        try {
-            sendEmailWithoutAttachment(recipients, subject, body);
-        } catch (Exception e) {
-            throw new EmailSendingException("Cannot send email");
-        }
-        //return response;
+//        IndividualTrainings individualTraining = individualTrainingsRepository
+//                .findIndividualTrainingsById(trainingId);
+//
+//        if (individualTraining == null) throw new NotExistingIndividualTrainingException();
+//        if (individualTraining.isAccepted()) throw new AlreadyAcceptedIndividualTrainingException();
+//
+//        String individualTrainingDate = individualTraining.getDate();
+//        String individualTrainingStartTime = individualTraining.getStartTime();
+//
+//        if (isTrainingRetroDateAndTime(individualTrainingDate, individualTrainingStartTime)) {
+//            throw new RetroIndividualTrainingException("Retro date");
+//        }
+//        if (individualTrainingsAcceptModel.getHallNo() < 0) {
+//            throw new HallNoOutOfRangeException("Hall no: " + individualTrainingsAcceptModel.getHallNo() +
+//                    " does not exist");
+//        }
+//
+//        individualTraining.setAccepted(true);
+//        individualTraining.setHallNo(individualTrainingsAcceptModel.getHallNo());
+//        IndividualTrainings response = individualTrainingsRepository.save(individualTraining);
+//
+//
+//        String clientId = response.getClientId();
+//        List<String> recipients = new ArrayList<>();
+//        recipients.add(clientId);
+//        String subject = "Training has been accepted";
+//        String body = "Training with" + response.getTrainerId() + " on " + response.getDate() + " at "
+//                + response.getStartTime() + " has been accepted.";
+//        try {
+//            sendEmailWithoutAttachment(recipients, subject, body);
+//        } catch (Exception e) {
+//            throw new EmailSendingException("Cannot send email");
+//        }
+//        //return response;
         return null;
     }
 

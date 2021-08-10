@@ -1,74 +1,136 @@
 package com.healthy.gym.trainings.service.individual.training;
 
-import com.healthy.gym.trainings.configuration.EmailConfiguration;
+import com.healthy.gym.trainings.data.document.IndividualTrainingDocument;
+import com.healthy.gym.trainings.data.document.LocationDocument;
+import com.healthy.gym.trainings.data.document.UserDocument;
+import com.healthy.gym.trainings.data.repository.LocationDAO;
+import com.healthy.gym.trainings.data.repository.UserDAO;
 import com.healthy.gym.trainings.data.repository.individual.training.IndividualTrainingRepository;
 import com.healthy.gym.trainings.dto.IndividualTrainingDTO;
-import com.healthy.gym.trainings.exception.*;
+import com.healthy.gym.trainings.enums.GymRole;
+import com.healthy.gym.trainings.exception.AlreadyAcceptedIndividualTrainingException;
+import com.healthy.gym.trainings.exception.AlreadyRejectedIndividualTrainingException;
+import com.healthy.gym.trainings.exception.EmailSendingException;
+import com.healthy.gym.trainings.exception.PastDateException;
 import com.healthy.gym.trainings.exception.notexisting.NotExistingIndividualTrainingException;
+import com.healthy.gym.trainings.exception.notfound.LocationNotFoundException;
+import com.healthy.gym.trainings.exception.notfound.UserNotFoundException;
+import com.healthy.gym.trainings.exception.occupied.LocationOccupiedException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
-import java.text.ParseException;
+import java.time.Clock;
+import java.time.LocalDateTime;
+import java.util.Optional;
+
+import static com.healthy.gym.trainings.utils.IndividualTrainingMapper.mapIndividualTrainingDocumentToDTO;
 
 @Service
 public class TrainerIndividualTrainingServiceImpl implements TrainerIndividualTrainingService {
 
-    private final EmailConfiguration emailConfig;
-    private final IndividualTrainingRepository individualTrainingRepository;
+    private final UserDAO userDAO;
+    private final IndividualTrainingRepository repository;
+    private final LocationDAO locationDAO;
+    private final Clock clock;
 
     @Autowired
     public TrainerIndividualTrainingServiceImpl(
-            EmailConfiguration emailConfig,
-            IndividualTrainingRepository individualTrainingRepository
+            UserDAO userDAO,
+            IndividualTrainingRepository individualTrainingRepository,
+            LocationDAO locationDAO,
+            Clock clock
     ) {
-        this.emailConfig = emailConfig;
-        this.individualTrainingRepository = individualTrainingRepository;
+        this.userDAO = userDAO;
+        this.repository = individualTrainingRepository;
+        this.locationDAO = locationDAO;
+        this.clock = clock;
     }
 
     @Override
     public IndividualTrainingDTO acceptIndividualTraining(String userId, String trainingId, String locationId)
-            throws NotExistingIndividualTrainingException,
+            throws AccessDeniedException,
             AlreadyAcceptedIndividualTrainingException,
-            HallNoOutOfRangeException,
-            ParseException,
-            RetroIndividualTrainingException,
-            EmailSendingException {
+            LocationNotFoundException,
+            LocationOccupiedException,
+            NotExistingIndividualTrainingException,
+            PastDateException,
+            UserNotFoundException {
 
-//        IndividualTrainings individualTraining = individualTrainingsRepository
-//                .findIndividualTrainingsById(trainingId);
-//
-//        if (individualTraining == null) throw new NotExistingIndividualTrainingException();
-//        if (individualTraining.isAccepted()) throw new AlreadyAcceptedIndividualTrainingException();
-//
-//        String individualTrainingDate = individualTraining.getDate();
-//        String individualTrainingStartTime = individualTraining.getStartTime();
-//
-//        if (isTrainingRetroDateAndTime(individualTrainingDate, individualTrainingStartTime)) {
-//            throw new RetroIndividualTrainingException("Retro date");
-//        }
-//        if (individualTrainingsAcceptModel.getHallNo() < 0) {
-//            throw new HallNoOutOfRangeException("Hall no: " + individualTrainingsAcceptModel.getHallNo() +
-//                    " does not exist");
-//        }
-//
-//        individualTraining.setAccepted(true);
-//        individualTraining.setHallNo(individualTrainingsAcceptModel.getHallNo());
-//        IndividualTrainings response = individualTrainingsRepository.save(individualTraining);
-//
-//
-//        String clientId = response.getClientId();
-//        List<String> recipients = new ArrayList<>();
-//        recipients.add(clientId);
-//        String subject = "Training has been accepted";
-//        String body = "Training with" + response.getTrainerId() + " on " + response.getDate() + " at "
-//                + response.getStartTime() + " has been accepted.";
-//        try {
-//            sendEmailWithoutAttachment(recipients, subject, body);
-//        } catch (Exception e) {
-//            throw new EmailSendingException("Cannot send email");
-//        }
-//        //return response;
-        return null;
+        IndividualTrainingDocument training = getIndividualTrainingDocumentById(trainingId);
+
+        validateIfStartTimeIsBeforeNow(training);
+        getTrainerByIdAndValidateIfExistAndIsAssignToTraining(userId, training);
+        validateIfAlreadyAccepted(training);
+
+        LocationDocument location = getLocationDocumentById(locationId);
+        validateIfLocationIsOccupied(training, location);
+
+        IndividualTrainingDocument acceptedIndividualTraining =
+                acceptIndividualTrainingAndSetLocation(training, location);
+
+        sendNotification(acceptedIndividualTraining);
+
+        return mapIndividualTrainingDocumentToDTO(acceptedIndividualTraining);
+    }
+
+    private IndividualTrainingDocument getIndividualTrainingDocumentById(String trainingId)
+            throws NotExistingIndividualTrainingException {
+        Optional<IndividualTrainingDocument> training = repository.findByIndividualTrainingId(trainingId);
+        return training.orElseThrow(NotExistingIndividualTrainingException::new);
+    }
+
+    private void validateIfStartTimeIsBeforeNow(IndividualTrainingDocument trainingDocument)
+            throws PastDateException {
+        LocalDateTime startDateTime = trainingDocument.getStartDateTime();
+        if (LocalDateTime.now(clock).isAfter(startDateTime)) throw new PastDateException();
+    }
+
+    private void getTrainerByIdAndValidateIfExistAndIsAssignToTraining(
+            String userId,
+            IndividualTrainingDocument trainingDocument
+    ) throws UserNotFoundException {
+        UserDocument trainer = userDAO.findByUserId(userId);
+        if (trainer == null || !trainer.getGymRoles().contains(GymRole.TRAINER)) {
+            throw new UserNotFoundException();
+        }
+
+        var trainers = trainingDocument.getTrainers();
+        if (trainers == null || !trainers.contains(trainer)) {
+            throw new AccessDeniedException("You are not allowed to accept this individual training.");
+        }
+    }
+
+    private void validateIfAlreadyAccepted(IndividualTrainingDocument training)
+            throws AlreadyAcceptedIndividualTrainingException {
+        boolean isAccepted = training.isAccepted();
+        if (isAccepted) throw new AlreadyAcceptedIndividualTrainingException();
+    }
+
+    private LocationDocument getLocationDocumentById(String locationId) throws LocationNotFoundException {
+        LocationDocument location = locationDAO.findByLocationId(locationId);
+        if (location == null) throw new LocationNotFoundException();
+        return location;
+    }
+
+    private void validateIfLocationIsOccupied(
+            IndividualTrainingDocument training,
+            LocationDocument locationDocument
+    ) throws LocationOccupiedException {
+        //TODO locationOccupiedException
+    }
+
+    private IndividualTrainingDocument acceptIndividualTrainingAndSetLocation(
+            IndividualTrainingDocument training,
+            LocationDocument location
+    ) {
+        training.setAccepted(true);
+        training.setLocation(location);
+        return repository.save(training);
+    }
+
+    private void sendNotification(IndividualTrainingDocument trainingDocument) {
+        //TODO send email notification
     }
 
 //    private boolean isTrainingRetroDateAndTime(String date, String startDate) throws ParseException {

@@ -214,7 +214,7 @@ class GetAllUserGymPassesServiceUnitTest {
     }
 
     @Test
-    void shouldNotGetUserGymPasses_whenInvalidId() throws Exception {
+    void shouldNotGetUserGymPasses_whenInvalidId() {
         //before
         String invalidUserId = UUID.randomUUID().toString();
 
@@ -229,18 +229,33 @@ class GetAllUserGymPassesServiceUnitTest {
     }
 
     @Test
-    void shouldNotGetUserGymPasses_whenStartDateAfterEndDate() throws Exception{
+    void shouldNotGetUserGymPasses_whenStartDateAfterEndDate() {
         //before
         String startDate = "2030-12-31";
         String endDate = "2000-01-01";
-
-        //when
-        when(userDAO.findByUserId(userId))
-                .thenReturn(null);
 
         //then
         assertThatThrownBy(() ->
                 purchaseService.getAllUserGymPasses(userId, startDate, endDate)
         ).isInstanceOf(StartDateAfterEndDateException.class);
+    }
+
+    @Test
+    void shouldNotGetUserGymPasses_whenEmptyList() {
+        //before
+        String userIdWithNoGymPasses = UUID.randomUUID().toString();
+        UserDocument userWithNoGymPassesDocument = new UserDocument();
+
+        //when
+        when(userDAO.findByUserId(userIdWithNoGymPasses))
+                .thenReturn(userWithNoGymPassesDocument);
+        when(purchasedGymPassDAO.findAllByUserAndStartDateAfterAndEndDateBefore(
+                userWithNoGymPassesDocument, null, null))
+                .thenReturn(null);
+
+        //then
+        assertThatThrownBy(() ->
+                purchaseService.getAllUserGymPasses(userIdWithNoGymPasses, null, null)
+        ).isInstanceOf(NoGymPassesException.class);
     }
 }

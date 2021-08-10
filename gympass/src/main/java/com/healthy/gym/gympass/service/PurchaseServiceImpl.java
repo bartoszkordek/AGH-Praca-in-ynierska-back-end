@@ -174,7 +174,7 @@ public class PurchaseServiceImpl implements PurchaseService{
         List<PurchasedGymPassDocument> purchasedGymPassDocuments = purchasedGymPassDAO
                 .findAllByUserAndStartDateAfterAndEndDateBefore(userDocument, startDate, endDate);
 
-        if(purchasedGymPassDocuments == null) throw new NoGymPassesException("No gympasses to display");
+        if(purchasedGymPassDocuments.isEmpty()) throw new NoGymPassesException("No gympasses to display");
 
         return purchasedGymPassDocuments
                 .stream()

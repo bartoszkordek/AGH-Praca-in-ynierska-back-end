@@ -10,6 +10,8 @@ import com.healthy.gym.gympass.dto.BasicUserInfoDTO;
 import com.healthy.gym.gympass.dto.PurchasedGymPassDTO;
 import com.healthy.gym.gympass.dto.PurchasedUserGymPassDTO;
 import com.healthy.gym.gympass.dto.SimpleGymPassDTO;
+import com.healthy.gym.gympass.exception.NoGymPassesException;
+import com.healthy.gym.gympass.exception.NoOffersException;
 import com.healthy.gym.gympass.service.PurchaseService;
 import com.healthy.gym.gympass.shared.Price;
 import org.junit.jupiter.api.BeforeEach;
@@ -30,15 +32,14 @@ import java.net.URISyntaxException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 import static com.healthy.gym.gympass.configuration.LocaleConverter.convertEnumToLocale;
 import static com.healthy.gym.gympass.configuration.Messages.getMessagesAccordingToLocale;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.ResultMatcher.matchAll;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -176,6 +177,40 @@ public class GetAllUserGymPassesUnitTest {
                             jsonPath("$.[1].suspensionDate").doesNotExist()
 
                     ));
+        }
+    }
+
+    @Nested
+    class ShouldNotGetGymPasses{
+
+        @ParameterizedTest
+        @EnumSource(TestCountry.class)
+        void shouldNotGetGymPassesWhenNoneExists(TestCountry country) throws Exception {
+            Map<String, String> messages = getMessagesAccordingToLocale(country);
+            Locale testedLocale = convertEnumToLocale(country);
+
+            String userIdWithNoGymPass = UUID.randomUUID().toString();
+
+            RequestBuilder request = MockMvcRequestBuilders
+                    .get(uri+userIdWithNoGymPass)
+                    .header("Accept-Language", testedLocale.toString())
+                    .header("Authorization", employeeToken)
+                    .contentType(MediaType.APPLICATION_JSON);
+
+            String expectedMessage = messages.get("exception.no.gympasses");
+
+            doThrow(NoGymPassesException.class)
+                    .when(purchaseService)
+                    .getAllUserGymPasses(userIdWithNoGymPass, null, null);
+
+            mockMvc.perform(request)
+                    .andDo(print())
+                    .andExpect(status().isNoContent())
+                    .andExpect(status().reason(is(expectedMessage)))
+                    .andExpect(result ->
+                            assertThat(Objects.requireNonNull(result.getResolvedException()).getCause())
+                                    .isInstanceOf(NoGymPassesException.class)
+                    );
         }
     }
 

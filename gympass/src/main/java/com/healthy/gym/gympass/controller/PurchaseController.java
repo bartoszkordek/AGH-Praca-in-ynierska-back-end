@@ -179,8 +179,8 @@ public class PurchaseController {
     @GetMapping("/user/{id}")
     public ResponseEntity<List<PurchasedUserGymPassDTO>> getAllUserGymPasses(
             @PathVariable("id") @ValidIDFormat final String id,
-            @RequestParam(value = "startDate",required = false) final String startDate,
-            @RequestParam(value = "endDate", required = false) final String endDate
+            @ValidDateFormat @RequestParam(value = "startDate",required = false) final String startDate,
+            @ValidDateFormat @RequestParam(value = "endDate", required = false) final String endDate
     ){
         try{
             return ResponseEntity

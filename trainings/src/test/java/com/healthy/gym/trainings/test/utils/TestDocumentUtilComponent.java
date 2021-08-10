@@ -204,4 +204,23 @@ public class TestDocumentUtilComponent {
                 false
         );
     }
+
+    public IndividualTrainingDocument saveAndGetTestIndividualTraining(
+            String startDateTime,
+            String endDateTime,
+            UserDocument savedUserDocument
+    ) {
+        List<UserDocument> userList = getTestListOfSavedUserDocuments(5);
+        userList.add(savedUserDocument);
+        return saveAndGetTestIndividualTraining(
+                saveAndGetTestTrainingType(),
+                userList,
+                getTestListOfSavedTrainersDocuments(1),
+                startDateTime,
+                endDateTime,
+                saveAndGetTestLocation(),
+                getTestRemarks(),
+                false
+        );
+    }
 }

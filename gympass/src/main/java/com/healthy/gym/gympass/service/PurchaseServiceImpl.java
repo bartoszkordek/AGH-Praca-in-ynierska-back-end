@@ -32,6 +32,8 @@ public class PurchaseServiceImpl implements PurchaseService{
     private final UserDAO userDAO;
     private final ModelMapper modelMapper;
 
+    private static final LocalDate MIN_DATE = LocalDate.MIN;
+    private static final LocalDate MAX_DATE = LocalDate.MAX;
     private static final String MAX_END_DATE = "9999-12-31";
 
     @Autowired
@@ -149,12 +151,28 @@ public class PurchaseServiceImpl implements PurchaseService{
     }
 
     @Override
-    public List<PurchasedUserGymPassDTO> getAllUserGymPasses(String userId) throws UserNotFoundException, NoGymPassesException {
+    public List<PurchasedUserGymPassDTO> getAllUserGymPasses(
+            String userId,
+            String requestStartDate,
+            String requestEndDate
+    ) throws UserNotFoundException, StartDateAfterEndDateException, NoGymPassesException {
+
+        LocalDate startDate = MIN_DATE;
+        LocalDate endDate = MAX_DATE;
+        if(startDate != null)
+            startDate = LocalDate.parse(requestStartDate, DateTimeFormatter.ISO_LOCAL_DATE);
+
+        if(endDate != null)
+            endDate = LocalDate.parse(requestEndDate, DateTimeFormatter.ISO_LOCAL_DATE);
+
+        if(startDate.isAfter(endDate))
+            throw new StartDateAfterEndDateException("Start date after end date");
 
         UserDocument userDocument = userDAO.findByUserId(userId);
         if(userDocument == null) throw  new UserNotFoundException("User not exist");
 
-        List<PurchasedGymPassDocument> purchasedGymPassDocuments = purchasedGymPassDAO.findAllByUser(userDocument);
+        List<PurchasedGymPassDocument> purchasedGymPassDocuments = purchasedGymPassDAO
+                .findAllByUserAndStartDateAfterAndEndDateBefore(userDocument, startDate, endDate);
 
         if(purchasedGymPassDocuments == null) throw new NoGymPassesException("No gympasses to display");
 

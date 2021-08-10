@@ -21,6 +21,6 @@ public interface PurchaseService {
     PurchasedGymPassStatusValidationResultDTO isGymPassValid(String individualGymPassId)
             throws GymPassNotFoundException;
 
-    List<PurchasedUserGymPassDTO> getAllUserGymPasses(String userId)
-        throws UserNotFoundException, NoGymPassesException;
+    List<PurchasedUserGymPassDTO> getAllUserGymPasses(String userId, String startDate, String endDate)
+        throws UserNotFoundException, StartDateAfterEndDateException, NoGymPassesException;
 }

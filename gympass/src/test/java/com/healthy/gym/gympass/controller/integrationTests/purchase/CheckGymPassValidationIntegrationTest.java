@@ -64,6 +64,7 @@ class CheckGymPassValidationIntegrationTest {
     private String managerToken;
 
     private String timeLimitedGymPassDocumentId;
+    private String entriesLimitedPurchasedGymPassDocumentId;
 
     @DynamicPropertySource
     static void setProperties(DynamicPropertyRegistry registry) {
@@ -143,7 +144,8 @@ class CheckGymPassValidationIntegrationTest {
 
         mongoTemplate.save(alreadySuspendedPurchasedGymPassDocument);
 
-        String entriesLimitedPurchasedGymPassDocumentId = UUID.randomUUID().toString();
+        entriesLimitedPurchasedGymPassDocumentId = UUID.randomUUID().toString();
+        String endDateFroEntriesLimitedDocuments = "9999-12-31";
         int entriesForEntriesLimitedGymPass = 10;
         entriesLimitedTypePurchasedGymPassDocument = new PurchasedGymPassDocument(
                 entriesLimitedPurchasedGymPassDocumentId,
@@ -151,9 +153,8 @@ class CheckGymPassValidationIntegrationTest {
                 userDocument,
                 purchaseDateAndTime,
                 startDate,
-                endDate,
-                entriesForEntriesLimitedGymPass,
-                LocalDate.now().plusDays(10)
+                LocalDate.parse(endDateFroEntriesLimitedDocuments, DateTimeFormatter.ISO_LOCAL_DATE),
+                entriesForEntriesLimitedGymPass
         );
 
         mongoTemplate.save(entriesLimitedTypePurchasedGymPassDocument);
@@ -198,6 +199,36 @@ class CheckGymPassValidationIntegrationTest {
                     .isEqualTo(LocalDate.now().minusDays(2).plusMonths(1).toString());
             assertThat(responseEntity.getBody().get("result").get("entries").intValue())
                     .isZero();
+        }
+
+        @ParameterizedTest
+        @EnumSource(TestCountry.class)
+        void shouldReturnValidStatus_whenNotSuspendedEntriesLimitedGympassAndValidEndDate(TestCountry country)
+                throws Exception {
+            Map<String, String> messages = getMessagesAccordingToLocale(country);
+            Locale testedLocale = convertEnumToLocale(country);
+
+            URI uri = new URI("http://localhost:" + port + "/purchase/status/"+entriesLimitedPurchasedGymPassDocumentId);
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.set("Accept-Language", testedLocale.toString());
+            headers.set("Authorization", managerToken);
+            headers.setContentType(MediaType.APPLICATION_JSON);
+
+            HttpEntity<Object> request = new HttpEntity<>(null, headers);
+            String expectedMessage = messages.get("gympass.valid");
+
+            ResponseEntity<JsonNode> responseEntity = restTemplate
+                    .exchange(uri, HttpMethod.GET, request, JsonNode.class);
+
+            assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
+            assertThat(Objects.requireNonNull(responseEntity.getBody().get("message").textValue()))
+                    .isEqualTo(expectedMessage);
+            assertThat(responseEntity.getBody().get("result")).isNotNull();
+            assertThat(responseEntity.getBody().get("result").get("valid").asBoolean()).isTrue();
+            assertThat(responseEntity.getBody().get("result").get("endDate")).isNull();
+            assertThat(responseEntity.getBody().get("result").get("entries").intValue())
+                    .isEqualTo(10);
         }
 
     }

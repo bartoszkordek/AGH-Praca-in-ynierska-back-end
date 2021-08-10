@@ -20,7 +20,6 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
@@ -183,7 +182,7 @@ public class CheckGymPassValidationControllerUnitTest {
                             null
                     ));
 
-            String expectedMessage = messages.get("gympass.not.valid");
+            String expectedMessage = messages.get("gympass.not.valid.retro.end.date");
 
             mockMvc.perform(request)
                     .andDo(print())
@@ -222,7 +221,46 @@ public class CheckGymPassValidationControllerUnitTest {
                             suspensionDate
                     ));
 
-            String expectedMessage = messages.get("gympass.not.valid");
+            String expectedMessage = messages.get("gympass.not.valid.suspended");
+
+            mockMvc.perform(request)
+                    .andDo(print())
+                    .andExpect(matchAll(
+                            status().isOk(),
+                            content().contentType(MediaType.APPLICATION_JSON),
+                            jsonPath("$.message").value(is(expectedMessage)),
+                            jsonPath("$.result.valid").value(is(false)),
+                            jsonPath("$.result.endDate").value(is("9999-12-31")),
+                            jsonPath("$.result.suspensionDate").value(is(suspensionDate)),
+                            jsonPath("$.result.entries").value(is(entries))
+                    ));
+
+        }
+
+        @ParameterizedTest
+        @EnumSource(TestCountry.class)
+        void shouldReturnNotValidWhenNotSuspendedNoEntries_entriesValidTypeGymPass(TestCountry country) throws Exception {
+            Map<String, String> messages = getMessagesAccordingToLocale(country);
+            Locale testedLocale = convertEnumToLocale(country);
+
+            String suspensionDate = LocalDateTime.now().plusDays(5).format(DateTimeFormatter.ISO_DATE);
+            int entries = 0;
+
+            RequestBuilder request = MockMvcRequestBuilders
+                    .get(uri+"/"+notValidEntriesValidPurchasedGymPassDocumentId)
+                    .header("Accept-Language", testedLocale.toString())
+                    .header("Authorization", managerToken)
+                    .contentType(MediaType.APPLICATION_JSON);
+
+            when(purchaseService.isGymPassValid(notValidEntriesValidPurchasedGymPassDocumentId))
+                    .thenReturn(new PurchasedGymPassStatusValidationResultDTO(
+                            false,
+                            "9999-12-31",
+                            entries,
+                            suspensionDate
+                    ));
+
+            String expectedMessage = messages.get("gympass.not.valid.no.entries");
 
             mockMvc.perform(request)
                     .andDo(print())

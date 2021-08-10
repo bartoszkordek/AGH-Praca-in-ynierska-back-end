@@ -61,13 +61,8 @@ class GetAllAcceptedIndividualTrainingRequestsIntegrationTest {
     @Autowired
     private TestRestTemplate restTemplate;
 
-    private String trainingId;
-    private String trainerId;
-    private String locationId;
     private URI uri;
     private String employeeToken;
-    private IndividualTrainingDocument document;
-    private LocationDocument locationDocument;
 
     @LocalServerPort
     private Integer port;
@@ -98,7 +93,6 @@ class GetAllAcceptedIndividualTrainingRequestsIntegrationTest {
                 new String[]{"2021-01-10T12:10", "2021-01-10T12:00", "true"}
         );
 
-
         data.forEach(
                 strings -> testUtil
                         .saveAndGetTestIndividualTraining(
@@ -107,9 +101,6 @@ class GetAllAcceptedIndividualTrainingRequestsIntegrationTest {
                                 Boolean.parseBoolean(strings[2])
                         )
         );
-
-        document = testUtil.saveAndGetTestIndividualTraining("2021-01-17T10:10", "2021-01-17T11:00");
-        trainingId = document.getIndividualTrainingId();
     }
 
     @AfterEach

@@ -214,7 +214,7 @@ class GetAllUserGymPassesServiceUnitTest {
     }
 
     @Test
-    void shouldNotGetUserGymPasses_whenInvalidId() throws UserNotFoundException{
+    void shouldNotGetUserGymPasses_whenInvalidId() throws Exception {
         //before
         String invalidUserId = UUID.randomUUID().toString();
 
@@ -226,5 +226,21 @@ class GetAllUserGymPassesServiceUnitTest {
         assertThatThrownBy(() ->
                 purchaseService.getAllUserGymPasses(invalidUserId, null, null)
         ).isInstanceOf(UserNotFoundException.class);
+    }
+
+    @Test
+    void shouldNotGetUserGymPasses_whenStartDateAfterEndDate() throws Exception{
+        //before
+        String startDate = "2030-12-31";
+        String endDate = "2000-01-01";
+
+        //when
+        when(userDAO.findByUserId(userId))
+                .thenReturn(null);
+
+        //then
+        assertThatThrownBy(() ->
+                purchaseService.getAllUserGymPasses(userId, startDate, endDate)
+        ).isInstanceOf(StartDateAfterEndDateException.class);
     }
 }

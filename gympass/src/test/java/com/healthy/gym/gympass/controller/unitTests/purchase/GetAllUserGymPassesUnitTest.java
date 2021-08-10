@@ -11,7 +11,7 @@ import com.healthy.gym.gympass.dto.PurchasedGymPassDTO;
 import com.healthy.gym.gympass.dto.PurchasedUserGymPassDTO;
 import com.healthy.gym.gympass.dto.SimpleGymPassDTO;
 import com.healthy.gym.gympass.exception.NoGymPassesException;
-import com.healthy.gym.gympass.exception.NoOffersException;
+import com.healthy.gym.gympass.exception.UserNotFoundException;
 import com.healthy.gym.gympass.service.PurchaseService;
 import com.healthy.gym.gympass.shared.Price;
 import org.junit.jupiter.api.BeforeEach;
@@ -182,6 +182,34 @@ public class GetAllUserGymPassesUnitTest {
 
     @Nested
     class ShouldNotGetGymPasses{
+
+        @ParameterizedTest
+        @EnumSource(TestCountry.class)
+        void shouldNotGetGymPassesWhenInvalidUserId(TestCountry country) throws Exception {
+            Map<String, String> messages = getMessagesAccordingToLocale(country);
+            Locale testedLocale = convertEnumToLocale(country);
+
+            RequestBuilder request = MockMvcRequestBuilders
+                    .get(uri+invalidUserId)
+                    .header("Accept-Language", testedLocale.toString())
+                    .header("Authorization", adminToken)
+                    .contentType(MediaType.APPLICATION_JSON);
+
+            String expectedMessage = messages.get("exception.user.not.found");
+
+            doThrow(UserNotFoundException.class)
+                    .when(purchaseService)
+                    .getAllUserGymPasses(invalidUserId, null, null);
+
+            mockMvc.perform(request)
+                    .andDo(print())
+                    .andExpect(status().isBadRequest())
+                    .andExpect(status().reason(is(expectedMessage)))
+                    .andExpect(result ->
+                            assertThat(Objects.requireNonNull(result.getResolvedException()).getCause())
+                                    .isInstanceOf(UserNotFoundException.class)
+                    );
+        }
 
         @ParameterizedTest
         @EnumSource(TestCountry.class)

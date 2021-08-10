@@ -30,6 +30,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
 
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -366,5 +367,37 @@ class CheckGymPassValidationIntegrationTest {
                     .isEqualTo(LocalDate.now().plusDays(10).toString());
         }
 
+    }
+
+    @Nested
+    class ShouldNotReturnStatus{
+
+        @ParameterizedTest
+        @EnumSource(TestCountry.class)
+        void shouldNotReturnGymPassValidationStatus_whenInvalidId(TestCountry country) throws URISyntaxException {
+            Map<String, String> messages = getMessagesAccordingToLocale(country);
+            Locale testedLocale = convertEnumToLocale(country);
+
+            String invalidId = UUID.randomUUID().toString();
+
+            URI uri = new URI("http://localhost:" + port + "/purchase/status/" +invalidId);
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.set("Accept-Language", testedLocale.toString());
+            headers.set("Authorization", employeeToken);
+            headers.setContentType(MediaType.APPLICATION_JSON);
+
+            HttpEntity<Object> request = new HttpEntity<>(null, headers);
+
+            String expectedMessage = messages.get("exception.gympass.not.found");
+
+            ResponseEntity<JsonNode> responseEntity = restTemplate
+                    .exchange(uri, HttpMethod.GET, request, JsonNode.class);
+
+            assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+            assertThat(Objects.requireNonNull(responseEntity.getBody().get("message").textValue()))
+                    .isEqualTo(expectedMessage);
+            assertThat(responseEntity.getBody().get("timestamp")).isNotNull();
+        }
     }
 }

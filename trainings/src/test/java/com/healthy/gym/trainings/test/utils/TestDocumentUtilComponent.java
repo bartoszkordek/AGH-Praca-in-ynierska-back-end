@@ -38,6 +38,10 @@ public class TestDocumentUtilComponent {
         return mongoTemplate.save(getTestTrainer());
     }
 
+    public UserDocument saveAndGetTestTrainer(String userId) {
+        return mongoTemplate.save(getTestTrainer(userId));
+    }
+
     public LocationDocument saveAndGetTestLocation() {
         return mongoTemplate.save(getTestLocation());
     }

@@ -47,7 +47,11 @@ public class TestDocumentUtil {
     }
 
     public static UserDocument getTestTrainer() {
-        var user = getTestUser();
+        return getTestTrainer(UUID.randomUUID().toString());
+    }
+
+    public static UserDocument getTestTrainer(String userId) {
+        var user = getTestUser(userId);
         user.setGymRoles(List.of(GymRole.USER, GymRole.TRAINER));
         return user;
     }

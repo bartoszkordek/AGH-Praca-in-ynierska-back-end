@@ -8,6 +8,7 @@ import com.healthy.gym.gympass.data.repository.PurchasedGymPassDAO;
 import com.healthy.gym.gympass.data.repository.UserDAO;
 import com.healthy.gym.gympass.dto.PurchasedGymPassDTO;
 import com.healthy.gym.gympass.dto.PurchasedGymPassStatusValidationResultDTO;
+import com.healthy.gym.gympass.dto.PurchasedUserGymPassDTO;
 import com.healthy.gym.gympass.exception.*;
 import com.healthy.gym.gympass.pojo.request.PurchasedGymPassRequest;
 import org.modelmapper.ModelMapper;
@@ -19,6 +20,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -143,5 +145,10 @@ public class PurchaseServiceImpl implements PurchaseService{
                 suspensionDateResponse
         );
 
+    }
+
+    @Override
+    public List<PurchasedUserGymPassDTO> getAllUserGymPasses(String userId) throws UserNotFoundException, NoGymPassesException {
+        return null;
     }
 }

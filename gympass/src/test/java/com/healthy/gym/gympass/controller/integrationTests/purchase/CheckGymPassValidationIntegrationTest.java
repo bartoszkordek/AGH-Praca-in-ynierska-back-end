@@ -65,6 +65,7 @@ class CheckGymPassValidationIntegrationTest {
 
     private String timeLimitedGymPassDocumentId;
     private String alreadySuspendedPurchasedGymPassDocumentId;
+    private String timeLimitedWithRetroDateGymPassDocumentId;
     private String entriesLimitedPurchasedGymPassDocumentId;
     private String alreadySuspendedEntriesLimitedPurchasedGymPassDocumentId;
 
@@ -82,6 +83,7 @@ class CheckGymPassValidationIntegrationTest {
 
         PurchasedGymPassDocument timeLimitedTypePurchasedGymPassDocument;
         PurchasedGymPassDocument alreadySuspendedPurchasedGymPassDocument;
+        PurchasedGymPassDocument timeLimitedWithRetroDateGymPassDocument;
         PurchasedGymPassDocument entriesLimitedTypePurchasedGymPassDocument;
         PurchasedGymPassDocument alreadySuspendedEntriesLimitedTypePurchasedGymPassDocument;
 
@@ -130,7 +132,6 @@ class CheckGymPassValidationIntegrationTest {
                 endDate,
                 entriesTimeLimitedGymPass
         );
-
         mongoTemplate.save(timeLimitedTypePurchasedGymPassDocument);
 
         alreadySuspendedPurchasedGymPassDocumentId = UUID.randomUUID().toString();
@@ -144,8 +145,19 @@ class CheckGymPassValidationIntegrationTest {
                 entriesTimeLimitedGymPass,
                 LocalDate.now().plusDays(10)
         );
-
         mongoTemplate.save(alreadySuspendedPurchasedGymPassDocument);
+
+        timeLimitedWithRetroDateGymPassDocumentId = UUID.randomUUID().toString();
+        timeLimitedWithRetroDateGymPassDocument = new PurchasedGymPassDocument(
+                timeLimitedWithRetroDateGymPassDocumentId,
+                gymPassOfferDocument,
+                userDocument,
+                purchaseDateAndTime,
+                startDate,
+                LocalDate.now().minusDays(1),
+                entriesTimeLimitedGymPass
+        );
+        mongoTemplate.save(timeLimitedWithRetroDateGymPassDocument);
 
         entriesLimitedPurchasedGymPassDocumentId = UUID.randomUUID().toString();
         String endDateFroEntriesLimitedDocuments = "9999-12-31";
@@ -159,7 +171,6 @@ class CheckGymPassValidationIntegrationTest {
                 LocalDate.parse(endDateFroEntriesLimitedDocuments, DateTimeFormatter.ISO_LOCAL_DATE),
                 entriesForEntriesLimitedGymPass
         );
-
         mongoTemplate.save(entriesLimitedTypePurchasedGymPassDocument);
 
         alreadySuspendedEntriesLimitedPurchasedGymPassDocumentId = UUID.randomUUID().toString();
@@ -173,7 +184,6 @@ class CheckGymPassValidationIntegrationTest {
                 entriesForEntriesLimitedGymPass,
                 LocalDate.now().plusDays(10)
         );
-
         mongoTemplate.save(alreadySuspendedEntriesLimitedTypePurchasedGymPassDocument);
     }
 
@@ -253,6 +263,41 @@ class CheckGymPassValidationIntegrationTest {
             assertThat(responseEntity.getBody().get("result").get("suspensionDate").textValue())
                     .isEqualTo(LocalDate.now().plusDays(10).toString());
         }
+
+        @ParameterizedTest
+        @EnumSource(TestCountry.class)
+        void shouldReturnNotValidStatus_whenNotSuspendedTimeLimitedGympassAndInvalidEndDate(TestCountry country)
+                throws Exception {
+            Map<String, String> messages = getMessagesAccordingToLocale(country);
+            Locale testedLocale = convertEnumToLocale(country);
+
+            URI uri = new URI("http://localhost:" + port + "/purchase/status/"
+                    +timeLimitedWithRetroDateGymPassDocumentId);
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.set("Accept-Language", testedLocale.toString());
+            headers.set("Authorization", employeeToken);
+            headers.setContentType(MediaType.APPLICATION_JSON);
+
+            HttpEntity<Object> request = new HttpEntity<>(null, headers);
+            String expectedMessage = messages.get("gympass.not.valid");
+
+            ResponseEntity<JsonNode> responseEntity = restTemplate
+                    .exchange(uri, HttpMethod.GET, request, JsonNode.class);
+
+            assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
+            assertThat(Objects.requireNonNull(responseEntity.getBody().get("message").textValue()))
+                    .isEqualTo(expectedMessage);
+            assertThat(responseEntity.getBody().get("result")).isNotNull();
+            assertThat(responseEntity.getBody().get("result").get("valid").asBoolean()).isFalse();
+            assertThat(responseEntity.getBody().get("result").get("endDate").textValue())
+                    .isEqualTo(LocalDate.now().minusDays(1).toString());
+            assertThat(responseEntity.getBody().get("result").get("entries").intValue())
+                    .isZero();
+            assertThat(responseEntity.getBody().get("result").get("suspensionDate"))
+                    .isNull();
+        }
+
 
         @ParameterizedTest
         @EnumSource(TestCountry.class)

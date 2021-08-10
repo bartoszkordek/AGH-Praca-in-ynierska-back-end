@@ -7,6 +7,7 @@ import com.healthy.gym.gympass.data.repository.GymPassOfferDAO;
 import com.healthy.gym.gympass.data.repository.PurchasedGymPassDAO;
 import com.healthy.gym.gympass.data.repository.UserDAO;
 import com.healthy.gym.gympass.dto.PurchasedGymPassDTO;
+import com.healthy.gym.gympass.dto.PurchasedGymPassStatusValidationResultDTO;
 import com.healthy.gym.gympass.exception.*;
 import com.healthy.gym.gympass.pojo.request.PurchasedGymPassRequest;
 import org.modelmapper.ModelMapper;
@@ -88,7 +89,8 @@ public class PurchaseServiceImpl implements PurchaseService{
             throws GymPassNotFoundException, AlreadySuspendedGymPassException, RetroSuspensionDateException,
             SuspensionDateAfterEndDateException {
 
-        PurchasedGymPassDocument purchasedGymPassDocument = purchasedGymPassDAO.findByPurchasedGymPassDocumentId(individualGymPassId);
+        PurchasedGymPassDocument purchasedGymPassDocument = purchasedGymPassDAO
+                .findByPurchasedGymPassDocumentId(individualGymPassId);
         if(purchasedGymPassDocument == null) throw new GymPassNotFoundException("Gympass with current ID does not exist");
 
         LocalDate endDate = purchasedGymPassDocument.getEndDate();
@@ -101,13 +103,45 @@ public class PurchaseServiceImpl implements PurchaseService{
 
         LocalDate currentSuspensionDate = purchasedGymPassDocument.getSuspensionDate();
         if(currentSuspensionDate != null){
-            if(currentSuspensionDate.isAfter(suspensionDate)) throw new AlreadySuspendedGymPassException("Gympass is suspended.");
+            if(currentSuspensionDate.isAfter(suspensionDate))
+                throw new AlreadySuspendedGymPassException("Gympass is suspended.");
         }
 
         purchasedGymPassDocument.setSuspensionDate(suspensionDate);
-        long suspensionDateFromNow = now.until(endDate, ChronoUnit.DAYS);
+        long suspensionDateFromNow = now.until(suspensionDate, ChronoUnit.DAYS);
         purchasedGymPassDocument.setEndDate(endDate.plusDays(suspensionDateFromNow));
         PurchasedGymPassDocument purchasedGymPassDocumentSaved = purchasedGymPassDAO.save(purchasedGymPassDocument);
         return modelMapper.map(purchasedGymPassDocumentSaved, PurchasedGymPassDTO.class);
+    }
+
+    @Override
+    public PurchasedGymPassStatusValidationResultDTO isGymPassValid(String individualGymPassId)
+            throws GymPassNotFoundException {
+
+        PurchasedGymPassDocument purchasedGymPassDocument = purchasedGymPassDAO
+                .findByPurchasedGymPassDocumentId(individualGymPassId);
+        if(purchasedGymPassDocument == null) throw new GymPassNotFoundException("Gympass with current ID does not exist");
+
+        LocalDate now = LocalDate.now();
+        LocalDate endDate = purchasedGymPassDocument.getEndDate();
+        LocalDate suspensionDate = purchasedGymPassDocument.getSuspensionDate();
+        int entries = purchasedGymPassDocument.getEntries();
+
+        boolean valid = true;
+        String suspensionDateResponse = null;
+
+        if(now.isAfter(endDate) || entries<1) valid = false;
+        if(suspensionDate != null){
+            suspensionDateResponse = suspensionDate.format(DateTimeFormatter.ISO_LOCAL_DATE);
+            if(now.isBefore(suspensionDate)) valid = false;
+        }
+
+        return new PurchasedGymPassStatusValidationResultDTO(
+                valid,
+                endDate.format(DateTimeFormatter.ISO_LOCAL_DATE),
+                entries,
+                suspensionDateResponse
+        );
+
     }
 }

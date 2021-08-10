@@ -286,7 +286,7 @@ public class PurchaseGymPassControllerUnitTest {
     class ShouldNotPurchaseGymPass{
 
         @Nested
-        class ShouldNotCreateOfferWhenNotAuthorized{
+        class ShouldNotPurchaseGymPassWhenNotAuthorized{
 
             @ParameterizedTest
             @EnumSource(TestCountry.class)

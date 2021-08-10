@@ -64,9 +64,10 @@ public class EmployeeIndividualTrainingServiceImpl implements EmployeeIndividual
 
         Optional<IndividualTrainingDocument> training = individualTrainingRepository
                 .findByIndividualTrainingId(trainingId);
-        if (training.isEmpty()) throw new NotExistingIndividualTrainingException();
 
-        IndividualTrainingDocument trainingDocument = training.get();
+        IndividualTrainingDocument trainingDocument = training
+                .orElseThrow(NotExistingIndividualTrainingException::new);
+
         return mapIndividualTrainingDocumentToDTO(trainingDocument);
     }
 

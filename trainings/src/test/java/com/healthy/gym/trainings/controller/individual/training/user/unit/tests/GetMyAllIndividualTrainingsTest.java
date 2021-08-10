@@ -6,6 +6,7 @@ import com.healthy.gym.trainings.controller.individual.training.UserIndividualTr
 import com.healthy.gym.trainings.dto.BasicUserInfoDTO;
 import com.healthy.gym.trainings.dto.IndividualTrainingDTO;
 import com.healthy.gym.trainings.dto.ParticipantsDTO;
+import com.healthy.gym.trainings.exception.StartDateAfterEndDateException;
 import com.healthy.gym.trainings.exception.notfound.NoIndividualTrainingFoundException;
 import com.healthy.gym.trainings.exception.notfound.UserNotFoundException;
 import com.healthy.gym.trainings.service.individual.training.UserIndividualTrainingService;
@@ -55,6 +56,8 @@ class GetMyAllIndividualTrainingsTest {
     private String trainerToken;
     private String userToken;
     private URI uri;
+    private String startDate;
+    private String endDate;
 
     @BeforeEach
     void setUp() throws URISyntaxException {
@@ -65,11 +68,14 @@ class GetMyAllIndividualTrainingsTest {
         userId = UUID.randomUUID().toString();
         userToken = tokenFactory.getUserToken(userId);
 
-        uri = getUri(userId);
+        startDate = "2020-10-10";
+        endDate = "2020-10-17";
+
+        uri = getUri(userId, startDate, endDate);
     }
 
-    private URI getUri(String userId) throws URISyntaxException {
-        return new URI("/individual/user/" + userId);
+    private URI getUri(String userId, String startDate, String endDate) throws URISyntaxException {
+        return new URI("/individual/user/" + userId + "?startDate=" + startDate + "&endDate=" + endDate);
     }
 
 
@@ -86,7 +92,8 @@ class GetMyAllIndividualTrainingsTest {
     void shouldGetMyAllIndividualTrainings(TestCountry country) throws Exception {
         Locale testedLocale = convertEnumToLocale(country);
 
-        when(userIndividualTrainingService.getMyAllTrainings(userId)).thenReturn(List.of(getIndividualTrainingDTO()));
+        when(userIndividualTrainingService.getMyAllTrainings(userId, startDate, endDate))
+                .thenReturn(List.of(getIndividualTrainingDTO()));
         RequestBuilder request = getValidRequest(userToken, testedLocale);
 
         mockMvc.perform(request)
@@ -176,7 +183,7 @@ class GetMyAllIndividualTrainingsTest {
 
             doThrow(NoIndividualTrainingFoundException.class)
                     .when(userIndividualTrainingService)
-                    .getMyAllTrainings(userId);
+                    .getMyAllTrainings(userId, startDate, endDate);
 
             request = getValidRequest(userToken, testedLocale);
             expectedMessage = messages.get("exception.no.individual.training.found");
@@ -206,11 +213,26 @@ class GetMyAllIndividualTrainingsTest {
 
             doThrow(UserNotFoundException.class)
                     .when(userIndividualTrainingService)
-                    .getMyAllTrainings(userId);
+                    .getMyAllTrainings(userId, startDate, endDate);
             request = getValidRequest(employeeToken, testedLocale);
             expectedMessage = messages.get("exception.not.found.user.id");
 
             performRequestAndTestErrorResponse(status().isNotFound(), UserNotFoundException.class);
+        }
+
+        @ParameterizedTest
+        @EnumSource(TestCountry.class)
+        void shouldThrowStartDateAfterEndDateException(TestCountry country) throws Exception {
+            Map<String, String> messages = getMessagesAccordingToLocale(country);
+            Locale testedLocale = convertEnumToLocale(country);
+
+            doThrow(StartDateAfterEndDateException.class)
+                    .when(userIndividualTrainingService)
+                    .getMyAllTrainings(userId, startDate, endDate);
+            request = getValidRequest(employeeToken, testedLocale);
+            expectedMessage = messages.get("exception.start.date.after.end.date");
+
+            performRequestAndTestErrorResponse(status().isBadRequest(), StartDateAfterEndDateException.class);
         }
 
         @ParameterizedTest
@@ -221,7 +243,7 @@ class GetMyAllIndividualTrainingsTest {
 
             doThrow(IllegalStateException.class)
                     .when(userIndividualTrainingService)
-                    .getMyAllTrainings(userId);
+                    .getMyAllTrainings(userId, startDate, endDate);
             request = getValidRequest(adminToken, testedLocale);
             expectedMessage = messages.get("exception.internal.error");
 
@@ -277,7 +299,7 @@ class GetMyAllIndividualTrainingsTest {
             Locale testedLocale = convertEnumToLocale(country);
 
             String userId = UUID.randomUUID().toString();
-            uri = getUri(userId);
+            uri = getUri(userId, startDate, endDate);
             request = getValidRequest(userToken, testedLocale);
             expectedMessage = messages.get("exception.access.denied");
 

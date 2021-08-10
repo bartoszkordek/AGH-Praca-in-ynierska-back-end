@@ -13,6 +13,7 @@ import com.healthy.gym.trainings.exception.occupied.TrainerOccupiedException;
 import com.healthy.gym.trainings.model.request.IndividualTrainingRequest;
 import com.healthy.gym.trainings.model.response.IndividualTrainingResponse;
 import com.healthy.gym.trainings.service.individual.training.UserIndividualTrainingService;
+import com.healthy.gym.trainings.validation.ValidDateFormat;
 import com.healthy.gym.trainings.validation.ValidIDFormat;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -48,13 +49,21 @@ public class UserIndividualTrainingController {
 
     @PreAuthorize("hasRole('ADMIN') or hasRole('EMPLOYEE') or principal==#userId")
     @GetMapping
-    public List<IndividualTrainingDTO> getMyAllIndividualTrainings(@PathVariable final String userId) {
+    public List<IndividualTrainingDTO> getMyAllIndividualTrainings(
+            @PathVariable @ValidIDFormat final String userId,
+            @RequestParam @ValidDateFormat final String startDate,
+            @RequestParam @ValidDateFormat final String endDate
+    ) {
         try {
-            return userIndividualTrainingService.getMyAllTrainings(userId);
+            return userIndividualTrainingService.getMyAllTrainings(userId, startDate, endDate);
 
         } catch (NoIndividualTrainingFoundException exception) {
             String reason = translator.toLocale("exception.no.individual.training.found");
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, reason, exception);
+
+        } catch (StartDateAfterEndDateException exception) {
+            String reason = translator.toLocale("exception.start.date.after.end.date");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, exception);
 
         } catch (UserNotFoundException exception) {
             String reason = translator.toLocale(EXCEPTION_NOT_FOUND_USER_ID);

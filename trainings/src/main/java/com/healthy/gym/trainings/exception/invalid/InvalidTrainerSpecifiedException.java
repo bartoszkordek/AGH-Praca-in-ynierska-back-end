@@ -1,6 +1,6 @@
 package com.healthy.gym.trainings.exception.invalid;
 
-public class InvalidTrainerSpecifiedException extends RuntimeException {
+public class InvalidTrainerSpecifiedException extends Exception {
 
     public InvalidTrainerSpecifiedException() {
     }

@@ -1,8 +1,8 @@
 package com.healthy.gym.trainings.service.individual.training;
 
 import com.healthy.gym.trainings.dto.IndividualTrainingDTO;
-import com.healthy.gym.trainings.exception.PastDateException;
-import com.healthy.gym.trainings.exception.StartDateAfterEndDateException;
+import com.healthy.gym.trainings.exception.*;
+import com.healthy.gym.trainings.exception.invalid.InvalidTrainerSpecifiedException;
 import com.healthy.gym.trainings.exception.notexisting.NotExistingIndividualTrainingException;
 import com.healthy.gym.trainings.exception.notfound.NoIndividualTrainingFoundException;
 import com.healthy.gym.trainings.exception.notfound.TrainerNotFoundException;
@@ -14,14 +14,22 @@ import java.util.List;
 
 public interface UserIndividualTrainingService {
 
-    List<IndividualTrainingDTO> getMyAllTrainings(String clientId)
-            throws NoIndividualTrainingFoundException, UserNotFoundException;
+    List<IndividualTrainingDTO> getMyAllTrainings(String clientId, String startDateTime, String endDateTime)
+            throws NoIndividualTrainingFoundException, UserNotFoundException, StartDateAfterEndDateException;
 
     IndividualTrainingDTO createIndividualTrainingRequest(
             IndividualTrainingRequest individualTrainingsRequestModel, String clientId
-    ) throws PastDateException, StartDateAfterEndDateException, TrainerOccupiedException,
-            TrainerNotFoundException, UserNotFoundException;
+    ) throws PastDateException,
+            StartDateAfterEndDateException,
+            TrainerOccupiedException,
+            TrainerNotFoundException,
+            UserNotFoundException, InvalidTrainerSpecifiedException;
 
     IndividualTrainingDTO cancelIndividualTrainingRequest(String trainingId, String clientId)
-            throws NotExistingIndividualTrainingException, UserNotFoundException, PastDateException;
+            throws NotExistingIndividualTrainingException,
+            UserNotFoundException,
+            PastDateException,
+            UserIsNotParticipantException,
+            IndividualTrainingHasBeenRejectedException,
+            AlreadyCancelledIndividualTrainingException;
 }

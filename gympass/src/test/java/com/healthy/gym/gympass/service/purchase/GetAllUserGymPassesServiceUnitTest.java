@@ -22,6 +22,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
@@ -210,5 +211,20 @@ class GetAllUserGymPassesServiceUnitTest {
                 .isEqualTo(purchasedGymPassResponse.get(1));
         assertThat(purchaseService.getAllUserGymPasses(userId, null, null).get(2))
                 .isEqualTo(purchasedGymPassResponse.get(2));
+    }
+
+    @Test
+    void shouldNotGetUserGymPasses_whenInvalidId() throws UserNotFoundException{
+        //before
+        String invalidUserId = UUID.randomUUID().toString();
+
+        //when
+        when(userDAO.findByUserId(invalidUserId))
+                .thenReturn(null);
+
+        //then
+        assertThatThrownBy(() ->
+                purchaseService.getAllUserGymPasses(invalidUserId, null, null)
+        ).isInstanceOf(UserNotFoundException.class);
     }
 }

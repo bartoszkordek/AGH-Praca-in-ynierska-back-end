@@ -115,6 +115,7 @@ public class GetAllUserGymPassesUnitTest {
             LocalDate endDate1 = LocalDate.now().plusMonths(1);
             LocalDate endDate2 = LocalDate.now().plusMonths(3);
             int entries = Integer.MAX_VALUE;
+            LocalDate suspensionDate2 = LocalDate.now().plusDays(5);
 
             PurchasedUserGymPassDTO purchasedUserGymPassDTO1 = new PurchasedUserGymPassDTO(
                     purchasedGymPassDocumentId1,
@@ -133,7 +134,7 @@ public class GetAllUserGymPassesUnitTest {
                     startDate,
                     endDate2,
                     entries,
-                    null
+                    suspensionDate2
             );
 
             List<PurchasedUserGymPassDTO> purchasedUserGymPassDTOs = List.of(
@@ -157,7 +158,7 @@ public class GetAllUserGymPassesUnitTest {
                             jsonPath("$.[0].startDate").value(is(startDate.toString())),
                             jsonPath("$.[0].endDate").value(is(endDate1.toString())),
                             jsonPath("$.[0].entries").value(is(entries)),
-                            jsonPath("$.[1].suspensionDate").doesNotExist(),
+                            jsonPath("$.[0].suspensionDate").doesNotExist(),
                             jsonPath("$.[1].purchasedGymPassDocumentId").value(is(purchasedGymPassDocumentId2)),
                             jsonPath("$.[1].gymPassOffer.title").value(is(title2)),
                             jsonPath("$.[1].gymPassOffer.price.amount").value(is(amount2)),
@@ -167,7 +168,7 @@ public class GetAllUserGymPassesUnitTest {
                             jsonPath("$.[1].startDate").value(is(startDate.toString())),
                             jsonPath("$.[1].endDate").value(is(endDate2.toString())),
                             jsonPath("$.[1].entries").value(is(entries)),
-                            jsonPath("$.[1].suspensionDate").doesNotExist()
+                            jsonPath("$.[1].suspensionDate").value(is(suspensionDate2.toString()))
 
                     ));
         }

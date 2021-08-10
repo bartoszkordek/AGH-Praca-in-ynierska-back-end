@@ -10,6 +10,7 @@ import com.healthy.gym.trainings.dto.IndividualTrainingDTO;
 import com.healthy.gym.trainings.dto.ParticipantsDTO;
 import com.healthy.gym.trainings.exception.PastDateException;
 import com.healthy.gym.trainings.exception.StartDateAfterEndDateException;
+import com.healthy.gym.trainings.exception.invalid.InvalidTrainerSpecifiedException;
 import com.healthy.gym.trainings.exception.notfound.TrainerNotFoundException;
 import com.healthy.gym.trainings.exception.notfound.UserNotFoundException;
 import com.healthy.gym.trainings.exception.occupied.TrainerOccupiedException;
@@ -279,6 +280,21 @@ class CreateIndividualTrainingRequestTest {
                             assertThat(Objects.requireNonNull(result.getResolvedException()).getCause())
                                     .isInstanceOf(expectedException)
                     );
+        }
+
+        @ParameterizedTest
+        @EnumSource(TestCountry.class)
+        void shouldThrowInvalidTrainerSpecifiedException(TestCountry country) throws Exception {
+            Map<String, String> messages = getMessagesAccordingToLocale(country);
+            Locale testedLocale = convertEnumToLocale(country);
+
+            doThrow(InvalidTrainerSpecifiedException.class)
+                    .when(userIndividualTrainingService)
+                    .createIndividualTrainingRequest(individualTrainingsRequestModel, userId);
+            request = getValidRequest(userToken, testedLocale);
+            expectedMessage = messages.get("exception.invalid.trainer.specified");
+
+            performRequestAndTestErrorResponse(status().isBadRequest(), InvalidTrainerSpecifiedException.class);
         }
 
         @ParameterizedTest

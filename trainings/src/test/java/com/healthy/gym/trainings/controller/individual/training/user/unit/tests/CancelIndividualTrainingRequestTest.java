@@ -6,7 +6,10 @@ import com.healthy.gym.trainings.controller.individual.training.UserIndividualTr
 import com.healthy.gym.trainings.dto.BasicUserInfoDTO;
 import com.healthy.gym.trainings.dto.IndividualTrainingDTO;
 import com.healthy.gym.trainings.dto.ParticipantsDTO;
+import com.healthy.gym.trainings.exception.AlreadyCancelledIndividualTrainingException;
+import com.healthy.gym.trainings.exception.IndividualTrainingHasBeenRejectedException;
 import com.healthy.gym.trainings.exception.PastDateException;
+import com.healthy.gym.trainings.exception.UserIsNotParticipantException;
 import com.healthy.gym.trainings.exception.notexisting.NotExistingIndividualTrainingException;
 import com.healthy.gym.trainings.exception.notfound.UserNotFoundException;
 import com.healthy.gym.trainings.service.individual.training.UserIndividualTrainingService;
@@ -204,6 +207,40 @@ class CancelIndividualTrainingRequestTest {
 
         @ParameterizedTest
         @EnumSource(TestCountry.class)
+        void shouldThrowAlreadyCancelledIndividualTrainingException(TestCountry country) throws Exception {
+            Map<String, String> messages = getMessagesAccordingToLocale(country);
+            Locale testedLocale = convertEnumToLocale(country);
+
+            doThrow(AlreadyCancelledIndividualTrainingException.class)
+                    .when(userIndividualTrainingService)
+                    .cancelIndividualTrainingRequest(trainingId, userId);
+            request = getValidRequest(adminToken, testedLocale);
+            expectedMessage = messages.get("exception.already.cancelled.individual.training");
+
+            performRequestAndTestErrorResponse(status().isBadRequest(),
+                    AlreadyCancelledIndividualTrainingException.class);
+        }
+
+        @ParameterizedTest
+        @EnumSource(TestCountry.class)
+        void shouldThrowIndividualTrainingHasBeenRejectedException(TestCountry country) throws Exception {
+            Map<String, String> messages = getMessagesAccordingToLocale(country);
+            Locale testedLocale = convertEnumToLocale(country);
+
+            doThrow(IndividualTrainingHasBeenRejectedException.class)
+                    .when(userIndividualTrainingService)
+                    .cancelIndividualTrainingRequest(trainingId, userId);
+            request = getValidRequest(adminToken, testedLocale);
+            expectedMessage = messages.get("exception.already.rejected.individual.training");
+
+            performRequestAndTestErrorResponse(
+                    status().isBadRequest(),
+                    IndividualTrainingHasBeenRejectedException.class
+            );
+        }
+
+        @ParameterizedTest
+        @EnumSource(TestCountry.class)
         void shouldThrowNotExistingIndividualTrainingException(TestCountry country) throws Exception {
             Map<String, String> messages = getMessagesAccordingToLocale(country);
             Locale testedLocale = convertEnumToLocale(country);
@@ -230,6 +267,24 @@ class CancelIndividualTrainingRequestTest {
             expectedMessage = messages.get("exception.not.found.user.id");
 
             performRequestAndTestErrorResponse(status().isNotFound(), UserNotFoundException.class);
+        }
+
+        @ParameterizedTest
+        @EnumSource(TestCountry.class)
+        void shouldThrowUserIsNotParticipantException(TestCountry country) throws Exception {
+            Map<String, String> messages = getMessagesAccordingToLocale(country);
+            Locale testedLocale = convertEnumToLocale(country);
+
+            doThrow(UserIsNotParticipantException.class)
+                    .when(userIndividualTrainingService)
+                    .cancelIndividualTrainingRequest(trainingId, userId);
+            request = getValidRequest(adminToken, testedLocale);
+            expectedMessage = messages.get("exception.user.is.not.participant");
+
+            performRequestAndTestErrorResponse(
+                    status().isBadRequest(),
+                    UserIsNotParticipantException.class
+            );
         }
 
         @ParameterizedTest

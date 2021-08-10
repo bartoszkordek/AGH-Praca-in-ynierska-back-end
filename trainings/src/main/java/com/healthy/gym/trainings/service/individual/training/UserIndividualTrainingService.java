@@ -23,7 +23,8 @@ public interface UserIndividualTrainingService {
             StartDateAfterEndDateException,
             TrainerOccupiedException,
             TrainerNotFoundException,
-            UserNotFoundException, InvalidTrainerSpecifiedException;
+            UserNotFoundException,
+            InvalidTrainerSpecifiedException;
 
     IndividualTrainingDTO cancelIndividualTrainingRequest(String trainingId, String clientId)
             throws NotExistingIndividualTrainingException,

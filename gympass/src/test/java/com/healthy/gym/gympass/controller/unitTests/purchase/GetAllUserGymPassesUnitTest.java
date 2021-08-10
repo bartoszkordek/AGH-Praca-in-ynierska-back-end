@@ -3,11 +3,6 @@ package com.healthy.gym.gympass.controller.unitTests.purchase;
 import com.healthy.gym.gympass.configuration.TestCountry;
 import com.healthy.gym.gympass.configuration.TestRoleTokenFactory;
 import com.healthy.gym.gympass.controller.PurchaseController;
-import com.healthy.gym.gympass.data.document.GymPassDocument;
-import com.healthy.gym.gympass.data.document.PurchasedGymPassDocument;
-import com.healthy.gym.gympass.data.document.UserDocument;
-import com.healthy.gym.gympass.dto.BasicUserInfoDTO;
-import com.healthy.gym.gympass.dto.PurchasedGymPassDTO;
 import com.healthy.gym.gympass.dto.PurchasedUserGymPassDTO;
 import com.healthy.gym.gympass.dto.SimpleGymPassDTO;
 import com.healthy.gym.gympass.exception.NoGymPassesException;
@@ -26,13 +21,11 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.RequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.testcontainers.shaded.com.fasterxml.jackson.core.JsonProcessingException;
 
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 import static com.healthy.gym.gympass.configuration.LocaleConverter.convertEnumToLocale;
@@ -272,7 +265,37 @@ public class GetAllUserGymPassesUnitTest {
                     );
         }
 
-    }
+        @ParameterizedTest
+        @EnumSource(TestCountry.class)
+        void shouldThrowIllegalStateExceptionWhenInternalErrorOccurs(TestCountry country)
+                throws Exception {
+            Map<String, String> messages = getMessagesAccordingToLocale(country);
+            Locale testedLocale = convertEnumToLocale(country);
 
+            String userId = UUID.randomUUID().toString();
+
+            RequestBuilder request = MockMvcRequestBuilders
+                    .get(uri+userId)
+                    .header("Accept-Language", testedLocale.toString())
+                    .header("Authorization", managerToken)
+                    .contentType(MediaType.APPLICATION_JSON);
+
+            doThrow(IllegalStateException.class)
+                    .when(purchaseService)
+                    .getAllUserGymPasses(userId, null, null);
+
+            String expectedMessage = messages.get("exception.internal.error");
+
+            mockMvc.perform(request)
+                    .andDo(print())
+                    .andExpect(status().isInternalServerError())
+                    .andExpect(status().reason(is(expectedMessage)))
+                    .andExpect(result ->
+                            assertThat(Objects.requireNonNull(result.getResolvedException()).getCause())
+                                    .isInstanceOf(IllegalStateException.class)
+                    );
+        }
+
+    }
 
 }

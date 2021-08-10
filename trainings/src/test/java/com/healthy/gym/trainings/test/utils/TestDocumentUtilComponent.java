@@ -1,9 +1,6 @@
 package com.healthy.gym.trainings.test.utils;
 
-import com.healthy.gym.trainings.data.document.GroupTrainingDocument;
-import com.healthy.gym.trainings.data.document.LocationDocument;
-import com.healthy.gym.trainings.data.document.TrainingTypeDocument;
-import com.healthy.gym.trainings.data.document.UserDocument;
+import com.healthy.gym.trainings.data.document.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.stereotype.Component;
@@ -41,6 +38,10 @@ public class TestDocumentUtilComponent {
         return mongoTemplate.save(getTestTrainer());
     }
 
+    public UserDocument saveAndGetTestTrainer(String userId) {
+        return mongoTemplate.save(getTestTrainer(userId));
+    }
+
     public LocationDocument saveAndGetTestLocation() {
         return mongoTemplate.save(getTestLocation());
     }
@@ -71,10 +72,23 @@ public class TestDocumentUtilComponent {
     }
 
     public List<UserDocument> getTestListOfSavedUserDocuments(int numberOfUserDocuments) {
-        if (numberOfUserDocuments <= 0) throw new IllegalArgumentException("Number of users must be greater than 0.");
+        if (numberOfUserDocuments <= 0) {
+            throw new IllegalArgumentException("Number of users must be greater than 0.");
+        }
         List<UserDocument> list = new ArrayList<>(numberOfUserDocuments);
         for (int i = 0; i < numberOfUserDocuments; i++) {
             list.add(saveAndGetTestUser());
+        }
+        return list;
+    }
+
+    public List<UserDocument> getTestListOfSavedTrainersDocuments(int numberOfUserDocuments) {
+        if (numberOfUserDocuments <= 0) {
+            throw new IllegalArgumentException("Number of users must be greater than 0.");
+        }
+        List<UserDocument> list = new ArrayList<>(numberOfUserDocuments);
+        for (int i = 0; i < numberOfUserDocuments; i++) {
+            list.add(saveAndGetTestTrainer());
         }
         return list;
     }
@@ -133,5 +147,80 @@ public class TestDocumentUtilComponent {
                 reserveList
         );
         return mongoTemplate.save(groupTrainingDocument);
+    }
+
+    public IndividualTrainingDocument saveAndGetTestIndividualTraining(
+            TrainingTypeDocument savedTrainingTypeDocument,
+            List<UserDocument> savedBasicList,
+            List<UserDocument> savedTrainersList,
+            String startDate,
+            String endDate,
+            LocationDocument savedLocationDocument,
+            String remarks,
+            boolean isAccepted
+    ) {
+        IndividualTrainingDocument trainingDocument = getTestIndividualTraining(
+                savedTrainingTypeDocument,
+                savedBasicList,
+                savedTrainersList,
+                startDate,
+                endDate,
+                savedLocationDocument,
+                remarks
+        );
+        trainingDocument.setAccepted(isAccepted);
+        return mongoTemplate.save(trainingDocument);
+    }
+
+    public IndividualTrainingDocument saveAndGetTestIndividualTraining(
+            String startDateTime,
+            String endDateTime,
+            boolean isAccepted
+    ) {
+        return saveAndGetTestIndividualTraining(
+                saveAndGetTestTrainingType(),
+                getTestListOfSavedUserDocuments(5),
+                getTestListOfSavedTrainersDocuments(1),
+                startDateTime,
+                endDateTime,
+                saveAndGetTestLocation(),
+                getTestRemarks(),
+                isAccepted
+        );
+    }
+
+    public IndividualTrainingDocument saveAndGetTestIndividualTraining(
+            String startDateTime,
+            String endDateTime
+    ) {
+        return saveAndGetTestIndividualTraining(
+                saveAndGetTestTrainingType(),
+                getTestListOfSavedUserDocuments(5),
+                getTestListOfSavedTrainersDocuments(1),
+                startDateTime,
+                endDateTime,
+                saveAndGetTestLocation(),
+                getTestRemarks(),
+                false
+        );
+    }
+
+    public IndividualTrainingDocument saveAndGetTestIndividualTraining(
+            String startDateTime,
+            String endDateTime,
+            UserDocument savedUserDocument
+    ) {
+        List<UserDocument> userList = getTestListOfSavedUserDocuments(5);
+        userList.add(savedUserDocument);
+        return saveAndGetTestIndividualTraining(
+                saveAndGetTestTrainingType(),
+                userList,
+                getTestListOfSavedTrainersDocuments(1),
+                startDateTime,
+                endDateTime,
+                saveAndGetTestLocation(),
+                getTestRemarks(),
+                false
+        );
     }
 }

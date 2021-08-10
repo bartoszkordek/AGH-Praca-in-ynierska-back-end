@@ -1,24 +1,35 @@
 package com.healthy.gym.trainings.service.individual.training;
 
-import com.healthy.gym.trainings.data.document.IndividualTrainings;
-import com.healthy.gym.trainings.data.repository.IndividualTrainingsRepository;
+import com.healthy.gym.trainings.data.document.IndividualTrainingDocument;
+import com.healthy.gym.trainings.data.repository.individual.training.IndividualTrainingRepository;
 import com.healthy.gym.trainings.dto.IndividualTrainingDTO;
 import com.healthy.gym.trainings.exception.StartDateAfterEndDateException;
 import com.healthy.gym.trainings.exception.notexisting.NotExistingIndividualTrainingException;
 import com.healthy.gym.trainings.exception.notfound.NoIndividualTrainingFoundException;
+import com.healthy.gym.trainings.utils.IndividualTrainingMapper;
+import com.healthy.gym.trainings.utils.StartEndDateValidator;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+import static com.healthy.gym.trainings.utils.IndividualTrainingMapper.mapIndividualTrainingDocumentToDTO;
 
 @Service
 public class EmployeeIndividualTrainingServiceImpl implements EmployeeIndividualTrainingService {
 
-    private final IndividualTrainingsRepository individualTrainingsRepository;
+    private final IndividualTrainingRepository individualTrainingRepository;
 
     @Autowired
-    public EmployeeIndividualTrainingServiceImpl(IndividualTrainingsRepository individualTrainingsRepository) {
-        this.individualTrainingsRepository = individualTrainingsRepository;
+    public EmployeeIndividualTrainingServiceImpl(IndividualTrainingRepository individualTrainingRepository) {
+        this.individualTrainingRepository = individualTrainingRepository;
     }
 
     @Override
@@ -28,8 +39,22 @@ public class EmployeeIndividualTrainingServiceImpl implements EmployeeIndividual
             final int page,
             final int size
     ) throws StartDateAfterEndDateException, NoIndividualTrainingFoundException {
-        //return individualTrainingsRepository.findAll();
-        return List.of();
+
+        StartEndDateValidator validator = new StartEndDateValidator(startDate, endDate);
+        LocalDateTime startDateTime = validator.getBeginningOfStartDate();
+        LocalDateTime endDateTime = validator.getEndOfEndDate();
+
+        Pageable pageable = PageRequest.of(page, size, Sort.by("startDateTime"));
+        Page<IndividualTrainingDocument> individualTrainingDocuments = individualTrainingRepository
+                .findAllByStartDateTimeIsAfterAndEndDateTimeIsBefore(startDateTime, endDateTime, pageable);
+
+        List<IndividualTrainingDocument> trainingDocumentList = individualTrainingDocuments.getContent();
+        if (trainingDocumentList.isEmpty()) throw new NoIndividualTrainingFoundException();
+
+        return trainingDocumentList
+                .stream()
+                .map(IndividualTrainingMapper::mapIndividualTrainingDocumentToDTO)
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -37,11 +62,13 @@ public class EmployeeIndividualTrainingServiceImpl implements EmployeeIndividual
             final String trainingId
     ) throws NotExistingIndividualTrainingException {
 
-        IndividualTrainings individualTraining = individualTrainingsRepository
-                .findIndividualTrainingsById(trainingId);
-        if (individualTraining == null) throw new NotExistingIndividualTrainingException();
-        //return individualTraining;
-        return null;
+        Optional<IndividualTrainingDocument> training = individualTrainingRepository
+                .findByIndividualTrainingId(trainingId);
+
+        IndividualTrainingDocument trainingDocument = training
+                .orElseThrow(NotExistingIndividualTrainingException::new);
+
+        return mapIndividualTrainingDocumentToDTO(trainingDocument);
     }
 
     @Override
@@ -51,7 +78,22 @@ public class EmployeeIndividualTrainingServiceImpl implements EmployeeIndividual
             final int page,
             final int size
     ) throws StartDateAfterEndDateException, NoIndividualTrainingFoundException {
-        //return individualTrainingsRepository.findAllByAccepted(true);
-        return List.of();
+
+        StartEndDateValidator validator = new StartEndDateValidator(startDate, endDate);
+        LocalDateTime startDateTime = validator.getBeginningOfStartDate();
+        LocalDateTime endDateTime = validator.getEndOfEndDate();
+
+        Pageable pageable = PageRequest.of(page, size, Sort.by("startDateTime"));
+        Page<IndividualTrainingDocument> individualTrainingDocuments = individualTrainingRepository
+                .findAllByStartDateTimeIsAfterAndEndDateTimeIsBeforeAndAcceptedIsTrue(
+                        startDateTime, endDateTime, pageable);
+
+        List<IndividualTrainingDocument> trainingDocumentList = individualTrainingDocuments.getContent();
+        if (trainingDocumentList.isEmpty()) throw new NoIndividualTrainingFoundException();
+
+        return trainingDocumentList
+                .stream()
+                .map(IndividualTrainingMapper::mapIndividualTrainingDocumentToDTO)
+                .collect(Collectors.toList());
     }
 }

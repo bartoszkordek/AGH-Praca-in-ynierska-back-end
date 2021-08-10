@@ -20,11 +20,11 @@ public class ManagerGroupTrainingRequest {
     private List<String> trainerIds;
 
     @NotNull(message = "{field.required}")
-    @ValidDateTimeFormat(message = "{field.invalid.date.time.format}")
+    @ValidDateTimeFormat
     private String startDate;
 
     @NotNull(message = "{field.required}")
-    @ValidDateTimeFormat(message = "{field.invalid.date.time.format}")
+    @ValidDateTimeFormat
     private String endDate;
 
     @NotNull(message = "{field.required}")

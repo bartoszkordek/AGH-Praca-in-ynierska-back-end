@@ -8,7 +8,7 @@ public class PageNumberValidator implements ConstraintValidator<ValidPageNumber,
     public boolean isValid(String value, ConstraintValidatorContext context) {
         try {
             int number = Integer.parseInt(value);
-            return number > 0;
+            return number >= 0;
         } catch (Exception e) {
             return false;
         }

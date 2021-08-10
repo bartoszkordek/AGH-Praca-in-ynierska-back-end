@@ -1,62 +1,87 @@
 package com.healthy.gym.trainings.model.request;
 
-import com.healthy.gym.trainings.exception.invalid.InvalidDateException;
-import com.healthy.gym.trainings.exception.invalid.InvalidHourException;
-import com.healthy.gym.trainings.utils.DateValidator;
-import com.healthy.gym.trainings.utils.Time24HoursValidator;
-import org.springframework.format.annotation.DateTimeFormat;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.healthy.gym.trainings.validation.ValidDateTimeFormat;
+import com.healthy.gym.trainings.validation.ValidIDFormat;
 
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
+import java.util.Objects;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class IndividualTrainingRequest {
 
-    @NotNull
-    private final String trainerId;
-    @NotNull
-    @DateTimeFormat(pattern = "yyyy-MM-dd")
-    private final String date;
-    @NotNull
-    private final String startTime;
-    @NotNull
-    private final String endTime;
-    private final String remarks;
+    @NotNull(message = "{field.required}")
+    @ValidIDFormat
+    private String trainerId;
 
-    public IndividualTrainingRequest(
-            String trainerId,
-            String date,
-            String startTime,
-            String endTime,
-            String remarks
-    ) throws InvalidDateException, InvalidHourException {
+    @NotNull(message = "{field.required}")
+    @ValidDateTimeFormat
+    private String startDateTime;
 
-        if (!DateValidator.validate(date)) throw new InvalidDateException("Wrong date");
-        if (!Time24HoursValidator.validate(startTime)) throw new InvalidDateException("Wrong date");
-        if (!Time24HoursValidator.validate(endTime)) throw new InvalidHourException("Wrong end time");
+    @NotNull(message = "{field.required}")
+    @ValidDateTimeFormat
+    private String endDateTime;
 
-        this.trainerId = trainerId;
-        this.date = date;
-        this.startTime = startTime;
-        this.endTime = endTime;
-        this.remarks = remarks;
-    }
+    @NotNull(message = "{field.required}")
+    @Size(max = 280, message = "{field.remarks.size}")
+    private String remarks;
 
     public String getTrainerId() {
         return trainerId;
     }
 
-    public String getDate() {
-        return date;
+    public void setTrainerId(String trainerId) {
+        this.trainerId = trainerId;
     }
 
-    public String getStartTime() {
-        return startTime;
+    public String getStartDateTime() {
+        return startDateTime;
     }
 
-    public String getEndTime() {
-        return endTime;
+    public void setStartDateTime(String startDateTime) {
+        this.startDateTime = startDateTime;
+    }
+
+    public String getEndDateTime() {
+        return endDateTime;
+    }
+
+    public void setEndDateTime(String endDateTime) {
+        this.endDateTime = endDateTime;
     }
 
     public String getRemarks() {
         return remarks;
+    }
+
+    public void setRemarks(String remarks) {
+        this.remarks = remarks;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        IndividualTrainingRequest that = (IndividualTrainingRequest) o;
+        return Objects.equals(trainerId, that.trainerId)
+                && Objects.equals(startDateTime, that.startDateTime)
+                && Objects.equals(endDateTime, that.endDateTime)
+                && Objects.equals(remarks, that.remarks);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(trainerId, startDateTime, endDateTime, remarks);
+    }
+
+    @Override
+    public String toString() {
+        return "IndividualTrainingRequest{" +
+                "trainerId='" + trainerId + '\'' +
+                ", startDateTime='" + startDateTime + '\'' +
+                ", endDateTime='" + endDateTime + '\'' +
+                ", remarks='" + remarks + '\'' +
+                '}';
     }
 }

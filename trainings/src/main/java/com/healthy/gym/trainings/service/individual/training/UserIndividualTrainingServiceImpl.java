@@ -1,108 +1,206 @@
 package com.healthy.gym.trainings.service.individual.training;
 
-import com.healthy.gym.trainings.data.document.IndividualTrainings;
+import com.healthy.gym.trainings.data.document.IndividualTrainingDocument;
 import com.healthy.gym.trainings.data.document.UserDocument;
-import com.healthy.gym.trainings.data.repository.IndividualTrainingsRepository;
 import com.healthy.gym.trainings.data.repository.UserDAO;
+import com.healthy.gym.trainings.data.repository.individual.training.IndividualTrainingRepository;
+import com.healthy.gym.trainings.data.repository.individual.training.UserIndividualTrainingDAO;
 import com.healthy.gym.trainings.dto.IndividualTrainingDTO;
-import com.healthy.gym.trainings.exception.PastDateException;
-import com.healthy.gym.trainings.exception.StartDateAfterEndDateException;
+import com.healthy.gym.trainings.enums.GymRole;
+import com.healthy.gym.trainings.exception.*;
+import com.healthy.gym.trainings.exception.invalid.InvalidTrainerSpecifiedException;
 import com.healthy.gym.trainings.exception.notexisting.NotExistingIndividualTrainingException;
+import com.healthy.gym.trainings.exception.notfound.NoIndividualTrainingFoundException;
 import com.healthy.gym.trainings.exception.notfound.TrainerNotFoundException;
 import com.healthy.gym.trainings.exception.notfound.UserNotFoundException;
 import com.healthy.gym.trainings.exception.occupied.TrainerOccupiedException;
 import com.healthy.gym.trainings.model.request.IndividualTrainingRequest;
+import com.healthy.gym.trainings.utils.IndividualTrainingMapper;
+import com.healthy.gym.trainings.utils.StartEndDateValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.time.Clock;
+import java.time.LocalDateTime;
+import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+import java.util.stream.Collectors;
+
+import static com.healthy.gym.trainings.utils.DateParser.parseDateTime;
+import static com.healthy.gym.trainings.utils.IndividualTrainingMapper.mapIndividualTrainingDocumentToDTO;
 
 @Service
 public class UserIndividualTrainingServiceImpl implements UserIndividualTrainingService {
 
-    private final IndividualTrainingsRepository individualTrainingsRepository;
+    private final IndividualTrainingRepository individualTrainingRepository;
+    private final UserIndividualTrainingDAO userIndividualTrainingDAO;
     private final UserDAO userDAO;
+    private final Clock clock;
 
     @Autowired
     public UserIndividualTrainingServiceImpl(
-            IndividualTrainingsRepository individualTrainingsRepository,
-            UserDAO userDAO
+            IndividualTrainingRepository individualTrainingRepository,
+            UserIndividualTrainingDAO userIndividualTrainingDAO,
+            UserDAO userDAO,
+            Clock clock
     ) {
-        this.individualTrainingsRepository = individualTrainingsRepository;
+        this.individualTrainingRepository = individualTrainingRepository;
+        this.userIndividualTrainingDAO = userIndividualTrainingDAO;
         this.userDAO = userDAO;
+        this.clock = clock;
     }
 
     @Override
-    public List<IndividualTrainingDTO> getMyAllTrainings(String clientId) throws UserNotFoundException {
-        UserDocument user = userDAO.findByUserId(clientId);
-        if (user == null) throw new UserNotFoundException();
-        //return individualTrainingsRepository.findIndividualTrainingsByClientIdEquals(clientId);
-        return null;
+    public List<IndividualTrainingDTO> getMyAllTrainings(String clientId, String startDate, String endDate)
+            throws UserNotFoundException, StartDateAfterEndDateException, NoIndividualTrainingFoundException {
+
+        StartEndDateValidator validator = new StartEndDateValidator(startDate, endDate);
+        LocalDateTime startDateTime = validator.getBeginningOfStartDate();
+        LocalDateTime endDateTime = validator.getEndOfEndDate();
+
+        UserDocument user = getAndValidateUser(clientId);
+        List<IndividualTrainingDocument> trainingDocumentList = userIndividualTrainingDAO
+                .findAllIndividualTrainingsWithDatesByUserDocument(user, startDateTime, endDateTime);
+
+        if (trainingDocumentList.isEmpty()) throw new NoIndividualTrainingFoundException();
+
+        return trainingDocumentList
+                .stream()
+                .map(IndividualTrainingMapper::mapIndividualTrainingDocumentToDTO)
+                .collect(Collectors.toList());
     }
 
     @Override
     public IndividualTrainingDTO createIndividualTrainingRequest(
             final IndividualTrainingRequest individualTrainingsRequestModel,
             final String clientId
-    ) throws PastDateException, StartDateAfterEndDateException, TrainerOccupiedException,
-            TrainerNotFoundException, UserNotFoundException {
+    ) throws InvalidTrainerSpecifiedException,
+            PastDateException,
+            StartDateAfterEndDateException,
+            TrainerOccupiedException,
+            TrainerNotFoundException,
+            UserNotFoundException {
 
-        String individualTrainingDate = individualTrainingsRequestModel.getDate();
-        String individualTrainingStartTime = individualTrainingsRequestModel.getStartTime();
-//        if (isTrainingRetroDateAndTime(individualTrainingDate, individualTrainingStartTime)) {
-//            throw new RetroIndividualTrainingException("Retro date");
-//        }
+        UserDocument user = getAndValidateUser(clientId);
+        UserDocument trainer = getAndValidateTrainer(individualTrainingsRequestModel);
 
-        return null;
-//        return individualTrainingsRepository.insert(
-//                new IndividualTrainings(
-//                        clientId,
-//                        individualTrainingsRequestModel.getTrainerId(),
-//                        individualTrainingsRequestModel.getDate(),
-//                        individualTrainingsRequestModel.getStartTime(),
-//                        individualTrainingsRequestModel.getEndTime(),
-//                        -1,
-//                        individualTrainingsRequestModel.getRemarks(),
-//                        false,
-//                        false
-//                )
-//        );
+        LocalDateTime[] localDateTimes =
+                getAndValidateStartDateTimeAndEndDateTime(individualTrainingsRequestModel);
+        LocalDateTime startDateTime = localDateTimes[0];
+        LocalDateTime endDateTime = localDateTimes[1];
+
+        String remarks = individualTrainingsRequestModel.getRemarks();
+        //TODO add trainer occupied validation;
+
+        IndividualTrainingDocument trainingDocument = new IndividualTrainingDocument(
+                UUID.randomUUID().toString(),
+                null,
+                List.of(user),
+                List.of(trainer),
+                startDateTime,
+                endDateTime,
+                null,
+                remarks
+        );
+
+        IndividualTrainingDocument createdTrainingRequest = individualTrainingRepository.save(trainingDocument);
+        return mapIndividualTrainingDocumentToDTO(createdTrainingRequest);
     }
 
-    private boolean isTrainingRetroDateAndTime(String date, String startDate) throws ParseException {
-        String startDateAndTime = date.concat("-").concat(startDate);
-        SimpleDateFormat sdfDateAndTime = new SimpleDateFormat("yyyy-MM-dd-HH:mm");
-        Date requestDateParsed = sdfDateAndTime.parse(startDateAndTime);
+    private UserDocument getAndValidateUser(String userId) throws UserNotFoundException {
+        UserDocument user = userDAO.findByUserId(userId);
+        if (user == null) throw new UserNotFoundException();
+        return user;
+    }
 
-        Date now = new Date();
+    private UserDocument getAndValidateTrainer(IndividualTrainingRequest individualTrainingsRequestModel)
+            throws TrainerNotFoundException, InvalidTrainerSpecifiedException {
+        String trainerId = individualTrainingsRequestModel.getTrainerId();
+        UserDocument trainer = userDAO.findByUserId(trainerId);
+        if (trainer == null) throw new TrainerNotFoundException();
 
-        return requestDateParsed.before(now);
+        Collection<GymRole> trainerRoles = trainer.getGymRoles();
+        if (!trainerRoles.contains(GymRole.TRAINER)) {
+            throw new InvalidTrainerSpecifiedException();
+        }
+        return trainer;
+    }
+
+    private LocalDateTime[] getAndValidateStartDateTimeAndEndDateTime(
+            IndividualTrainingRequest individualTrainingsRequestModel
+    ) throws PastDateException, StartDateAfterEndDateException {
+        String starDateTimeStr = individualTrainingsRequestModel.getStartDateTime();
+        String endDateTimeStr = individualTrainingsRequestModel.getEndDateTime();
+
+        LocalDateTime startDateTime = parseDateTime(starDateTimeStr);
+        if (LocalDateTime.now(clock).isAfter(startDateTime)) throw new PastDateException();
+
+        LocalDateTime endDateTime = parseDateTime(endDateTimeStr);
+        if (startDateTime.isAfter(endDateTime)) throw new StartDateAfterEndDateException();
+
+        return new LocalDateTime[]{startDateTime, endDateTime};
     }
 
     @Override
     public IndividualTrainingDTO cancelIndividualTrainingRequest(String trainingId, String clientId)
-            throws NotExistingIndividualTrainingException, UserNotFoundException, PastDateException {
+            throws
+            NotExistingIndividualTrainingException,
+            UserNotFoundException,
+            PastDateException,
+            UserIsNotParticipantException,
+            IndividualTrainingHasBeenRejectedException,
+            AlreadyCancelledIndividualTrainingException {
 
-        IndividualTrainings individualTraining = individualTrainingsRepository
-                .findIndividualTrainingsById(trainingId);
+        IndividualTrainingDocument individualTraining = getAndValidateIndividualTraining(trainingId);
+        UserDocument user = getAndValidateUser(clientId);
 
-        if (individualTraining == null) throw new NotExistingIndividualTrainingException();
+        validateIfIndividualTrainingIsAboutToTakePlace(individualTraining);
+        validateIfUserIsParticipant(individualTraining, user);
+        validateIfTrainingHasBeenAlreadyRejected(individualTraining);
+        validateIfTrainingHasBeenAlreadyCancelled(individualTraining);
 
-        boolean clientIdEquals = individualTrainingsRepository
-                .existsIndividualTrainingsByIdAndClientIdEquals(trainingId, clientId);
+        IndividualTrainingDocument trainingDocumentUpdated = cancelIndividualTraining(individualTraining);
 
-//        if (!clientIdEquals) throw new NotAuthorizedClientException("Training is not authorized by client");
+        return mapIndividualTrainingDocumentToDTO(trainingDocumentUpdated);
+    }
 
-        String individualTrainingDate = individualTraining.getDate();
-        String individualTrainingStartTime = individualTraining.getStartTime();
-//        if (isTrainingRetroDateAndTime(individualTrainingDate, individualTrainingStartTime)) {
-//            throw new RetroIndividualTrainingException("Retro date");
-//        }
+    private IndividualTrainingDocument getAndValidateIndividualTraining(String trainingId)
+            throws NotExistingIndividualTrainingException {
+        Optional<IndividualTrainingDocument> trainingDocument = individualTrainingRepository
+                .findByIndividualTrainingId(trainingId);
+        return trainingDocument.orElseThrow(NotExistingIndividualTrainingException::new);
+    }
 
-        individualTrainingsRepository.deleteIndividualTrainingsById(trainingId);
-        return null;
+    private void validateIfIndividualTrainingIsAboutToTakePlace(IndividualTrainingDocument individualTraining)
+            throws PastDateException {
+        LocalDateTime startDateTime = individualTraining.getStartDateTime();
+        if (LocalDateTime.now(clock).isAfter(startDateTime)) throw new PastDateException();
+    }
+
+    private void validateIfUserIsParticipant(
+            IndividualTrainingDocument trainingDocument,
+            UserDocument userDocument
+    ) throws UserIsNotParticipantException {
+        List<UserDocument> basicList = trainingDocument.getBasicList();
+        if (!basicList.contains(userDocument)) throw new UserIsNotParticipantException();
+    }
+
+    private void validateIfTrainingHasBeenAlreadyRejected(IndividualTrainingDocument individualTraining)
+            throws IndividualTrainingHasBeenRejectedException {
+        boolean isRejected = individualTraining.isRejected();
+        if (isRejected) throw new IndividualTrainingHasBeenRejectedException();
+    }
+
+    private void validateIfTrainingHasBeenAlreadyCancelled(IndividualTrainingDocument individualTraining)
+            throws AlreadyCancelledIndividualTrainingException {
+        boolean isCancelled = individualTraining.isCancelled();
+        if (isCancelled) throw new AlreadyCancelledIndividualTrainingException();
+    }
+
+    private IndividualTrainingDocument cancelIndividualTraining(IndividualTrainingDocument training) {
+        training.setCancelled(true);
+        return individualTrainingRepository.save(training);
     }
 }

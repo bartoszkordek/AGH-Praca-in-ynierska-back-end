@@ -1,10 +1,7 @@
 package com.healthy.gym.trainings.test.utils;
 
 import com.github.javafaker.Faker;
-import com.healthy.gym.trainings.data.document.GroupTrainingDocument;
-import com.healthy.gym.trainings.data.document.LocationDocument;
-import com.healthy.gym.trainings.data.document.TrainingTypeDocument;
-import com.healthy.gym.trainings.data.document.UserDocument;
+import com.healthy.gym.trainings.data.document.*;
 import com.healthy.gym.trainings.dto.BasicUserInfoDTO;
 import com.healthy.gym.trainings.dto.GroupTrainingDTO;
 import com.healthy.gym.trainings.enums.GymRole;
@@ -50,7 +47,11 @@ public class TestDocumentUtil {
     }
 
     public static UserDocument getTestTrainer() {
-        var user = getTestUser();
+        return getTestTrainer(UUID.randomUUID().toString());
+    }
+
+    public static UserDocument getTestTrainer(String userId) {
+        var user = getTestUser(userId);
         user.setGymRoles(List.of(GymRole.USER, GymRole.TRAINER));
         return user;
     }
@@ -104,7 +105,9 @@ public class TestDocumentUtil {
     }
 
     public static List<UserDocument> getTestListOfUserDocuments(int numberOfUserDocuments) {
-        if (numberOfUserDocuments <= 0) throw new IllegalArgumentException("Number of users must be greater than 0.");
+        if (numberOfUserDocuments <= 0) {
+            throw new IllegalArgumentException("Number of users must be greater than 0.");
+        }
         List<UserDocument> list = new ArrayList<>(numberOfUserDocuments);
         for (int i = 0; i < numberOfUserDocuments; i++) {
             list.add(getTestUser());
@@ -166,4 +169,46 @@ public class TestDocumentUtil {
         );
     }
 
+    public static IndividualTrainingDocument getTestIndividualTraining(
+            TrainingTypeDocument trainingTypeDocument,
+            List<UserDocument> basicList,
+            List<UserDocument> trainersList,
+            String startDateTime,
+            String endDateTime,
+            LocationDocument locationDocument,
+            String remarks
+    ) {
+        String individualTrainingId = UUID.randomUUID().toString();
+        return new IndividualTrainingDocument(
+                individualTrainingId,
+                trainingTypeDocument,
+                basicList,
+                trainersList,
+                LocalDateTime.parse(startDateTime),
+                LocalDateTime.parse(endDateTime),
+                locationDocument,
+                remarks
+        );
+    }
+
+    public static String getTestRemarks() {
+        return faker.lorem().characters(280);
+    }
+
+    public static IndividualTrainingDocument getTestIndividualTraining(
+            String startDateTime,
+            String endDateTime
+    ) {
+        String individualTrainingId = UUID.randomUUID().toString();
+        return new IndividualTrainingDocument(
+                individualTrainingId,
+                getTestTrainingType(),
+                getTestListOfUserDocuments(5),
+                List.of(getTestTrainer()),
+                LocalDateTime.parse(startDateTime),
+                LocalDateTime.parse(endDateTime),
+                getTestLocation(),
+                getTestRemarks()
+        );
+    }
 }

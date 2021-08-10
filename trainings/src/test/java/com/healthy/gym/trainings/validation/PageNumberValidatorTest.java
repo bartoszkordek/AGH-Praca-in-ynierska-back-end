@@ -15,7 +15,7 @@ class PageNumberValidatorTest {
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {"1", "2", "10", "20", "50", "100", "100000", "2147483647"})
+    @ValueSource(strings = {"0", "1", "2", "10", "20", "50", "100", "100000", "2147483647"})
     void shouldReturnTrue(String value) {
         assertThat(pageNumberValidator.isValid(value, null)).isTrue();
     }

@@ -22,6 +22,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.RequestBuilder;
 import org.springframework.test.web.servlet.ResultMatcher;
@@ -234,6 +235,28 @@ class AcceptIndividualTrainingTest {
                             assertThat(Objects.requireNonNull(result.getResolvedException()).getCause())
                                     .isInstanceOf(expectedException)
                     );
+        }
+
+        @ParameterizedTest
+        @EnumSource(TestCountry.class)
+        void shouldThrowAccessDeniedException(TestCountry country) throws Exception {
+            Map<String, String> messages = getMessagesAccordingToLocale(country);
+            Locale testedLocale = convertEnumToLocale(country);
+
+            doThrow(AccessDeniedException.class)
+                    .when(trainerIndividualTrainingService)
+                    .acceptIndividualTraining(trainerId, trainingId, locationId);
+            request = getValidRequest(adminToken, testedLocale);
+            expectedMessage = messages.get("exception.access.denied");
+
+            mockMvc.perform(request)
+                    .andDo(print())
+                    .andExpect(status().isForbidden())
+                    .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(jsonPath("$.message").value(is(expectedMessage)))
+                    .andExpect(jsonPath("$.error").value(is("Forbidden")))
+                    .andExpect(jsonPath("$.status").value(403))
+                    .andExpect(jsonPath("$.timestamp").exists());
         }
 
         @ParameterizedTest

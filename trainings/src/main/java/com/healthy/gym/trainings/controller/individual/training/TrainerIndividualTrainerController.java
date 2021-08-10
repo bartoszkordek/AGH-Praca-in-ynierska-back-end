@@ -15,6 +15,7 @@ import com.healthy.gym.trainings.validation.ValidIDFormat;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -52,6 +53,10 @@ public class TrainerIndividualTrainerController {
             return ResponseEntity
                     .status(HttpStatus.OK)
                     .body(new IndividualTrainingResponse(message, removedEnrolmentTraining));
+
+        } catch (AccessDeniedException exception) {
+            String reason = translator.toLocale("exception.access.denied");
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, reason, exception);
 
         } catch (AlreadyAcceptedIndividualTrainingException exception) {
             String reason = translator.toLocale("exception.already.accepted.individual.training");

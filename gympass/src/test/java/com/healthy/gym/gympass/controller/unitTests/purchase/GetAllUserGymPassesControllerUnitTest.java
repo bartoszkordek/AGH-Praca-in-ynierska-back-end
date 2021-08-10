@@ -40,7 +40,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
 @WebMvcTest(PurchaseController.class)
-public class GetAllUserGymPassesUnitTest {
+public class GetAllUserGymPassesControllerUnitTest {
 
     @Autowired
     private MockMvc mockMvc;

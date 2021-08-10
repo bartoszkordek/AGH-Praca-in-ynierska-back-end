@@ -159,10 +159,10 @@ public class PurchaseServiceImpl implements PurchaseService{
 
         LocalDate startDate = MIN_DATE;
         LocalDate endDate = MAX_DATE;
-        if(startDate != null)
+        if(requestStartDate != null)
             startDate = LocalDate.parse(requestStartDate, DateTimeFormatter.ISO_LOCAL_DATE);
 
-        if(endDate != null)
+        if(requestEndDate != null)
             endDate = LocalDate.parse(requestEndDate, DateTimeFormatter.ISO_LOCAL_DATE);
 
         if(startDate.isAfter(endDate))

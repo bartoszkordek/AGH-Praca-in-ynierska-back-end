@@ -103,7 +103,8 @@ class GetIndividualTrainingByIdIntegrationTest {
                         )
         );
 
-        IndividualTrainingDocument document = testUtil.saveAndGetTestIndividualTraining("2021-01-17T10:10", "2021-01-17T11:00");
+        IndividualTrainingDocument document = testUtil
+                .saveAndGetTestIndividualTraining("2021-01-17T10:10", "2021-01-17T11:00");
         trainingId = document.getIndividualTrainingId();
     }
 
@@ -178,6 +179,4 @@ class GetIndividualTrainingByIdIntegrationTest {
         String expectedMessage = messages.get("exception.not.existing.individual.training");
         assertThat(body.get("message").textValue()).isEqualTo(expectedMessage);
     }
-
-
 }

@@ -30,6 +30,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
 
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -43,7 +44,7 @@ import static org.assertj.core.api.Assertions.assertThat;
         "eureka.client.fetch-registry=false",
         "eureka.client.register-with-eureka=false"
 })
-class GetAllAcceptedIndividualTrainingRequestsIntegrationTest {
+class GetAllIndividualTrainingRequestsIntegrationTest {
 
     @Container
     static MongoDBContainer mongoDBContainer =
@@ -138,6 +139,15 @@ class GetAllAcceptedIndividualTrainingRequestsIntegrationTest {
         return headers;
     }
 
+    private URI getUri(String startDate, String endDate, String pageNumber, String pageSize)
+            throws URISyntaxException {
+        return new URI("http://localhost:" + port + "/individual/employee"
+                + "?startDate=" + startDate
+                + "&endDate=" + endDate
+                + "&pageNumber=" + pageNumber
+                + "&pageSize=" + pageSize
+        );
+    }
 
     @ParameterizedTest
     @CsvSource({
@@ -152,15 +162,10 @@ class GetAllAcceptedIndividualTrainingRequestsIntegrationTest {
             String startDate,
             String endDate,
             String pageNumber,
-            String sizeNumber,
+            String pageSize,
             long expectedNumberOfTrainingsWithinDates
     ) throws Exception {
-        uri = new URI("http://localhost:" + port + "/individual/employee"
-                + "?startDate=" + startDate
-                + "&endDate=" + endDate
-                + "&pageNumber=" + pageNumber
-                + "&pageSize=" + sizeNumber
-        );
+        uri = getUri(startDate, endDate, pageNumber, pageSize);
         ResponseEntity<JsonNode> responseEntity = performAuthRequest(uri);
 
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
@@ -187,14 +192,9 @@ class GetAllAcceptedIndividualTrainingRequestsIntegrationTest {
             String startDate,
             String endDate,
             String pageNumber,
-            String sizeNumber
+            String pageSize
     ) throws Exception {
-        uri = new URI("http://localhost:" + port + "/individual/employee"
-                + "?startDate=" + startDate
-                + "&endDate=" + endDate
-                + "&pageNumber=" + pageNumber
-                + "&pageSize=" + sizeNumber
-        );
+        uri = getUri(startDate, endDate, pageNumber, pageSize);
         ResponseEntity<JsonNode> responseEntity = performAuthRequest(uri);
 
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
@@ -216,14 +216,9 @@ class GetAllAcceptedIndividualTrainingRequestsIntegrationTest {
             String startDate,
             String endDate,
             String pageNumber,
-            String sizeNumber
+            String pageSize
     ) throws Exception {
-        uri = new URI("http://localhost:" + port + "/individual/employee"
-                + "?startDate=" + startDate
-                + "&endDate=" + endDate
-                + "&pageNumber=" + pageNumber
-                + "&pageSize=" + sizeNumber
-        );
+        uri = getUri(startDate, endDate, pageNumber, pageSize);
         ResponseEntity<JsonNode> responseEntity = performAuthRequest(uri);
 
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);

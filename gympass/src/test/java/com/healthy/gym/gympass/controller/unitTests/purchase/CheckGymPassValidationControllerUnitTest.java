@@ -79,7 +79,7 @@ public class CheckGymPassValidationControllerUnitTest {
         notValidTimeValidPurchasedGymPassDocumentId = UUID.randomUUID().toString();
         notValidEntriesValidPurchasedGymPassDocumentId = UUID.randomUUID().toString();
 
-        uri = new URI("/purchase/valid");
+        uri = new URI("/purchase/status");
     }
 
     @Nested

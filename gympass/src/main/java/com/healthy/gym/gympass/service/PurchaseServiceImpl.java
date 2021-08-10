@@ -22,6 +22,7 @@ import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 public class PurchaseServiceImpl implements PurchaseService{
@@ -149,6 +150,17 @@ public class PurchaseServiceImpl implements PurchaseService{
 
     @Override
     public List<PurchasedUserGymPassDTO> getAllUserGymPasses(String userId) throws UserNotFoundException, NoGymPassesException {
-        return null;
+
+        UserDocument userDocument = userDAO.findByUserId(userId);
+        if(userDocument == null) throw  new UserNotFoundException("User not exist");
+
+        List<PurchasedGymPassDocument> purchasedGymPassDocuments = purchasedGymPassDAO.findAllByUser(userDocument);
+
+        if(purchasedGymPassDocuments == null) throw new NoGymPassesException("No gympasses to display");
+
+        return purchasedGymPassDocuments
+                .stream()
+                .map(purchasedGymPassDocument -> modelMapper.map(purchasedGymPassDocument, PurchasedUserGymPassDTO.class))
+                .collect(Collectors.toList());
     }
 }

@@ -14,27 +14,18 @@ public class PurchasedGymPassStatusValidationResultDTO {
 
     public PurchasedGymPassStatusValidationResultDTO(){}
 
-    //for time valid gympass
     public PurchasedGymPassStatusValidationResultDTO(
             boolean valid,
             String endDate,
+            int entries,
             String suspensionDate
     ){
         this.valid = valid;
         this.endDate = endDate;
+        this.entries = entries;
         this.suspensionDate = suspensionDate;
     }
 
-    //for entries valid gympass
-    public PurchasedGymPassStatusValidationResultDTO(
-            boolean valid,
-            String suspensionDate,
-            int entries
-    ){
-        this.valid = valid;
-        this.suspensionDate = suspensionDate;
-        this.entries = entries;
-    }
 
     public boolean isValid() {
         return valid;

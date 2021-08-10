@@ -120,6 +120,7 @@ class CheckGymPassValidationServiceUnitTest {
                 = new PurchasedGymPassStatusValidationResultDTO(
                    true,
                 endDate,
+                Integer.MAX_VALUE,
                 null
         );
 
@@ -139,6 +140,7 @@ class CheckGymPassValidationServiceUnitTest {
                 = new PurchasedGymPassStatusValidationResultDTO(
                 false,
                 endDateForSuspendedDocuments,
+                Integer.MAX_VALUE,
                 suspensionDate
         );
 
@@ -158,6 +160,7 @@ class CheckGymPassValidationServiceUnitTest {
                 = new PurchasedGymPassStatusValidationResultDTO(
                 false,
                 LocalDate.now().minusDays(1).format(DateTimeFormatter.ISO_LOCAL_DATE),
+                Integer.MAX_VALUE,
                 LocalDate.parse(suspensionDate, DateTimeFormatter.ISO_LOCAL_DATE)
                         .minusDays(10).format(DateTimeFormatter.ISO_LOCAL_DATE)
         );
@@ -178,8 +181,9 @@ class CheckGymPassValidationServiceUnitTest {
         notSuspendedEntriesTypePurchasedGymPassDTO
                 = new PurchasedGymPassStatusValidationResultDTO(
                 true,
-                null,
-                entriesTypeEntries
+                endDateForEntriesTypeDocuments ,
+                entriesTypeEntries,
+                null
         );
 
         suspendedEntriesTypeGymPassDocumentId = UUID.randomUUID().toString();
@@ -197,8 +201,10 @@ class CheckGymPassValidationServiceUnitTest {
         suspendedEntriesTypePurchasedGymPassDTO
                 = new PurchasedGymPassStatusValidationResultDTO(
                 false,
-                suspensionDate,
-                entriesTypeEntries
+                endDateForEntriesTypeDocuments,
+                entriesTypeEntries,
+                suspensionDate
+
         );
     }
 

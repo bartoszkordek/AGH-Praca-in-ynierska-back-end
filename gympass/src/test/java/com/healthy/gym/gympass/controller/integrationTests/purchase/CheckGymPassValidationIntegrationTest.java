@@ -70,6 +70,9 @@ class CheckGymPassValidationIntegrationTest {
     private String entriesLimitedPurchasedGymPassDocumentId;
     private String alreadySuspendedEntriesLimitedPurchasedGymPassDocumentId;
 
+    private String endDateForEntriesLimitedDocuments;
+    private int entriesTimeLimitedGymPass;
+
     @DynamicPropertySource
     static void setProperties(DynamicPropertyRegistry registry) {
         registry.add("spring.data.mongodb.uri", mongoDBContainer::getReplicaSetUrl);
@@ -123,7 +126,7 @@ class CheckGymPassValidationIntegrationTest {
         LocalDateTime purchaseDateAndTime = LocalDateTime.now();
         LocalDate startDate = LocalDate.now().minusDays(2);
         LocalDate endDate = startDate.plusMonths(1);
-        int entriesTimeLimitedGymPass = Integer.MAX_VALUE;
+        entriesTimeLimitedGymPass = Integer.MAX_VALUE;
         timeLimitedTypePurchasedGymPassDocument = new PurchasedGymPassDocument(
                 timeLimitedGymPassDocumentId,
                 gymPassOfferDocument,
@@ -161,7 +164,7 @@ class CheckGymPassValidationIntegrationTest {
         mongoTemplate.save(timeLimitedWithRetroDateGymPassDocument);
 
         entriesLimitedPurchasedGymPassDocumentId = UUID.randomUUID().toString();
-        String endDateFroEntriesLimitedDocuments = "9999-12-31";
+        endDateForEntriesLimitedDocuments = "9999-12-31";
         int entriesForEntriesLimitedGymPass = 10;
         entriesLimitedTypePurchasedGymPassDocument = new PurchasedGymPassDocument(
                 entriesLimitedPurchasedGymPassDocumentId,
@@ -169,7 +172,7 @@ class CheckGymPassValidationIntegrationTest {
                 userDocument,
                 purchaseDateAndTime,
                 startDate,
-                LocalDate.parse(endDateFroEntriesLimitedDocuments, DateTimeFormatter.ISO_LOCAL_DATE),
+                LocalDate.parse(endDateForEntriesLimitedDocuments, DateTimeFormatter.ISO_LOCAL_DATE),
                 entriesForEntriesLimitedGymPass
         );
         mongoTemplate.save(entriesLimitedTypePurchasedGymPassDocument);
@@ -181,7 +184,7 @@ class CheckGymPassValidationIntegrationTest {
                 userDocument,
                 purchaseDateAndTime,
                 startDate,
-                LocalDate.parse(endDateFroEntriesLimitedDocuments, DateTimeFormatter.ISO_LOCAL_DATE),
+                LocalDate.parse(endDateForEntriesLimitedDocuments, DateTimeFormatter.ISO_LOCAL_DATE),
                 entriesForEntriesLimitedGymPass,
                 LocalDate.now().plusDays(10)
         );
@@ -226,7 +229,7 @@ class CheckGymPassValidationIntegrationTest {
             assertThat(responseEntity.getBody().get("result").get("endDate").textValue())
                     .isEqualTo(LocalDate.now().minusDays(2).plusMonths(1).toString());
             assertThat(responseEntity.getBody().get("result").get("entries").intValue())
-                    .isZero();
+                    .isEqualTo(entriesTimeLimitedGymPass);
             assertThat(responseEntity.getBody().get("result").get("suspensionDate"))
                     .isNull();
         }
@@ -260,7 +263,7 @@ class CheckGymPassValidationIntegrationTest {
             assertThat(responseEntity.getBody().get("result").get("endDate").textValue())
                     .isEqualTo(LocalDate.now().minusDays(2).plusMonths(1).toString());
             assertThat(responseEntity.getBody().get("result").get("entries").intValue())
-                    .isZero();
+                    .isEqualTo(entriesTimeLimitedGymPass);
             assertThat(responseEntity.getBody().get("result").get("suspensionDate").textValue())
                     .isEqualTo(LocalDate.now().plusDays(10).toString());
         }
@@ -294,7 +297,7 @@ class CheckGymPassValidationIntegrationTest {
             assertThat(responseEntity.getBody().get("result").get("endDate").textValue())
                     .isEqualTo(LocalDate.now().minusDays(1).toString());
             assertThat(responseEntity.getBody().get("result").get("entries").intValue())
-                    .isZero();
+                    .isEqualTo(entriesTimeLimitedGymPass);
             assertThat(responseEntity.getBody().get("result").get("suspensionDate"))
                     .isNull();
         }
@@ -326,7 +329,8 @@ class CheckGymPassValidationIntegrationTest {
                     .isEqualTo(expectedMessage);
             assertThat(responseEntity.getBody().get("result")).isNotNull();
             assertThat(responseEntity.getBody().get("result").get("valid").asBoolean()).isTrue();
-            assertThat(responseEntity.getBody().get("result").get("endDate")).isNull();
+            assertThat(responseEntity.getBody().get("result").get("endDate").textValue())
+                    .isEqualTo(endDateForEntriesLimitedDocuments);
             assertThat(responseEntity.getBody().get("result").get("entries").intValue())
                     .isEqualTo(10);
             assertThat(responseEntity.getBody().get("result").get("suspensionDate"))
@@ -360,7 +364,8 @@ class CheckGymPassValidationIntegrationTest {
                     .isEqualTo(expectedMessage);
             assertThat(responseEntity.getBody().get("result")).isNotNull();
             assertThat(responseEntity.getBody().get("result").get("valid").asBoolean()).isFalse();
-            assertThat(responseEntity.getBody().get("result").get("endDate")).isNull();
+            assertThat(responseEntity.getBody().get("result").get("endDate").textValue())
+                    .isEqualTo(endDateForEntriesLimitedDocuments);
             assertThat(responseEntity.getBody().get("result").get("entries").intValue())
                     .isEqualTo(10);
             assertThat(responseEntity.getBody().get("result").get("suspensionDate").textValue())

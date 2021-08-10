@@ -103,7 +103,8 @@ public class PurchaseServiceImpl implements PurchaseService{
 
         LocalDate currentSuspensionDate = purchasedGymPassDocument.getSuspensionDate();
         if(currentSuspensionDate != null){
-            if(currentSuspensionDate.isAfter(suspensionDate)) throw new AlreadySuspendedGymPassException("Gympass is suspended.");
+            if(currentSuspensionDate.isAfter(suspensionDate))
+                throw new AlreadySuspendedGymPassException("Gympass is suspended.");
         }
 
         purchasedGymPassDocument.setSuspensionDate(suspensionDate);
@@ -135,17 +136,10 @@ public class PurchaseServiceImpl implements PurchaseService{
             if(now.isBefore(suspensionDate)) valid = false;
         }
 
-        if(endDate.isEqual(LocalDate.parse(MAX_END_DATE, DateTimeFormatter.ISO_LOCAL_DATE))){
-            return new PurchasedGymPassStatusValidationResultDTO(
-                    valid,
-                    suspensionDateResponse,
-                    entries
-            );
-        }
-
         return new PurchasedGymPassStatusValidationResultDTO(
                 valid,
                 endDate.format(DateTimeFormatter.ISO_LOCAL_DATE),
+                entries,
                 suspensionDateResponse
         );
 

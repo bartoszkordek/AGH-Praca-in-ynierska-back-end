@@ -20,6 +20,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
@@ -103,6 +104,7 @@ public class CheckGymPassValidationControllerUnitTest {
                     .thenReturn(new PurchasedGymPassStatusValidationResultDTO(
                             true,
                             endDate,
+                            Integer.MAX_VALUE,
                             null
                     ));
 
@@ -116,6 +118,7 @@ public class CheckGymPassValidationControllerUnitTest {
                             jsonPath("$.message").value(is(expectedMessage)),
                             jsonPath("$.result.valid").value(is(true)),
                             jsonPath("$.result.endDate").value(is(endDate)),
+                            jsonPath("$.result.entries").value(is(Integer.MAX_VALUE)),
                             jsonPath("$.result.suspensionDate").doesNotExist()
                     ));
 
@@ -138,8 +141,9 @@ public class CheckGymPassValidationControllerUnitTest {
             when(purchaseService.isGymPassValid(validEntriesValidPurchasedGymPassDocumentId))
                     .thenReturn(new PurchasedGymPassStatusValidationResultDTO(
                             true,
-                            null,
-                            entries
+                            "9999-12-31",
+                            entries,
+                            null
                     ));
 
             String expectedMessage = messages.get("gympass.valid");
@@ -151,6 +155,7 @@ public class CheckGymPassValidationControllerUnitTest {
                             content().contentType(MediaType.APPLICATION_JSON),
                             jsonPath("$.message").value(is(expectedMessage)),
                             jsonPath("$.result.valid").value(is(true)),
+                            jsonPath("$.result.endDate").value(is("9999-12-31")),
                             jsonPath("$.result.suspensionDate").doesNotExist(),
                             jsonPath("$.result.entries").value(is(entries))
                     ));
@@ -174,6 +179,7 @@ public class CheckGymPassValidationControllerUnitTest {
                     .thenReturn(new PurchasedGymPassStatusValidationResultDTO(
                             false,
                             endDate,
+                            Integer.MAX_VALUE,
                             null
                     ));
 
@@ -187,6 +193,7 @@ public class CheckGymPassValidationControllerUnitTest {
                             jsonPath("$.message").value(is(expectedMessage)),
                             jsonPath("$.result.valid").value(is(false)),
                             jsonPath("$.result.endDate").value(is(endDate)),
+                            jsonPath("$.result.entries").value(is(Integer.MAX_VALUE)),
                             jsonPath("$.result.suspensionDate").doesNotExist()
                     ));
 
@@ -210,8 +217,9 @@ public class CheckGymPassValidationControllerUnitTest {
             when(purchaseService.isGymPassValid(notValidEntriesValidPurchasedGymPassDocumentId))
                     .thenReturn(new PurchasedGymPassStatusValidationResultDTO(
                             false,
-                            suspensionDate,
-                            entries
+                            "9999-12-31",
+                            entries,
+                            suspensionDate
                     ));
 
             String expectedMessage = messages.get("gympass.not.valid");
@@ -223,6 +231,7 @@ public class CheckGymPassValidationControllerUnitTest {
                             content().contentType(MediaType.APPLICATION_JSON),
                             jsonPath("$.message").value(is(expectedMessage)),
                             jsonPath("$.result.valid").value(is(false)),
+                            jsonPath("$.result.endDate").value(is("9999-12-31")),
                             jsonPath("$.result.suspensionDate").value(is(suspensionDate)),
                             jsonPath("$.result.entries").value(is(entries))
                     ));

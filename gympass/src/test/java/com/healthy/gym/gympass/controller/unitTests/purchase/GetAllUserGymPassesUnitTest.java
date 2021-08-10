@@ -11,6 +11,7 @@ import com.healthy.gym.gympass.dto.PurchasedGymPassDTO;
 import com.healthy.gym.gympass.dto.PurchasedUserGymPassDTO;
 import com.healthy.gym.gympass.dto.SimpleGymPassDTO;
 import com.healthy.gym.gympass.exception.NoGymPassesException;
+import com.healthy.gym.gympass.exception.StartDateAfterEndDateException;
 import com.healthy.gym.gympass.exception.UserNotFoundException;
 import com.healthy.gym.gympass.service.PurchaseService;
 import com.healthy.gym.gympass.shared.Price;
@@ -240,6 +241,37 @@ public class GetAllUserGymPassesUnitTest {
                                     .isInstanceOf(NoGymPassesException.class)
                     );
         }
+
+        @ParameterizedTest
+        @EnumSource(TestCountry.class)
+        void shouldNotGetGymPassesWhenStartDateAfterEndDate(TestCountry country) throws Exception {
+            Map<String, String> messages = getMessagesAccordingToLocale(country);
+            Locale testedLocale = convertEnumToLocale(country);
+
+            RequestBuilder request = MockMvcRequestBuilders
+                    .get(uri+validUserId)
+                    .header("Accept-Language", testedLocale.toString())
+                    .header("Authorization", adminToken)
+                    .param("startDate", "2030-12-31")
+                    .param("endDate", "2000-01-01")
+                    .contentType(MediaType.APPLICATION_JSON);
+
+            String expectedMessage = messages.get("exception.start.after.end");
+
+            doThrow(StartDateAfterEndDateException.class)
+                    .when(purchaseService)
+                    .getAllUserGymPasses(validUserId, "2030-12-31", "2000-01-01");
+
+            mockMvc.perform(request)
+                    .andDo(print())
+                    .andExpect(status().isBadRequest())
+                    .andExpect(status().reason(is(expectedMessage)))
+                    .andExpect(result ->
+                            assertThat(Objects.requireNonNull(result.getResolvedException()).getCause())
+                                    .isInstanceOf(StartDateAfterEndDateException.class)
+                    );
+        }
+
     }
 
 

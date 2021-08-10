@@ -169,8 +169,8 @@ public class TestDocumentUtil {
             TrainingTypeDocument trainingTypeDocument,
             List<UserDocument> basicList,
             List<UserDocument> trainersList,
-            String startDate,
-            String endDate,
+            String startDateTime,
+            String endDateTime,
             LocationDocument locationDocument,
             String remarks
     ) {
@@ -180,8 +180,8 @@ public class TestDocumentUtil {
                 trainingTypeDocument,
                 basicList,
                 trainersList,
-                LocalDateTime.parse(startDate),
-                LocalDateTime.parse(endDate),
+                LocalDateTime.parse(startDateTime),
+                LocalDateTime.parse(endDateTime),
                 locationDocument,
                 remarks
         );
@@ -192,8 +192,8 @@ public class TestDocumentUtil {
     }
 
     public static IndividualTrainingDocument getTestIndividualTraining(
-            String startDate,
-            String endDate
+            String startDateTime,
+            String endDateTime
     ) {
         String individualTrainingId = UUID.randomUUID().toString();
         return new IndividualTrainingDocument(
@@ -201,8 +201,8 @@ public class TestDocumentUtil {
                 getTestTrainingType(),
                 getTestListOfUserDocuments(5),
                 List.of(getTestTrainer()),
-                LocalDateTime.parse(startDate),
-                LocalDateTime.parse(endDate),
+                LocalDateTime.parse(startDateTime),
+                LocalDateTime.parse(endDateTime),
                 getTestLocation(),
                 getTestRemarks()
         );

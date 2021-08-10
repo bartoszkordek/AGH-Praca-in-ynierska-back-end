@@ -104,6 +104,10 @@ public class TrainerIndividualTrainerController {
                     .status(HttpStatus.OK)
                     .body(new IndividualTrainingResponse(message, removedEnrolmentTraining));
 
+        } catch (AccessDeniedException exception) {
+            String reason = translator.toLocale("exception.access.denied");
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, reason, exception);
+
         } catch (AlreadyRejectedIndividualTrainingException exception) {
             String reason = translator.toLocale("exception.already.rejected.individual.training");
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, exception);

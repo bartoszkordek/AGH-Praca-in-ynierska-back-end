@@ -30,6 +30,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
 
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
@@ -99,12 +100,16 @@ class AcceptIndividualTrainingIntegrationTest {
         mongoTemplate.dropCollection(UserDocument.class);
     }
 
+    private URI getUri(String trainerId, String trainingId, String locationId) throws URISyntaxException {
+        return new URI("http://localhost:" + port + "/individual/trainer/"
+                + trainerId + "/training/" + trainingId + "?locationId=" + locationId);
+    }
+
     @Test
     void shouldAcceptIndividualTrainingRequest() throws Exception {
         testDataBase(false);
 
-        uri = new URI("http://localhost:" + port + "/individual/trainer/"
-                + trainerId + "/training/" + trainingId + "?locationId=" + locationId);
+        uri=getUri(trainerId, trainingId, locationId);
         ResponseEntity<JsonNode> responseEntity = performAuthRequest(uri);
 
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
@@ -176,8 +181,7 @@ class AcceptIndividualTrainingIntegrationTest {
 
         testDataBase(true);
 
-        uri = new URI("http://localhost:" + port + "/individual/trainer/"
-                + trainerId + "/training/" + trainingId + "?locationId=" + locationId);
+        uri=getUri(trainerId, trainingId, locationId);
         ResponseEntity<JsonNode> responseEntity = performAuthRequest(uri);
 
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
@@ -205,8 +209,7 @@ class AcceptIndividualTrainingIntegrationTest {
 
         testDataBase(false);
 
-        uri = new URI("http://localhost:" + port + "/individual/trainer/"
-                + trainerId + "/training/" + trainingId + "?locationId=" + locationId);
+        uri=getUri(trainerId, trainingId, locationId);
         ResponseEntity<JsonNode> responseEntity = performAuthRequest(uri);
 
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
@@ -234,8 +237,7 @@ class AcceptIndividualTrainingIntegrationTest {
 
         testDataBase(false);
 
-        uri = new URI("http://localhost:" + port + "/individual/trainer/"
-                + trainerId + "/training/" + trainingId + "?locationId=" + locationId);
+        uri=getUri(trainerId, trainingId, locationId);
         ResponseEntity<JsonNode> responseEntity = performAuthRequest(uri);
 
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);

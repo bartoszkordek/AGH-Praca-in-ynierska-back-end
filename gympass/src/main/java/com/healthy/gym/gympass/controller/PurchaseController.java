@@ -21,6 +21,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import javax.validation.Valid;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 
 @RestController
 @RequestMapping(
@@ -140,16 +142,14 @@ public class PurchaseController {
             @PathVariable("id") @ValidIDFormat final String id
     ){
         try{
-            String validGymPassMessage = translator.toLocale("gympass.valid");
-            String notValidGymPassMessage = translator.toLocale("gympass.not.valid");
-
             PurchasedGymPassStatusValidationResultDTO result  = purchaseService.isGymPassValid(id);
+            String message = validationStatusMessage(result);
 
             if(result.isValid()){
                 return ResponseEntity
                         .status(HttpStatus.OK)
                         .body(new ValidationGymPassResponse(
-                                validGymPassMessage,
+                                message,
                                 result
                         ));
             }
@@ -157,7 +157,7 @@ public class PurchaseController {
             return ResponseEntity
                     .status(HttpStatus.OK)
                     .body(new ValidationGymPassResponse(
-                            notValidGymPassMessage,
+                            message,
                             result
                     ));
 
@@ -171,6 +171,26 @@ public class PurchaseController {
             exception.printStackTrace();
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, reason, exception);
         }
+    }
+
+    private String validationStatusMessage(PurchasedGymPassStatusValidationResultDTO result){
+        String validGymPassMessage = translator.toLocale("gympass.valid");
+        String notValidRetroEndDateGymPassMessage = translator.toLocale("gympass.not.valid.retro.end.date");
+        String notValidNoEntriesGymPassMessage = translator.toLocale("gympass.not.valid.no.entries");
+        String notValidSuspendedGymPassMessage = translator.toLocale("gympass.not.valid.suspended");
+        LocalDate now = LocalDate.now();
+        String endDate = result.getEndDate();
+        int entries = result.getEntries();
+        String suspensionDate = result.getSuspensionDate();
+        if(now.isAfter(LocalDate.parse(endDate, DateTimeFormatter.ISO_LOCAL_DATE)))
+            return notValidRetroEndDateGymPassMessage;
+        if(entries < 1)
+            return notValidNoEntriesGymPassMessage;
+        if(suspensionDate != null){
+            if(now.isBefore(LocalDate.parse(suspensionDate, DateTimeFormatter.ISO_LOCAL_DATE)))
+                return notValidSuspendedGymPassMessage;
+        }
+        return validGymPassMessage;
     }
 
 }

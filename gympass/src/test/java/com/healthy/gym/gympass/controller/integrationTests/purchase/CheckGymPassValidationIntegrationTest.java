@@ -250,7 +250,7 @@ class CheckGymPassValidationIntegrationTest {
             headers.setContentType(MediaType.APPLICATION_JSON);
 
             HttpEntity<Object> request = new HttpEntity<>(null, headers);
-            String expectedMessage = messages.get("gympass.not.valid");
+            String expectedMessage = messages.get("gympass.not.valid.suspended");
 
             ResponseEntity<JsonNode> responseEntity = restTemplate
                     .exchange(uri, HttpMethod.GET, request, JsonNode.class);
@@ -270,7 +270,7 @@ class CheckGymPassValidationIntegrationTest {
 
         @ParameterizedTest
         @EnumSource(TestCountry.class)
-        void shouldReturnNotValidStatus_whenNotSuspendedTimeLimitedGympassAndInvalidEndDate(TestCountry country)
+        void shouldReturnNotValidStatus_whenNotSuspendedTimeLimitedGympassAndRetroEndDate(TestCountry country)
                 throws Exception {
             Map<String, String> messages = getMessagesAccordingToLocale(country);
             Locale testedLocale = convertEnumToLocale(country);
@@ -284,7 +284,7 @@ class CheckGymPassValidationIntegrationTest {
             headers.setContentType(MediaType.APPLICATION_JSON);
 
             HttpEntity<Object> request = new HttpEntity<>(null, headers);
-            String expectedMessage = messages.get("gympass.not.valid");
+            String expectedMessage = messages.get("gympass.not.valid.retro.end.date");
 
             ResponseEntity<JsonNode> responseEntity = restTemplate
                     .exchange(uri, HttpMethod.GET, request, JsonNode.class);
@@ -353,7 +353,7 @@ class CheckGymPassValidationIntegrationTest {
             headers.setContentType(MediaType.APPLICATION_JSON);
 
             HttpEntity<Object> request = new HttpEntity<>(null, headers);
-            String expectedMessage = messages.get("gympass.not.valid");
+            String expectedMessage = messages.get("gympass.not.valid.suspended");
 
             ResponseEntity<JsonNode> responseEntity = restTemplate
                     .exchange(uri, HttpMethod.GET, request, JsonNode.class);

@@ -8,6 +8,7 @@ import com.healthy.gym.trainings.data.repository.UserDAO;
 import com.healthy.gym.trainings.data.repository.individual.training.IndividualTrainingRepository;
 import com.healthy.gym.trainings.enums.GymRole;
 import com.healthy.gym.trainings.exception.AlreadyAcceptedIndividualTrainingException;
+import com.healthy.gym.trainings.exception.AlreadyRejectedIndividualTrainingException;
 import com.healthy.gym.trainings.exception.PastDateException;
 import com.healthy.gym.trainings.exception.notexisting.NotExistingIndividualTrainingException;
 import com.healthy.gym.trainings.exception.notfound.LocationNotFoundException;
@@ -201,6 +202,134 @@ class TrainerIndividualTrainingServiceTest {
                     training.getRemarks()
             );
             acceptedTraining.setAccepted(true);
+
+            return acceptedTraining;
+        }
+    }
+
+    @Nested
+    class RejectIndividualTraining {
+
+        private IndividualTrainingDocument training;
+
+        @BeforeEach
+        void setUp() {
+            training = getTestIndividualTrainingDocument();
+        }
+
+        private IndividualTrainingDocument getTestIndividualTrainingDocument() {
+            var training = new IndividualTrainingDocument();
+            training.setStartDateTime(LocalDateTime.parse("2021-07-10T21:00"));
+            training.setTrainers(List.of(getTestTrainer()));
+            return training;
+        }
+
+        @Test
+        void shouldThrowNotExistingIndividualTrainingException() {
+            when(repository.findByIndividualTrainingId(trainingId)).thenReturn(Optional.empty());
+            assertThatThrownBy(() -> service.rejectIndividualTraining(userId, trainingId))
+                    .isInstanceOf(NotExistingIndividualTrainingException.class);
+        }
+
+        @Test
+        void shouldThrowPastDateException() {
+            training.setStartDateTime(LocalDateTime.parse("2021-07-10T17:00"));
+            when(repository.findByIndividualTrainingId(trainingId)).thenReturn(Optional.of(training));
+            assertThatThrownBy(() -> service.rejectIndividualTraining(userId, trainingId))
+                    .isInstanceOf(PastDateException.class);
+        }
+
+        @Test
+        void shouldThrowUserNotFoundExceptionWhenUserIsNotFound() {
+            when(repository.findByIndividualTrainingId(trainingId)).thenReturn(Optional.of(training));
+            when(userDAO.findByUserId(userId)).thenReturn(null);
+            assertThatThrownBy(() -> service.rejectIndividualTraining(userId, trainingId))
+                    .isInstanceOf(UserNotFoundException.class);
+        }
+
+        @Test
+        void shouldThrowUserNotFoundExceptionWhenUserIsNotTrainer() {
+            when(repository.findByIndividualTrainingId(trainingId)).thenReturn(Optional.of(training));
+            var trainer = new UserDocument();
+            trainer.setGymRoles(List.of(GymRole.USER));
+            when(userDAO.findByUserId(userId)).thenReturn(trainer);
+            assertThatThrownBy(() -> service.rejectIndividualTraining(userId, trainingId))
+                    .isInstanceOf(UserNotFoundException.class);
+        }
+
+        @Test
+        void shouldThrowAccessDeniedException() {
+            when(repository.findByIndividualTrainingId(trainingId)).thenReturn(Optional.of(training));
+            var trainer = new UserDocument();
+            trainer.setGymRoles(List.of(GymRole.USER, GymRole.TRAINER));
+            when(userDAO.findByUserId(userId)).thenReturn(trainer);
+            assertThatThrownBy(
+                    () -> service.rejectIndividualTraining(userId, trainingId)
+            ).isInstanceOf(AccessDeniedException.class);
+        }
+
+        @Test
+        void shouldThrowAlreadyRejectedIndividualTrainingException() {
+            var trainer = new UserDocument();
+            trainer.setGymRoles(List.of(GymRole.USER, GymRole.TRAINER));
+            training.setTrainers(List.of(trainer));
+            training.setRejected(true);
+
+            when(repository.findByIndividualTrainingId(trainingId)).thenReturn(Optional.of(training));
+            when(userDAO.findByUserId(userId)).thenReturn(trainer);
+
+            assertThatThrownBy(
+                    () -> service.rejectIndividualTraining(userId, trainingId)
+            ).isInstanceOf(AlreadyRejectedIndividualTrainingException.class);
+        }
+
+        @Test
+        void shouldAcceptIndividualTrainingRequest()
+                throws UserNotFoundException,
+                NotExistingIndividualTrainingException,
+                AlreadyAcceptedIndividualTrainingException,
+                LocationOccupiedException,
+                PastDateException,
+                LocationNotFoundException {
+
+            var trainer = new UserDocument();
+            trainer.setGymRoles(List.of(GymRole.USER, GymRole.TRAINER));
+
+            training.setTrainers(List.of(trainer));
+
+            LocationDocument location = new LocationDocument(
+                    UUID.randomUUID().toString(),
+                    "TestLocation"
+            );
+
+            when(repository.findByIndividualTrainingId(trainingId)).thenReturn(Optional.of(training));
+            when(userDAO.findByUserId(userId)).thenReturn(trainer);
+            when(locationDAO.findByLocationId(locationId)).thenReturn(location);
+            when(repository.save(training)).thenReturn(getSavedTraining(training, location));
+
+            var returnedDTO = service.acceptIndividualTraining(userId, trainingId, locationId);
+
+            assertThat(returnedDTO.isAccepted()).isFalse();
+            assertThat(returnedDTO.isCancelled()).isFalse();
+            assertThat(returnedDTO.isRejected()).isTrue();
+            assertThat(returnedDTO.getLocation()).isEqualTo("TestLocation");
+        }
+
+        private IndividualTrainingDocument getSavedTraining(
+                IndividualTrainingDocument training,
+                LocationDocument locationDocument
+        ) {
+            var acceptedTraining = new IndividualTrainingDocument(
+                    training.getIndividualTrainingId(),
+                    training.getTraining(),
+                    training.getBasicList(),
+                    training.getTrainers(),
+                    training.getStartDateTime(),
+                    training.getEndDateTime(),
+                    locationDocument,
+                    training.getRemarks()
+            );
+            acceptedTraining.setRejected(true);
 
             return acceptedTraining;
         }

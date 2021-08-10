@@ -3,7 +3,6 @@ package com.healthy.gym.trainings.service.individual.training;
 import com.healthy.gym.trainings.dto.IndividualTrainingDTO;
 import com.healthy.gym.trainings.exception.AlreadyAcceptedIndividualTrainingException;
 import com.healthy.gym.trainings.exception.AlreadyRejectedIndividualTrainingException;
-import com.healthy.gym.trainings.exception.EmailSendingException;
 import com.healthy.gym.trainings.exception.PastDateException;
 import com.healthy.gym.trainings.exception.notexisting.NotExistingIndividualTrainingException;
 import com.healthy.gym.trainings.exception.notfound.LocationNotFoundException;
@@ -23,9 +22,9 @@ public interface TrainerIndividualTrainingService {
             UserNotFoundException;
 
     IndividualTrainingDTO rejectIndividualTraining(String userId, String trainingId)
-            throws NotExistingIndividualTrainingException,
+            throws AccessDeniedException,
             AlreadyRejectedIndividualTrainingException,
+            NotExistingIndividualTrainingException,
             PastDateException,
-            EmailSendingException,
             UserNotFoundException;
 }

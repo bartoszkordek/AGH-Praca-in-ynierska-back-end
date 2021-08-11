@@ -189,6 +189,8 @@ public class PurchaseServiceImpl implements PurchaseService{
                 .findByPurchasedGymPassDocumentId(individualGymPassId);
         if(purchasedGymPassDocumentToRemove == null) throw new GymPassNotFoundException("Gympass with current ID does not exist");
 
+        purchasedGymPassDAO.delete(purchasedGymPassDocumentToRemove);
+
         return modelMapper.map(purchasedGymPassDocumentToRemove, PurchasedGymPassDTO.class);
     }
 }

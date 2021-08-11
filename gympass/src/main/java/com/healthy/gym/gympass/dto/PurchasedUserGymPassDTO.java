@@ -11,7 +11,7 @@ public class PurchasedUserGymPassDTO {
 
     private String purchasedGymPassDocumentId;
     private SimpleGymPassDTO gymPassOffer;
-    private LocalDateTime purchaseDateAndTime;
+    private LocalDateTime purchaseDateTime;
     private LocalDate startDate;
     private LocalDate endDate;
     private int entries;
@@ -22,7 +22,7 @@ public class PurchasedUserGymPassDTO {
     public PurchasedUserGymPassDTO(
             String purchasedGymPassDocumentId,
             SimpleGymPassDTO gymPassOffer,
-            LocalDateTime purchaseDateAndTime,
+            LocalDateTime purchaseDateTime,
             LocalDate startDate,
             LocalDate endDate,
             int entries,
@@ -30,7 +30,7 @@ public class PurchasedUserGymPassDTO {
     ){
         this.purchasedGymPassDocumentId = purchasedGymPassDocumentId;
         this.gymPassOffer = gymPassOffer;
-        this.purchaseDateAndTime = purchaseDateAndTime;
+        this.purchaseDateTime = purchaseDateTime;
         this.startDate = startDate;
         this.endDate = endDate;
         this.entries = entries;
@@ -45,8 +45,8 @@ public class PurchasedUserGymPassDTO {
         return gymPassOffer;
     }
 
-    public LocalDateTime getPurchaseDateAndTime() {
-        return purchaseDateAndTime;
+    public LocalDateTime getPurchaseDateTime() {
+        return purchaseDateTime;
     }
 
     public LocalDate getStartDate() {
@@ -73,8 +73,8 @@ public class PurchasedUserGymPassDTO {
         this.gymPassOffer = gymPassOffer;
     }
 
-    public void setPurchaseDateAndTime(LocalDateTime purchaseDateAndTime) {
-        this.purchaseDateAndTime = purchaseDateAndTime;
+    public void setPurchaseDateTime(LocalDateTime purchaseDateTime) {
+        this.purchaseDateTime = purchaseDateTime;
     }
 
     public void setStartDate(LocalDate startDate) {
@@ -98,7 +98,7 @@ public class PurchasedUserGymPassDTO {
         return "PurchasedUserGymPassDTO{" +
                 "purchasedGymPassDocumentId='" + purchasedGymPassDocumentId + '\'' +
                 ", gymPassOffer=" + gymPassOffer +
-                ", purchaseDateAndTime=" + purchaseDateAndTime +
+                ", purchaseDateTime=" + purchaseDateTime +
                 ", startDate=" + startDate +
                 ", endDate=" + endDate +
                 ", entries=" + entries +
@@ -114,7 +114,7 @@ public class PurchasedUserGymPassDTO {
         return entries == that.entries &&
                 Objects.equals(purchasedGymPassDocumentId, that.purchasedGymPassDocumentId) &&
                 Objects.equals(gymPassOffer, that.gymPassOffer) &&
-                Objects.equals(purchaseDateAndTime, that.purchaseDateAndTime) &&
+                Objects.equals(purchaseDateTime, that.purchaseDateTime) &&
                 Objects.equals(startDate, that.startDate) &&
                 Objects.equals(endDate, that.endDate) &&
                 Objects.equals(suspensionDate, that.suspensionDate);
@@ -125,7 +125,7 @@ public class PurchasedUserGymPassDTO {
         return Objects.hash(
                 purchasedGymPassDocumentId,
                 gymPassOffer,
-                purchaseDateAndTime,
+                purchaseDateTime,
                 startDate,
                 endDate,
                 entries,

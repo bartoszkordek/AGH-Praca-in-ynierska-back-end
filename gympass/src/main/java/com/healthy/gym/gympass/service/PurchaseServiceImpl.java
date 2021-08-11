@@ -15,6 +15,7 @@ import com.healthy.gym.gympass.util.RequestDateFormatter;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -32,9 +33,11 @@ public class PurchaseServiceImpl implements PurchaseService{
     private final GymPassOfferDAO gymPassOfferDAO;
     private final UserDAO userDAO;
     private final ModelMapper modelMapper;
+    private final RequestDateFormatter requestDateFormatter;
 
     private static final String MIN_START_DATE = "1000-01-01";
     private static final String MAX_END_DATE = "9999-12-31";
+
 
     @Autowired
     public PurchaseServiceImpl(
@@ -47,6 +50,7 @@ public class PurchaseServiceImpl implements PurchaseService{
         this.userDAO = userDAO;
         modelMapper = new ModelMapper();
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+        requestDateFormatter = new RequestDateFormatter();
     }
 
     @Override
@@ -149,8 +153,35 @@ public class PurchaseServiceImpl implements PurchaseService{
     }
 
     @Override
-    public List<PurchasedGymPassDTO> getGymPasses(String startDate, String endDate) throws StartDateAfterEndDateException {
-        return null;
+    public List<PurchasedGymPassDTO> getGymPasses(
+            String requestPurchaseStartDate,
+            String requestPurchaseEndDate,
+            Pageable pageable
+    ) throws StartDateAfterEndDateException {
+
+        LocalDateTime purchaseStartDateTime = LocalDateTime.now().minusMonths(1);
+        LocalDateTime purchaseEndDateTime = LocalDateTime.now();
+
+        if(requestPurchaseStartDate != null){
+            LocalDate purchaseStartDateParsed = LocalDate.parse(requestPurchaseStartDate, DateTimeFormatter.ISO_LOCAL_DATE);
+            purchaseStartDateTime = purchaseStartDateParsed.atTime(0, 0, 0);
+        }
+
+        if(requestPurchaseEndDate != null){
+            LocalDate purchaseEndDateParsed = LocalDate.parse(requestPurchaseEndDate, DateTimeFormatter.ISO_LOCAL_DATE);
+            purchaseEndDateTime = purchaseEndDateParsed.atTime(23, 59, 59);
+        }
+
+        if(purchaseStartDateTime.isAfter(purchaseEndDateTime))
+            throw new StartDateAfterEndDateException("Start date after end date");
+
+        List<PurchasedGymPassDocument> purchasedGymPassDocuments = purchasedGymPassDAO
+                .findAllByPurchaseDateTimeBetween(purchaseStartDateTime, purchaseEndDateTime, pageable).getContent();
+
+        return purchasedGymPassDocuments
+                .stream()
+                .map(purchasedGymPassDocument -> modelMapper.map(purchasedGymPassDocument, PurchasedGymPassDTO.class))
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -160,7 +191,6 @@ public class PurchaseServiceImpl implements PurchaseService{
             String requestEndDate
     ) throws UserNotFoundException, StartDateAfterEndDateException, NoGymPassesException {
 
-        RequestDateFormatter requestDateFormatter = new RequestDateFormatter();
         String startDate = MIN_START_DATE;
         String endDate = MAX_END_DATE;
         if(requestStartDate != null) startDate = requestStartDate;

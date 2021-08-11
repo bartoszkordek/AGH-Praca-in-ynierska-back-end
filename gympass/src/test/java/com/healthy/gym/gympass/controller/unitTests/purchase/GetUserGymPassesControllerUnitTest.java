@@ -110,7 +110,7 @@ public class GetUserGymPassesControllerUnitTest {
             boolean isPremium = false;
             SimpleGymPassDTO gymPassOffer1 = new SimpleGymPassDTO(gymPassOfferId1, title1, price1, isPremium);
             SimpleGymPassDTO gymPassOffer2 = new SimpleGymPassDTO(gymPassOfferId2, title2, price2, isPremium);
-            LocalDateTime purchaseDateAndTime = LocalDateTime.now();
+            LocalDateTime purchaseDateTime = LocalDateTime.now();
             LocalDate startDate = LocalDate.now();
             LocalDate endDate1 = LocalDate.now().plusMonths(1);
             LocalDate endDate2 = LocalDate.now().plusMonths(3);
@@ -120,7 +120,7 @@ public class GetUserGymPassesControllerUnitTest {
             PurchasedUserGymPassDTO purchasedUserGymPassDTO1 = new PurchasedUserGymPassDTO(
                     purchasedGymPassDocumentId1,
                     gymPassOffer1,
-                    purchaseDateAndTime,
+                    purchaseDateTime,
                     startDate,
                     endDate1,
                     entries,
@@ -130,7 +130,7 @@ public class GetUserGymPassesControllerUnitTest {
             PurchasedUserGymPassDTO purchasedUserGymPassDTO2 = new PurchasedUserGymPassDTO(
                     purchasedGymPassDocumentId2,
                     gymPassOffer2,
-                    purchaseDateAndTime,
+                    purchaseDateTime,
                     startDate,
                     endDate2,
                     entries,
@@ -154,7 +154,7 @@ public class GetUserGymPassesControllerUnitTest {
                             jsonPath("$.[0].gymPassOffer.price.amount").value(is(amount1)),
                             jsonPath("$.[0].gymPassOffer.price.currency").value(is(currency)),
                             jsonPath("$.[0].gymPassOffer.premium").value(is(false)),
-                            jsonPath("$.[0].purchaseDateAndTime").isNotEmpty(),
+                            jsonPath("$.[0].purchaseDateTime").isNotEmpty(),
                             jsonPath("$.[0].startDate").value(is(startDate.toString())),
                             jsonPath("$.[0].endDate").value(is(endDate1.toString())),
                             jsonPath("$.[0].entries").value(is(entries)),
@@ -164,7 +164,7 @@ public class GetUserGymPassesControllerUnitTest {
                             jsonPath("$.[1].gymPassOffer.price.amount").value(is(amount2)),
                             jsonPath("$.[1].gymPassOffer.price.currency").value(is(currency)),
                             jsonPath("$.[1].gymPassOffer.premium").value(is(false)),
-                            jsonPath("$.[1].purchaseDateAndTime").isNotEmpty(),
+                            jsonPath("$.[1].purchaseDateTime").isNotEmpty(),
                             jsonPath("$.[1].startDate").value(is(startDate.toString())),
                             jsonPath("$.[1].endDate").value(is(endDate2.toString())),
                             jsonPath("$.[1].entries").value(is(entries)),

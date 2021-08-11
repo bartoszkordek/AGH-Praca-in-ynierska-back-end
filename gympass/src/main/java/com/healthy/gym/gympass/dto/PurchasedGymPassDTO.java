@@ -12,7 +12,7 @@ public class PurchasedGymPassDTO {
     private String purchasedGymPassDocumentId;
     private SimpleGymPassDTO gymPassOffer;
     private BasicUserInfoDTO user;
-    private LocalDateTime purchaseDateAndTime;
+    private LocalDateTime purchaseDateTime;
     private LocalDate startDate;
     private LocalDate endDate;
     private int entries;
@@ -25,7 +25,7 @@ public class PurchasedGymPassDTO {
             String purchasedGymPassDocumentId,
             SimpleGymPassDTO gymPassOffer,
             BasicUserInfoDTO user,
-            LocalDateTime purchaseDateAndTime,
+            LocalDateTime purchaseDateTime,
             LocalDate startDate,
             LocalDate endDate,
             int entries
@@ -33,7 +33,7 @@ public class PurchasedGymPassDTO {
         this.purchasedGymPassDocumentId = purchasedGymPassDocumentId;
         this.gymPassOffer = gymPassOffer;
         this.user = user;
-        this.purchaseDateAndTime = purchaseDateAndTime;
+        this.purchaseDateTime = purchaseDateTime;
         this.startDate = startDate;
         this.endDate = endDate;
         this.entries = entries;
@@ -43,7 +43,7 @@ public class PurchasedGymPassDTO {
             String purchasedGymPassDocumentId,
             SimpleGymPassDTO gymPassOffer,
             BasicUserInfoDTO user,
-            LocalDateTime purchaseDateAndTime,
+            LocalDateTime purchaseDateTime,
             LocalDate startDate,
             LocalDate endDate,
             int entries,
@@ -52,7 +52,7 @@ public class PurchasedGymPassDTO {
         this.purchasedGymPassDocumentId = purchasedGymPassDocumentId;
         this.gymPassOffer = gymPassOffer;
         this.user = user;
-        this.purchaseDateAndTime = purchaseDateAndTime;
+        this.purchaseDateTime = purchaseDateTime;
         this.startDate = startDate;
         this.endDate = endDate;
         this.entries = entries;
@@ -71,8 +71,8 @@ public class PurchasedGymPassDTO {
         return user;
     }
 
-    public LocalDateTime getPurchaseDateAndTime() {
-        return purchaseDateAndTime;
+    public LocalDateTime getPurchaseDateTime() {
+        return purchaseDateTime;
     }
 
     public LocalDate getStartDate() {
@@ -103,8 +103,8 @@ public class PurchasedGymPassDTO {
         this.user = user;
     }
 
-    public void setPurchaseDateAndTime(LocalDateTime purchaseDateAndTime) {
-        this.purchaseDateAndTime = purchaseDateAndTime;
+    public void setPurchaseDateTime(LocalDateTime purchaseDateTime) {
+        this.purchaseDateTime = purchaseDateTime;
     }
 
     public void setStartDate(LocalDate startDate) {
@@ -129,7 +129,7 @@ public class PurchasedGymPassDTO {
                 "purchasedGymPassDocumentId='" + purchasedGymPassDocumentId + '\'' +
                 ", gymPassOffer=" + gymPassOffer +
                 ", user=" + user +
-                ", purchaseDateAndTime=" + purchaseDateAndTime +
+                ", purchaseDateTime=" + purchaseDateTime +
                 ", startDate=" + startDate +
                 ", endDate=" + endDate +
                 ", entries=" + entries +
@@ -146,7 +146,7 @@ public class PurchasedGymPassDTO {
                 Objects.equals(purchasedGymPassDocumentId, that.purchasedGymPassDocumentId) &&
                 Objects.equals(gymPassOffer, that.gymPassOffer) &&
                 Objects.equals(user, that.user) &&
-                Objects.equals(purchaseDateAndTime, that.purchaseDateAndTime) &&
+                Objects.equals(purchaseDateTime, that.purchaseDateTime) &&
                 Objects.equals(startDate, that.startDate) &&
                 Objects.equals(endDate, that.endDate) &&
                 Objects.equals(suspensionDate, that.suspensionDate);
@@ -158,7 +158,7 @@ public class PurchasedGymPassDTO {
                 purchasedGymPassDocumentId,
                 gymPassOffer,
                 user,
-                purchaseDateAndTime,
+                purchaseDateTime,
                 startDate,
                 endDate,
                 entries,

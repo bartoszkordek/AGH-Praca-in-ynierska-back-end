@@ -94,7 +94,7 @@ public class DeletePurchasedGymPassControllerUnitTest {
         String name = "Jan";
         String surname = "Kowalski";
         BasicUserInfoDTO user = new BasicUserInfoDTO(userId, name, surname);
-        LocalDateTime purchaseDateAndTime = LocalDateTime.now().minusDays(5);
+        LocalDateTime purchaseDateTime = LocalDateTime.now().minusDays(5);
         String startDate = LocalDateTime.now().minusDays(5).format(DateTimeFormatter.ISO_LOCAL_DATE);
         String endDate = LocalDateTime.now().minusDays(5).plusMonths(1).format(DateTimeFormatter.ISO_LOCAL_DATE);
         int entries = Integer.MAX_VALUE;
@@ -103,7 +103,7 @@ public class DeletePurchasedGymPassControllerUnitTest {
                 purchasedGymPassDocumentIdToRemove,
                 gymPassOffer,
                 user,
-                purchaseDateAndTime,
+                purchaseDateTime,
                 LocalDate.parse(startDate, DateTimeFormatter.ISO_LOCAL_DATE),
                 LocalDate.parse(endDate, DateTimeFormatter.ISO_LOCAL_DATE),
                 entries
@@ -113,7 +113,7 @@ public class DeletePurchasedGymPassControllerUnitTest {
                 purchasedGymPassDocumentIdToRemove,
                 gymPassOffer,
                 user,
-                purchaseDateAndTime,
+                purchaseDateTime,
                 LocalDate.parse(startDate, DateTimeFormatter.ISO_LOCAL_DATE),
                 LocalDate.parse(endDate, DateTimeFormatter.ISO_LOCAL_DATE),
                 entries
@@ -166,7 +166,7 @@ public class DeletePurchasedGymPassControllerUnitTest {
                             jsonPath("$.purchasedGymPass.user.userId").exists(),
                             jsonPath("$.purchasedGymPass.user.name").value(is("Jan")),
                             jsonPath("$.purchasedGymPass.user.surname").value(is("Kowalski")),
-                            jsonPath("$.purchasedGymPass.purchaseDateAndTime").exists(),
+                            jsonPath("$.purchasedGymPass.purchaseDateTime").exists(),
                             jsonPath("$.purchasedGymPass.startDate")
                                     .value(is(LocalDate.parse(startDate, DateTimeFormatter.ISO_LOCAL_DATE).toString())),
                             jsonPath("$.purchasedGymPass.endDate")

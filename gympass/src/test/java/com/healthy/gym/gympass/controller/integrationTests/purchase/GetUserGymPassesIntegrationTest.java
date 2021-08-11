@@ -165,7 +165,7 @@ class GetUserGymPassesIntegrationTest {
         mongoTemplate.save(gymPassOfferDocumentNotToPick);
 
         String timeLimitedGymPassDocumentId = UUID.randomUUID().toString();
-        LocalDateTime purchaseDateAndTime = LocalDateTime.now();
+        LocalDateTime purchaseDateTime = LocalDateTime.now();
         LocalDate startDate = LocalDate.now().minusDays(2);
         LocalDate endDate = startDate.plusMonths(1);
         int entriesTimeLimitedGymPass = Integer.MAX_VALUE;
@@ -173,7 +173,7 @@ class GetUserGymPassesIntegrationTest {
                 timeLimitedGymPassDocumentId,
                 gymPassOfferDocument1,
                 userDocument,
-                purchaseDateAndTime,
+                purchaseDateTime,
                 startDate,
                 endDate,
                 entriesTimeLimitedGymPass
@@ -187,7 +187,7 @@ class GetUserGymPassesIntegrationTest {
                         new Price(amount1, currency, period1),
                         false
                 ),
-                purchaseDateAndTime,
+                purchaseDateTime,
                 startDate,
                 endDate,
                 entriesTimeLimitedGymPass,
@@ -200,7 +200,7 @@ class GetUserGymPassesIntegrationTest {
                 alreadySuspendedPurchasedGymPassDocumentId,
                 gymPassOfferDocument2,
                 userDocument,
-                purchaseDateAndTime,
+                purchaseDateTime,
                 startDate,
                 endDateForSemesterSuspendedGymPass,
                 entriesTimeLimitedGymPass,
@@ -215,7 +215,7 @@ class GetUserGymPassesIntegrationTest {
                         new Price(amount2, currency, period2),
                         false
                 ),
-                purchaseDateAndTime,
+                purchaseDateTime,
                 startDate,
                 startDate.plusMonths(6).plusDays(10),
                 entriesTimeLimitedGymPass,
@@ -229,7 +229,7 @@ class GetUserGymPassesIntegrationTest {
                 entriesLimitedPurchasedGymPassDocumentId,
                 gymPassOfferDocument3,
                 userDocument,
-                purchaseDateAndTime,
+                purchaseDateTime,
                 startDate,
                 LocalDate.parse(endDateForEntriesLimitedDocuments, DateTimeFormatter.ISO_LOCAL_DATE),
                 entriesForEntriesLimitedGymPass
@@ -243,7 +243,7 @@ class GetUserGymPassesIntegrationTest {
                         new Price(amount3, currency, period3),
                         false
                 ),
-                purchaseDateAndTime,
+                purchaseDateTime,
                 startDate,
                 LocalDate.parse(endDateForEntriesLimitedDocuments, DateTimeFormatter.ISO_LOCAL_DATE),
                 entriesForEntriesLimitedGymPass,
@@ -260,7 +260,7 @@ class GetUserGymPassesIntegrationTest {
                 entriesLimitedPurchasedGymPassDocumentId,
                 gymPassOfferDocumentNotToPick,
                 userDocumentNotToPick,
-                purchaseDateAndTime,
+                purchaseDateTime,
                 startDate,
                 LocalDate.parse(endDateForEntriesLimitedDocuments, DateTimeFormatter.ISO_LOCAL_DATE),
                 entriesForEntriesLimitedGymPass
@@ -309,7 +309,7 @@ class GetUserGymPassesIntegrationTest {
                     .isEqualTo("zł");
             assertThat(responseEntity.getBody().get(0).get("gymPassOffer").get("price").get("period").textValue())
                     .isEqualTo("miesiąc");
-            assertThat(responseEntity.getBody().get(0).get("purchaseDateAndTime")).isNotNull();
+            assertThat(responseEntity.getBody().get(0).get("purchaseDateTime")).isNotNull();
             assertThat(responseEntity.getBody().get(0).get("startDate").textValue())
                     .isEqualTo(LocalDate.now().minusDays(2).toString());
             assertThat(responseEntity.getBody().get(0).get("endDate").textValue())
@@ -328,7 +328,7 @@ class GetUserGymPassesIntegrationTest {
                     .isEqualTo("zł");
             assertThat(responseEntity.getBody().get(1).get("gymPassOffer").get("price").get("period").textValue())
                     .isEqualTo("semestr");
-            assertThat(responseEntity.getBody().get(1).get("purchaseDateAndTime")).isNotNull();
+            assertThat(responseEntity.getBody().get(1).get("purchaseDateTime")).isNotNull();
             assertThat(responseEntity.getBody().get(1).get("startDate").textValue())
                     .isEqualTo(LocalDate.now().minusDays(2).toString());
             assertThat(responseEntity.getBody().get(1).get("endDate").textValue())
@@ -348,7 +348,7 @@ class GetUserGymPassesIntegrationTest {
                     .isEqualTo("zł");
             assertThat(responseEntity.getBody().get(2).get("gymPassOffer").get("price").get("period").textValue())
                     .isEqualTo("nielimitowany");
-            assertThat(responseEntity.getBody().get(2).get("purchaseDateAndTime")).isNotNull();
+            assertThat(responseEntity.getBody().get(2).get("purchaseDateTime")).isNotNull();
             assertThat(responseEntity.getBody().get(2).get("startDate").textValue())
                     .isEqualTo(LocalDate.now().minusDays(2).toString());
             assertThat(responseEntity.getBody().get(2).get("endDate").textValue())

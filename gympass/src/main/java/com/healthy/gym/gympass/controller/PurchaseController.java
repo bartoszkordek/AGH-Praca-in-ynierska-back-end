@@ -12,6 +12,8 @@ import com.healthy.gym.gympass.service.PurchaseService;
 import com.healthy.gym.gympass.validation.ValidDateFormat;
 import com.healthy.gym.gympass.validation.ValidIDFormat;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -176,18 +178,21 @@ public class PurchaseController {
     }
 
     @PreAuthorize("hasRole('ADMIN') or hasRole('MANAGER') or hasRole('EMPLOYEE')")
-    @GetMapping("/{id}")
+    @GetMapping("/page/{page}")
     public ResponseEntity<List<PurchasedGymPassDTO>> getGymPasses(
-            @PathVariable("id") @ValidIDFormat final String id,
-            @ValidDateFormat @RequestParam(value = "startDate",required = false) final String startDate,
-            @ValidDateFormat @RequestParam(value = "endDate", required = false) final String endDate
+            @ValidDateFormat @RequestParam(value = "purchaseStartDate",required = false) final String purchaseStartDate,
+            @ValidDateFormat @RequestParam(value = "purchaseEndDate", required = false) final String purchaseEndDate,
+            @RequestParam(defaultValue = "10") final int size,
+            @PathVariable final int page
     ){
         try{
+            Pageable paging = PageRequest.of(page, size);
             return ResponseEntity
                     .status(HttpStatus.OK)
                     .body(purchaseService.getGymPasses(
-                            startDate,
-                            endDate)
+                            purchaseStartDate,
+                            purchaseEndDate,
+                            paging)
                     );
 
         } catch (StartDateAfterEndDateException exception) {

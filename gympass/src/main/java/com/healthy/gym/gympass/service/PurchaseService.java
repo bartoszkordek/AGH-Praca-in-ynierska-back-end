@@ -5,6 +5,7 @@ import com.healthy.gym.gympass.dto.PurchasedGymPassStatusValidationResultDTO;
 import com.healthy.gym.gympass.dto.PurchasedUserGymPassDTO;
 import com.healthy.gym.gympass.exception.*;
 import com.healthy.gym.gympass.pojo.request.PurchasedGymPassRequest;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
@@ -21,7 +22,7 @@ public interface PurchaseService {
     PurchasedGymPassStatusValidationResultDTO checkGymPassValidityStatus(String individualGymPassId)
             throws GymPassNotFoundException;
 
-    List<PurchasedGymPassDTO> getGymPasses(String startDate, String endDate)
+    List<PurchasedGymPassDTO> getGymPasses(String purchaseStartDate, String purchaseEndDate, Pageable pageable)
         throws StartDateAfterEndDateException;
 
     List<PurchasedUserGymPassDTO> getUserGymPasses(String userId, String startDate, String endDate)

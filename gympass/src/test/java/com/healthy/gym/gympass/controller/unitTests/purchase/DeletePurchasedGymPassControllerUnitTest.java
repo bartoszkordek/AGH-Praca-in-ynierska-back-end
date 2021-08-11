@@ -6,6 +6,8 @@ import com.healthy.gym.gympass.controller.PurchaseController;
 import com.healthy.gym.gympass.dto.BasicUserInfoDTO;
 import com.healthy.gym.gympass.dto.PurchasedGymPassDTO;
 import com.healthy.gym.gympass.dto.SimpleGymPassDTO;
+import com.healthy.gym.gympass.exception.GymPassNotFoundException;
+import com.healthy.gym.gympass.exception.RetroPurchasedException;
 import com.healthy.gym.gympass.service.PurchaseService;
 import com.healthy.gym.gympass.shared.Price;
 import org.junit.jupiter.api.BeforeEach;
@@ -27,11 +29,14 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 
 import static com.healthy.gym.gympass.configuration.LocaleConverter.convertEnumToLocale;
 import static com.healthy.gym.gympass.configuration.Messages.getMessagesAccordingToLocale;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.is;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.ResultMatcher.matchAll;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -134,7 +139,7 @@ public class DeletePurchasedGymPassControllerUnitTest {
             RequestBuilder request = MockMvcRequestBuilders
                     .delete(uri+"/"+purchasedGymPassDocumentIdToRemove)
                     .header("Accept-Language", testedLocale.toString())
-                    .header("Authorization", managerToken)
+                    .header("Authorization", employeeToken)
                     .contentType(MediaType.APPLICATION_JSON);
 
             when(purchaseService.deleteGymPass(purchasedGymPassDocumentIdToRemove))
@@ -168,6 +173,40 @@ public class DeletePurchasedGymPassControllerUnitTest {
                             jsonPath("$.purchasedGymPass.endDate")
                                     .value(is(LocalDate.parse(endDate, DateTimeFormatter.ISO_LOCAL_DATE).toString()))
                     ));
+        }
+    }
+
+    @Nested
+    class ShouldNotRemoveGymPass{
+
+        @ParameterizedTest
+        @EnumSource(TestCountry.class)
+        void shouldNotRemovePurchasedGymPassWhenInvalidId(TestCountry country) throws Exception {
+            Map<String, String> messages = getMessagesAccordingToLocale(country);
+            Locale testedLocale = convertEnumToLocale(country);
+
+            String invalidGymPassId = UUID.randomUUID().toString();
+
+            RequestBuilder request = MockMvcRequestBuilders
+                    .delete(uri+"/"+invalidGymPassId)
+                    .header("Accept-Language", testedLocale.toString())
+                    .header("Authorization", managerToken)
+                    .contentType(MediaType.APPLICATION_JSON);
+
+            doThrow(GymPassNotFoundException.class)
+                    .when(purchaseService)
+                    .deleteGymPass(invalidGymPassId);
+
+            String expectedMessage = messages.get("exception.gympass.not.found");
+
+            mockMvc.perform(request)
+                    .andDo(print())
+                    .andExpect(status().isBadRequest())
+                    .andExpect(status().reason(is(expectedMessage)))
+                    .andExpect(result ->
+                            assertThat(Objects.requireNonNull(result.getResolvedException()).getCause())
+                                    .isInstanceOf(GymPassNotFoundException.class)
+                    );
         }
     }
 

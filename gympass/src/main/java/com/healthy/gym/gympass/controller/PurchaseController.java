@@ -182,7 +182,7 @@ public class PurchaseController {
     public ResponseEntity<List<PurchasedGymPassDTO>> getGymPasses(
             @ValidDateFormat @RequestParam(value = "purchaseStartDate",required = false) final String purchaseStartDate,
             @ValidDateFormat @RequestParam(value = "purchaseEndDate", required = false) final String purchaseEndDate,
-            @RequestParam(defaultValue = "10") final int size,
+            @RequestParam(defaultValue = "10", required = false) final int size,
             @PathVariable final int page
     ){
         try{

@@ -367,6 +367,36 @@ public class GetAllUserGymPassesIntegrationTest {
 
         @ParameterizedTest
         @EnumSource(TestCountry.class)
+        void shouldNotGetUserGymPasses_whenInvalidUserId(TestCountry country)
+                throws Exception {
+            Map<String, String> messages = getMessagesAccordingToLocale(country);
+            Locale testedLocale = convertEnumToLocale(country);
+
+            String invalidUserId = UUID.randomUUID().toString();
+
+            URI uri = new URI("http://localhost:" + port + "/purchase/user/"+invalidUserId);
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.set("Accept-Language", testedLocale.toString());
+            headers.set("Authorization", employeeToken);
+            headers.setContentType(MediaType.APPLICATION_JSON);
+
+            HttpEntity<Object> request = new HttpEntity<>(null, headers);
+
+            ResponseEntity<JsonNode> responseEntity = restTemplate
+                    .exchange(uri, HttpMethod.GET, request, JsonNode.class);
+
+            String expectedMessage = messages.get("exception.user.not.found");
+
+            assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+            assertThat(responseEntity.getBody().get("status").intValue()).isEqualTo(400);
+            assertThat(responseEntity.getBody().get("error").textValue()).isEqualTo("Bad Request");
+            assertThat(responseEntity.getBody().get("message").textValue()).isEqualTo(expectedMessage);
+            assertThat(responseEntity.getBody().get("timestamp")).isNotNull();
+        }
+
+        @ParameterizedTest
+        @EnumSource(TestCountry.class)
         void shouldNotGetUserGymPasses_whenEmptyList(TestCountry country)
                 throws Exception {
             Locale testedLocale = convertEnumToLocale(country);

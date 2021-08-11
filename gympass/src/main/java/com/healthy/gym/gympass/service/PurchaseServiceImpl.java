@@ -151,7 +151,7 @@ public class PurchaseServiceImpl implements PurchaseService{
     }
 
     @Override
-    public List<PurchasedUserGymPassDTO> getAllUserGymPasses(
+    public List<PurchasedUserGymPassDTO> getUserGymPasses(
             String userId,
             String requestStartDate,
             String requestEndDate

@@ -177,7 +177,7 @@ public class PurchaseController {
 
     @PreAuthorize("hasRole('ADMIN') or hasRole('MANAGER') or hasRole('EMPLOYEE')")
     @GetMapping("/user/{id}")
-    public ResponseEntity<List<PurchasedUserGymPassDTO>> getAllUserGymPasses(
+    public ResponseEntity<List<PurchasedUserGymPassDTO>> getUserGymPasses(
             @PathVariable("id") @ValidIDFormat final String id,
             @ValidDateFormat @RequestParam(value = "startDate",required = false) final String startDate,
             @ValidDateFormat @RequestParam(value = "endDate", required = false) final String endDate
@@ -185,7 +185,7 @@ public class PurchaseController {
         try{
             return ResponseEntity
                     .status(HttpStatus.OK)
-                    .body(purchaseService.getAllUserGymPasses(id, startDate, endDate));
+                    .body(purchaseService.getUserGymPasses(id, startDate, endDate));
 
         } catch (UserNotFoundException exception) {
             String reason = translator.toLocale("exception.user.not.found");

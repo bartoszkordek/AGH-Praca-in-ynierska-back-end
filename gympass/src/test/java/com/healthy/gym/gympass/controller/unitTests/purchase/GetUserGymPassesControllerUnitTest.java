@@ -40,7 +40,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
 @WebMvcTest(PurchaseController.class)
-public class GetAllUserGymPassesControllerUnitTest {
+public class GetUserGymPassesControllerUnitTest {
 
     @Autowired
     private MockMvc mockMvc;
@@ -141,7 +141,7 @@ public class GetAllUserGymPassesControllerUnitTest {
                     purchasedUserGymPassDTO1, purchasedUserGymPassDTO2
             );
 
-            when(purchaseService.getAllUserGymPasses(validUserId, null, null))
+            when(purchaseService.getUserGymPasses(validUserId, null, null))
                     .thenReturn(purchasedUserGymPassDTOs);
 
             mockMvc.perform(request)
@@ -193,7 +193,7 @@ public class GetAllUserGymPassesControllerUnitTest {
 
             doThrow(UserNotFoundException.class)
                     .when(purchaseService)
-                    .getAllUserGymPasses(invalidUserId, null, null);
+                    .getUserGymPasses(invalidUserId, null, null);
 
             mockMvc.perform(request)
                     .andDo(print())
@@ -223,7 +223,7 @@ public class GetAllUserGymPassesControllerUnitTest {
 
             doThrow(NoGymPassesException.class)
                     .when(purchaseService)
-                    .getAllUserGymPasses(userIdWithNoGymPass, null, null);
+                    .getUserGymPasses(userIdWithNoGymPass, null, null);
 
             mockMvc.perform(request)
                     .andDo(print())
@@ -253,7 +253,7 @@ public class GetAllUserGymPassesControllerUnitTest {
 
             doThrow(StartDateAfterEndDateException.class)
                     .when(purchaseService)
-                    .getAllUserGymPasses(validUserId, "2030-12-31", "2000-01-01");
+                    .getUserGymPasses(validUserId, "2030-12-31", "2000-01-01");
 
             mockMvc.perform(request)
                     .andDo(print())
@@ -282,7 +282,7 @@ public class GetAllUserGymPassesControllerUnitTest {
 
             doThrow(IllegalStateException.class)
                     .when(purchaseService)
-                    .getAllUserGymPasses(userId, null, null);
+                    .getUserGymPasses(userId, null, null);
 
             String expectedMessage = messages.get("exception.internal.error");
 

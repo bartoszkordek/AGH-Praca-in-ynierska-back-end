@@ -32,7 +32,7 @@ import java.util.List;
 import java.util.UUID;
 
 @SpringBootTest
-class GetAllUserGymPassesServiceUnitTest {
+class GetUserGymPassesServiceUnitTest {
 
     @Autowired
     private PurchaseService purchaseService;
@@ -207,11 +207,11 @@ class GetAllUserGymPassesServiceUnitTest {
                 LocalDate.parse("9999-12-31", DateTimeFormatter.ISO_LOCAL_DATE).plusDays(1)))
                 .thenReturn(purchasedGymPassDocuments);
         //then
-        assertThat(purchaseService.getAllUserGymPasses(userId, null, null).get(0))
+        assertThat(purchaseService.getUserGymPasses(userId, null, null).get(0))
                 .isEqualTo(purchasedGymPassResponse.get(0));
-        assertThat(purchaseService.getAllUserGymPasses(userId, null, null).get(1))
+        assertThat(purchaseService.getUserGymPasses(userId, null, null).get(1))
                 .isEqualTo(purchasedGymPassResponse.get(1));
-        assertThat(purchaseService.getAllUserGymPasses(userId, null, null).get(2))
+        assertThat(purchaseService.getUserGymPasses(userId, null, null).get(2))
                 .isEqualTo(purchasedGymPassResponse.get(2));
     }
 
@@ -226,7 +226,7 @@ class GetAllUserGymPassesServiceUnitTest {
 
         //then
         assertThatThrownBy(() ->
-                purchaseService.getAllUserGymPasses(invalidUserId, null, null)
+                purchaseService.getUserGymPasses(invalidUserId, null, null)
         ).isInstanceOf(UserNotFoundException.class);
     }
 
@@ -238,7 +238,7 @@ class GetAllUserGymPassesServiceUnitTest {
 
         //then
         assertThatThrownBy(() ->
-                purchaseService.getAllUserGymPasses(userId, startDate, endDate)
+                purchaseService.getUserGymPasses(userId, startDate, endDate)
         ).isInstanceOf(StartDateAfterEndDateException.class);
     }
 
@@ -257,7 +257,7 @@ class GetAllUserGymPassesServiceUnitTest {
 
         //then
         assertThatThrownBy(() ->
-                purchaseService.getAllUserGymPasses(userIdWithNoGymPasses, null, null)
+                purchaseService.getUserGymPasses(userIdWithNoGymPasses, null, null)
         ).isInstanceOf(NoGymPassesException.class);
     }
 }

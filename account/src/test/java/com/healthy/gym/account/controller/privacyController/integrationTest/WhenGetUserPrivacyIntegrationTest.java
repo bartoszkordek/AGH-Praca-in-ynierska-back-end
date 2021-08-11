@@ -6,6 +6,7 @@ import com.healthy.gym.account.configuration.tests.TestRoleTokenFactory;
 import com.healthy.gym.account.data.document.UserDocument;
 import com.healthy.gym.account.data.document.UserPrivacyDocument;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,6 +39,7 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
         "eureka.client.fetch-registry=false",
         "eureka.client.register-with-eureka=false"
 })
+@Tag("integration")
 class WhenGetUserPrivacyIntegrationTest {
     @Container
     static MongoDBContainer mongoDBContainer =

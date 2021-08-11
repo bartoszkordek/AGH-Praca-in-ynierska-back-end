@@ -3,9 +3,7 @@ package com.healthy.gym.account.data.repository;
 import com.healthy.gym.account.data.document.PhotoDocument;
 import com.healthy.gym.account.pojo.Image;
 import org.bson.types.Binary;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.mongo.embedded.EmbeddedMongoAutoConfiguration;
 import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest;
@@ -24,6 +22,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @Testcontainers
 @DataMongoTest(excludeAutoConfiguration = EmbeddedMongoAutoConfiguration.class)
+@Tags({@Tag("repository"), @Tag("integration")})
 class PhotoDAOTest {
     @Container
     static MongoDBContainer mongoDBContainer =

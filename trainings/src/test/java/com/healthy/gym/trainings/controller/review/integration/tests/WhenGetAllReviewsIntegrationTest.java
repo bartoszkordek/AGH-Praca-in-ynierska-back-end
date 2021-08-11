@@ -4,10 +4,7 @@ import com.healthy.gym.trainings.component.TokenManager;
 import com.healthy.gym.trainings.data.document.GroupTrainingsReviews;
 import io.jsonwebtoken.Jwts;
 import org.assertj.core.api.AssertionsForClassTypes;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Nested;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
@@ -35,6 +32,7 @@ import static org.assertj.core.api.Assertions.assertThat;
         "eureka.client.fetch-registry=false",
         "eureka.client.register-with-eureka=false"
 })
+@Tag("integration")
 class WhenGetAllReviewsIntegrationTest {
 
     @Container

@@ -2,8 +2,11 @@ package com.healthy.gym.gympass.service;
 
 import com.healthy.gym.gympass.dto.PurchasedGymPassDTO;
 import com.healthy.gym.gympass.dto.PurchasedGymPassStatusValidationResultDTO;
+import com.healthy.gym.gympass.dto.PurchasedUserGymPassDTO;
 import com.healthy.gym.gympass.exception.*;
 import com.healthy.gym.gympass.pojo.request.PurchasedGymPassRequest;
+
+import java.util.List;
 
 public interface PurchaseService {
 
@@ -17,4 +20,7 @@ public interface PurchaseService {
 
     PurchasedGymPassStatusValidationResultDTO isGymPassValid(String individualGymPassId)
             throws GymPassNotFoundException;
+
+    List<PurchasedUserGymPassDTO> getUserGymPasses(String userId, String startDate, String endDate)
+        throws UserNotFoundException, StartDateAfterEndDateException, NoGymPassesException;
 }

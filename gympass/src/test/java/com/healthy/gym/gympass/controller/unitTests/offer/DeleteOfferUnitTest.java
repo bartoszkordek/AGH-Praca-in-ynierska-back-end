@@ -128,7 +128,7 @@ class DeleteOfferUnitTest {
     }
 
     @Nested
-    class shouldNotDeleteOfferWhenNotAuthorized{
+    class ShouldNotDeleteOfferWhenNotAuthorized{
 
         @ParameterizedTest
         @EnumSource(TestCountry.class)

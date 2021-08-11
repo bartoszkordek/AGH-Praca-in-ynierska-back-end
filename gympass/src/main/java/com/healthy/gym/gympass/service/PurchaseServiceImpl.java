@@ -8,8 +8,10 @@ import com.healthy.gym.gympass.data.repository.PurchasedGymPassDAO;
 import com.healthy.gym.gympass.data.repository.UserDAO;
 import com.healthy.gym.gympass.dto.PurchasedGymPassDTO;
 import com.healthy.gym.gympass.dto.PurchasedGymPassStatusValidationResultDTO;
+import com.healthy.gym.gympass.dto.PurchasedUserGymPassDTO;
 import com.healthy.gym.gympass.exception.*;
 import com.healthy.gym.gympass.pojo.request.PurchasedGymPassRequest;
+import com.healthy.gym.gympass.util.RequestDateFormatter;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,7 +21,9 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
+import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 public class PurchaseServiceImpl implements PurchaseService{
@@ -29,6 +33,7 @@ public class PurchaseServiceImpl implements PurchaseService{
     private final UserDAO userDAO;
     private final ModelMapper modelMapper;
 
+    private static final String MIN_START_DATE = "1000-01-01";
     private static final String MAX_END_DATE = "9999-12-31";
 
     @Autowired
@@ -143,5 +148,39 @@ public class PurchaseServiceImpl implements PurchaseService{
                 suspensionDateResponse
         );
 
+    }
+
+    @Override
+    public List<PurchasedUserGymPassDTO> getUserGymPasses(
+            String userId,
+            String requestStartDate,
+            String requestEndDate
+    ) throws UserNotFoundException, StartDateAfterEndDateException, NoGymPassesException {
+
+        RequestDateFormatter requestDateFormatter = new RequestDateFormatter();
+        String startDate = MIN_START_DATE;
+        String endDate = MAX_END_DATE;
+        if(requestStartDate != null) startDate = requestStartDate;
+
+        if(requestEndDate != null) endDate = requestEndDate;
+
+        LocalDate formattedStartDate = requestDateFormatter.formatStartDate(startDate);
+        LocalDate formattedEndDate = requestDateFormatter.formatEndDate(endDate);
+
+        if(formattedStartDate.isAfter(formattedEndDate))
+            throw new StartDateAfterEndDateException("Start date after end date");
+
+        UserDocument userDocument = userDAO.findByUserId(userId);
+        if(userDocument == null) throw  new UserNotFoundException("User not exist");
+
+        List<PurchasedGymPassDocument> purchasedGymPassDocuments = purchasedGymPassDAO
+                .findAllByUserAndStartDateAfterAndEndDateBefore(userDocument, formattedStartDate, formattedEndDate);
+
+        if(purchasedGymPassDocuments.isEmpty()) throw new NoGymPassesException("No gympasses to display");
+
+        return purchasedGymPassDocuments
+                .stream()
+                .map(purchasedGymPassDocument -> modelMapper.map(purchasedGymPassDocument, PurchasedUserGymPassDTO.class))
+                .collect(Collectors.toList());
     }
 }

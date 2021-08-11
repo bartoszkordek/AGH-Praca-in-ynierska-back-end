@@ -118,7 +118,7 @@ public class PurchaseServiceImpl implements PurchaseService{
     }
 
     @Override
-    public PurchasedGymPassStatusValidationResultDTO isGymPassValid(String individualGymPassId)
+    public PurchasedGymPassStatusValidationResultDTO checkGymPassValidityStatus(String individualGymPassId)
             throws GymPassNotFoundException {
 
         PurchasedGymPassDocument purchasedGymPassDocument = purchasedGymPassDAO

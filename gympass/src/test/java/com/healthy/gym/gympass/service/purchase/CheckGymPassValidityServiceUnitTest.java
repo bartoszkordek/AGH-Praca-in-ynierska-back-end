@@ -29,7 +29,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.when;
 
 @SpringBootTest
-class CheckGymPassValidationServiceUnitTest {
+class CheckGymPassValidityServiceUnitTest {
 
     @Autowired
     private PurchaseService purchaseService;
@@ -214,7 +214,7 @@ class CheckGymPassValidationServiceUnitTest {
         when(purchasedGymPassDAO.findByPurchasedGymPassDocumentId(notSuspendedTimeTypeGymPassDocumentId))
                 .thenReturn(notSuspendedTimeTypePurchasedGymPassDocument);
         //then
-        assertThat(purchaseService.isGymPassValid(notSuspendedTimeTypeGymPassDocumentId))
+        assertThat(purchaseService.checkGymPassValidityStatus(notSuspendedTimeTypeGymPassDocumentId))
                 .isEqualTo(notSuspendedTimeTypePurchasedGymPassDTO);
     }
 
@@ -224,7 +224,7 @@ class CheckGymPassValidationServiceUnitTest {
         when(purchasedGymPassDAO.findByPurchasedGymPassDocumentId(suspendedTimeTypeGymPassDocumentId))
                 .thenReturn(suspendedTimeTypePurchasedGymPassDocument);
         //then
-        assertThat(purchaseService.isGymPassValid(suspendedTimeTypeGymPassDocumentId))
+        assertThat(purchaseService.checkGymPassValidityStatus(suspendedTimeTypeGymPassDocumentId))
                 .isEqualTo(suspendedTimeTypePurchasedGymPassDTO);
     }
 
@@ -234,7 +234,7 @@ class CheckGymPassValidationServiceUnitTest {
         when(purchasedGymPassDAO.findByPurchasedGymPassDocumentId(notSuspendedNotValidTimeTypeGymPassDocumentId))
                 .thenReturn(notSuspendedNotValidTimeTypePurchasedGymPassDocument);
         //then
-        assertThat(purchaseService.isGymPassValid(notSuspendedNotValidTimeTypeGymPassDocumentId))
+        assertThat(purchaseService.checkGymPassValidityStatus(notSuspendedNotValidTimeTypeGymPassDocumentId))
                 .isEqualTo(notSuspendedNotValidTimeTypePurchasedGymPassDTO);
     }
 
@@ -244,7 +244,7 @@ class CheckGymPassValidationServiceUnitTest {
         when(purchasedGymPassDAO.findByPurchasedGymPassDocumentId(notSuspendedEntriesTypeGymPassDocumentId))
                 .thenReturn(notSuspendedEntriesTypePurchasedGymPassDocument);
         //then
-        assertThat(purchaseService.isGymPassValid(notSuspendedEntriesTypeGymPassDocumentId))
+        assertThat(purchaseService.checkGymPassValidityStatus(notSuspendedEntriesTypeGymPassDocumentId))
                 .isEqualTo(notSuspendedEntriesTypePurchasedGymPassDTO);
     }
 
@@ -254,7 +254,7 @@ class CheckGymPassValidationServiceUnitTest {
         when(purchasedGymPassDAO.findByPurchasedGymPassDocumentId(suspendedEntriesTypeGymPassDocumentId))
                 .thenReturn(suspendedEntriesTypePurchasedGymPassDocument);
         //then
-        assertThat(purchaseService.isGymPassValid(suspendedEntriesTypeGymPassDocumentId))
+        assertThat(purchaseService.checkGymPassValidityStatus(suspendedEntriesTypeGymPassDocumentId))
                 .isEqualTo(suspendedEntriesTypePurchasedGymPassDTO);
     }
 
@@ -266,7 +266,7 @@ class CheckGymPassValidationServiceUnitTest {
                 .thenReturn(null);
         //then
         assertThatThrownBy(() ->
-                purchaseService.isGymPassValid(invalidPurchasedGymPassId)
+                purchaseService.checkGymPassValidityStatus(invalidPurchasedGymPassId)
         ).isInstanceOf(GymPassNotFoundException.class);
     }
 }

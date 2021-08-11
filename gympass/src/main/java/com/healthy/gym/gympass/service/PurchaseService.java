@@ -18,7 +18,7 @@ public interface PurchaseService {
             throws GymPassNotFoundException, AlreadySuspendedGymPassException, RetroSuspensionDateException,
             SuspensionDateAfterEndDateException;
 
-    PurchasedGymPassStatusValidationResultDTO isGymPassValid(String individualGymPassId)
+    PurchasedGymPassStatusValidationResultDTO checkGymPassValidityStatus(String individualGymPassId)
             throws GymPassNotFoundException;
 
     List<PurchasedUserGymPassDTO> getUserGymPasses(String userId, String startDate, String endDate)

@@ -140,11 +140,11 @@ public class PurchaseController {
 
     @PreAuthorize("hasRole('ADMIN') or hasRole('MANAGER') or hasRole('EMPLOYEE')")
     @GetMapping("/status/{id}")
-    public ResponseEntity<ValidationGymPassResponse> checkGymPassValidation(
+    public ResponseEntity<ValidationGymPassResponse> checkGymPassValidityStatus(
             @PathVariable("id") @ValidIDFormat final String id
     ){
         try{
-            PurchasedGymPassStatusValidationResultDTO result  = purchaseService.isGymPassValid(id);
+            PurchasedGymPassStatusValidationResultDTO result  = purchaseService.checkGymPassValidityStatus(id);
             String message = validationStatusMessage(result);
 
             if(result.isValid()){

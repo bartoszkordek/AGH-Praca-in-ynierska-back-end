@@ -7,9 +7,7 @@ import com.healthy.gym.account.exception.IdenticalOldAndNewPasswordException;
 import com.healthy.gym.account.exception.OldPasswordDoesNotMatchException;
 import com.healthy.gym.account.service.AccountService;
 import com.healthy.gym.account.shared.UserDTO;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -36,6 +34,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
         "eureka.client.fetch-registry=false",
         "eureka.client.register-with-eureka=false"
 })
+@Tag("integration")
 class WhenChangePasswordIntegrationTest {
 
     @Container

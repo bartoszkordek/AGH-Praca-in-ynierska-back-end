@@ -2,10 +2,7 @@ package com.healthy.gym.auth.data.repository.mongo;
 
 import com.healthy.gym.auth.data.document.ResetPasswordTokenDocument;
 import com.healthy.gym.auth.data.document.UserDocument;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Nested;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.mongo.embedded.EmbeddedMongoAutoConfiguration;
 import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest;
@@ -25,6 +22,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @Testcontainers
 @DataMongoTest(excludeAutoConfiguration = EmbeddedMongoAutoConfiguration.class)
+@Tags({@Tag("repository"), @Tag("integration")})
 class ResetPasswordTokenDAOTest {
 
     @Container

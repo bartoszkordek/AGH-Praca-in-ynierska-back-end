@@ -13,6 +13,7 @@ import com.healthy.gym.gympass.shared.Price;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,7 +47,8 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
         "eureka.client.fetch-registry=false",
         "eureka.client.register-with-eureka=false"
 })
-public class SuspendPurchasedGymPassIntegrationTest {
+@Tag("integration")
+class SuspendPurchasedGymPassIntegrationTest {
 
     @Container
     static MongoDBContainer mongoDBContainer =
@@ -161,14 +163,14 @@ public class SuspendPurchasedGymPassIntegrationTest {
     }
 
     @AfterEach
-    void tearDown(){
+    void tearDown() {
         mongoTemplate.dropCollection(PurchasedGymPassDocument.class);
         mongoTemplate.dropCollection(GymPassDocument.class);
         mongoTemplate.dropCollection(UserDocument.class);
     }
 
     @Nested
-    class ShouldSuspendGymPass{
+    class ShouldSuspendGymPass {
 
         @ParameterizedTest
         @EnumSource(TestCountry.class)
@@ -178,8 +180,8 @@ public class SuspendPurchasedGymPassIntegrationTest {
 
             String suspensionDate = LocalDate.now().plusDays(2).format(DateTimeFormatter.ISO_LOCAL_DATE);
 
-            URI uri = new URI("http://localhost:" + port + "/purchase/"+purchasedGymPassDocumentId+
-                    "/suspend/"+suspensionDate);
+            URI uri = new URI("http://localhost:" + port + "/purchase/" + purchasedGymPassDocumentId +
+                    "/suspend/" + suspensionDate);
 
             HttpHeaders headers = new HttpHeaders();
             headers.set("Accept-Language", testedLocale.toString());
@@ -228,7 +230,7 @@ public class SuspendPurchasedGymPassIntegrationTest {
     }
 
     @Nested
-    class ShouldNotSuspendGymPass{
+    class ShouldNotSuspendGymPass {
 
         @ParameterizedTest
         @EnumSource(TestCountry.class)
@@ -239,8 +241,8 @@ public class SuspendPurchasedGymPassIntegrationTest {
             String invalidOfferIdPurchasedGymPassId = UUID.randomUUID().toString();
             String suspensionDate = LocalDate.now().plusDays(2).format(DateTimeFormatter.ISO_LOCAL_DATE);
 
-            URI uri = new URI("http://localhost:" + port + "/purchase/"+invalidOfferIdPurchasedGymPassId+
-                    "/suspend/"+suspensionDate);
+            URI uri = new URI("http://localhost:" + port + "/purchase/" + invalidOfferIdPurchasedGymPassId +
+                    "/suspend/" + suspensionDate);
 
             HttpHeaders headers = new HttpHeaders();
             headers.set("Accept-Language", testedLocale.toString());
@@ -268,8 +270,8 @@ public class SuspendPurchasedGymPassIntegrationTest {
 
             String suspensionDate = LocalDate.now().plusDays(2).format(DateTimeFormatter.ISO_LOCAL_DATE);
 
-            URI uri = new URI("http://localhost:" + port + "/purchase/"+alreadySuspendedPurchasedGymPassDocumentId+
-                    "/suspend/"+suspensionDate);
+            URI uri = new URI("http://localhost:" + port + "/purchase/" + alreadySuspendedPurchasedGymPassDocumentId +
+                    "/suspend/" + suspensionDate);
 
             HttpHeaders headers = new HttpHeaders();
             headers.set("Accept-Language", testedLocale.toString());
@@ -297,8 +299,8 @@ public class SuspendPurchasedGymPassIntegrationTest {
 
             String suspensionDate = LocalDate.now().minusDays(1).format(DateTimeFormatter.ISO_LOCAL_DATE);
 
-            URI uri = new URI("http://localhost:" + port + "/purchase/"+purchasedGymPassDocumentId+
-                    "/suspend/"+suspensionDate);
+            URI uri = new URI("http://localhost:" + port + "/purchase/" + purchasedGymPassDocumentId +
+                    "/suspend/" + suspensionDate);
 
             HttpHeaders headers = new HttpHeaders();
             headers.set("Accept-Language", testedLocale.toString());
@@ -326,8 +328,8 @@ public class SuspendPurchasedGymPassIntegrationTest {
 
             String suspensionDate = LocalDate.now().plusYears(1000).format(DateTimeFormatter.ISO_LOCAL_DATE);
 
-            URI uri = new URI("http://localhost:" + port + "/purchase/"+purchasedGymPassDocumentId+
-                    "/suspend/"+suspensionDate);
+            URI uri = new URI("http://localhost:" + port + "/purchase/" + purchasedGymPassDocumentId +
+                    "/suspend/" + suspensionDate);
 
             HttpHeaders headers = new HttpHeaders();
             headers.set("Accept-Language", testedLocale.toString());
@@ -348,7 +350,7 @@ public class SuspendPurchasedGymPassIntegrationTest {
         }
 
         @Nested
-        class ShouldNotSuspendGymPassWhenNotAuthorized{
+        class ShouldNotSuspendGymPassWhenNotAuthorized {
 
             @ParameterizedTest
             @EnumSource(TestCountry.class)
@@ -357,8 +359,8 @@ public class SuspendPurchasedGymPassIntegrationTest {
 
                 String suspensionDate = LocalDate.now().plusDays(2).format(DateTimeFormatter.ISO_LOCAL_DATE);
 
-                URI uri = new URI("http://localhost:" + port + "/purchase/"+purchasedGymPassDocumentId+
-                        "/suspend/"+suspensionDate);
+                URI uri = new URI("http://localhost:" + port + "/purchase/" + purchasedGymPassDocumentId +
+                        "/suspend/" + suspensionDate);
 
                 HttpHeaders headers = new HttpHeaders();
                 headers.set("Accept-Language", testedLocale.toString());
@@ -385,8 +387,8 @@ public class SuspendPurchasedGymPassIntegrationTest {
 
                 String suspensionDate = LocalDate.now().plusDays(2).format(DateTimeFormatter.ISO_LOCAL_DATE);
 
-                URI uri = new URI("http://localhost:" + port + "/purchase/"+purchasedGymPassDocumentId+
-                        "/suspend/"+suspensionDate);
+                URI uri = new URI("http://localhost:" + port + "/purchase/" + purchasedGymPassDocumentId +
+                        "/suspend/" + suspensionDate);
 
                 HttpHeaders headers = new HttpHeaders();
                 headers.set("Accept-Language", testedLocale.toString());

@@ -194,5 +194,68 @@ public class GetGymPassesControllerUnitTest {
                                     .value(is(Integer.MAX_VALUE))
                     ));
         }
+
+        @ParameterizedTest
+        @EnumSource(TestCountry.class)
+        void shouldGetPurchasedGymPassesWhenNotDeclaredDates(TestCountry country) throws Exception {
+            Locale testedLocale = convertEnumToLocale(country);
+
+            int page = 0;
+
+            RequestBuilder request = MockMvcRequestBuilders
+                    .get(uri+"/page/"+page)
+                    .header("Accept-Language", testedLocale.toString())
+                    .header("Authorization", employeeToken)
+                    .contentType(MediaType.APPLICATION_JSON);
+
+            when(purchaseService.getGymPasses(any(), any(), any()))
+                    .thenReturn(purchasedGymPassesResponseList);
+
+            mockMvc.perform(request)
+                    .andDo(print())
+                    .andExpect(matchAll(
+                            status().isOk(),
+                            content().contentType(MediaType.APPLICATION_JSON),
+                            jsonPath("$.[0].purchasedGymPassDocumentId").value(is(purchasedGymPassDocumentId1)),
+                            jsonPath("$.[0].gymPassOffer").exists(),
+                            jsonPath("$.[0].gymPassOffer.title").value(is("Karnet miesięczny")),
+                            jsonPath("$.[0].gymPassOffer.price").exists(),
+                            jsonPath("$.[0].gymPassOffer.price.amount").value(is(139.99)),
+                            jsonPath("$.[0].gymPassOffer.price.currency").value(is("zł")),
+                            jsonPath("$.[0].gymPassOffer.price.period").value(is("miesiąc")),
+                            jsonPath("$.[0].gymPassOffer.premium").value(is(false)),
+                            jsonPath("$.[0].user").exists(),
+                            jsonPath("$.[0].user.userId").exists(),
+                            jsonPath("$.[0].user.name").value(is("Jan")),
+                            jsonPath("$.[0].user.surname").value(is("Kowalski")),
+                            jsonPath("$.[0].purchaseDateTime").exists(),
+                            jsonPath("$.[0].startDate")
+                                    .value(is(LocalDateTime.now().minusDays(5).format(DateTimeFormatter.ISO_LOCAL_DATE))),
+                            jsonPath("$.[0].endDate")
+                                    .value(is(LocalDateTime.now().minusDays(5).plusMonths(1).format(DateTimeFormatter.ISO_LOCAL_DATE))),
+                            jsonPath("$.[0].entries")
+                                    .value(is(Integer.MAX_VALUE)),
+
+                            jsonPath("$.[1].purchasedGymPassDocumentId").value(is(purchasedGymPassDocumentId2)),
+                            jsonPath("$.[1].gymPassOffer").exists(),
+                            jsonPath("$.[1].gymPassOffer.title").value(is("Karnet miesięczny PREMIUM")),
+                            jsonPath("$.[1].gymPassOffer.price").exists(),
+                            jsonPath("$.[1].gymPassOffer.price.amount").value(is(139.99)),
+                            jsonPath("$.[1].gymPassOffer.price.currency").value(is("zł")),
+                            jsonPath("$.[1].gymPassOffer.price.period").value(is("miesiąc")),
+                            jsonPath("$.[1].gymPassOffer.premium").value(is(true)),
+                            jsonPath("$.[1].user").exists(),
+                            jsonPath("$.[1].user.userId").exists(),
+                            jsonPath("$.[1].user.name").value(is("Jan")),
+                            jsonPath("$.[1].user.surname").value(is("Kowalski")),
+                            jsonPath("$.[1].purchaseDateTime").exists(),
+                            jsonPath("$.[1].startDate")
+                                    .value(is(LocalDateTime.now().minusDays(5).minusMonths(1).format(DateTimeFormatter.ISO_LOCAL_DATE))),
+                            jsonPath("$.[1].endDate")
+                                    .value(is(LocalDateTime.now().minusDays(5).format(DateTimeFormatter.ISO_LOCAL_DATE))),
+                            jsonPath("$.[1].entries")
+                                    .value(is(Integer.MAX_VALUE))
+                    ));
+        }
     }
 }

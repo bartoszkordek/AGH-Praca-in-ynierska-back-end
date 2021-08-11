@@ -181,4 +181,14 @@ public class PurchaseServiceImpl implements PurchaseService{
                 .map(purchasedGymPassDocument -> modelMapper.map(purchasedGymPassDocument, PurchasedUserGymPassDTO.class))
                 .collect(Collectors.toList());
     }
+
+    @Override
+    public PurchasedGymPassDTO deleteGymPass(String individualGymPassId) throws GymPassNotFoundException {
+
+        PurchasedGymPassDocument purchasedGymPassDocumentToRemove = purchasedGymPassDAO
+                .findByPurchasedGymPassDocumentId(individualGymPassId);
+        if(purchasedGymPassDocumentToRemove == null) throw new GymPassNotFoundException("Gympass with current ID does not exist");
+
+        return modelMapper.map(purchasedGymPassDocumentToRemove, PurchasedGymPassDTO.class);
+    }
 }

@@ -23,4 +23,7 @@ public interface PurchaseService {
 
     List<PurchasedUserGymPassDTO> getUserGymPasses(String userId, String startDate, String endDate)
         throws UserNotFoundException, StartDateAfterEndDateException, NoGymPassesException;
+
+    PurchasedGymPassDTO deleteGymPass(String individualGymPassId)
+            throws GymPassNotFoundException;
 }

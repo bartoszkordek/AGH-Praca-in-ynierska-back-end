@@ -64,8 +64,8 @@ public class PurchaseServiceImpl implements PurchaseService{
 
         String startDate = request.getStartDate();
         String endDate = request.getEndDate();
-        LocalDate parsedStartDate = LocalDate.parse(startDate, DateTimeFormatter.ISO_DATE);
-        LocalDate parsedEndDate = LocalDate.parse(endDate, DateTimeFormatter.ISO_DATE);
+        LocalDate parsedStartDate = LocalDate.parse(startDate, DateTimeFormatter.ISO_LOCAL_DATE);
+        LocalDate parsedEndDate = LocalDate.parse(endDate, DateTimeFormatter.ISO_LOCAL_DATE);
         if(parsedStartDate.isBefore(LocalDate.now()) || parsedEndDate.isBefore(LocalDate.now()))
             throw new RetroPurchasedException("Cannot buy gympass with retro date");
         if(parsedStartDate.isAfter(parsedEndDate))

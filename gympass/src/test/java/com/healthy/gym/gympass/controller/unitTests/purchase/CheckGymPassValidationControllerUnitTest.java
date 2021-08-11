@@ -91,7 +91,7 @@ public class CheckGymPassValidationControllerUnitTest {
             Map<String, String> messages = getMessagesAccordingToLocale(country);
             Locale testedLocale = convertEnumToLocale(country);
 
-            String endDate = LocalDateTime.now().minusDays(5).plusMonths(1).format(DateTimeFormatter.ISO_DATE);
+            String endDate = LocalDateTime.now().minusDays(5).plusMonths(1).format(DateTimeFormatter.ISO_LOCAL_DATE);
 
             RequestBuilder request = MockMvcRequestBuilders
                     .get(uri+"/"+validTimeValidPurchasedGymPassDocumentId)
@@ -166,7 +166,7 @@ public class CheckGymPassValidationControllerUnitTest {
             Map<String, String> messages = getMessagesAccordingToLocale(country);
             Locale testedLocale = convertEnumToLocale(country);
 
-            String endDate = LocalDateTime.now().minusDays(5).format(DateTimeFormatter.ISO_DATE);
+            String endDate = LocalDateTime.now().minusDays(5).format(DateTimeFormatter.ISO_LOCAL_DATE);
 
             RequestBuilder request = MockMvcRequestBuilders
                     .get(uri+"/"+notValidTimeValidPurchasedGymPassDocumentId)
@@ -204,7 +204,7 @@ public class CheckGymPassValidationControllerUnitTest {
             Map<String, String> messages = getMessagesAccordingToLocale(country);
             Locale testedLocale = convertEnumToLocale(country);
 
-            String suspensionDate = LocalDateTime.now().plusDays(5).format(DateTimeFormatter.ISO_DATE);
+            String suspensionDate = LocalDateTime.now().plusDays(5).format(DateTimeFormatter.ISO_LOCAL_DATE);
             int entries = 5;
 
             RequestBuilder request = MockMvcRequestBuilders
@@ -243,7 +243,7 @@ public class CheckGymPassValidationControllerUnitTest {
             Map<String, String> messages = getMessagesAccordingToLocale(country);
             Locale testedLocale = convertEnumToLocale(country);
 
-            String suspensionDate = LocalDateTime.now().plusDays(5).format(DateTimeFormatter.ISO_DATE);
+            String suspensionDate = LocalDateTime.now().plusDays(5).format(DateTimeFormatter.ISO_LOCAL_DATE);
             int entries = 0;
 
             RequestBuilder request = MockMvcRequestBuilders

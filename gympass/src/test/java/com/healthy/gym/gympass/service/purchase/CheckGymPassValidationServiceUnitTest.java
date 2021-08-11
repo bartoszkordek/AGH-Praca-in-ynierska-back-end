@@ -65,11 +65,11 @@ class CheckGymPassValidationServiceUnitTest {
         //assumptions
         long suspendedDays = 2;
         long pastDays = 5;
-        String suspensionDate = LocalDate.now().plusDays(suspendedDays).format(DateTimeFormatter.ISO_DATE);
-        String startDate = LocalDate.now().minusDays(pastDays).format(DateTimeFormatter.ISO_DATE);
-        String endDate = LocalDate.now().minusDays(pastDays).plusMonths(1).format(DateTimeFormatter.ISO_DATE);
+        String suspensionDate = LocalDate.now().plusDays(suspendedDays).format(DateTimeFormatter.ISO_LOCAL_DATE);
+        String startDate = LocalDate.now().minusDays(pastDays).format(DateTimeFormatter.ISO_LOCAL_DATE);
+        String endDate = LocalDate.now().minusDays(pastDays).plusMonths(1).format(DateTimeFormatter.ISO_LOCAL_DATE);
         String endDateForSuspendedDocuments = LocalDate.now()
-                .minusDays(pastDays).plusMonths(1).plusDays(suspendedDays).format(DateTimeFormatter.ISO_DATE);
+                .minusDays(pastDays).plusMonths(1).plusDays(suspendedDays).format(DateTimeFormatter.ISO_LOCAL_DATE);
 
         //DB documents
         String gymPassOfferId = UUID.randomUUID().toString();
@@ -111,8 +111,8 @@ class CheckGymPassValidationServiceUnitTest {
                 gymPassOfferDocument,
                 userDocument,
                 purchaseDateAndTime,
-                LocalDate.parse(startDate, DateTimeFormatter.ISO_DATE),
-                LocalDate.parse(endDate, DateTimeFormatter.ISO_DATE),
+                LocalDate.parse(startDate, DateTimeFormatter.ISO_LOCAL_DATE),
+                LocalDate.parse(endDate, DateTimeFormatter.ISO_LOCAL_DATE),
                 timeTypeEntries
         );
 
@@ -130,10 +130,10 @@ class CheckGymPassValidationServiceUnitTest {
                 gymPassOfferDocument,
                 userDocument,
                 purchaseDateAndTime,
-                LocalDate.parse(startDate, DateTimeFormatter.ISO_DATE),
-                LocalDate.parse(endDate, DateTimeFormatter.ISO_DATE).plusDays(suspendedDays),
+                LocalDate.parse(startDate, DateTimeFormatter.ISO_LOCAL_DATE),
+                LocalDate.parse(endDate, DateTimeFormatter.ISO_LOCAL_DATE).plusDays(suspendedDays),
                 timeTypeEntries,
-                LocalDate.parse(suspensionDate, DateTimeFormatter.ISO_DATE)
+                LocalDate.parse(suspensionDate, DateTimeFormatter.ISO_LOCAL_DATE)
         );
 
         suspendedTimeTypePurchasedGymPassDTO
@@ -150,10 +150,10 @@ class CheckGymPassValidationServiceUnitTest {
                 gymPassOfferDocument,
                 userDocument,
                 purchaseDateAndTime,
-                LocalDate.parse(startDate, DateTimeFormatter.ISO_DATE).minusMonths(1),
+                LocalDate.parse(startDate, DateTimeFormatter.ISO_LOCAL_DATE).minusMonths(1),
                 LocalDate.now().minusDays(1),
                 timeTypeEntries,
-                LocalDate.parse(suspensionDate, DateTimeFormatter.ISO_DATE).minusDays(10)
+                LocalDate.parse(suspensionDate, DateTimeFormatter.ISO_LOCAL_DATE).minusDays(10)
         );
 
         notSuspendedNotValidTimeTypePurchasedGymPassDTO
@@ -173,8 +173,8 @@ class CheckGymPassValidationServiceUnitTest {
                 gymPassOfferDocument,
                 userDocument,
                 purchaseDateAndTime,
-                LocalDate.parse(startDate, DateTimeFormatter.ISO_DATE),
-                LocalDate.parse(endDateForEntriesTypeDocuments, DateTimeFormatter.ISO_DATE),
+                LocalDate.parse(startDate, DateTimeFormatter.ISO_LOCAL_DATE),
+                LocalDate.parse(endDateForEntriesTypeDocuments, DateTimeFormatter.ISO_LOCAL_DATE),
                 entriesTypeEntries
         );
 
@@ -192,10 +192,10 @@ class CheckGymPassValidationServiceUnitTest {
                 gymPassOfferDocument,
                 userDocument,
                 purchaseDateAndTime,
-                LocalDate.parse(startDate, DateTimeFormatter.ISO_DATE),
-                LocalDate.parse(endDateForEntriesTypeDocuments, DateTimeFormatter.ISO_DATE),
+                LocalDate.parse(startDate, DateTimeFormatter.ISO_LOCAL_DATE),
+                LocalDate.parse(endDateForEntriesTypeDocuments, DateTimeFormatter.ISO_LOCAL_DATE),
                 entriesTypeEntries,
-                LocalDate.parse(suspensionDate, DateTimeFormatter.ISO_DATE)
+                LocalDate.parse(suspensionDate, DateTimeFormatter.ISO_LOCAL_DATE)
         );
 
         suspendedEntriesTypePurchasedGymPassDTO

@@ -54,8 +54,8 @@ class PurchaseGymPassServiceUnitTest {
         //request
         String gymPassOfferId = UUID.randomUUID().toString();
         String userId = UUID.randomUUID().toString();
-        String requestStartDate = LocalDate.now().format(DateTimeFormatter.ISO_DATE);
-        String requestEndDate = LocalDate.now().plusMonths(1).format(DateTimeFormatter.ISO_DATE);
+        String requestStartDate = LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE);
+        String requestEndDate = LocalDate.now().plusMonths(1).format(DateTimeFormatter.ISO_LOCAL_DATE);
         int entries = Integer.MAX_VALUE;
         PurchasedGymPassRequest purchasedGymPassRequest = new PurchasedGymPassRequest();
         purchasedGymPassRequest.setGymPassOfferId(gymPassOfferId);
@@ -118,8 +118,8 @@ class PurchaseGymPassServiceUnitTest {
                 gymPassOfferDocument,
                 userDocument,
                 purchaseDateAndTime,
-                LocalDate.parse(requestStartDate, DateTimeFormatter.ISO_DATE),
-                LocalDate.parse(requestEndDate, DateTimeFormatter.ISO_DATE),
+                LocalDate.parse(requestStartDate, DateTimeFormatter.ISO_LOCAL_DATE),
+                LocalDate.parse(requestEndDate, DateTimeFormatter.ISO_LOCAL_DATE),
                 entries
         );
 
@@ -139,8 +139,8 @@ class PurchaseGymPassServiceUnitTest {
         //request
         String gymPassOfferId = UUID.randomUUID().toString();
         String userId = UUID.randomUUID().toString();
-        String requestStartDate = LocalDate.now().format(DateTimeFormatter.ISO_DATE);
-        String requestEndDate = LocalDate.now().plusMonths(1).format(DateTimeFormatter.ISO_DATE);
+        String requestStartDate = LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE);
+        String requestEndDate = LocalDate.now().plusMonths(1).format(DateTimeFormatter.ISO_LOCAL_DATE);
         int entries = Integer.MAX_VALUE;
         PurchasedGymPassRequest purchasedGymPassRequest = new PurchasedGymPassRequest();
         purchasedGymPassRequest.setGymPassOfferId(gymPassOfferId);
@@ -165,8 +165,8 @@ class PurchaseGymPassServiceUnitTest {
         //request
         String gymPassOfferId = UUID.randomUUID().toString();
         String userId = UUID.randomUUID().toString();
-        String requestStartDate = LocalDate.now().format(DateTimeFormatter.ISO_DATE);
-        String requestEndDate = LocalDate.now().plusMonths(1).format(DateTimeFormatter.ISO_DATE);
+        String requestStartDate = LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE);
+        String requestEndDate = LocalDate.now().plusMonths(1).format(DateTimeFormatter.ISO_LOCAL_DATE);
         int entries = Integer.MAX_VALUE;
         PurchasedGymPassRequest purchasedGymPassRequest = new PurchasedGymPassRequest();
         purchasedGymPassRequest.setGymPassOfferId(gymPassOfferId);
@@ -223,8 +223,8 @@ class PurchaseGymPassServiceUnitTest {
         //request
         String gymPassOfferId = UUID.randomUUID().toString();
         String userId = UUID.randomUUID().toString();
-        String requestStartDate = LocalDate.now().minusDays(1).format(DateTimeFormatter.ISO_DATE);
-        String requestEndDate = LocalDate.now().minusDays(1).plusMonths(1).format(DateTimeFormatter.ISO_DATE);
+        String requestStartDate = LocalDate.now().minusDays(1).format(DateTimeFormatter.ISO_LOCAL_DATE);
+        String requestEndDate = LocalDate.now().minusDays(1).plusMonths(1).format(DateTimeFormatter.ISO_LOCAL_DATE);
         int entries = Integer.MAX_VALUE;
         PurchasedGymPassRequest purchasedGymPassRequest = new PurchasedGymPassRequest();
         purchasedGymPassRequest.setGymPassOfferId(gymPassOfferId);
@@ -281,8 +281,8 @@ class PurchaseGymPassServiceUnitTest {
         //request
         String gymPassOfferId = UUID.randomUUID().toString();
         String userId = UUID.randomUUID().toString();
-        String requestStartDate = LocalDate.now().plusMonths(1).format(DateTimeFormatter.ISO_DATE);
-        String requestEndDate = LocalDate.now().format(DateTimeFormatter.ISO_DATE);
+        String requestStartDate = LocalDate.now().plusMonths(1).format(DateTimeFormatter.ISO_LOCAL_DATE);
+        String requestEndDate = LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE);
         int entries = Integer.MAX_VALUE;
         PurchasedGymPassRequest purchasedGymPassRequest = new PurchasedGymPassRequest();
         purchasedGymPassRequest.setGymPassOfferId(gymPassOfferId);
@@ -339,7 +339,7 @@ class PurchaseGymPassServiceUnitTest {
         //request
         String gymPassOfferId = UUID.randomUUID().toString();
         String userId = UUID.randomUUID().toString();
-        String requestStartDate = LocalDate.now().plusMonths(1).format(DateTimeFormatter.ISO_DATE);
+        String requestStartDate = LocalDate.now().plusMonths(1).format(DateTimeFormatter.ISO_LOCAL_DATE);
         String requestEndDate = "9999-12-31";
         int entries = Integer.MAX_VALUE;
         PurchasedGymPassRequest purchasedGymPassRequest = new PurchasedGymPassRequest();

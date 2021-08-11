@@ -53,11 +53,11 @@ class SuspendPurchasedGymPassServiceUnitTest {
 
         //request
         String gymPassOfferId = UUID.randomUUID().toString();
-        suspensionDate = LocalDate.now().plusDays(suspendedDays).format(DateTimeFormatter.ISO_DATE);
+        suspensionDate = LocalDate.now().plusDays(suspendedDays).format(DateTimeFormatter.ISO_LOCAL_DATE);
 
         String userId = UUID.randomUUID().toString();
-        String startDate = LocalDate.now().minusDays(pastDays).format(DateTimeFormatter.ISO_DATE);
-        String endDate = LocalDate.now().minusDays(pastDays).plusMonths(1).format(DateTimeFormatter.ISO_DATE);
+        String startDate = LocalDate.now().minusDays(pastDays).format(DateTimeFormatter.ISO_LOCAL_DATE);
+        String endDate = LocalDate.now().minusDays(pastDays).plusMonths(1).format(DateTimeFormatter.ISO_LOCAL_DATE);
         int entries = Integer.MAX_VALUE;
 
         //response
@@ -86,7 +86,7 @@ class SuspendPurchasedGymPassServiceUnitTest {
                 responseEndDate,
                 entries
         );
-        purchasedGymPassDTO.setSuspensionDate(LocalDate.parse(suspensionDate, DateTimeFormatter.ISO_DATE));
+        purchasedGymPassDTO.setSuspensionDate(LocalDate.parse(suspensionDate, DateTimeFormatter.ISO_LOCAL_DATE));
 
         UserDocument userDocument = new UserDocument();
         userDocument.setName(name);
@@ -113,8 +113,8 @@ class SuspendPurchasedGymPassServiceUnitTest {
                 gymPassOfferDocument,
                 userDocument,
                 purchaseDateAndTime,
-                LocalDate.parse(startDate, DateTimeFormatter.ISO_DATE),
-                LocalDate.parse(endDate, DateTimeFormatter.ISO_DATE),
+                LocalDate.parse(startDate, DateTimeFormatter.ISO_LOCAL_DATE),
+                LocalDate.parse(endDate, DateTimeFormatter.ISO_LOCAL_DATE),
                 entries
         );
 
@@ -123,10 +123,10 @@ class SuspendPurchasedGymPassServiceUnitTest {
                 gymPassOfferDocument,
                 userDocument,
                 purchaseDateAndTime,
-                LocalDate.parse(startDate, DateTimeFormatter.ISO_DATE),
-                LocalDate.parse(endDate, DateTimeFormatter.ISO_DATE).plusDays(suspendedDays),
+                LocalDate.parse(startDate, DateTimeFormatter.ISO_LOCAL_DATE),
+                LocalDate.parse(endDate, DateTimeFormatter.ISO_LOCAL_DATE).plusDays(suspendedDays),
                 entries,
-                LocalDate.parse(suspensionDate, DateTimeFormatter.ISO_DATE)
+                LocalDate.parse(suspensionDate, DateTimeFormatter.ISO_LOCAL_DATE)
         );
 
     }

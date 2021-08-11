@@ -92,8 +92,8 @@ class SuspendPurchasedGymPassControllerUnitTest {
         String surname = "Kowalski";
         BasicUserInfoDTO user = new BasicUserInfoDTO(userId, name, surname);
         LocalDateTime purchaseDateAndTime = LocalDateTime.now().minusDays(5);
-        String startDate = LocalDateTime.now().minusDays(5).format(DateTimeFormatter.ISO_DATE);
-        String endDate = LocalDateTime.now().minusDays(5).plusMonths(1).format(DateTimeFormatter.ISO_DATE);
+        String startDate = LocalDateTime.now().minusDays(5).format(DateTimeFormatter.ISO_LOCAL_DATE);
+        String endDate = LocalDateTime.now().minusDays(5).plusMonths(1).format(DateTimeFormatter.ISO_LOCAL_DATE);
         int entries = Integer.MAX_VALUE;
 
         existingPurchasedGymPass = new PurchasedGymPassDTO(
@@ -101,22 +101,22 @@ class SuspendPurchasedGymPassControllerUnitTest {
                 gymPassOffer,
                 user,
                 purchaseDateAndTime,
-                LocalDate.parse(startDate, DateTimeFormatter.ISO_DATE),
-                LocalDate.parse(endDate, DateTimeFormatter.ISO_DATE),
+                LocalDate.parse(startDate, DateTimeFormatter.ISO_LOCAL_DATE),
+                LocalDate.parse(endDate, DateTimeFormatter.ISO_LOCAL_DATE),
                 entries
         );
 
-        suspensionDate = LocalDateTime.now().plusDays(1).format(DateTimeFormatter.ISO_DATE);
+        suspensionDate = LocalDateTime.now().plusDays(1).format(DateTimeFormatter.ISO_LOCAL_DATE);
 
         suspendedPurchasedGymPass = new PurchasedGymPassDTO(
                 purchasedGymPassDocumentId,
                 gymPassOffer,
                 user,
                 purchaseDateAndTime,
-                LocalDate.parse(startDate, DateTimeFormatter.ISO_DATE),
-                LocalDate.parse(endDate, DateTimeFormatter.ISO_DATE),
+                LocalDate.parse(startDate, DateTimeFormatter.ISO_LOCAL_DATE),
+                LocalDate.parse(endDate, DateTimeFormatter.ISO_LOCAL_DATE),
                 entries,
-                LocalDate.parse(suspensionDate, DateTimeFormatter.ISO_DATE)
+                LocalDate.parse(suspensionDate, DateTimeFormatter.ISO_LOCAL_DATE)
         );
 
         uri = new URI("/purchase");
@@ -131,8 +131,8 @@ class SuspendPurchasedGymPassControllerUnitTest {
             Map<String, String> messages = getMessagesAccordingToLocale(country);
             Locale testedLocale = convertEnumToLocale(country);
 
-            String startDate = LocalDateTime.now().minusDays(5).format(DateTimeFormatter.ISO_DATE);
-            String endDate = LocalDateTime.now().minusDays(5).plusMonths(1).format(DateTimeFormatter.ISO_DATE);
+            String startDate = LocalDateTime.now().minusDays(5).format(DateTimeFormatter.ISO_LOCAL_DATE);
+            String endDate = LocalDateTime.now().minusDays(5).plusMonths(1).format(DateTimeFormatter.ISO_LOCAL_DATE);
 
             RequestBuilder request = MockMvcRequestBuilders
                     .put(uri+"/"+purchasedGymPassDocumentId+"/suspend/"+suspensionDate)
@@ -167,9 +167,9 @@ class SuspendPurchasedGymPassControllerUnitTest {
                             jsonPath("$.purchasedGymPass.user.surname").value(is("Kowalski")),
                             jsonPath("$.purchasedGymPass.purchaseDateAndTime").exists(),
                             jsonPath("$.purchasedGymPass.startDate")
-                                    .value(is(LocalDate.parse(startDate, DateTimeFormatter.ISO_DATE).toString())),
+                                    .value(is(LocalDate.parse(startDate, DateTimeFormatter.ISO_LOCAL_DATE).toString())),
                             jsonPath("$.purchasedGymPass.endDate")
-                                    .value(is(LocalDate.parse(endDate, DateTimeFormatter.ISO_DATE).toString())),
+                                    .value(is(LocalDate.parse(endDate, DateTimeFormatter.ISO_LOCAL_DATE).toString())),
                             jsonPath("$.purchasedGymPass.suspensionDate").value(suspensionDate)
 
             ));
@@ -289,7 +289,7 @@ class SuspendPurchasedGymPassControllerUnitTest {
             Map<String, String> messages = getMessagesAccordingToLocale(country);
             Locale testedLocale = convertEnumToLocale(country);
 
-            String retroDate = LocalDateTime.now().minusDays(3).format(DateTimeFormatter.ISO_DATE);
+            String retroDate = LocalDateTime.now().minusDays(3).format(DateTimeFormatter.ISO_LOCAL_DATE);
 
             RequestBuilder request = MockMvcRequestBuilders
                     .put(uri+"/"+purchasedGymPassDocumentId+"/suspend/"+retroDate)
@@ -319,7 +319,7 @@ class SuspendPurchasedGymPassControllerUnitTest {
             Map<String, String> messages = getMessagesAccordingToLocale(country);
             Locale testedLocale = convertEnumToLocale(country);
 
-            String veryFutureDate = LocalDateTime.now().plusYears(1000).format(DateTimeFormatter.ISO_DATE);
+            String veryFutureDate = LocalDateTime.now().plusYears(1000).format(DateTimeFormatter.ISO_LOCAL_DATE);
 
             RequestBuilder request = MockMvcRequestBuilders
                     .put(uri+"/"+purchasedGymPassDocumentId+"/suspend/"+veryFutureDate)

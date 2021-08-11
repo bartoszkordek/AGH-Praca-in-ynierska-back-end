@@ -61,9 +61,9 @@ class GetUserGymPassesServiceUnitTest {
         //assumptions
         long suspendedDays = 2;
         long pastDays = 5;
-        String suspensionDate = LocalDate.now().plusDays(suspendedDays).format(DateTimeFormatter.ISO_DATE);
-        String startDate = LocalDate.now().minusDays(pastDays).format(DateTimeFormatter.ISO_DATE);
-        String endDate = LocalDate.now().minusDays(pastDays).plusMonths(1).format(DateTimeFormatter.ISO_DATE);
+        String suspensionDate = LocalDate.now().plusDays(suspendedDays).format(DateTimeFormatter.ISO_LOCAL_DATE);
+        String startDate = LocalDate.now().minusDays(pastDays).format(DateTimeFormatter.ISO_LOCAL_DATE);
+        String endDate = LocalDate.now().minusDays(pastDays).plusMonths(1).format(DateTimeFormatter.ISO_LOCAL_DATE);
 
         //DB documents and response
         String gymPassOfferId = UUID.randomUUID().toString();
@@ -105,8 +105,8 @@ class GetUserGymPassesServiceUnitTest {
                 gymPassOfferDocument,
                 userDocument,
                 purchaseDateAndTime,
-                LocalDate.parse(startDate, DateTimeFormatter.ISO_DATE),
-                LocalDate.parse(endDate, DateTimeFormatter.ISO_DATE),
+                LocalDate.parse(startDate, DateTimeFormatter.ISO_LOCAL_DATE),
+                LocalDate.parse(endDate, DateTimeFormatter.ISO_LOCAL_DATE),
                 timeTypeEntries
         );
 
@@ -119,8 +119,8 @@ class GetUserGymPassesServiceUnitTest {
                         isPremium
                 ),
                 purchaseDateAndTime,
-                LocalDate.parse(startDate, DateTimeFormatter.ISO_DATE),
-                LocalDate.parse(endDate, DateTimeFormatter.ISO_DATE),
+                LocalDate.parse(startDate, DateTimeFormatter.ISO_LOCAL_DATE),
+                LocalDate.parse(endDate, DateTimeFormatter.ISO_LOCAL_DATE),
                 timeTypeEntries,
                 null
         );
@@ -132,10 +132,10 @@ class GetUserGymPassesServiceUnitTest {
                 gymPassOfferDocument,
                 userDocument,
                 purchaseDateAndTime,
-                LocalDate.parse(startDate, DateTimeFormatter.ISO_DATE),
-                LocalDate.parse(endDate, DateTimeFormatter.ISO_DATE).plusDays(suspendedDays),
+                LocalDate.parse(startDate, DateTimeFormatter.ISO_LOCAL_DATE),
+                LocalDate.parse(endDate, DateTimeFormatter.ISO_LOCAL_DATE).plusDays(suspendedDays),
                 timeTypeEntries,
-                LocalDate.parse(suspensionDate, DateTimeFormatter.ISO_DATE)
+                LocalDate.parse(suspensionDate, DateTimeFormatter.ISO_LOCAL_DATE)
         );
 
         PurchasedUserGymPassDTO suspendedTimeTypeUserGymPass = new PurchasedUserGymPassDTO(
@@ -147,10 +147,10 @@ class GetUserGymPassesServiceUnitTest {
                         isPremium
                 ),
                 purchaseDateAndTime,
-                LocalDate.parse(startDate, DateTimeFormatter.ISO_DATE),
-                LocalDate.parse(endDate, DateTimeFormatter.ISO_DATE).plusDays(suspendedDays),
+                LocalDate.parse(startDate, DateTimeFormatter.ISO_LOCAL_DATE),
+                LocalDate.parse(endDate, DateTimeFormatter.ISO_LOCAL_DATE).plusDays(suspendedDays),
                 timeTypeEntries,
-                LocalDate.parse(suspensionDate, DateTimeFormatter.ISO_DATE)
+                LocalDate.parse(suspensionDate, DateTimeFormatter.ISO_LOCAL_DATE)
         );
 
 
@@ -162,8 +162,8 @@ class GetUserGymPassesServiceUnitTest {
                 gymPassOfferDocument,
                 userDocument,
                 purchaseDateAndTime,
-                LocalDate.parse(startDate, DateTimeFormatter.ISO_DATE),
-                LocalDate.parse(endDateForEntriesTypeDocuments, DateTimeFormatter.ISO_DATE),
+                LocalDate.parse(startDate, DateTimeFormatter.ISO_LOCAL_DATE),
+                LocalDate.parse(endDateForEntriesTypeDocuments, DateTimeFormatter.ISO_LOCAL_DATE),
                 entriesTypeEntries
         );
 
@@ -176,8 +176,8 @@ class GetUserGymPassesServiceUnitTest {
                         isPremium
                 ),
                 purchaseDateAndTime,
-                LocalDate.parse(startDate, DateTimeFormatter.ISO_DATE),
-                LocalDate.parse(endDateForEntriesTypeDocuments, DateTimeFormatter.ISO_DATE),
+                LocalDate.parse(startDate, DateTimeFormatter.ISO_LOCAL_DATE),
+                LocalDate.parse(endDateForEntriesTypeDocuments, DateTimeFormatter.ISO_LOCAL_DATE),
                 entriesTypeEntries,
                 null
         );

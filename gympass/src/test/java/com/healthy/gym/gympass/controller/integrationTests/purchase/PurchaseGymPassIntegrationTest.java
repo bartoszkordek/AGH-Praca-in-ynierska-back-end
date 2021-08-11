@@ -138,8 +138,8 @@ class PurchaseGymPassIntegrationTest {
 
         ObjectMapper objectMapper = new ObjectMapper();
 
-        requestStartDate = LocalDate.now().format(DateTimeFormatter.ISO_DATE);
-        timePurchasedRequestEndDate = LocalDate.now().plusMonths(1).format(DateTimeFormatter.ISO_DATE);
+        requestStartDate = LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE);
+        timePurchasedRequestEndDate = LocalDate.now().plusMonths(1).format(DateTimeFormatter.ISO_LOCAL_DATE);
         entriesPurchasedRequestEndDate = "9999-12-31";
         timePurchasedEntries = Integer.MAX_VALUE;
         entriesPurchasedEntries = 10;
@@ -199,15 +199,15 @@ class PurchaseGymPassIntegrationTest {
         PurchasedGymPassRequest startDateAfterEndDatePurchasedGymPassRequest = timePurchasedGymPassRequest;
         startDateAfterEndDatePurchasedGymPassRequest.setGymPassOfferId(gymPassOfferId);
         startDateAfterEndDatePurchasedGymPassRequest.setUserId(userId);
-        startDateAfterEndDatePurchasedGymPassRequest.setStartDate(LocalDate.now().plusMonths(1).format(DateTimeFormatter.ISO_DATE));
-        startDateAfterEndDatePurchasedGymPassRequest.setEndDate(LocalDate.now().format(DateTimeFormatter.ISO_DATE));
+        startDateAfterEndDatePurchasedGymPassRequest.setStartDate(LocalDate.now().plusMonths(1).format(DateTimeFormatter.ISO_LOCAL_DATE));
+        startDateAfterEndDatePurchasedGymPassRequest.setEndDate(LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE));
         startDateAfterEndDatePurchasedGymPassRequest.setEntries(timePurchasedEntries);
         startDateAfterEndDatePurchasedGymPassRequestContent = objectMapper.writeValueAsString(startDateAfterEndDatePurchasedGymPassRequest);
 
         PurchasedGymPassRequest notSpecifiedTypePurchasedGymPassRequest = timePurchasedGymPassRequest;
         notSpecifiedTypePurchasedGymPassRequest.setGymPassOfferId(gymPassOfferId);
         notSpecifiedTypePurchasedGymPassRequest.setUserId(userId);
-        notSpecifiedTypePurchasedGymPassRequest.setStartDate(LocalDate.now().plusMonths(1).format(DateTimeFormatter.ISO_DATE));
+        notSpecifiedTypePurchasedGymPassRequest.setStartDate(LocalDate.now().plusMonths(1).format(DateTimeFormatter.ISO_LOCAL_DATE));
         notSpecifiedTypePurchasedGymPassRequest.setEndDate("9999-12-31");
         notSpecifiedTypePurchasedGymPassRequest.setEntries(Integer.MAX_VALUE);
         notSpecifiedTypePurchasedGymPassRequestContent = objectMapper.writeValueAsString(notSpecifiedTypePurchasedGymPassRequest);

@@ -48,7 +48,7 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
         "eureka.client.register-with-eureka=false"
 })
 @Tag("integration")
-class CheckGymPassValidationIntegrationTest {
+class CheckGymPassValidityIntegrationTest {
 
     @Container
     static MongoDBContainer mongoDBContainer =

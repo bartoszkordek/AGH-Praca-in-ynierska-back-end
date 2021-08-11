@@ -100,8 +100,8 @@ public class PurchaseGymPassControllerUnitTest {
         PurchasedGymPassRequest timeLimitedPurchasedGymPassRequest = new PurchasedGymPassRequest();
         timeLimitedPurchasedGymPassRequest.setGymPassOfferId(validGymPassOfferId);
         timeLimitedPurchasedGymPassRequest.setUserId(validUserId);
-        timeLimitedPurchasedGymPassRequest.setStartDate(LocalDateTime.now().format(DateTimeFormatter.ISO_DATE));
-        timeLimitedPurchasedGymPassRequest.setEndDate(LocalDateTime.now().plusMonths(1).format(DateTimeFormatter.ISO_DATE));
+        timeLimitedPurchasedGymPassRequest.setStartDate(LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE));
+        timeLimitedPurchasedGymPassRequest.setEndDate(LocalDateTime.now().plusMonths(1).format(DateTimeFormatter.ISO_LOCAL_DATE));
         timeLimitedPurchasedGymPassRequest.setEntries(Integer.MAX_VALUE);
 
         timeLimitedRequestContent = objectMapper.writeValueAsString(timeLimitedPurchasedGymPassRequest);
@@ -111,8 +111,8 @@ public class PurchaseGymPassControllerUnitTest {
         PurchasedGymPassRequest entriesLimitedPurchasedGymPassRequest = new PurchasedGymPassRequest();
         entriesLimitedPurchasedGymPassRequest.setGymPassOfferId(validGymPassOfferId);
         entriesLimitedPurchasedGymPassRequest.setUserId(validUserId);
-        entriesLimitedPurchasedGymPassRequest.setStartDate(LocalDateTime.now().format(DateTimeFormatter.ISO_DATE));
-        entriesLimitedPurchasedGymPassRequest.setEndDate(LocalDateTime.MAX.format(DateTimeFormatter.ISO_DATE));
+        entriesLimitedPurchasedGymPassRequest.setStartDate(LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE));
+        entriesLimitedPurchasedGymPassRequest.setEndDate(LocalDateTime.MAX.format(DateTimeFormatter.ISO_LOCAL_DATE));
         entriesLimitedPurchasedGymPassRequest.setEntries(entriesForEntriesGymPass);
 
         entriesLimitedRequestContent = objectMapper.writeValueAsString(entriesLimitedPurchasedGymPassRequest);
@@ -123,8 +123,8 @@ public class PurchaseGymPassControllerUnitTest {
         invalidPurchasedGymPassRequest = new PurchasedGymPassRequest();
         invalidPurchasedGymPassRequest.setGymPassOfferId(invalidGymPassOfferId);
         invalidPurchasedGymPassRequest.setUserId(invalidUserId);
-        invalidPurchasedGymPassRequest.setStartDate(LocalDateTime.now().format(DateTimeFormatter.ISO_DATE));
-        invalidPurchasedGymPassRequest.setEndDate(LocalDateTime.MAX.format(DateTimeFormatter.ISO_DATE));
+        invalidPurchasedGymPassRequest.setStartDate(LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE));
+        invalidPurchasedGymPassRequest.setEndDate(LocalDateTime.MAX.format(DateTimeFormatter.ISO_LOCAL_DATE));
         invalidPurchasedGymPassRequest.setEntries(Integer.MAX_VALUE);
 
         invalidRequestContent = objectMapper.writeValueAsString(invalidPurchasedGymPassRequest);
@@ -160,9 +160,9 @@ public class PurchaseGymPassControllerUnitTest {
             String surname = "Kowalski";
             BasicUserInfoDTO user = new BasicUserInfoDTO(validUserId, name, surname);
             LocalDateTime purchaseDateAndTime = LocalDateTime.now();
-            String formattedPurchaseDateAndTime = purchaseDateAndTime.format(DateTimeFormatter.ISO_DATE_TIME);
-            String startDate = LocalDateTime.now().format(DateTimeFormatter.ISO_DATE);
-            String endDate = LocalDateTime.now().plusMonths(1).format(DateTimeFormatter.ISO_DATE);
+            String formattedPurchaseDateAndTime = purchaseDateAndTime.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+            String startDate = LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE);
+            String endDate = LocalDateTime.now().plusMonths(1).format(DateTimeFormatter.ISO_LOCAL_DATE);
             int entries = Integer.MAX_VALUE;
 
             when(purchaseService.purchaseGymPass(any()))
@@ -172,8 +172,8 @@ public class PurchaseGymPassControllerUnitTest {
                                 gymPassOffer,
                                 user,
                                 purchaseDateAndTime,
-                                    LocalDate.parse(startDate, DateTimeFormatter.ISO_DATE),
-                                    LocalDate.parse(endDate, DateTimeFormatter.ISO_DATE),
+                                    LocalDate.parse(startDate, DateTimeFormatter.ISO_LOCAL_DATE),
+                                    LocalDate.parse(endDate, DateTimeFormatter.ISO_LOCAL_DATE),
                                 entries
                             )
                     );
@@ -233,9 +233,9 @@ public class PurchaseGymPassControllerUnitTest {
             String surname = "Kowalski";
             BasicUserInfoDTO user = new BasicUserInfoDTO(validUserId, name, surname);
             LocalDateTime purchaseDateAndTime = LocalDateTime.now();
-            String formattedPurchaseDateAndTime = purchaseDateAndTime.format(DateTimeFormatter.ISO_DATE_TIME);
-            String startDate = LocalDateTime.now().format(DateTimeFormatter.ISO_DATE);
-            String endDate = LocalDateTime.MAX.format(DateTimeFormatter.ISO_DATE);
+            String formattedPurchaseDateAndTime = purchaseDateAndTime.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+            String startDate = LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE);
+            String endDate = LocalDateTime.MAX.format(DateTimeFormatter.ISO_LOCAL_DATE);
 
             when(purchaseService.purchaseGymPass(any()))
                     .thenReturn(
@@ -244,8 +244,8 @@ public class PurchaseGymPassControllerUnitTest {
                                     gymPassOffer,
                                     user,
                                     purchaseDateAndTime,
-                                    LocalDate.parse(startDate, DateTimeFormatter.ISO_DATE),
-                                    LocalDate.parse(endDate, DateTimeFormatter.ISO_DATE),
+                                    LocalDate.parse(startDate, DateTimeFormatter.ISO_LOCAL_DATE),
+                                    LocalDate.parse(endDate, DateTimeFormatter.ISO_LOCAL_DATE),
                                     entriesForEntriesGymPass
                             )
                     );

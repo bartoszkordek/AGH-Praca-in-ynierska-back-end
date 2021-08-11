@@ -64,8 +64,8 @@ public class PurchaseServiceImpl implements PurchaseService{
 
         String startDate = request.getStartDate();
         String endDate = request.getEndDate();
-        LocalDate parsedStartDate = LocalDate.parse(startDate, DateTimeFormatter.ISO_DATE);
-        LocalDate parsedEndDate = LocalDate.parse(endDate, DateTimeFormatter.ISO_DATE);
+        LocalDate parsedStartDate = LocalDate.parse(startDate, DateTimeFormatter.ISO_LOCAL_DATE);
+        LocalDate parsedEndDate = LocalDate.parse(endDate, DateTimeFormatter.ISO_LOCAL_DATE);
         if(parsedStartDate.isBefore(LocalDate.now()) || parsedEndDate.isBefore(LocalDate.now()))
             throw new RetroPurchasedException("Cannot buy gympass with retro date");
         if(parsedStartDate.isAfter(parsedEndDate))
@@ -107,10 +107,8 @@ public class PurchaseServiceImpl implements PurchaseService{
                 throw new SuspensionDateAfterEndDateException("Suspension date after end date");
 
         LocalDate currentSuspensionDate = purchasedGymPassDocument.getSuspensionDate();
-        if(currentSuspensionDate != null){
-            if(currentSuspensionDate.isAfter(suspensionDate))
-                throw new AlreadySuspendedGymPassException("Gympass is suspended.");
-        }
+        if(currentSuspensionDate != null && currentSuspensionDate.isAfter(suspensionDate))
+            throw new AlreadySuspendedGymPassException("Gympass is suspended.");
 
         purchasedGymPassDocument.setSuspensionDate(suspensionDate);
         long suspensionDateFromNow = now.until(suspensionDate, ChronoUnit.DAYS);
@@ -120,7 +118,7 @@ public class PurchaseServiceImpl implements PurchaseService{
     }
 
     @Override
-    public PurchasedGymPassStatusValidationResultDTO isGymPassValid(String individualGymPassId)
+    public PurchasedGymPassStatusValidationResultDTO checkGymPassValidityStatus(String individualGymPassId)
             throws GymPassNotFoundException {
 
         PurchasedGymPassDocument purchasedGymPassDocument = purchasedGymPassDAO
@@ -182,5 +180,17 @@ public class PurchaseServiceImpl implements PurchaseService{
                 .stream()
                 .map(purchasedGymPassDocument -> modelMapper.map(purchasedGymPassDocument, PurchasedUserGymPassDTO.class))
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public PurchasedGymPassDTO deleteGymPass(String individualGymPassId) throws GymPassNotFoundException {
+
+        PurchasedGymPassDocument purchasedGymPassDocumentToRemove = purchasedGymPassDAO
+                .findByPurchasedGymPassDocumentId(individualGymPassId);
+        if(purchasedGymPassDocumentToRemove == null) throw new GymPassNotFoundException("Gympass with current ID does not exist");
+
+        purchasedGymPassDAO.delete(purchasedGymPassDocumentToRemove);
+
+        return modelMapper.map(purchasedGymPassDocumentToRemove, PurchasedGymPassDTO.class);
     }
 }

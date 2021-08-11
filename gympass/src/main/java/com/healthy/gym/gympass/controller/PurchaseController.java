@@ -140,11 +140,11 @@ public class PurchaseController {
 
     @PreAuthorize("hasRole('ADMIN') or hasRole('MANAGER') or hasRole('EMPLOYEE')")
     @GetMapping("/status/{id}")
-    public ResponseEntity<ValidationGymPassResponse> checkGymPassValidation(
+    public ResponseEntity<ValidationGymPassResponse> checkGymPassValidityStatus(
             @PathVariable("id") @ValidIDFormat final String id
     ){
         try{
-            PurchasedGymPassStatusValidationResultDTO result  = purchaseService.isGymPassValid(id);
+            PurchasedGymPassStatusValidationResultDTO result  = purchaseService.checkGymPassValidityStatus(id);
             String message = validationStatusMessage(result);
 
             if(result.isValid()){
@@ -206,6 +206,33 @@ public class PurchaseController {
         }
     }
 
+    @PreAuthorize("hasRole('ADMIN') or hasRole('MANAGER') or hasRole('EMPLOYEE')")
+    @DeleteMapping("/{id}")
+    public ResponseEntity<PurchasedGymPassResponse> deleteGymPasses(
+            @PathVariable("id") @ValidIDFormat final String id
+    ){
+        try{
+            String message = translator.toLocale("gympass.removed");
+            PurchasedGymPassDTO removedGymPass = purchaseService.deleteGymPass(id);
+            return ResponseEntity
+                    .status(HttpStatus.OK)
+                    .body(new PurchasedGymPassResponse(
+                            message,
+                            removedGymPass
+                    ));
+
+        } catch (GymPassNotFoundException exception) {
+            String reason = translator.toLocale("exception.gympass.not.found");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, exception);
+
+        } catch (Exception exception){
+            String reason = translator.toLocale(INTERNAL_ERROR_EXCEPTION);
+            exception.printStackTrace();
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, reason, exception);
+        }
+
+    }
+
     private String validationStatusMessage(PurchasedGymPassStatusValidationResultDTO result){
         String validGymPassMessage = translator.toLocale("gympass.valid");
         String notValidRetroEndDateGymPassMessage = translator.toLocale("gympass.not.valid.retro.end.date");
@@ -219,10 +246,9 @@ public class PurchaseController {
             return notValidRetroEndDateGymPassMessage;
         if(entries < 1)
             return notValidNoEntriesGymPassMessage;
-        if(suspensionDate != null){
-            if(now.isBefore(LocalDate.parse(suspensionDate, DateTimeFormatter.ISO_LOCAL_DATE)))
-                return notValidSuspendedGymPassMessage;
-        }
+        if(suspensionDate != null && now.isBefore(LocalDate.parse(suspensionDate, DateTimeFormatter.ISO_LOCAL_DATE)))
+            return notValidSuspendedGymPassMessage;
+
         return validGymPassMessage;
     }
 

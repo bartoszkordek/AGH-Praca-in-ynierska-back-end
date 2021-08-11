@@ -39,7 +39,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
 @WebMvcTest(PurchaseController.class)
-public class CheckGymPassValidationControllerUnitTest {
+public class CheckGymPassValidityControllerUnitTest {
 
     @Autowired
     private MockMvc mockMvc;
@@ -91,7 +91,7 @@ public class CheckGymPassValidationControllerUnitTest {
             Map<String, String> messages = getMessagesAccordingToLocale(country);
             Locale testedLocale = convertEnumToLocale(country);
 
-            String endDate = LocalDateTime.now().minusDays(5).plusMonths(1).format(DateTimeFormatter.ISO_DATE);
+            String endDate = LocalDateTime.now().minusDays(5).plusMonths(1).format(DateTimeFormatter.ISO_LOCAL_DATE);
 
             RequestBuilder request = MockMvcRequestBuilders
                     .get(uri+"/"+validTimeValidPurchasedGymPassDocumentId)
@@ -99,7 +99,7 @@ public class CheckGymPassValidationControllerUnitTest {
                     .header("Authorization", employeeToken)
                     .contentType(MediaType.APPLICATION_JSON);
 
-            when(purchaseService.isGymPassValid(validTimeValidPurchasedGymPassDocumentId))
+            when(purchaseService.checkGymPassValidityStatus(validTimeValidPurchasedGymPassDocumentId))
                     .thenReturn(new PurchasedGymPassStatusValidationResultDTO(
                             true,
                             endDate,
@@ -137,7 +137,7 @@ public class CheckGymPassValidationControllerUnitTest {
                     .header("Authorization", managerToken)
                     .contentType(MediaType.APPLICATION_JSON);
 
-            when(purchaseService.isGymPassValid(validEntriesValidPurchasedGymPassDocumentId))
+            when(purchaseService.checkGymPassValidityStatus(validEntriesValidPurchasedGymPassDocumentId))
                     .thenReturn(new PurchasedGymPassStatusValidationResultDTO(
                             true,
                             "9999-12-31",
@@ -166,7 +166,7 @@ public class CheckGymPassValidationControllerUnitTest {
             Map<String, String> messages = getMessagesAccordingToLocale(country);
             Locale testedLocale = convertEnumToLocale(country);
 
-            String endDate = LocalDateTime.now().minusDays(5).format(DateTimeFormatter.ISO_DATE);
+            String endDate = LocalDateTime.now().minusDays(5).format(DateTimeFormatter.ISO_LOCAL_DATE);
 
             RequestBuilder request = MockMvcRequestBuilders
                     .get(uri+"/"+notValidTimeValidPurchasedGymPassDocumentId)
@@ -174,7 +174,7 @@ public class CheckGymPassValidationControllerUnitTest {
                     .header("Authorization", managerToken)
                     .contentType(MediaType.APPLICATION_JSON);
 
-            when(purchaseService.isGymPassValid(notValidTimeValidPurchasedGymPassDocumentId))
+            when(purchaseService.checkGymPassValidityStatus(notValidTimeValidPurchasedGymPassDocumentId))
                     .thenReturn(new PurchasedGymPassStatusValidationResultDTO(
                             false,
                             endDate,
@@ -204,7 +204,7 @@ public class CheckGymPassValidationControllerUnitTest {
             Map<String, String> messages = getMessagesAccordingToLocale(country);
             Locale testedLocale = convertEnumToLocale(country);
 
-            String suspensionDate = LocalDateTime.now().plusDays(5).format(DateTimeFormatter.ISO_DATE);
+            String suspensionDate = LocalDateTime.now().plusDays(5).format(DateTimeFormatter.ISO_LOCAL_DATE);
             int entries = 5;
 
             RequestBuilder request = MockMvcRequestBuilders
@@ -213,7 +213,7 @@ public class CheckGymPassValidationControllerUnitTest {
                     .header("Authorization", managerToken)
                     .contentType(MediaType.APPLICATION_JSON);
 
-            when(purchaseService.isGymPassValid(notValidEntriesValidPurchasedGymPassDocumentId))
+            when(purchaseService.checkGymPassValidityStatus(notValidEntriesValidPurchasedGymPassDocumentId))
                     .thenReturn(new PurchasedGymPassStatusValidationResultDTO(
                             false,
                             "9999-12-31",
@@ -243,7 +243,7 @@ public class CheckGymPassValidationControllerUnitTest {
             Map<String, String> messages = getMessagesAccordingToLocale(country);
             Locale testedLocale = convertEnumToLocale(country);
 
-            String suspensionDate = LocalDateTime.now().plusDays(5).format(DateTimeFormatter.ISO_DATE);
+            String suspensionDate = LocalDateTime.now().plusDays(5).format(DateTimeFormatter.ISO_LOCAL_DATE);
             int entries = 0;
 
             RequestBuilder request = MockMvcRequestBuilders
@@ -252,7 +252,7 @@ public class CheckGymPassValidationControllerUnitTest {
                     .header("Authorization", managerToken)
                     .contentType(MediaType.APPLICATION_JSON);
 
-            when(purchaseService.isGymPassValid(notValidEntriesValidPurchasedGymPassDocumentId))
+            when(purchaseService.checkGymPassValidityStatus(notValidEntriesValidPurchasedGymPassDocumentId))
                     .thenReturn(new PurchasedGymPassStatusValidationResultDTO(
                             false,
                             "9999-12-31",
@@ -298,7 +298,7 @@ public class CheckGymPassValidationControllerUnitTest {
 
             doThrow(GymPassNotFoundException.class)
                     .when(purchaseService)
-                    .isGymPassValid(invalidGymPassDocumentId);
+                    .checkGymPassValidityStatus(invalidGymPassDocumentId);
 
             mockMvc.perform(request)
                     .andDo(print())
@@ -371,7 +371,7 @@ public class CheckGymPassValidationControllerUnitTest {
 
             doThrow(IllegalStateException.class)
                     .when(purchaseService)
-                    .isGymPassValid(id);
+                    .checkGymPassValidityStatus(id);
 
             String expectedMessage = messages.get("exception.internal.error");
 

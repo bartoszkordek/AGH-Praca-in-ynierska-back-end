@@ -168,7 +168,7 @@ public class DeletePurchasedGymPassIntegrationTest {
     }
 
     @Nested
-    class ShouldDeleteGymPasse{
+    class ShouldDeleteGymPass{
 
         @ParameterizedTest
         @EnumSource(TestCountry.class)
@@ -221,6 +221,47 @@ public class DeletePurchasedGymPassIntegrationTest {
 
             List<PurchasedGymPassDocument> gymPassDocumentListAfter = mongoTemplate.findAll(PurchasedGymPassDocument.class);
             assertThat(gymPassDocumentListAfter.size()).isEqualTo(1);
+        }
+    }
+
+    @Nested
+    class ShouldNotDeleteGymPass{
+
+        @ParameterizedTest
+        @EnumSource(TestCountry.class)
+        void shouldNotDeleteUserGymPasse_whenInvalidId(TestCountry country)
+                throws Exception {
+            Map<String, String> messages = getMessagesAccordingToLocale(country);
+            Locale testedLocale = convertEnumToLocale(country);
+
+            String invalidId = UUID.randomUUID().toString();
+
+            URI uri = new URI("http://localhost:" + port + "/purchase/" + invalidId);
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.set("Accept-Language", testedLocale.toString());
+            headers.set("Authorization", employeeToken);
+            headers.setContentType(MediaType.APPLICATION_JSON);
+
+            HttpEntity<Object> request = new HttpEntity<>(null, headers);
+
+            List<PurchasedGymPassDocument> gymPassDocumentListBefore = mongoTemplate.findAll(PurchasedGymPassDocument.class);
+            assertThat(gymPassDocumentListBefore.size()).isEqualTo(2);
+
+            ResponseEntity<JsonNode> responseEntity = restTemplate
+                    .exchange(uri, HttpMethod.DELETE, request, JsonNode.class);
+
+            String expectedMessage = messages.get("exception.gympass.not.found");
+
+            assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+            assertThat(responseEntity.getBody()).isNotNull();
+            assertThat(responseEntity.getBody().get("status").intValue()).isEqualTo(400);
+            assertThat(responseEntity.getBody().get("error").textValue()).isEqualTo("Bad Request");
+            assertThat(responseEntity.getBody().get("message").textValue()).isEqualTo(expectedMessage);
+            assertThat(responseEntity.getBody().get("timestamp")).isNotNull();
+
+            List<PurchasedGymPassDocument> gymPassDocumentListAfter = mongoTemplate.findAll(PurchasedGymPassDocument.class);
+            assertThat(gymPassDocumentListAfter.size()).isEqualTo(2);
         }
     }
 }

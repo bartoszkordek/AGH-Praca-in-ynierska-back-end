@@ -361,4 +361,31 @@ public class GetAllUserGymPassesIntegrationTest {
             assertThat(gymPassDocumentList.size()).isEqualTo(4);
         }
     }
+
+    @Nested
+    class ShouldNotGetUserGymPasses{
+
+        @ParameterizedTest
+        @EnumSource(TestCountry.class)
+        void shouldNotGetUserGymPasses_whenEmptyList(TestCountry country)
+                throws Exception {
+            Locale testedLocale = convertEnumToLocale(country);
+
+            URI uri = new URI("http://localhost:" + port + "/purchase/user/"+userId
+                    +"?startDate=2000-01-01&endDate=2000-02-01");
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.set("Accept-Language", testedLocale.toString());
+            headers.set("Authorization", employeeToken);
+            headers.setContentType(MediaType.APPLICATION_JSON);
+
+            HttpEntity<Object> request = new HttpEntity<>(null, headers);
+
+            ResponseEntity<JsonNode> responseEntity = restTemplate
+                    .exchange(uri, HttpMethod.GET, request, JsonNode.class);
+
+            assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
+            assertThat(responseEntity.getBody()).isNull();
+        }
+    }
 }

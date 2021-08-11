@@ -176,6 +176,32 @@ public class PurchaseController {
     }
 
     @PreAuthorize("hasRole('ADMIN') or hasRole('MANAGER') or hasRole('EMPLOYEE')")
+    @GetMapping("/{id}")
+    public ResponseEntity<List<PurchasedGymPassDTO>> getGymPasses(
+            @PathVariable("id") @ValidIDFormat final String id,
+            @ValidDateFormat @RequestParam(value = "startDate",required = false) final String startDate,
+            @ValidDateFormat @RequestParam(value = "endDate", required = false) final String endDate
+    ){
+        try{
+            return ResponseEntity
+                    .status(HttpStatus.OK)
+                    .body(purchaseService.getGymPasses(
+                            startDate,
+                            endDate)
+                    );
+
+        } catch (StartDateAfterEndDateException exception) {
+            String reason = translator.toLocale("exception.start.after.end");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, exception);
+
+        } catch (Exception exception){
+            String reason = translator.toLocale(INTERNAL_ERROR_EXCEPTION);
+            exception.printStackTrace();
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, reason, exception);
+        }
+    }
+
+    @PreAuthorize("hasRole('ADMIN') or hasRole('MANAGER') or hasRole('EMPLOYEE')")
     @GetMapping("/user/{id}")
     public ResponseEntity<List<PurchasedUserGymPassDTO>> getUserGymPasses(
             @PathVariable("id") @ValidIDFormat final String id,

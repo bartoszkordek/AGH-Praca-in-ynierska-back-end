@@ -149,6 +149,11 @@ public class PurchaseServiceImpl implements PurchaseService{
     }
 
     @Override
+    public List<PurchasedGymPassDTO> getGymPasses(String startDate, String endDate) throws StartDateAfterEndDateException {
+        return null;
+    }
+
+    @Override
     public List<PurchasedUserGymPassDTO> getUserGymPasses(
             String userId,
             String requestStartDate,

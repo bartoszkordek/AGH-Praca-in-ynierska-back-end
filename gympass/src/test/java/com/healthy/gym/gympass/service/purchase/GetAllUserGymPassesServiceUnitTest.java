@@ -202,7 +202,9 @@ class GetAllUserGymPassesServiceUnitTest {
         when(userDAO.findByUserId(userId))
                 .thenReturn(userDocument);
         when(purchasedGymPassDAO.findAllByUserAndStartDateAfterAndEndDateBefore(
-                userDocument, LocalDate.MIN, LocalDate.MAX))
+                userDocument,
+                LocalDate.parse("1000-01-01", DateTimeFormatter.ISO_LOCAL_DATE).minusDays(1),
+                LocalDate.parse("9999-12-31", DateTimeFormatter.ISO_LOCAL_DATE).plusDays(1)))
                 .thenReturn(purchasedGymPassDocuments);
         //then
         assertThat(purchaseService.getAllUserGymPasses(userId, null, null).get(0))

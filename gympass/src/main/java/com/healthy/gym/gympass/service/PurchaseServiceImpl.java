@@ -107,10 +107,8 @@ public class PurchaseServiceImpl implements PurchaseService{
                 throw new SuspensionDateAfterEndDateException("Suspension date after end date");
 
         LocalDate currentSuspensionDate = purchasedGymPassDocument.getSuspensionDate();
-        if(currentSuspensionDate != null){
-            if(currentSuspensionDate.isAfter(suspensionDate))
-                throw new AlreadySuspendedGymPassException("Gympass is suspended.");
-        }
+        if(currentSuspensionDate != null && currentSuspensionDate.isAfter(suspensionDate))
+            throw new AlreadySuspendedGymPassException("Gympass is suspended.");
 
         purchasedGymPassDocument.setSuspensionDate(suspensionDate);
         long suspensionDateFromNow = now.until(suspensionDate, ChronoUnit.DAYS);

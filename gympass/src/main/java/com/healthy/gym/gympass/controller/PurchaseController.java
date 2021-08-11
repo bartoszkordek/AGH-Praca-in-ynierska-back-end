@@ -219,10 +219,9 @@ public class PurchaseController {
             return notValidRetroEndDateGymPassMessage;
         if(entries < 1)
             return notValidNoEntriesGymPassMessage;
-        if(suspensionDate != null){
-            if(now.isBefore(LocalDate.parse(suspensionDate, DateTimeFormatter.ISO_LOCAL_DATE)))
-                return notValidSuspendedGymPassMessage;
-        }
+        if(suspensionDate != null && now.isBefore(LocalDate.parse(suspensionDate, DateTimeFormatter.ISO_LOCAL_DATE)))
+            return notValidSuspendedGymPassMessage;
+
         return validGymPassMessage;
     }
 

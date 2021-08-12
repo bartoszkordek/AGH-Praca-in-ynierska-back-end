@@ -164,19 +164,23 @@ public class PurchaseServiceImpl implements PurchaseService{
 
         if(requestPurchaseStartDate != null){
             LocalDate purchaseStartDateParsed = LocalDate.parse(requestPurchaseStartDate, DateTimeFormatter.ISO_LOCAL_DATE);
-            purchaseStartDateTime = purchaseStartDateParsed.atTime(0, 0, 0);
+            purchaseStartDateTime = purchaseStartDateParsed.atTime(23, 59, 59);
         }
 
         if(requestPurchaseEndDate != null){
             LocalDate purchaseEndDateParsed = LocalDate.parse(requestPurchaseEndDate, DateTimeFormatter.ISO_LOCAL_DATE);
-            purchaseEndDateTime = purchaseEndDateParsed.atTime(23, 59, 59);
+            purchaseEndDateTime = purchaseEndDateParsed.atTime(0, 0, 0);
         }
 
         if(purchaseStartDateTime.isAfter(purchaseEndDateTime))
             throw new StartDateAfterEndDateException("Start date after end date");
 
         List<PurchasedGymPassDocument> purchasedGymPassDocuments = purchasedGymPassDAO
-                .findAllByPurchaseDateTimeBetween(purchaseStartDateTime, purchaseEndDateTime, pageable).getContent();
+                .findAllByPurchaseDateTimeBetween(
+                        purchaseStartDateTime.minusDays(1),
+                        purchaseEndDateTime.plusDays(1),
+                        pageable
+                ).getContent();
 
         return purchasedGymPassDocuments
                 .stream()

@@ -20,6 +20,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
@@ -153,7 +155,7 @@ public class GetGymPassesServiceUnitTest {
                         gymPassOfferId2,
                         title2,
                         new Price(amount2, currency, period),
-                        false
+                        true
                 ),
                 new BasicUserInfoDTO(userId, name, surname),
                 purchaseDateTime2,
@@ -171,7 +173,7 @@ public class GetGymPassesServiceUnitTest {
     }
 
     @Test
-    void shouldGetPurchasedGymPasses() throws StartDateAfterEndDateException {
+    void shouldGetPurchasedGymPasses_whenValidDates() throws StartDateAfterEndDateException {
         //before
         int page = 0;
         int size = 15;
@@ -181,12 +183,15 @@ public class GetGymPassesServiceUnitTest {
         LocalDateTime purchaseEndDateTimePlusOneDay
                 = LocalDateTime.of(2031,1,1, 0,0,0);
 
+        Page<PurchasedGymPassDocument> purchasedGymPassDocumentsPages = new PageImpl<PurchasedGymPassDocument>(
+                purchasedGymPassDocuments, paging, size);
+
         //when
         when(purchasedGymPassDAO.findAllByPurchaseDateTimeBetween(
                 purchaseStartDateTimeMinusOneDay,
                 purchaseEndDateTimePlusOneDay,
                 paging
-        ).getContent()).thenReturn(purchasedGymPassDocuments);
+        )).thenReturn(purchasedGymPassDocumentsPages);
 
         //then
         assertThat(purchaseService.getGymPasses("2000-01-01", "2030-12-31", paging))

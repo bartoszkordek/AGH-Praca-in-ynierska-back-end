@@ -1,21 +1,20 @@
 package com.healthy.gym.trainings.controller.group.training.manager.integration.tests;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.healthy.gym.trainings.configuration.FixedClockConfig;
 import com.healthy.gym.trainings.configuration.TestCountry;
 import com.healthy.gym.trainings.configuration.TestRoleTokenFactory;
-import com.healthy.gym.trainings.data.document.GroupTrainingDocument;
-import com.healthy.gym.trainings.data.document.LocationDocument;
-import com.healthy.gym.trainings.data.document.TrainingTypeDocument;
-import com.healthy.gym.trainings.data.document.UserDocument;
-import com.healthy.gym.trainings.enums.GymRole;
+import com.healthy.gym.trainings.data.document.*;
+import com.healthy.gym.trainings.dto.GroupTrainingDTO;
 import com.healthy.gym.trainings.model.request.ManagerGroupTrainingRequest;
+import com.healthy.gym.trainings.test.utils.TestDocumentUtilComponent;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
-import org.junit.jupiter.api.Tags;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.EnumSource;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
@@ -28,14 +27,15 @@ import org.springframework.test.context.TestPropertySource;
 import org.testcontainers.containers.MongoDBContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
-import org.testcontainers.shaded.com.fasterxml.jackson.core.JsonProcessingException;
-import org.testcontainers.shaded.com.fasterxml.jackson.databind.ObjectMapper;
 import org.testcontainers.utility.DockerImageName;
 
 import java.net.URI;
-import java.util.*;
+import java.net.URISyntaxException;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.UUID;
 
-import static com.healthy.gym.trainings.configuration.LocaleConverter.convertEnumToLocale;
 import static com.healthy.gym.trainings.configuration.Messages.getMessagesAccordingToLocale;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
@@ -58,6 +58,9 @@ class CreateGroupTrainingIntegrationTest {
     @Autowired
     private MongoTemplate mongoTemplate;
 
+    @Autowired
+    private TestDocumentUtilComponent utilComponent;
+
     @LocalServerPort
     private Integer port;
     private String managerToken;
@@ -67,6 +70,12 @@ class CreateGroupTrainingIntegrationTest {
     private String trainerId1;
     private String trainerId2;
     private String locationId;
+
+    private UserDocument trainer1;
+    private UserDocument trainer2;
+    private LocationDocument location;
+
+    private ObjectMapper objectMapper;
 
     @DynamicPropertySource
     static void setProperties(DynamicPropertyRegistry registry) {
@@ -82,7 +91,7 @@ class CreateGroupTrainingIntegrationTest {
         trainerId2 = UUID.randomUUID().toString();
         locationId = UUID.randomUUID().toString();
 
-        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper = new ObjectMapper();
         requestContent = objectMapper.writeValueAsString(getTestRequest());
 
         TrainingTypeDocument trainingType = new TrainingTypeDocument(
@@ -94,29 +103,10 @@ class CreateGroupTrainingIntegrationTest {
         );
         mongoTemplate.save(trainingType);
 
-        UserDocument trainer1 = new UserDocument(
-                "TrainerName1",
-                "TrainerSurname1",
-                null,
-                null,
-                null,
-                trainerId1
-        );
-        trainer1.setGymRoles(List.of(GymRole.USER, GymRole.TRAINER));
-        mongoTemplate.save(trainer1);
+        trainer1 = utilComponent.saveAndGetTestTrainer(trainerId1);
+        trainer2 = utilComponent.saveAndGetTestTrainer(trainerId2);
 
-        UserDocument trainer2 = new UserDocument(
-                "TrainerName2",
-                "TrainerSurname2",
-                null,
-                null,
-                null,
-                trainerId2
-        );
-        trainer2.setGymRoles(List.of(GymRole.USER, GymRole.TRAINER));
-        mongoTemplate.save(trainer2);
-
-        LocationDocument location = new LocationDocument(
+        location = new LocationDocument(
                 locationId,
                 "TestLocationName"
         );
@@ -125,6 +115,7 @@ class CreateGroupTrainingIntegrationTest {
 
     @AfterEach
     void tearDown() {
+        mongoTemplate.dropCollection(IndividualTrainingDocument.class);
         mongoTemplate.dropCollection(GroupTrainingDocument.class);
         mongoTemplate.dropCollection(TrainingTypeDocument.class);
         mongoTemplate.dropCollection(UserDocument.class);
@@ -142,56 +133,232 @@ class CreateGroupTrainingIntegrationTest {
         return request;
     }
 
-    @ParameterizedTest
-    @EnumSource(TestCountry.class)
-    void shouldCreateGroupTraining(TestCountry country) throws Exception {
-        Map<String, String> messages = getMessagesAccordingToLocale(country);
-        Locale testedLocale = convertEnumToLocale(country);
+    private ResponseEntity<JsonNode> performAuthRequest() throws URISyntaxException {
+        var request = getAuthRequest();
+        URI uri = getUri();
+        return performRequest(uri, request);
+    }
 
-        URI uri = new URI("http://localhost:" + port + "/group");
+    private ResponseEntity<JsonNode> performRequest(URI uri, HttpEntity<Object> request) {
+        return restTemplate.exchange(uri, HttpMethod.POST, request, JsonNode.class);
+    }
 
-        HttpHeaders headers = new HttpHeaders();
-        headers.set("Accept-Language", testedLocale.toString());
+    private HttpEntity<Object> getAuthRequest() {
+        var headers = getHeadersWithAuth();
+        return new HttpEntity<>(requestContent, headers);
+    }
+
+    private HttpHeaders getHeadersWithAuth() {
+        var headers = getHeaders();
         headers.set("Authorization", managerToken);
+        return headers;
+    }
+
+    private HttpHeaders getHeaders() {
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Accept-Language", Locale.ENGLISH.toString());
         headers.setContentType(MediaType.APPLICATION_JSON);
+        return headers;
+    }
 
-        HttpEntity<Object> request = new HttpEntity<>(requestContent, headers);
-        String expectedMessage = messages.get("request.create.training.success");
+    private URI getUri() throws URISyntaxException {
+        return new URI("http://localhost:" + port + "/group");
+    }
 
-        ResponseEntity<JsonNode> responseEntity = restTemplate
-                .exchange(uri, HttpMethod.POST, request, JsonNode.class);
+    @Test
+    void shouldCreateGroupTraining() throws URISyntaxException, JsonProcessingException {
+        testDataBase(0);
+
+        ResponseEntity<JsonNode> responseEntity = performAuthRequest();
 
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.CREATED);
         assertThat(responseEntity.getHeaders().getContentType()).isEqualTo(MediaType.APPLICATION_JSON);
-        assertThat(Objects.requireNonNull(responseEntity.getBody()).get("message").textValue())
-                .isEqualTo(expectedMessage);
 
-        JsonNode training = responseEntity.getBody().get("training");
-        assertThat(training.get("id")).isNotNull();
-        assertThat(training.get("title").textValue()).isEqualTo("Test training name");
-        assertThat(training.get("startDate").textValue()).isEqualTo("2020-10-10T16:00");
-        assertThat(training.get("endDate").textValue()).isEqualTo("2020-10-10T16:30");
-        assertThat(training.get("allDay").booleanValue()).isFalse();
-        assertThat(training.get("location").textValue()).isEqualTo("TestLocationName");
+        JsonNode body = responseEntity.getBody();
+        assert body != null;
+        Map<String, String> messages = getMessagesAccordingToLocale(TestCountry.ENGLAND);
+        String expectedMessage = messages.get("request.create.training.success");
+        assertThat(body.get("message").textValue()).isEqualTo(expectedMessage);
 
-        JsonNode firstTrainer = training.get("trainers").get(0);
-        assertThat(firstTrainer.get("userId").textValue()).isEqualTo(trainerId1);
-        assertThat(firstTrainer.get("name").textValue()).isEqualTo("TrainerName1");
-        assertThat(firstTrainer.get("surname").textValue()).isEqualTo("TrainerSurname1");
-        assertThat(firstTrainer.get("avatar")).isNull();
+        JsonNode training = body.get("training");
+        assert training != null;
+        ObjectMapper objectMapper = new ObjectMapper();
+        GroupTrainingDTO createdTraining = objectMapper
+                .readValue(training.toString(), new TypeReference<>() {
+                });
 
-        JsonNode secondTrainer = training.get("trainers").get(1);
-        assertThat(secondTrainer.get("userId").textValue()).isEqualTo(trainerId2);
-        assertThat(secondTrainer.get("name").textValue()).isEqualTo("TrainerName2");
-        assertThat(secondTrainer.get("surname").textValue()).isEqualTo("TrainerSurname2");
-        assertThat(secondTrainer.get("avatar")).isNull();
+        assertThat(createdTraining.getGroupTrainingId()).isNotNull();
+        assertThat(createdTraining.getTitle()).isEqualTo("Test training name");
+        assertThat(createdTraining.getStartDate()).isEqualTo("2020-10-10T16:00");
+        assertThat(createdTraining.getEndDate()).isEqualTo("2020-10-10T16:30");
+        assertThat(createdTraining.isAllDay()).isFalse();
+        assertThat(createdTraining.getLocation()).isEqualTo("TestLocationName");
 
-        JsonNode participants = training.get("participants");
-        assertThat(participants.get("basicList").isArray()).isTrue();
-        assertThat(participants.get("reserveList").isArray()).isTrue();
+        var trainers = createdTraining.getTrainers();
 
-        List<GroupTrainingDocument> groupTrainings = mongoTemplate.findAll(GroupTrainingDocument.class);
-        assertThat(groupTrainings.size()).isEqualTo(1);
+        assertThat(trainers.get(0).getUserId()).isEqualTo(trainer1.getUserId());
+        assertThat(trainers.get(0).getName()).isEqualTo(trainer1.getName());
+        assertThat(trainers.get(0).getSurname()).isEqualTo(trainer1.getSurname());
+
+        assertThat(trainers.get(1).getUserId()).isEqualTo(trainer2.getUserId());
+        assertThat(trainers.get(1).getName()).isEqualTo(trainer2.getName());
+        assertThat(trainers.get(1).getSurname()).isEqualTo(trainer2.getSurname());
+
+        var participants = createdTraining.getParticipants();
+        assertThat(participants.getBasicList().size()).isZero();
+        assertThat(participants.getReserveList().size()).isZero();
+
+        testDataBase(1);
+    }
+
+    private void testDataBase(int expectedNumber) {
+        var trainings = mongoTemplate.findAll(GroupTrainingDocument.class);
+        assertThat(trainings.size()).isEqualTo(expectedNumber);
+    }
+
+    @Test
+    void shouldThrowLocationNotFoundException() throws Exception {
+        testDataBase(0);
+        mongoTemplate.dropCollection(LocationDocument.class);
+
+        ResponseEntity<JsonNode> responseEntity = performAuthRequest();
+
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+        assertThat(responseEntity.getHeaders().getContentType()).isEqualTo(MediaType.APPLICATION_JSON);
+
+        JsonNode body = responseEntity.getBody();
+        assert body != null;
+        Map<String, String> messages = getMessagesAccordingToLocale(TestCountry.ENGLAND);
+        String expectedMessage = messages.get("exception.location.not.found");
+        assertThat(body.get("message").textValue()).isEqualTo(expectedMessage);
+
+        testDataBase(0);
+    }
+
+    @Test
+    void shouldThrowLocationOccupiedException() throws Exception {
+        utilComponent.saveAndGetTestIndividualTraining(
+                "2020-10-10T15:45", "2020-10-10T16:16", location
+        );
+
+        testDataBase(0);
+
+        ResponseEntity<JsonNode> responseEntity = performAuthRequest();
+
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        assertThat(responseEntity.getHeaders().getContentType()).isEqualTo(MediaType.APPLICATION_JSON);
+
+        JsonNode body = responseEntity.getBody();
+        assert body != null;
+        Map<String, String> messages = getMessagesAccordingToLocale(TestCountry.ENGLAND);
+        String expectedMessage = messages.get("exception.create.group.training.location.occupied");
+        assertThat(body.get("message").textValue()).isEqualTo(expectedMessage);
+
+        testDataBase(0);
+    }
+
+    @Test
+    void shouldThrowPastDateException() throws Exception {
+        var request = getTestRequest();
+        request.setStartDate("2020-09-10T15:30");
+        request.setEndDate("2020-09-10T16:30");
+        requestContent = objectMapper.writeValueAsString(request);
+
+        testDataBase(0);
+
+        ResponseEntity<JsonNode> responseEntity = performAuthRequest();
+
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        assertThat(responseEntity.getHeaders().getContentType()).isEqualTo(MediaType.APPLICATION_JSON);
+
+        JsonNode body = responseEntity.getBody();
+        assert body != null;
+        Map<String, String> messages = getMessagesAccordingToLocale(TestCountry.ENGLAND);
+        String expectedMessage = messages.get("exception.past.date");
+        assertThat(body.get("message").textValue()).isEqualTo(expectedMessage);
+
+        testDataBase(0);
+    }
+
+    @Test
+    void shouldThrowStartDateAfterEndDateException() throws Exception {
+        var request = getTestRequest();
+        request.setEndDate("2020-10-10T15:30");
+        requestContent = objectMapper.writeValueAsString(request);
+
+        testDataBase(0);
+
+        ResponseEntity<JsonNode> responseEntity = performAuthRequest();
+
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        assertThat(responseEntity.getHeaders().getContentType()).isEqualTo(MediaType.APPLICATION_JSON);
+
+        JsonNode body = responseEntity.getBody();
+        assert body != null;
+        Map<String, String> messages = getMessagesAccordingToLocale(TestCountry.ENGLAND);
+        String expectedMessage = messages.get("exception.start.date.after.end.date");
+        assertThat(body.get("message").textValue()).isEqualTo(expectedMessage);
+
+        testDataBase(0);
+    }
+
+    @Test
+    void shouldThrowTrainerOccupiedException() throws Exception {
+        utilComponent.saveAndGetTestIndividualTraining(
+                "2020-10-10T15:45", "2020-10-10T16:16", List.of(trainer1)
+        );
+        testDataBase(0);
+
+        ResponseEntity<JsonNode> responseEntity = performAuthRequest();
+
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        assertThat(responseEntity.getHeaders().getContentType()).isEqualTo(MediaType.APPLICATION_JSON);
+
+        JsonNode body = responseEntity.getBody();
+        assert body != null;
+        Map<String, String> messages = getMessagesAccordingToLocale(TestCountry.ENGLAND);
+        String expectedMessage = messages.get("exception.create.group.training.trainer.occupied");
+        assertThat(body.get("message").textValue()).isEqualTo(expectedMessage);
+
+        testDataBase(0);
+    }
+
+    @Test
+    void shouldThrowTrainerNotFoundException() throws Exception {
+        testDataBase(0);
+        mongoTemplate.dropCollection(UserDocument.class);
+
+        ResponseEntity<JsonNode> responseEntity = performAuthRequest();
+
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+        assertThat(responseEntity.getHeaders().getContentType()).isEqualTo(MediaType.APPLICATION_JSON);
+
+        JsonNode body = responseEntity.getBody();
+        assert body != null;
+        Map<String, String> messages = getMessagesAccordingToLocale(TestCountry.ENGLAND);
+        String expectedMessage = messages.get("exception.create.group.training.trainer.not.found");
+        assertThat(body.get("message").textValue()).isEqualTo(expectedMessage);
+
+        testDataBase(0);
+    }
+
+    @Test
+    void shouldThrowTrainingTypeNotFoundException() throws Exception {
+        testDataBase(0);
+        mongoTemplate.dropCollection(TrainingTypeDocument.class);
+
+        ResponseEntity<JsonNode> responseEntity = performAuthRequest();
+
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+        assertThat(responseEntity.getHeaders().getContentType()).isEqualTo(MediaType.APPLICATION_JSON);
+
+        JsonNode body = responseEntity.getBody();
+        assert body != null;
+        Map<String, String> messages = getMessagesAccordingToLocale(TestCountry.ENGLAND);
+        String expectedMessage = messages.get("exception.create.group.training.trainingType.not.found");
+        assertThat(body.get("message").textValue()).isEqualTo(expectedMessage);
+
+        testDataBase(0);
     }
 
 }

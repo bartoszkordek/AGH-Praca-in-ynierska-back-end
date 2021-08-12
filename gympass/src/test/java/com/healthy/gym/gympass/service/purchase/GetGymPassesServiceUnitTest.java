@@ -31,6 +31,7 @@ import java.util.List;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
@@ -51,7 +52,9 @@ class GetGymPassesServiceUnitTest {
 
     private int page;
     private int size;
+    private Pageable paging;
     private List<PurchasedGymPassDocument> purchasedGymPassDocuments;
+    private Page<PurchasedGymPassDocument> purchasedGymPassDocumentsPages;
     private List<PurchasedGymPassDTO> response;
 
     @BeforeEach
@@ -59,6 +62,7 @@ class GetGymPassesServiceUnitTest {
 
         page = 0;
         size = 10;
+        paging = PageRequest.of(page, size);
 
         long pastDays1 = 5;
         long pastDays2 = 65;
@@ -175,19 +179,18 @@ class GetGymPassesServiceUnitTest {
         );
 
         response = List.of(purchasedGymPassDTO1, purchasedGymPassDTO2);
+
+        purchasedGymPassDocumentsPages = new PageImpl<>(
+                purchasedGymPassDocuments, paging, size);
     }
 
     @Test
     void shouldGetPurchasedGymPasses_whenValidDates() throws StartDateAfterEndDateException {
         //before
-        Pageable paging = PageRequest.of(page, size);
         LocalDateTime purchaseStartDateTimeMinusOneDay
                 = LocalDateTime.of(1999,12,31, 23,59,59);
         LocalDateTime purchaseEndDateTimePlusOneDay
                 = LocalDateTime.of(2031,1,1, 0,0,0);
-
-        Page<PurchasedGymPassDocument> purchasedGymPassDocumentsPages = new PageImpl<>(
-                purchasedGymPassDocuments, paging, size);
 
         //when
         when(purchasedGymPassDAO.findAllByPurchaseDateTimeBetween(
@@ -204,12 +207,6 @@ class GetGymPassesServiceUnitTest {
 
     @Test
     void shouldGetPurchasedGymPasses_whenDatesNotDeclared() throws StartDateAfterEndDateException {
-        //before
-        Pageable paging = PageRequest.of(page, size);
-
-        Page<PurchasedGymPassDocument> purchasedGymPassDocumentsPages = new PageImpl<>(
-                purchasedGymPassDocuments, paging, size);
-
         //when
         when(purchasedGymPassDAO.findAllByPurchaseDateTimeBetween(
                 any(),
@@ -220,5 +217,17 @@ class GetGymPassesServiceUnitTest {
         //then
         assertThat(purchaseService.getGymPasses(null, null, paging))
                 .isEqualTo(response);
+    }
+
+    @Test
+    void shouldNotGetGymPasses_whenStartDateAfterEndDate() {
+        //before
+        String startDate = "2030-12-31";
+        String endDate = "2000-01-01";
+
+        //then
+        assertThatThrownBy(() ->
+                purchaseService.getGymPasses(startDate, endDate, paging)
+        ).isInstanceOf(StartDateAfterEndDateException.class);
     }
 }

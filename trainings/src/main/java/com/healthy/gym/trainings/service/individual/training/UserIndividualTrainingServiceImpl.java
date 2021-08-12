@@ -15,6 +15,8 @@ import com.healthy.gym.trainings.exception.notfound.TrainerNotFoundException;
 import com.healthy.gym.trainings.exception.notfound.UserNotFoundException;
 import com.healthy.gym.trainings.exception.occupied.TrainerOccupiedException;
 import com.healthy.gym.trainings.model.request.IndividualTrainingRequest;
+import com.healthy.gym.trainings.utils.CollisionValidator;
+import com.healthy.gym.trainings.component.CollisionValidatorComponent;
 import com.healthy.gym.trainings.utils.IndividualTrainingMapper;
 import com.healthy.gym.trainings.utils.StartEndDateValidator;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,6 +36,7 @@ import static com.healthy.gym.trainings.utils.IndividualTrainingMapper.mapIndivi
 @Service
 public class UserIndividualTrainingServiceImpl implements UserIndividualTrainingService {
 
+    private final CollisionValidatorComponent collisionValidator;
     private final IndividualTrainingRepository individualTrainingRepository;
     private final UserIndividualTrainingDAO userIndividualTrainingDAO;
     private final UserDAO userDAO;
@@ -41,11 +44,13 @@ public class UserIndividualTrainingServiceImpl implements UserIndividualTraining
 
     @Autowired
     public UserIndividualTrainingServiceImpl(
+            CollisionValidatorComponent collisionValidator,
             IndividualTrainingRepository individualTrainingRepository,
             UserIndividualTrainingDAO userIndividualTrainingDAO,
             UserDAO userDAO,
             Clock clock
     ) {
+        this.collisionValidator = collisionValidator;
         this.individualTrainingRepository = individualTrainingRepository;
         this.userIndividualTrainingDAO = userIndividualTrainingDAO;
         this.userDAO = userDAO;
@@ -92,7 +97,7 @@ public class UserIndividualTrainingServiceImpl implements UserIndividualTraining
         LocalDateTime endDateTime = localDateTimes[1];
 
         String remarks = individualTrainingsRequestModel.getRemarks();
-        //TODO add trainer occupied validation;
+        validateIfTrainerIsOccupied(startDateTime, endDateTime, trainer);
 
         IndividualTrainingDocument trainingDocument = new IndividualTrainingDocument(
                 UUID.randomUUID().toString(),
@@ -141,6 +146,16 @@ public class UserIndividualTrainingServiceImpl implements UserIndividualTraining
         if (startDateTime.isAfter(endDateTime)) throw new StartDateAfterEndDateException();
 
         return new LocalDateTime[]{startDateTime, endDateTime};
+    }
+
+    private void validateIfTrainerIsOccupied(
+            LocalDateTime startDateTime,
+            LocalDateTime endDateTime,
+            UserDocument trainer
+    ) throws TrainerOccupiedException {
+        CollisionValidator validator = collisionValidator.getCollisionValidator(startDateTime, endDateTime);
+        boolean isLocationOccupied = validator.isTrainerOccupied(List.of(trainer));
+        if (isLocationOccupied) throw new TrainerOccupiedException();
     }
 
     @Override

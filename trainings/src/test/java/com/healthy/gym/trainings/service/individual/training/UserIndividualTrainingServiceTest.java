@@ -1,5 +1,6 @@
 package com.healthy.gym.trainings.service.individual.training;
 
+import com.healthy.gym.trainings.data.document.GroupTrainingDocument;
 import com.healthy.gym.trainings.data.document.IndividualTrainingDocument;
 import com.healthy.gym.trainings.data.document.UserDocument;
 import com.healthy.gym.trainings.data.repository.UserDAO;
@@ -13,8 +14,10 @@ import com.healthy.gym.trainings.exception.notfound.TrainerNotFoundException;
 import com.healthy.gym.trainings.exception.notfound.UserNotFoundException;
 import com.healthy.gym.trainings.exception.occupied.TrainerOccupiedException;
 import com.healthy.gym.trainings.model.request.IndividualTrainingRequest;
+import com.healthy.gym.trainings.test.utils.TestDocumentUtil;
+import com.healthy.gym.trainings.utils.CollisionValidator;
+import com.healthy.gym.trainings.component.CollisionValidatorComponent;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
@@ -34,6 +37,7 @@ import static org.mockito.Mockito.when;
 
 class UserIndividualTrainingServiceTest {
 
+    private CollisionValidatorComponent collisionValidator;
     private IndividualTrainingRepository individualTrainingRepository;
     private UserIndividualTrainingDAO userIndividualTrainingDAO;
     private UserDAO userDAO;
@@ -42,11 +46,13 @@ class UserIndividualTrainingServiceTest {
 
     @BeforeEach
     void setUp() {
-        Clock clock = Clock.fixed(Instant.parse("2021-07-10T18:00:00.00Z"), ZoneId.of("Europe/Warsaw"));
+        Clock clock = Clock.fixed(Instant.parse("2021-07-10T17:00:00.00Z"), ZoneId.of("Europe/Warsaw"));
+        collisionValidator = mock(CollisionValidatorComponent.class);
         individualTrainingRepository = mock(IndividualTrainingRepository.class);
         userIndividualTrainingDAO = mock(UserIndividualTrainingDAO.class);
         userDAO = mock(UserDAO.class);
         service = new UserIndividualTrainingServiceImpl(
+                collisionValidator,
                 individualTrainingRepository,
                 userIndividualTrainingDAO,
                 userDAO,
@@ -137,8 +143,7 @@ class UserIndividualTrainingServiceTest {
         void setUp() {
             trainerId = UUID.randomUUID().toString();
             individualTrainingsRequestModel = new IndividualTrainingRequest();
-            individualTrainingsRequestModel.setStartDateTime("2021-07-10T20:00");
-            individualTrainingsRequestModel.setEndDateTime("2021-07-10T20:00");
+            individualTrainingsRequestModel.setStartDateTime("2021-07-10T19:00");
             individualTrainingsRequestModel.setEndDateTime("2021-07-10T20:00");
             individualTrainingsRequestModel.setTrainerId(trainerId);
             individualTrainingsRequestModel.setRemarks("Test remarks");
@@ -196,10 +201,66 @@ class UserIndividualTrainingServiceTest {
             ).isInstanceOf(PastDateException.class);
         }
 
-        @Disabled
         @Test
-        void shouldThrowTrainerOccupiedException() {
-            //TODO add trainer occupied validation;
+        void shouldThrowTrainerOccupiedExceptionByGroupTrainings() {
+            when(userDAO.findByUserId(userId)).thenReturn(getTestUser());
+            var trainer = getTestTrainer();
+            when(userDAO.findByUserId(trainerId)).thenReturn(trainer);
+            LocalDateTime startDateTime = LocalDateTime.parse("2021-07-10T19:00");
+            LocalDateTime endDateTime = LocalDateTime.parse("2021-07-10T20:00");
+            when(collisionValidator.getCollisionValidator(startDateTime, endDateTime))
+                    .thenReturn(new CollisionValidator(
+                            getTestGroupTrainingDocumentList(trainer),
+                            List.of(),
+                            startDateTime,
+                            endDateTime
+                    ));
+
+            assertThatThrownBy(
+                    () -> service.createIndividualTrainingRequest(individualTrainingsRequestModel, userId)
+            ).isInstanceOf(TrainerOccupiedException.class);
+        }
+
+        private List<GroupTrainingDocument> getTestGroupTrainingDocumentList(UserDocument trainer) {
+            return List.of(
+                    TestDocumentUtil.getTestGroupTraining(
+                            "2021-07-10T19:00", "2021-07-10T20:30", List.of(trainer)
+                    ),
+                    TestDocumentUtil.getTestGroupTraining(
+                            "2021-07-10T21:00", "2021-07-10T22:00", List.of(trainer)
+                    )
+            );
+        }
+
+        @Test
+        void shouldThrowTrainerOccupiedExceptionByIndividualTrainings() {
+            when(userDAO.findByUserId(userId)).thenReturn(getTestUser());
+            var trainer = getTestTrainer();
+            when(userDAO.findByUserId(trainerId)).thenReturn(trainer);
+
+            LocalDateTime startDateTime = LocalDateTime.parse("2021-07-10T19:00");
+            LocalDateTime endDateTime = LocalDateTime.parse("2021-07-10T20:00");
+            when(collisionValidator.getCollisionValidator(startDateTime, endDateTime))
+                    .thenReturn(new CollisionValidator(
+                            List.of(),
+                            getTestIndividualTrainingDocumentList(trainer),
+                            startDateTime,
+                            endDateTime
+                    ));
+
+            assertThatThrownBy(
+                    () -> service.createIndividualTrainingRequest(individualTrainingsRequestModel, userId)
+            ).isInstanceOf(TrainerOccupiedException.class);
+        }
+
+        private List<IndividualTrainingDocument> getTestIndividualTrainingDocumentList(UserDocument trainer) {
+            return List.of(
+                    TestDocumentUtil.getTestIndividualTraining(
+                            "2021-07-10T19:00", "2021-07-10T20:30", List.of(trainer)
+                    ),
+                    TestDocumentUtil.getTestIndividualTraining(
+                            "2021-07-10T21:00", "2021-07-10T22:00", List.of(trainer)
+                    ));
         }
 
         @Test
@@ -212,6 +273,16 @@ class UserIndividualTrainingServiceTest {
 
             when(userDAO.findByUserId(userId)).thenReturn(getTestUser());
             when(userDAO.findByUserId(trainerId)).thenReturn(getTestTrainer());
+
+            LocalDateTime startDateTime = LocalDateTime.parse("2021-07-10T19:00");
+            LocalDateTime endDateTime = LocalDateTime.parse("2021-07-10T20:00");
+            when(collisionValidator.getCollisionValidator(startDateTime, endDateTime))
+                    .thenReturn(new CollisionValidator(
+                            List.of(),
+                            List.of(),
+                            startDateTime,
+                            endDateTime
+                    ));
 
             var training = getTestIndividualTraining("2021-07-10T18:00", "2021-07-10T19:00");
             when(individualTrainingRepository.save(any())).thenReturn(training);

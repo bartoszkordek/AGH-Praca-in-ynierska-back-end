@@ -223,4 +223,38 @@ public class TestDocumentUtilComponent {
                 false
         );
     }
+
+    public IndividualTrainingDocument saveAndGetTestIndividualTraining(
+            String startDateTime,
+            String endDateTime,
+            List<UserDocument> savedTrainers
+    ) {
+        return saveAndGetTestIndividualTraining(
+                saveAndGetTestTrainingType(),
+                getTestListOfSavedUserDocuments(5),
+                savedTrainers,
+                startDateTime,
+                endDateTime,
+                saveAndGetTestLocation(),
+                getTestRemarks(),
+                false
+        );
+    }
+
+    public IndividualTrainingDocument saveAndGetTestIndividualTraining(
+            String startDateTime,
+            String endDateTime,
+            LocationDocument savedLocationDocument
+    ) {
+        return saveAndGetTestIndividualTraining(
+                saveAndGetTestTrainingType(),
+                getTestListOfSavedUserDocuments(5),
+                getTestListOfSavedTrainersDocuments(2),
+                startDateTime,
+                endDateTime,
+                savedLocationDocument,
+                getTestRemarks(),
+                false
+        );
+    }
 }

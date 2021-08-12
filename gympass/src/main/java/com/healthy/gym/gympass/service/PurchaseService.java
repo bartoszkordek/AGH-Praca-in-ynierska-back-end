@@ -23,7 +23,7 @@ public interface PurchaseService {
             throws GymPassNotFoundException;
 
     List<PurchasedGymPassDTO> getGymPasses(String purchaseStartDate, String purchaseEndDate, Pageable pageable)
-        throws StartDateAfterEndDateException;
+        throws StartDateAfterEndDateException, NoGymPassesException;
 
     List<PurchasedUserGymPassDTO> getUserGymPasses(String userId, String startDate, String endDate)
         throws UserNotFoundException, StartDateAfterEndDateException, NoGymPassesException;

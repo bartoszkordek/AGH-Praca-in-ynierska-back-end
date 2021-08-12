@@ -42,6 +42,7 @@ public class PurchaseServiceImpl implements PurchaseService{
     private static final String USER_NOT_EXIST_MESSAGE = "User not exist";
     private static final String START_DATE_AFTER_END_DATE_MESSAGE = "Start date after end date";
     private static final String GYMPASS_NOT_EXIST_MESSAGE = "Gympass with current ID does not exist";
+    private static final String NO_GYMPASSES_CONTENT_MESSAGE = "No gympasses to display";
     private static final String RETRO_PURCHASED_GYMPASS_MESSAGE = "Cannot buy gympass with retro date";
     private static final String INVALID_GYMPASS_TYPE_MESSAGE = "Not specified gympass type";
     private static final String RETRO_SUSPENSION_DATE_MESSAGE = "Retro suspension date";
@@ -166,7 +167,7 @@ public class PurchaseServiceImpl implements PurchaseService{
             String requestPurchaseStartDate,
             String requestPurchaseEndDate,
             Pageable pageable
-    ) throws StartDateAfterEndDateException {
+    ) throws StartDateAfterEndDateException, NoGymPassesException {
 
         LocalDateTime purchaseStartDateTime = LocalDateTime.now().minusMonths(1);
         LocalDateTime purchaseEndDateTime = LocalDateTime.now();
@@ -190,6 +191,8 @@ public class PurchaseServiceImpl implements PurchaseService{
                         purchaseEndDateTime.plusDays(1),
                         pageable
                 ).getContent();
+
+        if(purchasedGymPassDocuments.isEmpty()) throw new NoGymPassesException(NO_GYMPASSES_CONTENT_MESSAGE);
 
         return purchasedGymPassDocuments
                 .stream()
@@ -222,7 +225,7 @@ public class PurchaseServiceImpl implements PurchaseService{
         List<PurchasedGymPassDocument> purchasedGymPassDocuments = purchasedGymPassDAO
                 .findAllByUserAndStartDateAfterAndEndDateBefore(userDocument, formattedStartDate, formattedEndDate);
 
-        if(purchasedGymPassDocuments.isEmpty()) throw new NoGymPassesException("No gympasses to display");
+        if(purchasedGymPassDocuments.isEmpty()) throw new NoGymPassesException(NO_GYMPASSES_CONTENT_MESSAGE);
 
         return purchasedGymPassDocuments
                 .stream()

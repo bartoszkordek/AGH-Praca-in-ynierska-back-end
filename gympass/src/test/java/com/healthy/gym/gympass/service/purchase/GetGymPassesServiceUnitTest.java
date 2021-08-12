@@ -10,6 +10,7 @@ import com.healthy.gym.gympass.dto.BasicUserInfoDTO;
 import com.healthy.gym.gympass.dto.PurchasedGymPassDTO;
 import com.healthy.gym.gympass.dto.SimpleGymPassDTO;
 import com.healthy.gym.gympass.enums.GymRole;
+import com.healthy.gym.gympass.exception.NoGymPassesException;
 import com.healthy.gym.gympass.exception.StartDateAfterEndDateException;
 import com.healthy.gym.gympass.service.PurchaseService;
 import com.healthy.gym.gympass.shared.Description;
@@ -27,6 +28,7 @@ import org.springframework.data.domain.Pageable;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -185,7 +187,7 @@ class GetGymPassesServiceUnitTest {
     }
 
     @Test
-    void shouldGetPurchasedGymPasses_whenValidDates() throws StartDateAfterEndDateException {
+    void shouldGetPurchasedGymPasses_whenValidDates() throws StartDateAfterEndDateException, NoGymPassesException {
         //before
         LocalDateTime purchaseStartDateTimeMinusOneDay
                 = LocalDateTime.of(1999,12,31, 23,59,59);
@@ -206,7 +208,7 @@ class GetGymPassesServiceUnitTest {
 
 
     @Test
-    void shouldGetPurchasedGymPasses_whenDatesNotDeclared() throws StartDateAfterEndDateException {
+    void shouldGetPurchasedGymPasses_whenDatesNotDeclared() throws StartDateAfterEndDateException, NoGymPassesException {
         //when
         when(purchasedGymPassDAO.findAllByPurchaseDateTimeBetween(
                 any(),
@@ -229,5 +231,31 @@ class GetGymPassesServiceUnitTest {
         assertThatThrownBy(() ->
                 purchaseService.getGymPasses(startDate, endDate, paging)
         ).isInstanceOf(StartDateAfterEndDateException.class);
+    }
+
+    @Test
+    void shouldNotGetGymPasses_whenNoDocuments() {
+        //before
+        String startDate = "2100-01-01";
+        String endDate = "2100-02-01";
+        LocalDateTime purchaseStartDateTimeMinusOneDay
+                = LocalDateTime.of(2099,12,31, 23,59,59);
+        LocalDateTime purchaseEndDateTimePlusOneDay
+                = LocalDateTime.of(2100,2,2, 0,0,0);
+
+        List<PurchasedGymPassDocument> emptyPurchasedGymPassDocumentList = new ArrayList<>();
+
+        //when
+        when(purchasedGymPassDAO.findAllByPurchaseDateTimeBetween(
+                purchaseStartDateTimeMinusOneDay,
+                purchaseEndDateTimePlusOneDay,
+                paging
+        )).thenReturn(new PageImpl<>(emptyPurchasedGymPassDocumentList, paging, size)
+        );
+
+        //then
+        assertThatThrownBy(() ->
+                purchaseService.getGymPasses(startDate, endDate, paging)
+        ).isInstanceOf(NoGymPassesException.class);
     }
 }

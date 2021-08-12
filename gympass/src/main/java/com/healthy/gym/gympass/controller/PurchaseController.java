@@ -40,6 +40,7 @@ public class PurchaseController {
     private static final String USER_NOT_FOUND_EXCEPTION = "exception.user.not.found";
     private static final String GYMPASS_NOT_FOUND_EXCEPTION = "exception.gympass.not.found";
     private static final String START_DATE_AFTER_END_DATE_EXCEPTION = "exception.start.after.end";
+    private static final String NO_GYMPASSES_CONTENT_EXCEPTION = "exception.no.gympasses";
     private final Translator translator;
     private final PurchaseService purchaseService;
 
@@ -201,6 +202,10 @@ public class PurchaseController {
         } catch (StartDateAfterEndDateException exception) {
             String reason = translator.toLocale(START_DATE_AFTER_END_DATE_EXCEPTION);
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, exception);
+
+        } catch (NoGymPassesException exception){
+            String reason = translator.toLocale(NO_GYMPASSES_CONTENT_EXCEPTION);
+            throw new ResponseStatusException(HttpStatus.NO_CONTENT, reason, exception);
 
         } catch (Exception exception){
             String reason = translator.toLocale(INTERNAL_ERROR_EXCEPTION);

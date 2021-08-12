@@ -34,6 +34,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
 
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -530,41 +531,70 @@ public class GetGymPassesIntegrationTest {
         }
     }
 
-    @ParameterizedTest
-    @EnumSource(TestCountry.class)
-    void shouldNotGetGymPasses_whenStartDateAfterEndDate(TestCountry country)
-            throws Exception {
-        Map<String, String> messages = getMessagesAccordingToLocale(country);
-        Locale testedLocale = convertEnumToLocale(country);
-
-        String purchaseStartDate = "2030-12-31";
-        String purchaseEndDate = "2000-01-01";
-        int page = 0;
-
-        URI uri = new URI("http://localhost:" + port + "/purchase/page/"+page+
-                "?purchaseStartDate="+purchaseStartDate+"&purchaseEndDate="+purchaseEndDate);
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.set("Accept-Language", testedLocale.toString());
-        headers.set("Authorization", employeeToken);
-        headers.setContentType(MediaType.APPLICATION_JSON);
-
-        HttpEntity<Object> request = new HttpEntity<>(null, headers);
-
-        ResponseEntity<JsonNode> responseEntity = restTemplate
-                .exchange(uri, HttpMethod.GET, request, JsonNode.class);
-
-        String expectedMessage = messages.get("exception.start.after.end");
-
-        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
-        assertThat(responseEntity.getBody().get("status").intValue()).isEqualTo(400);
-        assertThat(responseEntity.getBody().get("error").textValue()).isEqualTo("Bad Request");
-        assertThat(responseEntity.getBody().get("message").textValue()).isEqualTo(expectedMessage);
-        assertThat(responseEntity.getBody().get("timestamp")).isNotNull();
-    }
 
     @Nested
     class ShouldNotGetGymPasses{
+
+        @ParameterizedTest
+        @EnumSource(TestCountry.class)
+        void shouldNotGetGymPasses_whenStartDateAfterEndDate(TestCountry country)
+                throws Exception {
+            Map<String, String> messages = getMessagesAccordingToLocale(country);
+            Locale testedLocale = convertEnumToLocale(country);
+
+            String purchaseStartDate = "2030-12-31";
+            String purchaseEndDate = "2000-01-01";
+            int page = 0;
+
+            URI uri = new URI("http://localhost:" + port + "/purchase/page/"+page+
+                    "?purchaseStartDate="+purchaseStartDate+"&purchaseEndDate="+purchaseEndDate);
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.set("Accept-Language", testedLocale.toString());
+            headers.set("Authorization", employeeToken);
+            headers.setContentType(MediaType.APPLICATION_JSON);
+
+            HttpEntity<Object> request = new HttpEntity<>(null, headers);
+
+            ResponseEntity<JsonNode> responseEntity = restTemplate
+                    .exchange(uri, HttpMethod.GET, request, JsonNode.class);
+
+            String expectedMessage = messages.get("exception.start.after.end");
+
+            assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+            assertThat(responseEntity.getBody().get("status").intValue()).isEqualTo(400);
+            assertThat(responseEntity.getBody().get("error").textValue()).isEqualTo("Bad Request");
+            assertThat(responseEntity.getBody().get("message").textValue()).isEqualTo(expectedMessage);
+            assertThat(responseEntity.getBody().get("timestamp")).isNotNull();
+        }
+
+        @ParameterizedTest
+        @EnumSource(TestCountry.class)
+        void shouldNotGetGymPasses_whenEmptyList(TestCountry country) throws URISyntaxException {
+            Map<String, String> messages = getMessagesAccordingToLocale(country);
+            Locale testedLocale = convertEnumToLocale(country);
+
+            String purchaseStartDate = "2100-01-01";
+            String purchaseEndDate = "2100-02-01";
+            int page = 0;
+
+            URI uri = new URI("http://localhost:" + port + "/purchase/page/"+page+
+                    "?purchaseStartDate="+purchaseStartDate+"&purchaseEndDate="+purchaseEndDate);
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.set("Accept-Language", testedLocale.toString());
+            headers.set("Authorization", employeeToken);
+            headers.setContentType(MediaType.APPLICATION_JSON);
+
+            HttpEntity<Object> request = new HttpEntity<>(null, headers);
+
+            ResponseEntity<JsonNode> responseEntity = restTemplate
+                    .exchange(uri, HttpMethod.GET, request, JsonNode.class);
+
+            assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
+            assertThat(responseEntity.getBody()).isNull();
+
+        }
 
         @Nested
         class ShouldNotDeleteGymPassWhenNotAuthorized{

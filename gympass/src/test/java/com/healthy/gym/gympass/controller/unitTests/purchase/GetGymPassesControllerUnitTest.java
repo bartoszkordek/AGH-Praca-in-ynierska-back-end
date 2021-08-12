@@ -6,6 +6,7 @@ import com.healthy.gym.gympass.controller.PurchaseController;
 import com.healthy.gym.gympass.dto.BasicUserInfoDTO;
 import com.healthy.gym.gympass.dto.PurchasedGymPassDTO;
 import com.healthy.gym.gympass.dto.SimpleGymPassDTO;
+import com.healthy.gym.gympass.exception.NoGymPassesException;
 import com.healthy.gym.gympass.exception.StartDateAfterEndDateException;
 import com.healthy.gym.gympass.service.PurchaseService;
 import com.healthy.gym.gympass.shared.Price;
@@ -292,6 +293,39 @@ public class GetGymPassesControllerUnitTest {
                     .andExpect(result ->
                             assertThat(Objects.requireNonNull(result.getResolvedException()).getCause())
                                     .isInstanceOf(StartDateAfterEndDateException.class)
+                    );
+        }
+
+        @ParameterizedTest
+        @EnumSource(TestCountry.class)
+        void shouldNotGetGymPassesWhenEmptyList(TestCountry country) throws Exception {
+            Map<String, String> messages = getMessagesAccordingToLocale(country);
+            Locale testedLocale = convertEnumToLocale(country);
+
+            String purchasedStartDate= "2100-01-01";
+            String purchasedEndDate= "2100-02-01";
+            int page = 0;
+
+            RequestBuilder request = MockMvcRequestBuilders
+                    .get(uri+"/page/"+page
+                            +"?purchasedStartDate="+purchasedStartDate+"&purchasedEndDate="+purchasedEndDate)
+                    .header("Accept-Language", testedLocale.toString())
+                    .header("Authorization", managerToken)
+                    .contentType(MediaType.APPLICATION_JSON);
+
+            doThrow(NoGymPassesException.class)
+                    .when(purchaseService)
+                    .getGymPasses(any(), any(), any());
+
+            String expectedMessage = messages.get( "exception.no.gympasses");
+
+            mockMvc.perform(request)
+                    .andDo(print())
+                    .andExpect(status().isNoContent())
+                    .andExpect(status().reason(is(expectedMessage)))
+                    .andExpect(result ->
+                            assertThat(Objects.requireNonNull(result.getResolvedException()).getCause())
+                                    .isInstanceOf(NoGymPassesException.class)
                     );
         }
 

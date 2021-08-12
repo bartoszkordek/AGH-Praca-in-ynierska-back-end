@@ -75,7 +75,7 @@ class SuspendPurchasedGymPassIntegrationTest {
     private String name;
     private String surname;
     private String purchasedGymPassDocumentId;
-    private LocalDateTime purchaseDateAndTime;
+    private LocalDateTime purchaseDateTime;
     private LocalDate startDate;
     private LocalDate endDate;
     private int entries;
@@ -127,7 +127,7 @@ class SuspendPurchasedGymPassIntegrationTest {
         mongoTemplate.save(gymPassOfferDocument);
 
         purchasedGymPassDocumentId = UUID.randomUUID().toString();
-        purchaseDateAndTime = LocalDateTime.now();
+        purchaseDateTime = LocalDateTime.now();
         startDate = LocalDate.now().minusDays(2);
         endDate = startDate.plusMonths(1);
         entries = Integer.MAX_VALUE;
@@ -135,7 +135,7 @@ class SuspendPurchasedGymPassIntegrationTest {
                 purchasedGymPassDocumentId,
                 gymPassOfferDocument,
                 userDocument,
-                purchaseDateAndTime,
+                purchaseDateTime,
                 startDate,
                 endDate,
                 entries
@@ -144,7 +144,7 @@ class SuspendPurchasedGymPassIntegrationTest {
         mongoTemplate.save(purchasedGymPassDocument);
 
         alreadySuspendedPurchasedGymPassDocumentId = UUID.randomUUID().toString();
-        purchaseDateAndTime = LocalDateTime.now();
+        purchaseDateTime = LocalDateTime.now();
         startDate = LocalDate.now().minusDays(2);
         endDate = startDate.plusMonths(1);
         entries = Integer.MAX_VALUE;
@@ -152,7 +152,7 @@ class SuspendPurchasedGymPassIntegrationTest {
                 alreadySuspendedPurchasedGymPassDocumentId,
                 gymPassOfferDocument,
                 userDocument,
-                purchaseDateAndTime,
+                purchaseDateTime,
                 startDate,
                 endDate,
                 entries,
@@ -216,7 +216,7 @@ class SuspendPurchasedGymPassIntegrationTest {
                     .isEqualTo(name);
             assertThat(responseEntity.getBody().get("purchasedGymPass").get("user").get("surname").textValue())
                     .isEqualTo(surname);
-            assertThat(responseEntity.getBody().get("purchasedGymPass").get("purchaseDateAndTime"))
+            assertThat(responseEntity.getBody().get("purchasedGymPass").get("purchaseDateTime"))
                     .isNotNull();
             assertThat(responseEntity.getBody().get("purchasedGymPass").get("startDate").textValue())
                     .isEqualTo(startDate.toString());

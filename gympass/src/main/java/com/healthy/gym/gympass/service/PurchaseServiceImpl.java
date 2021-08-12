@@ -15,6 +15,7 @@ import com.healthy.gym.gympass.util.RequestDateFormatter;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -32,9 +33,21 @@ public class PurchaseServiceImpl implements PurchaseService{
     private final GymPassOfferDAO gymPassOfferDAO;
     private final UserDAO userDAO;
     private final ModelMapper modelMapper;
+    private final RequestDateFormatter requestDateFormatter;
 
     private static final String MIN_START_DATE = "1000-01-01";
     private static final String MAX_END_DATE = "9999-12-31";
+
+    private static final String OFFER_NOT_EXIST_MESSAGE = "Gympass offer not exist";
+    private static final String USER_NOT_EXIST_MESSAGE = "User not exist";
+    private static final String START_DATE_AFTER_END_DATE_MESSAGE = "Start date after end date";
+    private static final String GYMPASS_NOT_EXIST_MESSAGE = "Gympass with current ID does not exist";
+    private static final String NO_GYMPASSES_CONTENT_MESSAGE = "No gympasses to display";
+    private static final String RETRO_PURCHASED_GYMPASS_MESSAGE = "Cannot buy gympass with retro date";
+    private static final String INVALID_GYMPASS_TYPE_MESSAGE = "Not specified gympass type";
+    private static final String RETRO_SUSPENSION_DATE_MESSAGE = "Retro suspension date";
+    private static final String SUSPENSION_DATE_AFTER_END_DATE_MESSAGE = "Suspension date after end date";
+    private static final String ALREADY_SUSPENDED_GYMPASS_MESSAGE = "Gympass is already suspended";
 
     @Autowired
     public PurchaseServiceImpl(
@@ -47,6 +60,7 @@ public class PurchaseServiceImpl implements PurchaseService{
         this.userDAO = userDAO;
         modelMapper = new ModelMapper();
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+        requestDateFormatter = new RequestDateFormatter();
     }
 
     @Override
@@ -56,24 +70,24 @@ public class PurchaseServiceImpl implements PurchaseService{
 
         String gymPassOfferId = request.getGymPassOfferId();
         GymPassDocument gymPassOfferDocument = gymPassOfferDAO.findByDocumentId(gymPassOfferId);
-        if(gymPassOfferDocument == null) throw new OfferNotFoundException("Gympass offer not exist");
+        if(gymPassOfferDocument == null) throw new OfferNotFoundException(OFFER_NOT_EXIST_MESSAGE);
 
         String userId = request.getUserId();
         UserDocument userDocument = userDAO.findByUserId(userId);
-        if(userDocument == null) throw  new UserNotFoundException("User not exist");
+        if(userDocument == null) throw  new UserNotFoundException(USER_NOT_EXIST_MESSAGE);
 
         String startDate = request.getStartDate();
         String endDate = request.getEndDate();
         LocalDate parsedStartDate = LocalDate.parse(startDate, DateTimeFormatter.ISO_LOCAL_DATE);
         LocalDate parsedEndDate = LocalDate.parse(endDate, DateTimeFormatter.ISO_LOCAL_DATE);
         if(parsedStartDate.isBefore(LocalDate.now()) || parsedEndDate.isBefore(LocalDate.now()))
-            throw new RetroPurchasedException("Cannot buy gympass with retro date");
+            throw new RetroPurchasedException(RETRO_PURCHASED_GYMPASS_MESSAGE);
         if(parsedStartDate.isAfter(parsedEndDate))
-            throw new StartDateAfterEndDateException("Start date after end date");
+            throw new StartDateAfterEndDateException(START_DATE_AFTER_END_DATE_MESSAGE);
 
         int entries = request.getEntries();
         if(endDate.equals(MAX_END_DATE) && entries == Integer.MAX_VALUE)
-            throw new NotSpecifiedGymPassTypeException("Not specified gympass type");
+            throw new NotSpecifiedGymPassTypeException(INVALID_GYMPASS_TYPE_MESSAGE);
 
         PurchasedGymPassDocument purchasedGymPassDocumentToSave = new PurchasedGymPassDocument(
                 UUID.randomUUID().toString(),
@@ -96,19 +110,19 @@ public class PurchaseServiceImpl implements PurchaseService{
 
         PurchasedGymPassDocument purchasedGymPassDocument = purchasedGymPassDAO
                 .findByPurchasedGymPassDocumentId(individualGymPassId);
-        if(purchasedGymPassDocument == null) throw new GymPassNotFoundException("Gympass with current ID does not exist");
+        if(purchasedGymPassDocument == null) throw new GymPassNotFoundException(GYMPASS_NOT_EXIST_MESSAGE);
 
         LocalDate endDate = purchasedGymPassDocument.getEndDate();
         LocalDate now = LocalDate.now();
         LocalDate suspensionDate = LocalDate.parse(requestedSuspensionDate, DateTimeFormatter.ISO_DATE);
         if(suspensionDate.isBefore(now) || suspensionDate.isEqual(now))
-            throw new RetroSuspensionDateException("Retro suspension date");
+            throw new RetroSuspensionDateException(RETRO_SUSPENSION_DATE_MESSAGE);
         if(suspensionDate.isAfter(endDate) || suspensionDate.isEqual(endDate))
-                throw new SuspensionDateAfterEndDateException("Suspension date after end date");
+                throw new SuspensionDateAfterEndDateException(SUSPENSION_DATE_AFTER_END_DATE_MESSAGE);
 
         LocalDate currentSuspensionDate = purchasedGymPassDocument.getSuspensionDate();
         if(currentSuspensionDate != null && currentSuspensionDate.isAfter(suspensionDate))
-            throw new AlreadySuspendedGymPassException("Gympass is suspended.");
+            throw new AlreadySuspendedGymPassException(ALREADY_SUSPENDED_GYMPASS_MESSAGE);
 
         purchasedGymPassDocument.setSuspensionDate(suspensionDate);
         long suspensionDateFromNow = now.until(suspensionDate, ChronoUnit.DAYS);
@@ -123,7 +137,7 @@ public class PurchaseServiceImpl implements PurchaseService{
 
         PurchasedGymPassDocument purchasedGymPassDocument = purchasedGymPassDAO
                 .findByPurchasedGymPassDocumentId(individualGymPassId);
-        if(purchasedGymPassDocument == null) throw new GymPassNotFoundException("Gympass with current ID does not exist");
+        if(purchasedGymPassDocument == null) throw new GymPassNotFoundException(GYMPASS_NOT_EXIST_MESSAGE);
 
         LocalDate now = LocalDate.now();
         LocalDate endDate = purchasedGymPassDocument.getEndDate();
@@ -149,13 +163,50 @@ public class PurchaseServiceImpl implements PurchaseService{
     }
 
     @Override
+    public List<PurchasedGymPassDTO> getGymPasses(
+            String requestPurchaseStartDate,
+            String requestPurchaseEndDate,
+            Pageable pageable
+    ) throws StartDateAfterEndDateException, NoGymPassesException {
+
+        LocalDateTime purchaseStartDateTime = LocalDateTime.now().minusMonths(1);
+        LocalDateTime purchaseEndDateTime = LocalDateTime.now();
+
+        if(requestPurchaseStartDate != null){
+            LocalDate purchaseStartDateParsed = LocalDate.parse(requestPurchaseStartDate, DateTimeFormatter.ISO_LOCAL_DATE);
+            purchaseStartDateTime = purchaseStartDateParsed.atTime(23, 59, 59);
+        }
+
+        if(requestPurchaseEndDate != null){
+            LocalDate purchaseEndDateParsed = LocalDate.parse(requestPurchaseEndDate, DateTimeFormatter.ISO_LOCAL_DATE);
+            purchaseEndDateTime = purchaseEndDateParsed.atTime(0, 0, 0);
+        }
+
+        if(purchaseStartDateTime.isAfter(purchaseEndDateTime))
+            throw new StartDateAfterEndDateException(START_DATE_AFTER_END_DATE_MESSAGE);
+
+        List<PurchasedGymPassDocument> purchasedGymPassDocuments = purchasedGymPassDAO
+                .findAllByPurchaseDateTimeBetween(
+                        purchaseStartDateTime.minusDays(1),
+                        purchaseEndDateTime.plusDays(1),
+                        pageable
+                ).getContent();
+
+        if(purchasedGymPassDocuments.isEmpty()) throw new NoGymPassesException(NO_GYMPASSES_CONTENT_MESSAGE);
+
+        return purchasedGymPassDocuments
+                .stream()
+                .map(purchasedGymPassDocument -> modelMapper.map(purchasedGymPassDocument, PurchasedGymPassDTO.class))
+                .collect(Collectors.toList());
+    }
+
+    @Override
     public List<PurchasedUserGymPassDTO> getUserGymPasses(
             String userId,
             String requestStartDate,
             String requestEndDate
     ) throws UserNotFoundException, StartDateAfterEndDateException, NoGymPassesException {
 
-        RequestDateFormatter requestDateFormatter = new RequestDateFormatter();
         String startDate = MIN_START_DATE;
         String endDate = MAX_END_DATE;
         if(requestStartDate != null) startDate = requestStartDate;
@@ -166,15 +217,15 @@ public class PurchaseServiceImpl implements PurchaseService{
         LocalDate formattedEndDate = requestDateFormatter.formatEndDate(endDate);
 
         if(formattedStartDate.isAfter(formattedEndDate))
-            throw new StartDateAfterEndDateException("Start date after end date");
+            throw new StartDateAfterEndDateException(START_DATE_AFTER_END_DATE_MESSAGE);
 
         UserDocument userDocument = userDAO.findByUserId(userId);
-        if(userDocument == null) throw  new UserNotFoundException("User not exist");
+        if(userDocument == null) throw  new UserNotFoundException(USER_NOT_EXIST_MESSAGE);
 
         List<PurchasedGymPassDocument> purchasedGymPassDocuments = purchasedGymPassDAO
                 .findAllByUserAndStartDateAfterAndEndDateBefore(userDocument, formattedStartDate, formattedEndDate);
 
-        if(purchasedGymPassDocuments.isEmpty()) throw new NoGymPassesException("No gympasses to display");
+        if(purchasedGymPassDocuments.isEmpty()) throw new NoGymPassesException(NO_GYMPASSES_CONTENT_MESSAGE);
 
         return purchasedGymPassDocuments
                 .stream()
@@ -187,7 +238,7 @@ public class PurchaseServiceImpl implements PurchaseService{
 
         PurchasedGymPassDocument purchasedGymPassDocumentToRemove = purchasedGymPassDAO
                 .findByPurchasedGymPassDocumentId(individualGymPassId);
-        if(purchasedGymPassDocumentToRemove == null) throw new GymPassNotFoundException("Gympass with current ID does not exist");
+        if(purchasedGymPassDocumentToRemove == null) throw new GymPassNotFoundException(GYMPASS_NOT_EXIST_MESSAGE);
 
         purchasedGymPassDAO.delete(purchasedGymPassDocumentToRemove);
 

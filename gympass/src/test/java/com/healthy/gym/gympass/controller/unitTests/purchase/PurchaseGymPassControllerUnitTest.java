@@ -159,8 +159,8 @@ public class PurchaseGymPassControllerUnitTest {
             String name = "Jan";
             String surname = "Kowalski";
             BasicUserInfoDTO user = new BasicUserInfoDTO(validUserId, name, surname);
-            LocalDateTime purchaseDateAndTime = LocalDateTime.now();
-            String formattedPurchaseDateAndTime = purchaseDateAndTime.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+            LocalDateTime purchaseDateTime = LocalDateTime.now();
+            String formattedPurchaseDateTime = purchaseDateTime.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
             String startDate = LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE);
             String endDate = LocalDateTime.now().plusMonths(1).format(DateTimeFormatter.ISO_LOCAL_DATE);
             int entries = Integer.MAX_VALUE;
@@ -171,7 +171,7 @@ public class PurchaseGymPassControllerUnitTest {
                                     purchasedGymPassDocumentId,
                                 gymPassOffer,
                                 user,
-                                purchaseDateAndTime,
+                                purchaseDateTime,
                                     LocalDate.parse(startDate, DateTimeFormatter.ISO_LOCAL_DATE),
                                     LocalDate.parse(endDate, DateTimeFormatter.ISO_LOCAL_DATE),
                                 entries
@@ -201,8 +201,8 @@ public class PurchaseGymPassControllerUnitTest {
                             jsonPath("$.purchasedGymPass.user.userId").value(is(validUserId)),
                             jsonPath("$.purchasedGymPass.user.name").value(is(name)),
                             jsonPath("$.purchasedGymPass.user.surname").value(is(surname)),
-                            jsonPath("$.purchasedGymPass.purchaseDateAndTime")
-                                    .value(is(formattedPurchaseDateAndTime)),
+                            jsonPath("$.purchasedGymPass.purchaseDateTime")
+                                    .value(is(formattedPurchaseDateTime)),
                             jsonPath("$.purchasedGymPass.startDate").value(is(startDate)),
                             jsonPath("$.purchasedGymPass.endDate").value(is(endDate)),
                             jsonPath("$.purchasedGymPass.entries").value(is(entries))
@@ -232,8 +232,8 @@ public class PurchaseGymPassControllerUnitTest {
             String name = "Jan";
             String surname = "Kowalski";
             BasicUserInfoDTO user = new BasicUserInfoDTO(validUserId, name, surname);
-            LocalDateTime purchaseDateAndTime = LocalDateTime.now();
-            String formattedPurchaseDateAndTime = purchaseDateAndTime.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+            LocalDateTime purchaseDateTime = LocalDateTime.now();
+            String formattedPurchaseDateTime = purchaseDateTime.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
             String startDate = LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE);
             String endDate = LocalDateTime.MAX.format(DateTimeFormatter.ISO_LOCAL_DATE);
 
@@ -243,7 +243,7 @@ public class PurchaseGymPassControllerUnitTest {
                                     purchasedGymPassDocumentId,
                                     gymPassOffer,
                                     user,
-                                    purchaseDateAndTime,
+                                    purchaseDateTime,
                                     LocalDate.parse(startDate, DateTimeFormatter.ISO_LOCAL_DATE),
                                     LocalDate.parse(endDate, DateTimeFormatter.ISO_LOCAL_DATE),
                                     entriesForEntriesGymPass
@@ -273,8 +273,8 @@ public class PurchaseGymPassControllerUnitTest {
                             jsonPath("$.purchasedGymPass.user.userId").value(is(validUserId)),
                             jsonPath("$.purchasedGymPass.user.name").value(is(name)),
                             jsonPath("$.purchasedGymPass.user.surname").value(is(surname)),
-                            jsonPath("$.purchasedGymPass.purchaseDateAndTime")
-                                    .value(is(formattedPurchaseDateAndTime)),
+                            jsonPath("$.purchasedGymPass.purchaseDateTime")
+                                    .value(is(formattedPurchaseDateTime)),
                             jsonPath("$.purchasedGymPass.startDate").value(is(startDate)),
                             jsonPath("$.purchasedGymPass.endDate").value(is(endDate)),
                             jsonPath("$.purchasedGymPass.entries").value(is(entriesForEntriesGymPass))

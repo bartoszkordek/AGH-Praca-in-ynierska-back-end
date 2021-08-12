@@ -263,7 +263,7 @@ class PurchaseGymPassIntegrationTest {
                     .isEqualTo(name);
             assertThat(responseEntity.getBody().get("purchasedGymPass").get("user").get("surname").textValue())
                     .isEqualTo(surname);
-            assertThat(responseEntity.getBody().get("purchasedGymPass").get("purchaseDateAndTime"))
+            assertThat(responseEntity.getBody().get("purchasedGymPass").get("purchaseDateTime"))
                     .isNotNull();
             assertThat(responseEntity.getBody().get("purchasedGymPass").get("startDate").textValue())
                     .isEqualTo(requestStartDate);
@@ -313,7 +313,7 @@ class PurchaseGymPassIntegrationTest {
                     .isEqualTo(name);
             assertThat(responseEntity.getBody().get("purchasedGymPass").get("user").get("surname").textValue())
                     .isEqualTo(surname);
-            assertThat(responseEntity.getBody().get("purchasedGymPass").get("purchaseDateAndTime"))
+            assertThat(responseEntity.getBody().get("purchasedGymPass").get("purchaseDateTime"))
                     .isNotNull();
             assertThat(responseEntity.getBody().get("purchasedGymPass").get("startDate").textValue())
                     .isEqualTo(requestStartDate);

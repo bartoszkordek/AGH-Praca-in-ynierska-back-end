@@ -18,7 +18,7 @@ public class PurchasedGymPassDocument {
     private GymPassDocument gymPassOffer;
     @DBRef
     private UserDocument user;
-    private LocalDateTime purchaseDateAndTime;
+    private LocalDateTime purchaseDateTime;
     private LocalDate startDate;
     private LocalDate endDate;
     private int entries;
@@ -32,7 +32,7 @@ public class PurchasedGymPassDocument {
             String purchasedGymPassDocumentId,
             GymPassDocument gymPassOffer,
             UserDocument user,
-            LocalDateTime purchaseDateAndTime,
+            LocalDateTime purchaseDateTime,
             LocalDate startDate,
             LocalDate endDate,
             int entries,
@@ -41,7 +41,7 @@ public class PurchasedGymPassDocument {
         this.purchasedGymPassDocumentId = purchasedGymPassDocumentId;
         this.gymPassOffer = gymPassOffer;
         this.user = user;
-        this.purchaseDateAndTime = purchaseDateAndTime;
+        this.purchaseDateTime = purchaseDateTime;
         this.startDate = startDate;
         this.endDate = endDate;
         this.entries = entries;
@@ -52,7 +52,7 @@ public class PurchasedGymPassDocument {
             String purchasedGymPassDocumentId,
             GymPassDocument gymPassOffer,
             UserDocument user,
-            LocalDateTime purchaseDateAndTime,
+            LocalDateTime purchaseDateTime,
             LocalDate startDate,
             LocalDate endDate,
             int entries
@@ -60,7 +60,7 @@ public class PurchasedGymPassDocument {
         this.purchasedGymPassDocumentId = purchasedGymPassDocumentId;
         this.gymPassOffer = gymPassOffer;
         this.user = user;
-        this.purchaseDateAndTime = purchaseDateAndTime;
+        this.purchaseDateTime = purchaseDateTime;
         this.startDate = startDate;
         this.endDate = endDate;
         this.entries = entries;
@@ -82,8 +82,8 @@ public class PurchasedGymPassDocument {
         return user;
     }
 
-    public LocalDateTime getPurchaseDateAndTime() {
-        return purchaseDateAndTime;
+    public LocalDateTime getPurchaseDateTime() {
+        return purchaseDateTime;
     }
 
     public LocalDate getStartDate() {
@@ -118,8 +118,8 @@ public class PurchasedGymPassDocument {
         this.user = user;
     }
 
-    public void setPurchaseDateAndTime(LocalDateTime purchaseDateAndTime) {
-        this.purchaseDateAndTime = purchaseDateAndTime;
+    public void setPurchaseDateTime(LocalDateTime purchaseDateTime) {
+        this.purchaseDateTime = purchaseDateTime;
     }
 
     public void setStartDate(LocalDate startDate) {
@@ -145,7 +145,7 @@ public class PurchasedGymPassDocument {
                 ", purchasedGymPassDocumentId='" + purchasedGymPassDocumentId + '\'' +
                 ", gymPassOffer=" + gymPassOffer +
                 ", user=" + user +
-                ", purchaseDateAndTime=" + purchaseDateAndTime +
+                ", purchaseDateTime=" + purchaseDateTime +
                 ", startDate=" + startDate +
                 ", endDate=" + endDate +
                 ", entries=" + entries +
@@ -163,7 +163,7 @@ public class PurchasedGymPassDocument {
                 Objects.equals(purchasedGymPassDocumentId, that.purchasedGymPassDocumentId) &&
                 Objects.equals(gymPassOffer, that.gymPassOffer) &&
                 Objects.equals(user, that.user) &&
-                Objects.equals(purchaseDateAndTime, that.purchaseDateAndTime) &&
+                Objects.equals(purchaseDateTime, that.purchaseDateTime) &&
                 Objects.equals(startDate, that.startDate) &&
                 Objects.equals(endDate, that.endDate) &&
                 Objects.equals(suspensionDate, that.suspensionDate);
@@ -176,7 +176,7 @@ public class PurchasedGymPassDocument {
                 purchasedGymPassDocumentId,
                 gymPassOffer,
                 user,
-                purchaseDateAndTime,
+                purchaseDateTime,
                 startDate,
                 endDate,
                 entries,

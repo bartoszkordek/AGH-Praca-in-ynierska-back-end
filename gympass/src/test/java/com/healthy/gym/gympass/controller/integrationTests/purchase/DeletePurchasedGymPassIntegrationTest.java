@@ -113,7 +113,7 @@ public class DeletePurchasedGymPassIntegrationTest {
         mongoTemplate.save(gymPassOfferDocument);
 
         purchasedGymPassDocumentIdToRemove = UUID.randomUUID().toString();
-        LocalDateTime purchaseDateAndTime = LocalDateTime.now();
+        LocalDateTime purchaseDateTime = LocalDateTime.now();
         LocalDate startDate = LocalDate.now().minusDays(2);
         LocalDate endDate = startDate.plusMonths(1);
         int entriesTimeLimitedGymPass = Integer.MAX_VALUE;
@@ -121,7 +121,7 @@ public class DeletePurchasedGymPassIntegrationTest {
                 purchasedGymPassDocumentIdToRemove,
                 gymPassOfferDocument,
                 userDocument,
-                purchaseDateAndTime,
+                purchaseDateTime,
                 startDate,
                 endDate,
                 entriesTimeLimitedGymPass
@@ -148,11 +148,12 @@ public class DeletePurchasedGymPassIntegrationTest {
         String purchasedGymPassDocumentIdNotToBeRemoved = UUID.randomUUID().toString();
         LocalDate startDateNotToBeRemoved = LocalDate.now().minusDays(60);
         LocalDate endDateNotToBeRemoved = startDate.minusDays(60).plusMonths(1);
+        LocalDateTime purchaseDateTimeNotToBeRemoved = LocalDateTime.now().minusDays(60);
         PurchasedGymPassDocument purchasedGymPassDocumentNotToBeRemoved = new PurchasedGymPassDocument(
                 purchasedGymPassDocumentIdNotToBeRemoved,
                 gymPassOfferDocumentNotToBeRemoved,
                 userDocument,
-                purchaseDateAndTime,
+                purchaseDateTimeNotToBeRemoved,
                 startDateNotToBeRemoved,
                 endDateNotToBeRemoved,
                 entriesTimeLimitedGymPass
@@ -210,7 +211,7 @@ public class DeletePurchasedGymPassIntegrationTest {
                     .isEqualTo("zł");
             assertThat(responseEntity.getBody().get("purchasedGymPass").get("gymPassOffer").get("price").get("period").textValue())
                     .isEqualTo("miesiąc");
-            assertThat(responseEntity.getBody().get("purchasedGymPass").get("purchaseDateAndTime")).isNotNull();
+            assertThat(responseEntity.getBody().get("purchasedGymPass").get("purchaseDateTime")).isNotNull();
             assertThat(responseEntity.getBody().get("purchasedGymPass").get("startDate").textValue())
                     .isEqualTo(LocalDate.now().minusDays(2).toString());
             assertThat(responseEntity.getBody().get("purchasedGymPass").get("endDate").textValue())

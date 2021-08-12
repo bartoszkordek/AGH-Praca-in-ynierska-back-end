@@ -12,6 +12,8 @@ import com.healthy.gym.gympass.service.PurchaseService;
 import com.healthy.gym.gympass.validation.ValidDateFormat;
 import com.healthy.gym.gympass.validation.ValidIDFormat;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -35,6 +37,10 @@ import java.util.List;
 public class PurchaseController {
 
     private static final String INTERNAL_ERROR_EXCEPTION = "exception.internal.error";
+    private static final String USER_NOT_FOUND_EXCEPTION = "exception.user.not.found";
+    private static final String GYMPASS_NOT_FOUND_EXCEPTION = "exception.gympass.not.found";
+    private static final String START_DATE_AFTER_END_DATE_EXCEPTION = "exception.start.after.end";
+    private static final String NO_GYMPASSES_CONTENT_EXCEPTION = "exception.no.gympasses";
     private final Translator translator;
     private final PurchaseService purchaseService;
 
@@ -76,7 +82,7 @@ public class PurchaseController {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, exception);
 
         } catch (UserNotFoundException exception) {
-            String reason = translator.toLocale("exception.user.not.found");
+            String reason = translator.toLocale(USER_NOT_FOUND_EXCEPTION);
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, exception);
 
         } catch (RetroPurchasedException exception) {
@@ -84,7 +90,7 @@ public class PurchaseController {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, exception);
 
         } catch (StartDateAfterEndDateException exception) {
-            String reason = translator.toLocale("exception.start.after.end");
+            String reason = translator.toLocale(START_DATE_AFTER_END_DATE_EXCEPTION);
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, exception);
 
         } catch (NotSpecifiedGymPassTypeException exception) {
@@ -116,7 +122,7 @@ public class PurchaseController {
                     ));
 
         } catch (GymPassNotFoundException exception) {
-            String reason = translator.toLocale("exception.gympass.not.found");
+            String reason = translator.toLocale(GYMPASS_NOT_FOUND_EXCEPTION);
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, exception);
 
         } catch (AlreadySuspendedGymPassException exception) {
@@ -165,8 +171,41 @@ public class PurchaseController {
 
 
         } catch (GymPassNotFoundException exception) {
-            String reason = translator.toLocale("exception.gympass.not.found");
+            String reason = translator.toLocale(GYMPASS_NOT_FOUND_EXCEPTION);
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, exception);
+
+        } catch (Exception exception){
+            String reason = translator.toLocale(INTERNAL_ERROR_EXCEPTION);
+            exception.printStackTrace();
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, reason, exception);
+        }
+    }
+
+    @PreAuthorize("hasRole('ADMIN') or hasRole('MANAGER') or hasRole('EMPLOYEE')")
+    @GetMapping("/page/{page}")
+    public ResponseEntity<List<PurchasedGymPassDTO>> getGymPasses(
+            @ValidDateFormat @RequestParam(value = "purchaseStartDate",required = false) final String purchaseStartDate,
+            @ValidDateFormat @RequestParam(value = "purchaseEndDate", required = false) final String purchaseEndDate,
+            @RequestParam(defaultValue = "10", required = false) final int size,
+            @PathVariable final int page
+    ){
+        try{
+            Pageable paging = PageRequest.of(page, size);
+            return ResponseEntity
+                    .status(HttpStatus.OK)
+                    .body(purchaseService.getGymPasses(
+                            purchaseStartDate,
+                            purchaseEndDate,
+                            paging)
+                    );
+
+        } catch (StartDateAfterEndDateException exception) {
+            String reason = translator.toLocale(START_DATE_AFTER_END_DATE_EXCEPTION);
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, exception);
+
+        } catch (NoGymPassesException exception){
+            String reason = translator.toLocale(NO_GYMPASSES_CONTENT_EXCEPTION);
+            throw new ResponseStatusException(HttpStatus.NO_CONTENT, reason, exception);
 
         } catch (Exception exception){
             String reason = translator.toLocale(INTERNAL_ERROR_EXCEPTION);
@@ -188,11 +227,11 @@ public class PurchaseController {
                     .body(purchaseService.getUserGymPasses(id, startDate, endDate));
 
         } catch (UserNotFoundException exception) {
-            String reason = translator.toLocale("exception.user.not.found");
+            String reason = translator.toLocale(USER_NOT_FOUND_EXCEPTION);
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, exception);
 
         } catch (StartDateAfterEndDateException exception) {
-            String reason = translator.toLocale("exception.start.after.end");
+            String reason = translator.toLocale(START_DATE_AFTER_END_DATE_EXCEPTION);
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, exception);
 
         } catch (NoGymPassesException exception){
@@ -222,7 +261,7 @@ public class PurchaseController {
                     ));
 
         } catch (GymPassNotFoundException exception) {
-            String reason = translator.toLocale("exception.gympass.not.found");
+            String reason = translator.toLocale(GYMPASS_NOT_FOUND_EXCEPTION);
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, exception);
 
         } catch (Exception exception){
@@ -238,7 +277,7 @@ public class PurchaseController {
         String notValidRetroEndDateGymPassMessage = translator.toLocale("gympass.not.valid.retro.end.date");
         String notValidNoEntriesGymPassMessage = translator.toLocale("gympass.not.valid.no.entries");
         String notValidSuspendedGymPassMessage = translator.toLocale("gympass.not.valid.suspended");
-        LocalDate now = LocalDate.now();
+        var now = LocalDate.now();
         String endDate = result.getEndDate();
         int entries = result.getEntries();
         String suspensionDate = result.getSuspensionDate();

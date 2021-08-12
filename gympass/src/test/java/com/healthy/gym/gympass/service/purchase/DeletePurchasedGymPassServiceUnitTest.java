@@ -11,6 +11,7 @@ import com.healthy.gym.gympass.dto.PurchasedGymPassDTO;
 import com.healthy.gym.gympass.dto.SimpleGymPassDTO;
 import com.healthy.gym.gympass.enums.GymRole;
 import com.healthy.gym.gympass.exception.GymPassNotFoundException;
+import com.healthy.gym.gympass.exception.UserNotFoundException;
 import com.healthy.gym.gympass.service.PurchaseService;
 import com.healthy.gym.gympass.shared.Description;
 import com.healthy.gym.gympass.shared.Price;
@@ -27,6 +28,7 @@ import java.util.List;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.when;
 
 @SpringBootTest
@@ -71,7 +73,7 @@ class DeletePurchasedGymPassServiceUnitTest {
         boolean isPremium = false;
         String name = "Jan";
         String surname = "Kowalski";
-        LocalDateTime purchaseDateAndTime = LocalDateTime.now();
+        LocalDateTime purchaseDateTime = LocalDateTime.now().minusDays(pastDays);
         LocalDate responseStartDate = LocalDate.now().minusDays(pastDays);
         LocalDate responseEndDate = LocalDate.now().minusDays(pastDays).plusMonths(1);
         purchasedGymPassDTO = new PurchasedGymPassDTO(
@@ -83,7 +85,7 @@ class DeletePurchasedGymPassServiceUnitTest {
                         isPremium
                 ),
                 new BasicUserInfoDTO(userId, name, surname),
-                purchaseDateAndTime,
+                purchaseDateTime,
                 responseStartDate,
                 responseEndDate,
                 entries
@@ -113,7 +115,7 @@ class DeletePurchasedGymPassServiceUnitTest {
                 purchasedGymPassDocumentIdToDelete,
                 gymPassOfferDocument,
                 userDocument,
-                purchaseDateAndTime,
+                purchaseDateTime,
                 LocalDate.parse(startDate, DateTimeFormatter.ISO_LOCAL_DATE),
                 LocalDate.parse(endDate, DateTimeFormatter.ISO_LOCAL_DATE),
                 entries
@@ -128,5 +130,20 @@ class DeletePurchasedGymPassServiceUnitTest {
         //then
         assertThat(purchaseService.deleteGymPass(purchasedGymPassDocumentIdToDelete))
                 .isEqualTo(purchasedGymPassDTO);
+    }
+
+    @Test
+    void shouldNotDeleteGymPasses_whenInvalidId() {
+        //before
+        String invalidId = UUID.randomUUID().toString();
+
+        //when
+        when(purchasedGymPassDAO.findByPurchasedGymPassDocumentId(invalidId))
+                .thenReturn(null);
+
+        //then
+        assertThatThrownBy(() ->
+                purchaseService.deleteGymPass(invalidId)
+        ).isInstanceOf(GymPassNotFoundException.class);
     }
 }

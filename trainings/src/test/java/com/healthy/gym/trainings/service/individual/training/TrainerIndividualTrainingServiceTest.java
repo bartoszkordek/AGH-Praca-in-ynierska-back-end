@@ -5,6 +5,7 @@ import com.healthy.gym.trainings.data.document.LocationDocument;
 import com.healthy.gym.trainings.data.document.UserDocument;
 import com.healthy.gym.trainings.data.repository.LocationDAO;
 import com.healthy.gym.trainings.data.repository.UserDAO;
+import com.healthy.gym.trainings.data.repository.group.training.GroupTrainingsDAO;
 import com.healthy.gym.trainings.data.repository.individual.training.IndividualTrainingRepository;
 import com.healthy.gym.trainings.enums.GymRole;
 import com.healthy.gym.trainings.exception.AlreadyAcceptedIndividualTrainingException;
@@ -14,16 +15,14 @@ import com.healthy.gym.trainings.exception.notexisting.NotExistingIndividualTrai
 import com.healthy.gym.trainings.exception.notfound.LocationNotFoundException;
 import com.healthy.gym.trainings.exception.notfound.UserNotFoundException;
 import com.healthy.gym.trainings.exception.occupied.LocationOccupiedException;
+import com.healthy.gym.trainings.test.utils.TestDocumentUtil;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.access.AccessDeniedException;
 
-import java.time.Clock;
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
+import java.time.*;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -36,7 +35,8 @@ import static org.mockito.Mockito.when;
 
 class TrainerIndividualTrainingServiceTest {
 
-    private IndividualTrainingRepository repository;
+    private IndividualTrainingRepository individualTrainingRepository;
+    private GroupTrainingsDAO groupTrainingsDAO;
     private UserDAO userDAO;
     private LocationDAO locationDAO;
     private TrainerIndividualTrainingService service;
@@ -47,10 +47,17 @@ class TrainerIndividualTrainingServiceTest {
     @BeforeEach
     void setUp() {
         Clock clock = Clock.fixed(Instant.parse("2021-07-10T18:00:00.00Z"), ZoneId.of("Europe/Warsaw"));
-        repository = mock(IndividualTrainingRepository.class);
+        individualTrainingRepository = mock(IndividualTrainingRepository.class);
         userDAO = mock(UserDAO.class);
         locationDAO = mock(LocationDAO.class);
-        service = new TrainerIndividualTrainingServiceImpl(userDAO, repository, locationDAO, clock);
+        groupTrainingsDAO = mock(GroupTrainingsDAO.class);
+        service = new TrainerIndividualTrainingServiceImpl(
+                userDAO,
+                groupTrainingsDAO,
+                individualTrainingRepository,
+                locationDAO,
+                clock
+        );
         userId = UUID.randomUUID().toString();
         trainingId = UUID.randomUUID().toString();
         locationId = UUID.randomUUID().toString();
@@ -69,13 +76,14 @@ class TrainerIndividualTrainingServiceTest {
         private IndividualTrainingDocument getTestIndividualTrainingDocument() {
             var training = new IndividualTrainingDocument();
             training.setStartDateTime(LocalDateTime.parse("2021-07-10T21:00"));
+            training.setEndDateTime(LocalDateTime.parse("2021-07-10T22:00"));
             training.setTrainers(List.of(getTestTrainer()));
             return training;
         }
 
         @Test
         void shouldThrowNotExistingIndividualTrainingException() {
-            when(repository.findByIndividualTrainingId(trainingId)).thenReturn(Optional.empty());
+            when(individualTrainingRepository.findByIndividualTrainingId(trainingId)).thenReturn(Optional.empty());
             assertThatThrownBy(() -> service.acceptIndividualTraining(userId, trainingId, locationId))
                     .isInstanceOf(NotExistingIndividualTrainingException.class);
         }
@@ -83,14 +91,14 @@ class TrainerIndividualTrainingServiceTest {
         @Test
         void shouldThrowPastDateException() {
             training.setStartDateTime(LocalDateTime.parse("2021-07-10T17:00"));
-            when(repository.findByIndividualTrainingId(trainingId)).thenReturn(Optional.of(training));
+            when(individualTrainingRepository.findByIndividualTrainingId(trainingId)).thenReturn(Optional.of(training));
             assertThatThrownBy(() -> service.acceptIndividualTraining(userId, trainingId, locationId))
                     .isInstanceOf(PastDateException.class);
         }
 
         @Test
         void shouldThrowUserNotFoundExceptionWhenUserIsNotFound() {
-            when(repository.findByIndividualTrainingId(trainingId)).thenReturn(Optional.of(training));
+            when(individualTrainingRepository.findByIndividualTrainingId(trainingId)).thenReturn(Optional.of(training));
             when(userDAO.findByUserId(userId)).thenReturn(null);
             assertThatThrownBy(() -> service.acceptIndividualTraining(userId, trainingId, locationId))
                     .isInstanceOf(UserNotFoundException.class);
@@ -98,7 +106,7 @@ class TrainerIndividualTrainingServiceTest {
 
         @Test
         void shouldThrowUserNotFoundExceptionWhenUserIsNotTrainer() {
-            when(repository.findByIndividualTrainingId(trainingId)).thenReturn(Optional.of(training));
+            when(individualTrainingRepository.findByIndividualTrainingId(trainingId)).thenReturn(Optional.of(training));
             var trainer = new UserDocument();
             trainer.setGymRoles(List.of(GymRole.USER));
             when(userDAO.findByUserId(userId)).thenReturn(trainer);
@@ -108,7 +116,7 @@ class TrainerIndividualTrainingServiceTest {
 
         @Test
         void shouldThrowAccessDeniedException() {
-            when(repository.findByIndividualTrainingId(trainingId)).thenReturn(Optional.of(training));
+            when(individualTrainingRepository.findByIndividualTrainingId(trainingId)).thenReturn(Optional.of(training));
             var trainer = new UserDocument();
             trainer.setGymRoles(List.of(GymRole.USER, GymRole.TRAINER));
             when(userDAO.findByUserId(userId)).thenReturn(trainer);
@@ -124,7 +132,7 @@ class TrainerIndividualTrainingServiceTest {
             training.setTrainers(List.of(trainer));
             training.setAccepted(true);
 
-            when(repository.findByIndividualTrainingId(trainingId)).thenReturn(Optional.of(training));
+            when(individualTrainingRepository.findByIndividualTrainingId(trainingId)).thenReturn(Optional.of(training));
             when(userDAO.findByUserId(userId)).thenReturn(trainer);
 
             assertThatThrownBy(
@@ -139,7 +147,7 @@ class TrainerIndividualTrainingServiceTest {
 
             training.setTrainers(List.of(trainer));
 
-            when(repository.findByIndividualTrainingId(trainingId)).thenReturn(Optional.of(training));
+            when(individualTrainingRepository.findByIndividualTrainingId(trainingId)).thenReturn(Optional.of(training));
             when(userDAO.findByUserId(userId)).thenReturn(trainer);
             when(locationDAO.findByLocationId(locationId)).thenReturn(null);
 
@@ -148,11 +156,79 @@ class TrainerIndividualTrainingServiceTest {
             ).isInstanceOf(LocationNotFoundException.class);
         }
 
-        @Disabled
         @Test
-        void shouldThrowLocationOccupiedException() {
-            //todo locationOccupiedException
-            assertThat(true).isTrue();
+        void shouldThrowLocationOccupiedExceptionByGroupTrainings() {
+            var trainer = new UserDocument();
+            trainer.setGymRoles(List.of(GymRole.USER, GymRole.TRAINER));
+
+            training.setTrainers(List.of(trainer));
+
+            when(individualTrainingRepository.findByIndividualTrainingId(trainingId)).thenReturn(Optional.of(training));
+            when(userDAO.findByUserId(userId)).thenReturn(trainer);
+
+            LocationDocument location = getTestLocationDocument();
+            when(locationDAO.findByLocationId(locationId)).thenReturn(location);
+
+            LocalDateTime startDateTime = LocalDateTime.of(LocalDate.parse("2021-07-10"), LocalTime.MIN);
+            LocalDateTime endDateTime = LocalDateTime.of(LocalDate.parse("2021-07-10"), LocalTime.MAX);
+            when(groupTrainingsDAO
+                    .findAllByStartDateIsAfterAndEndDateIsBefore(startDateTime, endDateTime, Sort.by("startDate"))
+            ).thenReturn(List.of(
+                    TestDocumentUtil.getTestGroupTraining(
+                            "2021-07-10T19:00", "2021-07-10T20:30", location
+                    ),
+                    TestDocumentUtil.getTestGroupTraining(
+                            "2021-07-10T21:00", "2021-07-10T22:00", location
+                    )
+            ));
+
+            when(individualTrainingRepository.findAllByStartDateTimeIsAfterAndEndDateTimeIsBefore(
+                    startDateTime, endDateTime, Sort.by("startDateTime")
+            )).thenReturn(List.of());
+
+            assertThatThrownBy(
+                    () -> service.acceptIndividualTraining(userId, trainingId, locationId)
+            ).isInstanceOf(LocationOccupiedException.class);
+        }
+
+        @Test
+        void shouldThrowLocationOccupiedExceptionByIndividualTrainings() {
+            var trainer = new UserDocument();
+            trainer.setGymRoles(List.of(GymRole.USER, GymRole.TRAINER));
+
+            training.setTrainers(List.of(trainer));
+
+            when(individualTrainingRepository.findByIndividualTrainingId(trainingId)).thenReturn(Optional.of(training));
+            when(userDAO.findByUserId(userId)).thenReturn(trainer);
+
+            LocationDocument location = getTestLocationDocument();
+            when(locationDAO.findByLocationId(locationId)).thenReturn(location);
+
+            LocalDateTime startDateTime = LocalDateTime.of(LocalDate.parse("2021-07-10"), LocalTime.MIN);
+            LocalDateTime endDateTime = LocalDateTime.of(LocalDate.parse("2021-07-10"), LocalTime.MAX);
+
+            when(groupTrainingsDAO
+                    .findAllByStartDateIsAfterAndEndDateIsBefore(startDateTime, endDateTime, Sort.by("startDate"))
+            ).thenReturn(List.of());
+
+            when(individualTrainingRepository
+                    .findAllByStartDateTimeIsAfterAndEndDateTimeIsBefore(startDateTime, endDateTime, Sort.by("startDateTime"))
+            ).thenReturn(List.of(
+                    TestDocumentUtil.getTestIndividualTraining(
+                            "2021-07-10T19:00", "2021-07-10T20:30", location
+                    ),
+                    TestDocumentUtil.getTestIndividualTraining(
+                            "2021-07-10T21:00", "2021-07-10T21:50", location
+                    )
+            ));
+
+            assertThatThrownBy(
+                    () -> service.acceptIndividualTraining(userId, trainingId, locationId)
+            ).isInstanceOf(LocationOccupiedException.class);
+        }
+
+        private LocationDocument getTestLocationDocument() {
+            return new LocationDocument(UUID.randomUUID().toString(), "TestLocation");
         }
 
         @Test
@@ -174,10 +250,22 @@ class TrainerIndividualTrainingServiceTest {
                     "TestLocation"
             );
 
-            when(repository.findByIndividualTrainingId(trainingId)).thenReturn(Optional.of(training));
+            when(individualTrainingRepository.findByIndividualTrainingId(trainingId)).thenReturn(Optional.of(training));
             when(userDAO.findByUserId(userId)).thenReturn(trainer);
             when(locationDAO.findByLocationId(locationId)).thenReturn(location);
-            when(repository.save(training)).thenReturn(getSavedTraining(training, location));
+
+            LocalDateTime startDateTime = LocalDateTime.of(LocalDate.parse("2021-07-10"), LocalTime.MIN);
+            LocalDateTime endDateTime = LocalDateTime.of(LocalDate.parse("2021-07-10"), LocalTime.MAX);
+            when(groupTrainingsDAO
+                    .findAllByStartDateIsAfterAndEndDateIsBefore(startDateTime, endDateTime, Sort.by("startDate"))
+            ).thenReturn(List.of());
+
+            when(individualTrainingRepository
+                    .findAllByStartDateTimeIsAfterAndEndDateTimeIsBefore(startDateTime, endDateTime, Sort.by("startDateTime"))
+            ).thenReturn(List.of());
+
+            when(individualTrainingRepository.save(training)).thenReturn(getSavedTraining(training, location));
+
 
             var returnedDTO = service.acceptIndividualTraining(userId, trainingId, locationId);
 
@@ -226,7 +314,7 @@ class TrainerIndividualTrainingServiceTest {
 
         @Test
         void shouldThrowNotExistingIndividualTrainingException() {
-            when(repository.findByIndividualTrainingId(trainingId)).thenReturn(Optional.empty());
+            when(individualTrainingRepository.findByIndividualTrainingId(trainingId)).thenReturn(Optional.empty());
             assertThatThrownBy(() -> service.rejectIndividualTraining(userId, trainingId))
                     .isInstanceOf(NotExistingIndividualTrainingException.class);
         }
@@ -234,14 +322,14 @@ class TrainerIndividualTrainingServiceTest {
         @Test
         void shouldThrowPastDateException() {
             training.setStartDateTime(LocalDateTime.parse("2021-07-10T17:00"));
-            when(repository.findByIndividualTrainingId(trainingId)).thenReturn(Optional.of(training));
+            when(individualTrainingRepository.findByIndividualTrainingId(trainingId)).thenReturn(Optional.of(training));
             assertThatThrownBy(() -> service.rejectIndividualTraining(userId, trainingId))
                     .isInstanceOf(PastDateException.class);
         }
 
         @Test
         void shouldThrowUserNotFoundExceptionWhenUserIsNotFound() {
-            when(repository.findByIndividualTrainingId(trainingId)).thenReturn(Optional.of(training));
+            when(individualTrainingRepository.findByIndividualTrainingId(trainingId)).thenReturn(Optional.of(training));
             when(userDAO.findByUserId(userId)).thenReturn(null);
             assertThatThrownBy(() -> service.rejectIndividualTraining(userId, trainingId))
                     .isInstanceOf(UserNotFoundException.class);
@@ -249,7 +337,7 @@ class TrainerIndividualTrainingServiceTest {
 
         @Test
         void shouldThrowUserNotFoundExceptionWhenUserIsNotTrainer() {
-            when(repository.findByIndividualTrainingId(trainingId)).thenReturn(Optional.of(training));
+            when(individualTrainingRepository.findByIndividualTrainingId(trainingId)).thenReturn(Optional.of(training));
             var trainer = new UserDocument();
             trainer.setGymRoles(List.of(GymRole.USER));
             when(userDAO.findByUserId(userId)).thenReturn(trainer);
@@ -259,7 +347,7 @@ class TrainerIndividualTrainingServiceTest {
 
         @Test
         void shouldThrowAccessDeniedException() {
-            when(repository.findByIndividualTrainingId(trainingId)).thenReturn(Optional.of(training));
+            when(individualTrainingRepository.findByIndividualTrainingId(trainingId)).thenReturn(Optional.of(training));
             var trainer = new UserDocument();
             trainer.setGymRoles(List.of(GymRole.USER, GymRole.TRAINER));
             when(userDAO.findByUserId(userId)).thenReturn(trainer);
@@ -275,7 +363,7 @@ class TrainerIndividualTrainingServiceTest {
             training.setTrainers(List.of(trainer));
             training.setRejected(true);
 
-            when(repository.findByIndividualTrainingId(trainingId)).thenReturn(Optional.of(training));
+            when(individualTrainingRepository.findByIndividualTrainingId(trainingId)).thenReturn(Optional.of(training));
             when(userDAO.findByUserId(userId)).thenReturn(trainer);
 
             assertThatThrownBy(
@@ -284,13 +372,11 @@ class TrainerIndividualTrainingServiceTest {
         }
 
         @Test
-        void shouldAcceptIndividualTrainingRequest()
+        void shouldRejectIndividualTrainingRequest()
                 throws UserNotFoundException,
                 NotExistingIndividualTrainingException,
-                AlreadyAcceptedIndividualTrainingException,
-                LocationOccupiedException,
                 PastDateException,
-                LocationNotFoundException {
+                AlreadyRejectedIndividualTrainingException {
 
             var trainer = new UserDocument();
             trainer.setGymRoles(List.of(GymRole.USER, GymRole.TRAINER));
@@ -302,12 +388,11 @@ class TrainerIndividualTrainingServiceTest {
                     "TestLocation"
             );
 
-            when(repository.findByIndividualTrainingId(trainingId)).thenReturn(Optional.of(training));
+            when(individualTrainingRepository.findByIndividualTrainingId(trainingId)).thenReturn(Optional.of(training));
             when(userDAO.findByUserId(userId)).thenReturn(trainer);
-            when(locationDAO.findByLocationId(locationId)).thenReturn(location);
-            when(repository.save(training)).thenReturn(getSavedTraining(training, location));
+            when(individualTrainingRepository.save(training)).thenReturn(getSavedTraining(training, location));
 
-            var returnedDTO = service.acceptIndividualTraining(userId, trainingId, locationId);
+            var returnedDTO = service.rejectIndividualTraining(userId, trainingId);
 
             assertThat(returnedDTO.isAccepted()).isFalse();
             assertThat(returnedDTO.isCancelled()).isFalse();

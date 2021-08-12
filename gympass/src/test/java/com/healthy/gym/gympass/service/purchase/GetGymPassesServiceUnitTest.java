@@ -31,6 +31,7 @@ import java.util.List;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 @SpringBootTest
@@ -48,11 +49,16 @@ class GetGymPassesServiceUnitTest {
     @MockBean
     private UserDAO userDAO;
 
+    private int page;
+    private int size;
     private List<PurchasedGymPassDocument> purchasedGymPassDocuments;
     private List<PurchasedGymPassDTO> response;
 
     @BeforeEach
     void setUp() {
+
+        page = 0;
+        size = 10;
 
         long pastDays1 = 5;
         long pastDays2 = 65;
@@ -174,8 +180,6 @@ class GetGymPassesServiceUnitTest {
     @Test
     void shouldGetPurchasedGymPasses_whenValidDates() throws StartDateAfterEndDateException {
         //before
-        int page = 0;
-        int size = 15;
         Pageable paging = PageRequest.of(page, size);
         LocalDateTime purchaseStartDateTimeMinusOneDay
                 = LocalDateTime.of(1999,12,31, 23,59,59);
@@ -194,6 +198,27 @@ class GetGymPassesServiceUnitTest {
 
         //then
         assertThat(purchaseService.getGymPasses("2000-01-01", "2030-12-31", paging))
+                .isEqualTo(response);
+    }
+
+
+    @Test
+    void shouldGetPurchasedGymPasses_whenDatesNotDeclared() throws StartDateAfterEndDateException {
+        //before
+        Pageable paging = PageRequest.of(page, size);
+
+        Page<PurchasedGymPassDocument> purchasedGymPassDocumentsPages = new PageImpl<>(
+                purchasedGymPassDocuments, paging, size);
+
+        //when
+        when(purchasedGymPassDAO.findAllByPurchaseDateTimeBetween(
+                any(),
+                any(),
+                any()
+        )).thenReturn(purchasedGymPassDocumentsPages);
+
+        //then
+        assertThat(purchaseService.getGymPasses(null, null, paging))
                 .isEqualTo(response);
     }
 }

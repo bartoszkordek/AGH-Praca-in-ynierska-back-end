@@ -50,6 +50,7 @@ class RemoveGroupTrainingServiceTest {
         GroupTrainingDocumentUpdateBuilder groupTrainingDocumentUpdateBuilder
                 = mock(GroupTrainingDocumentUpdateBuilder.class);
         managerGroupTrainingService = new ManagerGroupTrainingServiceImpl(
+                null,
                 groupTrainingsDAO,
                 trainingTypeDAO,
                 locationDAO,

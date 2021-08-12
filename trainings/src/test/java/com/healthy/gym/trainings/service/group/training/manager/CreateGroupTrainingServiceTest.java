@@ -61,6 +61,7 @@ class CreateGroupTrainingServiceTest {
         GroupTrainingDocumentUpdateBuilder groupTrainingDocumentUpdateBuilder = mock(GroupTrainingDocumentUpdateBuilder.class);
         createGroupTrainingRequest = getCreateGroupTrainingRequest();
         managerGroupTrainingService = new ManagerGroupTrainingServiceImpl(
+                null,
                 groupTrainingsDAO,
                 trainingTypeDAO,
                 locationDAO,

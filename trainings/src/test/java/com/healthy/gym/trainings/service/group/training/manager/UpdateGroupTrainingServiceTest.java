@@ -4,10 +4,12 @@ import com.healthy.gym.trainings.data.document.GroupTrainingDocument;
 import com.healthy.gym.trainings.data.document.LocationDocument;
 import com.healthy.gym.trainings.data.document.TrainingTypeDocument;
 import com.healthy.gym.trainings.data.document.UserDocument;
-import com.healthy.gym.trainings.data.repository.group.training.GroupTrainingsDAO;
 import com.healthy.gym.trainings.data.repository.LocationDAO;
 import com.healthy.gym.trainings.data.repository.TrainingTypeDAO;
 import com.healthy.gym.trainings.data.repository.UserDAO;
+import com.healthy.gym.trainings.data.repository.group.training.GroupTrainingsDAO;
+import com.healthy.gym.trainings.dto.BasicUserInfoDTO;
+import com.healthy.gym.trainings.dto.GroupTrainingDTO;
 import com.healthy.gym.trainings.enums.GymRole;
 import com.healthy.gym.trainings.exception.PastDateException;
 import com.healthy.gym.trainings.exception.StartDateAfterEndDateException;
@@ -21,8 +23,6 @@ import com.healthy.gym.trainings.model.request.ManagerGroupTrainingRequest;
 import com.healthy.gym.trainings.service.group.training.GroupTrainingDocumentUpdateBuilder;
 import com.healthy.gym.trainings.service.group.training.ManagerGroupTrainingService;
 import com.healthy.gym.trainings.service.group.training.ManagerGroupTrainingServiceImpl;
-import com.healthy.gym.trainings.dto.BasicUserInfoDTO;
-import com.healthy.gym.trainings.dto.GroupTrainingDTO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -59,6 +59,7 @@ class UpdateGroupTrainingServiceTest {
         groupTrainingRequest = getGroupTrainingRequest();
 
         managerGroupTrainingService = new ManagerGroupTrainingServiceImpl(
+                null,
                 groupTrainingsDAO,
                 trainingTypeDAO,
                 locationDAO,

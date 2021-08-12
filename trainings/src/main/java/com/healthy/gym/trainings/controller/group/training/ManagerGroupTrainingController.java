@@ -65,7 +65,7 @@ public class ManagerGroupTrainingController {
 
         } catch (LocationNotFoundException exception) {
             String reason = translator.toLocale("exception.location.not.found");
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, exception);
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, reason, exception);
 
         } catch (LocationOccupiedException exception) {
             String reason = translator.toLocale("exception.create.group.training.location.occupied");
@@ -85,11 +85,11 @@ public class ManagerGroupTrainingController {
 
         } catch (TrainerNotFoundException exception) {
             String reason = translator.toLocale("exception.create.group.training.trainer.not.found");
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, exception);
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, reason, exception);
 
         } catch (TrainingTypeNotFoundException exception) {
             String reason = translator.toLocale("exception.create.group.training.trainingType.not.found");
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, exception);
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, reason, exception);
 
         } catch (Exception exception) {
             String reason = translator.toLocale(INTERNAL_ERROR_EXCEPTION);

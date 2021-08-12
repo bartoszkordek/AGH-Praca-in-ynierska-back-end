@@ -1,6 +1,5 @@
 package com.healthy.gym.trainings.component;
 
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -10,7 +9,6 @@ import java.util.Locale;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@Disabled
 @SpringBootTest
 class TranslatorTest {
     private final Locale poland = new Locale("pl", "PL");
@@ -19,8 +17,6 @@ class TranslatorTest {
     @Autowired
     private Translator translator;
 
-    //TODO
-    @Disabled("Error on github")
     @Test
     void shouldReturnEnglishMessage() {
         LocaleContextHolder.setLocale(Locale.ENGLISH);
@@ -28,8 +24,6 @@ class TranslatorTest {
         assertThat(messageAccordingToLocale).isEqualTo("Field is required.");
     }
 
-    //TODO
-    @Disabled("Error on github")
     @Test
     void shouldReturnPolishMessage() {
         LocaleContextHolder.setLocale(poland);

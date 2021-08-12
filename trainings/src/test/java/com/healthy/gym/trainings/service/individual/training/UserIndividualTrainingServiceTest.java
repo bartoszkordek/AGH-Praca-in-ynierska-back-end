@@ -1,5 +1,6 @@
 package com.healthy.gym.trainings.service.individual.training;
 
+import com.healthy.gym.trainings.component.CollisionValidatorComponent;
 import com.healthy.gym.trainings.data.document.GroupTrainingDocument;
 import com.healthy.gym.trainings.data.document.IndividualTrainingDocument;
 import com.healthy.gym.trainings.data.document.UserDocument;
@@ -16,7 +17,6 @@ import com.healthy.gym.trainings.exception.occupied.TrainerOccupiedException;
 import com.healthy.gym.trainings.model.request.IndividualTrainingRequest;
 import com.healthy.gym.trainings.test.utils.TestDocumentUtil;
 import com.healthy.gym.trainings.utils.CollisionValidator;
-import com.healthy.gym.trainings.component.CollisionValidatorComponent;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -182,7 +182,7 @@ class UserIndividualTrainingServiceTest {
         void shouldThrowStartDateAfterEndDateException() {
             when(userDAO.findByUserId(userId)).thenReturn(getTestUser());
             when(userDAO.findByUserId(trainerId)).thenReturn(getTestTrainer());
-            individualTrainingsRequestModel.setEndDateTime("2021-07-10T19:00");
+            individualTrainingsRequestModel.setEndDateTime("2021-07-10T16:00");
 
             assertThatThrownBy(
                     () -> service.createIndividualTrainingRequest(individualTrainingsRequestModel, userId)

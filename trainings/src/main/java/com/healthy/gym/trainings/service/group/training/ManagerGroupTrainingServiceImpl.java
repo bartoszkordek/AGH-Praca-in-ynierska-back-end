@@ -1,11 +1,14 @@
 package com.healthy.gym.trainings.service.group.training;
 
-import com.healthy.gym.trainings.data.document.*;
+import com.healthy.gym.trainings.component.CollisionValidatorComponent;
+import com.healthy.gym.trainings.data.document.GroupTrainingDocument;
+import com.healthy.gym.trainings.data.document.LocationDocument;
+import com.healthy.gym.trainings.data.document.TrainingTypeDocument;
+import com.healthy.gym.trainings.data.document.UserDocument;
 import com.healthy.gym.trainings.data.repository.LocationDAO;
 import com.healthy.gym.trainings.data.repository.TrainingTypeDAO;
 import com.healthy.gym.trainings.data.repository.UserDAO;
 import com.healthy.gym.trainings.data.repository.group.training.GroupTrainingsDAO;
-import com.healthy.gym.trainings.data.repository.individual.training.IndividualTrainingRepository;
 import com.healthy.gym.trainings.dto.GroupTrainingDTO;
 import com.healthy.gym.trainings.enums.GymRole;
 import com.healthy.gym.trainings.exception.PastDateException;
@@ -19,13 +22,10 @@ import com.healthy.gym.trainings.exception.occupied.TrainerOccupiedException;
 import com.healthy.gym.trainings.model.request.ManagerGroupTrainingRequest;
 import com.healthy.gym.trainings.utils.CollisionValidator;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.time.Clock;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -35,7 +35,7 @@ import static com.healthy.gym.trainings.utils.GroupTrainingMapper.mapGroupTraini
 @Service
 public class ManagerGroupTrainingServiceImpl implements ManagerGroupTrainingService {
 
-    private final IndividualTrainingRepository individualTrainingRepository;
+    private final CollisionValidatorComponent collisionValidatorComponent;
     private final GroupTrainingsDAO groupTrainingsDAO;
     private final TrainingTypeDAO trainingTypeDAO;
     private final LocationDAO locationDAO;
@@ -45,7 +45,7 @@ public class ManagerGroupTrainingServiceImpl implements ManagerGroupTrainingServ
 
     @Autowired
     public ManagerGroupTrainingServiceImpl(
-            IndividualTrainingRepository individualTrainingRepository,
+            CollisionValidatorComponent collisionValidatorComponent,
             GroupTrainingsDAO groupTrainingsDAO,
             TrainingTypeDAO trainingTypeDAO,
             LocationDAO locationDAO,
@@ -53,7 +53,7 @@ public class ManagerGroupTrainingServiceImpl implements ManagerGroupTrainingServ
             Clock clock,
             GroupTrainingDocumentUpdateBuilder groupTrainingDocumentUpdateBuilder
     ) {
-        this.individualTrainingRepository = individualTrainingRepository;
+        this.collisionValidatorComponent = collisionValidatorComponent;
         this.groupTrainingsDAO = groupTrainingsDAO;
         this.trainingTypeDAO = trainingTypeDAO;
         this.locationDAO = locationDAO;
@@ -162,24 +162,7 @@ public class ManagerGroupTrainingServiceImpl implements ManagerGroupTrainingServ
         LocalDateTime startDateTime = groupTrainingToCreate.getStartDate();
         LocalDateTime endDateTime = groupTrainingToCreate.getEndDate();
 
-        LocalDate startDate = startDateTime.toLocalDate();
-        LocalDate endDate = endDateTime.toLocalDate();
-
-        LocalDateTime startOfDay = LocalDateTime.of(startDate, LocalTime.MIN);
-        LocalDateTime endOfDay = LocalDateTime.of(endDate, LocalTime.MAX);
-
-        List<GroupTrainingDocument> groupTrainingList = groupTrainingsDAO
-                .findAllByStartDateIsAfterAndEndDateIsBefore(startOfDay, endOfDay, Sort.by("startDate"));
-
-        List<IndividualTrainingDocument> individualTrainingList = individualTrainingRepository
-                .findAllByStartDateTimeIsAfterAndEndDateTimeIsBefore(startOfDay, endOfDay, Sort.by("startDateTime"));
-
-        CollisionValidator validator = new CollisionValidator(
-                groupTrainingList,
-                individualTrainingList,
-                startDateTime,
-                endDateTime
-        );
+        CollisionValidator validator = collisionValidatorComponent.getCollisionValidator(startDateTime, endDateTime);
 
         LocationDocument location = groupTrainingToCreate.getLocation();
         boolean isLocationOccupied = validator.isLocationOccupied(location);

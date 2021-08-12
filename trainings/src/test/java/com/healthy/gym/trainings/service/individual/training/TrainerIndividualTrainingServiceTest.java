@@ -1,5 +1,7 @@
 package com.healthy.gym.trainings.service.individual.training;
 
+import com.healthy.gym.trainings.component.CollisionValidatorComponent;
+import com.healthy.gym.trainings.component.CollisionValidatorComponentImpl;
 import com.healthy.gym.trainings.data.document.IndividualTrainingDocument;
 import com.healthy.gym.trainings.data.document.LocationDocument;
 import com.healthy.gym.trainings.data.document.UserDocument;
@@ -51,9 +53,11 @@ class TrainerIndividualTrainingServiceTest {
         userDAO = mock(UserDAO.class);
         locationDAO = mock(LocationDAO.class);
         groupTrainingsDAO = mock(GroupTrainingsDAO.class);
+        CollisionValidatorComponent collisionValidatorComponent =
+                new CollisionValidatorComponentImpl(groupTrainingsDAO, individualTrainingRepository);
         service = new TrainerIndividualTrainingServiceImpl(
                 userDAO,
-                groupTrainingsDAO,
+                collisionValidatorComponent,
                 individualTrainingRepository,
                 locationDAO,
                 clock

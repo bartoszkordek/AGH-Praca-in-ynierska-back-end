@@ -1,5 +1,7 @@
 package com.healthy.gym.trainings.service.group.training.manager;
 
+import com.healthy.gym.trainings.component.CollisionValidatorComponent;
+import com.healthy.gym.trainings.component.CollisionValidatorComponentImpl;
 import com.healthy.gym.trainings.data.document.GroupTrainingDocument;
 import com.healthy.gym.trainings.data.document.LocationDocument;
 import com.healthy.gym.trainings.data.document.TrainingTypeDocument;
@@ -63,8 +65,11 @@ class CreateGroupTrainingServiceTest {
         GroupTrainingDocumentUpdateBuilder groupTrainingDocumentUpdateBuilder =
                 mock(GroupTrainingDocumentUpdateBuilder.class);
         createGroupTrainingRequest = getCreateGroupTrainingRequest();
+
+        CollisionValidatorComponent collisionValidatorComponent =
+                new CollisionValidatorComponentImpl(groupTrainingsDAO, individualTrainingRepository);
         managerGroupTrainingService = new ManagerGroupTrainingServiceImpl(
-                individualTrainingRepository,
+                collisionValidatorComponent,
                 groupTrainingsDAO,
                 trainingTypeDAO,
                 locationDAO,

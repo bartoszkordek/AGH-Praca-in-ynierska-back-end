@@ -1,12 +1,11 @@
 package com.healthy.gym.trainings.service.individual.training;
 
-import com.healthy.gym.trainings.data.document.GroupTrainingDocument;
+import com.healthy.gym.trainings.component.CollisionValidatorComponent;
 import com.healthy.gym.trainings.data.document.IndividualTrainingDocument;
 import com.healthy.gym.trainings.data.document.LocationDocument;
 import com.healthy.gym.trainings.data.document.UserDocument;
 import com.healthy.gym.trainings.data.repository.LocationDAO;
 import com.healthy.gym.trainings.data.repository.UserDAO;
-import com.healthy.gym.trainings.data.repository.group.training.GroupTrainingsDAO;
 import com.healthy.gym.trainings.data.repository.individual.training.IndividualTrainingRepository;
 import com.healthy.gym.trainings.dto.IndividualTrainingDTO;
 import com.healthy.gym.trainings.enums.GymRole;
@@ -19,15 +18,11 @@ import com.healthy.gym.trainings.exception.notfound.UserNotFoundException;
 import com.healthy.gym.trainings.exception.occupied.LocationOccupiedException;
 import com.healthy.gym.trainings.utils.CollisionValidator;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Sort;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
 import java.time.Clock;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.util.List;
 import java.util.Optional;
 
 import static com.healthy.gym.trainings.utils.IndividualTrainingMapper.mapIndividualTrainingDocumentToDTO;
@@ -36,7 +31,7 @@ import static com.healthy.gym.trainings.utils.IndividualTrainingMapper.mapIndivi
 public class TrainerIndividualTrainingServiceImpl implements TrainerIndividualTrainingService {
 
     private final UserDAO userDAO;
-    private final GroupTrainingsDAO groupTrainingsDAO;
+    private final CollisionValidatorComponent collisionValidatorComponent;
     private final IndividualTrainingRepository individualTrainingRepository;
     private final LocationDAO locationDAO;
     private final Clock clock;
@@ -44,13 +39,13 @@ public class TrainerIndividualTrainingServiceImpl implements TrainerIndividualTr
     @Autowired
     public TrainerIndividualTrainingServiceImpl(
             UserDAO userDAO,
-            GroupTrainingsDAO groupTrainingsDAO,
+            CollisionValidatorComponent collisionValidatorComponent,
             IndividualTrainingRepository individualTrainingRepository,
             LocationDAO locationDAO,
             Clock clock
     ) {
         this.userDAO = userDAO;
-        this.groupTrainingsDAO = groupTrainingsDAO;
+        this.collisionValidatorComponent = collisionValidatorComponent;
         this.individualTrainingRepository = individualTrainingRepository;
         this.locationDAO = locationDAO;
         this.clock = clock;
@@ -130,24 +125,7 @@ public class TrainerIndividualTrainingServiceImpl implements TrainerIndividualTr
         LocalDateTime startDateTime = training.getStartDateTime();
         LocalDateTime endDateTime = training.getEndDateTime();
 
-        LocalDate startDate = startDateTime.toLocalDate();
-        LocalDate endDate = endDateTime.toLocalDate();
-
-        LocalDateTime startOfDay = LocalDateTime.of(startDate, LocalTime.MIN);
-        LocalDateTime endOfDay = LocalDateTime.of(endDate, LocalTime.MAX);
-
-        List<GroupTrainingDocument> groupTrainingList = groupTrainingsDAO
-                .findAllByStartDateIsAfterAndEndDateIsBefore(startOfDay, endOfDay, Sort.by("startDate"));
-
-        List<IndividualTrainingDocument> individualTrainingList = individualTrainingRepository
-                .findAllByStartDateTimeIsAfterAndEndDateTimeIsBefore(startOfDay, endOfDay, Sort.by("startDateTime"));
-
-        CollisionValidator validator = new CollisionValidator(
-                groupTrainingList,
-                individualTrainingList,
-                startDateTime,
-                endDateTime
-        );
+        CollisionValidator validator = collisionValidatorComponent.getCollisionValidator(startDateTime, endDateTime);
 
         boolean isLocationOccupied = validator.isLocationOccupied(location);
         if (isLocationOccupied) throw new LocationOccupiedException();

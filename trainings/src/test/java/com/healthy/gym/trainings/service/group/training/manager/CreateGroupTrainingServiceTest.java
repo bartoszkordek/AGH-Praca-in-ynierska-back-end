@@ -4,10 +4,13 @@ import com.healthy.gym.trainings.data.document.GroupTrainingDocument;
 import com.healthy.gym.trainings.data.document.LocationDocument;
 import com.healthy.gym.trainings.data.document.TrainingTypeDocument;
 import com.healthy.gym.trainings.data.document.UserDocument;
-import com.healthy.gym.trainings.data.repository.group.training.GroupTrainingsDAO;
 import com.healthy.gym.trainings.data.repository.LocationDAO;
 import com.healthy.gym.trainings.data.repository.TrainingTypeDAO;
 import com.healthy.gym.trainings.data.repository.UserDAO;
+import com.healthy.gym.trainings.data.repository.group.training.GroupTrainingsDAO;
+import com.healthy.gym.trainings.data.repository.individual.training.IndividualTrainingRepository;
+import com.healthy.gym.trainings.dto.BasicUserInfoDTO;
+import com.healthy.gym.trainings.dto.GroupTrainingDTO;
 import com.healthy.gym.trainings.enums.GymRole;
 import com.healthy.gym.trainings.exception.PastDateException;
 import com.healthy.gym.trainings.exception.StartDateAfterEndDateException;
@@ -20,15 +23,12 @@ import com.healthy.gym.trainings.model.request.ManagerGroupTrainingRequest;
 import com.healthy.gym.trainings.service.group.training.GroupTrainingDocumentUpdateBuilder;
 import com.healthy.gym.trainings.service.group.training.ManagerGroupTrainingService;
 import com.healthy.gym.trainings.service.group.training.ManagerGroupTrainingServiceImpl;
-import com.healthy.gym.trainings.dto.BasicUserInfoDTO;
-import com.healthy.gym.trainings.dto.GroupTrainingDTO;
+import com.healthy.gym.trainings.test.utils.TestDocumentUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.data.domain.Sort;
 
-import java.time.Clock;
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
+import java.time.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -42,6 +42,7 @@ import static org.mockito.Mockito.when;
 
 class CreateGroupTrainingServiceTest {
 
+    private IndividualTrainingRepository individualTrainingRepository;
     private GroupTrainingsDAO groupTrainingsDAO;
     private TrainingTypeDAO trainingTypeDAO;
     private LocationDAO locationDAO;
@@ -52,16 +53,18 @@ class CreateGroupTrainingServiceTest {
 
     @BeforeEach
     void setUp() {
+        individualTrainingRepository = mock(IndividualTrainingRepository.class);
         groupTrainingsDAO = mock(GroupTrainingsDAO.class);
         trainingTypeDAO = mock(TrainingTypeDAO.class);
         locationDAO = mock(LocationDAO.class);
         userDAO = mock(UserDAO.class);
         Clock clock = Clock.fixed(Instant.parse("2021-07-10T18:00:00.00Z"), ZoneId.of("Europe/Warsaw"));
 
-        GroupTrainingDocumentUpdateBuilder groupTrainingDocumentUpdateBuilder = mock(GroupTrainingDocumentUpdateBuilder.class);
+        GroupTrainingDocumentUpdateBuilder groupTrainingDocumentUpdateBuilder =
+                mock(GroupTrainingDocumentUpdateBuilder.class);
         createGroupTrainingRequest = getCreateGroupTrainingRequest();
         managerGroupTrainingService = new ManagerGroupTrainingServiceImpl(
-                null,
+                individualTrainingRepository,
                 groupTrainingsDAO,
                 trainingTypeDAO,
                 locationDAO,
@@ -195,6 +198,124 @@ class CreateGroupTrainingServiceTest {
     }
 
     @Test
+    void shouldThrowLocationOccupiedExceptionByGroupTrainings() {
+        when(trainingTypeDAO.findByTrainingTypeId(anyString())).thenReturn(getTestTrainingTypeDocument());
+        when(userDAO.findByUserId("100ed952-es7f-435a-bd1e-9fb2a327c4dk")).thenReturn(getTestTrainer1());
+        when(userDAO.findByUserId("501692e9-2a79-46bb-ac62-55f980581bad")).thenReturn(getTestTrainer2());
+        LocationDocument locationDocument = getTestLocationDocument();
+        when(locationDAO.findByLocationId(anyString())).thenReturn(locationDocument);
+
+        LocalDateTime startDateTime = LocalDateTime.of(LocalDate.parse("2021-07-10"), LocalTime.MIN);
+        LocalDateTime endDateTime = LocalDateTime.of(LocalDate.parse("2021-07-10"), LocalTime.MAX);
+        when(groupTrainingsDAO.findAllByStartDateIsAfterAndEndDateIsBefore(startDateTime, endDateTime, Sort.by("startDate")))
+                .thenReturn(List.of(
+                        TestDocumentUtil.getTestGroupTraining(
+                                "2021-07-10T19:00", "2021-07-10T20:30", locationDocument
+                        ),
+                        TestDocumentUtil.getTestGroupTraining(
+                                "2021-07-10T21:00", "2021-07-10T22:00", locationDocument
+                        )
+                ));
+
+        when(individualTrainingRepository.findAllByStartDateTimeIsAfterAndEndDateTimeIsBefore(
+                startDateTime, endDateTime, Sort.by("startDateTime")
+        )).thenReturn(List.of());
+
+        assertThatThrownBy(() -> managerGroupTrainingService.createGroupTraining(createGroupTrainingRequest))
+                .isInstanceOf(LocationOccupiedException.class);
+    }
+
+    @Test
+    void shouldThrowLocationOccupiedExceptionByIndividualTrainings() {
+        when(trainingTypeDAO.findByTrainingTypeId(anyString())).thenReturn(getTestTrainingTypeDocument());
+        when(userDAO.findByUserId("100ed952-es7f-435a-bd1e-9fb2a327c4dk")).thenReturn(getTestTrainer1());
+        when(userDAO.findByUserId("501692e9-2a79-46bb-ac62-55f980581bad")).thenReturn(getTestTrainer2());
+        LocationDocument locationDocument = getTestLocationDocument();
+        when(locationDAO.findByLocationId(anyString())).thenReturn(locationDocument);
+
+        LocalDateTime startDateTime = LocalDateTime.of(LocalDate.parse("2021-07-10"), LocalTime.MIN);
+        LocalDateTime endDateTime = LocalDateTime.of(LocalDate.parse("2021-07-10"), LocalTime.MAX);
+        when(groupTrainingsDAO
+                .findAllByStartDateIsAfterAndEndDateIsBefore(startDateTime, endDateTime, Sort.by("startDate"))
+        ).thenReturn(List.of());
+
+        when(individualTrainingRepository
+                .findAllByStartDateTimeIsAfterAndEndDateTimeIsBefore(startDateTime, endDateTime, Sort.by("startDateTime"))
+        ).thenReturn(List.of(
+                TestDocumentUtil.getTestIndividualTraining(
+                        "2021-07-10T19:00", "2021-07-10T20:30", locationDocument
+                ),
+                TestDocumentUtil.getTestIndividualTraining(
+                        "2021-07-10T21:00", "2021-07-10T22:00", locationDocument
+                )
+        ));
+
+        assertThatThrownBy(() -> managerGroupTrainingService.createGroupTraining(createGroupTrainingRequest))
+                .isInstanceOf(LocationOccupiedException.class);
+    }
+
+    @Test
+    void shouldThrowTrainerOccupiedExceptionByGroupTrainings() {
+        when(trainingTypeDAO.findByTrainingTypeId(anyString())).thenReturn(getTestTrainingTypeDocument());
+        var trainer1 = getTestTrainer1();
+        when(userDAO.findByUserId("100ed952-es7f-435a-bd1e-9fb2a327c4dk")).thenReturn(getTestTrainer1());
+        var trainer2 = getTestTrainer2();
+        when(userDAO.findByUserId("501692e9-2a79-46bb-ac62-55f980581bad")).thenReturn(getTestTrainer2());
+        LocationDocument locationDocument = getTestLocationDocument();
+        when(locationDAO.findByLocationId(anyString())).thenReturn(locationDocument);
+
+        LocalDateTime startDateTime = LocalDateTime.of(LocalDate.parse("2021-07-10"), LocalTime.MIN);
+        LocalDateTime endDateTime = LocalDateTime.of(LocalDate.parse("2021-07-10"), LocalTime.MAX);
+        when(groupTrainingsDAO.findAllByStartDateIsAfterAndEndDateIsBefore(startDateTime, endDateTime, Sort.by("startDate")))
+                .thenReturn(List.of(
+                        TestDocumentUtil.getTestGroupTraining(
+                                "2021-07-10T19:00", "2021-07-10T20:30", List.of(trainer1, trainer2)
+                        ),
+                        TestDocumentUtil.getTestGroupTraining(
+                                "2021-07-10T21:00", "2021-07-10T22:00", List.of(trainer1)
+                        )
+                ));
+
+        when(individualTrainingRepository
+                .findAllByStartDateTimeIsAfterAndEndDateTimeIsBefore(startDateTime, endDateTime, Sort.by("startDateTime"))
+        ).thenReturn(List.of());
+
+        assertThatThrownBy(() -> managerGroupTrainingService.createGroupTraining(createGroupTrainingRequest))
+                .isInstanceOf(TrainerOccupiedException.class);
+    }
+
+    @Test
+    void shouldThrowTrainerOccupiedExceptionByIndividualTrainings() {
+        when(trainingTypeDAO.findByTrainingTypeId(anyString())).thenReturn(getTestTrainingTypeDocument());
+        var trainer1 = getTestTrainer1();
+        when(userDAO.findByUserId("100ed952-es7f-435a-bd1e-9fb2a327c4dk")).thenReturn(getTestTrainer1());
+        var trainer2 = getTestTrainer2();
+        when(userDAO.findByUserId("501692e9-2a79-46bb-ac62-55f980581bad")).thenReturn(getTestTrainer2());
+        LocationDocument locationDocument = getTestLocationDocument();
+        when(locationDAO.findByLocationId(anyString())).thenReturn(locationDocument);
+
+        LocalDateTime startDateTime = LocalDateTime.of(LocalDate.parse("2021-07-10"), LocalTime.MIN);
+        LocalDateTime endDateTime = LocalDateTime.of(LocalDate.parse("2021-07-10"), LocalTime.MAX);
+        when(groupTrainingsDAO
+                .findAllByStartDateIsAfterAndEndDateIsBefore(startDateTime, endDateTime, Sort.by("startDate"))
+        ).thenReturn(List.of());
+
+        when(individualTrainingRepository
+                .findAllByStartDateTimeIsAfterAndEndDateTimeIsBefore(startDateTime, endDateTime, Sort.by("startDateTime"))
+        ).thenReturn(List.of(
+                TestDocumentUtil.getTestIndividualTraining(
+                        "2021-07-10T19:00", "2021-07-10T20:30", List.of(trainer1, trainer2)
+                ),
+                TestDocumentUtil.getTestIndividualTraining(
+                        "2021-07-10T21:00", "2021-07-10T22:00", List.of(trainer1)
+                )
+        ));
+
+        assertThatThrownBy(() -> managerGroupTrainingService.createGroupTraining(createGroupTrainingRequest))
+                .isInstanceOf(TrainerOccupiedException.class);
+    }
+
+    @Test
     void shouldProperlySaveGroupTraining()
             throws TrainingTypeNotFoundException,
             LocationOccupiedException,
@@ -209,6 +330,17 @@ class CreateGroupTrainingServiceTest {
         when(userDAO.findByUserId("501692e9-2a79-46bb-ac62-55f980581bad")).thenReturn(getTestTrainer2());
         when(locationDAO.findByLocationId(anyString())).thenReturn(getTestLocationDocument());
         when(groupTrainingsDAO.save(any())).thenReturn(getSavedTestGroupTrainingDocument());
+
+        LocalDateTime startDateTime = LocalDateTime.of(LocalDate.parse("2021-07-10"), LocalTime.MIN);
+        LocalDateTime endDateTime = LocalDateTime.of(LocalDate.parse("2021-07-10"), LocalTime.MAX);
+        when(groupTrainingsDAO
+                .findAllByStartDateIsAfterAndEndDateIsBefore(startDateTime, endDateTime, Sort.by("startDate"))
+        ).thenReturn(List.of());
+
+        when(individualTrainingRepository
+                .findAllByStartDateTimeIsAfterAndEndDateTimeIsBefore(startDateTime, endDateTime, Sort.by("startDateTime"))
+        ).thenReturn(List.of(
+        ));
 
         assertThat(managerGroupTrainingService.createGroupTraining(createGroupTrainingRequest)).
                 isEqualTo(getExpectedGroupTrainingDTO());

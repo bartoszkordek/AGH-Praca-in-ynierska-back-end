@@ -6,6 +6,8 @@ import com.healthy.gym.gympass.controller.PurchaseController;
 import com.healthy.gym.gympass.dto.BasicUserInfoDTO;
 import com.healthy.gym.gympass.dto.PurchasedGymPassDTO;
 import com.healthy.gym.gympass.dto.SimpleGymPassDTO;
+import com.healthy.gym.gympass.exception.GymPassNotFoundException;
+import com.healthy.gym.gympass.exception.StartDateAfterEndDateException;
 import com.healthy.gym.gympass.service.PurchaseService;
 import com.healthy.gym.gympass.shared.Price;
 import org.junit.jupiter.api.BeforeEach;
@@ -25,13 +27,14 @@ import java.net.URISyntaxException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.List;
-import java.util.Locale;
-import java.util.UUID;
+import java.util.*;
 
 import static com.healthy.gym.gympass.configuration.LocaleConverter.convertEnumToLocale;
+import static com.healthy.gym.gympass.configuration.Messages.getMessagesAccordingToLocale;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.ResultMatcher.matchAll;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -142,7 +145,7 @@ public class GetGymPassesControllerUnitTest {
                     .get(uri+"/page/"+page
                             +"?purchasedStartDate="+purchasedStartDate+"&purchasedEndDate="+purchasedEndDate)
                     .header("Accept-Language", testedLocale.toString())
-                    .header("Authorization", employeeToken)
+                    .header("Authorization", adminToken)
                     .contentType(MediaType.APPLICATION_JSON);
 
             when(purchaseService.getGymPasses(any(), any(), any()))
@@ -256,6 +259,43 @@ public class GetGymPassesControllerUnitTest {
                             jsonPath("$.[1].entries")
                                     .value(is(Integer.MAX_VALUE))
                     ));
+        }
+    }
+
+    @Nested
+    class ShouldNotGetGymPasses{
+
+        @ParameterizedTest
+        @EnumSource(TestCountry.class)
+        void shouldNotGetGymPassesWhenStartDateAfterEndDate(TestCountry country) throws Exception {
+            Map<String, String> messages = getMessagesAccordingToLocale(country);
+            Locale testedLocale = convertEnumToLocale(country);
+
+            String purchasedStartDate= "2030-12-31";
+            String purchasedEndDate= "2000-01-01";
+            int page = 0;
+
+            RequestBuilder request = MockMvcRequestBuilders
+                    .get(uri+"/page/"+page
+                            +"?purchasedStartDate="+purchasedStartDate+"&purchasedEndDate="+purchasedEndDate)
+                    .header("Accept-Language", testedLocale.toString())
+                    .header("Authorization", managerToken)
+                    .contentType(MediaType.APPLICATION_JSON);
+
+            doThrow(StartDateAfterEndDateException.class)
+                    .when(purchaseService)
+                    .getGymPasses(any(), any(), any());
+
+            String expectedMessage = messages.get("exception.start.after.end");
+
+            mockMvc.perform(request)
+                    .andDo(print())
+                    .andExpect(status().isBadRequest())
+                    .andExpect(status().reason(is(expectedMessage)))
+                    .andExpect(result ->
+                            assertThat(Objects.requireNonNull(result.getResolvedException()).getCause())
+                                    .isInstanceOf(StartDateAfterEndDateException.class)
+                    );
         }
     }
 }

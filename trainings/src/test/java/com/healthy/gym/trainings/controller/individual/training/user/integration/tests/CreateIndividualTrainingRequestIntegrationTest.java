@@ -200,6 +200,52 @@ class CreateIndividualTrainingRequestIntegrationTest {
     }
 
     @Test
+    void shouldThrowPastDateException() throws Exception {
+        testDataBase(0);
+
+        uri = getUri(userId);
+        requestBody = getRequestBody("2020-09-10T10:10", "2020-09-10T11:10");
+
+        ResponseEntity<JsonNode> responseEntity = performAuthRequest(uri);
+
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        assertThat(responseEntity.getHeaders().getContentType()).isEqualTo(MediaType.APPLICATION_JSON);
+
+        JsonNode body = responseEntity.getBody();
+        assert body != null;
+        Map<String, String> messages = getMessagesAccordingToLocale(TestCountry.ENGLAND);
+        String expectedMessage = messages.get("exception.past.date");
+        assertThat(body.get("message").textValue()).isEqualTo(expectedMessage);
+
+        testDataBase(0);
+    }
+
+    @Test
+    void shouldThrowInvalidTrainerSpecifiedException() throws Exception {
+        mongoTemplate.dropCollection(UserDocument.class);
+        user = testUtil.saveAndGetTestUser(userId);
+        trainer = testUtil.saveAndGetTestUser(trainerId);
+
+        testDataBase(0);
+
+        uri = getUri(userId);
+        requestBody = getRequestBody("2020-10-10T10:10", "2020-10-10T11:10");
+
+        ResponseEntity<JsonNode> responseEntity = performAuthRequest(uri);
+
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        assertThat(responseEntity.getHeaders().getContentType()).isEqualTo(MediaType.APPLICATION_JSON);
+
+        JsonNode body = responseEntity.getBody();
+        assert body != null;
+        Map<String, String> messages = getMessagesAccordingToLocale(TestCountry.ENGLAND);
+        String expectedMessage = messages.get("exception.invalid.trainer.specified");
+        assertThat(body.get("message").textValue()).isEqualTo(expectedMessage);
+
+        testDataBase(0);
+    }
+
+    @Test
     void shouldThrowStartDateAfterEndDateException() throws Exception {
         testDataBase(0);
 
@@ -221,11 +267,17 @@ class CreateIndividualTrainingRequestIntegrationTest {
     }
 
     @Test
-    void shouldThrowPastDateException() throws Exception {
-        testDataBase(0);
+    void shouldThrowTrainerOccupiedException() throws Exception {
+        testUtil.saveAndGetTestIndividualTraining(
+                "2020-10-10T09:10",
+                "2020-10-10T10:30",
+                List.of(trainer)
+        );
+
+        testDataBase(1);
 
         uri = getUri(userId);
-        requestBody = getRequestBody("2020-09-10T10:10", "2020-09-10T11:10");
+        requestBody = getRequestBody("2020-10-10T10:10", "2020-10-10T11:10");
 
         ResponseEntity<JsonNode> responseEntity = performAuthRequest(uri);
 
@@ -235,10 +287,10 @@ class CreateIndividualTrainingRequestIntegrationTest {
         JsonNode body = responseEntity.getBody();
         assert body != null;
         Map<String, String> messages = getMessagesAccordingToLocale(TestCountry.ENGLAND);
-        String expectedMessage = messages.get("exception.past.date");
+        String expectedMessage = messages.get("exception.create.group.training.trainer.occupied");
         assertThat(body.get("message").textValue()).isEqualTo(expectedMessage);
 
-        testDataBase(0);
+        testDataBase(1);
     }
 
     @Test

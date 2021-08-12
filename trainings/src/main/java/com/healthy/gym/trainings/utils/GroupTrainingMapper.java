@@ -5,6 +5,9 @@ import com.healthy.gym.trainings.dto.GroupTrainingDTO;
 import com.healthy.gym.trainings.dto.GroupTrainingWithoutParticipantsDTO;
 import org.modelmapper.ModelMapper;
 
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+
 public class GroupTrainingMapper {
 
     private static final ModelMapper modelMapper = new ModelMapper();
@@ -29,5 +32,13 @@ public class GroupTrainingMapper {
                 .addMapping(source -> source.getLocation().getName(), GroupTrainingWithoutParticipantsDTO::setLocation)
                 .addMapping(source -> source.getTraining().getName(), GroupTrainingWithoutParticipantsDTO::setTitle)
                 .map(groupTrainingDocument);
+    }
+
+    public static long[] mapGroupTrainingToPairOfStartAndEndDates(GroupTrainingDocument groupTrainingDocument) {
+        LocalDateTime startDateTime = groupTrainingDocument.getStartDate();
+        LocalDateTime endDateTime = groupTrainingDocument.getEndDate();
+        long startDateLong = startDateTime.toEpochSecond(ZoneOffset.UTC);
+        long endDateLong = endDateTime.toEpochSecond(ZoneOffset.UTC);
+        return new long[]{startDateLong, endDateLong};
     }
 }

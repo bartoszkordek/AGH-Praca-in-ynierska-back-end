@@ -1,13 +1,15 @@
 package com.healthy.gym.trainings.service.group.training;
 
+import com.healthy.gym.trainings.component.CollisionValidatorComponent;
 import com.healthy.gym.trainings.data.document.GroupTrainingDocument;
 import com.healthy.gym.trainings.data.document.LocationDocument;
 import com.healthy.gym.trainings.data.document.TrainingTypeDocument;
 import com.healthy.gym.trainings.data.document.UserDocument;
-import com.healthy.gym.trainings.data.repository.group.training.GroupTrainingsDAO;
 import com.healthy.gym.trainings.data.repository.LocationDAO;
 import com.healthy.gym.trainings.data.repository.TrainingTypeDAO;
 import com.healthy.gym.trainings.data.repository.UserDAO;
+import com.healthy.gym.trainings.data.repository.group.training.GroupTrainingsDAO;
+import com.healthy.gym.trainings.dto.GroupTrainingDTO;
 import com.healthy.gym.trainings.enums.GymRole;
 import com.healthy.gym.trainings.exception.PastDateException;
 import com.healthy.gym.trainings.exception.StartDateAfterEndDateException;
@@ -18,7 +20,7 @@ import com.healthy.gym.trainings.exception.notfound.TrainingTypeNotFoundExceptio
 import com.healthy.gym.trainings.exception.occupied.LocationOccupiedException;
 import com.healthy.gym.trainings.exception.occupied.TrainerOccupiedException;
 import com.healthy.gym.trainings.model.request.ManagerGroupTrainingRequest;
-import com.healthy.gym.trainings.dto.GroupTrainingDTO;
+import com.healthy.gym.trainings.utils.CollisionValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -33,6 +35,7 @@ import static com.healthy.gym.trainings.utils.GroupTrainingMapper.mapGroupTraini
 @Service
 public class ManagerGroupTrainingServiceImpl implements ManagerGroupTrainingService {
 
+    private final CollisionValidatorComponent collisionValidatorComponent;
     private final GroupTrainingsDAO groupTrainingsDAO;
     private final TrainingTypeDAO trainingTypeDAO;
     private final LocationDAO locationDAO;
@@ -42,6 +45,7 @@ public class ManagerGroupTrainingServiceImpl implements ManagerGroupTrainingServ
 
     @Autowired
     public ManagerGroupTrainingServiceImpl(
+            CollisionValidatorComponent collisionValidatorComponent,
             GroupTrainingsDAO groupTrainingsDAO,
             TrainingTypeDAO trainingTypeDAO,
             LocationDAO locationDAO,
@@ -49,6 +53,7 @@ public class ManagerGroupTrainingServiceImpl implements ManagerGroupTrainingServ
             Clock clock,
             GroupTrainingDocumentUpdateBuilder groupTrainingDocumentUpdateBuilder
     ) {
+        this.collisionValidatorComponent = collisionValidatorComponent;
         this.groupTrainingsDAO = groupTrainingsDAO;
         this.trainingTypeDAO = trainingTypeDAO;
         this.locationDAO = locationDAO;
@@ -89,8 +94,7 @@ public class ManagerGroupTrainingServiceImpl implements ManagerGroupTrainingServ
 
         validateStartDateTime(groupTrainingToCreate);
         checkIfStartDateTimeIsBeforeEndDateTime(groupTrainingToCreate);
-        //TODO add validation LocationOccupiedException
-        //TODO add validation TrainerOccupiedException
+        validateIfLocationOrTrainerIsOccupied(groupTrainingToCreate);
 
         GroupTrainingDocument groupTrainingSaved = groupTrainingsDAO.save(groupTrainingToCreate);
         return mapGroupTrainingsDocumentToDTO(groupTrainingSaved);
@@ -152,6 +156,24 @@ public class ManagerGroupTrainingServiceImpl implements ManagerGroupTrainingServ
         if (endDate.isBefore(startDate)) throw new StartDateAfterEndDateException();
     }
 
+    private void validateIfLocationOrTrainerIsOccupied(GroupTrainingDocument groupTrainingToCreate)
+            throws LocationOccupiedException, TrainerOccupiedException {
+
+        LocalDateTime startDateTime = groupTrainingToCreate.getStartDate();
+        LocalDateTime endDateTime = groupTrainingToCreate.getEndDate();
+
+        CollisionValidator validator = collisionValidatorComponent.getCollisionValidator(startDateTime, endDateTime);
+
+        LocationDocument location = groupTrainingToCreate.getLocation();
+        boolean isLocationOccupied = validator.isLocationOccupied(location);
+        if (isLocationOccupied) throw new LocationOccupiedException();
+
+        List<UserDocument> trainers = groupTrainingToCreate.getTrainers();
+        boolean isTrainerOccupied = validator.isTrainerOccupied(trainers);
+        if (isTrainerOccupied) throw new TrainerOccupiedException();
+
+    }
+
     @Override
     public GroupTrainingDTO updateGroupTraining(
             final String trainingId,
@@ -180,8 +202,7 @@ public class ManagerGroupTrainingServiceImpl implements ManagerGroupTrainingServ
                 .update();
 
         checkIfStartDateTimeIsBeforeEndDateTime(groupTrainingUpdated);
-        //TODO add validation LocationOccupiedException
-        //TODO add validation TrainerOccupiedException
+        validateIfLocationOrTrainerIsOccupied(groupTrainingUpdated);
 
         GroupTrainingDocument groupTrainingSaved = groupTrainingsDAO.save(groupTrainingUpdated);
 

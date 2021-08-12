@@ -5,6 +5,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.healthy.gym.trainings.configuration.TestCountry;
 import com.healthy.gym.trainings.configuration.TestRoleTokenFactory;
 import com.healthy.gym.trainings.controller.group.training.ManagerGroupTrainingController;
+import com.healthy.gym.trainings.dto.BasicUserInfoDTO;
+import com.healthy.gym.trainings.dto.GroupTrainingDTO;
 import com.healthy.gym.trainings.exception.PastDateException;
 import com.healthy.gym.trainings.exception.StartDateAfterEndDateException;
 import com.healthy.gym.trainings.exception.notfound.LocationNotFoundException;
@@ -14,8 +16,6 @@ import com.healthy.gym.trainings.exception.occupied.LocationOccupiedException;
 import com.healthy.gym.trainings.exception.occupied.TrainerOccupiedException;
 import com.healthy.gym.trainings.model.request.ManagerGroupTrainingRequest;
 import com.healthy.gym.trainings.service.group.training.ManagerGroupTrainingService;
-import com.healthy.gym.trainings.dto.BasicUserInfoDTO;
-import com.healthy.gym.trainings.dto.GroupTrainingDTO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -27,6 +27,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.RequestBuilder;
+import org.springframework.test.web.servlet.ResultMatcher;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import java.net.URI;
@@ -176,6 +177,9 @@ class CreateGroupTrainingTest {
     @Nested
     class ShouldAcceptRequestWhenUserHasAdminOrManagerRoleAndShouldThrow {
 
+        private RequestBuilder request;
+        private String expectedMessage;
+
         @ParameterizedTest
         @EnumSource(TestCountry.class)
         void shouldThrowBindException(TestCountry country) throws Exception {
@@ -212,25 +216,24 @@ class CreateGroupTrainingTest {
 
         @ParameterizedTest
         @EnumSource(TestCountry.class)
-        void shouldThrowStartDateAfterEndDateException(TestCountry country) throws Exception {
+        void shouldThrowLocationNotFoundException(TestCountry country) throws Exception {
             Map<String, String> messages = getMessagesAccordingToLocale(country);
             Locale testedLocale = convertEnumToLocale(country);
 
-            doThrow(StartDateAfterEndDateException.class).when(managerGroupTrainingService).createGroupTraining(any());
-            RequestBuilder request = getValidRequest(managerToken, testedLocale);
-            String expectedMessage = messages.get("exception.start.date.after.end.date");
+            doThrow(LocationNotFoundException.class).when(managerGroupTrainingService).createGroupTraining(any());
+            request = getValidRequest(managerToken, testedLocale);
+            expectedMessage = messages.get("exception.location.not.found");
 
-            performRequestAndTestErrorResponse(request, expectedMessage, StartDateAfterEndDateException.class);
+            performRequestAndTestErrorResponse(status().isNotFound(), LocationNotFoundException.class);
         }
 
         private void performRequestAndTestErrorResponse(
-                RequestBuilder request,
-                String expectedMessage,
+                ResultMatcher resultMatcher,
                 Class<? extends Exception> expectedException
         ) throws Exception {
             mockMvc.perform(request)
                     .andDo(print())
-                    .andExpect(status().isBadRequest())
+                    .andExpect(resultMatcher)
                     .andExpect(status().reason(is(expectedMessage)))
                     .andExpect(result ->
                             assertThat(Objects.requireNonNull(result.getResolvedException()).getCause())
@@ -240,68 +243,42 @@ class CreateGroupTrainingTest {
 
         @ParameterizedTest
         @EnumSource(TestCountry.class)
-        void shouldThrowPastDateException(TestCountry country) throws Exception {
-            Map<String, String> messages = getMessagesAccordingToLocale(country);
-            Locale testedLocale = convertEnumToLocale(country);
-
-            doThrow(PastDateException.class).when(managerGroupTrainingService).createGroupTraining(any());
-            RequestBuilder request = getValidRequest(managerToken, testedLocale);
-            String expectedMessage = messages.get("exception.past.date");
-
-            performRequestAndTestErrorResponse(request, expectedMessage, PastDateException.class);
-        }
-
-        @ParameterizedTest
-        @EnumSource(TestCountry.class)
-        void shouldThrowTrainerNotFoundException(TestCountry country) throws Exception {
-            Map<String, String> messages = getMessagesAccordingToLocale(country);
-            Locale testedLocale = convertEnumToLocale(country);
-
-            doThrow(TrainerNotFoundException.class).when(managerGroupTrainingService).createGroupTraining(any());
-            RequestBuilder request = getValidRequest(managerToken, testedLocale);
-            String expectedMessage = messages.get("exception.create.group.training.trainer.not.found");
-
-            performRequestAndTestErrorResponse(request, expectedMessage, TrainerNotFoundException.class);
-        }
-
-
-        @ParameterizedTest
-        @EnumSource(TestCountry.class)
-        void shouldThrowLocationNotFoundException(TestCountry country) throws Exception {
-            Map<String, String> messages = getMessagesAccordingToLocale(country);
-            Locale testedLocale = convertEnumToLocale(country);
-
-            doThrow(LocationNotFoundException.class).when(managerGroupTrainingService).createGroupTraining(any());
-            RequestBuilder request = getValidRequest(managerToken, testedLocale);
-            String expectedMessage = messages.get("exception.location.not.found");
-
-            performRequestAndTestErrorResponse(request, expectedMessage, LocationNotFoundException.class);
-        }
-
-        @ParameterizedTest
-        @EnumSource(TestCountry.class)
-        void shouldThrowTrainingTypeNotFoundException(TestCountry country) throws Exception {
-            Map<String, String> messages = getMessagesAccordingToLocale(country);
-            Locale testedLocale = convertEnumToLocale(country);
-
-            doThrow(TrainingTypeNotFoundException.class).when(managerGroupTrainingService).createGroupTraining(any());
-            RequestBuilder request = getValidRequest(managerToken, testedLocale);
-            String expectedMessage = messages.get("exception.create.group.training.trainingType.not.found");
-
-            performRequestAndTestErrorResponse(request, expectedMessage, TrainingTypeNotFoundException.class);
-        }
-
-        @ParameterizedTest
-        @EnumSource(TestCountry.class)
         void shouldThrowLocationOccupiedExceptionWhenLocationIsOccupied(TestCountry country) throws Exception {
             Map<String, String> messages = getMessagesAccordingToLocale(country);
             Locale testedLocale = convertEnumToLocale(country);
 
             doThrow(LocationOccupiedException.class).when(managerGroupTrainingService).createGroupTraining(any());
-            RequestBuilder request = getValidRequest(adminToken, testedLocale);
-            String expectedMessage = messages.get("exception.create.group.training.location.occupied");
+            request = getValidRequest(adminToken, testedLocale);
+            expectedMessage = messages.get("exception.create.group.training.location.occupied");
 
-            performRequestAndTestErrorResponse(request, expectedMessage, LocationOccupiedException.class);
+            performRequestAndTestErrorResponse(status().isBadRequest(), LocationOccupiedException.class);
+        }
+
+        @ParameterizedTest
+        @EnumSource(TestCountry.class)
+        void shouldThrowPastDateException(TestCountry country) throws Exception {
+            Map<String, String> messages = getMessagesAccordingToLocale(country);
+            Locale testedLocale = convertEnumToLocale(country);
+
+            doThrow(PastDateException.class).when(managerGroupTrainingService).createGroupTraining(any());
+            request = getValidRequest(managerToken, testedLocale);
+            expectedMessage = messages.get("exception.past.date");
+
+            performRequestAndTestErrorResponse(status().isBadRequest(), PastDateException.class);
+        }
+
+
+        @ParameterizedTest
+        @EnumSource(TestCountry.class)
+        void shouldThrowStartDateAfterEndDateException(TestCountry country) throws Exception {
+            Map<String, String> messages = getMessagesAccordingToLocale(country);
+            Locale testedLocale = convertEnumToLocale(country);
+
+            doThrow(StartDateAfterEndDateException.class).when(managerGroupTrainingService).createGroupTraining(any());
+            request = getValidRequest(managerToken, testedLocale);
+            expectedMessage = messages.get("exception.start.date.after.end.date");
+
+            performRequestAndTestErrorResponse(status().isBadRequest(), StartDateAfterEndDateException.class);
         }
 
         @ParameterizedTest
@@ -311,10 +288,36 @@ class CreateGroupTrainingTest {
             Locale testedLocale = convertEnumToLocale(country);
 
             doThrow(TrainerOccupiedException.class).when(managerGroupTrainingService).createGroupTraining(any());
-            RequestBuilder request = getValidRequest(adminToken, testedLocale);
-            String expectedMessage = messages.get("exception.create.group.training.trainer.occupied");
+            request = getValidRequest(adminToken, testedLocale);
+            expectedMessage = messages.get("exception.create.group.training.trainer.occupied");
 
-            performRequestAndTestErrorResponse(request, expectedMessage, TrainerOccupiedException.class);
+            performRequestAndTestErrorResponse(status().isBadRequest(), TrainerOccupiedException.class);
+        }
+
+        @ParameterizedTest
+        @EnumSource(TestCountry.class)
+        void shouldThrowTrainerNotFoundException(TestCountry country) throws Exception {
+            Map<String, String> messages = getMessagesAccordingToLocale(country);
+            Locale testedLocale = convertEnumToLocale(country);
+
+            doThrow(TrainerNotFoundException.class).when(managerGroupTrainingService).createGroupTraining(any());
+            request = getValidRequest(managerToken, testedLocale);
+            expectedMessage = messages.get("exception.create.group.training.trainer.not.found");
+
+            performRequestAndTestErrorResponse(status().isNotFound(), TrainerNotFoundException.class);
+        }
+
+        @ParameterizedTest
+        @EnumSource(TestCountry.class)
+        void shouldThrowTrainingTypeNotFoundException(TestCountry country) throws Exception {
+            Map<String, String> messages = getMessagesAccordingToLocale(country);
+            Locale testedLocale = convertEnumToLocale(country);
+
+            doThrow(TrainingTypeNotFoundException.class).when(managerGroupTrainingService).createGroupTraining(any());
+            request = getValidRequest(managerToken, testedLocale);
+            expectedMessage = messages.get("exception.create.group.training.trainingType.not.found");
+
+            performRequestAndTestErrorResponse(status().isNotFound(), TrainingTypeNotFoundException.class);
         }
 
         @ParameterizedTest
@@ -324,17 +327,10 @@ class CreateGroupTrainingTest {
             Locale testedLocale = convertEnumToLocale(country);
 
             doThrow(IllegalStateException.class).when(managerGroupTrainingService).createGroupTraining(any());
-            RequestBuilder request = getValidRequest(adminToken, testedLocale);
-            String expectedMessage = messages.get("exception.internal.error");
+            request = getValidRequest(adminToken, testedLocale);
+            expectedMessage = messages.get("exception.internal.error");
 
-            mockMvc.perform(request)
-                    .andDo(print())
-                    .andExpect(status().isInternalServerError())
-                    .andExpect(status().reason(is(expectedMessage)))
-                    .andExpect(result ->
-                            assertThat(Objects.requireNonNull(result.getResolvedException()).getCause())
-                                    .isInstanceOf(IllegalStateException.class)
-                    );
+            performRequestAndTestErrorResponse(status().isInternalServerError(), IllegalStateException.class);
         }
     }
 

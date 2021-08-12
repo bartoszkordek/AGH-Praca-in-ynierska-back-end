@@ -75,11 +75,6 @@ public class TestDocumentUtil {
         var reserveList = getTestListOfUserDocuments(2);
         if (isInReserve) reserveList.add(user);
 
-        String groupTrainingId = UUID.randomUUID().toString();
-        TrainingTypeDocument trainingType = getTestTrainingType();
-        UserDocument trainer = getTestTrainer();
-        LocationDocument location = getTestLocation();
-
         return getTestGroupTraining(
                 getTestTrainingType(),
                 List.of(getTestTrainer()),
@@ -153,6 +148,40 @@ public class TestDocumentUtil {
     }
 
     public static GroupTrainingDocument getTestGroupTraining(
+            String startDateTime,
+            String endDateTime,
+            LocationDocument locationDocument
+    ) {
+        return getTestGroupTraining(
+                getTestTrainingType(),
+                List.of(getTestTrainer()),
+                locationDocument,
+                startDateTime,
+                endDateTime,
+                10,
+                getTestListOfUserDocuments(10),
+                getTestListOfUserDocuments(2)
+        );
+    }
+
+    public static GroupTrainingDocument getTestGroupTraining(
+            String startDateTime,
+            String endDateTime,
+            List<UserDocument> trainers
+    ) {
+        return getTestGroupTraining(
+                getTestTrainingType(),
+                trainers,
+                getTestLocation(),
+                startDateTime,
+                endDateTime,
+                10,
+                getTestListOfUserDocuments(10),
+                getTestListOfUserDocuments(2)
+        );
+    }
+
+    public static GroupTrainingDocument getTestGroupTraining(
             TrainingTypeDocument savedTrainingType,
             String startDate,
             String endDate
@@ -205,6 +234,42 @@ public class TestDocumentUtil {
                 getTestTrainingType(),
                 getTestListOfUserDocuments(5),
                 List.of(getTestTrainer()),
+                LocalDateTime.parse(startDateTime),
+                LocalDateTime.parse(endDateTime),
+                getTestLocation(),
+                getTestRemarks()
+        );
+    }
+
+    public static IndividualTrainingDocument getTestIndividualTraining(
+            String startDateTime,
+            String endDateTime,
+            LocationDocument location
+    ) {
+        String individualTrainingId = UUID.randomUUID().toString();
+        return new IndividualTrainingDocument(
+                individualTrainingId,
+                getTestTrainingType(),
+                getTestListOfUserDocuments(5),
+                List.of(getTestTrainer()),
+                LocalDateTime.parse(startDateTime),
+                LocalDateTime.parse(endDateTime),
+                location,
+                getTestRemarks()
+        );
+    }
+
+    public static IndividualTrainingDocument getTestIndividualTraining(
+            String startDateTime,
+            String endDateTime,
+            List<UserDocument> trainers
+    ) {
+        String individualTrainingId = UUID.randomUUID().toString();
+        return new IndividualTrainingDocument(
+                individualTrainingId,
+                getTestTrainingType(),
+                getTestListOfUserDocuments(5),
+                trainers,
                 LocalDateTime.parse(startDateTime),
                 LocalDateTime.parse(endDateTime),
                 getTestLocation(),

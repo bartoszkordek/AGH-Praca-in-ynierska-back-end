@@ -1,5 +1,6 @@
 package com.healthy.gym.trainings.service.individual.training;
 
+import com.healthy.gym.trainings.component.CollisionValidatorComponent;
 import com.healthy.gym.trainings.data.document.IndividualTrainingDocument;
 import com.healthy.gym.trainings.data.document.LocationDocument;
 import com.healthy.gym.trainings.data.document.UserDocument;
@@ -15,6 +16,7 @@ import com.healthy.gym.trainings.exception.notexisting.NotExistingIndividualTrai
 import com.healthy.gym.trainings.exception.notfound.LocationNotFoundException;
 import com.healthy.gym.trainings.exception.notfound.UserNotFoundException;
 import com.healthy.gym.trainings.exception.occupied.LocationOccupiedException;
+import com.healthy.gym.trainings.utils.CollisionValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
@@ -29,19 +31,22 @@ import static com.healthy.gym.trainings.utils.IndividualTrainingMapper.mapIndivi
 public class TrainerIndividualTrainingServiceImpl implements TrainerIndividualTrainingService {
 
     private final UserDAO userDAO;
-    private final IndividualTrainingRepository repository;
+    private final CollisionValidatorComponent collisionValidatorComponent;
+    private final IndividualTrainingRepository individualTrainingRepository;
     private final LocationDAO locationDAO;
     private final Clock clock;
 
     @Autowired
     public TrainerIndividualTrainingServiceImpl(
             UserDAO userDAO,
+            CollisionValidatorComponent collisionValidatorComponent,
             IndividualTrainingRepository individualTrainingRepository,
             LocationDAO locationDAO,
             Clock clock
     ) {
         this.userDAO = userDAO;
-        this.repository = individualTrainingRepository;
+        this.collisionValidatorComponent = collisionValidatorComponent;
+        this.individualTrainingRepository = individualTrainingRepository;
         this.locationDAO = locationDAO;
         this.clock = clock;
     }
@@ -75,7 +80,8 @@ public class TrainerIndividualTrainingServiceImpl implements TrainerIndividualTr
 
     private IndividualTrainingDocument getIndividualTrainingDocumentById(String trainingId)
             throws NotExistingIndividualTrainingException {
-        Optional<IndividualTrainingDocument> training = repository.findByIndividualTrainingId(trainingId);
+        Optional<IndividualTrainingDocument> training =
+                individualTrainingRepository.findByIndividualTrainingId(trainingId);
         return training.orElseThrow(NotExistingIndividualTrainingException::new);
     }
 
@@ -114,9 +120,15 @@ public class TrainerIndividualTrainingServiceImpl implements TrainerIndividualTr
 
     private void validateIfLocationIsOccupied(
             IndividualTrainingDocument training,
-            LocationDocument locationDocument
+            LocationDocument location
     ) throws LocationOccupiedException {
-        //TODO locationOccupiedException
+        LocalDateTime startDateTime = training.getStartDateTime();
+        LocalDateTime endDateTime = training.getEndDateTime();
+
+        CollisionValidator validator = collisionValidatorComponent.getCollisionValidator(startDateTime, endDateTime);
+
+        boolean isLocationOccupied = validator.isLocationOccupied(location);
+        if (isLocationOccupied) throw new LocationOccupiedException();
     }
 
     private IndividualTrainingDocument acceptIndividualTrainingAndSetLocationAndSave(
@@ -126,7 +138,7 @@ public class TrainerIndividualTrainingServiceImpl implements TrainerIndividualTr
         training.setAccepted(true);
         training.setRejected(false);
         training.setLocation(location);
-        return repository.save(training);
+        return individualTrainingRepository.save(training);
     }
 
     private void sendNotification(IndividualTrainingDocument trainingDocument) {
@@ -149,8 +161,6 @@ public class TrainerIndividualTrainingServiceImpl implements TrainerIndividualTr
 
         IndividualTrainingDocument rejectIndividualTraining = rejectIndividualTrainingAndSave(training);
 
-        //TODO set location to not to be occupied
-
         sendNotification(rejectIndividualTraining);
 
         return mapIndividualTrainingDocumentToDTO(rejectIndividualTraining);
@@ -165,6 +175,7 @@ public class TrainerIndividualTrainingServiceImpl implements TrainerIndividualTr
     private IndividualTrainingDocument rejectIndividualTrainingAndSave(IndividualTrainingDocument training) {
         training.setRejected(true);
         training.setAccepted(false);
-        return repository.save(training);
+        training.setLocation(null);
+        return individualTrainingRepository.save(training);
     }
 }

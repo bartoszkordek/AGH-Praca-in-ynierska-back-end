@@ -6,7 +6,6 @@ import com.healthy.gym.gympass.controller.PurchaseController;
 import com.healthy.gym.gympass.dto.BasicUserInfoDTO;
 import com.healthy.gym.gympass.dto.PurchasedGymPassDTO;
 import com.healthy.gym.gympass.dto.SimpleGymPassDTO;
-import com.healthy.gym.gympass.exception.GymPassNotFoundException;
 import com.healthy.gym.gympass.exception.StartDateAfterEndDateException;
 import com.healthy.gym.gympass.service.PurchaseService;
 import com.healthy.gym.gympass.shared.Price;
@@ -129,8 +128,6 @@ public class GetGymPassesControllerUnitTest {
         uri = new URI("/purchase");
     }
 
-    @Nested
-    class ShouldGetGymPasses{
 
         @ParameterizedTest
         @EnumSource(TestCountry.class)
@@ -260,7 +257,7 @@ public class GetGymPassesControllerUnitTest {
                                     .value(is(Integer.MAX_VALUE))
                     ));
         }
-    }
+
 
     @Nested
     class ShouldNotGetGymPasses{

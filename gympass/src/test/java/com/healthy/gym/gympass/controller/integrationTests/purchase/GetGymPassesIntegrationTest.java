@@ -9,7 +9,6 @@ import com.healthy.gym.gympass.data.document.PurchasedGymPassDocument;
 import com.healthy.gym.gympass.data.document.UserDocument;
 import com.healthy.gym.gympass.dto.BasicUserInfoDTO;
 import com.healthy.gym.gympass.dto.PurchasedGymPassDTO;
-import com.healthy.gym.gympass.dto.PurchasedUserGymPassDTO;
 import com.healthy.gym.gympass.dto.SimpleGymPassDTO;
 import com.healthy.gym.gympass.enums.GymRole;
 import com.healthy.gym.gympass.shared.Description;
@@ -103,13 +102,13 @@ public class GetGymPassesIntegrationTest {
         mongoTemplate.save(userDocument);
 
         String userIdNotToPick = UUID.randomUUID().toString();
-        UserDocument userDocumentNotToPick = new UserDocument();
-        userDocumentNotToPick.setName("Not");
-        userDocumentNotToPick.setSurname("To Pick");
-        userDocumentNotToPick.setUserId(userIdNotToPick);
-        userDocumentNotToPick.setGymRoles(List.of(GymRole.USER));
+        UserDocument userDocumentWithLastYearGymPass = new UserDocument();
+        userDocumentWithLastYearGymPass.setName("Last");
+        userDocumentWithLastYearGymPass.setSurname("Year");
+        userDocumentWithLastYearGymPass.setUserId(userIdNotToPick);
+        userDocumentWithLastYearGymPass.setGymRoles(List.of(GymRole.USER));
 
-        mongoTemplate.save(userDocumentNotToPick);
+        mongoTemplate.save(userDocumentWithLastYearGymPass);
 
         String title1 = "Karnet miesięczny";
         String title2 = "Karnet semestralny";
@@ -274,16 +273,17 @@ public class GetGymPassesIntegrationTest {
                 purchasedGymPassDTO3
         );
 
-        PurchasedGymPassDocument notToPickPurchasedGymPassDocument = new PurchasedGymPassDocument(
-                entriesLimitedPurchasedGymPassDocumentId,
+        String lastYearPurchasedGymPassDocumentId = UUID.randomUUID().toString();
+        PurchasedGymPassDocument lastYearPurchasedGymPassDocument = new PurchasedGymPassDocument(
+                lastYearPurchasedGymPassDocumentId,
                 gymPassOfferDocumentNotToPick,
-                userDocumentNotToPick,
+                userDocumentWithLastYearGymPass,
                 purchaseDateTime.minusYears(1),
                 LocalDate.now().minusYears(1),
                 LocalDate.now().minusYears(1).plusMonths(1),
-                entriesForEntriesLimitedGymPass
+                entriesTimeLimitedGymPass
         );
-        mongoTemplate.save(notToPickPurchasedGymPassDocument);
+        mongoTemplate.save(lastYearPurchasedGymPassDocument);
     }
 
     @AfterEach
@@ -329,6 +329,11 @@ public class GetGymPassesIntegrationTest {
                     .isEqualTo("zł");
             assertThat(responseEntity.getBody().get(0).get("gymPassOffer").get("price").get("period").textValue())
                     .isEqualTo("miesiąc");
+            assertThat(responseEntity.getBody().get(0).get("user").get("userId")).isNotNull();
+            assertThat(responseEntity.getBody().get(0).get("user").get("name").textValue())
+                    .isEqualTo("Jan");
+            assertThat(responseEntity.getBody().get(0).get("user").get("surname").textValue())
+                    .isEqualTo("Kowalski");
             assertThat(responseEntity.getBody().get(0).get("purchaseDateTime")).isNotNull();
             assertThat(responseEntity.getBody().get(0).get("startDate").textValue())
                     .isEqualTo(LocalDate.now().minusDays(2).toString());
@@ -348,6 +353,11 @@ public class GetGymPassesIntegrationTest {
                     .isEqualTo("zł");
             assertThat(responseEntity.getBody().get(1).get("gymPassOffer").get("price").get("period").textValue())
                     .isEqualTo("semestr");
+            assertThat(responseEntity.getBody().get(1).get("user").get("userId")).isNotNull();
+            assertThat(responseEntity.getBody().get(1).get("user").get("name").textValue())
+                    .isEqualTo("Jan");
+            assertThat(responseEntity.getBody().get(1).get("user").get("surname").textValue())
+                    .isEqualTo("Kowalski");
             assertThat(responseEntity.getBody().get(1).get("purchaseDateTime")).isNotNull();
             assertThat(responseEntity.getBody().get(1).get("startDate").textValue())
                     .isEqualTo(LocalDate.now().minusDays(2).toString());
@@ -368,6 +378,11 @@ public class GetGymPassesIntegrationTest {
                     .isEqualTo("zł");
             assertThat(responseEntity.getBody().get(2).get("gymPassOffer").get("price").get("period").textValue())
                     .isEqualTo("nielimitowany");
+            assertThat(responseEntity.getBody().get(2).get("user").get("userId")).isNotNull();
+            assertThat(responseEntity.getBody().get(2).get("user").get("name").textValue())
+                    .isEqualTo("Jan");
+            assertThat(responseEntity.getBody().get(2).get("user").get("surname").textValue())
+                    .isEqualTo("Kowalski");
             assertThat(responseEntity.getBody().get(2).get("purchaseDateTime")).isNotNull();
             assertThat(responseEntity.getBody().get(2).get("startDate").textValue())
                     .isEqualTo(LocalDate.now().minusDays(2).toString());
@@ -378,6 +393,135 @@ public class GetGymPassesIntegrationTest {
             assertThat(responseEntity.getBody().get(2).get("suspensionDate")).isNull();
 
             assertThat(responseEntity.getBody().size()).isEqualTo(3);
+
+            List<PurchasedGymPassDocument> gymPassDocumentList = mongoTemplate.findAll(PurchasedGymPassDocument.class);
+            assertThat(gymPassDocumentList.size()).isEqualTo(4);
+        }
+
+        @ParameterizedTest
+        @EnumSource(TestCountry.class)
+        void shouldGetGymPasses_whenValidUserIdNotEmptyListAndValidRequestDates(TestCountry country)
+                throws Exception {
+            Locale testedLocale = convertEnumToLocale(country);
+
+            String purchaseStartDate = "2000-01-01";
+            String purchaseEndDate = "2030-12-31";
+            int page = 0;
+
+            URI uri = new URI("http://localhost:" + port + "/purchase/page/"+page+
+                    "?purchaseStartDate="+purchaseStartDate+"&purchaseEndDate="+purchaseEndDate);
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.set("Accept-Language", testedLocale.toString());
+            headers.set("Authorization", employeeToken);
+            headers.setContentType(MediaType.APPLICATION_JSON);
+
+            HttpEntity<Object> request = new HttpEntity<>(null, headers);
+
+            ResponseEntity<JsonNode> responseEntity = restTemplate
+                    .exchange(uri, HttpMethod.GET, request, JsonNode.class);
+
+            assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
+            assertThat(responseEntity.getBody()).isNotNull();
+
+            assertThat(responseEntity.getBody().get(0).get("purchasedGymPassDocumentId")).isNotNull();
+            assertThat(responseEntity.getBody().get(0).get("gymPassOffer").get("gymPassOfferId")).isNotNull();
+            assertThat(responseEntity.getBody().get(0).get("gymPassOffer").get("title").textValue())
+                    .isEqualTo("Karnet miesięczny");
+            assertThat(responseEntity.getBody().get(0).get("gymPassOffer").get("price").get("amount").doubleValue())
+                    .isEqualTo(139.99);
+            assertThat(responseEntity.getBody().get(0).get("gymPassOffer").get("price").get("currency").textValue())
+                    .isEqualTo("zł");
+            assertThat(responseEntity.getBody().get(0).get("gymPassOffer").get("price").get("period").textValue())
+                    .isEqualTo("miesiąc");
+            assertThat(responseEntity.getBody().get(0).get("user").get("userId")).isNotNull();
+            assertThat(responseEntity.getBody().get(0).get("user").get("name").textValue())
+                    .isEqualTo("Jan");
+            assertThat(responseEntity.getBody().get(0).get("user").get("surname").textValue())
+                    .isEqualTo("Kowalski");
+            assertThat(responseEntity.getBody().get(0).get("purchaseDateTime")).isNotNull();
+            assertThat(responseEntity.getBody().get(0).get("startDate").textValue())
+                    .isEqualTo(LocalDate.now().minusDays(2).toString());
+            assertThat(responseEntity.getBody().get(0).get("endDate").textValue())
+                    .isEqualTo(LocalDate.now().minusDays(2).plusMonths(1).toString());
+            assertThat(responseEntity.getBody().get(0).get("entries").intValue())
+                    .isEqualTo(Integer.MAX_VALUE);
+            assertThat(responseEntity.getBody().get(0).get("suspensionDate")).isNull();
+
+            assertThat(responseEntity.getBody().get(1).get("purchasedGymPassDocumentId")).isNotNull();
+            assertThat(responseEntity.getBody().get(1).get("gymPassOffer").get("gymPassOfferId")).isNotNull();
+            assertThat(responseEntity.getBody().get(1).get("gymPassOffer").get("title").textValue())
+                    .isEqualTo("Karnet semestralny");
+            assertThat(responseEntity.getBody().get(1).get("gymPassOffer").get("price").get("amount").doubleValue())
+                    .isEqualTo(399.99);
+            assertThat(responseEntity.getBody().get(1).get("gymPassOffer").get("price").get("currency").textValue())
+                    .isEqualTo("zł");
+            assertThat(responseEntity.getBody().get(1).get("gymPassOffer").get("price").get("period").textValue())
+                    .isEqualTo("semestr");
+            assertThat(responseEntity.getBody().get(1).get("user").get("userId")).isNotNull();
+            assertThat(responseEntity.getBody().get(1).get("user").get("name").textValue())
+                    .isEqualTo("Jan");
+            assertThat(responseEntity.getBody().get(1).get("user").get("surname").textValue())
+                    .isEqualTo("Kowalski");
+            assertThat(responseEntity.getBody().get(1).get("purchaseDateTime")).isNotNull();
+            assertThat(responseEntity.getBody().get(1).get("startDate").textValue())
+                    .isEqualTo(LocalDate.now().minusDays(2).toString());
+            assertThat(responseEntity.getBody().get(1).get("endDate").textValue())
+                    .isEqualTo(LocalDate.now().minusDays(2).plusMonths(6).plusDays(10).toString());
+            assertThat(responseEntity.getBody().get(1).get("entries").intValue())
+                    .isEqualTo(Integer.MAX_VALUE);
+            assertThat(responseEntity.getBody().get(1).get("suspensionDate").textValue())
+                    .isEqualTo(LocalDate.now().plusDays(10).toString());
+
+            assertThat(responseEntity.getBody().get(2).get("purchasedGymPassDocumentId")).isNotNull();
+            assertThat(responseEntity.getBody().get(2).get("gymPassOffer").get("gymPassOfferId")).isNotNull();
+            assertThat(responseEntity.getBody().get(2).get("gymPassOffer").get("title").textValue())
+                    .isEqualTo("Karnet 10 wejść");
+            assertThat(responseEntity.getBody().get(2).get("gymPassOffer").get("price").get("amount").doubleValue())
+                    .isEqualTo(99.99);
+            assertThat(responseEntity.getBody().get(2).get("gymPassOffer").get("price").get("currency").textValue())
+                    .isEqualTo("zł");
+            assertThat(responseEntity.getBody().get(2).get("gymPassOffer").get("price").get("period").textValue())
+                    .isEqualTo("nielimitowany");
+            assertThat(responseEntity.getBody().get(2).get("user").get("userId")).isNotNull();
+            assertThat(responseEntity.getBody().get(2).get("user").get("name").textValue())
+                    .isEqualTo("Jan");
+            assertThat(responseEntity.getBody().get(2).get("user").get("surname").textValue())
+                    .isEqualTo("Kowalski");
+            assertThat(responseEntity.getBody().get(2).get("purchaseDateTime")).isNotNull();
+            assertThat(responseEntity.getBody().get(2).get("startDate").textValue())
+                    .isEqualTo(LocalDate.now().minusDays(2).toString());
+            assertThat(responseEntity.getBody().get(2).get("endDate").textValue())
+                    .isEqualTo(LocalDate.parse("9999-12-31", DateTimeFormatter.ISO_LOCAL_DATE).toString());
+            assertThat(responseEntity.getBody().get(2).get("entries").intValue())
+                    .isEqualTo(10);
+            assertThat(responseEntity.getBody().get(2).get("suspensionDate")).isNull();
+
+            assertThat(responseEntity.getBody().get(3).get("purchasedGymPassDocumentId")).isNotNull();
+            assertThat(responseEntity.getBody().get(3).get("gymPassOffer").get("gymPassOfferId")).isNotNull();
+            assertThat(responseEntity.getBody().get(3).get("gymPassOffer").get("title").textValue())
+                    .isEqualTo("nowy karnet miesięczny");
+            assertThat(responseEntity.getBody().get(3).get("gymPassOffer").get("price").get("amount").doubleValue())
+                    .isEqualTo(139.99);
+            assertThat(responseEntity.getBody().get(3).get("gymPassOffer").get("price").get("currency").textValue())
+                    .isEqualTo("zł");
+            assertThat(responseEntity.getBody().get(3).get("gymPassOffer").get("price").get("period").textValue())
+                    .isEqualTo("miesiąc");
+            assertThat(responseEntity.getBody().get(3).get("user").get("userId")).isNotNull();
+            assertThat(responseEntity.getBody().get(3).get("user").get("name").textValue())
+                    .isEqualTo("Last");
+            assertThat(responseEntity.getBody().get(3).get("user").get("surname").textValue())
+                    .isEqualTo("Year");
+            assertThat(responseEntity.getBody().get(3).get("purchaseDateTime")).isNotNull();
+            assertThat(responseEntity.getBody().get(3).get("startDate").textValue())
+                    .isEqualTo(LocalDate.now().minusYears(1).toString());
+            assertThat(responseEntity.getBody().get(3).get("endDate").textValue())
+                    .isEqualTo(LocalDate.now().minusYears(1).plusMonths(1).toString());
+            assertThat(responseEntity.getBody().get(3).get("entries").intValue())
+                    .isEqualTo(Integer.MAX_VALUE);
+            assertThat(responseEntity.getBody().get(3).get("suspensionDate")).isNull();
+
+            assertThat(responseEntity.getBody().size()).isEqualTo(4);
 
             List<PurchasedGymPassDocument> gymPassDocumentList = mongoTemplate.findAll(PurchasedGymPassDocument.class);
             assertThat(gymPassDocumentList.size()).isEqualTo(4);

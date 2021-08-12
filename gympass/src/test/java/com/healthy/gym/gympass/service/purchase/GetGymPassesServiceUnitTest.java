@@ -10,7 +10,6 @@ import com.healthy.gym.gympass.dto.BasicUserInfoDTO;
 import com.healthy.gym.gympass.dto.PurchasedGymPassDTO;
 import com.healthy.gym.gympass.dto.SimpleGymPassDTO;
 import com.healthy.gym.gympass.enums.GymRole;
-import com.healthy.gym.gympass.exception.GymPassNotFoundException;
 import com.healthy.gym.gympass.exception.StartDateAfterEndDateException;
 import com.healthy.gym.gympass.service.PurchaseService;
 import com.healthy.gym.gympass.shared.Description;
@@ -35,7 +34,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 @SpringBootTest
-public class GetGymPassesServiceUnitTest {
+class GetGymPassesServiceUnitTest {
 
     @Autowired
     private PurchaseService purchaseService;
@@ -183,7 +182,7 @@ public class GetGymPassesServiceUnitTest {
         LocalDateTime purchaseEndDateTimePlusOneDay
                 = LocalDateTime.of(2031,1,1, 0,0,0);
 
-        Page<PurchasedGymPassDocument> purchasedGymPassDocumentsPages = new PageImpl<PurchasedGymPassDocument>(
+        Page<PurchasedGymPassDocument> purchasedGymPassDocumentsPages = new PageImpl<>(
                 purchasedGymPassDocuments, paging, size);
 
         //when

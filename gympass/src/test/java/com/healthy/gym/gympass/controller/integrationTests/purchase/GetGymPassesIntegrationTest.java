@@ -39,9 +39,11 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.UUID;
 
 import static com.healthy.gym.gympass.configuration.LocaleConverter.convertEnumToLocale;
+import static com.healthy.gym.gympass.configuration.Messages.getMessagesAccordingToLocale;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 @Testcontainers
@@ -525,6 +527,71 @@ public class GetGymPassesIntegrationTest {
 
             List<PurchasedGymPassDocument> gymPassDocumentList = mongoTemplate.findAll(PurchasedGymPassDocument.class);
             assertThat(gymPassDocumentList.size()).isEqualTo(4);
+        }
+    }
+
+    @Nested
+    class ShouldNotGetGymPasses{
+
+        @Nested
+        class ShouldNotDeleteGymPassWhenNotAuthorized{
+
+            @ParameterizedTest
+            @EnumSource(TestCountry.class)
+            void shouldNotGetGymPassesWhenNoToken(TestCountry country) throws Exception {
+                Locale testedLocale = convertEnumToLocale(country);
+
+                int page = 0;
+
+                URI uri = new URI("http://localhost:" + port + "/purchase/page/"+page);
+
+                HttpHeaders headers = new HttpHeaders();
+                headers.set("Accept-Language", testedLocale.toString());
+                headers.setContentType(MediaType.APPLICATION_JSON);
+
+                HttpEntity<Object> request = new HttpEntity<>(null, headers);
+
+                ResponseEntity<JsonNode> responseEntity = restTemplate
+                        .exchange(uri, HttpMethod.GET, request, JsonNode.class);
+
+
+                assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
+                assertThat(responseEntity.getBody().get("status").intValue()).isEqualTo(403);
+                assertThat(responseEntity.getBody().get("error").textValue()).isEqualTo("Forbidden");
+                assertThat(responseEntity.getBody().get("message").textValue()).isEqualTo("Access Denied");
+                assertThat(responseEntity.getBody().get("timestamp")).isNotNull();
+            }
+
+            @ParameterizedTest
+            @EnumSource(TestCountry.class)
+            void shouldNotGetGymPassesWhenLoggedAsUser(TestCountry country) throws Exception {
+                Map<String, String> messages = getMessagesAccordingToLocale(country);
+                Locale testedLocale = convertEnumToLocale(country);
+
+                int page = 0;
+
+                URI uri = new URI("http://localhost:" + port + "/purchase/page/"+page);
+
+                HttpHeaders headers = new HttpHeaders();
+                headers.set("Accept-Language", testedLocale.toString());
+                headers.set("Authorization", userToken);
+                headers.setContentType(MediaType.APPLICATION_JSON);
+
+                HttpEntity<Object> request = new HttpEntity<>(null, headers);
+
+                ResponseEntity<JsonNode> responseEntity = restTemplate
+                        .exchange(uri, HttpMethod.GET, request, JsonNode.class);
+
+                String expectedMessage = messages.get("exception.access.denied");
+
+                assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
+                assertThat(responseEntity.getBody().get("status").intValue()).isEqualTo(403);
+                assertThat(responseEntity.getBody().get("error").textValue()).isEqualTo("Forbidden");
+                assertThat(responseEntity.getBody().get("message").textValue()).isEqualTo(expectedMessage);
+                assertThat(responseEntity.getBody().get("timestamp")).isNotNull();
+
+                List<PurchasedGymPassDocument> gymPassDocumentListAfter = mongoTemplate.findAll(PurchasedGymPassDocument.class);
+            }
         }
     }
 }

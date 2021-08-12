@@ -8,6 +8,7 @@ import com.healthy.gym.trainings.data.repository.LocationDAO;
 import com.healthy.gym.trainings.data.repository.TrainingTypeDAO;
 import com.healthy.gym.trainings.data.repository.UserDAO;
 import com.healthy.gym.trainings.data.repository.group.training.GroupTrainingsDAO;
+import com.healthy.gym.trainings.data.repository.individual.training.IndividualTrainingRepository;
 import com.healthy.gym.trainings.dto.BasicUserInfoDTO;
 import com.healthy.gym.trainings.dto.GroupTrainingDTO;
 import com.healthy.gym.trainings.enums.GymRole;
@@ -23,13 +24,12 @@ import com.healthy.gym.trainings.model.request.ManagerGroupTrainingRequest;
 import com.healthy.gym.trainings.service.group.training.GroupTrainingDocumentUpdateBuilder;
 import com.healthy.gym.trainings.service.group.training.ManagerGroupTrainingService;
 import com.healthy.gym.trainings.service.group.training.ManagerGroupTrainingServiceImpl;
+import com.healthy.gym.trainings.test.utils.TestDocumentUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.data.domain.Sort;
 
-import java.time.Clock;
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
+import java.time.*;
 import java.util.List;
 import java.util.UUID;
 
@@ -40,6 +40,7 @@ import static org.mockito.Mockito.*;
 
 class UpdateGroupTrainingServiceTest {
 
+    private IndividualTrainingRepository individualTrainingRepository;
     private GroupTrainingsDAO groupTrainingsDAO;
     private ManagerGroupTrainingRequest groupTrainingRequest;
     private ManagerGroupTrainingService managerGroupTrainingService;
@@ -48,6 +49,7 @@ class UpdateGroupTrainingServiceTest {
 
     @BeforeEach
     void setUp() {
+        individualTrainingRepository = mock(IndividualTrainingRepository.class);
         groupTrainingId = UUID.randomUUID().toString();
         groupTrainingsDAO = mock(GroupTrainingsDAO.class);
         TrainingTypeDAO trainingTypeDAO = mock(TrainingTypeDAO.class);
@@ -59,7 +61,7 @@ class UpdateGroupTrainingServiceTest {
         groupTrainingRequest = getGroupTrainingRequest();
 
         managerGroupTrainingService = new ManagerGroupTrainingServiceImpl(
-                null,
+                individualTrainingRepository,
                 groupTrainingsDAO,
                 trainingTypeDAO,
                 locationDAO,
@@ -122,11 +124,192 @@ class UpdateGroupTrainingServiceTest {
                 .updateLimit()
                 .update()
         ).thenReturn(groupTrainingUpdated);
-        when(groupTrainingsDAO.save(any())).thenReturn(groupTrainingUpdated);
 
         assertThatThrownBy(
                 () -> managerGroupTrainingService.updateGroupTraining(groupTrainingId, groupTrainingRequest)
         ).isInstanceOf(StartDateAfterEndDateException.class);
+    }
+
+    @Test
+    void shouldThrowLocationOccupiedExceptionByGroupTrainings() throws
+            TrainingTypeNotFoundException,
+            PastDateException,
+            LocationNotFoundException,
+            TrainerNotFoundException {
+
+        when(groupTrainingsDAO.findFirstByGroupTrainingId(anyString())).thenReturn(new GroupTrainingDocument());
+        when(groupTrainingDocumentUpdateBuilder
+                .setGroupTrainingDocumentToUpdate(any())
+                .setGroupTrainingRequest(any())
+                .updateTrainingType()
+                .updateTrainers()
+                .updateStartDate()
+                .updateEndDate()
+                .updateLocation()
+                .updateLimit()
+                .update()
+        ).thenReturn(getUpdatedGroupTrainingDocument());
+
+        LocalDateTime startDateTime = LocalDateTime.of(LocalDate.parse("2021-07-10"), LocalTime.MIN);
+        LocalDateTime endDateTime = LocalDateTime.of(LocalDate.parse("2021-07-10"), LocalTime.MAX);
+        when(groupTrainingsDAO.findAllByStartDateIsAfterAndEndDateIsBefore(startDateTime, endDateTime, Sort.by("startDate")))
+                .thenReturn(List.of(
+                        TestDocumentUtil.getTestGroupTraining(
+                                "2021-07-10T19:00", "2021-07-10T20:30", getTestLocationDocument()
+                        ),
+                        TestDocumentUtil.getTestGroupTraining(
+                                "2021-07-10T21:00", "2021-07-10T22:00", getTestLocationDocument()
+                        )
+                ));
+
+        when(individualTrainingRepository.findAllByStartDateTimeIsAfterAndEndDateTimeIsBefore(
+                startDateTime, endDateTime, Sort.by("startDateTime")
+        )).thenReturn(List.of());
+
+        assertThatThrownBy(
+                () -> managerGroupTrainingService.updateGroupTraining(groupTrainingId, groupTrainingRequest)
+        ).isInstanceOf(LocationOccupiedException.class);
+    }
+
+    private GroupTrainingDocument getUpdatedGroupTrainingDocument() {
+        return new GroupTrainingDocument(
+                "bcbc63a7-1208-42af-b1a2-134a82fb5233",
+                getTestTrainingTypeDocument(),
+                List.of(getTestTrainer1(), getTestTrainer2()),
+                LocalDateTime.parse("2021-07-10T20:00"),
+                LocalDateTime.parse("2021-07-10T21:00"),
+                getTestLocationDocument(),
+                10,
+                List.of(getTestUserDocument1()),
+                List.of(getTestUserDocument2())
+        );
+    }
+
+    @Test
+    void shouldThrowLocationOccupiedExceptionByIndividualTrainings() throws
+            TrainingTypeNotFoundException,
+            PastDateException,
+            LocationNotFoundException,
+            TrainerNotFoundException {
+
+        when(groupTrainingsDAO.findFirstByGroupTrainingId(anyString())).thenReturn(new GroupTrainingDocument());
+        when(groupTrainingDocumentUpdateBuilder
+                .setGroupTrainingDocumentToUpdate(any())
+                .setGroupTrainingRequest(any())
+                .updateTrainingType()
+                .updateTrainers()
+                .updateStartDate()
+                .updateEndDate()
+                .updateLocation()
+                .updateLimit()
+                .update()
+        ).thenReturn(getUpdatedGroupTrainingDocument());
+
+        LocalDateTime startDateTime = LocalDateTime.of(LocalDate.parse("2021-07-10"), LocalTime.MIN);
+        LocalDateTime endDateTime = LocalDateTime.of(LocalDate.parse("2021-07-10"), LocalTime.MAX);
+
+        when(groupTrainingsDAO
+                .findAllByStartDateIsAfterAndEndDateIsBefore(startDateTime, endDateTime, Sort.by("startDate"))
+        ).thenReturn(List.of());
+
+        when(individualTrainingRepository
+                .findAllByStartDateTimeIsAfterAndEndDateTimeIsBefore(startDateTime, endDateTime, Sort.by("startDateTime"))
+        ).thenReturn(List.of(
+                TestDocumentUtil.getTestIndividualTraining(
+                        "2021-07-10T19:00", "2021-07-10T20:30", getTestLocationDocument()
+                ),
+                TestDocumentUtil.getTestIndividualTraining(
+                        "2021-07-10T21:00", "2021-07-10T22:00", getTestLocationDocument()
+                )
+        ));
+
+        assertThatThrownBy(
+                () -> managerGroupTrainingService.updateGroupTraining(groupTrainingId, groupTrainingRequest)
+        ).isInstanceOf(LocationOccupiedException.class);
+    }
+
+    @Test
+    void shouldThrowTrainerOccupiedExceptionByGroupTrainings() throws
+            TrainingTypeNotFoundException,
+            PastDateException,
+            LocationNotFoundException,
+            TrainerNotFoundException {
+
+        when(groupTrainingsDAO.findFirstByGroupTrainingId(anyString())).thenReturn(new GroupTrainingDocument());
+        when(groupTrainingDocumentUpdateBuilder
+                .setGroupTrainingDocumentToUpdate(any())
+                .setGroupTrainingRequest(any())
+                .updateTrainingType()
+                .updateTrainers()
+                .updateStartDate()
+                .updateEndDate()
+                .updateLocation()
+                .updateLimit()
+                .update()
+        ).thenReturn(getUpdatedGroupTrainingDocument());
+
+        LocalDateTime startDateTime = LocalDateTime.of(LocalDate.parse("2021-07-10"), LocalTime.MIN);
+        LocalDateTime endDateTime = LocalDateTime.of(LocalDate.parse("2021-07-10"), LocalTime.MAX);
+        when(groupTrainingsDAO.findAllByStartDateIsAfterAndEndDateIsBefore(startDateTime, endDateTime, Sort.by("startDate")))
+                .thenReturn(List.of(
+                        TestDocumentUtil.getTestGroupTraining(
+                                "2021-07-10T19:00", "2021-07-10T20:30", List.of(getTestTrainer2())
+                        ),
+                        TestDocumentUtil.getTestGroupTraining(
+                                "2021-07-10T21:00", "2021-07-10T22:00", List.of(getTestTrainer1())
+                        )
+                ));
+
+        when(individualTrainingRepository.findAllByStartDateTimeIsAfterAndEndDateTimeIsBefore(
+                startDateTime, endDateTime, Sort.by("startDateTime")
+        )).thenReturn(List.of());
+
+        assertThatThrownBy(
+                () -> managerGroupTrainingService.updateGroupTraining(groupTrainingId, groupTrainingRequest)
+        ).isInstanceOf(TrainerOccupiedException.class);
+    }
+
+    @Test
+    void shouldThrowTrainerOccupiedExceptionByIndividualTrainings() throws
+            TrainingTypeNotFoundException,
+            PastDateException,
+            LocationNotFoundException,
+            TrainerNotFoundException {
+
+        when(groupTrainingsDAO.findFirstByGroupTrainingId(anyString())).thenReturn(new GroupTrainingDocument());
+        when(groupTrainingDocumentUpdateBuilder
+                .setGroupTrainingDocumentToUpdate(any())
+                .setGroupTrainingRequest(any())
+                .updateTrainingType()
+                .updateTrainers()
+                .updateStartDate()
+                .updateEndDate()
+                .updateLocation()
+                .updateLimit()
+                .update()
+        ).thenReturn(getUpdatedGroupTrainingDocument());
+
+        LocalDateTime startDateTime = LocalDateTime.of(LocalDate.parse("2021-07-10"), LocalTime.MIN);
+        LocalDateTime endDateTime = LocalDateTime.of(LocalDate.parse("2021-07-10"), LocalTime.MAX);
+
+        when(groupTrainingsDAO
+                .findAllByStartDateIsAfterAndEndDateIsBefore(startDateTime, endDateTime, Sort.by("startDate"))
+        ).thenReturn(List.of());
+
+        when(individualTrainingRepository
+                .findAllByStartDateTimeIsAfterAndEndDateTimeIsBefore(startDateTime, endDateTime, Sort.by("startDateTime"))
+        ).thenReturn(List.of(
+                TestDocumentUtil.getTestIndividualTraining(
+                        "2021-07-10T19:00", "2021-07-10T20:30", List.of(getTestTrainer2())
+                ),
+                TestDocumentUtil.getTestIndividualTraining(
+                        "2021-07-10T21:00", "2021-07-10T22:00", List.of(getTestTrainer1())
+                )
+        ));
+
+        assertThatThrownBy(
+                () -> managerGroupTrainingService.updateGroupTraining(groupTrainingId, groupTrainingRequest)
+        ).isInstanceOf(TrainerOccupiedException.class);
     }
 
     @Test
@@ -139,17 +322,7 @@ class UpdateGroupTrainingServiceTest {
             TrainerOccupiedException,
             TrainerNotFoundException {
 
-        GroupTrainingDocument groupTrainingUpdated = new GroupTrainingDocument(
-                "bcbc63a7-1208-42af-b1a2-134a82fb5233",
-                getTestTrainingTypeDocument(),
-                List.of(getTestTrainer1(), getTestTrainer2()),
-                LocalDateTime.parse("2021-07-10T20:00"),
-                LocalDateTime.parse("2021-07-10T21:00"),
-                getTestLocationDocument(),
-                10,
-                List.of(getTestUserDocument1()),
-                List.of(getTestUserDocument2())
-        );
+        GroupTrainingDocument groupTrainingUpdated = getUpdatedGroupTrainingDocument();
 
         when(groupTrainingsDAO.findFirstByGroupTrainingId(anyString())).thenReturn(new GroupTrainingDocument());
         when(groupTrainingDocumentUpdateBuilder
@@ -163,6 +336,16 @@ class UpdateGroupTrainingServiceTest {
                 .updateLimit()
                 .update()
         ).thenReturn(groupTrainingUpdated);
+        LocalDateTime startDateTime = LocalDateTime.of(LocalDate.parse("2021-07-10"), LocalTime.MIN);
+        LocalDateTime endDateTime = LocalDateTime.of(LocalDate.parse("2021-07-10"), LocalTime.MAX);
+        when(groupTrainingsDAO
+                .findAllByStartDateIsAfterAndEndDateIsBefore(startDateTime, endDateTime, Sort.by("startDate"))
+        ).thenReturn(List.of());
+
+        when(individualTrainingRepository
+                .findAllByStartDateTimeIsAfterAndEndDateTimeIsBefore(startDateTime, endDateTime, Sort.by("startDateTime"))
+        ).thenReturn(List.of(
+        ));
         when(groupTrainingsDAO.save(any())).thenReturn(groupTrainingUpdated);
 
         assertThat(managerGroupTrainingService.updateGroupTraining(groupTrainingId, groupTrainingRequest))

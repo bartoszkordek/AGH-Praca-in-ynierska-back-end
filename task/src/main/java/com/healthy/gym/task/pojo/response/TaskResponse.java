@@ -4,14 +4,14 @@ import com.healthy.gym.task.dto.TaskDTO;
 
 import java.util.Objects;
 
-public class EmployeeReportResponse extends AbstractResponse{
+public class TaskResponse extends AbstractResponse{
 
     private TaskDTO task;
 
-    public EmployeeReportResponse() {
+    public TaskResponse() {
     }
 
-    public EmployeeReportResponse(String message, TaskDTO task) {
+    public TaskResponse(String message, TaskDTO task) {
         super(message);
         this.task = task;
     }
@@ -36,7 +36,7 @@ public class EmployeeReportResponse extends AbstractResponse{
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         if (!super.equals(o)) return false;
-        EmployeeReportResponse that = (EmployeeReportResponse) o;
+        TaskResponse that = (TaskResponse) o;
         return Objects.equals(task, that.task);
     }
 

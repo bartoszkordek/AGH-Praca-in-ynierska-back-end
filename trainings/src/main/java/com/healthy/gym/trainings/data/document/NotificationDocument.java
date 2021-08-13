@@ -16,12 +16,13 @@ public class NotificationDocument {
 
     @CreatedBy
     @DBRef
-    private UserDocument from;
+    private UserDocument createdBy;
 
     @DBRef
     private UserDocument to;
 
     @LastModifiedBy
+    @DBRef
     private UserDocument lastModifiedBy;
 
     private String title;
@@ -31,9 +32,40 @@ public class NotificationDocument {
     private LocalDateTime createdAt;
 
     @LastModifiedDate
-    private LocalDateTime lastModified;
+    private LocalDateTime lastModifiedAt;
 
     private boolean markAsRead;
+
+
+    public NotificationDocument() {
+        //empty constructor required by spring data mapper
+    }
+
+    public NotificationDocument(
+            String notificationId,
+            UserDocument to,
+            String title,
+            String content
+    ) {
+        this.notificationId = notificationId;
+        this.to = to;
+        this.title = title;
+        this.content = content;
+    }
+
+    public NotificationDocument(
+            String notificationId,
+            UserDocument to,
+            String title,
+            String content,
+            boolean markAsRead
+    ) {
+        this.notificationId = notificationId;
+        this.to = to;
+        this.title = title;
+        this.content = content;
+        this.markAsRead = markAsRead;
+    }
 
     public String getId() {
         return id;
@@ -51,12 +83,12 @@ public class NotificationDocument {
         this.notificationId = notificationId;
     }
 
-    public UserDocument getFrom() {
-        return from;
+    public UserDocument getCreatedBy() {
+        return createdBy;
     }
 
-    public void setFrom(UserDocument from) {
-        this.from = from;
+    public void setCreatedBy(UserDocument createdBy) {
+        this.createdBy = createdBy;
     }
 
     public UserDocument getTo() {
@@ -99,12 +131,12 @@ public class NotificationDocument {
         this.createdAt = createdAt;
     }
 
-    public LocalDateTime getLastModified() {
-        return lastModified;
+    public LocalDateTime getLastModifiedAt() {
+        return lastModifiedAt;
     }
 
-    public void setLastModified(LocalDateTime lastModified) {
-        this.lastModified = lastModified;
+    public void setLastModifiedAt(LocalDateTime lastModifiedAt) {
+        this.lastModifiedAt = lastModifiedAt;
     }
 
     public boolean isMarkAsRead() {
@@ -123,13 +155,13 @@ public class NotificationDocument {
         return markAsRead == that.markAsRead
                 && Objects.equals(id, that.id)
                 && Objects.equals(notificationId, that.notificationId)
-                && Objects.equals(from, that.from)
+                && Objects.equals(createdBy, that.createdBy)
                 && Objects.equals(to, that.to)
                 && Objects.equals(lastModifiedBy, that.lastModifiedBy)
                 && Objects.equals(title, that.title)
                 && Objects.equals(content, that.content)
                 && Objects.equals(createdAt, that.createdAt)
-                && Objects.equals(lastModified, that.lastModified);
+                && Objects.equals(lastModifiedAt, that.lastModifiedAt);
     }
 
     @Override
@@ -137,13 +169,13 @@ public class NotificationDocument {
         return Objects.hash(
                 id,
                 notificationId,
-                from,
+                createdBy,
                 to,
                 lastModifiedBy,
                 title,
                 content,
                 createdAt,
-                lastModified,
+                lastModifiedAt,
                 markAsRead
         );
     }
@@ -153,13 +185,13 @@ public class NotificationDocument {
         return "NotificationDocument{" +
                 "id='" + id + '\'' +
                 ", notificationId='" + notificationId + '\'' +
-                ", from=" + from +
+                ", from=" + createdBy +
                 ", to=" + to +
                 ", lastModifiedBy=" + lastModifiedBy +
                 ", title='" + title + '\'' +
                 ", content='" + content + '\'' +
                 ", createdAt=" + createdAt +
-                ", lastModified=" + lastModified +
+                ", lastModified=" + lastModifiedAt +
                 ", markAsRead=" + markAsRead +
                 '}';
     }

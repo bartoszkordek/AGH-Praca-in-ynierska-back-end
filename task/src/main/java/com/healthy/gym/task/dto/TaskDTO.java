@@ -8,7 +8,7 @@ import java.time.LocalDate;
 import java.util.Objects;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class EmployeeReportDTO {
+public class TaskDTO {
 
     @JsonProperty("id")
     private String taskId;
@@ -122,7 +122,7 @@ public class EmployeeReportDTO {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        EmployeeReportDTO that = (EmployeeReportDTO) o;
+        TaskDTO that = (TaskDTO) o;
         return Objects.equals(taskId, that.taskId) &&
                 Objects.equals(title, that.title) &&
                 Objects.equals(description, that.description) &&

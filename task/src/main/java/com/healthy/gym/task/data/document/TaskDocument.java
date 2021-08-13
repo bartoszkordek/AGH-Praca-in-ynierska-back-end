@@ -1,6 +1,6 @@
 package com.healthy.gym.task.data.document;
 
-import com.healthy.gym.task.shared.AcceptanceStatus;
+import com.healthy.gym.task.enums.AcceptanceStatus;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 

@@ -84,7 +84,9 @@ public class Messages {
                 {"enrollment.success.individual", "Zapytanie o trening indywidualny zostało stworzone."},
                 {"enrollment.individual.accepted", "Zapytanie o trening indywidualny zostało zaakceptowane."},
                 {"enrollment.individual.rejected", "Zapytanie o trening indywidualny zostało odrzucone."},
-                {"enrollment.remove", "Zrezygnowano z uczestnictwa w zajęciach."}
+                {"enrollment.remove", "Zrezygnowano z uczestnictwa w zajęciach."},
+                {"notification.group.training.update",
+                        "Trening grupowy, w którym bierzesz udział, został zaktualizowany."}
         }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
     }
 
@@ -164,7 +166,9 @@ public class Messages {
                 {"enrollment.success.individual", "Individual training request has been created."},
                 {"enrollment.individual.accepted", "Individual training request has been accepted."},
                 {"enrollment.individual.rejected", "Individual training request has been rejected."},
-                {"enrollment.remove", "Participation has been cancelled."}
+                {"enrollment.remove", "Participation has been cancelled."},
+                {"notification.group.training.update",
+                        "The group training you are participating in has been updated."}
         }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
     }
 

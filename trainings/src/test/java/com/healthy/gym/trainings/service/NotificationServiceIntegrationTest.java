@@ -57,6 +57,7 @@ class NotificationServiceIntegrationTest {
 
     private List<UserDocument> users;
     private UserDocument mainUser;
+    private List<NotificationDocument> notifications;
 
     @DynamicPropertySource
     static void setProperties(DynamicPropertyRegistry registry) {
@@ -73,34 +74,35 @@ class NotificationServiceIntegrationTest {
                 new UsernamePasswordAuthenticationToken(userId, null);
         SecurityContextHolder.getContext().setAuthentication(userAuth);
         LocaleContextHolder.setLocale(Locale.ENGLISH);
+
+        notificationService.sendNotificationsAndEmailsWhenUpdatingGroupTraining(
+                "TestTitle",
+                LocalDateTime.of(2020, 10, 9, 12, 20, 30),
+                users
+        );
+
+        notifications = mongoTemplate.findAll(NotificationDocument.class);
     }
 
     @AfterEach
     void tearDown() {
-
         mongoTemplate.dropCollection(UserDocument.class);
         mongoTemplate.dropCollection(NotificationDocument.class);
     }
 
     @Test
-    void shouldSendNotifications() {
-        String title = "TestTitle";
-        notificationService.sendNotificationsAndEmailsWhenUpdatingGroupTraining(
-                title,
-                LocalDateTime.of(2020, 10, 9, 12, 20, 30),
-                users
-        );
-
-        var notifications = mongoTemplate.findAll(NotificationDocument.class);
+    void shouldContainsAllUsers() {
         assertThat(notifications.size()).isEqualTo(10);
-
         var returnedUsers = notifications
                 .stream()
                 .map(NotificationDocument::getTo)
                 .collect(Collectors.toList());
 
         assertThat(returnedUsers).isEqualTo(users);
+    }
 
+    @Test
+    void shouldHaveTheSameUserWhoSendNotifications() {
         var setOfCreatedBy = notifications
                 .stream()
                 .map(NotificationDocument::getCreatedBy)
@@ -108,21 +110,30 @@ class NotificationServiceIntegrationTest {
 
         assertThat(setOfCreatedBy.size()).isEqualTo(1);
         assertThat(setOfCreatedBy.contains(mainUser)).isTrue();
+    }
 
+    @Test
+    void shouldContainSameTitle() {
         var titles = notifications
                 .stream()
                 .map(NotificationDocument::getTitle)
                 .collect(Collectors.toSet());
+
         assertThat(titles.size()).isEqualTo(1);
         assertThat(titles.contains("TestTitle 2020-10-09 12:20")).isTrue();
+    }
 
+    @Test
+    void shouldContainSameContent() {
         var content = notifications
                 .stream()
                 .map(NotificationDocument::getContent)
                 .collect(Collectors.toSet());
-        assertThat(content.size()).isEqualTo(1);
+
         Map<String, String> messages = getMessagesAccordingToLocale(TestCountry.ENGLAND);
         String expectedContent = messages.get("notification.group.training.update");
+
+        assertThat(content.size()).isEqualTo(1);
         assertThat(content.contains(expectedContent)).isTrue();
     }
 }

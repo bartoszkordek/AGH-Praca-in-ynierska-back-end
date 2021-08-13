@@ -6,6 +6,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDateTime;
 import java.util.Objects;
+import java.util.UUID;
 
 @Document(collection = "notifications")
 public class NotificationDocument {
@@ -48,6 +49,17 @@ public class NotificationDocument {
             String content
     ) {
         this.notificationId = notificationId;
+        this.to = to;
+        this.title = title;
+        this.content = content;
+    }
+
+    public NotificationDocument(
+            UserDocument to,
+            String title,
+            String content
+    ) {
+        this.notificationId = UUID.randomUUID().toString();
         this.to = to;
         this.title = title;
         this.content = content;

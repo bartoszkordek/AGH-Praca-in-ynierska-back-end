@@ -22,6 +22,33 @@ public class TaskDTO {
     private AcceptanceStatus employeeAccept;
     private AcceptanceStatus managerAccept;
 
+    public TaskDTO() { }
+
+    public TaskDTO(
+            String taskId,
+            String title,
+            String description,
+            String report,
+            LocalDate orderDate,
+            LocalDate lastOrderUpdateDate,
+            LocalDate dueDate,
+            LocalDate reportDate,
+            AcceptanceStatus employeeAccept,
+            AcceptanceStatus managerAccept
+    ){
+        this.taskId = taskId;
+        this.title = title;
+        this.description = description;
+        this.report = report;
+        this.orderDate = orderDate;
+        this.lastOrderUpdateDate = lastOrderUpdateDate;
+        this.dueDate = dueDate;
+        this.reportDate = reportDate;
+        this.employeeAccept = employeeAccept;
+        this.managerAccept = managerAccept;
+    }
+
+
     public String getTaskId() {
         return taskId;
     }

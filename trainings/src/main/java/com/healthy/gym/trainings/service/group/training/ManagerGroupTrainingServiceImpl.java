@@ -20,6 +20,7 @@ import com.healthy.gym.trainings.exception.notfound.TrainingTypeNotFoundExceptio
 import com.healthy.gym.trainings.exception.occupied.LocationOccupiedException;
 import com.healthy.gym.trainings.exception.occupied.TrainerOccupiedException;
 import com.healthy.gym.trainings.model.request.ManagerGroupTrainingRequest;
+import com.healthy.gym.trainings.service.NotificationService;
 import com.healthy.gym.trainings.utils.CollisionValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -27,8 +28,9 @@ import org.springframework.stereotype.Service;
 import java.time.Clock;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 
 import static com.healthy.gym.trainings.utils.GroupTrainingMapper.mapGroupTrainingsDocumentToDTO;
 
@@ -42,6 +44,7 @@ public class ManagerGroupTrainingServiceImpl implements ManagerGroupTrainingServ
     private final UserDAO userDAO;
     private final Clock clock;
     private final GroupTrainingDocumentUpdateBuilder groupTrainingDocumentUpdateBuilder;
+    private final NotificationService notificationService;
 
     @Autowired
     public ManagerGroupTrainingServiceImpl(
@@ -51,7 +54,8 @@ public class ManagerGroupTrainingServiceImpl implements ManagerGroupTrainingServ
             LocationDAO locationDAO,
             UserDAO userDAO,
             Clock clock,
-            GroupTrainingDocumentUpdateBuilder groupTrainingDocumentUpdateBuilder
+            GroupTrainingDocumentUpdateBuilder groupTrainingDocumentUpdateBuilder,
+            NotificationService notificationService
     ) {
         this.collisionValidatorComponent = collisionValidatorComponent;
         this.groupTrainingsDAO = groupTrainingsDAO;
@@ -60,6 +64,7 @@ public class ManagerGroupTrainingServiceImpl implements ManagerGroupTrainingServ
         this.userDAO = userDAO;
         this.clock = clock;
         this.groupTrainingDocumentUpdateBuilder = groupTrainingDocumentUpdateBuilder;
+        this.notificationService = notificationService;
     }
 
     @Override
@@ -206,29 +211,33 @@ public class ManagerGroupTrainingServiceImpl implements ManagerGroupTrainingServ
 
         GroupTrainingDocument groupTrainingSaved = groupTrainingsDAO.save(groupTrainingUpdated);
 
-        sendEmails(groupTrainingSaved);
+        sendNotificationsWhenUpdated(groupTrainingSaved);
 
         return mapGroupTrainingsDocumentToDTO(groupTrainingSaved);
     }
 
-    private void sendEmails(GroupTrainingDocument groupTraining) {
-        LocalDateTime endDate = groupTraining.getEndDate();
-        if (endDate.isAfter(LocalDateTime.now(clock))) return;
+    private void sendNotificationsWhenUpdated(GroupTrainingDocument groupTraining) {
+        if (isPastDate(groupTraining)) return;
 
-        List<String> emails = getAllEmails(groupTraining);
-        //TODO send emails to all participants about changes
+        List<UserDocument> users = getAllUsersInTraining(groupTraining);
+        notificationService.sendNotificationsAndEmailsWhenUpdatingGroupTraining(
+                groupTraining.getTraining().getName(),
+                groupTraining.getStartDate(),
+                users
+        );
     }
 
-    private List<String> getAllEmails(GroupTrainingDocument groupTraining) {
-        Set<UserDocument> allGroupTrainingUsers = new HashSet<>();
+    private boolean isPastDate(GroupTrainingDocument groupTraining) {
+        LocalDateTime startDate = groupTraining.getStartDate();
+        return startDate.isAfter(LocalDateTime.now(clock));
+    }
+
+    private List<UserDocument> getAllUsersInTraining(GroupTrainingDocument groupTraining) {
+        List<UserDocument> allGroupTrainingUsers = new ArrayList<>();
         allGroupTrainingUsers.addAll(groupTraining.getTrainers());
         allGroupTrainingUsers.addAll(groupTraining.getBasicList());
         allGroupTrainingUsers.addAll(groupTraining.getReserveList());
-
-        return allGroupTrainingUsers
-                .stream()
-                .map(UserDocument::getEmail)
-                .collect(Collectors.toList());
+        return allGroupTrainingUsers;
     }
 
     @Override
@@ -238,8 +247,13 @@ public class ManagerGroupTrainingServiceImpl implements ManagerGroupTrainingServ
         if (groupTrainingToDelete == null) throw new NotExistingGroupTrainingException();
         groupTrainingsDAO.delete(groupTrainingToDelete);
 
-        sendEmails(groupTrainingToDelete);
+        sendNotificationsWhenRemove(groupTrainingToDelete);
 
         return mapGroupTrainingsDocumentToDTO(groupTrainingToDelete);
+    }
+
+    private void sendNotificationsWhenRemove(GroupTrainingDocument groupTraining) {
+        if (isPastDate(groupTraining)) return;
+        //todo add notification when group training removed
     }
 }

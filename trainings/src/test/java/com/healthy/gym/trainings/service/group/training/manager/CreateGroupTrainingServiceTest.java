@@ -22,6 +22,7 @@ import com.healthy.gym.trainings.exception.notfound.TrainingTypeNotFoundExceptio
 import com.healthy.gym.trainings.exception.occupied.LocationOccupiedException;
 import com.healthy.gym.trainings.exception.occupied.TrainerOccupiedException;
 import com.healthy.gym.trainings.model.request.ManagerGroupTrainingRequest;
+import com.healthy.gym.trainings.service.NotificationService;
 import com.healthy.gym.trainings.service.group.training.GroupTrainingDocumentUpdateBuilder;
 import com.healthy.gym.trainings.service.group.training.ManagerGroupTrainingService;
 import com.healthy.gym.trainings.service.group.training.ManagerGroupTrainingServiceImpl;
@@ -39,8 +40,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 class CreateGroupTrainingServiceTest {
 
@@ -68,6 +68,7 @@ class CreateGroupTrainingServiceTest {
 
         CollisionValidatorComponent collisionValidatorComponent =
                 new CollisionValidatorComponentImpl(groupTrainingsDAO, individualTrainingRepository);
+        NotificationService notificationService = mock(NotificationService.class);
         managerGroupTrainingService = new ManagerGroupTrainingServiceImpl(
                 collisionValidatorComponent,
                 groupTrainingsDAO,
@@ -75,7 +76,8 @@ class CreateGroupTrainingServiceTest {
                 locationDAO,
                 userDAO,
                 clock,
-                groupTrainingDocumentUpdateBuilder
+                groupTrainingDocumentUpdateBuilder,
+                notificationService
         );
     }
 

@@ -23,6 +23,7 @@ import com.healthy.gym.trainings.exception.notfound.TrainingTypeNotFoundExceptio
 import com.healthy.gym.trainings.exception.occupied.LocationOccupiedException;
 import com.healthy.gym.trainings.exception.occupied.TrainerOccupiedException;
 import com.healthy.gym.trainings.model.request.ManagerGroupTrainingRequest;
+import com.healthy.gym.trainings.service.NotificationService;
 import com.healthy.gym.trainings.service.group.training.GroupTrainingDocumentUpdateBuilder;
 import com.healthy.gym.trainings.service.group.training.ManagerGroupTrainingService;
 import com.healthy.gym.trainings.service.group.training.ManagerGroupTrainingServiceImpl;
@@ -47,6 +48,7 @@ class UpdateGroupTrainingServiceTest {
     private ManagerGroupTrainingRequest groupTrainingRequest;
     private ManagerGroupTrainingService managerGroupTrainingService;
     private GroupTrainingDocumentUpdateBuilder groupTrainingDocumentUpdateBuilder;
+    private NotificationService notificationService;
     private String groupTrainingId;
 
     @BeforeEach
@@ -64,6 +66,7 @@ class UpdateGroupTrainingServiceTest {
 
         CollisionValidatorComponent collisionValidatorComponent =
                 new CollisionValidatorComponentImpl(groupTrainingsDAO, individualTrainingRepository);
+        notificationService = mock(NotificationService.class);
 
         managerGroupTrainingService = new ManagerGroupTrainingServiceImpl(
                 collisionValidatorComponent,
@@ -72,7 +75,8 @@ class UpdateGroupTrainingServiceTest {
                 locationDAO,
                 userDAO,
                 clock,
-                groupTrainingDocumentUpdateBuilder
+                groupTrainingDocumentUpdateBuilder,
+                notificationService
         );
     }
 
@@ -352,6 +356,8 @@ class UpdateGroupTrainingServiceTest {
         ).thenReturn(List.of(
         ));
         when(groupTrainingsDAO.save(any())).thenReturn(groupTrainingUpdated);
+        doNothing().when(notificationService)
+                .sendNotificationsAndEmailsWhenUpdatingGroupTraining(anyString(), any(), anyList());
 
         assertThat(managerGroupTrainingService.updateGroupTraining(groupTrainingId, groupTrainingRequest))
                 .isEqualTo(getExpectedGroupTrainingDTO());

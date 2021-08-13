@@ -20,10 +20,6 @@ public class ManagerOrderRequest {
 
     @NotNull(message = "{field.required}")
     @ValidDateFormat
-    private String orderDate;
-
-    @NotNull(message = "{field.required}")
-    @ValidDateFormat
     private String dueDate;
 
     public String getTitle() {
@@ -32,10 +28,6 @@ public class ManagerOrderRequest {
 
     public String getDescription() {
         return description;
-    }
-
-    public String getOrderDate() {
-        return orderDate;
     }
 
     public String getDueDate() {
@@ -50,10 +42,6 @@ public class ManagerOrderRequest {
         this.description = description;
     }
 
-    public void setOrderDate(String orderDate) {
-        this.orderDate = orderDate;
-    }
-
     public void setDueDate(String dueDate) {
         this.dueDate = dueDate;
     }
@@ -63,7 +51,6 @@ public class ManagerOrderRequest {
         return "ManagerOrderRequest{" +
                 "title='" + title + '\'' +
                 ", description='" + description + '\'' +
-                ", orderDate='" + orderDate + '\'' +
                 ", dueDate='" + dueDate + '\'' +
                 '}';
     }
@@ -75,12 +62,11 @@ public class ManagerOrderRequest {
         ManagerOrderRequest that = (ManagerOrderRequest) o;
         return Objects.equals(title, that.title) &&
                 Objects.equals(description, that.description) &&
-                Objects.equals(orderDate, that.orderDate) &&
                 Objects.equals(dueDate, that.dueDate);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(title, description, orderDate, dueDate);
+        return Objects.hash(title, description, dueDate);
     }
 }

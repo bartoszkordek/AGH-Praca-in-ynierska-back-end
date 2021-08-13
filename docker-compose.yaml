@@ -67,6 +67,17 @@ services:
       - mongodb
       - gateway
 
+  task:
+    container_name: gympass
+    image: gza73/agh-praca-inzynierska-task:latest
+    environment:
+      - "SPRING_PROFILES_ACTIVE=docker"
+    networks:
+      - backend
+    depends_on:
+      - mongodb
+      - gateway
+
   redis:
     container_name: redis
     image: gza73/agh-praca-inzynierska-redis:latest

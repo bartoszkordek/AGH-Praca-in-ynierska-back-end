@@ -2,6 +2,7 @@ package com.healthy.gym.task.data.document;
 
 import com.healthy.gym.task.enums.AcceptanceStatus;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDate;
@@ -13,6 +14,10 @@ public class TaskDocument {
     @Id
     private String id;
     private String taskId;
+    @DBRef
+    private UserDocument manager;
+    @DBRef
+    private UserDocument employee;
     private String title;
     private String description;
     private String report;
@@ -29,6 +34,14 @@ public class TaskDocument {
 
     public String getTaskId() {
         return taskId;
+    }
+
+    public UserDocument getManager() {
+        return manager;
+    }
+
+    public UserDocument getEmployee() {
+        return employee;
     }
 
     public String getTitle() {
@@ -75,6 +88,14 @@ public class TaskDocument {
         this.taskId = taskId;
     }
 
+    public void setManager(UserDocument manager) {
+        this.manager = manager;
+    }
+
+    public void setEmployee(UserDocument employee) {
+        this.employee = employee;
+    }
+
     public void setTitle(String title) {
         this.title = title;
     }
@@ -116,6 +137,8 @@ public class TaskDocument {
         return "TaskDocument{" +
                 "id='" + id + '\'' +
                 ", taskId='" + taskId + '\'' +
+                ", manager=" + manager +
+                ", employee=" + employee +
                 ", title='" + title + '\'' +
                 ", description='" + description + '\'' +
                 ", report='" + report + '\'' +
@@ -135,6 +158,8 @@ public class TaskDocument {
         TaskDocument that = (TaskDocument) o;
         return Objects.equals(id, that.id) &&
                 Objects.equals(taskId, that.taskId) &&
+                Objects.equals(manager, that.manager) &&
+                Objects.equals(employee, that.employee) &&
                 Objects.equals(title, that.title) &&
                 Objects.equals(description, that.description) &&
                 Objects.equals(report, that.report) &&
@@ -151,6 +176,8 @@ public class TaskDocument {
         return Objects.hash(
                 id,
                 taskId,
+                manager,
+                employee,
                 title,
                 description,
                 report,

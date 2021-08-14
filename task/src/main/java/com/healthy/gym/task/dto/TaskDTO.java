@@ -12,6 +12,8 @@ public class TaskDTO {
 
     @JsonProperty("id")
     private String taskId;
+    private BasicUserInfoDTO manager;
+    private BasicUserInfoDTO employee;
     private String title;
     private String description;
     private String report;
@@ -26,6 +28,8 @@ public class TaskDTO {
 
     public TaskDTO(
             String taskId,
+            BasicUserInfoDTO manager,
+            BasicUserInfoDTO employee,
             String title,
             String description,
             String report,
@@ -37,6 +41,8 @@ public class TaskDTO {
             AcceptanceStatus managerAccept
     ){
         this.taskId = taskId;
+        this.manager = manager;
+        this.employee = employee;
         this.title = title;
         this.description = description;
         this.report = report;
@@ -51,6 +57,14 @@ public class TaskDTO {
 
     public String getTaskId() {
         return taskId;
+    }
+
+    public BasicUserInfoDTO getManager() {
+        return manager;
+    }
+
+    public BasicUserInfoDTO getEmployee() {
+        return employee;
     }
 
     public String getTitle() {
@@ -93,6 +107,14 @@ public class TaskDTO {
         this.taskId = taskId;
     }
 
+    public void setManager(BasicUserInfoDTO manager) {
+        this.manager = manager;
+    }
+
+    public void setEmployee(BasicUserInfoDTO employee) {
+        this.employee = employee;
+    }
+
     public void setTitle(String title) {
         this.title = title;
     }
@@ -131,8 +153,10 @@ public class TaskDTO {
 
     @Override
     public String toString() {
-        return "EmployeeReportDTO{" +
+        return "TaskDTO{" +
                 "taskId='" + taskId + '\'' +
+                ", manager=" + manager +
+                ", employee=" + employee +
                 ", title='" + title + '\'' +
                 ", description='" + description + '\'' +
                 ", report='" + report + '\'' +
@@ -149,23 +173,27 @@ public class TaskDTO {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        TaskDTO that = (TaskDTO) o;
-        return Objects.equals(taskId, that.taskId) &&
-                Objects.equals(title, that.title) &&
-                Objects.equals(description, that.description) &&
-                Objects.equals(report, that.report) &&
-                Objects.equals(orderDate, that.orderDate) &&
-                Objects.equals(lastOrderUpdateDate, that.lastOrderUpdateDate) &&
-                Objects.equals(dueDate, that.dueDate) &&
-                Objects.equals(reportDate, that.reportDate) &&
-                employeeAccept == that.employeeAccept &&
-                managerAccept == that.managerAccept;
+        TaskDTO taskDTO = (TaskDTO) o;
+        return Objects.equals(taskId, taskDTO.taskId) &&
+                Objects.equals(manager, taskDTO.manager) &&
+                Objects.equals(employee, taskDTO.employee) &&
+                Objects.equals(title, taskDTO.title) &&
+                Objects.equals(description, taskDTO.description) &&
+                Objects.equals(report, taskDTO.report) &&
+                Objects.equals(orderDate, taskDTO.orderDate) &&
+                Objects.equals(lastOrderUpdateDate, taskDTO.lastOrderUpdateDate) &&
+                Objects.equals(dueDate, taskDTO.dueDate) &&
+                Objects.equals(reportDate, taskDTO.reportDate) &&
+                employeeAccept == taskDTO.employeeAccept &&
+                managerAccept == taskDTO.managerAccept;
     }
 
     @Override
     public int hashCode() {
         return Objects.hash(
                 taskId,
+                manager,
+                employee,
                 title,
                 description,
                 report,

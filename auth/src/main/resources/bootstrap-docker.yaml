@@ -1,0 +1,14 @@
+spring:
+  cloud:
+    config:
+      name: auth
+      discovery:
+        service-id: config-server
+        enabled: true
+
+eureka:
+  client:
+    region: default
+    registry-fetch-interval-seconds: 5
+    service-url:
+      defaultZone: http://discovery:8010/eureka

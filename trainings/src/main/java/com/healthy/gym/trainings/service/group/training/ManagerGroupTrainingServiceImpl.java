@@ -211,19 +211,20 @@ public class ManagerGroupTrainingServiceImpl implements ManagerGroupTrainingServ
 
         GroupTrainingDocument groupTrainingSaved = groupTrainingsDAO.save(groupTrainingUpdated);
 
-        sendNotificationsWhenUpdated(groupTrainingSaved);
+        sendNotificationsWhenUpdated(groupTrainingSaved, groupTrainingRequest.shouldSendEmails());
 
         return mapGroupTrainingsDocumentToDTO(groupTrainingSaved);
     }
 
-    private void sendNotificationsWhenUpdated(GroupTrainingDocument groupTraining) {
+    private void sendNotificationsWhenUpdated(GroupTrainingDocument groupTraining, boolean shouldSendEmails) {
         if (isPastDate(groupTraining)) return;
 
         List<UserDocument> users = getAllUsersInTraining(groupTraining);
         notificationService.sendNotificationsAndEmailsWhenUpdatingGroupTraining(
                 groupTraining.getTraining().getName(),
                 groupTraining.getStartDate(),
-                users
+                users,
+                shouldSendEmails
         );
     }
 

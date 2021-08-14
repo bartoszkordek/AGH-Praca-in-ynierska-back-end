@@ -10,6 +10,7 @@ import com.icegreen.greenmail.junit5.GreenMailExtension;
 import com.icegreen.greenmail.util.ServerSetup;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -93,15 +94,6 @@ class NotificationServiceIntegrationTest {
                 new UsernamePasswordAuthenticationToken(userId, null);
         SecurityContextHolder.getContext().setAuthentication(userAuth);
         LocaleContextHolder.setLocale(Locale.ENGLISH);
-
-        notificationService.sendNotificationsAndEmailsWhenUpdatingGroupTraining(
-                "TestTitle",
-                LocalDateTime.of(2020, 10, 9, 12, 20, 30),
-                users,
-                true
-        );
-
-        notifications = mongoTemplate.findAll(NotificationDocument.class);
     }
 
     @AfterEach
@@ -110,79 +102,132 @@ class NotificationServiceIntegrationTest {
         mongoTemplate.dropCollection(NotificationDocument.class);
     }
 
-    @Test
-    void shouldSendEmail() {
-        Map<String, String> responseMessages = getMessagesAccordingToLocale(TestCountry.ENGLAND);
-        String expectedMessage = responseMessages.get("notification.group.training.update");
+    @Nested
+    class ShouldSendNotificationsWithoutEmailsWhenUpdateGroupTraining {
 
-        await().atMost(10, TimeUnit.SECONDS).untilAsserted(
-                () -> {
-                    MimeMessage[] messages = greenMail.getReceivedMessages();
-                    assertThat(messages).hasSize(10);
+        @BeforeEach
+        void setUp() {
+            notificationService.sendNotificationsAndEmailsWhenUpdatingGroupTraining(
+                    "TestTitle",
+                    LocalDateTime.of(2020, 10, 9, 12, 20, 30),
+                    users,
+                    false
+            );
 
-                    Set<String> currentRecipients = new HashSet<>();
-                    for (MimeMessage message : messages) {
-                        assertThat(message.getSubject()).isEqualTo("TestTitle 2020-10-09 12:20");
-                        assertThat(message.getContent().toString().trim()).isEqualTo(expectedMessage);
+            notifications = mongoTemplate.findAll(NotificationDocument.class);
+        }
 
-                        String recipient = message.getAllRecipients()[0].toString();
-                        currentRecipients.add(recipient);
+        @Test
+        void shouldSendEmail() {
+            await().atMost(10, TimeUnit.SECONDS).untilAsserted(
+                    () -> {
+                        MimeMessage[] messages = greenMail.getReceivedMessages();
+                        assertThat(messages).isEmpty();
                     }
+            );
+        }
 
-                    Set<String> expectedRecipients = users
-                            .stream()
-                            .map(UserDocument::getEmail)
-                            .collect(Collectors.toSet());
+        @Test
+        void shouldContainsAllUsers() {
+            assertThat(notifications.size()).isEqualTo(10);
+            var returnedUsers = notifications
+                    .stream()
+                    .map(NotificationDocument::getTo)
+                    .collect(Collectors.toList());
 
-                    assertThat(currentRecipients).isEqualTo(expectedRecipients);
-                }
-        );
+            assertThat(returnedUsers).isEqualTo(users);
+        }
+
+        @Test
+        void shouldHaveTheSameUserWhoSendNotifications() {
+            var setOfCreatedBy = notifications
+                    .stream()
+                    .map(NotificationDocument::getCreatedBy)
+                    .collect(Collectors.toSet());
+
+            assertThat(setOfCreatedBy.size()).isEqualTo(1);
+            assertThat(setOfCreatedBy.contains(mainUser)).isTrue();
+        }
+
+        @Test
+        void shouldContainSameTitle() {
+            var titles = notifications
+                    .stream()
+                    .map(NotificationDocument::getTitle)
+                    .collect(Collectors.toSet());
+
+            assertThat(titles.size()).isEqualTo(1);
+            assertThat(titles.contains("TestTitle 2020-10-09 12:20")).isTrue();
+        }
+
+        @Test
+        void shouldContainSameContent() {
+            var content = notifications
+                    .stream()
+                    .map(NotificationDocument::getContent)
+                    .collect(Collectors.toSet());
+
+            Map<String, String> messages = getMessagesAccordingToLocale(TestCountry.ENGLAND);
+            String expectedContent = messages.get("notification.group.training.update");
+
+            assertThat(content.size()).isEqualTo(1);
+            assertThat(content.contains(expectedContent)).isTrue();
+        }
     }
 
-    @Test
-    void shouldContainsAllUsers() {
-        assertThat(notifications.size()).isEqualTo(10);
-        var returnedUsers = notifications
-                .stream()
-                .map(NotificationDocument::getTo)
-                .collect(Collectors.toList());
+    @Nested
+    class ShouldSendNotificationsWithEmailsWhenUpdateGroupTraining {
 
-        assertThat(returnedUsers).isEqualTo(users);
-    }
+        @BeforeEach
+        void setUp() {
+            notificationService.sendNotificationsAndEmailsWhenUpdatingGroupTraining(
+                    "TestTitle",
+                    LocalDateTime.of(2020, 10, 9, 12, 20, 30),
+                    users,
+                    true
+            );
 
-    @Test
-    void shouldHaveTheSameUserWhoSendNotifications() {
-        var setOfCreatedBy = notifications
-                .stream()
-                .map(NotificationDocument::getCreatedBy)
-                .collect(Collectors.toSet());
+            notifications = mongoTemplate.findAll(NotificationDocument.class);
+        }
 
-        assertThat(setOfCreatedBy.size()).isEqualTo(1);
-        assertThat(setOfCreatedBy.contains(mainUser)).isTrue();
-    }
+        @Test
+        void shouldSendEmail() {
+            Map<String, String> responseMessages = getMessagesAccordingToLocale(TestCountry.ENGLAND);
+            String expectedMessage = responseMessages.get("notification.group.training.update");
 
-    @Test
-    void shouldContainSameTitle() {
-        var titles = notifications
-                .stream()
-                .map(NotificationDocument::getTitle)
-                .collect(Collectors.toSet());
+            await().atMost(10, TimeUnit.SECONDS).untilAsserted(
+                    () -> {
+                        MimeMessage[] messages = greenMail.getReceivedMessages();
+                        assertThat(messages).hasSize(10);
 
-        assertThat(titles.size()).isEqualTo(1);
-        assertThat(titles.contains("TestTitle 2020-10-09 12:20")).isTrue();
-    }
+                        Set<String> currentRecipients = new HashSet<>();
+                        for (MimeMessage message : messages) {
+                            assertThat(message.getSubject()).isEqualTo("TestTitle 2020-10-09 12:20");
+                            assertThat(message.getContent().toString().trim()).isEqualTo(expectedMessage);
 
-    @Test
-    void shouldContainSameContent() {
-        var content = notifications
-                .stream()
-                .map(NotificationDocument::getContent)
-                .collect(Collectors.toSet());
+                            String recipient = message.getAllRecipients()[0].toString();
+                            currentRecipients.add(recipient);
+                        }
 
-        Map<String, String> messages = getMessagesAccordingToLocale(TestCountry.ENGLAND);
-        String expectedContent = messages.get("notification.group.training.update");
+                        Set<String> expectedRecipients = users
+                                .stream()
+                                .map(UserDocument::getEmail)
+                                .collect(Collectors.toSet());
 
-        assertThat(content.size()).isEqualTo(1);
-        assertThat(content.contains(expectedContent)).isTrue();
+                        assertThat(currentRecipients).isEqualTo(expectedRecipients);
+                    }
+            );
+        }
+
+        @Test
+        void shouldContainsAllUsers() {
+            assertThat(notifications.size()).isEqualTo(10);
+            var returnedUsers = notifications
+                    .stream()
+                    .map(NotificationDocument::getTo)
+                    .collect(Collectors.toList());
+
+            assertThat(returnedUsers).isEqualTo(users);
+        }
     }
 }

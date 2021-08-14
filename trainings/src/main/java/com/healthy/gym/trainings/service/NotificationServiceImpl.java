@@ -4,9 +4,9 @@ import com.healthy.gym.trainings.component.Translator;
 import com.healthy.gym.trainings.data.document.NotificationDocument;
 import com.healthy.gym.trainings.data.document.UserDocument;
 import com.healthy.gym.trainings.data.repository.NotificationDAO;
+import com.healthy.gym.trainings.events.OnGroupTrainingUpdateEvent;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.mail.SimpleMailMessage;
-import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -18,24 +18,25 @@ import java.util.stream.Collectors;
 public class NotificationServiceImpl implements NotificationService {
     private final NotificationDAO notificationDAO;
     private final Translator translator;
-    private final JavaMailSender javaMailSender;
+    private final ApplicationEventPublisher applicationEventPublisher;
 
     @Autowired
     public NotificationServiceImpl(
             NotificationDAO notificationDAO,
             Translator translator,
-            JavaMailSender javaMailSender
+            ApplicationEventPublisher applicationEventPublisher
     ) {
         this.notificationDAO = notificationDAO;
         this.translator = translator;
-        this.javaMailSender = javaMailSender;
+        this.applicationEventPublisher = applicationEventPublisher;
     }
 
     @Override
     public void sendNotificationsAndEmailsWhenUpdatingGroupTraining(
             String trainingName,
             LocalDateTime startDateTime,
-            List<UserDocument> users
+            List<UserDocument> users,
+            boolean shouldSendEmails
     ) {
         String title = trainingName + " " + getFormattedDate(startDateTime);
         String content = translator.toLocale("notification.group.training.update");
@@ -45,13 +46,16 @@ public class NotificationServiceImpl implements NotificationService {
                 .collect(Collectors.toList());
         notificationDAO.saveAll(notifications);
 
-        users.forEach(userDocument -> {
-            SimpleMailMessage mail = new SimpleMailMessage();
-            mail.setTo(userDocument.getEmail());
-            mail.setSubject(title);
-            mail.setText(content);
-            javaMailSender.send(mail);
-        });
+        if (!shouldSendEmails) return;
+
+        List<String> emails = users
+                .stream()
+                .map(UserDocument::getEmail)
+                .collect(Collectors.toList());
+
+        applicationEventPublisher.publishEvent(
+                new OnGroupTrainingUpdateEvent(this, title, content, emails)
+        );
     }
 
     private String getFormattedDate(LocalDateTime localDateTime) {

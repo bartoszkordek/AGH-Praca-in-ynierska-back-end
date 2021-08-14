@@ -33,4 +33,5 @@ out
 logs
 
 #Email Settings
-email.properties
+auth/src/main/resources/email.properties
+trainings/src/main/resources/email.properties

@@ -35,6 +35,8 @@ public class ManagerGroupTrainingRequest {
     @Min(value = 1, message = "{field.training.limit.min.value}")
     private int limit;
 
+    private boolean shouldSendEmails;
+
     public String getTrainingTypeId() {
         return trainingTypeId;
     }
@@ -83,12 +85,21 @@ public class ManagerGroupTrainingRequest {
         this.limit = limit;
     }
 
+    public boolean shouldSendEmails() {
+        return shouldSendEmails;
+    }
+
+    public void setShouldSendEmails(boolean shouldSendEmails) {
+        this.shouldSendEmails = shouldSendEmails;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         ManagerGroupTrainingRequest that = (ManagerGroupTrainingRequest) o;
         return limit == that.limit
+                && shouldSendEmails == that.shouldSendEmails
                 && Objects.equals(trainingTypeId, that.trainingTypeId)
                 && Objects.equals(trainerIds, that.trainerIds)
                 && Objects.equals(startDate, that.startDate)
@@ -98,18 +109,19 @@ public class ManagerGroupTrainingRequest {
 
     @Override
     public int hashCode() {
-        return Objects.hash(trainingTypeId, trainerIds, startDate, endDate, locationId, limit);
+        return Objects.hash(trainingTypeId, trainerIds, startDate, endDate, locationId, limit, shouldSendEmails);
     }
 
     @Override
     public String toString() {
-        return "CreateGroupTrainingRequest{" +
+        return "ManagerGroupTrainingRequest{" +
                 "trainingTypeId='" + trainingTypeId + '\'' +
                 ", trainerIds=" + trainerIds +
                 ", startDate='" + startDate + '\'' +
                 ", endDate='" + endDate + '\'' +
                 ", locationId='" + locationId + '\'' +
                 ", limit=" + limit +
+                ", shouldSendEmails=" + shouldSendEmails +
                 '}';
     }
 }

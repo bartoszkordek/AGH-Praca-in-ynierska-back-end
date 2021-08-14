@@ -12,6 +12,7 @@ import com.healthy.gym.trainings.dto.BasicUserInfoDTO;
 import com.healthy.gym.trainings.dto.GroupTrainingDTO;
 import com.healthy.gym.trainings.enums.GymRole;
 import com.healthy.gym.trainings.exception.notexisting.NotExistingGroupTrainingException;
+import com.healthy.gym.trainings.service.NotificationService;
 import com.healthy.gym.trainings.service.group.training.GroupTrainingDocumentUpdateBuilder;
 import com.healthy.gym.trainings.service.group.training.ManagerGroupTrainingService;
 import com.healthy.gym.trainings.service.group.training.ManagerGroupTrainingServiceImpl;
@@ -27,13 +28,14 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.anyBoolean;
+import static org.mockito.Mockito.*;
 
 class RemoveGroupTrainingServiceTest {
 
     private GroupTrainingsDAO groupTrainingsDAO;
+    private NotificationService notificationService;
 
     private ManagerGroupTrainingService managerGroupTrainingService;
     private String groupTrainingId;
@@ -49,6 +51,7 @@ class RemoveGroupTrainingServiceTest {
 
         GroupTrainingDocumentUpdateBuilder groupTrainingDocumentUpdateBuilder
                 = mock(GroupTrainingDocumentUpdateBuilder.class);
+        notificationService = mock(NotificationService.class);
         managerGroupTrainingService = new ManagerGroupTrainingServiceImpl(
                 null,
                 groupTrainingsDAO,
@@ -56,7 +59,8 @@ class RemoveGroupTrainingServiceTest {
                 locationDAO,
                 userDAO,
                 clock,
-                groupTrainingDocumentUpdateBuilder
+                groupTrainingDocumentUpdateBuilder,
+                notificationService
         );
     }
 
@@ -73,6 +77,8 @@ class RemoveGroupTrainingServiceTest {
     void shouldRemoveGroupTraining() throws NotExistingGroupTrainingException {
         when(groupTrainingsDAO.findFirstByGroupTrainingId(anyString()))
                 .thenReturn(getGroupTrainingDocument());
+        doNothing().when(notificationService)
+                .sendNotificationsAndEmailsWhenRemovingGroupTraining(anyString(), any(), anyList(), anyBoolean());
 
         GroupTrainingDTO groupTrainingDTO = getExpectedGroupTrainingDTO();
 

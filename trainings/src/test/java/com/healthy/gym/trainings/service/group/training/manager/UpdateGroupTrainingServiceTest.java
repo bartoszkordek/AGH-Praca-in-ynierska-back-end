@@ -90,6 +90,7 @@ class UpdateGroupTrainingServiceTest {
         createGroupTrainingRequest.setEndDate("2021-07-10T21:00");
         createGroupTrainingRequest.setLocationId("05cbccea-6248-4e40-931b-a34031a8c678");
         createGroupTrainingRequest.setLimit(10);
+        createGroupTrainingRequest.setShouldSendEmails(false);
         return createGroupTrainingRequest;
     }
 
@@ -357,7 +358,7 @@ class UpdateGroupTrainingServiceTest {
         ));
         when(groupTrainingsDAO.save(any())).thenReturn(groupTrainingUpdated);
         doNothing().when(notificationService)
-                .sendNotificationsAndEmailsWhenUpdatingGroupTraining(anyString(), any(), anyList());
+                .sendNotificationsAndEmailsWhenUpdatingGroupTraining(anyString(), any(), anyList(), anyBoolean());
 
         assertThat(managerGroupTrainingService.updateGroupTraining(groupTrainingId, groupTrainingRequest))
                 .isEqualTo(getExpectedGroupTrainingDTO());

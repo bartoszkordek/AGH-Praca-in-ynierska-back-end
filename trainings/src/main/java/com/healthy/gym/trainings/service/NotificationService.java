@@ -10,13 +10,13 @@ public interface NotificationService {
     void sendNotificationsAndEmailsWhenUpdatingGroupTraining(
             String trainingName,
             LocalDateTime startDateTime,
-            List<UserDocument> userDocumentList
+            List<UserDocument> userDocumentList,
+            boolean shouldSendEmails
     );
 
     void sendNotificationsAndEmailsWhenRemovingGroupTraining(
             String trainingName,
             LocalDateTime startDateTime,
             List<UserDocument> userDocumentList
-
     );
 }

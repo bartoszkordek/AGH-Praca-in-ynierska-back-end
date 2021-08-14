@@ -97,7 +97,8 @@ class NotificationServiceIntegrationTest {
         notificationService.sendNotificationsAndEmailsWhenUpdatingGroupTraining(
                 "TestTitle",
                 LocalDateTime.of(2020, 10, 9, 12, 20, 30),
-                users
+                users,
+                true
         );
 
         notifications = mongoTemplate.findAll(NotificationDocument.class);

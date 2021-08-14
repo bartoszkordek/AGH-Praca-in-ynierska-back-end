@@ -1,0 +1,5 @@
+spring:
+  cloud:
+    config:
+      name: discovery
+      uri: http://config-server:8030

@@ -1,6 +1,6 @@
 package com.healthy.gym.trainings.listener;
 
-import com.healthy.gym.trainings.events.OnGroupTrainingUpdateEvent;
+import com.healthy.gym.trainings.events.OnGroupTrainingChangeEvent;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.event.EventListener;
 import org.springframework.mail.SimpleMailMessage;
@@ -11,16 +11,16 @@ import org.springframework.stereotype.Component;
 import java.util.Collection;
 
 @Component
-public class GroupTrainingUpdateListener {
+public class GroupTrainingChangeListener {
     private final JavaMailSender javaMailSender;
 
-    public GroupTrainingUpdateListener(@Qualifier("getJavaMailSender") JavaMailSender javaMailSender) {
+    public GroupTrainingChangeListener(@Qualifier("getJavaMailSender") JavaMailSender javaMailSender) {
         this.javaMailSender = javaMailSender;
     }
 
     @Async
     @EventListener
-    public void sendEmail(OnGroupTrainingUpdateEvent event) {
+    public void sendEmail(OnGroupTrainingChangeEvent event) {
         Collection<String> emails = event.getEmails();
         String title = event.getTitle();
         String content = event.getContent();

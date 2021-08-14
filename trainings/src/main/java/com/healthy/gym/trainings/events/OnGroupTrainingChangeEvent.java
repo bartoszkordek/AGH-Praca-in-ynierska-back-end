@@ -5,12 +5,12 @@ import org.springframework.context.ApplicationEvent;
 import java.util.Collection;
 import java.util.List;
 
-public class OnGroupTrainingUpdateEvent extends ApplicationEvent {
+public class OnGroupTrainingChangeEvent extends ApplicationEvent {
     private final String title;
     private final String content;
     private final Collection<String> emails;
 
-    public OnGroupTrainingUpdateEvent(
+    public OnGroupTrainingChangeEvent(
             Object source,
             String title,
             String content,

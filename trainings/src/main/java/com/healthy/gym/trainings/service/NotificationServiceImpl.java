@@ -4,7 +4,7 @@ import com.healthy.gym.trainings.component.Translator;
 import com.healthy.gym.trainings.data.document.NotificationDocument;
 import com.healthy.gym.trainings.data.document.UserDocument;
 import com.healthy.gym.trainings.data.repository.NotificationDAO;
-import com.healthy.gym.trainings.events.OnGroupTrainingUpdateEvent;
+import com.healthy.gym.trainings.events.OnGroupTrainingChangeEvent;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
@@ -38,8 +38,24 @@ public class NotificationServiceImpl implements NotificationService {
             List<UserDocument> users,
             boolean shouldSendEmails
     ) {
-        String title = trainingName + " " + getFormattedDate(startDateTime);
         String content = translator.toLocale("notification.group.training.update");
+        sendNotifications(users, shouldSendEmails, trainingName, startDateTime, content);
+    }
+
+    private String getFormattedDate(LocalDateTime localDateTime) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+        return localDateTime.format(formatter);
+    }
+
+    private void sendNotifications(
+            List<UserDocument> users,
+            boolean shouldSendEmails,
+            String trainingName,
+            LocalDateTime startDateTime,
+            String content
+    ) {
+        String title = trainingName + " " + getFormattedDate(startDateTime);
+
         var notifications = users
                 .stream()
                 .map(user -> new NotificationDocument(user, title, content))
@@ -54,22 +70,18 @@ public class NotificationServiceImpl implements NotificationService {
                 .collect(Collectors.toList());
 
         applicationEventPublisher.publishEvent(
-                new OnGroupTrainingUpdateEvent(this, title, content, emails)
+                new OnGroupTrainingChangeEvent(this, title, content, emails)
         );
-    }
-
-    private String getFormattedDate(LocalDateTime localDateTime) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
-        return localDateTime.format(formatter);
     }
 
     @Override
     public void sendNotificationsAndEmailsWhenRemovingGroupTraining(
             String trainingName,
             LocalDateTime startDateTime,
-            List<UserDocument> userDocumentList
+            List<UserDocument> users,
+            boolean shouldSendEmails
     ) {
-        //todo add implementation
-        throw new UnsupportedOperationException();
+        String content = translator.toLocale("notification.group.training.cancelled");
+        sendNotifications(users, shouldSendEmails, trainingName, startDateTime, content);
     }
 }

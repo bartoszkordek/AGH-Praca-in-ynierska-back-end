@@ -17,6 +17,7 @@ public interface NotificationService {
     void sendNotificationsAndEmailsWhenRemovingGroupTraining(
             String trainingName,
             LocalDateTime startDateTime,
-            List<UserDocument> userDocumentList
+            List<UserDocument> userDocumentList,
+            boolean shouldSendEmails
     );
 }

@@ -28,9 +28,8 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyList;
-import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.anyBoolean;
 import static org.mockito.Mockito.*;
 
 class RemoveGroupTrainingServiceTest {
@@ -79,7 +78,7 @@ class RemoveGroupTrainingServiceTest {
         when(groupTrainingsDAO.findFirstByGroupTrainingId(anyString()))
                 .thenReturn(getGroupTrainingDocument());
         doNothing().when(notificationService)
-                .sendNotificationsAndEmailsWhenRemovingGroupTraining(anyString(), any(), anyList());
+                .sendNotificationsAndEmailsWhenRemovingGroupTraining(anyString(), any(), anyList(), anyBoolean());
 
         GroupTrainingDTO groupTrainingDTO = getExpectedGroupTrainingDTO();
 

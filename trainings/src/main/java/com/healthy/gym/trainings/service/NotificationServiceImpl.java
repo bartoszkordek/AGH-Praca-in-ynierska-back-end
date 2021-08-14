@@ -5,6 +5,8 @@ import com.healthy.gym.trainings.data.document.NotificationDocument;
 import com.healthy.gym.trainings.data.document.UserDocument;
 import com.healthy.gym.trainings.data.repository.NotificationDAO;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -16,11 +18,17 @@ import java.util.stream.Collectors;
 public class NotificationServiceImpl implements NotificationService {
     private final NotificationDAO notificationDAO;
     private final Translator translator;
+    private final JavaMailSender javaMailSender;
 
     @Autowired
-    public NotificationServiceImpl(NotificationDAO notificationDAO, Translator translator) {
+    public NotificationServiceImpl(
+            NotificationDAO notificationDAO,
+            Translator translator,
+            JavaMailSender javaMailSender
+    ) {
         this.notificationDAO = notificationDAO;
         this.translator = translator;
+        this.javaMailSender = javaMailSender;
     }
 
     @Override
@@ -36,6 +44,14 @@ public class NotificationServiceImpl implements NotificationService {
                 .map(user -> new NotificationDocument(user, title, content))
                 .collect(Collectors.toList());
         notificationDAO.saveAll(notifications);
+
+        users.forEach(userDocument -> {
+            SimpleMailMessage mail = new SimpleMailMessage();
+            mail.setTo(userDocument.getEmail());
+            mail.setSubject(title);
+            mail.setText(content);
+            javaMailSender.send(mail);
+        });
     }
 
     private String getFormattedDate(LocalDateTime localDateTime) {

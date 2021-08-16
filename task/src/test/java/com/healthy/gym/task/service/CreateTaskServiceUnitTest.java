@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
@@ -114,5 +115,24 @@ public class CreateTaskServiceUnitTest {
 
         //then
         assertThat(taskService.createTask(managerOrderRequest)).isEqualTo(taskResponse);
+    }
+
+    @Test
+    void shouldNotCreateTask_whenManagerNotExist(){
+        //before
+        //request
+        ManagerOrderRequest managerOrderRequest = new ManagerOrderRequest();
+        managerOrderRequest.setEmployeeId(employeeId);
+        managerOrderRequest.setTitle("Sample title");
+        managerOrderRequest.setDescription("Sample description");
+        managerOrderRequest.setDueDate(LocalDate.now().plusMonths(1).toString());
+
+        //when
+        when(userDAO.findByGymRolesContaining(GymRole.MANAGER)).thenReturn(null);
+
+        //then
+        assertThatThrownBy(() ->
+                taskService.createTask(managerOrderRequest)
+        ).isInstanceOf(ManagerNotFoundException.class);
     }
 }

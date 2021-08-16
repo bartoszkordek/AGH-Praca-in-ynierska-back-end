@@ -167,4 +167,45 @@ public class CreateTaskServiceUnitTest {
                 taskService.createTask(managerOrderRequest)
         ).isInstanceOf(EmployeeNotFoundException.class);
     }
+
+    @Test
+    void shouldNotCreateTask_whenUserNotEmployee(){
+        //before
+        //request
+        String invalidEmployeeId = UUID.randomUUID().toString();
+        ManagerOrderRequest managerOrderRequest = new ManagerOrderRequest();
+        managerOrderRequest.setEmployeeId(invalidEmployeeId);
+        managerOrderRequest.setTitle("Sample title");
+        managerOrderRequest.setDescription("Sample description");
+        managerOrderRequest.setDueDate(LocalDate.now().plusMonths(1).toString());
+
+
+        //DB documents
+        String managerName = "Adam";
+        String managerSurname = "Nowak";
+        UserDocument managerDocument = new UserDocument();
+        managerDocument.setName(managerName);
+        managerDocument.setSurname(managerSurname);
+        managerDocument.setUserId(managerId);
+        managerDocument.setGymRoles(List.of(GymRole.MANAGER));
+        managerDocument.setId("507f1f77bcf86cd799435002");
+
+        String notEmployeeName = "Jan";
+        String notEmployeeSurname = "Kowalski";
+        UserDocument notEmployeeDocument = new UserDocument();
+        notEmployeeDocument.setName(notEmployeeName);
+        notEmployeeDocument.setSurname(notEmployeeSurname);
+        notEmployeeDocument.setUserId(employeeId);
+        notEmployeeDocument.setGymRoles(List.of(GymRole.USER));
+        notEmployeeDocument.setId("507f1f77bcf86cd799435213");
+
+        //when
+        when(userDAO.findByGymRolesContaining(GymRole.MANAGER)).thenReturn(managerDocument);
+        when(userDAO.findByUserId(employeeId)).thenReturn(notEmployeeDocument);
+
+        //then
+        assertThatThrownBy(() ->
+                taskService.createTask(managerOrderRequest)
+        ).isInstanceOf(EmployeeNotFoundException.class);
+    }
 }

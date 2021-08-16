@@ -44,7 +44,7 @@ public class TaskServiceImpl implements TaskService{
             EmployeeNotFoundException, RetroDueDateException {
 
         GymRole managerRole = GymRole.MANAGER;
-        UserDocument managerDocument = userDAO.findByGymRolesExists(managerRole);
+        UserDocument managerDocument = userDAO.findByGymRolesContaining(managerRole);
         if(managerDocument == null) throw new ManagerNotFoundException();
 
         GymRole employeeRole = GymRole.EMPLOYEE;

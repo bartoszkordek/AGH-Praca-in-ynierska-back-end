@@ -8,5 +8,5 @@ public interface UserDAO  extends MongoRepository<UserDocument, String> {
 
     UserDocument findByUserId(String userId);
 
-    UserDocument findByGymRolesExists(GymRole role);
+    UserDocument findByGymRolesContaining(GymRole role);
 }

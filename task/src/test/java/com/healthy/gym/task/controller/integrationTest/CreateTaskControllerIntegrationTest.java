@@ -46,7 +46,7 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
         "eureka.client.register-with-eureka=false"
 })
 @Tag("integration")
-public class ControllerIntegrationTest {
+public class CreateTaskControllerIntegrationTest {
 
     @Container
     static MongoDBContainer mongoDBContainer =

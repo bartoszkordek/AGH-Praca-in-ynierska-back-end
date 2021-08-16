@@ -135,4 +135,36 @@ public class CreateTaskServiceUnitTest {
                 taskService.createTask(managerOrderRequest)
         ).isInstanceOf(ManagerNotFoundException.class);
     }
+
+    @Test
+    void shouldNotCreateTask_whenEmployeeNotExist(){
+        //before
+        //request
+        String invalidEmployeeId = UUID.randomUUID().toString();
+        ManagerOrderRequest managerOrderRequest = new ManagerOrderRequest();
+        managerOrderRequest.setEmployeeId(invalidEmployeeId);
+        managerOrderRequest.setTitle("Sample title");
+        managerOrderRequest.setDescription("Sample description");
+        managerOrderRequest.setDueDate(LocalDate.now().plusMonths(1).toString());
+
+
+        //DB documents
+        String managerName = "Adam";
+        String managerSurname = "Nowak";
+        UserDocument managerDocument = new UserDocument();
+        managerDocument.setName(managerName);
+        managerDocument.setSurname(managerSurname);
+        managerDocument.setUserId(managerId);
+        managerDocument.setGymRoles(List.of(GymRole.MANAGER));
+        managerDocument.setId("507f1f77bcf86cd799435002");
+
+        //when
+        when(userDAO.findByGymRolesContaining(GymRole.MANAGER)).thenReturn(managerDocument);
+        when(userDAO.findByUserId(employeeId)).thenReturn(null);
+
+        //then
+        assertThatThrownBy(() ->
+                taskService.createTask(managerOrderRequest)
+        ).isInstanceOf(EmployeeNotFoundException.class);
+    }
 }

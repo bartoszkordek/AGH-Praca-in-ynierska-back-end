@@ -364,5 +364,35 @@ public class CreateTaskControllerUnitTest {
                     );
         }
 
+        @ParameterizedTest
+        @EnumSource(TestCountry.class)
+        void shouldEmployeeNotFoundException(TestCountry country) throws Exception {
+            Map<String, String> messages = getMessagesAccordingToLocale(country);
+            Locale testedLocale = convertEnumToLocale(country);
+
+            RequestBuilder request = MockMvcRequestBuilders
+                    .post(uri)
+                    .header("Accept-Language", testedLocale.toString())
+                    .header("Authorization", adminToken)
+                    .content(requestContent)
+                    .contentType(MediaType.APPLICATION_JSON);
+
+
+            String expectedMessage = messages.get("exception.employee.not.found");
+
+            doThrow(EmployeeNotFoundException.class)
+                    .when(taskService)
+                    .createTask(any());
+
+            mockMvc.perform(request)
+                    .andDo(print())
+                    .andExpect(status().isBadRequest())
+                    .andExpect(status().reason(is(expectedMessage)))
+                    .andExpect(result ->
+                            assertThat(Objects.requireNonNull(result.getResolvedException()).getCause())
+                                    .isInstanceOf(EmployeeNotFoundException.class)
+                    );
+        }
+
     }
 }

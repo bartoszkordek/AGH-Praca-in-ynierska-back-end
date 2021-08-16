@@ -6,6 +6,8 @@ import com.healthy.gym.task.controller.TaskController;
 import com.healthy.gym.task.dto.BasicUserInfoDTO;
 import com.healthy.gym.task.dto.TaskDTO;
 import com.healthy.gym.task.enums.AcceptanceStatus;
+import com.healthy.gym.task.exception.EmployeeNotFoundException;
+import com.healthy.gym.task.exception.ManagerNotFoundException;
 import com.healthy.gym.task.pojo.request.ManagerOrderRequest;
 import com.healthy.gym.task.service.TaskService;
 import org.junit.jupiter.api.BeforeEach;
@@ -27,15 +29,15 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 import static com.healthy.gym.task.configuration.LocaleConverter.convertEnumToLocale;
 import static com.healthy.gym.task.configuration.Messages.getMessagesAccordingToLocale;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.ResultMatcher.matchAll;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -330,6 +332,36 @@ public class CreateTaskControllerUnitTest {
                             jsonPath("$.errors.description")
                                     .value(is(messages.get("field.required")))
                     ));
+        }
+
+        @ParameterizedTest
+        @EnumSource(TestCountry.class)
+        void shouldManagerNotFoundException(TestCountry country) throws Exception {
+            Map<String, String> messages = getMessagesAccordingToLocale(country);
+            Locale testedLocale = convertEnumToLocale(country);
+
+            RequestBuilder request = MockMvcRequestBuilders
+                    .post(uri)
+                    .header("Accept-Language", testedLocale.toString())
+                    .header("Authorization", adminToken)
+                    .content(requestContent)
+                    .contentType(MediaType.APPLICATION_JSON);
+
+
+            String expectedMessage = messages.get("exception.manager.not.found");
+
+            doThrow(ManagerNotFoundException.class)
+                    .when(taskService)
+                    .createTask(any());
+
+            mockMvc.perform(request)
+                    .andDo(print())
+                    .andExpect(status().isBadRequest())
+                    .andExpect(status().reason(is(expectedMessage)))
+                    .andExpect(result ->
+                            assertThat(Objects.requireNonNull(result.getResolvedException()).getCause())
+                                    .isInstanceOf(ManagerNotFoundException.class)
+                    );
         }
 
     }

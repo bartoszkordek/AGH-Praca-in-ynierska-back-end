@@ -48,10 +48,10 @@ public class TaskServiceImpl implements TaskService{
         if(managerDocument == null) throw new ManagerNotFoundException();
 
         GymRole employeeRole = GymRole.EMPLOYEE;
-        String employeeId = managerDocument.getUserId();
+        String employeeId = managerOrderRequest.getEmployeeId();
         UserDocument employeeDocument = userDAO.findByUserId(employeeId);
         if(employeeDocument == null) throw new EmployeeNotFoundException();
-        if(employeeDocument.getGymRoles().contains(employeeRole)) throw new EmployeeNotFoundException();
+        if(!employeeDocument.getGymRoles().contains(employeeRole)) throw new EmployeeNotFoundException();
 
         String dueDate = managerOrderRequest.getDueDate();
         var now = LocalDate.now();

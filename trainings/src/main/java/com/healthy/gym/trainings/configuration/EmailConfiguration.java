@@ -10,7 +10,7 @@ import org.springframework.mail.javamail.JavaMailSenderImpl;
 import java.util.Properties;
 
 @Configuration
-@PropertySource(value = "classpath:email.properties", ignoreResourceNotFound = true)
+@PropertySource(value = "classpath:application.yaml", ignoreResourceNotFound = true)
 public class EmailConfiguration {
 
     @Value("${spring.mail.host:smtp.gmail.com}")

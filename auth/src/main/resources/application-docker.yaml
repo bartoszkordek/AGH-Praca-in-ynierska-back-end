@@ -20,6 +20,15 @@ spring:
     mongodb:
       uri: mongodb://adminPracaInz:thisPAsswordNeed2BeChange@mongodb:27017/databasePracaInz
       database: databasePracaInz
+  rabbitmq:
+    host: rabbitmq
+    port: 5672
+    password: th1sPAsswordNeed2BeChAnged
+    username: healthy_gym
+  mail:
+    host: smtp.gmail.com
+    port: 587
+
 server:
   port: 0
   error:
@@ -31,6 +40,8 @@ eureka:
   client:
     service-url:
       defaultZone: http://discovery:8010/eureka
+    registry-fetch-interval-seconds: 5
+    region: default
   instance:
     instance-id: ${spring.application.name}:${spring.application.instance_id:${random.value}}
 

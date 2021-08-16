@@ -1,0 +1,33 @@
+server:
+  port: 8030
+
+spring:
+  application:
+    name: config-server
+  cloud:
+    config:
+      server:
+        native:
+          search-locations: file://${user.home}/healthy-gym-config
+          default-label: main
+      enabled: false
+  profiles:
+    active: native
+  rabbitmq:
+    host: rabbitmq
+    port: 5672
+    password: th1sPAsswordNeed2BeChAnged
+    username: healthy_gym
+
+eureka:
+  client:
+    region: default
+    registry-fetch-interval-seconds: 5
+    service-url:
+      defaultZone: http://discovery:8010/eureka
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: bus-refresh

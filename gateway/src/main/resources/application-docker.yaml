@@ -7,9 +7,16 @@ spring:
       enabled: true
   application:
     name: gateway
+  rabbitmq:
+    host: rabbitmq
+    port: 5672
+    password: th1sPAsswordNeed2BeChAnged
+    username: healthy_gym
 
 eureka:
   client:
+    region: default
+    registry-fetch-interval-seconds: 5
     service-url:
       defaultZone: http://discovery:8010/eureka
 
@@ -32,6 +39,7 @@ zuul:
     connect-timeout-millis: 60000
     socket-timeout-millis: 60000
   sensitive-headers:
+  ignore-security-headers: false
 
 #custom settings
 token:

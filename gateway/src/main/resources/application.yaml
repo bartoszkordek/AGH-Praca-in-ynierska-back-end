@@ -7,9 +7,16 @@ spring:
       enabled: true
   application:
     name: gateway
+  rabbitmq:
+    host: localhost
+    port: 5672
+    password: th1sPAsswordNeed2BeChAnged
+    username: healthy_gym
 
 eureka:
   client:
+    region: default
+    registry-fetch-interval-seconds: 5
     service-url:
       defaultZone: http://localhost:8010/eureka
 

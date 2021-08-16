@@ -71,8 +71,8 @@ public class CreateTaskServiceUnitTest {
         employeeDocument.setGymRoles(List.of(GymRole.EMPLOYEE));
         employeeDocument.setId("507f1f77bcf86cd799435213");
 
-        String managerName = "Jan";
-        String managerSurname = "Kowalski";
+        String managerName = "Adam";
+        String managerSurname = "Nowak";
         UserDocument managerDocument = new UserDocument();
         managerDocument.setName(managerName);
         managerDocument.setSurname(managerSurname);

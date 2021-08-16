@@ -95,6 +95,7 @@ public class CreateTaskControllerUnitTest {
         managerOrderRequest = new ManagerOrderRequest();
         managerOrderRequest.setTitle(requestTitle);
         managerOrderRequest.setDescription(requestDescription);
+        managerOrderRequest.setEmployeeId(employeeId);
         managerOrderRequest.setDueDate(requestDueDate);
 
         requestContent = objectMapper.writeValueAsString(managerOrderRequest);
@@ -127,7 +128,6 @@ public class CreateTaskControllerUnitTest {
         BasicUserInfoDTO employee = new BasicUserInfoDTO(employeeId, employeeName, employeeSurname);
         String title = "Test task 1";
         String description = "Description for task 1";
-        LocalDate orderDate = now;
         LocalDate lastOrderUpdateDate = now;
         LocalDate dueDate = now.plusMonths(1);
         AcceptanceStatus employeeAccept = AcceptanceStatus.NO_ACTION;
@@ -140,7 +140,7 @@ public class CreateTaskControllerUnitTest {
                 title,
                 description,
                 null,
-                orderDate,
+                null,
                 lastOrderUpdateDate,
                 dueDate,
                 null,
@@ -167,13 +167,13 @@ public class CreateTaskControllerUnitTest {
                         jsonPath("$.task.manager.name").value(is(managerName)),
                         jsonPath("$.task.manager.surname").value(is(managerSurname)),
                         jsonPath("$.task.employee").exists(),
-                        jsonPath("$.task.employee.userId").value(is(employeeId)),
+                        jsonPath("$.task.employee.userId").exists(),
                         jsonPath("$.task.employee.name").value(is(employeeName)),
                         jsonPath("$.task.employee.surname").value(is(employeeSurname)),
                         jsonPath("$.task.title").value(is(title)),
                         jsonPath("$.task.description").value(is(description)),
                         jsonPath("$.task.report").doesNotExist(),
-                        jsonPath("$.task.orderDate").value(is(orderDate.toString())),
+                        jsonPath("$.task.orderDate").doesNotExist(),
                         jsonPath("$.task.lastOrderUpdateDate").value(is(lastOrderUpdateDate.toString())),
                         jsonPath("$.task.dueDate").value(is(dueDate.toString())),
                         jsonPath("$.task.reportDate").doesNotExist(),
@@ -264,10 +264,12 @@ public class CreateTaskControllerUnitTest {
             //before
             String invalidRequestTitle = "T";
             String invalidRequestDescription = "D";
+            String invalidEmployeeId = "invalidEmployeeId";
             String invalidRequestDueDate = "Invalid Date";
             ManagerOrderRequest invalidManagerOrderRequest = new ManagerOrderRequest();
             invalidManagerOrderRequest.setTitle(invalidRequestTitle);
             invalidManagerOrderRequest.setDescription(invalidRequestDescription);
+            invalidManagerOrderRequest.setEmployeeId(invalidEmployeeId);
             invalidManagerOrderRequest.setDueDate(invalidRequestDueDate);
 
             String invalidTitleRequestContent = objectMapper.writeValueAsString(invalidManagerOrderRequest);
@@ -293,6 +295,8 @@ public class CreateTaskControllerUnitTest {
                                     .value(is(messages.get("field.title.failure"))),
                             jsonPath("$.errors.description")
                                     .value(is(messages.get("field.description.failure"))),
+                            jsonPath("$.errors.employeeId")
+                                    .value(is(messages.get("exception.invalid.id.format"))),
                             jsonPath("$.errors.dueDate")
                                     .value(is(messages.get("exception.invalid.date.format")))
                     ));
@@ -307,6 +311,7 @@ public class CreateTaskControllerUnitTest {
 
             //before
             ManagerOrderRequest invalidManagerOrderRequest = new ManagerOrderRequest();
+            invalidManagerOrderRequest.setEmployeeId(UUID.randomUUID().toString());
             invalidManagerOrderRequest.setDueDate("2030-12-31");
 
             String invalidTitleRequestContent = objectMapper.writeValueAsString(invalidManagerOrderRequest);

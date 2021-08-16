@@ -11,6 +11,7 @@ import com.healthy.gym.task.enums.GymRole;
 import com.healthy.gym.task.pojo.request.ManagerOrderRequest;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
@@ -190,5 +191,86 @@ public class CreateTaskControllerIntegrationTest {
                 .isEqualTo(AcceptanceStatus.NO_ACTION.toString());
         assertThat(responseEntity.getBody().get("task").get("managerAccept").textValue())
                 .isEqualTo(AcceptanceStatus.NO_ACTION.toString());
+    }
+
+    @Nested
+    class ShouldNotCreateTaskWhenNotAuthorized{
+
+        @ParameterizedTest
+        @EnumSource(TestCountry.class)
+        void shouldNotCreateTaskWhenNoToken(TestCountry country) throws Exception {
+            Locale testedLocale = convertEnumToLocale(country);
+
+            URI uri = new URI("http://localhost:" + port );
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.set("Accept-Language", testedLocale.toString());
+            headers.setContentType(MediaType.APPLICATION_JSON);
+
+            HttpEntity<Object> request = new HttpEntity<>(requestContent, headers);
+
+            ResponseEntity<JsonNode> responseEntity = restTemplate
+                    .exchange(uri, HttpMethod.POST, request, JsonNode.class);
+
+            assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
+            assertThat(responseEntity.getBody().get("status").intValue()).isEqualTo(403);
+            assertThat(responseEntity.getBody().get("error").textValue()).isEqualTo("Forbidden");
+            assertThat(responseEntity.getBody().get("message").textValue()).isEqualTo("Access Denied");
+            assertThat(responseEntity.getBody().get("timestamp")).isNotNull();
+        }
+
+        @ParameterizedTest
+        @EnumSource(TestCountry.class)
+        void shouldNotCreateTaskWhenLoggedAsUser(TestCountry country) throws Exception {
+            Map<String, String> messages = getMessagesAccordingToLocale(country);
+            Locale testedLocale = convertEnumToLocale(country);
+
+            URI uri = new URI("http://localhost:" + port);
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.set("Accept-Language", testedLocale.toString());
+            headers.set("Authorization", userToken);
+            headers.setContentType(MediaType.APPLICATION_JSON);
+
+            HttpEntity<Object> request = new HttpEntity<>(requestContent, headers);
+
+            ResponseEntity<JsonNode> responseEntity = restTemplate
+                    .exchange(uri, HttpMethod.POST, request, JsonNode.class);
+
+            String expectedMessage = messages.get("exception.access.denied");
+
+            assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
+            assertThat(responseEntity.getBody().get("status").intValue()).isEqualTo(403);
+            assertThat(responseEntity.getBody().get("error").textValue()).isEqualTo("Forbidden");
+            assertThat(responseEntity.getBody().get("message").textValue()).isEqualTo(expectedMessage);
+            assertThat(responseEntity.getBody().get("timestamp")).isNotNull();
+        }
+
+        @ParameterizedTest
+        @EnumSource(TestCountry.class)
+        void shouldNotCreateTaskWhenLoggedAsEmployee(TestCountry country) throws Exception {
+            Map<String, String> messages = getMessagesAccordingToLocale(country);
+            Locale testedLocale = convertEnumToLocale(country);
+
+            URI uri = new URI("http://localhost:" + port);
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.set("Accept-Language", testedLocale.toString());
+            headers.set("Authorization", employeeToken);
+            headers.setContentType(MediaType.APPLICATION_JSON);
+
+            HttpEntity<Object> request = new HttpEntity<>(requestContent, headers);
+
+            ResponseEntity<JsonNode> responseEntity = restTemplate
+                    .exchange(uri, HttpMethod.POST, request, JsonNode.class);
+
+            String expectedMessage = messages.get("exception.access.denied");
+
+            assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
+            assertThat(responseEntity.getBody().get("status").intValue()).isEqualTo(403);
+            assertThat(responseEntity.getBody().get("error").textValue()).isEqualTo("Forbidden");
+            assertThat(responseEntity.getBody().get("message").textValue()).isEqualTo(expectedMessage);
+            assertThat(responseEntity.getBody().get("timestamp")).isNotNull();
+        }
     }
 }

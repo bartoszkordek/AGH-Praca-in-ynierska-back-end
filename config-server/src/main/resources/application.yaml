@@ -9,6 +9,11 @@ spring:
       server:
         git:
           uri: file://${user.home}/application-config
+  rabbitmq:
+    host: localhost
+    port: 5672
+    password: th1sPAsswordNeed2BeChAnged
+    username: healthy_gym
 
 eureka:
   client:

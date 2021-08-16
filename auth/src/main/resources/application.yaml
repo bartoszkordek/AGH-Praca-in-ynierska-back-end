@@ -20,12 +20,19 @@ spring:
     mongodb:
       uri: mongodb://adminPracaInz:thisPAsswordNeed2BeChange@localhost:27017/databasePracaInz
       database: databasePracaInz
+  rabbitmq:
+    host: localhost
+    port: 5672
+    password: th1sPAsswordNeed2BeChAnged
+    username: healthy_gym
+
 server:
   port: 0
   error:
     include-message: always
     include-stacktrace: never
     include-exception: false
+
 eureka:
   client:
     service-url:

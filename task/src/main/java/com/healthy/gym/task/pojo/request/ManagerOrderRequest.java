@@ -11,11 +11,11 @@ import java.util.Objects;
 public class ManagerOrderRequest {
 
     @NotNull(message = "{field.required}")
-    @Size(min = 2, max = 20, message = "{field.name.failure}")
+    @Size(min = 2, max = 20, message = "{field.title.failure}")
     private String title;
 
     @NotNull(message = "{field.required}")
-    @Size(min = 2, max = 200, message = "{field.name.failure}")
+    @Size(min = 2, max = 200, message = "{field.description.failure}")
     private String description;
 
     @NotNull(message = "{field.required}")

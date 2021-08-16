@@ -15,6 +15,7 @@ import org.junit.jupiter.params.provider.EnumSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.RequestBuilder;
@@ -34,6 +35,7 @@ import java.util.UUID;
 import static com.healthy.gym.task.configuration.LocaleConverter.convertEnumToLocale;
 import static com.healthy.gym.task.configuration.Messages.getMessagesAccordingToLocale;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.ResultMatcher.matchAll;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -63,6 +65,8 @@ public class CreateTaskControllerUnitTest {
     private String requestDueDate;
     private ManagerOrderRequest managerOrderRequest;
 
+    private ObjectMapper objectMapper;
+
     private URI uri;
 
 
@@ -80,7 +84,7 @@ public class CreateTaskControllerUnitTest {
         String adminId = UUID.randomUUID().toString();
         adminToken = tokenFactory.getAdminToken(adminId);
 
-        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper = new ObjectMapper();
 
         requestTitle = "Test task 1";
         requestDescription = "Description for task 1";
@@ -241,6 +245,54 @@ public class CreateTaskControllerUnitTest {
                     .andExpect(jsonPath("$.error").value(is("Forbidden")))
                     .andExpect(jsonPath("$.status").value(403))
                     .andExpect(jsonPath("$.timestamp").exists());
+        }
+
+    }
+
+    @Nested
+    class ShouldNotCreateTaskWhenInvalidRequest{
+
+        @ParameterizedTest
+        @EnumSource(TestCountry.class)
+        void shouldThrowBindException_whenInvalidRequestBodyValues(TestCountry country) throws Exception {
+            Map<String, String> messages = getMessagesAccordingToLocale(country);
+            Locale testedLocale = convertEnumToLocale(country);
+
+            //before
+            String invalidRequestTitle = "T";
+            String invalidRequestDescription = "D";
+            String invalidRequestDueDate = "Invalid Date";
+            ManagerOrderRequest invalidManagerOrderRequest = new ManagerOrderRequest();
+            invalidManagerOrderRequest.setTitle(invalidRequestTitle);
+            invalidManagerOrderRequest.setDescription(invalidRequestDescription);
+            invalidManagerOrderRequest.setDueDate(invalidRequestDueDate);
+
+            String invalidTitleRequestContent = objectMapper.writeValueAsString(invalidManagerOrderRequest);
+
+            RequestBuilder request = MockMvcRequestBuilders
+                    .post(uri)
+                    .header("Accept-Language", testedLocale.toString())
+                    .header("Authorization", managerToken)
+                    .content(invalidTitleRequestContent)
+                    .contentType(MediaType.APPLICATION_JSON);
+
+            String expectedMessage = messages.get("request.bind.exception");
+
+            mockMvc.perform(request)
+                    .andDo(print())
+                    .andExpect(matchAll(
+                            status().isBadRequest(),
+                            content().contentType(MediaType.APPLICATION_JSON),
+                            jsonPath("$.error").value(is(HttpStatus.BAD_REQUEST.getReasonPhrase())),
+                            jsonPath("$.message").value(is(expectedMessage)),
+                            jsonPath("$.errors").value(is(notNullValue())),
+                            jsonPath("$.errors.title")
+                                    .value(is(messages.get("field.title.failure"))),
+                            jsonPath("$.errors.description")
+                                    .value(is(messages.get("field.description.failure"))),
+                            jsonPath("$.errors.dueDate")
+                                    .value(is(messages.get("exception.invalid.date.format")))
+                    ));
         }
 
     }

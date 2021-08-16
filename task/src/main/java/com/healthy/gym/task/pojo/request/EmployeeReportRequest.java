@@ -7,7 +7,7 @@ import java.util.Objects;
 public class EmployeeReportRequest {
 
     @NotNull(message = "{field.required}")
-    @Size(min = 2, max = 500, message = "{field.name.failure}")
+    @Size(min = 2, max = 500, message = "{field.result.failure}")
     private String result;
 
     public String getResult() {

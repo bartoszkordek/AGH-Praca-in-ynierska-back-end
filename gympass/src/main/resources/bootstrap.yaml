@@ -1,14 +1,5 @@
 spring:
   cloud:
     config:
-      name: gympass
-      discovery:
-        service-id: config-server
-        enabled: true
-
-eureka:
-  client:
-    region: default
-    registry-fetch-interval-seconds: 5
-    service-url:
-      defaultZone: http://localhost:8010/eureka
+      name: config-server
+      uri: http://localhost:8030

@@ -37,6 +37,8 @@ eureka:
   client:
     service-url:
       defaultZone: http://discovery:8010/eureka
+    registry-fetch-interval-seconds: 5
+    region: default
   instance:
     instance-id: ${spring.application.name}:${spring.application.instance_id:${random.value}}
 

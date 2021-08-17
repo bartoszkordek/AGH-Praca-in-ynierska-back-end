@@ -10,6 +10,7 @@ import com.healthy.gym.task.enums.GymRole;
 import com.healthy.gym.task.exception.EmployeeNotFoundException;
 import com.healthy.gym.task.exception.ManagerNotFoundException;
 import com.healthy.gym.task.exception.RetroDueDateException;
+import com.healthy.gym.task.exception.TaskNotFoundException;
 import com.healthy.gym.task.pojo.request.ManagerOrderRequest;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
@@ -73,5 +74,11 @@ public class TaskServiceImpl implements TaskService{
 
         TaskDocument taskDocumentSaved = taskDAO.save(taskDocumentToBeSaved);
         return modelMapper.map(taskDocumentSaved, TaskDTO.class);
+    }
+
+    @Override
+    public TaskDTO updateTask(String taskId, ManagerOrderRequest managerOrderRequest)
+            throws TaskNotFoundException, ManagerNotFoundException, EmployeeNotFoundException, RetroDueDateException {
+        return null;
     }
 }

@@ -4,13 +4,13 @@ networks:
   backend:
 
 services:
-  configserver:
-    container_name: configserver
-    image: gza73/agh-praca-inzynierska-configserver:latest
+  config-server:
+    container_name: config-server
+    image: gza73/agh-praca-inzynierska-config-server:latest
     environment:
       - "SPRING_PROFILES_ACTIVE=docker,native"
     volumes:
-      - ${pwd}/properties:/home/healthy-gym-config
+      - ./properties:/home/healthy-gym-config
     ports:
       - "8030:8030"
     networks:
@@ -28,7 +28,7 @@ services:
     networks:
       - backend
     depends_on:
-      - configserver
+      - config-server
     deploy:
       replicas: 1
 

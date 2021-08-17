@@ -35,3 +35,5 @@ logs
 #Email Settings
 auth/src/main/resources/email.properties
 trainings/src/main/resources/email.properties
+/properties/*.yaml
+/properties/*.properties

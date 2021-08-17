@@ -1,6 +1,7 @@
-package com.healthy.gym.gympass.security;
+package com.healthy.gym.task.security;
 
-import com.healthy.gym.gympass.component.TokenManager;
+
+import com.healthy.gym.task.component.TokenManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;

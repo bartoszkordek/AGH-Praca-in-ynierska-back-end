@@ -1,0 +1,146 @@
+package com.healthy.gym.task.service;
+
+import com.healthy.gym.task.data.document.TaskDocument;
+import com.healthy.gym.task.data.document.UserDocument;
+import com.healthy.gym.task.data.repository.TaskDAO;
+import com.healthy.gym.task.data.repository.UserDAO;
+import com.healthy.gym.task.dto.BasicUserInfoDTO;
+import com.healthy.gym.task.dto.TaskDTO;
+import com.healthy.gym.task.enums.AcceptanceStatus;
+import com.healthy.gym.task.enums.GymRole;
+import com.healthy.gym.task.exception.EmployeeNotFoundException;
+import com.healthy.gym.task.exception.ManagerNotFoundException;
+import com.healthy.gym.task.exception.RetroDueDateException;
+import com.healthy.gym.task.exception.TaskNotFoundException;
+import com.healthy.gym.task.pojo.request.ManagerOrderRequest;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+
+import java.time.LocalDate;
+import java.util.List;
+import java.util.UUID;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
+
+@SpringBootTest
+public class UpdateTaskServiceUnitTest {
+
+    @Autowired
+    private TaskService taskService;
+
+    @MockBean
+    private TaskDAO taskDAO;
+
+    @MockBean
+    private UserDAO userDAO;
+
+    private String employeeIdToUpdate;
+    private String employeeIdUpdated;
+    private String managerId;
+    private String taskId;
+
+    @Test
+    void shouldUpdateTask_whenValidRequest() throws ManagerNotFoundException, EmployeeNotFoundException,
+            RetroDueDateException, TaskNotFoundException {
+
+        employeeIdToUpdate = UUID.randomUUID().toString();
+        employeeIdUpdated = UUID.randomUUID().toString();
+        managerId = UUID.randomUUID().toString();
+        taskId = UUID.randomUUID().toString();
+
+        String titleToUpdate = "Przykładowe zadanie";
+        String titleUpdated = "Zaktualizowane przykładowe zadanie";
+        String descriptionToUpdate = "Opis przykładowego zadania";
+        String descriptionUpdated = "Zaktualizowany opis przykładowego zadania";
+        var now = LocalDate.now();
+        LocalDate dueDateToUpdate = now.plusMonths(1);
+        LocalDate dueDateUpdated = now.plusMonths(2);
+
+        //request
+        ManagerOrderRequest managerOrderRequest = new ManagerOrderRequest();
+        managerOrderRequest.setEmployeeId(employeeIdUpdated);
+        managerOrderRequest.setTitle(titleUpdated);
+        managerOrderRequest.setDescription(descriptionUpdated);
+        managerOrderRequest.setDueDate(dueDateUpdated.toString());
+
+        //DB documents
+        String employeeNameToUpdate = "Jan";
+        String employeeSurnameToUpdate = "Kowalski";
+        UserDocument employeeDocumentToUpdate = new UserDocument();
+        employeeDocumentToUpdate.setName(employeeNameToUpdate);
+        employeeDocumentToUpdate.setSurname(employeeSurnameToUpdate);
+        employeeDocumentToUpdate.setUserId(employeeIdToUpdate);
+        employeeDocumentToUpdate.setGymRoles(List.of(GymRole.EMPLOYEE));
+        employeeDocumentToUpdate.setId("507f1f77bcf86cd799435213");
+
+        String employeeNameUpdated = "Piotr";
+        String employeeSurnameUpdated = "Baran";
+        UserDocument employeeDocumentUpdated = new UserDocument();
+        employeeDocumentUpdated.setName(employeeNameUpdated);
+        employeeDocumentUpdated.setSurname(employeeSurnameUpdated);
+        employeeDocumentUpdated.setUserId(employeeIdUpdated);
+        employeeDocumentUpdated.setGymRoles(List.of(GymRole.EMPLOYEE));
+        employeeDocumentUpdated.setId("507f1f77bcf86cd799435214");
+
+        String managerName = "Adam";
+        String managerSurname = "Nowak";
+        UserDocument managerDocument = new UserDocument();
+        managerDocument.setName(managerName);
+        managerDocument.setSurname(managerSurname);
+        managerDocument.setUserId(managerId);
+        managerDocument.setGymRoles(List.of(GymRole.MANAGER));
+        managerDocument.setId("507f1f77bcf86cd799435002");
+
+        TaskDocument taskDocumentToUpdate = new TaskDocument();
+        taskDocumentToUpdate.setTaskId(taskId);
+        taskDocumentToUpdate.setManager(managerDocument);
+        taskDocumentToUpdate.setEmployee(employeeDocumentToUpdate);
+        taskDocumentToUpdate.setTitle(titleToUpdate);
+        taskDocumentToUpdate.setDescription(descriptionToUpdate);
+        taskDocumentToUpdate.setLastOrderUpdateDate(now);
+        taskDocumentToUpdate.setDueDate(dueDateToUpdate);
+        taskDocumentToUpdate.setEmployeeAccept(AcceptanceStatus.NO_ACTION);
+        taskDocumentToUpdate.setManagerAccept(AcceptanceStatus.NO_ACTION);
+
+        TaskDocument taskDocumentUpdated = new TaskDocument();
+        taskDocumentUpdated.setTaskId(taskId);
+        taskDocumentUpdated.setManager(managerDocument);
+        taskDocumentUpdated.setEmployee(employeeDocumentUpdated);
+        taskDocumentUpdated.setTitle(titleUpdated);
+        taskDocumentUpdated.setDescription(descriptionUpdated);
+        taskDocumentUpdated.setLastOrderUpdateDate(now);
+        taskDocumentUpdated.setDueDate(dueDateUpdated);
+        taskDocumentUpdated.setEmployeeAccept(AcceptanceStatus.NO_ACTION);
+        taskDocumentUpdated.setManagerAccept(AcceptanceStatus.NO_ACTION);
+
+
+        //response
+        TaskDTO taskResponse = new TaskDTO(
+                taskId,
+                new BasicUserInfoDTO(managerId, managerName, managerSurname),
+                new BasicUserInfoDTO(employeeIdUpdated, employeeNameUpdated, employeeSurnameUpdated),
+                titleUpdated,
+                descriptionUpdated,
+                null,
+                null,
+                now,
+                dueDateUpdated,
+                null,
+                AcceptanceStatus.NO_ACTION,
+                AcceptanceStatus.NO_ACTION
+        );
+
+        //when
+        when(taskDAO.findByTaskId(taskId)).thenReturn(taskDocumentToUpdate);
+        when(userDAO.findByGymRolesContaining(GymRole.MANAGER)).thenReturn(managerDocument);
+        when(userDAO.findByUserId(employeeIdUpdated)).thenReturn(employeeDocumentUpdated);
+        when(taskDAO.save(any())).thenReturn(taskDocumentUpdated);
+
+        //then
+        assertThat(taskService.updateTask(taskId, managerOrderRequest)).isEqualTo(taskResponse);
+    }
+}

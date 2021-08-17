@@ -128,7 +128,7 @@ public class TaskController {
     }
 
     @PreAuthorize("hasRole('ADMIN') or hasRole('MANAGER')")
-    @PutMapping("/{id}")
+    @DeleteMapping("/{id}")
     public ResponseEntity<TaskResponse> deleteTask(
             @PathVariable("id") @ValidIDFormat final String id
     ){

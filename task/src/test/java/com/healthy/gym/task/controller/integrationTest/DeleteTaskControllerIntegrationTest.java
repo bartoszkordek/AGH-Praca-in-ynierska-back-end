@@ -8,7 +8,6 @@ import com.healthy.gym.task.data.document.TaskDocument;
 import com.healthy.gym.task.data.document.UserDocument;
 import com.healthy.gym.task.enums.AcceptanceStatus;
 import com.healthy.gym.task.enums.GymRole;
-import com.healthy.gym.task.pojo.request.ManagerOrderRequest;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -27,7 +26,6 @@ import org.springframework.test.context.TestPropertySource;
 import org.testcontainers.containers.MongoDBContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
-import org.testcontainers.shaded.com.fasterxml.jackson.core.JsonProcessingException;
 import org.testcontainers.utility.DockerImageName;
 
 import java.net.URI;

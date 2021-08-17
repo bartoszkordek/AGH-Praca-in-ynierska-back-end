@@ -97,7 +97,6 @@ public class UpdateTaskControllerIntegrationTest {
         employeeToken = tokenFactory.getUserToken(employeeId1);
 
         employeeId2 = UUID.randomUUID().toString();
-        employeeToken = tokenFactory.getUserToken(employeeId2);
 
         managerId = UUID.randomUUID().toString();
         managerToken = tokenFactory.getMangerToken(managerId);

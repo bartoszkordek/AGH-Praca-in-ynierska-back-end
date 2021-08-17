@@ -8,6 +8,7 @@ import com.healthy.gym.task.dto.TaskDTO;
 import com.healthy.gym.task.enums.AcceptanceStatus;
 import com.healthy.gym.task.service.TaskService;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -150,5 +151,73 @@ class DeleteTaskControllerUnitTest {
                         jsonPath("$.task.employeeAccept").value(is(employeeAccept.toString())),
                         jsonPath("$.task.managerAccept").value(is(managerAccept.toString()))
                 ));
+    }
+
+
+    @Nested
+    class ShouldNotDeleteTaskWhenNotAuthorized{
+
+        @ParameterizedTest
+        @EnumSource(TestCountry.class)
+        void whenUserIsNotLogIn(TestCountry country) throws Exception {
+            Locale testedLocale = convertEnumToLocale(country);
+
+            RequestBuilder request = MockMvcRequestBuilders
+                    .delete(uri+taskId)
+                    .header("Accept-Language", testedLocale.toString());
+
+            mockMvc.perform(request)
+                    .andDo(print())
+                    .andExpect(status().isForbidden());
+        }
+
+        @ParameterizedTest
+        @EnumSource(TestCountry.class)
+        void whenUserIsNotLogInAsUsualUser(TestCountry country) throws Exception {
+            Map<String, String> messages = getMessagesAccordingToLocale(country);
+            Locale testedLocale = convertEnumToLocale(country);
+
+            RequestBuilder request = MockMvcRequestBuilders
+                    .delete(uri+taskId)
+                    .header("Accept-Language", testedLocale.toString())
+                    .header("Authorization", userToken)
+                    .contentType(MediaType.APPLICATION_JSON);
+
+            String expectedMessage = messages.get("exception.access.denied");
+
+            mockMvc.perform(request)
+                    .andDo(print())
+                    .andExpect(status().isForbidden())
+                    .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(jsonPath("$.message").value(is(expectedMessage)))
+                    .andExpect(jsonPath("$.error").value(is("Forbidden")))
+                    .andExpect(jsonPath("$.status").value(403))
+                    .andExpect(jsonPath("$.timestamp").exists());
+        }
+
+        @ParameterizedTest
+        @EnumSource(TestCountry.class)
+        void whenUserIsNotLogInAsEmployee(TestCountry country) throws Exception {
+            Map<String, String> messages = getMessagesAccordingToLocale(country);
+            Locale testedLocale = convertEnumToLocale(country);
+
+            RequestBuilder request = MockMvcRequestBuilders
+                    .delete(uri+taskId)
+                    .header("Accept-Language", testedLocale.toString())
+                    .header("Authorization", employeeToken)
+                    .contentType(MediaType.APPLICATION_JSON);
+
+            String expectedMessage = messages.get("exception.access.denied");
+
+            mockMvc.perform(request)
+                    .andDo(print())
+                    .andExpect(status().isForbidden())
+                    .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(jsonPath("$.message").value(is(expectedMessage)))
+                    .andExpect(jsonPath("$.error").value(is("Forbidden")))
+                    .andExpect(jsonPath("$.status").value(403))
+                    .andExpect(jsonPath("$.timestamp").exists());
+        }
+
     }
 }

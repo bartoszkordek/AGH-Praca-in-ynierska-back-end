@@ -8,6 +8,7 @@ import com.healthy.gym.task.data.document.TaskDocument;
 import com.healthy.gym.task.data.document.UserDocument;
 import com.healthy.gym.task.enums.AcceptanceStatus;
 import com.healthy.gym.task.enums.GymRole;
+import com.healthy.gym.task.pojo.request.ManagerOrderRequest;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -261,5 +262,33 @@ public class DeleteTaskControllerIntegrationTest {
             assertThat(responseEntity.getBody().get("message").textValue()).isEqualTo(expectedMessage);
             assertThat(responseEntity.getBody().get("timestamp")).isNotNull();
         }
+    }
+
+    @ParameterizedTest
+    @EnumSource(TestCountry.class)
+    void shouldNotDeleteTask_whenInvalidTaskId(TestCountry country) throws Exception {
+        Map<String, String> messages = getMessagesAccordingToLocale(country);
+        Locale testedLocale = convertEnumToLocale(country);
+
+        String invalidTaskId = UUID.randomUUID().toString();
+
+        URI uri = new URI("http://localhost:" + port + "/" + invalidTaskId);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Accept-Language", testedLocale.toString());
+        headers.set("Authorization", adminToken);
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        HttpEntity<Object> request = new HttpEntity<>(null, headers);
+        String expectedMessage = messages.get("exception.task.not.found");
+
+        ResponseEntity<JsonNode> responseEntity = restTemplate
+                .exchange(uri, HttpMethod.DELETE, request, JsonNode.class);
+
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        assertThat(responseEntity.getBody().get("error").textValue()).isEqualTo("Bad Request");
+        assertThat(Objects.requireNonNull(responseEntity.getBody().get("message").textValue()))
+                .isEqualTo(expectedMessage);
+        assertThat(responseEntity.getBody().get("timestamp")).isNotNull();
     }
 }

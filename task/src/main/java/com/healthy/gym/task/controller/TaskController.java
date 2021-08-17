@@ -41,10 +41,6 @@ public class TaskController {
         this.taskService = taskService;
     }
 
-    @GetMapping
-    public String getOkStatus(){
-        return "OK";
-    }
 
     @PreAuthorize("hasRole('ADMIN') or hasRole('MANAGER')")
     @PostMapping

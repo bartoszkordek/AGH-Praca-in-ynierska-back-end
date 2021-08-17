@@ -12,6 +12,7 @@ import com.healthy.gym.task.exception.EmployeeNotFoundException;
 import com.healthy.gym.task.exception.ManagerNotFoundException;
 import com.healthy.gym.task.exception.RetroDueDateException;
 import com.healthy.gym.task.exception.TaskNotFoundException;
+import com.healthy.gym.task.pojo.request.ManagerOrderRequest;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -22,6 +23,7 @@ import java.util.List;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.when;
 
 @SpringBootTest
@@ -104,5 +106,19 @@ class DeleteTaskServiceUnitTest {
 
         //then
         assertThat(taskService.deleteTask(taskId)).isEqualTo(taskResponse);
+    }
+
+    @Test
+    void shouldNotDeleteTask_whenTaskIdNotExist(){
+        //before
+        String notFoundTaskId = UUID.randomUUID().toString();
+
+        //when
+        when(taskDAO.findByTaskId(notFoundTaskId)).thenReturn(null);
+
+        //then
+        assertThatThrownBy(() ->
+                taskService.deleteTask(notFoundTaskId)
+        ).isInstanceOf(TaskNotFoundException.class);
     }
 }

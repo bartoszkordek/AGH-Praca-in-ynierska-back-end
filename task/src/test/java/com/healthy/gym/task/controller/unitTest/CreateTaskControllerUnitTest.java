@@ -342,7 +342,7 @@ public class CreateTaskControllerUnitTest {
 
         @ParameterizedTest
         @EnumSource(TestCountry.class)
-        void shouldManagerNotFoundException(TestCountry country) throws Exception {
+        void shouldThrowManagerNotFoundException(TestCountry country) throws Exception {
             Map<String, String> messages = getMessagesAccordingToLocale(country);
             Locale testedLocale = convertEnumToLocale(country);
 
@@ -372,7 +372,7 @@ public class CreateTaskControllerUnitTest {
 
         @ParameterizedTest
         @EnumSource(TestCountry.class)
-        void shouldEmployeeNotFoundException(TestCountry country) throws Exception {
+        void shouldThrowEmployeeNotFoundException(TestCountry country) throws Exception {
             Map<String, String> messages = getMessagesAccordingToLocale(country);
             Locale testedLocale = convertEnumToLocale(country);
 
@@ -403,7 +403,7 @@ public class CreateTaskControllerUnitTest {
 
         @ParameterizedTest
         @EnumSource(TestCountry.class)
-        void shouldRetroDueDateException(TestCountry country) throws Exception {
+        void shouldThrowRetroDueDateException(TestCountry country) throws Exception {
             Map<String, String> messages = getMessagesAccordingToLocale(country);
             Locale testedLocale = convertEnumToLocale(country);
 

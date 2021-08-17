@@ -437,6 +437,36 @@ public class UpdateTaskControllerUnitTest {
                                     .isInstanceOf(RetroDueDateException.class)
                     );
         }
+
+
+        @ParameterizedTest
+        @EnumSource(TestCountry.class)
+        void shouldThrowIllegalStateExceptionWhenInternalErrorOccurs(TestCountry country) throws Exception {
+            Map<String, String> messages = getMessagesAccordingToLocale(country);
+            Locale testedLocale = convertEnumToLocale(country);
+
+            RequestBuilder request = MockMvcRequestBuilders
+                    .put(uri+taskId)
+                    .header("Accept-Language", testedLocale.toString())
+                    .header("Authorization", managerToken)
+                    .content(requestContent)
+                    .contentType(MediaType.APPLICATION_JSON);
+
+            doThrow(IllegalStateException.class)
+                    .when(taskService)
+                    .updateTask(any(),any());
+
+            String expectedMessage = messages.get("exception.internal.error");
+
+            mockMvc.perform(request)
+                    .andDo(print())
+                    .andExpect(status().isInternalServerError())
+                    .andExpect(status().reason(is(expectedMessage)))
+                    .andExpect(result ->
+                            assertThat(Objects.requireNonNull(result.getResolvedException()).getCause())
+                                    .isInstanceOf(IllegalStateException.class)
+                    );
+        }
     }
 
 }

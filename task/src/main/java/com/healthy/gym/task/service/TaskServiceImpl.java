@@ -116,4 +116,14 @@ public class TaskServiceImpl implements TaskService{
         TaskDocument updatedTaskDocument = taskDAO.save(taskDocumentToBeUpdated);
         return modelMapper.map(updatedTaskDocument, TaskDTO.class);
     }
+
+    @Override
+    public TaskDTO deleteTask(String taskId) throws TaskNotFoundException {
+
+        TaskDocument taskDocumentToBeRemoved = taskDAO.findByTaskId(taskId);
+        if(taskDocumentToBeRemoved == null) throw new TaskNotFoundException();
+
+        taskDAO.delete(taskDocumentToBeRemoved);
+        return modelMapper.map(taskDocumentToBeRemoved, TaskDTO.class);
+    }
 }

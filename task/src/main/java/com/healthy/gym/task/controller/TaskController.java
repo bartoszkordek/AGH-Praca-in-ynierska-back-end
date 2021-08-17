@@ -126,4 +126,29 @@ public class TaskController {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, reason, exception);
         }
     }
+
+    @PreAuthorize("hasRole('ADMIN') or hasRole('MANAGER')")
+    @DeleteMapping("/{id}")
+    public ResponseEntity<TaskResponse> deleteTask(
+            @PathVariable("id") @ValidIDFormat final String id
+    ){
+        try {
+            String message = translator.toLocale("task.removed");
+
+            TaskDTO taskDTO = taskService.deleteTask(id);
+
+            return ResponseEntity
+                    .status(HttpStatus.OK)
+                    .body(new TaskResponse(message, taskDTO));
+
+        } catch (TaskNotFoundException exception){
+            String reason = translator.toLocale("exception.task.not.found");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, exception);
+
+        } catch (Exception exception){
+            String reason = translator.toLocale(INTERNAL_ERROR_EXCEPTION);
+            exception.printStackTrace();
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, reason, exception);
+        }
+    }
 }

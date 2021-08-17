@@ -8,7 +8,6 @@ import com.healthy.gym.task.data.document.TaskDocument;
 import com.healthy.gym.task.data.document.UserDocument;
 import com.healthy.gym.task.enums.AcceptanceStatus;
 import com.healthy.gym.task.enums.GymRole;
-import com.healthy.gym.task.pojo.request.ManagerOrderRequest;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -27,13 +26,10 @@ import org.springframework.test.context.TestPropertySource;
 import org.testcontainers.containers.MongoDBContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
-import org.testcontainers.shaded.com.fasterxml.jackson.core.JsonProcessingException;
-import org.testcontainers.shaded.com.fasterxml.jackson.databind.ObjectMapper;
 import org.testcontainers.utility.DockerImageName;
 
 import java.net.URI;
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 import static com.healthy.gym.task.configuration.LocaleConverter.convertEnumToLocale;
@@ -47,7 +43,7 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
         "eureka.client.register-with-eureka=false"
 })
 @Tag("integration")
-public class UpdateTaskControllerIntegrationTest {
+public class DeleteTaskControllerIntegrationTest {
 
     @Container
     static MongoDBContainer mongoDBContainer =
@@ -63,24 +59,14 @@ public class UpdateTaskControllerIntegrationTest {
     private Integer port;
 
     private String userId;
-    private String employeeId1;
-    private String employeeId2;
+    private String employeeId;
     private String managerId;
     private String adminId;
     private String userToken;
     private String employeeToken;
     private String managerToken;
     private String adminToken;
-
     private String taskId;
-
-    private String requestContent;
-    private String requestTitle;
-    private String requestDescription;
-    private String requestDueDate;
-    private ManagerOrderRequest managerOrderRequest;
-
-    private ObjectMapper objectMapper;
 
     @DynamicPropertySource
     static void setProperties(DynamicPropertyRegistry registry) {
@@ -88,15 +74,13 @@ public class UpdateTaskControllerIntegrationTest {
     }
 
     @BeforeEach
-    void setUp() throws JsonProcessingException {
+    void setUp(){
 
         userId = UUID.randomUUID().toString();
         userToken = tokenFactory.getUserToken(userId);
 
-        employeeId1 = UUID.randomUUID().toString();
-        employeeToken = tokenFactory.getUserToken(employeeId1);
-
-        employeeId2 = UUID.randomUUID().toString();
+        employeeId = UUID.randomUUID().toString();
+        employeeToken = tokenFactory.getUserToken(employeeId);
 
         managerId = UUID.randomUUID().toString();
         managerToken = tokenFactory.getMangerToken(managerId);
@@ -106,40 +90,16 @@ public class UpdateTaskControllerIntegrationTest {
 
         taskId = UUID.randomUUID().toString();
 
-        objectMapper = new ObjectMapper();
-
-        requestTitle = "Updated test task 1";
-        requestDescription = "Updated description for task 1";
-        requestDueDate = LocalDate.now().plusMonths(2).format(DateTimeFormatter.ISO_LOCAL_DATE);
-        managerOrderRequest = new ManagerOrderRequest();
-        managerOrderRequest.setTitle(requestTitle);
-        managerOrderRequest.setDescription(requestDescription);
-        managerOrderRequest.setEmployeeId(employeeId2);
-        managerOrderRequest.setDueDate(requestDueDate);
-
-        requestContent = objectMapper.writeValueAsString(managerOrderRequest);
-
-
         //existing DB docs
-        String employeeName1 = "Jan";
-        String employeeSurname1 = "Kowalski";
-        UserDocument employeeDocument1 = new UserDocument();
-        employeeDocument1.setName(employeeName1);
-        employeeDocument1.setSurname(employeeSurname1);
-        employeeDocument1.setUserId(employeeId1);
-        employeeDocument1.setGymRoles(List.of(GymRole.EMPLOYEE));
+        String employeeName = "Jan";
+        String employeeSurname = "Kowalski";
+        UserDocument employeeDocument = new UserDocument();
+        employeeDocument.setName(employeeName);
+        employeeDocument.setSurname(employeeSurname);
+        employeeDocument.setUserId(employeeId);
+        employeeDocument.setGymRoles(List.of(GymRole.EMPLOYEE));
 
-        mongoTemplate.save(employeeDocument1);
-
-        String employeeName2 = "Paweł";
-        String employeeSurname2 = "Walczak";
-        UserDocument employeeDocument2 = new UserDocument();
-        employeeDocument2.setName(employeeName2);
-        employeeDocument2.setSurname(employeeSurname2);
-        employeeDocument2.setUserId(employeeId2);
-        employeeDocument2.setGymRoles(List.of(GymRole.EMPLOYEE));
-
-        mongoTemplate.save(employeeDocument2);
+        mongoTemplate.save(employeeDocument);
 
         String managerName = "Adam";
         String managerSurname = "Nowak";
@@ -154,7 +114,7 @@ public class UpdateTaskControllerIntegrationTest {
         TaskDocument taskDocument = new TaskDocument();
         taskDocument.setTaskId(taskId);
         taskDocument.setManager(managerDocument);
-        taskDocument.setEmployee(employeeDocument1);
+        taskDocument.setEmployee(employeeDocument);
         taskDocument.setTitle("Title 1");
         taskDocument.setDescription("Description 1");
         taskDocument.setDueDate(LocalDate.now().plusMonths(1));
@@ -173,22 +133,22 @@ public class UpdateTaskControllerIntegrationTest {
 
     @ParameterizedTest
     @EnumSource(TestCountry.class)
-    void shouldUpdateTask_whenValidRequestAndTaskId(TestCountry country) throws Exception {
+    void shouldDeleteTask_whenValidTaskId(TestCountry country) throws Exception {
         Map<String, String> messages = getMessagesAccordingToLocale(country);
         Locale testedLocale = convertEnumToLocale(country);
 
-        URI uri = new URI("http://localhost:" + port +"/" + taskId);
+        URI uri = new URI("http://localhost:" + port + "/"+ taskId);
 
         HttpHeaders headers = new HttpHeaders();
         headers.set("Accept-Language", testedLocale.toString());
         headers.set("Authorization", managerToken);
         headers.setContentType(MediaType.APPLICATION_JSON);
 
-        HttpEntity<Object> request = new HttpEntity<>(requestContent, headers);
-        String expectedMessage = messages.get("task.updated");
+        HttpEntity<Object> request = new HttpEntity<>(null, headers);
+        String expectedMessage = messages.get("task.removed");
 
         ResponseEntity<JsonNode> responseEntity = restTemplate
-                .exchange(uri, HttpMethod.PUT, request, JsonNode.class);
+                .exchange(uri, HttpMethod.DELETE, request, JsonNode.class);
 
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(Objects.requireNonNull(responseEntity.getBody().get("message").textValue()))
@@ -202,32 +162,31 @@ public class UpdateTaskControllerIntegrationTest {
         assertThat(responseEntity.getBody().get("task").get("manager").get("surname").textValue())
                 .isEqualTo("Nowak");
         assertThat(responseEntity.getBody().get("task").get("employee").get("userId").textValue())
-                .isEqualTo(employeeId2);
+                .isEqualTo(employeeId);
         assertThat(responseEntity.getBody().get("task").get("employee").get("name").textValue())
-                .isEqualTo("Paweł");
+                .isEqualTo("Jan");
         assertThat(responseEntity.getBody().get("task").get("employee").get("surname").textValue())
-                .isEqualTo("Walczak");
+                .isEqualTo("Kowalski");
         assertThat(responseEntity.getBody().get("task").get("title").textValue())
-                .isEqualTo("Updated test task 1");
+                .isEqualTo("Title 1");
         assertThat(responseEntity.getBody().get("task").get("description").textValue())
-                .isEqualTo("Updated description for task 1");
+                .isEqualTo("Description 1");
         assertThat(responseEntity.getBody().get("task").get("lastOrderUpdateDate").textValue())
                 .isEqualTo(LocalDate.now().toString());
         assertThat(responseEntity.getBody().get("task").get("dueDate").textValue())
-                .isEqualTo(LocalDate.now().plusMonths(2).toString());
+                .isEqualTo(LocalDate.now().plusMonths(1).toString());
         assertThat(responseEntity.getBody().get("task").get("employeeAccept").textValue())
                 .isEqualTo(AcceptanceStatus.NO_ACTION.toString());
         assertThat(responseEntity.getBody().get("task").get("managerAccept").textValue())
                 .isEqualTo(AcceptanceStatus.NO_ACTION.toString());
     }
 
-
     @Nested
-    class ShouldNotUpdateTaskWhenNotAuthorized{
+    class ShouldNotDeleteTaskWhenNotAuthorized{
 
         @ParameterizedTest
         @EnumSource(TestCountry.class)
-        void shouldNotUpdateTaskWhenNoToken(TestCountry country) throws Exception {
+        void shouldNotDeleteTaskWhenNoToken(TestCountry country) throws Exception {
             Locale testedLocale = convertEnumToLocale(country);
 
             URI uri = new URI("http://localhost:" + port + "/" + taskId);
@@ -236,10 +195,10 @@ public class UpdateTaskControllerIntegrationTest {
             headers.set("Accept-Language", testedLocale.toString());
             headers.setContentType(MediaType.APPLICATION_JSON);
 
-            HttpEntity<Object> request = new HttpEntity<>(requestContent, headers);
+            HttpEntity<Object> request = new HttpEntity<>(null, headers);
 
             ResponseEntity<JsonNode> responseEntity = restTemplate
-                    .exchange(uri, HttpMethod.PUT, request, JsonNode.class);
+                    .exchange(uri, HttpMethod.DELETE, request, JsonNode.class);
 
             assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
             assertThat(responseEntity.getBody().get("status").intValue()).isEqualTo(403);
@@ -250,7 +209,7 @@ public class UpdateTaskControllerIntegrationTest {
 
         @ParameterizedTest
         @EnumSource(TestCountry.class)
-        void shouldNotUpdateTaskWhenLoggedAsUser(TestCountry country) throws Exception {
+        void shouldNotDeleteTaskWhenLoggedAsUser(TestCountry country) throws Exception {
             Map<String, String> messages = getMessagesAccordingToLocale(country);
             Locale testedLocale = convertEnumToLocale(country);
 
@@ -261,10 +220,10 @@ public class UpdateTaskControllerIntegrationTest {
             headers.set("Authorization", userToken);
             headers.setContentType(MediaType.APPLICATION_JSON);
 
-            HttpEntity<Object> request = new HttpEntity<>(requestContent, headers);
+            HttpEntity<Object> request = new HttpEntity<>(null, headers);
 
             ResponseEntity<JsonNode> responseEntity = restTemplate
-                    .exchange(uri, HttpMethod.PUT, request, JsonNode.class);
+                    .exchange(uri, HttpMethod.DELETE, request, JsonNode.class);
 
             String expectedMessage = messages.get("exception.access.denied");
 
@@ -277,7 +236,7 @@ public class UpdateTaskControllerIntegrationTest {
 
         @ParameterizedTest
         @EnumSource(TestCountry.class)
-        void shouldNotUpdateTaskWhenLoggedAsEmployee(TestCountry country) throws Exception {
+        void shouldNotDeleteTaskWhenLoggedAsEmployee(TestCountry country) throws Exception {
             Map<String, String> messages = getMessagesAccordingToLocale(country);
             Locale testedLocale = convertEnumToLocale(country);
 
@@ -288,10 +247,10 @@ public class UpdateTaskControllerIntegrationTest {
             headers.set("Authorization", employeeToken);
             headers.setContentType(MediaType.APPLICATION_JSON);
 
-            HttpEntity<Object> request = new HttpEntity<>(requestContent, headers);
+            HttpEntity<Object> request = new HttpEntity<>(null, headers);
 
             ResponseEntity<JsonNode> responseEntity = restTemplate
-                    .exchange(uri, HttpMethod.PUT, request, JsonNode.class);
+                    .exchange(uri, HttpMethod.DELETE, request, JsonNode.class);
 
             String expectedMessage = messages.get("exception.access.denied");
 
@@ -305,19 +264,11 @@ public class UpdateTaskControllerIntegrationTest {
 
     @ParameterizedTest
     @EnumSource(TestCountry.class)
-    void shouldNotUpdateTask_whenInvalidTaskId(TestCountry country) throws Exception {
+    void shouldNotDeleteTask_whenInvalidTaskId(TestCountry country) throws Exception {
         Map<String, String> messages = getMessagesAccordingToLocale(country);
         Locale testedLocale = convertEnumToLocale(country);
 
         String invalidTaskId = UUID.randomUUID().toString();
-
-        ManagerOrderRequest invalidEmployeeManagerOrderRequest = new ManagerOrderRequest();
-        invalidEmployeeManagerOrderRequest.setTitle(requestTitle);
-        invalidEmployeeManagerOrderRequest.setDescription(requestDescription);
-        invalidEmployeeManagerOrderRequest.setEmployeeId(employeeId2);
-        invalidEmployeeManagerOrderRequest.setDueDate(requestDueDate);
-
-        String invalidEmployeeRequestContent = objectMapper.writeValueAsString(invalidEmployeeManagerOrderRequest);
 
         URI uri = new URI("http://localhost:" + port + "/" + invalidTaskId);
 
@@ -326,81 +277,11 @@ public class UpdateTaskControllerIntegrationTest {
         headers.set("Authorization", adminToken);
         headers.setContentType(MediaType.APPLICATION_JSON);
 
-        HttpEntity<Object> request = new HttpEntity<>(invalidEmployeeRequestContent, headers);
+        HttpEntity<Object> request = new HttpEntity<>(null, headers);
         String expectedMessage = messages.get("exception.task.not.found");
 
         ResponseEntity<JsonNode> responseEntity = restTemplate
-                .exchange(uri, HttpMethod.PUT, request, JsonNode.class);
-
-        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
-        assertThat(responseEntity.getBody().get("error").textValue()).isEqualTo("Bad Request");
-        assertThat(Objects.requireNonNull(responseEntity.getBody().get("message").textValue()))
-                .isEqualTo(expectedMessage);
-        assertThat(responseEntity.getBody().get("timestamp")).isNotNull();
-    }
-
-    @ParameterizedTest
-    @EnumSource(TestCountry.class)
-    void shouldNotUpdateTask_whenInvalidEmployeeId(TestCountry country) throws Exception {
-        Map<String, String> messages = getMessagesAccordingToLocale(country);
-        Locale testedLocale = convertEnumToLocale(country);
-
-        String invalidEmployeeId = UUID.randomUUID().toString();
-
-        ManagerOrderRequest invalidEmployeeManagerOrderRequest = new ManagerOrderRequest();
-        invalidEmployeeManagerOrderRequest.setTitle(requestTitle);
-        invalidEmployeeManagerOrderRequest.setDescription(requestDescription);
-        invalidEmployeeManagerOrderRequest.setEmployeeId(invalidEmployeeId);
-        invalidEmployeeManagerOrderRequest.setDueDate(requestDueDate);
-
-        String invalidEmployeeRequestContent = objectMapper.writeValueAsString(invalidEmployeeManagerOrderRequest);
-
-        URI uri = new URI("http://localhost:" + port + "/" + taskId);
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.set("Accept-Language", testedLocale.toString());
-        headers.set("Authorization", managerToken);
-        headers.setContentType(MediaType.APPLICATION_JSON);
-
-        HttpEntity<Object> request = new HttpEntity<>(invalidEmployeeRequestContent, headers);
-        String expectedMessage = messages.get("exception.employee.not.found");
-
-        ResponseEntity<JsonNode> responseEntity = restTemplate
-                .exchange(uri, HttpMethod.PUT, request, JsonNode.class);
-
-        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
-        assertThat(responseEntity.getBody().get("error").textValue()).isEqualTo("Bad Request");
-        assertThat(Objects.requireNonNull(responseEntity.getBody().get("message").textValue()))
-                .isEqualTo(expectedMessage);
-        assertThat(responseEntity.getBody().get("timestamp")).isNotNull();
-    }
-
-    @ParameterizedTest
-    @EnumSource(TestCountry.class)
-    void shouldNotCreateTask_whenRetroDueDate(TestCountry country) throws Exception {
-        Map<String, String> messages = getMessagesAccordingToLocale(country);
-        Locale testedLocale = convertEnumToLocale(country);
-
-        ManagerOrderRequest invalidDueDateManagerOrderRequest = new ManagerOrderRequest();
-        invalidDueDateManagerOrderRequest.setTitle(requestTitle);
-        invalidDueDateManagerOrderRequest.setDescription(requestDescription);
-        invalidDueDateManagerOrderRequest.setEmployeeId(employeeId2);
-        invalidDueDateManagerOrderRequest.setDueDate(LocalDate.now().minusDays(1).toString());
-
-        String invalidDueDateRequestContent = objectMapper.writeValueAsString(invalidDueDateManagerOrderRequest);
-
-        URI uri = new URI("http://localhost:" + port + "/" + taskId);
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.set("Accept-Language", testedLocale.toString());
-        headers.set("Authorization", managerToken);
-        headers.setContentType(MediaType.APPLICATION_JSON);
-
-        HttpEntity<Object> request = new HttpEntity<>(invalidDueDateRequestContent, headers);
-        String expectedMessage = messages.get("exception.retro.due.date");
-
-        ResponseEntity<JsonNode> responseEntity = restTemplate
-                .exchange(uri, HttpMethod.PUT, request, JsonNode.class);
+                .exchange(uri, HttpMethod.DELETE, request, JsonNode.class);
 
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
         assertThat(responseEntity.getBody().get("error").textValue()).isEqualTo("Bad Request");

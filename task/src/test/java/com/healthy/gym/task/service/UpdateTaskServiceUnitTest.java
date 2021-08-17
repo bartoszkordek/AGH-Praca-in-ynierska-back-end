@@ -11,6 +11,7 @@ import com.healthy.gym.task.enums.GymRole;
 import com.healthy.gym.task.exception.EmployeeNotFoundException;
 import com.healthy.gym.task.exception.ManagerNotFoundException;
 import com.healthy.gym.task.exception.RetroDueDateException;
+import com.healthy.gym.task.exception.TaskNotFoundException;
 import com.healthy.gym.task.pojo.request.ManagerOrderRequest;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,7 +28,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 @SpringBootTest
-public class CreateTaskServiceUnitTest {
+public class UpdateTaskServiceUnitTest {
 
     @Autowired
     private TaskService taskService;
@@ -38,38 +39,53 @@ public class CreateTaskServiceUnitTest {
     @MockBean
     private UserDAO userDAO;
 
-    private String employeeId;
+    private String employeeIdToUpdate;
+    private String employeeIdUpdated;
     private String managerId;
     private String taskId;
 
     @Test
-    void shouldCreateTask_whenValidRequest() throws ManagerNotFoundException, EmployeeNotFoundException, RetroDueDateException {
+    void shouldUpdateTask_whenValidRequest() throws ManagerNotFoundException, EmployeeNotFoundException,
+            RetroDueDateException, TaskNotFoundException {
 
-        employeeId = UUID.randomUUID().toString();
+        employeeIdToUpdate = UUID.randomUUID().toString();
+        employeeIdUpdated = UUID.randomUUID().toString();
         managerId = UUID.randomUUID().toString();
         taskId = UUID.randomUUID().toString();
 
-        String title = "Przykładowe zadanie";
-        String description = "Opis przykładowego zadania";
+        String titleToUpdate = "Przykładowe zadanie";
+        String titleUpdated = "Zaktualizowane przykładowe zadanie";
+        String descriptionToUpdate = "Opis przykładowego zadania";
+        String descriptionUpdated = "Zaktualizowany opis przykładowego zadania";
         var now = LocalDate.now();
-        LocalDate dueDate = now.plusMonths(1);
+        LocalDate dueDateToUpdate = now.plusMonths(1);
+        LocalDate dueDateUpdated = now.plusMonths(2);
 
         //request
         ManagerOrderRequest managerOrderRequest = new ManagerOrderRequest();
-        managerOrderRequest.setEmployeeId(employeeId);
-        managerOrderRequest.setTitle(title);
-        managerOrderRequest.setDescription(description);
-        managerOrderRequest.setDueDate(dueDate.toString());
+        managerOrderRequest.setEmployeeId(employeeIdUpdated);
+        managerOrderRequest.setTitle(titleUpdated);
+        managerOrderRequest.setDescription(descriptionUpdated);
+        managerOrderRequest.setDueDate(dueDateUpdated.toString());
 
         //DB documents
-        String employeeName = "Jan";
-        String employeeSurname = "Kowalski";
-        UserDocument employeeDocument = new UserDocument();
-        employeeDocument.setName(employeeName);
-        employeeDocument.setSurname(employeeSurname);
-        employeeDocument.setUserId(employeeId);
-        employeeDocument.setGymRoles(List.of(GymRole.EMPLOYEE));
-        employeeDocument.setId("507f1f77bcf86cd799435213");
+        String employeeNameToUpdate = "Jan";
+        String employeeSurnameToUpdate = "Kowalski";
+        UserDocument employeeDocumentToUpdate = new UserDocument();
+        employeeDocumentToUpdate.setName(employeeNameToUpdate);
+        employeeDocumentToUpdate.setSurname(employeeSurnameToUpdate);
+        employeeDocumentToUpdate.setUserId(employeeIdToUpdate);
+        employeeDocumentToUpdate.setGymRoles(List.of(GymRole.EMPLOYEE));
+        employeeDocumentToUpdate.setId("507f1f77bcf86cd799435213");
+
+        String employeeNameUpdated = "Piotr";
+        String employeeSurnameUpdated = "Baran";
+        UserDocument employeeDocumentUpdated = new UserDocument();
+        employeeDocumentUpdated.setName(employeeNameUpdated);
+        employeeDocumentUpdated.setSurname(employeeSurnameUpdated);
+        employeeDocumentUpdated.setUserId(employeeIdUpdated);
+        employeeDocumentUpdated.setGymRoles(List.of(GymRole.EMPLOYEE));
+        employeeDocumentUpdated.setId("507f1f77bcf86cd799435214");
 
         String managerName = "Adam";
         String managerSurname = "Nowak";
@@ -80,63 +96,100 @@ public class CreateTaskServiceUnitTest {
         managerDocument.setGymRoles(List.of(GymRole.MANAGER));
         managerDocument.setId("507f1f77bcf86cd799435002");
 
-        TaskDocument taskDocument = new TaskDocument();
-        taskDocument.setTaskId(taskId);
-        taskDocument.setManager(managerDocument);
-        taskDocument.setEmployee(employeeDocument);
-        taskDocument.setTitle(title);
-        taskDocument.setDescription(description);
-        taskDocument.setLastOrderUpdateDate(now);
-        taskDocument.setDueDate(dueDate);
-        taskDocument.setEmployeeAccept(AcceptanceStatus.NO_ACTION);
-        taskDocument.setManagerAccept(AcceptanceStatus.NO_ACTION);
+        TaskDocument taskDocumentToUpdate = new TaskDocument();
+        taskDocumentToUpdate.setTaskId(taskId);
+        taskDocumentToUpdate.setManager(managerDocument);
+        taskDocumentToUpdate.setEmployee(employeeDocumentToUpdate);
+        taskDocumentToUpdate.setTitle(titleToUpdate);
+        taskDocumentToUpdate.setDescription(descriptionToUpdate);
+        taskDocumentToUpdate.setLastOrderUpdateDate(now);
+        taskDocumentToUpdate.setDueDate(dueDateToUpdate);
+        taskDocumentToUpdate.setEmployeeAccept(AcceptanceStatus.NO_ACTION);
+        taskDocumentToUpdate.setManagerAccept(AcceptanceStatus.NO_ACTION);
+
+        TaskDocument taskDocumentUpdated = new TaskDocument();
+        taskDocumentUpdated.setTaskId(taskId);
+        taskDocumentUpdated.setManager(managerDocument);
+        taskDocumentUpdated.setEmployee(employeeDocumentUpdated);
+        taskDocumentUpdated.setTitle(titleUpdated);
+        taskDocumentUpdated.setDescription(descriptionUpdated);
+        taskDocumentUpdated.setLastOrderUpdateDate(now);
+        taskDocumentUpdated.setDueDate(dueDateUpdated);
+        taskDocumentUpdated.setEmployeeAccept(AcceptanceStatus.NO_ACTION);
+        taskDocumentUpdated.setManagerAccept(AcceptanceStatus.NO_ACTION);
+
 
         //response
         TaskDTO taskResponse = new TaskDTO(
                 taskId,
                 new BasicUserInfoDTO(managerId, managerName, managerSurname),
-                new BasicUserInfoDTO(employeeId, employeeName, employeeSurname),
-                title,
-                description,
+                new BasicUserInfoDTO(employeeIdUpdated, employeeNameUpdated, employeeSurnameUpdated),
+                titleUpdated,
+                descriptionUpdated,
                 null,
                 null,
                 now,
-                dueDate,
+                dueDateUpdated,
                 null,
                 AcceptanceStatus.NO_ACTION,
                 AcceptanceStatus.NO_ACTION
         );
 
         //when
+        when(taskDAO.findByTaskId(taskId)).thenReturn(taskDocumentToUpdate);
         when(userDAO.findByGymRolesContaining(GymRole.MANAGER)).thenReturn(managerDocument);
-        when(userDAO.findByUserId(employeeId)).thenReturn(employeeDocument);
-        when(taskDAO.save(any())).thenReturn(taskDocument);
+        when(userDAO.findByUserId(employeeIdUpdated)).thenReturn(employeeDocumentUpdated);
+        when(taskDAO.save(any())).thenReturn(taskDocumentUpdated);
 
         //then
-        assertThat(taskService.createTask(managerOrderRequest)).isEqualTo(taskResponse);
+        assertThat(taskService.updateTask(taskId, managerOrderRequest)).isEqualTo(taskResponse);
     }
 
     @Test
-    void shouldNotCreateTask_whenManagerNotExist(){
+    void shouldNotCreateTask_whenTaskIdNotExist(){
         //before
+        String notFoundTaskId = UUID.randomUUID().toString();
         //request
         ManagerOrderRequest managerOrderRequest = new ManagerOrderRequest();
-        managerOrderRequest.setEmployeeId(employeeId);
+        managerOrderRequest.setEmployeeId(notFoundTaskId);
         managerOrderRequest.setTitle("Sample title");
         managerOrderRequest.setDescription("Sample description");
         managerOrderRequest.setDueDate(LocalDate.now().plusMonths(1).toString());
 
         //when
+        when(taskDAO.findByTaskId(notFoundTaskId)).thenReturn(null);
+
+        //then
+        assertThatThrownBy(() ->
+                taskService.updateTask(notFoundTaskId, managerOrderRequest)
+        ).isInstanceOf(TaskNotFoundException.class);
+    }
+
+    @Test
+    void shouldNotUpdateTask_whenManagerNotExist(){
+        //before
+        //request
+        ManagerOrderRequest managerOrderRequest = new ManagerOrderRequest();
+        managerOrderRequest.setEmployeeId(employeeIdToUpdate);
+        managerOrderRequest.setTitle("Sample title");
+        managerOrderRequest.setDescription("Sample description");
+        managerOrderRequest.setDueDate(LocalDate.now().plusMonths(1).toString());
+
+        String taskIdToRequest = UUID.randomUUID().toString();
+        TaskDocument taskDocumentToUpdate = new TaskDocument();
+
+        //when
+        when(taskDAO.findByTaskId(taskIdToRequest)).thenReturn(taskDocumentToUpdate);
         when(userDAO.findByGymRolesContaining(GymRole.MANAGER)).thenReturn(null);
 
         //then
         assertThatThrownBy(() ->
-                taskService.createTask(managerOrderRequest)
+                taskService.updateTask(taskIdToRequest, managerOrderRequest)
         ).isInstanceOf(ManagerNotFoundException.class);
     }
 
     @Test
-    void shouldNotCreateTask_whenEmployeeNotExist(){
+    void shouldNotUpdateTask_whenEmployeeNotExist(){
         //before
         //request
         String invalidEmployeeId = UUID.randomUUID().toString();
@@ -157,20 +210,27 @@ public class CreateTaskServiceUnitTest {
         managerDocument.setGymRoles(List.of(GymRole.MANAGER));
         managerDocument.setId("507f1f77bcf86cd799435002");
 
+        String taskIdToRequest = UUID.randomUUID().toString();
+        TaskDocument taskDocumentToUpdate = new TaskDocument();
+
         //when
+        when(taskDAO.findByTaskId(taskIdToRequest)).thenReturn(taskDocumentToUpdate);
         when(userDAO.findByGymRolesContaining(GymRole.MANAGER)).thenReturn(managerDocument);
-        when(userDAO.findByUserId(employeeId)).thenReturn(null);
+        when(userDAO.findByUserId(employeeIdUpdated)).thenReturn(null);
 
         //then
         assertThatThrownBy(() ->
-                taskService.createTask(managerOrderRequest)
+                taskService.updateTask(taskIdToRequest, managerOrderRequest)
         ).isInstanceOf(EmployeeNotFoundException.class);
     }
 
     @Test
-    void shouldNotCreateTask_whenUserNotEmployee(){
+    void shouldNotUpdateTask_whenUserNotEmployee(){
         //before
-        employeeId = UUID.randomUUID().toString();
+        String taskId = UUID.randomUUID().toString();
+        TaskDocument taskDocumentToUpdate = new TaskDocument();
+        String employeeId = UUID.randomUUID().toString();
+
         //request
         String invalidEmployeeId = UUID.randomUUID().toString();
         ManagerOrderRequest managerOrderRequest = new ManagerOrderRequest();
@@ -178,7 +238,6 @@ public class CreateTaskServiceUnitTest {
         managerOrderRequest.setTitle("Sample title");
         managerOrderRequest.setDescription("Sample description");
         managerOrderRequest.setDueDate(LocalDate.now().plusMonths(1).toString());
-
 
         //DB documents
         String managerName = "Adam";
@@ -200,19 +259,22 @@ public class CreateTaskServiceUnitTest {
         notEmployeeDocument.setId("507f1f77bcf86cd799435213");
 
         //when
+        when(taskDAO.findByTaskId(taskId)).thenReturn(taskDocumentToUpdate);
         when(userDAO.findByGymRolesContaining(GymRole.MANAGER)).thenReturn(managerDocument);
         when(userDAO.findByUserId(employeeId)).thenReturn(notEmployeeDocument);
 
         //then
         assertThatThrownBy(() ->
-                taskService.createTask(managerOrderRequest)
+                taskService.updateTask(taskId, managerOrderRequest)
         ).isInstanceOf(EmployeeNotFoundException.class);
     }
 
     @Test
-    void shouldNotCreateTask_whenRetroDueDate(){
+    void shouldNotUpdateTask_whenRetroDueDate(){
         //before
-        employeeId = UUID.randomUUID().toString();
+        String taskId = UUID.randomUUID().toString();
+        String employeeId = UUID.randomUUID().toString();
+        TaskDocument taskDocumentToUpdate = new TaskDocument();
 
         //request
         ManagerOrderRequest managerOrderRequest = new ManagerOrderRequest();
@@ -220,7 +282,6 @@ public class CreateTaskServiceUnitTest {
         managerOrderRequest.setTitle("Sample title");
         managerOrderRequest.setDescription("Sample description");
         managerOrderRequest.setDueDate(LocalDate.now().minusDays(1).toString());
-
 
         //DB documents
         String managerName = "Adam";
@@ -242,12 +303,13 @@ public class CreateTaskServiceUnitTest {
         employeeDocument.setId("507f1f77bcf86cd799435213");
 
         //when
+        when(taskDAO.findByTaskId(taskId)).thenReturn(taskDocumentToUpdate);
         when(userDAO.findByGymRolesContaining(GymRole.MANAGER)).thenReturn(managerDocument);
         when(userDAO.findByUserId(employeeId)).thenReturn(employeeDocument);
 
         //then
         assertThatThrownBy(() ->
-                taskService.createTask(managerOrderRequest)
+                taskService.updateTask(taskId, managerOrderRequest)
         ).isInstanceOf(RetroDueDateException.class);
     }
 }

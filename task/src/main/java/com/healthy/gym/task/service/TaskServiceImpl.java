@@ -10,6 +10,7 @@ import com.healthy.gym.task.enums.GymRole;
 import com.healthy.gym.task.exception.EmployeeNotFoundException;
 import com.healthy.gym.task.exception.ManagerNotFoundException;
 import com.healthy.gym.task.exception.RetroDueDateException;
+import com.healthy.gym.task.exception.TaskNotFoundException;
 import com.healthy.gym.task.pojo.request.ManagerOrderRequest;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
@@ -26,6 +27,8 @@ public class TaskServiceImpl implements TaskService{
     private final TaskDAO taskDAO;
     private final UserDAO userDAO;
     private final ModelMapper modelMapper;
+    private final GymRole managerRole;
+    private final GymRole employeeRole;
 
     @Autowired
     public TaskServiceImpl(
@@ -36,6 +39,8 @@ public class TaskServiceImpl implements TaskService{
         this.userDAO = userDAO;
         modelMapper = new ModelMapper();
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+        managerRole = GymRole.MANAGER;
+        employeeRole = GymRole.EMPLOYEE;
     }
 
 
@@ -43,11 +48,9 @@ public class TaskServiceImpl implements TaskService{
     public TaskDTO createTask(ManagerOrderRequest managerOrderRequest) throws ManagerNotFoundException,
             EmployeeNotFoundException, RetroDueDateException {
 
-        GymRole managerRole = GymRole.MANAGER;
         UserDocument managerDocument = userDAO.findByGymRolesContaining(managerRole);
         if(managerDocument == null) throw new ManagerNotFoundException();
 
-        GymRole employeeRole = GymRole.EMPLOYEE;
         String employeeId = managerOrderRequest.getEmployeeId();
         UserDocument employeeDocument = userDAO.findByUserId(employeeId);
         if(employeeDocument == null) throw new EmployeeNotFoundException();
@@ -73,5 +76,44 @@ public class TaskServiceImpl implements TaskService{
 
         TaskDocument taskDocumentSaved = taskDAO.save(taskDocumentToBeSaved);
         return modelMapper.map(taskDocumentSaved, TaskDTO.class);
+    }
+
+    @Override
+    public TaskDTO updateTask(String taskId, ManagerOrderRequest managerOrderRequest)
+            throws TaskNotFoundException, ManagerNotFoundException, EmployeeNotFoundException, RetroDueDateException {
+
+        TaskDocument taskDocumentToBeUpdated = taskDAO.findByTaskId(taskId);
+        if(taskDocumentToBeUpdated == null) throw new TaskNotFoundException();
+
+        UserDocument managerDocument = userDAO.findByGymRolesContaining(managerRole);
+        if(managerDocument == null) throw new ManagerNotFoundException();
+
+
+        String requestEmployeeId = managerOrderRequest.getEmployeeId();
+        if(requestEmployeeId != null){
+            UserDocument employeeDocument = userDAO.findByUserId(requestEmployeeId);
+            if(employeeDocument == null) throw new EmployeeNotFoundException();
+            if(!employeeDocument.getGymRoles().contains(employeeRole)) throw new EmployeeNotFoundException();
+            taskDocumentToBeUpdated.setEmployee(employeeDocument);
+        }
+
+        var now = LocalDate.now();
+        String requestDueDate = managerOrderRequest.getDueDate();
+        if(requestDueDate != null){
+            LocalDate parsedDueDate = LocalDate.parse(requestDueDate, DateTimeFormatter.ISO_LOCAL_DATE);
+            if(parsedDueDate.isBefore(now)) throw new RetroDueDateException();
+            taskDocumentToBeUpdated.setDueDate(parsedDueDate);
+        }
+
+        taskDocumentToBeUpdated.setLastOrderUpdateDate(now);
+
+        String title = managerOrderRequest.getTitle();
+        if(title != null) taskDocumentToBeUpdated.setTitle(title);
+
+        String description = managerOrderRequest.getDescription();
+        if(description != null) taskDocumentToBeUpdated.setDescription(description);
+
+        TaskDocument updatedTaskDocument = taskDAO.save(taskDocumentToBeUpdated);
+        return modelMapper.map(updatedTaskDocument, TaskDTO.class);
     }
 }

@@ -268,4 +268,48 @@ public class UpdateTaskServiceUnitTest {
                 taskService.updateTask(taskId, managerOrderRequest)
         ).isInstanceOf(EmployeeNotFoundException.class);
     }
+
+    @Test
+    void shouldNotUpdateTask_whenRetroDueDate(){
+        //before
+        String taskId = UUID.randomUUID().toString();
+        String employeeId = UUID.randomUUID().toString();
+        TaskDocument taskDocumentToUpdate = new TaskDocument();
+
+        //request
+        ManagerOrderRequest managerOrderRequest = new ManagerOrderRequest();
+        managerOrderRequest.setEmployeeId(employeeId);
+        managerOrderRequest.setTitle("Sample title");
+        managerOrderRequest.setDescription("Sample description");
+        managerOrderRequest.setDueDate(LocalDate.now().minusDays(1).toString());
+
+        //DB documents
+        String managerName = "Adam";
+        String managerSurname = "Nowak";
+        UserDocument managerDocument = new UserDocument();
+        managerDocument.setName(managerName);
+        managerDocument.setSurname(managerSurname);
+        managerDocument.setUserId(managerId);
+        managerDocument.setGymRoles(List.of(GymRole.MANAGER));
+        managerDocument.setId("507f1f77bcf86cd799435002");
+
+        String employeeName = "Jan";
+        String employeeSurname = "Kowalski";
+        UserDocument employeeDocument = new UserDocument();
+        employeeDocument.setName(employeeName);
+        employeeDocument.setSurname(employeeSurname);
+        employeeDocument.setUserId(employeeId);
+        employeeDocument.setGymRoles(List.of(GymRole.EMPLOYEE));
+        employeeDocument.setId("507f1f77bcf86cd799435213");
+
+        //when
+        when(taskDAO.findByTaskId(taskId)).thenReturn(taskDocumentToUpdate);
+        when(userDAO.findByGymRolesContaining(GymRole.MANAGER)).thenReturn(managerDocument);
+        when(userDAO.findByUserId(employeeId)).thenReturn(employeeDocument);
+
+        //then
+        assertThatThrownBy(() ->
+                taskService.updateTask(taskId, managerOrderRequest)
+        ).isInstanceOf(RetroDueDateException.class);
+    }
 }

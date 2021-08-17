@@ -215,7 +215,6 @@ public class CreateTaskServiceUnitTest {
         employeeId = UUID.randomUUID().toString();
 
         //request
-        String invalidEmployeeId = UUID.randomUUID().toString();
         ManagerOrderRequest managerOrderRequest = new ManagerOrderRequest();
         managerOrderRequest.setEmployeeId(employeeId);
         managerOrderRequest.setTitle("Sample title");

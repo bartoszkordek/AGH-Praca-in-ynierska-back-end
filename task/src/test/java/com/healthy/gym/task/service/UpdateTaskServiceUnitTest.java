@@ -187,4 +187,40 @@ public class UpdateTaskServiceUnitTest {
                 taskService.updateTask(taskIdToRequest, managerOrderRequest)
         ).isInstanceOf(ManagerNotFoundException.class);
     }
+
+    @Test
+    void shouldNotUpdateTask_whenEmployeeNotExist(){
+        //before
+        //request
+        String invalidEmployeeId = UUID.randomUUID().toString();
+        ManagerOrderRequest managerOrderRequest = new ManagerOrderRequest();
+        managerOrderRequest.setEmployeeId(invalidEmployeeId);
+        managerOrderRequest.setTitle("Sample title");
+        managerOrderRequest.setDescription("Sample description");
+        managerOrderRequest.setDueDate(LocalDate.now().plusMonths(1).toString());
+
+
+        //DB documents
+        String managerName = "Adam";
+        String managerSurname = "Nowak";
+        UserDocument managerDocument = new UserDocument();
+        managerDocument.setName(managerName);
+        managerDocument.setSurname(managerSurname);
+        managerDocument.setUserId(managerId);
+        managerDocument.setGymRoles(List.of(GymRole.MANAGER));
+        managerDocument.setId("507f1f77bcf86cd799435002");
+
+        String taskIdToRequest = UUID.randomUUID().toString();
+        TaskDocument taskDocumentToUpdate = new TaskDocument();
+
+        //when
+        when(taskDAO.findByTaskId(taskIdToRequest)).thenReturn(taskDocumentToUpdate);
+        when(userDAO.findByGymRolesContaining(GymRole.MANAGER)).thenReturn(managerDocument);
+        when(userDAO.findByUserId(employeeIdUpdated)).thenReturn(null);
+
+        //then
+        assertThatThrownBy(() ->
+                taskService.updateTask(taskIdToRequest, managerOrderRequest)
+        ).isInstanceOf(EmployeeNotFoundException.class);
+    }
 }

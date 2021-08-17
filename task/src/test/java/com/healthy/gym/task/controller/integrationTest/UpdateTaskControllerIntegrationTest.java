@@ -339,4 +339,38 @@ public class UpdateTaskControllerIntegrationTest {
                 .isEqualTo(expectedMessage);
         assertThat(responseEntity.getBody().get("timestamp")).isNotNull();
     }
+
+    @ParameterizedTest
+    @EnumSource(TestCountry.class)
+    void shouldNotCreateTask_whenRetroDueDate(TestCountry country) throws Exception {
+        Map<String, String> messages = getMessagesAccordingToLocale(country);
+        Locale testedLocale = convertEnumToLocale(country);
+
+        ManagerOrderRequest invalidDueDateManagerOrderRequest = new ManagerOrderRequest();
+        invalidDueDateManagerOrderRequest.setTitle(requestTitle);
+        invalidDueDateManagerOrderRequest.setDescription(requestDescription);
+        invalidDueDateManagerOrderRequest.setEmployeeId(employeeId2);
+        invalidDueDateManagerOrderRequest.setDueDate(LocalDate.now().minusDays(1).toString());
+
+        String invalidDueDateRequestContent = objectMapper.writeValueAsString(invalidDueDateManagerOrderRequest);
+
+        URI uri = new URI("http://localhost:" + port + "/" + taskId);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Accept-Language", testedLocale.toString());
+        headers.set("Authorization", managerToken);
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        HttpEntity<Object> request = new HttpEntity<>(invalidDueDateRequestContent, headers);
+        String expectedMessage = messages.get("exception.retro.due.date");
+
+        ResponseEntity<JsonNode> responseEntity = restTemplate
+                .exchange(uri, HttpMethod.PUT, request, JsonNode.class);
+
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        assertThat(responseEntity.getBody().get("error").textValue()).isEqualTo("Bad Request");
+        assertThat(Objects.requireNonNull(responseEntity.getBody().get("message").textValue()))
+                .isEqualTo(expectedMessage);
+        assertThat(responseEntity.getBody().get("timestamp")).isNotNull();
+    }
 }

@@ -3,7 +3,10 @@ package com.healthy.gym.gympass.controller;
 
 import com.healthy.gym.gympass.component.Translator;
 import com.healthy.gym.gympass.dto.GymPassDTO;
-import com.healthy.gym.gympass.exception.*;
+import com.healthy.gym.gympass.exception.DuplicatedOffersException;
+import com.healthy.gym.gympass.exception.NoOffersException;
+import com.healthy.gym.gympass.exception.OfferNotFoundException;
+import com.healthy.gym.gympass.exception.RequestBindException;
 import com.healthy.gym.gympass.pojo.request.GymPassOfferRequest;
 import com.healthy.gym.gympass.pojo.response.GymPassOfferResponse;
 import com.healthy.gym.gympass.service.OfferService;
@@ -24,7 +27,6 @@ import java.util.List;
 @RestController
 @RequestMapping(
         value = "/offer",
-        consumes = MediaType.APPLICATION_JSON_VALUE,
         produces = MediaType.APPLICATION_JSON_VALUE
 )
 public class OfferController {
@@ -37,25 +39,24 @@ public class OfferController {
     public OfferController(
             Translator translator,
             OfferService offerService
-    ){
+    ) {
         this.translator = translator;
         this.offerService = offerService;
     }
 
-
     @GetMapping
     public ResponseEntity<List<GymPassDTO>> getGymPassOffers() {
 
-        try{
+        try {
             return ResponseEntity
                     .status(HttpStatus.OK)
                     .body(offerService.getGymPassOffers());
 
-        } catch (NoOffersException exception){
+        } catch (NoOffersException exception) {
             String reason = translator.toLocale("exception.no.offers");
-            throw new ResponseStatusException(HttpStatus.NO_CONTENT, reason, exception);
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, reason, exception);
 
-        } catch (Exception exception){
+        } catch (Exception exception) {
             String reason = translator.toLocale(INTERNAL_ERROR_EXCEPTION);
             exception.printStackTrace();
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, reason, exception);
@@ -91,7 +92,7 @@ public class OfferController {
             String reason = translator.toLocale("exception.duplicated.offers");
             throw new ResponseStatusException(HttpStatus.CONFLICT, reason, exception);
 
-        } catch (Exception exception){
+        } catch (Exception exception) {
             String reason = translator.toLocale(INTERNAL_ERROR_EXCEPTION);
             exception.printStackTrace();
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, reason, exception);
@@ -106,7 +107,7 @@ public class OfferController {
             @Valid @RequestBody final GymPassOfferRequest request,
             final BindingResult bindingResult
     ) throws RequestBindException {
-        try{
+        try {
             if (bindingResult.hasErrors()) throw new BindException(bindingResult);
 
             String message = translator.toLocale("offer.updated");
@@ -132,7 +133,7 @@ public class OfferController {
             String reason = translator.toLocale("exception.duplicated.offers");
             throw new ResponseStatusException(HttpStatus.CONFLICT, reason, exception);
 
-        } catch (Exception exception){
+        } catch (Exception exception) {
             String reason = translator.toLocale(INTERNAL_ERROR_EXCEPTION);
             exception.printStackTrace();
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, reason, exception);
@@ -144,7 +145,7 @@ public class OfferController {
     public ResponseEntity<GymPassOfferResponse> deleteGymPassOffer(
             @PathVariable("id") @ValidIDFormat final String id
     ) {
-        try{
+        try {
             String message = translator.toLocale("offer.removed");
             GymPassDTO removedGymPassOffer = offerService.deleteGymPassOffer(id);
 
@@ -154,13 +155,11 @@ public class OfferController {
                             message,
                             removedGymPassOffer
                     ));
-        }
-
-        catch (OfferNotFoundException exception) {
+        } catch (OfferNotFoundException exception) {
             String reason = translator.toLocale("exception.invalid.offer.id");
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, exception);
 
-        } catch (Exception exception){
+        } catch (Exception exception) {
             String reason = translator.toLocale(INTERNAL_ERROR_EXCEPTION);
             exception.printStackTrace();
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, reason, exception);

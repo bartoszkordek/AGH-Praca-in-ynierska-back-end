@@ -53,6 +53,8 @@ services:
       - "27017:27017"
     networks:
       - backend
+    volumes:
+      - ./mongodb/dump:/home/dump
     deploy:
       replicas: 1
 
@@ -96,7 +98,7 @@ services:
       replicas: 1
 
   task:
-    container_name: gympass
+    container_name: task
     image: gza73/agh-praca-inzynierska-task:latest
     environment:
       - "SPRING_PROFILES_ACTIVE=docker"
@@ -105,6 +107,8 @@ services:
     depends_on:
       - mongodb
       - gateway
+    deploy:
+      replicas: 1
 
   redis:
     container_name: redis

@@ -202,26 +202,12 @@ class GetOffersUnitTest {
 
         mockMvc.perform(request)
                 .andDo(print())
-                .andExpect(status().isNoContent())
+                .andExpect(status().isNotFound())
                 .andExpect(status().reason(is(expectedMessage)))
                 .andExpect(result ->
                         assertThat(Objects.requireNonNull(result.getResolvedException()).getCause())
                                 .isInstanceOf(NoOffersException.class)
                 );
-    }
-
-    @ParameterizedTest
-    @EnumSource(TestCountry.class)
-    void whenUserIsNotLogIn(TestCountry country) throws Exception {
-        Locale testedLocale = convertEnumToLocale(country);
-
-        RequestBuilder request = MockMvcRequestBuilders
-                .get(uri)
-                .header("Accept-Language", testedLocale.toString());
-
-        mockMvc.perform(request)
-                .andDo(print())
-                .andExpect(status().isForbidden());
     }
 
     @ParameterizedTest

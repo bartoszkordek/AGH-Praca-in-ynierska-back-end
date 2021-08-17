@@ -2,6 +2,7 @@ package com.healthy.gym.gympass.controller.integrationTests.offer;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.healthy.gym.gympass.configuration.FixedClockConfig;
+import com.healthy.gym.gympass.configuration.Messages;
 import com.healthy.gym.gympass.configuration.TestCountry;
 import com.healthy.gym.gympass.configuration.TestRoleTokenFactory;
 import com.healthy.gym.gympass.data.document.GymPassDocument;
@@ -9,7 +10,6 @@ import com.healthy.gym.gympass.shared.Description;
 import com.healthy.gym.gympass.shared.Price;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
@@ -73,140 +73,112 @@ class GetOffersIntegrationTest {
         mongoTemplate.dropCollection(GymPassDocument.class);
     }
 
-    @Nested
-    class ShouldGetOffers{
+    @ParameterizedTest
+    @EnumSource(TestCountry.class)
+    void shouldNotGetOffersWhenEmptyOffersLists(TestCountry country) throws Exception {
 
-        @ParameterizedTest
-        @EnumSource(TestCountry.class)
-        void shouldGetGymPassOffers(TestCountry country) throws Exception {
+        Locale testedLocale = convertEnumToLocale(country);
+        Map<String, String> messages = Messages.getMessagesAccordingToLocale(country);
 
-            //before
-            mongoTemplate.save(new GymPassDocument(
-                    UUID.randomUUID().toString(),
-                    "Karnet miesięczny",
-                    "Najlepszy wybór dla osób aktywnych",
-                    new Price(139.99, "zł", "miesiąc"),
-                    false,
-                    new Description("Karnet uprawniający do korzystania w pełni z usług ośrodka",
-                            List.of("Full pakiet", "sauna", "siłownia", "basen"))
-            ));
+        URI uri = new URI("http://localhost:" + port + "/offer");
 
-            mongoTemplate.save(new GymPassDocument(
-                    UUID.randomUUID().toString(),
-                    "Karnet kwartalny",
-                    "Najlepszy wybór dla osób aktywnych i korzystny cenowo",
-                    new Price(399.99, "zł", "miesiąc"),
-                    false,
-                    new Description("Karnet uprawniający do korzystania w pełni z usług ośrodka",
-                            List.of("Full pakiet", "sauna", "siłownia", "basen"))
-            ));
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Accept-Language", testedLocale.toString());
+        headers.set("Authorization", managerToken);
+        headers.setContentType(MediaType.APPLICATION_JSON);
 
-            Locale testedLocale = convertEnumToLocale(country);
+        HttpEntity<Object> request = new HttpEntity<>(null, headers);
 
-            URI uri = new URI("http://localhost:" + port + "/offer");
+        ResponseEntity<JsonNode> responseEntity = restTemplate
+                .exchange(uri, HttpMethod.GET, request, JsonNode.class);
 
-            HttpHeaders headers = new HttpHeaders();
-            headers.set("Accept-Language", testedLocale.toString());
-            headers.set("Authorization", userToken);
-            headers.setContentType(MediaType.APPLICATION_JSON);
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
 
-            HttpEntity<Object> request = new HttpEntity<>(null, headers);
-
-            ResponseEntity<JsonNode> responseEntity = restTemplate
-                    .exchange(uri, HttpMethod.GET, request, JsonNode.class);
-
-            assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
-            assertThat(Objects.requireNonNull(responseEntity.getBody().get(0).get("title").textValue())).isEqualTo("Karnet miesięczny");
-            assertThat(responseEntity.getBody().get(0).get("subheader").textValue())
-                    .isEqualTo("Najlepszy wybór dla osób aktywnych");
-            assertThat(responseEntity.getBody().get(0).get("price").get("amount").asDouble()).isEqualTo(139.99);
-            assertThat(responseEntity.getBody().get(0).get("price").get("currency").textValue()).isEqualTo("zł");
-            assertThat(responseEntity.getBody().get(0).get("price").get("period").textValue()).isEqualTo("miesiąc");
-            assertThat(responseEntity.getBody().get(0).get("isPremium").booleanValue()).isFalse();
-            assertThat(responseEntity.getBody().get(0).get("description").get("synopsis").textValue())
-                    .isEqualTo("Karnet uprawniający do korzystania w pełni z usług ośrodka");
-            assertThat(responseEntity.getBody().get(0).get("description").get("features").get(0).textValue())
-                    .isEqualTo("Full pakiet");
-            assertThat(responseEntity.getBody().get(0).get("description").get("features").get(1).textValue())
-                    .isEqualTo("sauna");
-            assertThat(responseEntity.getBody().get(0).get("description").get("features").get(2).textValue())
-                    .isEqualTo("siłownia");
-            assertThat(responseEntity.getBody().get(0).get("description").get("features").get(3).textValue())
-                    .isEqualTo("basen");
-
-            assertThat(responseEntity.getBody().get(1).get("title").textValue()).isEqualTo("Karnet kwartalny");
-            assertThat(responseEntity.getBody().get(1).get("subheader").textValue())
-                    .isEqualTo("Najlepszy wybór dla osób aktywnych i korzystny cenowo");
-            assertThat(responseEntity.getBody().get(1).get("price").get("amount").asDouble()).isEqualTo(399.99);
-            assertThat(responseEntity.getBody().get(1).get("price").get("currency").textValue()).isEqualTo("zł");
-            assertThat(responseEntity.getBody().get(1).get("price").get("period").textValue()).isEqualTo("miesiąc");
-            assertThat(responseEntity.getBody().get(1).get("isPremium").booleanValue()).isFalse();
-            assertThat(responseEntity.getBody().get(1).get("description").get("synopsis").textValue())
-                    .isEqualTo("Karnet uprawniający do korzystania w pełni z usług ośrodka");
-            assertThat(responseEntity.getBody().get(1).get("description").get("features").get(0).textValue())
-                    .isEqualTo("Full pakiet");
-            assertThat(responseEntity.getBody().get(1).get("description").get("features").get(1).textValue())
-                    .isEqualTo("sauna");
-            assertThat(responseEntity.getBody().get(1).get("description").get("features").get(2).textValue())
-                    .isEqualTo("siłownia");
-            assertThat(responseEntity.getBody().get(1).get("description").get("features").get(3).textValue())
-                    .isEqualTo("basen");
-            assertThat(responseEntity.getHeaders().getContentType()).isEqualTo(MediaType.APPLICATION_JSON);
-
-            List<GymPassDocument> gymPassDocumentList = mongoTemplate.findAll(GymPassDocument.class);
-            assertThat(gymPassDocumentList.size()).isEqualTo(2);
-        }
+        String expectedMessage = messages.get("exception.no.offers");
+        assertThat(Objects.requireNonNull(responseEntity.getBody()).get("message").textValue())
+                .isEqualTo(expectedMessage);
     }
 
-    @Nested
-    class ShouldNotGetOffers{
 
-        @ParameterizedTest
-        @EnumSource(TestCountry.class)
-        void shouldNotGetOffersWhenEmptyOffersLists(TestCountry country) throws Exception {
+    @ParameterizedTest
+    @EnumSource(TestCountry.class)
+    void shouldGetGymPassOffers(TestCountry country) throws Exception {
 
-            Locale testedLocale = convertEnumToLocale(country);
+        //before
+        mongoTemplate.save(new GymPassDocument(
+                UUID.randomUUID().toString(),
+                "Karnet miesięczny",
+                "Najlepszy wybór dla osób aktywnych",
+                new Price(139.99, "zł", "miesiąc"),
+                false,
+                new Description("Karnet uprawniający do korzystania w pełni z usług ośrodka",
+                        List.of("Full pakiet", "sauna", "siłownia", "basen"))
+        ));
 
-            URI uri = new URI("http://localhost:" + port + "/offer");
+        mongoTemplate.save(new GymPassDocument(
+                UUID.randomUUID().toString(),
+                "Karnet kwartalny",
+                "Najlepszy wybór dla osób aktywnych i korzystny cenowo",
+                new Price(399.99, "zł", "miesiąc"),
+                false,
+                new Description("Karnet uprawniający do korzystania w pełni z usług ośrodka",
+                        List.of("Full pakiet", "sauna", "siłownia", "basen"))
+        ));
 
-            HttpHeaders headers = new HttpHeaders();
-            headers.set("Accept-Language", testedLocale.toString());
-            headers.set("Authorization", managerToken);
-            headers.setContentType(MediaType.APPLICATION_JSON);
+        Locale testedLocale = convertEnumToLocale(country);
 
-            HttpEntity<Object> request = new HttpEntity<>(null, headers);
+        URI uri = new URI("http://localhost:" + port + "/offer");
 
-            ResponseEntity<JsonNode> responseEntity = restTemplate
-                    .exchange(uri, HttpMethod.GET, request, JsonNode.class);
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Accept-Language", testedLocale.toString());
+        headers.set("Authorization", userToken);
+        headers.setContentType(MediaType.APPLICATION_JSON);
 
-            assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
-            assertThat(responseEntity.getBody()).isNull();
-        }
+        HttpEntity<Object> request = new HttpEntity<>(null, headers);
 
-        @ParameterizedTest
-        @EnumSource(TestCountry.class)
-        void shouldNotGetOffersWhenNoToken(TestCountry country) throws Exception {
-            Locale testedLocale = convertEnumToLocale(country);
+        ResponseEntity<JsonNode> responseEntity = restTemplate
+                .exchange(uri, HttpMethod.GET, request, JsonNode.class);
 
-            URI uri = new URI("http://localhost:" + port + "/offer");
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(Objects.requireNonNull(responseEntity.getBody().get(0).get("title").textValue())).isEqualTo("Karnet miesięczny");
+        assertThat(responseEntity.getBody().get(0).get("subheader").textValue())
+                .isEqualTo("Najlepszy wybór dla osób aktywnych");
+        assertThat(responseEntity.getBody().get(0).get("price").get("amount").asDouble()).isEqualTo(139.99);
+        assertThat(responseEntity.getBody().get(0).get("price").get("currency").textValue()).isEqualTo("zł");
+        assertThat(responseEntity.getBody().get(0).get("price").get("period").textValue()).isEqualTo("miesiąc");
+        assertThat(responseEntity.getBody().get(0).get("isPremium").booleanValue()).isFalse();
+        assertThat(responseEntity.getBody().get(0).get("description").get("synopsis").textValue())
+                .isEqualTo("Karnet uprawniający do korzystania w pełni z usług ośrodka");
+        assertThat(responseEntity.getBody().get(0).get("description").get("features").get(0).textValue())
+                .isEqualTo("Full pakiet");
+        assertThat(responseEntity.getBody().get(0).get("description").get("features").get(1).textValue())
+                .isEqualTo("sauna");
+        assertThat(responseEntity.getBody().get(0).get("description").get("features").get(2).textValue())
+                .isEqualTo("siłownia");
+        assertThat(responseEntity.getBody().get(0).get("description").get("features").get(3).textValue())
+                .isEqualTo("basen");
 
-            HttpHeaders headers = new HttpHeaders();
-            headers.set("Accept-Language", testedLocale.toString());
-            headers.setContentType(MediaType.APPLICATION_JSON);
+        assertThat(responseEntity.getBody().get(1).get("title").textValue()).isEqualTo("Karnet kwartalny");
+        assertThat(responseEntity.getBody().get(1).get("subheader").textValue())
+                .isEqualTo("Najlepszy wybór dla osób aktywnych i korzystny cenowo");
+        assertThat(responseEntity.getBody().get(1).get("price").get("amount").asDouble()).isEqualTo(399.99);
+        assertThat(responseEntity.getBody().get(1).get("price").get("currency").textValue()).isEqualTo("zł");
+        assertThat(responseEntity.getBody().get(1).get("price").get("period").textValue()).isEqualTo("miesiąc");
+        assertThat(responseEntity.getBody().get(1).get("isPremium").booleanValue()).isFalse();
+        assertThat(responseEntity.getBody().get(1).get("description").get("synopsis").textValue())
+                .isEqualTo("Karnet uprawniający do korzystania w pełni z usług ośrodka");
+        assertThat(responseEntity.getBody().get(1).get("description").get("features").get(0).textValue())
+                .isEqualTo("Full pakiet");
+        assertThat(responseEntity.getBody().get(1).get("description").get("features").get(1).textValue())
+                .isEqualTo("sauna");
+        assertThat(responseEntity.getBody().get(1).get("description").get("features").get(2).textValue())
+                .isEqualTo("siłownia");
+        assertThat(responseEntity.getBody().get(1).get("description").get("features").get(3).textValue())
+                .isEqualTo("basen");
+        assertThat(responseEntity.getHeaders().getContentType()).isEqualTo(MediaType.APPLICATION_JSON);
 
-            HttpEntity<Object> request = new HttpEntity<>(null, headers);
-
-            ResponseEntity<JsonNode> responseEntity = restTemplate
-                    .exchange(uri, HttpMethod.GET, request, JsonNode.class);
-
-
-            assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
-            assertThat(responseEntity.getBody().get("status").intValue()).isEqualTo(403);
-            assertThat(responseEntity.getBody().get("error").textValue()).isEqualTo("Forbidden");
-            assertThat(responseEntity.getBody().get("message").textValue()).isEqualTo("Access Denied");
-            assertThat(responseEntity.getBody().get("timestamp")).isNotNull();
-        }
-
+        List<GymPassDocument> gymPassDocumentList = mongoTemplate.findAll(GymPassDocument.class);
+        assertThat(gymPassDocumentList.size()).isEqualTo(2);
     }
 
 

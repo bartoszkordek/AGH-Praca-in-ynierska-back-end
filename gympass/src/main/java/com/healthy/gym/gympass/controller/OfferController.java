@@ -44,7 +44,6 @@ public class OfferController {
         this.offerService = offerService;
     }
 
-
     @GetMapping
     public ResponseEntity<List<GymPassDTO>> getGymPassOffers() {
 

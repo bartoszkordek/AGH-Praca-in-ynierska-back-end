@@ -14,19 +14,26 @@ public class GymPassOfferRequest {
     @NotNull(message = "{field.required}")
     @Size(min = 2, max = 20, message = "{field.name.failure}")
     private String title;
+
     @Size(min = 2, max = 60, message = "{field.subheader.failure}")
     private String subheader;
+
     @NotNull(message = "{field.required}")
     private double amount;
+
     @DefaultValue("zł")
     private String currency;
+
     @NotNull(message = "{field.required}")
     @Size(min = 2, max = 20, message = "{field.period.failure}")
     private String period;
+
     @NotNull(message = "{field.required}")
     private boolean isPremium;
+
     @Size(min = 2, max = 60, message = "{field.synopsis.failure}")
     private String synopsis;
+
     @Size(min = 0, max = 20, message = "{field.features.failure}")
     private List<String> features;
 

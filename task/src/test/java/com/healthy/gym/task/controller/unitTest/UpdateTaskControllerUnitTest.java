@@ -301,6 +301,44 @@ public class UpdateTaskControllerUnitTest {
                                     .value(is(messages.get("exception.invalid.date.format")))
                     ));
         }
+
+
+        @ParameterizedTest
+        @EnumSource(TestCountry.class)
+        void shouldThrowBindException_whenInvalidEmptyBodyValues(TestCountry country) throws Exception {
+            Map<String, String> messages = getMessagesAccordingToLocale(country);
+            Locale testedLocale = convertEnumToLocale(country);
+
+            //before
+            ManagerOrderRequest invalidManagerOrderRequest = new ManagerOrderRequest();
+            invalidManagerOrderRequest.setEmployeeId(UUID.randomUUID().toString());
+            invalidManagerOrderRequest.setDueDate("2030-12-31");
+
+            String invalidTitleRequestContent = objectMapper.writeValueAsString(invalidManagerOrderRequest);
+
+            RequestBuilder request = MockMvcRequestBuilders
+                    .put(uri+taskId)
+                    .header("Accept-Language", testedLocale.toString())
+                    .header("Authorization", managerToken)
+                    .content(invalidTitleRequestContent)
+                    .contentType(MediaType.APPLICATION_JSON);
+
+            String expectedMessage = messages.get("request.bind.exception");
+
+            mockMvc.perform(request)
+                    .andDo(print())
+                    .andExpect(matchAll(
+                            status().isBadRequest(),
+                            content().contentType(MediaType.APPLICATION_JSON),
+                            jsonPath("$.error").value(is(HttpStatus.BAD_REQUEST.getReasonPhrase())),
+                            jsonPath("$.message").value(is(expectedMessage)),
+                            jsonPath("$.errors").value(is(notNullValue())),
+                            jsonPath("$.errors.title")
+                                    .value(is(messages.get("field.required"))),
+                            jsonPath("$.errors.description")
+                                    .value(is(messages.get("field.required")))
+                    ));
+        }
     }
 
 }

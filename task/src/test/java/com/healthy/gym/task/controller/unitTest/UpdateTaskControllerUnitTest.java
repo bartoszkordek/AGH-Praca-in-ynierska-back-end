@@ -15,6 +15,7 @@ import org.junit.jupiter.params.provider.EnumSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.RequestBuilder;
@@ -33,6 +34,7 @@ import java.util.UUID;
 import static com.healthy.gym.task.configuration.LocaleConverter.convertEnumToLocale;
 import static com.healthy.gym.task.configuration.Messages.getMessagesAccordingToLocale;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.ResultMatcher.matchAll;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -247,6 +249,58 @@ public class UpdateTaskControllerUnitTest {
                     .andExpect(jsonPath("$.timestamp").exists());
         }
 
+    }
+
+
+    @Nested
+    class ShouldNotUpdateTaskWhenInvalidRequest {
+
+        @ParameterizedTest
+        @EnumSource(TestCountry.class)
+        void shouldThrowBindException_whenInvalidRequestBodyValues(TestCountry country) throws Exception {
+            Map<String, String> messages = getMessagesAccordingToLocale(country);
+            Locale testedLocale = convertEnumToLocale(country);
+
+            //before
+            String invalidRequestTitle = "T";
+            String invalidRequestDescription = "D";
+            String invalidEmployeeId = "invalidEmployeeId";
+            String invalidRequestDueDate = "Invalid Date";
+            ManagerOrderRequest invalidManagerOrderRequest = new ManagerOrderRequest();
+            invalidManagerOrderRequest.setTitle(invalidRequestTitle);
+            invalidManagerOrderRequest.setDescription(invalidRequestDescription);
+            invalidManagerOrderRequest.setEmployeeId(invalidEmployeeId);
+            invalidManagerOrderRequest.setDueDate(invalidRequestDueDate);
+
+            String invalidTitleRequestContent = objectMapper.writeValueAsString(invalidManagerOrderRequest);
+
+            RequestBuilder request = MockMvcRequestBuilders
+                    .put(uri+taskId)
+                    .header("Accept-Language", testedLocale.toString())
+                    .header("Authorization", managerToken)
+                    .content(invalidTitleRequestContent)
+                    .contentType(MediaType.APPLICATION_JSON);
+
+            String expectedMessage = messages.get("request.bind.exception");
+
+            mockMvc.perform(request)
+                    .andDo(print())
+                    .andExpect(matchAll(
+                            status().isBadRequest(),
+                            content().contentType(MediaType.APPLICATION_JSON),
+                            jsonPath("$.error").value(is(HttpStatus.BAD_REQUEST.getReasonPhrase())),
+                            jsonPath("$.message").value(is(expectedMessage)),
+                            jsonPath("$.errors").value(is(notNullValue())),
+                            jsonPath("$.errors.title")
+                                    .value(is(messages.get("field.title.failure"))),
+                            jsonPath("$.errors.description")
+                                    .value(is(messages.get("field.description.failure"))),
+                            jsonPath("$.errors.employeeId")
+                                    .value(is(messages.get("exception.invalid.id.format"))),
+                            jsonPath("$.errors.dueDate")
+                                    .value(is(messages.get("exception.invalid.date.format")))
+                    ));
+        }
     }
 
 }

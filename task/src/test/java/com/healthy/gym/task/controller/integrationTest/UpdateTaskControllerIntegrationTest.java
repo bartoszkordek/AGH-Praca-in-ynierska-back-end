@@ -306,6 +306,42 @@ public class UpdateTaskControllerIntegrationTest {
 
     @ParameterizedTest
     @EnumSource(TestCountry.class)
+    void shouldNotUpdateTask_whenInvalidTaskId(TestCountry country) throws Exception {
+        Map<String, String> messages = getMessagesAccordingToLocale(country);
+        Locale testedLocale = convertEnumToLocale(country);
+
+        String invalidTaskId = UUID.randomUUID().toString();
+
+        ManagerOrderRequest invalidEmployeeManagerOrderRequest = new ManagerOrderRequest();
+        invalidEmployeeManagerOrderRequest.setTitle(requestTitle);
+        invalidEmployeeManagerOrderRequest.setDescription(requestDescription);
+        invalidEmployeeManagerOrderRequest.setEmployeeId(employeeId2);
+        invalidEmployeeManagerOrderRequest.setDueDate(requestDueDate);
+
+        String invalidEmployeeRequestContent = objectMapper.writeValueAsString(invalidEmployeeManagerOrderRequest);
+
+        URI uri = new URI("http://localhost:" + port + "/" + invalidTaskId);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Accept-Language", testedLocale.toString());
+        headers.set("Authorization", adminToken);
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        HttpEntity<Object> request = new HttpEntity<>(invalidEmployeeRequestContent, headers);
+        String expectedMessage = messages.get("exception.task.not.found");
+
+        ResponseEntity<JsonNode> responseEntity = restTemplate
+                .exchange(uri, HttpMethod.PUT, request, JsonNode.class);
+
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        assertThat(responseEntity.getBody().get("error").textValue()).isEqualTo("Bad Request");
+        assertThat(Objects.requireNonNull(responseEntity.getBody().get("message").textValue()))
+                .isEqualTo(expectedMessage);
+        assertThat(responseEntity.getBody().get("timestamp")).isNotNull();
+    }
+
+    @ParameterizedTest
+    @EnumSource(TestCountry.class)
     void shouldNotUpdateTask_whenInvalidEmployeeId(TestCountry country) throws Exception {
         Map<String, String> messages = getMessagesAccordingToLocale(country);
         Locale testedLocale = convertEnumToLocale(country);

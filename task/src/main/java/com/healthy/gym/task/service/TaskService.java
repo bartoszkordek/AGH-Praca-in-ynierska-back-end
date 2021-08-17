@@ -14,4 +14,6 @@ public interface TaskService {
 
     TaskDTO updateTask(String taskId, ManagerOrderRequest managerOrderRequest)
             throws TaskNotFoundException, ManagerNotFoundException, EmployeeNotFoundException, RetroDueDateException;
+
+    TaskDTO deleteTask(String taskId) throws TaskNotFoundException;
 }

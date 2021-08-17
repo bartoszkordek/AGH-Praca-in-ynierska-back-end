@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
@@ -142,5 +143,25 @@ public class UpdateTaskServiceUnitTest {
 
         //then
         assertThat(taskService.updateTask(taskId, managerOrderRequest)).isEqualTo(taskResponse);
+    }
+
+    @Test
+    void shouldNotCreateTask_whenTaskIdNotExist(){
+        //before
+        String notFoundTaskId = UUID.randomUUID().toString();
+        //request
+        ManagerOrderRequest managerOrderRequest = new ManagerOrderRequest();
+        managerOrderRequest.setEmployeeId(notFoundTaskId);
+        managerOrderRequest.setTitle("Sample title");
+        managerOrderRequest.setDescription("Sample description");
+        managerOrderRequest.setDueDate(LocalDate.now().plusMonths(1).toString());
+
+        //when
+        when(taskDAO.findByTaskId(notFoundTaskId)).thenReturn(null);
+
+        //then
+        assertThatThrownBy(() ->
+                taskService.updateTask(notFoundTaskId, managerOrderRequest)
+        ).isInstanceOf(TaskNotFoundException.class);
     }
 }

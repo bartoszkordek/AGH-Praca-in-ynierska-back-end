@@ -45,6 +45,12 @@ eureka:
   instance:
     instance-id: ${spring.application.name}:${spring.application.instance_id:${random.value}}
 
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, info, env
+
 #custom settings
 token:
   secret: r@ndomlyGener@ted2ecretKey22ecureApplic@tionAndNeed2BeCh@nge1nTheFuture
@@ -59,5 +65,4 @@ authorization:
 front-end:
   protocol: http
   host: localhost
-  port: 3000
-  homepage: AGH-Praca-inzynierska-front-end
+  port: 5000

@@ -50,5 +50,4 @@ authorization:
 front-end:
   protocol: http
   host: localhost
-  port: 3000
-  homepage: AGH-Praca-inzynierska-front-end
+  port: 5000

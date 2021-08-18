@@ -13,6 +13,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 @EnableWebSecurity
 public class WebSecurity extends WebSecurityConfigurerAdapter {
 
+    private static final String ACTUATOR = "/actuator/**";
     private final TokenManager tokenManager;
 
     @Autowired
@@ -28,6 +29,9 @@ public class WebSecurity extends WebSecurityConfigurerAdapter {
         http.authorizeRequests()
                 .antMatchers(HttpMethod.GET, "/trainingType/**").permitAll()
                 .antMatchers(HttpMethod.GET, "/group/public/**").permitAll()
+                .antMatchers(HttpMethod.GET, ACTUATOR).permitAll()
+                .antMatchers(HttpMethod.POST, ACTUATOR).hasRole("ADMIN")
+                .antMatchers(HttpMethod.DELETE, ACTUATOR).hasRole("ADMIN")
                 .anyRequest().authenticated()
                 .and()
                 .addFilter(getAuthorizationFilter());

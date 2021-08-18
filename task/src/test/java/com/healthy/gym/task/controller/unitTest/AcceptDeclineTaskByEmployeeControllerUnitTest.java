@@ -6,6 +6,7 @@ import com.healthy.gym.task.controller.TaskController;
 import com.healthy.gym.task.dto.BasicUserInfoDTO;
 import com.healthy.gym.task.dto.TaskDTO;
 import com.healthy.gym.task.enums.AcceptanceStatus;
+import com.healthy.gym.task.exception.TaskNotFoundException;
 import com.healthy.gym.task.service.TaskService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -24,11 +25,15 @@ import java.net.URISyntaxException;
 import java.time.LocalDate;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 
 import static com.healthy.gym.task.configuration.LocaleConverter.convertEnumToLocale;
 import static com.healthy.gym.task.configuration.Messages.getMessagesAccordingToLocale;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.is;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.ResultMatcher.matchAll;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -329,6 +334,41 @@ public class AcceptDeclineTaskByEmployeeControllerUnitTest {
                     .andExpect(jsonPath("$.status").value(403))
                     .andExpect(jsonPath("$.timestamp").exists());
         }
+    }
 
+    @Nested
+    class ShouldNotUpdateTaskWhenInvalidRequest {
+
+        @ParameterizedTest
+        @EnumSource(TestCountry.class)
+        void shouldThrowTaskNotFoundException(TestCountry country) throws Exception {
+            Map<String, String> messages = getMessagesAccordingToLocale(country);
+            Locale testedLocale = convertEnumToLocale(country);
+
+            String notExistingTaskId = UUID.randomUUID().toString();
+            String status = "APPROVE";
+
+            RequestBuilder request = MockMvcRequestBuilders
+                    .put(uri+notExistingTaskId+"/employee/"+employeeId+"/status/"+status)
+                    .header("Accept-Language", testedLocale.toString())
+                    .header("Authorization", employeeToken)
+                    .contentType(MediaType.APPLICATION_JSON);
+
+
+            String expectedMessage = messages.get("exception.task.not.found");
+
+            doThrow(TaskNotFoundException.class)
+                    .when(taskService)
+                    .acceptDeclineTaskByEmployee(notExistingTaskId, employeeId, status);
+
+            mockMvc.perform(request)
+                    .andDo(print())
+                    .andExpect(status().isBadRequest())
+                    .andExpect(status().reason(is(expectedMessage)))
+                    .andExpect(result ->
+                            assertThat(Objects.requireNonNull(result.getResolvedException()).getCause())
+                                    .isInstanceOf(TaskNotFoundException.class)
+                    );
+        }
     }
 }

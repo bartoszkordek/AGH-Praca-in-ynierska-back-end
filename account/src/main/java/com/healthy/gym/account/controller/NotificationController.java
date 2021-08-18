@@ -62,7 +62,7 @@ public class NotificationController {
     }
 
     @PreAuthorize("hasRole('ADMIN') or principal==#userId")
-    @GetMapping("/{notificationId}/user/{userId}")
+    @PostMapping("/{notificationId}/user/{userId}")
     public ResponseEntity<UserNotificationDTO> markNotificationAsRead(
             @ValidIDFormat @PathVariable String notificationId,
             @ValidIDFormat @PathVariable String userId
@@ -77,7 +77,7 @@ public class NotificationController {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, reason, exception);
 
         } catch (UserNotFoundException exception) {
-            String reason = translator.toLocale("exception.not.found.user");
+            String reason = translator.toLocale("exception.not.found.user.id");
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, reason, exception);
 
         } catch (Exception exception) {

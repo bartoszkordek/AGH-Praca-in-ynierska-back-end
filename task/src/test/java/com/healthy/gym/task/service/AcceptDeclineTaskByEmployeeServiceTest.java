@@ -133,4 +133,20 @@ public class AcceptDeclineTaskByEmployeeServiceTest {
                 taskService.acceptDeclineTaskByEmployee(notFoundTaskId, employeeId, status)
         ).isInstanceOf(TaskNotFoundException.class);
     }
+
+    @Test
+    void shouldNotAcceptTask_whenEmployeeNotExist(){
+        //before
+        String notFoundEmployeeId = UUID.randomUUID().toString();
+        String status = "APPROVE";
+
+        //when
+        when(taskDAO.findByTaskId(taskId)).thenReturn(new TaskDocument());
+        when(userDAO.findByUserId(notFoundEmployeeId)).thenReturn(null);
+
+        //then
+        assertThatThrownBy(() ->
+                taskService.acceptDeclineTaskByEmployee(taskId, notFoundEmployeeId, status)
+        ).isInstanceOf(EmployeeNotFoundException.class);
+    }
 }

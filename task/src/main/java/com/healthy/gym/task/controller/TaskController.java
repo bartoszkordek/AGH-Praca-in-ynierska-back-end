@@ -155,11 +155,11 @@ public class TaskController {
 
 
     @PreAuthorize("principal==#userId")
-    @PutMapping("/{taskId}/user/{userId}/status/{status}")
+    @PutMapping("/{taskId}/employee/{userId}/status/{status}")
     public ResponseEntity<TaskResponse> acceptDeclineTaskByEmployee(
             @PathVariable("taskId") @ValidIDFormat final String taskId,
             @PathVariable("userId") @ValidIDFormat final String userId,
-            @PathVariable("status") @ValidIDFormat final String status
+            @PathVariable("status") final String status
     ){
         try{
             String message;

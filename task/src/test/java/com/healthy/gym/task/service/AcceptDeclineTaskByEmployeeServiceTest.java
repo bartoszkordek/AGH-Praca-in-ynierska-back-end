@@ -174,4 +174,27 @@ public class AcceptDeclineTaskByEmployeeServiceTest {
                 taskService.acceptDeclineTaskByEmployee(taskId, notEmployeeId, status)
         ).isInstanceOf(EmployeeNotFoundException.class);
     }
+
+    @Test
+    void shouldNotAcceptTask_whenInvalidStatus(){
+        //before
+        String status = "INVALID_STATUS";
+        String employeeName = "Jan";
+        String employeeSurname = "Kowalski";
+        UserDocument employeeDocument = new UserDocument();
+        employeeDocument.setName(employeeName);
+        employeeDocument.setSurname(employeeSurname);
+        employeeDocument.setUserId(employeeId);
+        employeeDocument.setGymRoles(List.of(GymRole.EMPLOYEE));
+        employeeDocument.setId("507f1f77bcf86cd799435213");
+
+        //when
+        when(taskDAO.findByTaskId(taskId)).thenReturn(new TaskDocument());
+        when(userDAO.findByUserId(employeeId)).thenReturn(employeeDocument);
+
+        //then
+        assertThatThrownBy(() ->
+                taskService.acceptDeclineTaskByEmployee(taskId, employeeId, status)
+        ).isInstanceOf(InvalidStatusException.class);
+    }
 }

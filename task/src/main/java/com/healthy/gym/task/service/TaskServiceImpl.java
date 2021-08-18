@@ -27,7 +27,7 @@ public class TaskServiceImpl implements TaskService{
     private final GymRole managerRole;
     private final GymRole employeeRole;
     private static final String ACCEPT_STATUS = "ACCEPT";
-    private static final String DECLINE_STATUS = "DECLINED";
+    private static final String DECLINE_STATUS = "DECLINE";
 
     @Autowired
     public TaskServiceImpl(

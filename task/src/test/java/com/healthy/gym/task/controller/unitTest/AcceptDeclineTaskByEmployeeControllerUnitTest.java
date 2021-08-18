@@ -152,6 +152,84 @@ public class AcceptDeclineTaskByEmployeeControllerUnitTest {
                         jsonPath("$.task.employeeAccept").value(is(employeeAccept.toString())),
                         jsonPath("$.task.managerAccept").value(is(managerAccept.toString()))
                 ));
+    }
+
+    @ParameterizedTest
+    @EnumSource(TestCountry.class)
+    void shouldDeclineTask(TestCountry country) throws Exception {
+        Map<String, String> messages = getMessagesAccordingToLocale(country);
+        Locale testedLocale = convertEnumToLocale(country);
+
+        String status = "DECLINE";
+
+        RequestBuilder request = MockMvcRequestBuilders
+                .put(uri+taskId+"/employee/"+employeeId+"/status/"+status)
+                .header("Accept-Language", testedLocale.toString())
+                .header("Authorization", employeeToken)
+                .contentType(MediaType.APPLICATION_JSON);
+
+        var now = LocalDate.now();
+        String managerId = UUID.randomUUID().toString();
+        String managerName = "Martin";
+        String managerSurname = "Manager";
+        BasicUserInfoDTO manager = new BasicUserInfoDTO(managerId, managerName, managerSurname);
+        String employeeName = "Eric";
+        String employeeSurname = "Employee";
+        BasicUserInfoDTO employee = new BasicUserInfoDTO(employeeId, employeeName, employeeSurname);
+        String title = "Test task 1";
+        String description = "Description for task 1";
+        LocalDate lastOrderUpdateDate = now;
+        LocalDate dueDate = now.plusMonths(1);
+        AcceptanceStatus employeeAccept = AcceptanceStatus.NOT_ACCEPTED;
+        AcceptanceStatus managerAccept = AcceptanceStatus.NO_ACTION;
+
+        TaskDTO taskResponse = new TaskDTO(
+                taskId,
+                manager,
+                employee,
+                title,
+                description,
+                null,
+                null,
+                lastOrderUpdateDate,
+                dueDate,
+                null,
+                employeeAccept,
+                managerAccept
+        );
+
+        when(taskService.acceptDeclineTaskByEmployee(taskId, employeeId, status))
+                .thenReturn(taskResponse);
+
+        String expectedMessage = messages.get("task.declined.employee");
+
+        mockMvc.perform(request)
+                .andDo(print())
+                .andExpect(matchAll(
+                        status().isOk(),
+                        content().contentType(MediaType.APPLICATION_JSON),
+                        jsonPath("$.message").value(is(expectedMessage)),
+                        jsonPath("$.task").exists(),
+                        jsonPath("$.task.id").exists(),
+                        jsonPath("$.task.id").value(is(taskId)),
+                        jsonPath("$.task.manager").exists(),
+                        jsonPath("$.task.manager.userId").value(is(managerId)),
+                        jsonPath("$.task.manager.name").value(is(managerName)),
+                        jsonPath("$.task.manager.surname").value(is(managerSurname)),
+                        jsonPath("$.task.employee").exists(),
+                        jsonPath("$.task.employee.userId").exists(),
+                        jsonPath("$.task.employee.name").value(is(employeeName)),
+                        jsonPath("$.task.employee.surname").value(is(employeeSurname)),
+                        jsonPath("$.task.title").value(is(title)),
+                        jsonPath("$.task.description").value(is(description)),
+                        jsonPath("$.task.report").doesNotExist(),
+                        jsonPath("$.task.orderDate").doesNotExist(),
+                        jsonPath("$.task.lastOrderUpdateDate").value(is(lastOrderUpdateDate.toString())),
+                        jsonPath("$.task.dueDate").value(is(dueDate.toString())),
+                        jsonPath("$.task.reportDate").doesNotExist(),
+                        jsonPath("$.task.employeeAccept").value(is(employeeAccept.toString())),
+                        jsonPath("$.task.managerAccept").value(is(managerAccept.toString()))
+                ));
 
     }
 }

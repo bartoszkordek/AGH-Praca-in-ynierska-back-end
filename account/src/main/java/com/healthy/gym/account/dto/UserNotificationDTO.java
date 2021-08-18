@@ -3,17 +3,21 @@ package com.healthy.gym.account.dto;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import java.util.Objects;
+
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class UserNotificationDTO {
 
-    private String notificationId;
     @JsonProperty("from")
     private BasicUserInfoDTO createdBy;
-    private String title;
-    private String content;
+
     @JsonProperty("created")
     private String createdAt;
+
+    private String title;
+    private String content;
     private boolean markAsRead;
+    private String notificationId;
 
     public UserNotificationDTO() {
     }
@@ -80,5 +84,36 @@ public class UserNotificationDTO {
 
     public void setMarkAsRead(boolean markAsRead) {
         this.markAsRead = markAsRead;
+    }
+
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        UserNotificationDTO that = (UserNotificationDTO) o;
+        return markAsRead == that.markAsRead
+                && Objects.equals(notificationId, that.notificationId)
+                && Objects.equals(createdBy, that.createdBy)
+                && Objects.equals(title, that.title)
+                && Objects.equals(content, that.content)
+                && Objects.equals(createdAt, that.createdAt);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(notificationId, createdBy, title, content, createdAt, markAsRead);
+    }
+
+    @Override
+    public String toString() {
+        return "UserNotificationDTO{" +
+                "notificationId='" + notificationId + '\'' +
+                ", createdBy=" + createdBy +
+                ", title='" + title + '\'' +
+                ", content='" + content + '\'' +
+                ", createdAt='" + createdAt + '\'' +
+                ", markAsRead=" + markAsRead +
+                '}';
     }
 }

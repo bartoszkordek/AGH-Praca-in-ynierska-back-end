@@ -435,5 +435,35 @@ public class AcceptDeclineTaskByEmployeeControllerUnitTest {
                                     .isInstanceOf(InvalidStatusException.class)
                     );
         }
+
+        @ParameterizedTest
+        @EnumSource(TestCountry.class)
+        void shouldThrowIllegalStateExceptionWhenInternalErrorOccurs(TestCountry country) throws Exception {
+            Map<String, String> messages = getMessagesAccordingToLocale(country);
+            Locale testedLocale = convertEnumToLocale(country);
+
+            String status = "STATUS";
+            String taskIdForIllegalStateException = UUID.randomUUID().toString();
+            RequestBuilder request = MockMvcRequestBuilders
+                    .put(uri+taskIdForIllegalStateException+"/employee/"+employeeId+"/status/"+status)
+                    .header("Accept-Language", testedLocale.toString())
+                    .header("Authorization", employeeToken)
+                    .contentType(MediaType.APPLICATION_JSON);
+
+            doThrow(IllegalStateException.class)
+                    .when(taskService)
+                    .acceptDeclineTaskByEmployee(taskIdForIllegalStateException, employeeId, status);
+
+            String expectedMessage = messages.get("exception.internal.error");
+
+            mockMvc.perform(request)
+                    .andDo(print())
+                    .andExpect(status().isInternalServerError())
+                    .andExpect(status().reason(is(expectedMessage)))
+                    .andExpect(result ->
+                            assertThat(Objects.requireNonNull(result.getResolvedException()).getCause())
+                                    .isInstanceOf(IllegalStateException.class)
+                    );
+        }
     }
 }

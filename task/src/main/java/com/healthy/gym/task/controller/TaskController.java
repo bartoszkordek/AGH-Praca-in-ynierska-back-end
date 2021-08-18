@@ -167,10 +167,8 @@ public class TaskController {
             AcceptanceStatus taskStatus = taskDTO.getEmployeeAccept();
             if(taskStatus.equals(AcceptanceStatus.ACCEPTED)){
                 message = translator.toLocale("task.approved.employee");
-            } else if(taskStatus.equals(AcceptanceStatus.NOT_ACCEPTED)){
-                message = translator.toLocale("task.declined.employee");
             } else {
-                message = translator.toLocale("task.status.not.updated.employee");
+                message = translator.toLocale("task.declined.employee");
             }
 
             return ResponseEntity

@@ -26,7 +26,7 @@ public class TaskServiceImpl implements TaskService{
     private final ModelMapper modelMapper;
     private final GymRole managerRole;
     private final GymRole employeeRole;
-    private static final String ACCEPT_STATUS = "ACCEPT";
+    private static final String ACCEPT_STATUS = "APPROVE";
     private static final String DECLINE_STATUS = "DECLINE";
 
     @Autowired

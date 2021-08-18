@@ -5,6 +5,8 @@ import com.healthy.gym.account.dto.UserNotificationDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class NotificationServiceImpl implements NotificationService {
 
@@ -16,7 +18,12 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
     @Override
-    public UserNotificationDTO getRecentUserNotifications(String userId, String pageNumber, String pageSize) {
+    public List<UserNotificationDTO> getRecentUserNotifications(String userId, int pageNumber, int pageSize) {
+        return null;
+    }
+
+    @Override
+    public UserNotificationDTO markNotificationAsRead(String notificationId, String userId) {
         return null;
     }
 }

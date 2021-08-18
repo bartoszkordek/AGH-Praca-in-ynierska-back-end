@@ -7,10 +7,7 @@ import com.healthy.gym.task.data.repository.UserDAO;
 import com.healthy.gym.task.dto.TaskDTO;
 import com.healthy.gym.task.enums.AcceptanceStatus;
 import com.healthy.gym.task.enums.GymRole;
-import com.healthy.gym.task.exception.EmployeeNotFoundException;
-import com.healthy.gym.task.exception.ManagerNotFoundException;
-import com.healthy.gym.task.exception.RetroDueDateException;
-import com.healthy.gym.task.exception.TaskNotFoundException;
+import com.healthy.gym.task.exception.*;
 import com.healthy.gym.task.pojo.request.ManagerOrderRequest;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
@@ -125,5 +122,11 @@ public class TaskServiceImpl implements TaskService{
 
         taskDAO.delete(taskDocumentToBeRemoved);
         return modelMapper.map(taskDocumentToBeRemoved, TaskDTO.class);
+    }
+
+    @Override
+    public TaskDTO acceptDeclineTaskByEmployee(String taskId, String userId, String status)
+            throws TaskNotFoundException, EmployeeNotFoundException, InvalidStatusException {
+        return null;
     }
 }

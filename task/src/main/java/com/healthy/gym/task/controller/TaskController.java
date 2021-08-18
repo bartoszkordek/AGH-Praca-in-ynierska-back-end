@@ -2,6 +2,7 @@ package com.healthy.gym.task.controller;
 
 import com.healthy.gym.task.component.Translator;
 import com.healthy.gym.task.dto.TaskDTO;
+import com.healthy.gym.task.enums.AcceptanceStatus;
 import com.healthy.gym.task.exception.*;
 import com.healthy.gym.task.pojo.request.ManagerOrderRequest;
 import com.healthy.gym.task.pojo.response.TaskResponse;
@@ -143,6 +144,49 @@ public class TaskController {
 
         } catch (TaskNotFoundException exception){
             String reason = translator.toLocale("exception.task.not.found");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, exception);
+
+        } catch (Exception exception){
+            String reason = translator.toLocale(INTERNAL_ERROR_EXCEPTION);
+            exception.printStackTrace();
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, reason, exception);
+        }
+    }
+
+
+    @PreAuthorize("principal==#userId")
+    @PutMapping("/{taskId}/user/{userId}/status/{status}")
+    public ResponseEntity<TaskResponse> acceptDeclineTaskByEmployee(
+            @PathVariable("taskId") @ValidIDFormat final String taskId,
+            @PathVariable("userId") @ValidIDFormat final String userId,
+            @PathVariable("status") @ValidIDFormat final String status
+    ){
+        try{
+            String message;
+            TaskDTO taskDTO = taskService.acceptDeclineTaskByEmployee(taskId, userId, status);
+            AcceptanceStatus taskStatus = taskDTO.getEmployeeAccept();
+            if(taskStatus.equals(AcceptanceStatus.ACCEPTED)){
+                message = translator.toLocale("task.approved.employee");
+            } else if(taskStatus.equals(AcceptanceStatus.NOT_ACCEPTED)){
+                message = translator.toLocale("task.declined.employee");
+            } else {
+                message = translator.toLocale("task.status.not.updated.employee");
+            }
+
+            return ResponseEntity
+                    .status(HttpStatus.OK)
+                    .body(new TaskResponse(message, taskDTO));
+
+        } catch (TaskNotFoundException exception){
+            String reason = translator.toLocale("exception.task.not.found");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, exception);
+
+        } catch (EmployeeNotFoundException exception){
+            String reason = translator.toLocale("exception.employee.not.found");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, exception);
+
+        } catch (InvalidStatusException exception){
+            String reason = translator.toLocale("exception.invalid.status");
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, exception);
 
         } catch (Exception exception){

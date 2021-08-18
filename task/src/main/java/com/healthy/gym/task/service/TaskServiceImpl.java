@@ -26,6 +26,8 @@ public class TaskServiceImpl implements TaskService{
     private final ModelMapper modelMapper;
     private final GymRole managerRole;
     private final GymRole employeeRole;
+    private static final String ACCEPT_STATUS = "ACCEPT";
+    private static final String DECLINE_STATUS = "DECLINED";
 
     @Autowired
     public TaskServiceImpl(
@@ -135,10 +137,13 @@ public class TaskServiceImpl implements TaskService{
         if(employeeDocument == null) throw new EmployeeNotFoundException();
         if(!employeeDocument.getGymRoles().contains(employeeRole)) throw new EmployeeNotFoundException();
 
-        if(status.equals("ACCEPT"))
+        if(!status.equalsIgnoreCase(ACCEPT_STATUS) && !status.equalsIgnoreCase(DECLINE_STATUS))
+            throw new InvalidStatusException();
+
+        if(status.equalsIgnoreCase(ACCEPT_STATUS))
             taskDocumentToBeUpdated.setEmployeeAccept(AcceptanceStatus.ACCEPTED);
 
-        if(status.equals("DECLINED"))
+        if(status.equalsIgnoreCase(DECLINE_STATUS))
             taskDocumentToBeUpdated.setEmployeeAccept(AcceptanceStatus.NOT_ACCEPTED);
 
         TaskDocument updatedTaskDocument = taskDAO.save(taskDocumentToBeUpdated);

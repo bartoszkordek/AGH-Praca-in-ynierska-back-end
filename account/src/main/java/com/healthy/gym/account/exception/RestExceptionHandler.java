@@ -13,14 +13,23 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
+import javax.validation.ConstraintViolation;
+import javax.validation.ConstraintViolationException;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @RestControllerAdvice
 public class RestExceptionHandler extends ResponseEntityExceptionHandler {
+
+    private static final String TIMESTAMP = "timestamp";
+    private static final String STATUS = "status";
+    private static final String ERROR = "error";
+    private static final String MESSAGE = "message";
+    private static final String ERRORS = "errors";
 
     private final Translator translator;
 
@@ -34,10 +43,10 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
         String reason = translator.toLocale("exception.access.denied");
 
         Map<String, Object> body = new HashMap<>();
-        body.put("timestamp", LocalDateTime.now());
-        body.put("status", HttpStatus.FORBIDDEN.value());
-        body.put("error", HttpStatus.FORBIDDEN.getReasonPhrase());
-        body.put("message", reason);
+        body.put(TIMESTAMP, LocalDateTime.now());
+        body.put(STATUS, HttpStatus.FORBIDDEN.value());
+        body.put(ERROR, HttpStatus.FORBIDDEN.getReasonPhrase());
+        body.put(MESSAGE, reason);
 
         return new ResponseEntity<>(body, HttpStatus.FORBIDDEN);
     }
@@ -49,11 +58,11 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
         BindException bindException = exception.getException();
 
         Map<String, Object> body = new HashMap<>();
-        body.put("timestamp", LocalDateTime.now());
-        body.put("status", httpStatus.value());
-        body.put("error", httpStatus.getReasonPhrase());
-        body.put("message", reason);
-        body.put("errors", getBindExceptionErrorMessages(bindException));
+        body.put(TIMESTAMP, LocalDateTime.now());
+        body.put(STATUS, httpStatus.value());
+        body.put(ERROR, httpStatus.getReasonPhrase());
+        body.put(MESSAGE, reason);
+        body.put(ERRORS, getBindExceptionErrorMessages(bindException));
 
         return ResponseEntity
                 .status(httpStatus)
@@ -66,5 +75,35 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
         return exception.getFieldErrors()
                 .stream()
                 .collect(Collectors.toMap(FieldError::getField, FieldError::getDefaultMessage));
+    }
+
+    @ExceptionHandler({ConstraintViolationException.class})
+    public ResponseEntity<Object> handleConstraintViolationException(ConstraintViolationException exception) {
+        Set<ConstraintViolation<?>> exceptions = exception.getConstraintViolations();
+
+        String reason = translator.toLocale("exception.constraint.violation");
+        HttpStatus httpStatus = HttpStatus.BAD_REQUEST;
+        Map<String, String> errors = exceptions
+                .stream()
+                .collect(
+                        Collectors.toMap(
+                                constraintViolation -> constraintViolation.getPropertyPath()
+                                        .toString().split("\\.")[1],
+                                ConstraintViolation::getMessage
+                        )
+                );
+
+        Map<String, Object> body = new HashMap<>();
+        body.put(TIMESTAMP, LocalDateTime.now());
+        body.put(STATUS, httpStatus.value());
+        body.put(ERROR, httpStatus.getReasonPhrase());
+        body.put(MESSAGE, reason);
+        body.put(ERRORS, errors);
+
+        return ResponseEntity
+                .status(httpStatus)
+                .contentType(MediaType.APPLICATION_JSON)
+                .header(HttpHeaders.CONTENT_ENCODING, StandardCharsets.UTF_8.name())
+                .body(body);
     }
 }

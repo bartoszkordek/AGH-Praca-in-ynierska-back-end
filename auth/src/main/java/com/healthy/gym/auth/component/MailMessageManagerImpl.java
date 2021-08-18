@@ -70,8 +70,13 @@ public class MailMessageManagerImpl implements MailMessageManager {
         String protocol = environment.getRequiredProperty("front-end.protocol");
         String host = environment.getRequiredProperty("front-end.host");
         String port = environment.getRequiredProperty("front-end.port");
-        String homepage = environment.getRequiredProperty("front-end.homepage");
 
-        return protocol + "://" + host + ":" + port + "/" + homepage;
+        return protocol + "://" + host + ":" + port + getHomePage();
+    }
+
+    private String getHomePage() {
+        String homepage = environment.getProperty("front-end.homepage");
+        if (homepage == null) return "";
+        return "/" + homepage;
     }
 }

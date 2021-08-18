@@ -7,10 +7,7 @@ import com.healthy.gym.task.data.repository.UserDAO;
 import com.healthy.gym.task.dto.TaskDTO;
 import com.healthy.gym.task.enums.AcceptanceStatus;
 import com.healthy.gym.task.enums.GymRole;
-import com.healthy.gym.task.exception.EmployeeNotFoundException;
-import com.healthy.gym.task.exception.ManagerNotFoundException;
-import com.healthy.gym.task.exception.RetroDueDateException;
-import com.healthy.gym.task.exception.TaskNotFoundException;
+import com.healthy.gym.task.exception.*;
 import com.healthy.gym.task.pojo.request.ManagerOrderRequest;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
@@ -29,6 +26,8 @@ public class TaskServiceImpl implements TaskService{
     private final ModelMapper modelMapper;
     private final GymRole managerRole;
     private final GymRole employeeRole;
+    private static final String ACCEPT_STATUS = "APPROVE";
+    private static final String DECLINE_STATUS = "DECLINE";
 
     @Autowired
     public TaskServiceImpl(
@@ -125,5 +124,29 @@ public class TaskServiceImpl implements TaskService{
 
         taskDAO.delete(taskDocumentToBeRemoved);
         return modelMapper.map(taskDocumentToBeRemoved, TaskDTO.class);
+    }
+
+    @Override
+    public TaskDTO acceptDeclineTaskByEmployee(String taskId, String userId, String status)
+            throws TaskNotFoundException, EmployeeNotFoundException, InvalidStatusException {
+
+        TaskDocument taskDocumentToBeUpdated = taskDAO.findByTaskId(taskId);
+        if(taskDocumentToBeUpdated == null) throw new TaskNotFoundException();
+
+        UserDocument employeeDocument = userDAO.findByUserId(userId);
+        if(employeeDocument == null) throw new EmployeeNotFoundException();
+        if(!employeeDocument.getGymRoles().contains(employeeRole)) throw new EmployeeNotFoundException();
+
+        if(!status.equalsIgnoreCase(ACCEPT_STATUS) && !status.equalsIgnoreCase(DECLINE_STATUS))
+            throw new InvalidStatusException();
+
+        if(status.equalsIgnoreCase(ACCEPT_STATUS))
+            taskDocumentToBeUpdated.setEmployeeAccept(AcceptanceStatus.ACCEPTED);
+
+        if(status.equalsIgnoreCase(DECLINE_STATUS))
+            taskDocumentToBeUpdated.setEmployeeAccept(AcceptanceStatus.NOT_ACCEPTED);
+
+        TaskDocument updatedTaskDocument = taskDAO.save(taskDocumentToBeUpdated);
+        return modelMapper.map(updatedTaskDocument, TaskDTO.class);
     }
 }

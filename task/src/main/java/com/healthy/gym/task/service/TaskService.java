@@ -1,10 +1,7 @@
 package com.healthy.gym.task.service;
 
 import com.healthy.gym.task.dto.TaskDTO;
-import com.healthy.gym.task.exception.EmployeeNotFoundException;
-import com.healthy.gym.task.exception.ManagerNotFoundException;
-import com.healthy.gym.task.exception.RetroDueDateException;
-import com.healthy.gym.task.exception.TaskNotFoundException;
+import com.healthy.gym.task.exception.*;
 import com.healthy.gym.task.pojo.request.ManagerOrderRequest;
 
 public interface TaskService {
@@ -16,4 +13,7 @@ public interface TaskService {
             throws TaskNotFoundException, ManagerNotFoundException, EmployeeNotFoundException, RetroDueDateException;
 
     TaskDTO deleteTask(String taskId) throws TaskNotFoundException;
+
+    TaskDTO acceptDeclineTaskByEmployee(String taskId, String userId, String status)
+            throws TaskNotFoundException, EmployeeNotFoundException, InvalidStatusException;
 }

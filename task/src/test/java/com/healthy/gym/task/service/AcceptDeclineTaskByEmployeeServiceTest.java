@@ -149,4 +149,29 @@ public class AcceptDeclineTaskByEmployeeServiceTest {
                 taskService.acceptDeclineTaskByEmployee(taskId, notFoundEmployeeId, status)
         ).isInstanceOf(EmployeeNotFoundException.class);
     }
+
+    @Test
+    void shouldNotAcceptTask_whenUserIsNotEmployeeNotExist(){
+        //before
+        String notEmployeeId = UUID.randomUUID().toString();
+        String status = "APPROVE";
+
+        String managerName = "Piotr";
+        String managerSurname = "Kowalski";
+        UserDocument notEmployeeDocument = new UserDocument();
+        notEmployeeDocument.setName(managerName);
+        notEmployeeDocument.setSurname(managerSurname);
+        notEmployeeDocument.setUserId(notEmployeeId);
+        notEmployeeDocument.setGymRoles(List.of(GymRole.MANAGER));
+        notEmployeeDocument.setId("507f1f77bcf86cd799434821");
+
+        //when
+        when(taskDAO.findByTaskId(taskId)).thenReturn(new TaskDocument());
+        when(userDAO.findByUserId(notEmployeeId)).thenReturn(notEmployeeDocument);
+
+        //then
+        assertThatThrownBy(() ->
+                taskService.acceptDeclineTaskByEmployee(taskId, notEmployeeId, status)
+        ).isInstanceOf(EmployeeNotFoundException.class);
+    }
 }

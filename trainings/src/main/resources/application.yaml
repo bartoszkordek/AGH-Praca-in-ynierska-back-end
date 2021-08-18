@@ -33,8 +33,16 @@ eureka:
   client:
     service-url:
       defaultZone: http://localhost:8010/eureka
+    registry-fetch-interval-seconds: 5
+    region: default
   instance:
     instance-id: ${spring.application.name}:${spring.application.instance_id:${random.value}}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, info, env
 
 #custom settings
 token:

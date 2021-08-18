@@ -478,4 +478,34 @@ public class AcceptDeclineTaskByEmployeeControllerIntegrationTest {
                 .isEqualTo(expectedMessage);
         assertThat(responseEntity.getBody().get("timestamp")).isNotNull();
     }
+
+
+    @ParameterizedTest
+    @EnumSource(TestCountry.class)
+    void shouldNotAcceptTask_whenInvalidStatus(TestCountry country) throws Exception {
+        Map<String, String> messages = getMessagesAccordingToLocale(country);
+        Locale testedLocale = convertEnumToLocale(country);
+
+        String status = "INVALID_STATUS";
+
+        URI uri = new URI("http://localhost:" + port + "/"+ taskId + "/employee/" + employeeId
+                + "/status/" + status);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Accept-Language", testedLocale.toString());
+        headers.set("Authorization", employeeToken);
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        HttpEntity<Object> request = new HttpEntity<>(null, headers);
+        String expectedMessage = messages.get("exception.invalid.status");
+
+        ResponseEntity<JsonNode> responseEntity = restTemplate
+                .exchange(uri, HttpMethod.PUT, request, JsonNode.class);
+
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        assertThat(responseEntity.getBody().get("error").textValue()).isEqualTo("Bad Request");
+        assertThat(Objects.requireNonNull(responseEntity.getBody().get("message").textValue()))
+                .isEqualTo(expectedMessage);
+        assertThat(responseEntity.getBody().get("timestamp")).isNotNull();
+    }
 }

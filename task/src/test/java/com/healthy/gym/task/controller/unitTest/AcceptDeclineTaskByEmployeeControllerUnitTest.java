@@ -7,6 +7,7 @@ import com.healthy.gym.task.dto.BasicUserInfoDTO;
 import com.healthy.gym.task.dto.TaskDTO;
 import com.healthy.gym.task.enums.AcceptanceStatus;
 import com.healthy.gym.task.exception.EmployeeNotFoundException;
+import com.healthy.gym.task.exception.InvalidStatusException;
 import com.healthy.gym.task.exception.TaskNotFoundException;
 import com.healthy.gym.task.service.TaskService;
 import org.junit.jupiter.api.BeforeEach;
@@ -401,6 +402,37 @@ public class AcceptDeclineTaskByEmployeeControllerUnitTest {
                     .andExpect(result ->
                             assertThat(Objects.requireNonNull(result.getResolvedException()).getCause())
                                     .isInstanceOf(EmployeeNotFoundException.class)
+                    );
+        }
+
+        @ParameterizedTest
+        @EnumSource(TestCountry.class)
+        void shouldThrowInvalidStatusException(TestCountry country) throws Exception {
+            Map<String, String> messages = getMessagesAccordingToLocale(country);
+            Locale testedLocale = convertEnumToLocale(country);
+
+            String invalidStatus = "INVALID_STATUS";
+
+            RequestBuilder request = MockMvcRequestBuilders
+                    .put(uri+taskId+"/employee/"+employeeId+"/status/"+invalidStatus)
+                    .header("Accept-Language", testedLocale.toString())
+                    .header("Authorization", employeeToken)
+                    .contentType(MediaType.APPLICATION_JSON);
+
+
+            String expectedMessage = messages.get("exception.invalid.status");
+
+            doThrow(InvalidStatusException.class)
+                    .when(taskService)
+                    .acceptDeclineTaskByEmployee(taskId, employeeId, invalidStatus);
+
+            mockMvc.perform(request)
+                    .andDo(print())
+                    .andExpect(status().isBadRequest())
+                    .andExpect(status().reason(is(expectedMessage)))
+                    .andExpect(result ->
+                            assertThat(Objects.requireNonNull(result.getResolvedException()).getCause())
+                                    .isInstanceOf(InvalidStatusException.class)
                     );
         }
     }

@@ -127,6 +127,21 @@ public class TaskServiceImpl implements TaskService{
     @Override
     public TaskDTO acceptDeclineTaskByEmployee(String taskId, String userId, String status)
             throws TaskNotFoundException, EmployeeNotFoundException, InvalidStatusException {
-        return null;
+
+        TaskDocument taskDocumentToBeUpdated = taskDAO.findByTaskId(taskId);
+        if(taskDocumentToBeUpdated == null) throw new TaskNotFoundException();
+
+        UserDocument employeeDocument = userDAO.findByUserId(userId);
+        if(employeeDocument == null) throw new EmployeeNotFoundException();
+        if(!employeeDocument.getGymRoles().contains(employeeRole)) throw new EmployeeNotFoundException();
+
+        if(status.equals("ACCEPT"))
+            taskDocumentToBeUpdated.setEmployeeAccept(AcceptanceStatus.ACCEPTED);
+
+        if(status.equals("DECLINED"))
+            taskDocumentToBeUpdated.setEmployeeAccept(AcceptanceStatus.NOT_ACCEPTED);
+
+        TaskDocument updatedTaskDocument = taskDAO.save(taskDocumentToBeUpdated);
+        return modelMapper.map(updatedTaskDocument, TaskDTO.class);
     }
 }

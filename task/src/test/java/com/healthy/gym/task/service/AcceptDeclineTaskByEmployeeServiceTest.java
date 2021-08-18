@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.when;
 
 @SpringBootTest
@@ -116,5 +117,20 @@ public class AcceptDeclineTaskByEmployeeServiceTest {
 
         //then
         assertThat(taskService.acceptDeclineTaskByEmployee(taskId, employeeId, "APPROVE")).isEqualTo(taskResponse);
+    }
+
+    @Test
+    void shouldNotAcceptTask_whenTaskIdNotExist(){
+        //before
+        String notFoundTaskId = UUID.randomUUID().toString();
+        String status = "APPROVE";
+
+        //when
+        when(taskDAO.findByTaskId(notFoundTaskId)).thenReturn(null);
+
+        //then
+        assertThatThrownBy(() ->
+                taskService.acceptDeclineTaskByEmployee(notFoundTaskId, employeeId, status)
+        ).isInstanceOf(TaskNotFoundException.class);
     }
 }

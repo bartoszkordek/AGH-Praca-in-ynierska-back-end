@@ -1,7 +1,7 @@
 package com.healthy.gym.account.service;
 
 import com.healthy.gym.account.data.repository.NotificationDAO;
-import com.healthy.gym.account.shared.UserNotificationDTO;
+import com.healthy.gym.account.dto.UserNotificationDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

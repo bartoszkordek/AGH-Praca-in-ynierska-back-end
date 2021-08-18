@@ -3,7 +3,7 @@ package com.healthy.gym.account.service.accountServiceTest.unitTest;
 import com.healthy.gym.account.data.document.UserDocument;
 import com.healthy.gym.account.data.repository.UserDAO;
 import com.healthy.gym.account.service.AccountService;
-import com.healthy.gym.account.shared.UserDTO;
+import com.healthy.gym.account.dto.UserDTO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

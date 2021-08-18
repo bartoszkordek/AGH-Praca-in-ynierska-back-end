@@ -9,7 +9,7 @@ import com.healthy.gym.account.pojo.response.AccountUserInfoResponse;
 import com.healthy.gym.account.pojo.response.ChangeUserDataResponse;
 import com.healthy.gym.account.pojo.response.DeleteAccountResponse;
 import com.healthy.gym.account.service.AccountService;
-import com.healthy.gym.account.shared.UserDTO;
+import com.healthy.gym.account.dto.UserDTO;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;

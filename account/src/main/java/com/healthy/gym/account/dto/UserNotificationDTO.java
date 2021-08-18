@@ -1,4 +1,4 @@
-package com.healthy.gym.account.shared;
+package com.healthy.gym.account.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;

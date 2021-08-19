@@ -7,6 +7,7 @@ import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.Set;
 
 @Service
 public class MailMessageManagerImpl implements MailMessageManager {
@@ -75,8 +76,10 @@ public class MailMessageManagerImpl implements MailMessageManager {
     }
 
     private String getHomePage() {
-        String homepage = environment.getProperty("front-end.homepage");
-        if (homepage == null) return "";
+        boolean isDockerProfile = Set.of(environment.getActiveProfiles()).contains("docker");
+        if (isDockerProfile) return "";
+
+        String homepage = environment.getRequiredProperty("front-end.homepage");
         return "/" + homepage;
     }
 }

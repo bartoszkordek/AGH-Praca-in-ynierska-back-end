@@ -8,7 +8,7 @@ import com.healthy.gym.account.exception.IdenticalOldAndNewPasswordException;
 import com.healthy.gym.account.exception.OldPasswordDoesNotMatchException;
 import com.healthy.gym.account.service.AccountService;
 import com.healthy.gym.account.service.PhotoService;
-import com.healthy.gym.account.shared.UserDTO;
+import com.healthy.gym.account.dto.UserDTO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;

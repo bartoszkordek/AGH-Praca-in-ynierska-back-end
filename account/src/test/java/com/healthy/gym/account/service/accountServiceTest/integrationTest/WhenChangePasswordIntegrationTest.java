@@ -6,7 +6,7 @@ import com.healthy.gym.account.enums.GymRole;
 import com.healthy.gym.account.exception.IdenticalOldAndNewPasswordException;
 import com.healthy.gym.account.exception.OldPasswordDoesNotMatchException;
 import com.healthy.gym.account.service.AccountService;
-import com.healthy.gym.account.shared.UserDTO;
+import com.healthy.gym.account.dto.UserDTO;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;

@@ -5,7 +5,7 @@ import com.healthy.gym.account.configuration.tests.TestCountry;
 import com.healthy.gym.account.controller.AccountController;
 import com.healthy.gym.account.service.AccountService;
 import com.healthy.gym.account.service.PhotoService;
-import com.healthy.gym.account.shared.UserDTO;
+import com.healthy.gym.account.dto.UserDTO;
 import io.jsonwebtoken.Jwts;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;

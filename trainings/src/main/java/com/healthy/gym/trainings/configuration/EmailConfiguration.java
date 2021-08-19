@@ -1,6 +1,7 @@
 package com.healthy.gym.trainings.configuration;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
@@ -11,6 +12,7 @@ import java.util.Properties;
 
 @Configuration
 @PropertySource(value = "classpath:application.yaml", ignoreResourceNotFound = true)
+@RefreshScope
 public class EmailConfiguration {
 
     @Value("${spring.mail.host:smtp.gmail.com}")
@@ -48,6 +50,7 @@ public class EmailConfiguration {
         return mailPort;
     }
 
+    @RefreshScope
     @Bean
     public JavaMailSender getJavaMailSender() {
         JavaMailSenderImpl mailSender = new JavaMailSenderImpl();

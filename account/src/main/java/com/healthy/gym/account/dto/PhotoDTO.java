@@ -1,4 +1,4 @@
-package com.healthy.gym.account.shared;
+package com.healthy.gym.account.dto;
 
 import com.healthy.gym.account.pojo.Image;
 

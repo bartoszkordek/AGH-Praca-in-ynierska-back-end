@@ -1,13 +1,14 @@
 package com.healthy.gym.auth.security;
 
 import com.healthy.gym.auth.component.HttpHeaderParser;
-import com.healthy.gym.auth.component.token.TokenValidator;
 import com.healthy.gym.auth.component.Translator;
 import com.healthy.gym.auth.component.token.TokenManager;
+import com.healthy.gym.auth.component.token.TokenValidator;
 import com.healthy.gym.auth.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -19,6 +20,8 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 @Configuration
 @EnableWebSecurity
 public class WebSecurity extends WebSecurityConfigurerAdapter {
+
+    private static final String ACTUATOR = "/actuator/**";
 
     private final UserService userService;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
@@ -56,7 +59,11 @@ public class WebSecurity extends WebSecurityConfigurerAdapter {
         http.csrf().disable();
         http.headers().frameOptions().disable();
 
-        http.authorizeRequests().antMatchers("/users/status").authenticated()
+        http.authorizeRequests()
+                .antMatchers("/users/status").authenticated()
+                .antMatchers(HttpMethod.GET, ACTUATOR).permitAll()
+                .antMatchers(HttpMethod.POST, ACTUATOR).hasRole("ADMIN")
+                .antMatchers(HttpMethod.DELETE, ACTUATOR).hasRole("ADMIN")
                 .and()
                 .authorizeRequests().antMatchers("/**").permitAll()
                 .and()

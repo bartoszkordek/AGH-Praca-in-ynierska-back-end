@@ -6,7 +6,7 @@ import com.healthy.gym.account.data.repository.UserDAO;
 import com.healthy.gym.account.data.repository.UserPrivacyDAO;
 import com.healthy.gym.account.exception.UserPrivacyNotFoundException;
 import com.healthy.gym.account.service.AccountService;
-import com.healthy.gym.account.shared.UserPrivacyDTO;
+import com.healthy.gym.account.dto.UserPrivacyDTO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

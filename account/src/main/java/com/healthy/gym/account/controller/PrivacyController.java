@@ -7,7 +7,7 @@ import com.healthy.gym.account.exception.UserPrivacyNotUpdatedException;
 import com.healthy.gym.account.pojo.request.ChangePrivacyRequest;
 import com.healthy.gym.account.pojo.response.ChangePrivacyResponse;
 import com.healthy.gym.account.service.AccountService;
-import com.healthy.gym.account.shared.UserPrivacyDTO;
+import com.healthy.gym.account.dto.UserPrivacyDTO;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;

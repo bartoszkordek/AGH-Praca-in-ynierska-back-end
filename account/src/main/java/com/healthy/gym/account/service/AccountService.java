@@ -1,8 +1,8 @@
 package com.healthy.gym.account.service;
 
 import com.healthy.gym.account.exception.*;
-import com.healthy.gym.account.shared.UserDTO;
-import com.healthy.gym.account.shared.UserPrivacyDTO;
+import com.healthy.gym.account.dto.UserDTO;
+import com.healthy.gym.account.dto.UserPrivacyDTO;
 
 public interface AccountService {
     UserDTO changePassword(String userId, String oldPassword, String newPassword)

@@ -5,7 +5,7 @@ import com.healthy.gym.account.data.repository.UserDAO;
 import com.healthy.gym.account.exception.EmailOccupiedException;
 import com.healthy.gym.account.exception.UserDataNotUpdatedException;
 import com.healthy.gym.account.service.AccountService;
-import com.healthy.gym.account.shared.UserDTO;
+import com.healthy.gym.account.dto.UserDTO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;

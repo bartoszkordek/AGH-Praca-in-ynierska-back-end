@@ -7,12 +7,14 @@ spring:
   cloud:
     config:
       server:
-        native:
-          search-locations: file:///${user.home}/healthy-gym-config
+        git:
+          uri: file:///${user.home}/healthy-gym-config
           default-label: main
-      enabled: false
-  profiles:
-    active: native
+          clone-on-start: true
+    bus:
+      enabled: true
+      refresh:
+        enabled: true
   rabbitmq:
     host: localhost
     port: 5672

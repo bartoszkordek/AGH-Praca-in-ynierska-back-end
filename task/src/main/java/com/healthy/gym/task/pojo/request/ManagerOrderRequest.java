@@ -27,6 +27,10 @@ public class ManagerOrderRequest {
     @ValidDateFormat
     private String dueDate;
 
+    private String reminderDate;
+
+    private String priority;
+
     public String getTitle() {
         return title;
     }
@@ -41,6 +45,14 @@ public class ManagerOrderRequest {
 
     public String getDueDate() {
         return dueDate;
+    }
+
+    public String getReminderDate() {
+        return reminderDate;
+    }
+
+    public String getPriority() {
+        return priority;
     }
 
     public void setTitle(String title) {
@@ -59,6 +71,14 @@ public class ManagerOrderRequest {
         this.dueDate = dueDate;
     }
 
+    public void setReminderDate(String reminderDate) {
+        this.reminderDate = reminderDate;
+    }
+
+    public void setPriority(String priority) {
+        this.priority = priority;
+    }
+
     @Override
     public String toString() {
         return "ManagerOrderRequest{" +
@@ -66,6 +86,8 @@ public class ManagerOrderRequest {
                 ", description='" + description + '\'' +
                 ", employeeId='" + employeeId + '\'' +
                 ", dueDate='" + dueDate + '\'' +
+                ", reminderDate='" + reminderDate + '\'' +
+                ", priority='" + priority + '\'' +
                 '}';
     }
 
@@ -77,7 +99,9 @@ public class ManagerOrderRequest {
         return Objects.equals(title, that.title) &&
                 Objects.equals(description, that.description) &&
                 Objects.equals(employeeId, that.employeeId) &&
-                Objects.equals(dueDate, that.dueDate);
+                Objects.equals(dueDate, that.dueDate) &&
+                Objects.equals(reminderDate, that.reminderDate) &&
+                Objects.equals(priority, that.priority);
     }
 
     @Override
@@ -86,7 +110,9 @@ public class ManagerOrderRequest {
                 title,
                 description,
                 employeeId,
-                dueDate
+                dueDate,
+                reminderDate,
+                priority
         );
     }
 }

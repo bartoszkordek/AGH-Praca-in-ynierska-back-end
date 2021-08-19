@@ -250,8 +250,6 @@ public class AcceptDeclineTaskByEmployeeControllerIntegrationTest {
         ResponseEntity<JsonNode> responseEntity = restTemplate
                 .exchange(uri, HttpMethod.PUT, request, JsonNode.class);
 
-        System.out.println(responseEntity.getBody());
-
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(Objects.requireNonNull(responseEntity.getBody().get("message").textValue()))
                 .isEqualTo(expectedMessage);

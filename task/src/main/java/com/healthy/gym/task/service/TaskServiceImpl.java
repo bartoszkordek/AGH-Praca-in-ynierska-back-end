@@ -7,6 +7,7 @@ import com.healthy.gym.task.data.repository.UserDAO;
 import com.healthy.gym.task.dto.TaskDTO;
 import com.healthy.gym.task.enums.AcceptanceStatus;
 import com.healthy.gym.task.enums.GymRole;
+import com.healthy.gym.task.enums.Priority;
 import com.healthy.gym.task.exception.*;
 import com.healthy.gym.task.pojo.request.EmployeeReportRequest;
 import com.healthy.gym.task.pojo.request.ManagerOrderRequest;
@@ -62,6 +63,8 @@ public class TaskServiceImpl implements TaskService{
 
         String title = managerOrderRequest.getTitle();
         String description = managerOrderRequest.getDescription();
+        String requestReminderDate = managerOrderRequest.getReminderDate();
+        String requestPriority = managerOrderRequest.getPriority();
         TaskDocument taskDocumentToBeSaved = new TaskDocument();
         taskDocumentToBeSaved.setTaskId(UUID.randomUUID().toString());
         taskDocumentToBeSaved.setManager(managerDocument);
@@ -72,6 +75,9 @@ public class TaskServiceImpl implements TaskService{
         taskDocumentToBeSaved.setDueDate(parsedDueDate);
         taskDocumentToBeSaved.setEmployeeAccept(AcceptanceStatus.NO_ACTION);
         taskDocumentToBeSaved.setManagerAccept(AcceptanceStatus.NO_ACTION);
+        if(requestReminderDate != null)
+            taskDocumentToBeSaved.setReminderDate(LocalDate.parse(requestReminderDate, DateTimeFormatter.ISO_LOCAL_DATE));
+        setPriority(taskDocumentToBeSaved, requestPriority);
 
         TaskDocument taskDocumentSaved = taskDAO.save(taskDocumentToBeSaved);
         return modelMapper.map(taskDocumentSaved, TaskDTO.class);
@@ -110,6 +116,12 @@ public class TaskServiceImpl implements TaskService{
 
         String description = managerOrderRequest.getDescription();
         if(description != null) taskDocumentToBeUpdated.setDescription(description);
+
+        String requestReminderDate = managerOrderRequest.getReminderDate();
+        if(requestReminderDate != null)
+            taskDocumentToBeUpdated.setReminderDate(LocalDate.parse(requestReminderDate, DateTimeFormatter.ISO_LOCAL_DATE));
+        String requestPriority = managerOrderRequest.getPriority();
+        setPriority(taskDocumentToBeUpdated, requestPriority);
 
         TaskDocument updatedTaskDocument = taskDAO.save(taskDocumentToBeUpdated);
         return modelMapper.map(updatedTaskDocument, TaskDTO.class);
@@ -183,5 +195,19 @@ public class TaskServiceImpl implements TaskService{
         if(!employeeDocument.getGymRoles().contains(employeeRole) && !employeeDocument.getGymRoles().contains(trainerRole))
             throw new EmployeeNotFoundException();
         return employeeDocument;
+    }
+
+    private TaskDocument setPriority(TaskDocument taskDocument, String priority){
+        if(priority != null){
+            if(priority.equals(Priority.CRITICAL.toString()))
+                taskDocument.setPriority(Priority.CRITICAL);
+            if(priority.equals(Priority.HIGH.toString()))
+                taskDocument.setPriority(Priority.HIGH);
+            if(priority.equals(Priority.MEDIUM.toString()))
+                taskDocument.setPriority(Priority.MEDIUM);
+            if(priority.equals(Priority.LOW.toString()))
+                taskDocument.setPriority(Priority.LOW);
+        }
+        return taskDocument;
     }
 }

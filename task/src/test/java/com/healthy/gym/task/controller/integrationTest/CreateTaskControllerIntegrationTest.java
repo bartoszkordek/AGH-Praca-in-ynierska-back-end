@@ -72,10 +72,14 @@ public class CreateTaskControllerIntegrationTest {
     private String adminToken;
 
     private String requestContent;
+    private String requestContentWithOptionalParams;
     private String requestTitle;
     private String requestDescription;
     private String requestDueDate;
+    private String requestReminderDate;
+    private String priority;
     private ManagerOrderRequest managerOrderRequest;
+    private ManagerOrderRequest managerOrderRequestContentWithOptionalParams;
 
     private ObjectMapper objectMapper;
 
@@ -104,6 +108,8 @@ public class CreateTaskControllerIntegrationTest {
         requestTitle = "Test task 1";
         requestDescription = "Description for task 1";
         requestDueDate = LocalDate.now().plusMonths(1).format(DateTimeFormatter.ISO_LOCAL_DATE);
+        requestReminderDate = LocalDate.now().plusDays(20).format(DateTimeFormatter.ISO_LOCAL_DATE);
+        priority = "HIGH";
         managerOrderRequest = new ManagerOrderRequest();
         managerOrderRequest.setTitle(requestTitle);
         managerOrderRequest.setDescription(requestDescription);
@@ -112,6 +118,15 @@ public class CreateTaskControllerIntegrationTest {
 
         requestContent = objectMapper.writeValueAsString(managerOrderRequest);
 
+        managerOrderRequestContentWithOptionalParams = new ManagerOrderRequest();
+        managerOrderRequestContentWithOptionalParams.setTitle(requestTitle);
+        managerOrderRequestContentWithOptionalParams.setDescription(requestDescription);
+        managerOrderRequestContentWithOptionalParams.setEmployeeId(employeeId);
+        managerOrderRequestContentWithOptionalParams.setDueDate(requestDueDate);
+        managerOrderRequestContentWithOptionalParams.setReminderDate(requestReminderDate);
+        managerOrderRequestContentWithOptionalParams.setPriority(priority);
+
+        requestContentWithOptionalParams = objectMapper.writeValueAsString(managerOrderRequestContentWithOptionalParams);
 
         //existing DB docs
         String employeeName = "Jan";
@@ -145,7 +160,7 @@ public class CreateTaskControllerIntegrationTest {
 
     @ParameterizedTest
     @EnumSource(TestCountry.class)
-    void shouldCreateTask_whenValidRequest(TestCountry country) throws Exception {
+    void shouldCreateTask_whenValidRequestWithoutOptionalParams(TestCountry country) throws Exception {
         Map<String, String> messages = getMessagesAccordingToLocale(country);
         Locale testedLocale = convertEnumToLocale(country);
 
@@ -191,6 +206,68 @@ public class CreateTaskControllerIntegrationTest {
                 .isEqualTo(AcceptanceStatus.NO_ACTION.toString());
         assertThat(responseEntity.getBody().get("task").get("managerAccept").textValue())
                 .isEqualTo(AcceptanceStatus.NO_ACTION.toString());
+        assertThat(responseEntity.getBody().get("task").get("reminderDate")).isNull();
+        assertThat(responseEntity.getBody().get("task").get("priority")).isNull();
+        assertThat(responseEntity.getBody().get("task").get("mark").intValue()).isZero();
+        assertThat(responseEntity.getBody().get("task").get("employeeComment")).isNull();
+    }
+
+
+    @ParameterizedTest
+    @EnumSource(TestCountry.class)
+    void shouldCreateTask_whenValidRequestWithOptionalParams(TestCountry country) throws Exception {
+        Map<String, String> messages = getMessagesAccordingToLocale(country);
+        Locale testedLocale = convertEnumToLocale(country);
+
+        URI uri = new URI("http://localhost:" + port );
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Accept-Language", testedLocale.toString());
+        headers.set("Authorization", managerToken);
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        HttpEntity<Object> request = new HttpEntity<>(requestContentWithOptionalParams, headers);
+        String expectedMessage = messages.get("task.created");
+
+        ResponseEntity<JsonNode> responseEntity = restTemplate
+                .exchange(uri, HttpMethod.POST, request, JsonNode.class);
+
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.CREATED);
+        assertThat(Objects.requireNonNull(responseEntity.getBody().get("message").textValue()))
+                .isEqualTo(expectedMessage);
+        assertThat(responseEntity.getBody().get("task").get("id")).isNotNull();
+        assertThat(responseEntity.getBody().get("task").get("manager")).isNotNull();
+        assertThat(responseEntity.getBody().get("task").get("manager").get("userId").textValue())
+                .isEqualTo(managerId);
+        assertThat(responseEntity.getBody().get("task").get("manager").get("name").textValue())
+                .isEqualTo("Adam");
+        assertThat(responseEntity.getBody().get("task").get("manager").get("surname").textValue())
+                .isEqualTo("Nowak");
+        assertThat(responseEntity.getBody().get("task").get("employee").get("userId").textValue())
+                .isEqualTo(employeeId);
+        assertThat(responseEntity.getBody().get("task").get("employee").get("name").textValue())
+                .isEqualTo("Jan");
+        assertThat(responseEntity.getBody().get("task").get("employee").get("surname").textValue())
+                .isEqualTo("Kowalski");
+        assertThat(responseEntity.getBody().get("task").get("title").textValue())
+                .isEqualTo("Test task 1");
+        assertThat(responseEntity.getBody().get("task").get("description").textValue())
+                .isEqualTo("Description for task 1");
+        assertThat(responseEntity.getBody().get("task").get("lastOrderUpdateDate").textValue())
+                .isEqualTo(LocalDate.now().toString());
+        assertThat(responseEntity.getBody().get("task").get("dueDate").textValue())
+                .isEqualTo(LocalDate.now().plusMonths(1).toString());
+        assertThat(responseEntity.getBody().get("task").get("employeeAccept").textValue())
+                .isEqualTo(AcceptanceStatus.NO_ACTION.toString());
+        assertThat(responseEntity.getBody().get("task").get("managerAccept").textValue())
+                .isEqualTo(AcceptanceStatus.NO_ACTION.toString());
+        assertThat(responseEntity.getBody().get("task").get("reminderDate").textValue())
+                .isEqualTo(LocalDate.now().plusDays(20).format(DateTimeFormatter.ISO_LOCAL_DATE));
+        assertThat(responseEntity.getBody().get("task").get("priority").textValue())
+                .isEqualTo("HIGH");
+        assertThat(responseEntity.getBody().get("task").get("mark").intValue())
+                .isZero();
+        assertThat(responseEntity.getBody().get("task").get("employeeComment")).isNull();
     }
 
     @Nested

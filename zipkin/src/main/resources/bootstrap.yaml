@@ -1,5 +1,0 @@
-spring:
-  cloud:
-    config:
-      name: config-server
-      uri: http://localhost:8030

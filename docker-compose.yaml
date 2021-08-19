@@ -49,8 +49,6 @@ services:
       - "27017:27017"
     networks:
       - backend
-    volumes:
-      - ./mongodb/dump:/home/dump
     deploy:
       replicas: 1
 

@@ -36,7 +36,6 @@ Serwisy:
     cd 
     mkdir -p app/front-end
     mkdir -p app/back-end/properties
-    mkdir -p app/back-end/mongodb/dump
     ```
 4. Do folderu __~/app/front-end__ skopiuj plik [__docker-compose-front.yaml__](https://github.com/bartoszkordek/AGH-Praca-inzynierska-back-end/blob/main/docker-compose-front.yaml).
 5. Skopiuj plik [__docker-compose.yaml__](https://github.com/bartoszkordek/AGH-Praca-inzynierska-back-end/blob/main/docker-compose.yaml) oraz [__application-example.properties__](https://github.com/bartoszkordek/AGH-Praca-inzynierska-back-end/blob/main/properties/application-example.properties)

@@ -19,5 +19,5 @@ public interface TaskService {
             throws TaskNotFoundException, EmployeeNotFoundException, InvalidStatusException;
 
     TaskDTO sendReport(String taskId, String userId, EmployeeReportRequest report)
-            throws EmployeeNotFoundException, TaskDeclinedByEmployeeException;
+            throws TaskNotFoundException, EmployeeNotFoundException, TaskDeclinedByEmployeeException;
 }

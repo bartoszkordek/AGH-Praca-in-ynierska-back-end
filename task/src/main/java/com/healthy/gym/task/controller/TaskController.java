@@ -218,6 +218,10 @@ public class TaskController {
             String reason = translator.toLocale("request.bind.exception");
             throw new RequestBindException(HttpStatus.BAD_REQUEST, reason, exception);
 
+        } catch (TaskNotFoundException exception){
+            String reason = translator.toLocale("exception.task.not.found");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, exception);
+
         } catch (EmployeeNotFoundException exception){
             String reason = translator.toLocale("exception.employee.not.found");
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, exception);

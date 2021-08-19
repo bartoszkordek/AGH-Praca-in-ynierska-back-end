@@ -25,29 +25,26 @@ Serwisy:
 * task
 * trainings
 
-## Jak uruchomić?
+## Jak uruchomić? (Wersja Ubuntu)
 
 1. Wymagany jest zainstalowany Docker:
     * [Docker Engine](https://docs.docker.com/engine/install/)
     * oraz [Docker Compose](https://docs.docker.com/compose/install/).
-2. Wpisz następujące komendy, aby utwórzyć następującą strukturę folderów na dysku:
+2. Aby pominąć punkty od 3 do 6 można wykorzystać skrypt.
+3. Wpisz następujące komendy, aby utwórzyć następującą strukturę folderów na dysku:
    ```shell script
     cd 
     mkdir -p app/front-end
     mkdir -p app/back-end/properties
     ```
-3. Do folderu __~/app/front-end__ skopiuj plik __docker-compose-front.yaml__.
-4. Skopiuj plik __docker-compose.yaml__ oraz __application-example.properties__ (znajduje się w folderze __properties__)
+4. Do folderu __~/app/front-end__ skopiuj plik [__docker-compose-front.yaml__](https://github.com/bartoszkordek/AGH-Praca-inzynierska-back-end/blob/main/docker-compose-front.yaml).
+5. Skopiuj plik [__docker-compose.yaml__](https://github.com/bartoszkordek/AGH-Praca-inzynierska-back-end/blob/main/docker-compose.yaml) oraz [__application-example.properties__](https://github.com/bartoszkordek/AGH-Praca-inzynierska-back-end/blob/main/properties/application-example.properties)
    odpowiednio do folderów __~/app/back-end__ oraz __~/app/back-end/properties__.
-5. W pliku __application-example.properties__ zmodyfikuj odpowiednie właściwości.
+6. Zmień nazwę pliku z __application-example.properties__ na __application.properties__.
+7. W pliku __application.properties__ zmodyfikuj odpowiednie właściwości.
    (Zalecana jest skrzynka pocztowa Gmail. Należy włączyć
    na [dostęp do mniej bezpiecznych aplikacji](https://support.google.com/accounts/answer/6010255?hl=pl#zippy=%2Cje%C5%9Bli-na-koncie-jest-w%C5%82%C4%85czony-dost%C4%99p-mniej-bezpiecznych-aplikacji)
    .)
-6. Zmień nazwę pliku z __application-example.properties__ na __application.properties__.
-7. W folderze __~/app/front-end__ należy wpisać komendę:
-   ```shell script
-    docker-compose up -d
-    ```
 8. W folderze __~/app/front-end__ należy wpisać komendę:
    ```shell script
     docker-compose -f docker-compose-front.yaml -d up 

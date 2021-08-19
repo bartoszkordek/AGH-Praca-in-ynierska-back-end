@@ -1,0 +1,202 @@
+package com.healthy.gym.task.controller.integrationTest;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.healthy.gym.task.configuration.FixedClockConfig;
+import com.healthy.gym.task.configuration.TestCountry;
+import com.healthy.gym.task.configuration.TestRoleTokenFactory;
+import com.healthy.gym.task.data.document.TaskDocument;
+import com.healthy.gym.task.data.document.UserDocument;
+import com.healthy.gym.task.enums.AcceptanceStatus;
+import com.healthy.gym.task.enums.GymRole;
+import com.healthy.gym.task.pojo.request.EmployeeReportRequest;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.boot.web.server.LocalServerPort;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.http.*;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
+import org.springframework.test.context.TestPropertySource;
+import org.testcontainers.containers.MongoDBContainer;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
+import org.testcontainers.shaded.com.fasterxml.jackson.core.JsonProcessingException;
+import org.testcontainers.shaded.com.fasterxml.jackson.databind.ObjectMapper;
+import org.testcontainers.utility.DockerImageName;
+
+import java.net.URI;
+import java.time.LocalDate;
+import java.util.*;
+
+import static com.healthy.gym.task.configuration.LocaleConverter.convertEnumToLocale;
+import static com.healthy.gym.task.configuration.Messages.getMessagesAccordingToLocale;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+
+@Testcontainers
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, classes = FixedClockConfig.class)
+@TestPropertySource(properties = {
+        "eureka.client.fetch-registry=false",
+        "eureka.client.register-with-eureka=false"
+})
+@Tag("integration")
+public class SendReportControllerIntegrationTest {
+
+    @Container
+    static MongoDBContainer mongoDBContainer =
+            new MongoDBContainer(DockerImageName.parse("mongo:4.4.4-bionic"));
+    @Autowired
+    private TestRestTemplate restTemplate;
+    @Autowired
+    private TestRoleTokenFactory tokenFactory;
+    @Autowired
+    private MongoTemplate mongoTemplate;
+
+    @LocalServerPort
+    private Integer port;
+
+    private String userId;
+    private String employeeId;
+    private String managerId;
+    private String adminId;
+    private String userToken;
+    private String employeeToken;
+    private String managerToken;
+    private String adminToken;
+    private String taskId;
+
+    private String requestContent;
+    private ObjectMapper objectMapper;
+
+    @DynamicPropertySource
+    static void setProperties(DynamicPropertyRegistry registry) {
+        registry.add("spring.data.mongodb.uri", mongoDBContainer::getReplicaSetUrl);
+    }
+
+    @BeforeEach
+    void setUp() throws JsonProcessingException {
+
+        userId = UUID.randomUUID().toString();
+        userToken = tokenFactory.getUserToken(userId);
+
+        employeeId = UUID.randomUUID().toString();
+        employeeToken = tokenFactory.getUserToken(employeeId);
+
+        managerId = UUID.randomUUID().toString();
+        managerToken = tokenFactory.getMangerToken(managerId);
+
+        adminId = UUID.randomUUID().toString();
+        adminToken = tokenFactory.getAdminToken(adminId);
+
+        taskId = UUID.randomUUID().toString();
+
+        //request
+        objectMapper = new ObjectMapper();
+
+        String report = "Done!";
+        EmployeeReportRequest employeeReportRequest = new EmployeeReportRequest();
+        employeeReportRequest.setResult(report);
+
+        requestContent = objectMapper.writeValueAsString(employeeReportRequest);
+
+        //existing DB docs
+        String employeeName = "Jan";
+        String employeeSurname = "Kowalski";
+        UserDocument employeeDocument = new UserDocument();
+        employeeDocument.setName(employeeName);
+        employeeDocument.setSurname(employeeSurname);
+        employeeDocument.setUserId(employeeId);
+        employeeDocument.setGymRoles(List.of(GymRole.EMPLOYEE));
+
+        mongoTemplate.save(employeeDocument);
+
+        String managerName = "Adam";
+        String managerSurname = "Nowak";
+        UserDocument managerDocument = new UserDocument();
+        managerDocument.setName(managerName);
+        managerDocument.setSurname(managerSurname);
+        managerDocument.setUserId(managerId);
+        managerDocument.setGymRoles(List.of(GymRole.MANAGER));
+
+        mongoTemplate.save(managerDocument);
+
+        TaskDocument taskDocument = new TaskDocument();
+        taskDocument.setTaskId(taskId);
+        taskDocument.setManager(managerDocument);
+        taskDocument.setEmployee(employeeDocument);
+        taskDocument.setTitle("Title 1");
+        taskDocument.setDescription("Description 1");
+        taskDocument.setDueDate(LocalDate.now().plusMonths(1));
+        taskDocument.setLastOrderUpdateDate(LocalDate.now());
+        taskDocument.setEmployeeAccept(AcceptanceStatus.NO_ACTION);
+        taskDocument.setManagerAccept(AcceptanceStatus.NO_ACTION);
+
+        mongoTemplate.save(taskDocument);
+    }
+
+    @AfterEach
+    void tearDown(){
+        mongoTemplate.dropCollection(TaskDocument.class);
+        mongoTemplate.dropCollection(UserDocument.class);
+    }
+
+    @ParameterizedTest
+    @EnumSource(TestCountry.class)
+    void shouldSendReport_whenValidTaskIdAndUserAndRequest(TestCountry country) throws Exception {
+        Map<String, String> messages = getMessagesAccordingToLocale(country);
+        Locale testedLocale = convertEnumToLocale(country);
+
+        URI uri = new URI("http://localhost:" + port + "/"+ taskId+"/employee/"+employeeId+"/report");
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Accept-Language", testedLocale.toString());
+        headers.set("Authorization", employeeToken);
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        HttpEntity<Object> request = new HttpEntity<>(requestContent, headers);
+        String expectedMessage = messages.get("report.sent");
+
+        ResponseEntity<JsonNode> responseEntity = restTemplate
+                .exchange(uri, HttpMethod.PUT, request, JsonNode.class);
+
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(Objects.requireNonNull(responseEntity.getBody().get("message").textValue()))
+                .isEqualTo(expectedMessage);
+        assertThat(responseEntity.getBody().get("task").get("id")).isNotNull();
+        assertThat(responseEntity.getBody().get("task").get("manager")).isNotNull();
+        assertThat(responseEntity.getBody().get("task").get("manager").get("userId").textValue())
+                .isEqualTo(managerId);
+        assertThat(responseEntity.getBody().get("task").get("manager").get("name").textValue())
+                .isEqualTo("Adam");
+        assertThat(responseEntity.getBody().get("task").get("manager").get("surname").textValue())
+                .isEqualTo("Nowak");
+        assertThat(responseEntity.getBody().get("task").get("employee").get("userId").textValue())
+                .isEqualTo(employeeId);
+        assertThat(responseEntity.getBody().get("task").get("employee").get("name").textValue())
+                .isEqualTo("Jan");
+        assertThat(responseEntity.getBody().get("task").get("employee").get("surname").textValue())
+                .isEqualTo("Kowalski");
+        assertThat(responseEntity.getBody().get("task").get("title").textValue())
+                .isEqualTo("Title 1");
+        assertThat(responseEntity.getBody().get("task").get("description").textValue())
+                .isEqualTo("Description 1");
+        assertThat(responseEntity.getBody().get("task").get("lastOrderUpdateDate").textValue())
+                .isEqualTo(LocalDate.now().toString());
+        assertThat(responseEntity.getBody().get("task").get("dueDate").textValue())
+                .isEqualTo(LocalDate.now().plusMonths(1).toString());
+        assertThat(responseEntity.getBody().get("task").get("employeeAccept").textValue())
+                .isEqualTo(AcceptanceStatus.ACCEPTED.toString());
+        assertThat(responseEntity.getBody().get("task").get("managerAccept").textValue())
+                .isEqualTo(AcceptanceStatus.NO_ACTION.toString());
+        assertThat(responseEntity.getBody().get("task").get("report").textValue())
+                .isEqualTo("Done!");
+        assertThat(responseEntity.getBody().get("task").get("reportDate").textValue())
+                .isEqualTo(LocalDate.now().toString());
+    }
+
+}

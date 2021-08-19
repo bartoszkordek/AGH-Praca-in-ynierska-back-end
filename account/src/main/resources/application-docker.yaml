@@ -18,6 +18,13 @@ spring:
     port: 5672
     password: th1sPAsswordNeed2BeChAnged
     username: healthy_gym
+  zipkin:
+    base-url: http://zipkin:9411
+    sender:
+      type: web
+  sleuth:
+    sampler:
+      probability: 1
 
 server:
   port: 0

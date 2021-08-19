@@ -7,8 +7,10 @@ import com.healthy.gym.task.controller.TaskController;
 import com.healthy.gym.task.dto.BasicUserInfoDTO;
 import com.healthy.gym.task.dto.TaskDTO;
 import com.healthy.gym.task.enums.AcceptanceStatus;
+import com.healthy.gym.task.exception.TaskNotFoundException;
 import com.healthy.gym.task.pojo.request.EmployeeReportRequest;
 import com.healthy.gym.task.service.TaskService;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -20,6 +22,7 @@ import org.springframework.http.*;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.RequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.validation.BindException;
 import org.testcontainers.shaded.com.fasterxml.jackson.core.JsonProcessingException;
 import org.testcontainers.shaded.com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -28,12 +31,15 @@ import java.net.URISyntaxException;
 import java.time.LocalDate;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 
 import static com.healthy.gym.task.configuration.LocaleConverter.convertEnumToLocale;
 import static com.healthy.gym.task.configuration.Messages.getMessagesAccordingToLocale;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.ResultMatcher.matchAll;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -63,8 +69,12 @@ public class SendReportControllerUnitTest {
     private ObjectMapper objectMapper;
 
     private String requestContent;
+    private String emptyEmployeeReportRequestContent;
+    private String invalidEmployeeReportRequestContent;
     private String requestResult;
     private EmployeeReportRequest employeeReportRequest;
+    private EmployeeReportRequest emptyEmployeeReportRequest;
+    private EmployeeReportRequest invalidEmployeeReportRequest;
 
     private URI uri;
 
@@ -91,6 +101,13 @@ public class SendReportControllerUnitTest {
         employeeReportRequest.setResult(requestResult);
 
         requestContent = objectMapper.writeValueAsString(employeeReportRequest);
+
+        emptyEmployeeReportRequest = new EmployeeReportRequest();
+        emptyEmployeeReportRequestContent = objectMapper.writeValueAsString(emptyEmployeeReportRequest);
+
+        invalidEmployeeReportRequest = new EmployeeReportRequest();
+        invalidEmployeeReportRequest.setResult("R");
+        invalidEmployeeReportRequestContent = objectMapper.writeValueAsString(invalidEmployeeReportRequest);
 
         uri = new URI("/");
     }
@@ -271,6 +288,38 @@ public class SendReportControllerUnitTest {
                     .andExpect(jsonPath("$.error").value(is("Forbidden")))
                     .andExpect(jsonPath("$.status").value(403))
                     .andExpect(jsonPath("$.timestamp").exists());
+        }
+    }
+
+    @Nested
+    class ShouldNotSendReportWhenInvalidRequest{
+
+        @ParameterizedTest
+        @EnumSource(TestCountry.class)
+        void shouldThrowBindException(TestCountry country) throws Exception {
+            Map<String, String> messages = getMessagesAccordingToLocale(country);
+            Locale testedLocale = convertEnumToLocale(country);
+
+            RequestBuilder request = MockMvcRequestBuilders
+                    .put(uri+taskId+"/employee/"+employeeId+"/report")
+                    .header("Accept-Language", testedLocale.toString())
+                    .header("Authorization", employeeToken)
+                    .content(emptyEmployeeReportRequestContent)
+                    .contentType(MediaType.APPLICATION_JSON);
+
+            String expectedMessage = messages.get("request.bind.exception");
+
+            mockMvc.perform(request)
+                    .andDo(print())
+                    .andExpect(matchAll(
+                            status().isBadRequest(),
+                            content().contentType(MediaType.APPLICATION_JSON),
+                            jsonPath("$.error").value(is(HttpStatus.BAD_REQUEST.getReasonPhrase())),
+                            jsonPath("$.message").value(is(expectedMessage)),
+                            jsonPath("$.errors").value(is(notNullValue())),
+                            jsonPath("$.errors.result")
+                                    .value(is(messages.get("field.required")))
+                    ));
         }
     }
 }

@@ -322,6 +322,34 @@ public class SendReportControllerUnitTest {
                     ));
         }
 
+        @ParameterizedTest
+        @EnumSource(TestCountry.class)
+        void shouldThrowBindException_whenInvalidResultField(TestCountry country) throws Exception {
+            Map<String, String> messages = getMessagesAccordingToLocale(country);
+            Locale testedLocale = convertEnumToLocale(country);
+
+            RequestBuilder request = MockMvcRequestBuilders
+                    .put(uri+taskId+"/employee/"+employeeId+"/report")
+                    .header("Accept-Language", testedLocale.toString())
+                    .header("Authorization", employeeToken)
+                    .content(invalidEmployeeReportRequestContent)
+                    .contentType(MediaType.APPLICATION_JSON);
+
+            String expectedMessage = messages.get("request.bind.exception");
+
+            mockMvc.perform(request)
+                    .andDo(print())
+                    .andExpect(matchAll(
+                            status().isBadRequest(),
+                            content().contentType(MediaType.APPLICATION_JSON),
+                            jsonPath("$.error").value(is(HttpStatus.BAD_REQUEST.getReasonPhrase())),
+                            jsonPath("$.message").value(is(expectedMessage)),
+                            jsonPath("$.errors").value(is(notNullValue())),
+                            jsonPath("$.errors.result")
+                                    .value(is(messages.get("field.result.failure")))
+                    ));
+        }
+
 
         @ParameterizedTest
         @EnumSource(TestCountry.class)

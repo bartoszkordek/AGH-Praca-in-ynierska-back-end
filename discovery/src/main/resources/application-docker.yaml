@@ -1,21 +1,10 @@
-server:
-  port: 8010
-
 spring:
-  devtools:
-    restart:
-      enabled: true
-  application:
-    name: discovery
   rabbitmq:
     host: rabbitmq
-    port: 5672
-    password: th1sPAsswordNeed2BeChAnged
-    username: healthy_gym
+  zipkin:
+    base-url: http://zipkin:9411
 
 eureka:
   client:
-    fetch-registry: false
-    register-with-eureka: false
     service-url:
       defaultZone: http://discovery:8010/eureka

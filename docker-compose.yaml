@@ -143,3 +143,53 @@ services:
       replicas: 1
     networks:
       - backend
+
+  zipkin:
+    image: openzipkin/zipkin:latest
+    ports:
+      - target: 9411
+        published: 9411
+        mode: host
+    deploy:
+      replicas: 1
+    networks:
+      - backend
+
+#  elasticsearch:
+#    image: elasticsearch:7.14.0
+#    ports:
+#      - "9200:9200"
+#      - "9300:9300"
+#    deploy:
+#      replicas: 1
+#    volumes:
+#      - ./logs/:/usr/share/elasticsearch/data
+#    environment:
+#      - discovery.type=single-node
+#    networks:
+#      - backend
+#
+#  logstash:
+#    image: logstash:7.14.0
+#    ports:
+#      - "9600:9600"
+#    deploy:
+#      replicas: 1
+#    volumes:
+#      - ./elk/logstash/config/:/usr/share/logstash/pipeline/
+#      - ./logs/:/logs/
+#    depends_on:
+#      - elasticsearch
+#    networks:
+#      - backend
+#
+#  kibana:
+#    image: kibana:7.14.0
+#    ports:
+#      - "5601:5601"
+#    deploy:
+#      replicas: 1
+#    depends_on:
+#      - elasticsearch
+#    networks:
+#      - backend

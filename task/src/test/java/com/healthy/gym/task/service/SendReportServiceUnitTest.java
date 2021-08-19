@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.when;
 
 @SpringBootTest
@@ -138,5 +139,19 @@ public class SendReportServiceUnitTest {
 
         //then
         assertThat(taskService.sendReport(taskId, employeeId, reportRequest)).isEqualTo(taskResponse);
+    }
+
+    @Test
+    void shouldNotSendReport_whenTaskIdNotExist(){
+        //before
+        String notFoundTaskId = UUID.randomUUID().toString();
+
+        //when
+        when(taskDAO.findByTaskId(notFoundTaskId)).thenReturn(null);
+
+        //then
+        assertThatThrownBy(() ->
+                taskService.sendReport(notFoundTaskId, employeeId, reportRequest)
+        ).isInstanceOf(TaskNotFoundException.class);
     }
 }

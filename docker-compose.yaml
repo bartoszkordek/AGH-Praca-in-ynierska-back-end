@@ -84,6 +84,19 @@ services:
     deploy:
       replicas: 1
 
+  trainings:
+    container_name: trainings
+    image: gza73/agh-praca-inzynierska-trainings:latest
+    environment:
+      - "SPRING_PROFILES_ACTIVE=docker"
+    networks:
+      - backend
+    depends_on:
+      - mongodb
+      - gateway
+    deploy:
+      replicas: 1
+
   gympass:
     container_name: gympass
     image: gza73/agh-praca-inzynierska-gympass:latest

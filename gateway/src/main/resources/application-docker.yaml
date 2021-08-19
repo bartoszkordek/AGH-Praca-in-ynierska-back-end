@@ -1,62 +1,14 @@
-server:
-  port: 8020
-
 spring:
-  devtools:
-    restart:
-      enabled: true
-  application:
-    name: gateway
   rabbitmq:
     host: rabbitmq
-    port: 5672
-    password: th1sPAsswordNeed2BeChAnged
-    username: healthy_gym
   zipkin:
     base-url: http://zipkin:9411
-    sender:
-      type: web
-  sleuth:
-    sampler:
-      probability: 1
 
 eureka:
   client:
-    region: default
-    registry-fetch-interval-seconds: 5
     service-url:
       defaultZone: http://discovery:8010/eureka
 
-hystrix:
-  command:
-    default:
-      execution:
-        isolation:
-          thread:
-            timeoutInMilliseconds: 250000
-
-ribbon:
-  ReadTimeout: 60000
-  ConnectTimeout: 60000
-  eureka:
-    enabled: true
-
-zuul:
-  host:
-    connect-timeout-millis: 60000
-    socket-timeout-millis: 60000
-  sensitive-headers:
-  ignore-security-headers: false
-
 #custom settings
-token:
-  secret: r@ndomlyGener@ted2ecretKey22ecureApplic@tionAndNeed2BeCh@nge1nTheFuture
-
-authorization:
-  token:
-    header:
-      name: Authorization
-      prefix: Bearer
-
 front-end:
-  url: http://localhost:3000
+  url: http://localhost:5000

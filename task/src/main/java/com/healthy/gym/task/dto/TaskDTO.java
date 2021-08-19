@@ -3,6 +3,7 @@ package com.healthy.gym.task.dto;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.healthy.gym.task.enums.AcceptanceStatus;
+import com.healthy.gym.task.enums.Priority;
 
 import java.time.LocalDate;
 import java.util.Objects;
@@ -20,9 +21,13 @@ public class TaskDTO {
     private LocalDate orderDate;
     private LocalDate lastOrderUpdateDate;
     private LocalDate dueDate;
+    private LocalDate reminderDate;
     private LocalDate reportDate;
+    private Priority priority;
+    private int mark;
     private AcceptanceStatus employeeAccept;
     private AcceptanceStatus managerAccept;
+    private String employeeComment;
 
     public TaskDTO() { }
 
@@ -36,9 +41,13 @@ public class TaskDTO {
             LocalDate orderDate,
             LocalDate lastOrderUpdateDate,
             LocalDate dueDate,
+            LocalDate reminderDate,
             LocalDate reportDate,
+            Priority priority,
+            int mark,
             AcceptanceStatus employeeAccept,
-            AcceptanceStatus managerAccept
+            AcceptanceStatus managerAccept,
+            String employeeComment
     ){
         this.taskId = taskId;
         this.manager = manager;
@@ -49,9 +58,13 @@ public class TaskDTO {
         this.orderDate = orderDate;
         this.lastOrderUpdateDate = lastOrderUpdateDate;
         this.dueDate = dueDate;
+        this.reminderDate = reminderDate;
         this.reportDate = reportDate;
+        this.priority = priority;
+        this.mark = mark;
         this.employeeAccept = employeeAccept;
         this.managerAccept = managerAccept;
+        this.employeeComment = employeeComment;
     }
 
 
@@ -91,8 +104,20 @@ public class TaskDTO {
         return dueDate;
     }
 
+    public LocalDate getReminderDate() {
+        return reminderDate;
+    }
+
     public LocalDate getReportDate() {
         return reportDate;
+    }
+
+    public Priority getPriority() {
+        return priority;
+    }
+
+    public int getMark() {
+        return mark;
     }
 
     public AcceptanceStatus getEmployeeAccept() {
@@ -101,6 +126,10 @@ public class TaskDTO {
 
     public AcceptanceStatus getManagerAccept() {
         return managerAccept;
+    }
+
+    public String getEmployeeComment() {
+        return employeeComment;
     }
 
     public void setTaskId(String taskId) {
@@ -139,8 +168,20 @@ public class TaskDTO {
         this.dueDate = dueDate;
     }
 
+    public void setReminderDate(LocalDate reminderDate) {
+        this.reminderDate = reminderDate;
+    }
+
     public void setReportDate(LocalDate reportDate) {
         this.reportDate = reportDate;
+    }
+
+    public void setPriority(Priority priority) {
+        this.priority = priority;
+    }
+
+    public void setMark(int mark) {
+        this.mark = mark;
     }
 
     public void setEmployeeAccept(AcceptanceStatus employeeAccept) {
@@ -149,6 +190,10 @@ public class TaskDTO {
 
     public void setManagerAccept(AcceptanceStatus managerAccept) {
         this.managerAccept = managerAccept;
+    }
+
+    public void setEmployeeComment(String employeeComment) {
+        this.employeeComment = employeeComment;
     }
 
     @Override
@@ -163,9 +208,13 @@ public class TaskDTO {
                 ", orderDate=" + orderDate +
                 ", lastOrderUpdateDate=" + lastOrderUpdateDate +
                 ", dueDate=" + dueDate +
+                ", reminderDate=" + reminderDate +
                 ", reportDate=" + reportDate +
+                ", priority=" + priority +
+                ", mark=" + mark +
                 ", employeeAccept=" + employeeAccept +
                 ", managerAccept=" + managerAccept +
+                ", employeeComment='" + employeeComment + '\'' +
                 '}';
     }
 
@@ -174,7 +223,8 @@ public class TaskDTO {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         TaskDTO taskDTO = (TaskDTO) o;
-        return Objects.equals(taskId, taskDTO.taskId) &&
+        return mark == taskDTO.mark &&
+                Objects.equals(taskId, taskDTO.taskId) &&
                 Objects.equals(manager, taskDTO.manager) &&
                 Objects.equals(employee, taskDTO.employee) &&
                 Objects.equals(title, taskDTO.title) &&
@@ -183,9 +233,12 @@ public class TaskDTO {
                 Objects.equals(orderDate, taskDTO.orderDate) &&
                 Objects.equals(lastOrderUpdateDate, taskDTO.lastOrderUpdateDate) &&
                 Objects.equals(dueDate, taskDTO.dueDate) &&
+                Objects.equals(reminderDate, taskDTO.reminderDate) &&
                 Objects.equals(reportDate, taskDTO.reportDate) &&
+                priority == taskDTO.priority &&
                 employeeAccept == taskDTO.employeeAccept &&
-                managerAccept == taskDTO.managerAccept;
+                managerAccept == taskDTO.managerAccept &&
+                Objects.equals(employeeComment, taskDTO.employeeComment);
     }
 
     @Override
@@ -200,9 +253,13 @@ public class TaskDTO {
                 orderDate,
                 lastOrderUpdateDate,
                 dueDate,
+                reminderDate,
                 reportDate,
+                priority,
+                mark,
                 employeeAccept,
-                managerAccept
+                managerAccept,
+                employeeComment
         );
     }
 }

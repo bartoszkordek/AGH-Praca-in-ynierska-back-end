@@ -131,8 +131,12 @@ public class UpdateTaskServiceUnitTest {
                 now,
                 dueDateUpdated,
                 null,
+                null,
+                null,
+                0,
                 AcceptanceStatus.NO_ACTION,
-                AcceptanceStatus.NO_ACTION
+                AcceptanceStatus.NO_ACTION,
+                null
         );
 
         //when

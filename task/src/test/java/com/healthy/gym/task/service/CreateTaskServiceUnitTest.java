@@ -103,8 +103,12 @@ public class CreateTaskServiceUnitTest {
                 now,
                 dueDate,
                 null,
+                null,
+                null,
+                0,
                 AcceptanceStatus.NO_ACTION,
-                AcceptanceStatus.NO_ACTION
+                AcceptanceStatus.NO_ACTION,
+                null
         );
 
         //when

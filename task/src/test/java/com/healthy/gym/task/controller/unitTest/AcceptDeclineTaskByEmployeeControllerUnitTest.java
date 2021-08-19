@@ -123,8 +123,12 @@ public class AcceptDeclineTaskByEmployeeControllerUnitTest {
                 lastOrderUpdateDate,
                 dueDate,
                 null,
+                null,
+                null,
+                0,
                 employeeAccept,
-                managerAccept
+                managerAccept,
+                null
         );
 
         when(taskService.acceptDeclineTaskByEmployee(taskId, employeeId, status))
@@ -201,8 +205,12 @@ public class AcceptDeclineTaskByEmployeeControllerUnitTest {
                 lastOrderUpdateDate,
                 dueDate,
                 null,
+                null,
+                null,
+                0,
                 employeeAccept,
-                managerAccept
+                managerAccept,
+                null
         );
 
         when(taskService.acceptDeclineTaskByEmployee(taskId, employeeId, status))

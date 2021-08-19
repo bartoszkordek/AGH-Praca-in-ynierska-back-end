@@ -120,8 +120,12 @@ class DeleteTaskControllerUnitTest {
                 lastOrderUpdateDate,
                 dueDate,
                 null,
+                null,
+                null,
+                0,
                 employeeAccept,
-                managerAccept
+                managerAccept,
+                null
         );
 
         when(taskService.deleteTask(taskId))

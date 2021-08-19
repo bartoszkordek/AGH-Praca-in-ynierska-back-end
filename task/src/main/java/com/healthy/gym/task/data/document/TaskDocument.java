@@ -1,6 +1,7 @@
 package com.healthy.gym.task.data.document;
 
 import com.healthy.gym.task.enums.AcceptanceStatus;
+import com.healthy.gym.task.enums.Priority;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -24,7 +25,10 @@ public class TaskDocument {
     private LocalDate orderDate;
     private LocalDate lastOrderUpdateDate;
     private LocalDate dueDate;
+    private LocalDate reminderDate;
     private LocalDate reportDate;
+    private Priority priority;
+    private int mark;
     private AcceptanceStatus employeeAccept;
     private AcceptanceStatus managerAccept;
 
@@ -68,8 +72,20 @@ public class TaskDocument {
         return dueDate;
     }
 
+    public LocalDate getReminderDate() {
+        return reminderDate;
+    }
+
     public LocalDate getReportDate() {
         return reportDate;
+    }
+
+    public Priority getPriority() {
+        return priority;
+    }
+
+    public int getMark() {
+        return mark;
     }
 
     public AcceptanceStatus getEmployeeAccept() {
@@ -120,8 +136,20 @@ public class TaskDocument {
         this.dueDate = dueDate;
     }
 
+    public void setReminderDate(LocalDate reminderDate) {
+        this.reminderDate = reminderDate;
+    }
+
     public void setReportDate(LocalDate reportDate) {
         this.reportDate = reportDate;
+    }
+
+    public void setPriority(Priority priority) {
+        this.priority = priority;
+    }
+
+    public void setMark(int mark) {
+        this.mark = mark;
     }
 
     public void setEmployeeAccept(AcceptanceStatus employeeAccept) {
@@ -145,7 +173,10 @@ public class TaskDocument {
                 ", orderDate=" + orderDate +
                 ", lastOrderUpdateDate=" + lastOrderUpdateDate +
                 ", dueDate=" + dueDate +
+                ", reminderDate=" + reminderDate +
                 ", reportDate=" + reportDate +
+                ", priority=" + priority +
+                ", mark=" + mark +
                 ", employeeAccept=" + employeeAccept +
                 ", managerAccept=" + managerAccept +
                 '}';
@@ -156,7 +187,8 @@ public class TaskDocument {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         TaskDocument that = (TaskDocument) o;
-        return Objects.equals(id, that.id) &&
+        return mark == that.mark &&
+                Objects.equals(id, that.id) &&
                 Objects.equals(taskId, that.taskId) &&
                 Objects.equals(manager, that.manager) &&
                 Objects.equals(employee, that.employee) &&
@@ -166,7 +198,9 @@ public class TaskDocument {
                 Objects.equals(orderDate, that.orderDate) &&
                 Objects.equals(lastOrderUpdateDate, that.lastOrderUpdateDate) &&
                 Objects.equals(dueDate, that.dueDate) &&
+                Objects.equals(reminderDate, that.reminderDate) &&
                 Objects.equals(reportDate, that.reportDate) &&
+                priority == that.priority &&
                 employeeAccept == that.employeeAccept &&
                 managerAccept == that.managerAccept;
     }
@@ -184,7 +218,10 @@ public class TaskDocument {
                 orderDate,
                 lastOrderUpdateDate,
                 dueDate,
+                reminderDate,
                 reportDate,
+                priority,
+                mark,
                 employeeAccept,
                 managerAccept
         );

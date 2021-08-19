@@ -296,7 +296,7 @@ public class SendReportControllerUnitTest {
 
         @ParameterizedTest
         @EnumSource(TestCountry.class)
-        void shouldThrowBindException(TestCountry country) throws Exception {
+        void shouldThrowBindException_whenEmptyResultField(TestCountry country) throws Exception {
             Map<String, String> messages = getMessagesAccordingToLocale(country);
             Locale testedLocale = convertEnumToLocale(country);
 
@@ -320,6 +320,39 @@ public class SendReportControllerUnitTest {
                             jsonPath("$.errors.result")
                                     .value(is(messages.get("field.required")))
                     ));
+        }
+
+
+        @ParameterizedTest
+        @EnumSource(TestCountry.class)
+        void shouldThrowTaskNotFoundException(TestCountry country) throws Exception {
+            Map<String, String> messages = getMessagesAccordingToLocale(country);
+            Locale testedLocale = convertEnumToLocale(country);
+
+            String notExistingTaskId = UUID.randomUUID().toString();
+
+            RequestBuilder request = MockMvcRequestBuilders
+                    .put(uri+notExistingTaskId+"/employee/"+employeeId+"/report")
+                    .header("Accept-Language", testedLocale.toString())
+                    .header("Authorization", employeeToken)
+                    .content(requestContent)
+                    .contentType(MediaType.APPLICATION_JSON);
+
+
+            String expectedMessage = messages.get("exception.task.not.found");
+
+            doThrow(TaskNotFoundException.class)
+                    .when(taskService)
+                    .sendReport(notExistingTaskId, employeeId, employeeReportRequest);
+
+            mockMvc.perform(request)
+                    .andDo(print())
+                    .andExpect(status().isBadRequest())
+                    .andExpect(status().reason(is(expectedMessage)))
+                    .andExpect(result ->
+                            Assertions.assertThat(Objects.requireNonNull(result.getResolvedException()).getCause())
+                                    .isInstanceOf(TaskNotFoundException.class)
+                    );
         }
     }
 }

@@ -1,0 +1,16 @@
+spring:
+  application:
+    name: zipkin
+
+server:
+  port: 9411
+
+eureka:
+  client:
+    region: default
+    registry-fetch-interval-seconds: 5
+    service-url:
+      defaultZone: http://localhost:8010/eureka
+
+logging:
+  level: debug

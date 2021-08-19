@@ -47,7 +47,7 @@ Serwisy:
    .)
 8. W folderze __~/app/front-end__ należy wpisać komendę:
    ```shell script
-    docker-compose -f docker-compose-front.yaml -d up 
+    docker-compose -f docker-compose-front.yaml up -d 
     ```
 9. W folderze __~/app/back-end__ należy wpisać komendę:
     ```shell script

@@ -1,5 +1,5 @@
 spring:
   cloud:
     config:
-      name: config-server
+      name: discovery
       uri: http://localhost:8030

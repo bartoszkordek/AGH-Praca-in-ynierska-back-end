@@ -30,7 +30,7 @@ Serwisy:
 1. Wymagany jest zainstalowany Docker:
     * [Docker Engine](https://docs.docker.com/engine/install/)
     * oraz [Docker Compose](https://docs.docker.com/compose/install/).
-2. Aby pominąć punkty od 3 do 6 można wykorzystać skrypt.
+2. Aby pominąć punkty od 3 do 6 można wykorzystać [skrypt](https://github.com/bartoszkordek/AGH-Praca-inzynierska-back-end/blob/main/app_setup.sh).
 3. Wpisz następujące komendy, aby utwórzyć następującą strukturę folderów na dysku:
    ```shell script
     cd 

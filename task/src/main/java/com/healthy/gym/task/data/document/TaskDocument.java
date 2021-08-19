@@ -31,6 +31,7 @@ public class TaskDocument {
     private int mark;
     private AcceptanceStatus employeeAccept;
     private AcceptanceStatus managerAccept;
+    private String employeeComment;
 
     public String getId() {
         return id;
@@ -94,6 +95,10 @@ public class TaskDocument {
 
     public AcceptanceStatus getManagerAccept() {
         return managerAccept;
+    }
+
+    public String getEmployeeComment() {
+        return employeeComment;
     }
 
     public void setId(String id) {
@@ -160,6 +165,10 @@ public class TaskDocument {
         this.managerAccept = managerAccept;
     }
 
+    public void setEmployeeComment(String employeeComment) {
+        this.employeeComment = employeeComment;
+    }
+
     @Override
     public String toString() {
         return "TaskDocument{" +
@@ -179,6 +188,7 @@ public class TaskDocument {
                 ", mark=" + mark +
                 ", employeeAccept=" + employeeAccept +
                 ", managerAccept=" + managerAccept +
+                ", employeeComment='" + employeeComment + '\'' +
                 '}';
     }
 
@@ -202,7 +212,8 @@ public class TaskDocument {
                 Objects.equals(reportDate, that.reportDate) &&
                 priority == that.priority &&
                 employeeAccept == that.employeeAccept &&
-                managerAccept == that.managerAccept;
+                managerAccept == that.managerAccept &&
+                Objects.equals(employeeComment, that.employeeComment);
     }
 
     @Override
@@ -223,7 +234,8 @@ public class TaskDocument {
                 priority,
                 mark,
                 employeeAccept,
-                managerAccept
+                managerAccept,
+                employeeComment
         );
     }
 }

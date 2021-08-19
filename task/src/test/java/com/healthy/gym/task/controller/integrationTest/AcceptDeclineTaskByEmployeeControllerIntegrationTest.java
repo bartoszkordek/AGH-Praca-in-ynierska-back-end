@@ -60,15 +60,18 @@ public class AcceptDeclineTaskByEmployeeControllerIntegrationTest {
     private Integer port;
 
     private String userId;
+    private String trainerId;
     private String employeeId;
     private String managerId;
     private String adminId;
     private String userToken;
+    private String trainerToken;
     private String employeeToken;
     private String managerToken;
     private String adminToken;
     private String taskId;
     private String approvedTaskDocumentId;
+    private String taskForTrainerDocumentId;
 
     @DynamicPropertySource
     static void setProperties(DynamicPropertyRegistry registry) {
@@ -80,6 +83,9 @@ public class AcceptDeclineTaskByEmployeeControllerIntegrationTest {
 
         userId = UUID.randomUUID().toString();
         userToken = tokenFactory.getUserToken(userId);
+
+        trainerId = UUID.randomUUID().toString();
+        trainerToken = tokenFactory.getTrainerToken(trainerId);
 
         employeeId = UUID.randomUUID().toString();
         employeeToken = tokenFactory.getUserToken(employeeId);
@@ -139,6 +145,30 @@ public class AcceptDeclineTaskByEmployeeControllerIntegrationTest {
         approvedTaskDocument.setManagerAccept(AcceptanceStatus.NO_ACTION);
 
         mongoTemplate.save(approvedTaskDocument);
+
+        String trainerName = "Anna";
+        String trainerSurname = "Kwiatkowska";
+        UserDocument trainerDocument = new UserDocument();
+        trainerDocument.setName(trainerName);
+        trainerDocument.setSurname(trainerSurname);
+        trainerDocument.setUserId(trainerId);
+        trainerDocument.setGymRoles(List.of(GymRole.TRAINER));
+
+        mongoTemplate.save(trainerDocument);
+
+        taskForTrainerDocumentId = UUID.randomUUID().toString();
+        TaskDocument taskForTrainerDocument = new TaskDocument();
+        taskForTrainerDocument.setTaskId(taskForTrainerDocumentId);
+        taskForTrainerDocument.setManager(managerDocument);
+        taskForTrainerDocument.setEmployee(trainerDocument);
+        taskForTrainerDocument.setTitle("Title 1");
+        taskForTrainerDocument.setDescription("Description 1");
+        taskForTrainerDocument.setDueDate(LocalDate.now().plusMonths(1));
+        taskForTrainerDocument.setLastOrderUpdateDate(LocalDate.now());
+        taskForTrainerDocument.setEmployeeAccept(AcceptanceStatus.NO_ACTION);
+        taskForTrainerDocument.setManagerAccept(AcceptanceStatus.NO_ACTION);
+
+        mongoTemplate.save(taskForTrainerDocument);
     }
 
     @AfterEach
@@ -198,6 +228,61 @@ public class AcceptDeclineTaskByEmployeeControllerIntegrationTest {
         assertThat(responseEntity.getBody().get("task").get("managerAccept").textValue())
                 .isEqualTo(AcceptanceStatus.NO_ACTION.toString());
     }
+
+    @ParameterizedTest
+    @EnumSource(TestCountry.class)
+    void shouldAcceptTask_whenValidTaskIdTrainerIdStatus(TestCountry country) throws Exception {
+        Map<String, String> messages = getMessagesAccordingToLocale(country);
+        Locale testedLocale = convertEnumToLocale(country);
+
+        String status = "APPROVE";
+
+        URI uri = new URI("http://localhost:" + port + "/"+ taskForTrainerDocumentId + "/employee/" + trainerId + "/status/" + status);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Accept-Language", testedLocale.toString());
+        headers.set("Authorization", trainerToken);
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        HttpEntity<Object> request = new HttpEntity<>(null, headers);
+        String expectedMessage = messages.get("task.approved.employee");
+
+        ResponseEntity<JsonNode> responseEntity = restTemplate
+                .exchange(uri, HttpMethod.PUT, request, JsonNode.class);
+
+        System.out.println(responseEntity.getBody());
+
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(Objects.requireNonNull(responseEntity.getBody().get("message").textValue()))
+                .isEqualTo(expectedMessage);
+        assertThat(responseEntity.getBody().get("task").get("id")).isNotNull();
+        assertThat(responseEntity.getBody().get("task").get("manager")).isNotNull();
+        assertThat(responseEntity.getBody().get("task").get("manager").get("userId").textValue())
+                .isEqualTo(managerId);
+        assertThat(responseEntity.getBody().get("task").get("manager").get("name").textValue())
+                .isEqualTo("Adam");
+        assertThat(responseEntity.getBody().get("task").get("manager").get("surname").textValue())
+                .isEqualTo("Nowak");
+        assertThat(responseEntity.getBody().get("task").get("employee").get("userId").textValue())
+                .isEqualTo(trainerId);
+        assertThat(responseEntity.getBody().get("task").get("employee").get("name").textValue())
+                .isEqualTo("Anna");
+        assertThat(responseEntity.getBody().get("task").get("employee").get("surname").textValue())
+                .isEqualTo("Kwiatkowska");
+        assertThat(responseEntity.getBody().get("task").get("title").textValue())
+                .isEqualTo("Title 1");
+        assertThat(responseEntity.getBody().get("task").get("description").textValue())
+                .isEqualTo("Description 1");
+        assertThat(responseEntity.getBody().get("task").get("lastOrderUpdateDate").textValue())
+                .isEqualTo(LocalDate.now().toString());
+        assertThat(responseEntity.getBody().get("task").get("dueDate").textValue())
+                .isEqualTo(LocalDate.now().plusMonths(1).toString());
+        assertThat(responseEntity.getBody().get("task").get("employeeAccept").textValue())
+                .isEqualTo(AcceptanceStatus.ACCEPTED.toString());
+        assertThat(responseEntity.getBody().get("task").get("managerAccept").textValue())
+                .isEqualTo(AcceptanceStatus.NO_ACTION.toString());
+    }
+
 
 
     @ParameterizedTest

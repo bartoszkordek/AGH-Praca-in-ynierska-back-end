@@ -27,6 +27,7 @@ public class TaskServiceImpl implements TaskService{
     private final ModelMapper modelMapper;
     private final GymRole managerRole;
     private final GymRole employeeRole;
+    private final GymRole trainerRole;
     private static final String ACCEPT_STATUS = "APPROVE";
     private static final String DECLINE_STATUS = "DECLINE";
 
@@ -41,6 +42,7 @@ public class TaskServiceImpl implements TaskService{
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         managerRole = GymRole.MANAGER;
         employeeRole = GymRole.EMPLOYEE;
+        trainerRole = GymRole.TRAINER;
     }
 
 
@@ -54,7 +56,8 @@ public class TaskServiceImpl implements TaskService{
         String employeeId = managerOrderRequest.getEmployeeId();
         UserDocument employeeDocument = userDAO.findByUserId(employeeId);
         if(employeeDocument == null) throw new EmployeeNotFoundException();
-        if(!employeeDocument.getGymRoles().contains(employeeRole)) throw new EmployeeNotFoundException();
+        if(!employeeDocument.getGymRoles().contains(employeeRole) && !employeeDocument.getGymRoles().contains(trainerRole))
+            throw new EmployeeNotFoundException();
 
         String dueDate = managerOrderRequest.getDueDate();
         var now = LocalDate.now();
@@ -93,7 +96,9 @@ public class TaskServiceImpl implements TaskService{
         if(requestEmployeeId != null){
             UserDocument employeeDocument = userDAO.findByUserId(requestEmployeeId);
             if(employeeDocument == null) throw new EmployeeNotFoundException();
-            if(!employeeDocument.getGymRoles().contains(employeeRole)) throw new EmployeeNotFoundException();
+            if(!employeeDocument.getGymRoles().contains(employeeRole) && !employeeDocument.getGymRoles().contains(trainerRole))
+                throw new EmployeeNotFoundException();
+
             taskDocumentToBeUpdated.setEmployee(employeeDocument);
         }
 
@@ -136,7 +141,8 @@ public class TaskServiceImpl implements TaskService{
 
         UserDocument employeeDocument = userDAO.findByUserId(userId);
         if(employeeDocument == null) throw new EmployeeNotFoundException();
-        if(!employeeDocument.getGymRoles().contains(employeeRole)) throw new EmployeeNotFoundException();
+        if(!employeeDocument.getGymRoles().contains(employeeRole) && !employeeDocument.getGymRoles().contains(trainerRole))
+            throw new EmployeeNotFoundException();
 
         if(!status.equalsIgnoreCase(ACCEPT_STATUS) && !status.equalsIgnoreCase(DECLINE_STATUS))
             throw new InvalidStatusException();
@@ -160,7 +166,8 @@ public class TaskServiceImpl implements TaskService{
 
         UserDocument employeeDocument = userDAO.findByUserId(userId);
         if(employeeDocument == null) throw new EmployeeNotFoundException();
-        if(!employeeDocument.getGymRoles().contains(employeeRole)) throw new EmployeeNotFoundException();
+        if(!employeeDocument.getGymRoles().contains(employeeRole) && !employeeDocument.getGymRoles().contains(trainerRole))
+            throw new EmployeeNotFoundException();
 
         AcceptanceStatus status = taskDocumentReportToBeAdded.getManagerAccept();
         if(status.equals(AcceptanceStatus.NOT_ACCEPTED)) throw new TaskDeclinedByEmployeeException();

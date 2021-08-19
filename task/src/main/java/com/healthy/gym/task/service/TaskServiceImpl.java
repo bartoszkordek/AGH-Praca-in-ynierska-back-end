@@ -8,6 +8,7 @@ import com.healthy.gym.task.dto.TaskDTO;
 import com.healthy.gym.task.enums.AcceptanceStatus;
 import com.healthy.gym.task.enums.GymRole;
 import com.healthy.gym.task.exception.*;
+import com.healthy.gym.task.pojo.request.EmployeeReportRequest;
 import com.healthy.gym.task.pojo.request.ManagerOrderRequest;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
@@ -148,5 +149,10 @@ public class TaskServiceImpl implements TaskService{
 
         TaskDocument updatedTaskDocument = taskDAO.save(taskDocumentToBeUpdated);
         return modelMapper.map(updatedTaskDocument, TaskDTO.class);
+    }
+
+    @Override
+    public TaskDTO sendReport(String taskId, String userId, EmployeeReportRequest report) throws EmployeeNotFoundException, TaskDeclinedByEmployeeException {
+        return null;
     }
 }

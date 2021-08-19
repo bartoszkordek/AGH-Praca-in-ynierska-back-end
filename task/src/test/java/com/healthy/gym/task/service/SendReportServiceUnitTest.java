@@ -23,6 +23,7 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 @SpringBootTest
@@ -44,6 +45,7 @@ public class SendReportServiceUnitTest {
     private EmployeeReportRequest reportRequest;
     private TaskDocument taskDocumentReportToSend;
     private TaskDocument taskDocumentWithReport;
+    private TaskDocument declinedTaskDocument;
     private TaskDTO taskResponse;
 
 
@@ -95,6 +97,18 @@ public class SendReportServiceUnitTest {
         taskDocumentReportToSend.setEmployeeAccept(AcceptanceStatus.NO_ACTION);
         taskDocumentReportToSend.setManagerAccept(AcceptanceStatus.NO_ACTION);
 
+        declinedTaskDocument = new TaskDocument();
+        declinedTaskDocument.setTaskId(taskId);
+        declinedTaskDocument.setManager(managerDocument);
+        declinedTaskDocument.setEmployee(employeeDocument);
+        declinedTaskDocument.setTitle(title);
+        declinedTaskDocument.setDescription(description);
+        declinedTaskDocument.setOrderDate(lastOrderUpdateDate);
+        declinedTaskDocument.setLastOrderUpdateDate(lastOrderUpdateDate);
+        declinedTaskDocument.setDueDate(dueDate);
+        declinedTaskDocument.setEmployeeAccept(AcceptanceStatus.NOT_ACCEPTED);
+        declinedTaskDocument.setManagerAccept(AcceptanceStatus.NO_ACTION);
+
         taskDocumentWithReport = new TaskDocument();
         taskDocumentWithReport.setTaskId(taskId);
         taskDocumentWithReport.setManager(managerDocument);
@@ -143,15 +157,23 @@ public class SendReportServiceUnitTest {
 
     @Test
     void shouldNotSendReport_whenTaskIdNotExist(){
-        //before
-        String notFoundTaskId = UUID.randomUUID().toString();
-
         //when
-        when(taskDAO.findByTaskId(notFoundTaskId)).thenReturn(null);
+        when(taskDAO.findByTaskId(any())).thenReturn(null);
 
         //then
         assertThatThrownBy(() ->
-                taskService.sendReport(notFoundTaskId, employeeId, reportRequest)
+                taskService.sendReport(taskId, employeeId, reportRequest)
         ).isInstanceOf(TaskNotFoundException.class);
+    }
+
+    @Test
+    void shouldNotSendReport_whenTaskDeclinedByEmployee(){
+        //when
+        when(taskDAO.findByTaskId(any())).thenReturn(declinedTaskDocument);
+
+        //then
+        assertThatThrownBy(() ->
+                taskService.sendReport(taskId, employeeId, reportRequest)
+        ).isInstanceOf(TaskDeclinedByEmployeeException.class);
     }
 }

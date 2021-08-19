@@ -7,6 +7,7 @@ import com.healthy.gym.task.controller.TaskController;
 import com.healthy.gym.task.dto.BasicUserInfoDTO;
 import com.healthy.gym.task.dto.TaskDTO;
 import com.healthy.gym.task.enums.AcceptanceStatus;
+import com.healthy.gym.task.exception.TaskDeclinedByEmployeeException;
 import com.healthy.gym.task.exception.TaskNotFoundException;
 import com.healthy.gym.task.pojo.request.EmployeeReportRequest;
 import com.healthy.gym.task.service.TaskService;
@@ -353,7 +354,7 @@ public class SendReportControllerUnitTest {
 
         @ParameterizedTest
         @EnumSource(TestCountry.class)
-        void shouldThrowTaskNotFoundException(TestCountry country) throws Exception {
+        void shouldTaskDeclinedByEmployeeException(TestCountry country) throws Exception {
             Map<String, String> messages = getMessagesAccordingToLocale(country);
             Locale testedLocale = convertEnumToLocale(country);
 
@@ -380,6 +381,38 @@ public class SendReportControllerUnitTest {
                     .andExpect(result ->
                             Assertions.assertThat(Objects.requireNonNull(result.getResolvedException()).getCause())
                                     .isInstanceOf(TaskNotFoundException.class)
+                    );
+        }
+
+        @ParameterizedTest
+        @EnumSource(TestCountry.class)
+        void shouldThrowTaskNotFoundException(TestCountry country) throws Exception {
+            Map<String, String> messages = getMessagesAccordingToLocale(country);
+            Locale testedLocale = convertEnumToLocale(country);
+
+            String declinedTaskId = UUID.randomUUID().toString();
+
+            RequestBuilder request = MockMvcRequestBuilders
+                    .put(uri+declinedTaskId+"/employee/"+employeeId+"/report")
+                    .header("Accept-Language", testedLocale.toString())
+                    .header("Authorization", employeeToken)
+                    .content(requestContent)
+                    .contentType(MediaType.APPLICATION_JSON);
+
+
+            String expectedMessage = messages.get("exception.declined.employee");
+
+            doThrow(TaskDeclinedByEmployeeException.class)
+                    .when(taskService)
+                    .sendReport(declinedTaskId, employeeId, employeeReportRequest);
+
+            mockMvc.perform(request)
+                    .andDo(print())
+                    .andExpect(status().isBadRequest())
+                    .andExpect(status().reason(is(expectedMessage)))
+                    .andExpect(result ->
+                            Assertions.assertThat(Objects.requireNonNull(result.getResolvedException()).getCause())
+                                    .isInstanceOf(TaskDeclinedByEmployeeException.class)
                     );
         }
     }

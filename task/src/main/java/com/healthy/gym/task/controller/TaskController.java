@@ -196,7 +196,7 @@ public class TaskController {
     }
 
     @PreAuthorize("principal==#userId")
-    @PutMapping("/{taskId}/employee/{userId}")
+    @PutMapping("/{taskId}/employee/{userId}/report")
     public ResponseEntity<TaskResponse> sendReport(
             @PathVariable("taskId") @ValidIDFormat final String taskId,
             @PathVariable("userId") @ValidIDFormat final String userId,
@@ -220,10 +220,6 @@ public class TaskController {
 
         } catch (TaskNotFoundException exception){
             String reason = translator.toLocale("exception.task.not.found");
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, exception);
-
-        } catch (EmployeeNotFoundException exception){
-            String reason = translator.toLocale("exception.employee.not.found");
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, exception);
 
         } catch (TaskDeclinedByEmployeeException exception){

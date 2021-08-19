@@ -232,6 +232,7 @@ public class CreateTaskControllerIntegrationTest {
         ResponseEntity<JsonNode> responseEntity = restTemplate
                 .exchange(uri, HttpMethod.POST, request, JsonNode.class);
 
+        System.out.println(responseEntity.getBody());
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.CREATED);
         assertThat(Objects.requireNonNull(responseEntity.getBody().get("message").textValue()))
                 .isEqualTo(expectedMessage);

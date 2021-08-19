@@ -160,17 +160,18 @@ public class TaskServiceImpl implements TaskService{
 
     @Override
     public TaskDTO sendReport(String taskId, String userId, EmployeeReportRequest reportRequest)
-            throws TaskNotFoundException, EmployeeNotFoundException, TaskDeclinedByEmployeeException {
+            throws TaskNotFoundException, TaskDeclinedByEmployeeException {
 
         TaskDocument taskDocumentReportToBeAdded = getTaskDocument(taskId);
 
-        UserDocument employeeDocument = getEmployeeOrTrainerDocument(userId);
-
         AcceptanceStatus status = taskDocumentReportToBeAdded.getManagerAccept();
         if(status.equals(AcceptanceStatus.NOT_ACCEPTED)) throw new TaskDeclinedByEmployeeException();
+        taskDocumentReportToBeAdded.setEmployeeAccept(AcceptanceStatus.ACCEPTED);
 
         String report = reportRequest.getResult();
         taskDocumentReportToBeAdded.setReport(report);
+
+        taskDocumentReportToBeAdded.setReportDate(LocalDate.now());
 
         TaskDocument updatedTaskDocument = taskDAO.save(taskDocumentReportToBeAdded);
         return modelMapper.map(updatedTaskDocument, TaskDTO.class);

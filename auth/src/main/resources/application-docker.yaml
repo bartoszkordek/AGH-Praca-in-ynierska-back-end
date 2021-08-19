@@ -1,75 +1,19 @@
 spring:
-  application:
-    name: auth
-  devtools:
-    restart:
-      enabled: true
-  profiles:
-    active: production
   redis:
-    database: 0
     host: redis
-    port: 6379
-    test:
-      port: 6380
-    password: thisP@sswordNeed2BeChange
-    timeout: 60000
-  main:
-    allow-bean-definition-overriding: true
   data:
     mongodb:
       uri: mongodb://adminPracaInz:thisPAsswordNeed2BeChange@mongodb:27017/databasePracaInz
-      database: databasePracaInz
   rabbitmq:
     host: rabbitmq
-    port: 5672
-    password: th1sPAsswordNeed2BeChAnged
-    username: healthy_gym
-  mail:
-    host: smtp.gmail.com
-    port: 587
   zipkin:
     base-url: http://zipkin:9411
-    sender:
-      type: web
-  sleuth:
-    sampler:
-      probability: 1
-
-server:
-  port: 0
-  error:
-    include-message: always
-    include-stacktrace: never
-    include-exception: false
 
 eureka:
   client:
     service-url:
       defaultZone: http://discovery:8010/eureka
-    registry-fetch-interval-seconds: 5
-    region: default
-  instance:
-    instance-id: ${spring.application.name}:${spring.application.instance_id:${random.value}}
-
-management:
-  endpoints:
-    web:
-      exposure:
-        include: health, info, env
 
 #custom settings
-token:
-  secret: r@ndomlyGener@ted2ecretKey22ecureApplic@tionAndNeed2BeCh@nge1nTheFuture
-  expiration-time: 3600000
-
-authorization:
-  token:
-    header:
-      name: Authorization
-      prefix: Bearer
-
 front-end:
-  protocol: http
-  host: localhost
   port: 5000

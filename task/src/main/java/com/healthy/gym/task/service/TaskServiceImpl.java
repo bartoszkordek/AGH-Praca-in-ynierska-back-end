@@ -50,14 +50,10 @@ public class TaskServiceImpl implements TaskService{
     public TaskDTO createTask(ManagerOrderRequest managerOrderRequest) throws ManagerNotFoundException,
             EmployeeNotFoundException, RetroDueDateException {
 
-        UserDocument managerDocument = userDAO.findByGymRolesContaining(managerRole);
-        if(managerDocument == null) throw new ManagerNotFoundException();
+        UserDocument managerDocument = getManagerDocument();
 
         String employeeId = managerOrderRequest.getEmployeeId();
-        UserDocument employeeDocument = userDAO.findByUserId(employeeId);
-        if(employeeDocument == null) throw new EmployeeNotFoundException();
-        if(!employeeDocument.getGymRoles().contains(employeeRole) && !employeeDocument.getGymRoles().contains(trainerRole))
-            throw new EmployeeNotFoundException();
+        UserDocument employeeDocument = getEmployeeOrTrainerDocument(employeeId);
 
         String dueDate = managerOrderRequest.getDueDate();
         var now = LocalDate.now();
@@ -85,12 +81,9 @@ public class TaskServiceImpl implements TaskService{
     public TaskDTO updateTask(String taskId, ManagerOrderRequest managerOrderRequest)
             throws TaskNotFoundException, ManagerNotFoundException, EmployeeNotFoundException, RetroDueDateException {
 
-        TaskDocument taskDocumentToBeUpdated = taskDAO.findByTaskId(taskId);
-        if(taskDocumentToBeUpdated == null) throw new TaskNotFoundException();
+        TaskDocument taskDocumentToBeUpdated = getTaskDocument(taskId);
 
-        UserDocument managerDocument = userDAO.findByGymRolesContaining(managerRole);
-        if(managerDocument == null) throw new ManagerNotFoundException();
-
+        UserDocument managerDocument = getManagerDocument();
 
         String requestEmployeeId = managerOrderRequest.getEmployeeId();
         if(requestEmployeeId != null){
@@ -136,13 +129,9 @@ public class TaskServiceImpl implements TaskService{
     public TaskDTO acceptDeclineTaskByEmployee(String taskId, String userId, String status)
             throws TaskNotFoundException, EmployeeNotFoundException, InvalidStatusException {
 
-        TaskDocument taskDocumentToBeUpdated = taskDAO.findByTaskId(taskId);
-        if(taskDocumentToBeUpdated == null) throw new TaskNotFoundException();
+        TaskDocument taskDocumentToBeUpdated = getTaskDocument(taskId);
 
-        UserDocument employeeDocument = userDAO.findByUserId(userId);
-        if(employeeDocument == null) throw new EmployeeNotFoundException();
-        if(!employeeDocument.getGymRoles().contains(employeeRole) && !employeeDocument.getGymRoles().contains(trainerRole))
-            throw new EmployeeNotFoundException();
+        UserDocument employeeDocument = getEmployeeOrTrainerDocument(userId);
 
         if(!status.equalsIgnoreCase(ACCEPT_STATUS) && !status.equalsIgnoreCase(DECLINE_STATUS))
             throw new InvalidStatusException();
@@ -161,13 +150,9 @@ public class TaskServiceImpl implements TaskService{
     public TaskDTO sendReport(String taskId, String userId, EmployeeReportRequest reportRequest)
             throws TaskNotFoundException, EmployeeNotFoundException, TaskDeclinedByEmployeeException {
 
-        TaskDocument taskDocumentReportToBeAdded = taskDAO.findByTaskId(taskId);
-        if(taskDocumentReportToBeAdded == null) throw new TaskNotFoundException();
+        TaskDocument taskDocumentReportToBeAdded = getTaskDocument(taskId);
 
-        UserDocument employeeDocument = userDAO.findByUserId(userId);
-        if(employeeDocument == null) throw new EmployeeNotFoundException();
-        if(!employeeDocument.getGymRoles().contains(employeeRole) && !employeeDocument.getGymRoles().contains(trainerRole))
-            throw new EmployeeNotFoundException();
+        UserDocument employeeDocument = getEmployeeOrTrainerDocument(userId);
 
         AcceptanceStatus status = taskDocumentReportToBeAdded.getManagerAccept();
         if(status.equals(AcceptanceStatus.NOT_ACCEPTED)) throw new TaskDeclinedByEmployeeException();
@@ -177,5 +162,26 @@ public class TaskServiceImpl implements TaskService{
 
         TaskDocument updatedTaskDocument = taskDAO.save(taskDocumentReportToBeAdded);
         return modelMapper.map(updatedTaskDocument, TaskDTO.class);
+    }
+
+
+    private TaskDocument getTaskDocument(String taskId) throws TaskNotFoundException {
+        TaskDocument taskDocument = taskDAO.findByTaskId(taskId);
+        if(taskDocument == null) throw new TaskNotFoundException();
+        return taskDocument;
+    }
+
+    private UserDocument getManagerDocument() throws ManagerNotFoundException {
+        UserDocument managerDocument = userDAO.findByGymRolesContaining(managerRole);
+        if(managerDocument == null) throw new ManagerNotFoundException();
+        return managerDocument;
+    }
+
+    private UserDocument getEmployeeOrTrainerDocument(String userId) throws EmployeeNotFoundException {
+        UserDocument employeeDocument = userDAO.findByUserId(userId);
+        if(employeeDocument == null) throw new EmployeeNotFoundException();
+        if(!employeeDocument.getGymRoles().contains(employeeRole) && !employeeDocument.getGymRoles().contains(trainerRole))
+            throw new EmployeeNotFoundException();
+        return employeeDocument;
     }
 }

@@ -43,11 +43,13 @@ public class SendReportServiceUnitTest {
     private String employeeId;
     private String managerId;
     private String taskId;
+    private String taskIdWithExceededDueDate;
 
     private EmployeeReportRequest reportRequest;
     private TaskDocument taskDocumentReportToSend;
     private TaskDocument taskDocumentWithReport;
     private TaskDocument declinedTaskDocument;
+    private TaskDocument taskDocumentWithExceededDueDate;
     private TaskDTO taskResponse;
 
 
@@ -125,6 +127,21 @@ public class SendReportServiceUnitTest {
         taskDocumentWithReport.setReport(report);
         taskDocumentWithReport.setReportDate(now);
 
+        taskIdWithExceededDueDate = UUID.randomUUID().toString();
+        taskDocumentWithExceededDueDate = new TaskDocument();
+        taskDocumentWithExceededDueDate.setTaskId(taskIdWithExceededDueDate);
+        taskDocumentWithExceededDueDate.setManager(managerDocument);
+        taskDocumentWithExceededDueDate.setEmployee(employeeDocument);
+        taskDocumentWithExceededDueDate.setTitle(title);
+        taskDocumentWithExceededDueDate.setDescription(description);
+        taskDocumentWithExceededDueDate.setTaskCreationDate(lastTaskUpdateDate);
+        taskDocumentWithExceededDueDate.setLastTaskUpdateDate(now.minusDays(5));
+        taskDocumentWithExceededDueDate.setDueDate(now.minusDays(1));
+        taskDocumentWithExceededDueDate.setEmployeeAccept(AcceptanceStatus.ACCEPTED);
+        taskDocumentWithExceededDueDate.setManagerAccept(AcceptanceStatus.NO_ACTION);
+        taskDocumentWithExceededDueDate.setReport(report);
+        taskDocumentWithExceededDueDate.setReportDate(now);
+
         //response
         taskResponse = new TaskDTO(
                 taskId,
@@ -178,5 +195,16 @@ public class SendReportServiceUnitTest {
         assertThatThrownBy(() ->
                 taskService.sendReport(taskId, employeeId, reportRequest)
         ).isInstanceOf(TaskDeclinedByEmployeeException.class);
+    }
+
+    @Test
+    void shouldNotSendReport_whenTaskExceededDueDate(){
+        //when
+        when(taskDAO.findByTaskId(any())).thenReturn(taskDocumentWithExceededDueDate);
+
+        //then
+        assertThatThrownBy(() ->
+                taskService.sendReport(taskIdWithExceededDueDate, employeeId, reportRequest)
+        ).isInstanceOf(DueDateExceedException.class);
     }
 }

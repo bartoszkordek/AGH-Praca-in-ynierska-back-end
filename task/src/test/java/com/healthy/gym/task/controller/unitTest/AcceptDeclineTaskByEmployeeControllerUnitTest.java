@@ -9,6 +9,7 @@ import com.healthy.gym.task.enums.AcceptanceStatus;
 import com.healthy.gym.task.exception.EmployeeNotFoundException;
 import com.healthy.gym.task.exception.InvalidStatusException;
 import com.healthy.gym.task.exception.TaskNotFoundException;
+import com.healthy.gym.task.pojo.request.EmployeeAcceptDeclineTaskRequest;
 import com.healthy.gym.task.service.TaskService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -17,10 +18,14 @@ import org.junit.jupiter.params.provider.EnumSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.RequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.testcontainers.shaded.com.fasterxml.jackson.core.JsonProcessingException;
+import org.testcontainers.shaded.com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -34,6 +39,7 @@ import static com.healthy.gym.task.configuration.LocaleConverter.convertEnumToLo
 import static com.healthy.gym.task.configuration.Messages.getMessagesAccordingToLocale;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.ResultMatcher.matchAll;
@@ -42,6 +48,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
 @WebMvcTest(TaskController.class)
+@ActiveProfiles(value = "test")
 public class AcceptDeclineTaskByEmployeeControllerUnitTest {
 
     @Autowired
@@ -61,10 +68,33 @@ public class AcceptDeclineTaskByEmployeeControllerUnitTest {
     private String taskId;
     private String employeeId;
 
+    private String requestAcceptanceStatusAccept;
+    private String requestEmployeeCommentAccept;
+    private String requestAcceptanceStatusDecline;
+    private String requestEmployeeCommentDecline;
+    private String requestInvalidAcceptanceStatus;
+    private String requestInvalidEmployeeComment;
+
+    private ObjectMapper objectMapper;
+
+    private String validAcceptedTaskRequestContent;
+    private String validDeclinedTaskRequestContent;
+    private String invalidTaskRequestInvalidEmployeeCommentRequestContent;
+    private String invalidTaskRequestMissingRequestDataRequestContent;
+    private String invalidTaskRequestInvalidAcceptanceStatusRequestContent;
+    private String invalidStateExceptionRequestContent;
+
+    private EmployeeAcceptDeclineTaskRequest validAcceptTaskRequest;
+    private EmployeeAcceptDeclineTaskRequest validDeclineTaskRequest;
+    private EmployeeAcceptDeclineTaskRequest invalidTaskRequestInvalidEmployeeComment;
+    private EmployeeAcceptDeclineTaskRequest invalidTaskRequestMissingRequestData;
+    private EmployeeAcceptDeclineTaskRequest invalidTaskRequestInvalidAcceptanceStatus;
+    private EmployeeAcceptDeclineTaskRequest invalidStateExceptionRequest;
+
     private URI uri;
 
     @BeforeEach
-    void setUp() throws URISyntaxException {
+    void setUp() throws URISyntaxException, JsonProcessingException {
         String userId = UUID.randomUUID().toString();
         userToken = tokenFactory.getUserToken(userId);
 
@@ -79,6 +109,51 @@ public class AcceptDeclineTaskByEmployeeControllerUnitTest {
 
         taskId = UUID.randomUUID().toString();
 
+        objectMapper = new ObjectMapper();
+
+        requestAcceptanceStatusAccept = "approve";
+        requestEmployeeCommentAccept = "I accept this task";
+
+        requestAcceptanceStatusDecline = "DECLINE";
+        requestEmployeeCommentDecline = "I decline this task";
+
+        requestInvalidAcceptanceStatus = "INVALID_ACCEPTANCE_STATUS";
+        requestInvalidEmployeeComment = "C";
+
+        //valid request - accepted task
+        validAcceptTaskRequest = new EmployeeAcceptDeclineTaskRequest();
+        validAcceptTaskRequest.setAcceptanceStatus(requestAcceptanceStatusAccept);
+        validAcceptTaskRequest.setEmployeeComment(requestEmployeeCommentAccept);
+        validAcceptedTaskRequestContent = objectMapper.writeValueAsString(validAcceptTaskRequest);
+
+        //valid request - declined task
+        validDeclineTaskRequest = new EmployeeAcceptDeclineTaskRequest();
+        validDeclineTaskRequest.setAcceptanceStatus(requestAcceptanceStatusDecline);
+        validDeclineTaskRequest.setEmployeeComment(requestEmployeeCommentDecline);
+        validDeclinedTaskRequestContent = objectMapper.writeValueAsString(validDeclineTaskRequest);
+
+        //invalid request - invalid employee comment
+        invalidTaskRequestInvalidEmployeeComment = new EmployeeAcceptDeclineTaskRequest();
+        invalidTaskRequestInvalidEmployeeComment.setAcceptanceStatus(requestAcceptanceStatusAccept);
+        invalidTaskRequestInvalidEmployeeComment.setEmployeeComment(requestInvalidEmployeeComment);
+        invalidTaskRequestInvalidEmployeeCommentRequestContent = objectMapper.writeValueAsString(invalidTaskRequestInvalidEmployeeComment);
+
+        //invalid request - invalid acceptance status
+        invalidTaskRequestInvalidAcceptanceStatus = new EmployeeAcceptDeclineTaskRequest();
+        invalidTaskRequestInvalidAcceptanceStatus.setAcceptanceStatus(requestInvalidAcceptanceStatus);
+        invalidTaskRequestInvalidAcceptanceStatus.setEmployeeComment(requestEmployeeCommentAccept);
+        invalidTaskRequestInvalidAcceptanceStatusRequestContent = objectMapper.writeValueAsString(invalidTaskRequestInvalidAcceptanceStatus);
+
+        //invalid request - missing required data
+        invalidTaskRequestMissingRequestData = new EmployeeAcceptDeclineTaskRequest();
+        invalidTaskRequestMissingRequestDataRequestContent = objectMapper.writeValueAsString(invalidTaskRequestMissingRequestData);
+
+        //request for InvalidStateExceptionTest
+        invalidStateExceptionRequest = new EmployeeAcceptDeclineTaskRequest();
+        invalidStateExceptionRequest.setAcceptanceStatus("InvalidStateException");
+        invalidStateExceptionRequest.setEmployeeComment("InvalidStateException");
+        invalidStateExceptionRequestContent = objectMapper.writeValueAsString(invalidStateExceptionRequest);
+
         uri = new URI("/");
     }
 
@@ -89,12 +164,11 @@ public class AcceptDeclineTaskByEmployeeControllerUnitTest {
         Map<String, String> messages = getMessagesAccordingToLocale(country);
         Locale testedLocale = convertEnumToLocale(country);
 
-        String status = "accept";
-
         RequestBuilder request = MockMvcRequestBuilders
-                .put(uri+taskId+"/employee/"+employeeId+"/status/"+status)
+                .put(uri+taskId+"/employee/"+employeeId+"/approvalStatus")
                 .header("Accept-Language", testedLocale.toString())
                 .header("Authorization", employeeToken)
+                .content(validAcceptedTaskRequestContent)
                 .contentType(MediaType.APPLICATION_JSON);
 
         var now = LocalDate.now();
@@ -107,10 +181,12 @@ public class AcceptDeclineTaskByEmployeeControllerUnitTest {
         BasicUserInfoDTO employee = new BasicUserInfoDTO(employeeId, employeeName, employeeSurname);
         String title = "Test task 1";
         String description = "Description for task 1";
-        LocalDate lastOrderUpdateDate = now;
+        LocalDate taskCreationDate = now.minusMonths(1);
+        LocalDate lastTaskUpdateDate = now;
         LocalDate dueDate = now.plusMonths(1);
         AcceptanceStatus employeeAccept = AcceptanceStatus.ACCEPTED;
         AcceptanceStatus managerAccept = AcceptanceStatus.NO_ACTION;
+        String employeeComment = "I accept this task";
 
         TaskDTO taskResponse = new TaskDTO(
                 taskId,
@@ -119,15 +195,19 @@ public class AcceptDeclineTaskByEmployeeControllerUnitTest {
                 title,
                 description,
                 null,
-                null,
-                lastOrderUpdateDate,
+                taskCreationDate,
+                lastTaskUpdateDate,
                 dueDate,
                 null,
+                null,
+                null,
+                0,
                 employeeAccept,
-                managerAccept
+                managerAccept,
+                employeeComment
         );
 
-        when(taskService.acceptDeclineTaskByEmployee(taskId, employeeId, status))
+        when(taskService.acceptDeclineTaskByEmployee(taskId, employeeId, validAcceptTaskRequest))
                 .thenReturn(taskResponse);
 
         String expectedMessage = messages.get("task.approved.employee");
@@ -152,12 +232,13 @@ public class AcceptDeclineTaskByEmployeeControllerUnitTest {
                         jsonPath("$.task.title").value(is(title)),
                         jsonPath("$.task.description").value(is(description)),
                         jsonPath("$.task.report").doesNotExist(),
-                        jsonPath("$.task.orderDate").doesNotExist(),
-                        jsonPath("$.task.lastOrderUpdateDate").value(is(lastOrderUpdateDate.toString())),
+                        jsonPath("$.task.taskCreationDate").value(is(taskCreationDate.toString())),
+                        jsonPath("$.task.lastTaskUpdateDate").value(is(lastTaskUpdateDate.toString())),
                         jsonPath("$.task.dueDate").value(is(dueDate.toString())),
                         jsonPath("$.task.reportDate").doesNotExist(),
                         jsonPath("$.task.employeeAccept").value(is(employeeAccept.toString())),
-                        jsonPath("$.task.managerAccept").value(is(managerAccept.toString()))
+                        jsonPath("$.task.managerAccept").value(is(managerAccept.toString())),
+                        jsonPath("$.task.employeeComment").value(is(employeeComment))
                 ));
     }
 
@@ -167,12 +248,11 @@ public class AcceptDeclineTaskByEmployeeControllerUnitTest {
         Map<String, String> messages = getMessagesAccordingToLocale(country);
         Locale testedLocale = convertEnumToLocale(country);
 
-        String status = "DECLINE";
-
         RequestBuilder request = MockMvcRequestBuilders
-                .put(uri+taskId+"/employee/"+employeeId+"/status/"+status)
+                .put(uri+taskId+"/employee/"+employeeId+"/approvalStatus")
                 .header("Accept-Language", testedLocale.toString())
                 .header("Authorization", employeeToken)
+                .content(validDeclinedTaskRequestContent)
                 .contentType(MediaType.APPLICATION_JSON);
 
         var now = LocalDate.now();
@@ -185,6 +265,7 @@ public class AcceptDeclineTaskByEmployeeControllerUnitTest {
         BasicUserInfoDTO employee = new BasicUserInfoDTO(employeeId, employeeName, employeeSurname);
         String title = "Test task 1";
         String description = "Description for task 1";
+        LocalDate taskCreationDate = now.minusMonths(1);
         LocalDate lastOrderUpdateDate = now;
         LocalDate dueDate = now.plusMonths(1);
         AcceptanceStatus employeeAccept = AcceptanceStatus.NOT_ACCEPTED;
@@ -197,15 +278,19 @@ public class AcceptDeclineTaskByEmployeeControllerUnitTest {
                 title,
                 description,
                 null,
-                null,
+                taskCreationDate,
                 lastOrderUpdateDate,
                 dueDate,
                 null,
+                null,
+                null,
+                0,
                 employeeAccept,
-                managerAccept
+                managerAccept,
+                null
         );
 
-        when(taskService.acceptDeclineTaskByEmployee(taskId, employeeId, status))
+        when(taskService.acceptDeclineTaskByEmployee(taskId, employeeId, validDeclineTaskRequest))
                 .thenReturn(taskResponse);
 
         String expectedMessage = messages.get("task.declined.employee");
@@ -230,8 +315,8 @@ public class AcceptDeclineTaskByEmployeeControllerUnitTest {
                         jsonPath("$.task.title").value(is(title)),
                         jsonPath("$.task.description").value(is(description)),
                         jsonPath("$.task.report").doesNotExist(),
-                        jsonPath("$.task.orderDate").doesNotExist(),
-                        jsonPath("$.task.lastOrderUpdateDate").value(is(lastOrderUpdateDate.toString())),
+                        jsonPath("$.task.taskCreationDate").value(is(taskCreationDate.toString())),
+                        jsonPath("$.task.lastTaskUpdateDate").value(is(lastOrderUpdateDate.toString())),
                         jsonPath("$.task.dueDate").value(is(dueDate.toString())),
                         jsonPath("$.task.reportDate").doesNotExist(),
                         jsonPath("$.task.employeeAccept").value(is(employeeAccept.toString())),
@@ -247,10 +332,8 @@ public class AcceptDeclineTaskByEmployeeControllerUnitTest {
         void whenUserIsNotLogIn(TestCountry country) throws Exception {
             Locale testedLocale = convertEnumToLocale(country);
 
-            String status = "APPROVE";
-
             RequestBuilder request = MockMvcRequestBuilders
-                    .put(uri+taskId+"/employee/"+employeeId+"/status/"+status)
+                    .put(uri+taskId+"/employee/"+employeeId+"/approvalStatus")
                     .header("Accept-Language", testedLocale.toString());
 
             mockMvc.perform(request)
@@ -264,12 +347,11 @@ public class AcceptDeclineTaskByEmployeeControllerUnitTest {
             Map<String, String> messages = getMessagesAccordingToLocale(country);
             Locale testedLocale = convertEnumToLocale(country);
 
-            String status = "APPROVE";
-
             RequestBuilder request = MockMvcRequestBuilders
-                    .put(uri+taskId+"/employee/"+employeeId+"/status/"+status)
+                    .put(uri+taskId+"/employee/"+employeeId+"/approvalStatus")
                     .header("Accept-Language", testedLocale.toString())
                     .header("Authorization", userToken)
+                    .content(validAcceptedTaskRequestContent)
                     .contentType(MediaType.APPLICATION_JSON);
 
             String expectedMessage = messages.get("exception.access.denied");
@@ -290,12 +372,11 @@ public class AcceptDeclineTaskByEmployeeControllerUnitTest {
             Map<String, String> messages = getMessagesAccordingToLocale(country);
             Locale testedLocale = convertEnumToLocale(country);
 
-            String status = "APPROVE";
-
             RequestBuilder request = MockMvcRequestBuilders
-                    .put(uri+taskId+"/employee/"+employeeId+"/status/"+status)
+                    .put(uri+taskId+"/employee/"+employeeId+"/approvalStatus")
                     .header("Accept-Language", testedLocale.toString())
                     .header("Authorization", managerToken)
+                    .content(validAcceptedTaskRequestContent)
                     .contentType(MediaType.APPLICATION_JSON);
 
             String expectedMessage = messages.get("exception.access.denied");
@@ -316,12 +397,11 @@ public class AcceptDeclineTaskByEmployeeControllerUnitTest {
             Map<String, String> messages = getMessagesAccordingToLocale(country);
             Locale testedLocale = convertEnumToLocale(country);
 
-            String status = "APPROVE";
-
             RequestBuilder request = MockMvcRequestBuilders
-                    .put(uri+taskId+"/employee/"+employeeId+"/status/"+status)
+                    .put(uri+taskId+"/employee/"+employeeId+"/approvalStatus")
                     .header("Accept-Language", testedLocale.toString())
                     .header("Authorization", adminToken)
+                    .content(validAcceptedTaskRequestContent)
                     .contentType(MediaType.APPLICATION_JSON);
 
             String expectedMessage = messages.get("exception.access.denied");
@@ -342,17 +422,75 @@ public class AcceptDeclineTaskByEmployeeControllerUnitTest {
 
         @ParameterizedTest
         @EnumSource(TestCountry.class)
+        void shouldThrowBindException_whenInvalidComment(TestCountry country) throws Exception {
+            Map<String, String> messages = getMessagesAccordingToLocale(country);
+            Locale testedLocale = convertEnumToLocale(country);
+
+            RequestBuilder request = MockMvcRequestBuilders
+                    .put(uri+taskId+"/employee/"+employeeId+"/approvalStatus")
+                    .header("Accept-Language", testedLocale.toString())
+                    .header("Authorization", employeeToken)
+                    .content(invalidTaskRequestInvalidEmployeeCommentRequestContent)
+                    .contentType(MediaType.APPLICATION_JSON);
+
+            String expectedMessage = messages.get("request.bind.exception");
+
+            mockMvc.perform(request)
+                    .andDo(print())
+                    .andExpect(matchAll(
+                            status().isBadRequest(),
+                            content().contentType(MediaType.APPLICATION_JSON),
+                            jsonPath("$.error").value(is(HttpStatus.BAD_REQUEST.getReasonPhrase())),
+                            jsonPath("$.message").value(is(expectedMessage)),
+                            jsonPath("$.errors").value(is(notNullValue())),
+                            jsonPath("$.errors.employeeComment")
+                                    .value(is(messages.get("field.employee.comment")))
+                    ));
+        }
+
+        @ParameterizedTest
+        @EnumSource(TestCountry.class)
+        void shouldThrowBindException_whenMissingRequiredData(TestCountry country) throws Exception {
+            Map<String, String> messages = getMessagesAccordingToLocale(country);
+            Locale testedLocale = convertEnumToLocale(country);
+
+            RequestBuilder request = MockMvcRequestBuilders
+                    .put(uri+taskId+"/employee/"+employeeId+"/approvalStatus")
+                    .header("Accept-Language", testedLocale.toString())
+                    .header("Authorization", employeeToken)
+                    .content(invalidTaskRequestMissingRequestDataRequestContent)
+                    .contentType(MediaType.APPLICATION_JSON);
+
+            String expectedMessage = messages.get("request.bind.exception");
+
+            mockMvc.perform(request)
+                    .andDo(print())
+                    .andExpect(matchAll(
+                            status().isBadRequest(),
+                            content().contentType(MediaType.APPLICATION_JSON),
+                            jsonPath("$.error").value(is(HttpStatus.BAD_REQUEST.getReasonPhrase())),
+                            jsonPath("$.message").value(is(expectedMessage)),
+                            jsonPath("$.errors").value(is(notNullValue())),
+                            jsonPath("$.errors.acceptanceStatus")
+                                    .value(is(messages.get("field.required"))),
+                            jsonPath("$.errors.employeeComment")
+                                    .value(is(messages.get("field.required")))
+                    ));
+        }
+
+        @ParameterizedTest
+        @EnumSource(TestCountry.class)
         void shouldThrowTaskNotFoundException(TestCountry country) throws Exception {
             Map<String, String> messages = getMessagesAccordingToLocale(country);
             Locale testedLocale = convertEnumToLocale(country);
 
             String notExistingTaskId = UUID.randomUUID().toString();
-            String status = "APPROVE";
 
             RequestBuilder request = MockMvcRequestBuilders
-                    .put(uri+notExistingTaskId+"/employee/"+employeeId+"/status/"+status)
+                    .put(uri+notExistingTaskId+"/employee/"+employeeId+"/approvalStatus")
                     .header("Accept-Language", testedLocale.toString())
                     .header("Authorization", employeeToken)
+                    .content(validAcceptedTaskRequestContent)
                     .contentType(MediaType.APPLICATION_JSON);
 
 
@@ -360,7 +498,7 @@ public class AcceptDeclineTaskByEmployeeControllerUnitTest {
 
             doThrow(TaskNotFoundException.class)
                     .when(taskService)
-                    .acceptDeclineTaskByEmployee(notExistingTaskId, employeeId, status);
+                    .acceptDeclineTaskByEmployee(notExistingTaskId, employeeId, validAcceptTaskRequest);
 
             mockMvc.perform(request)
                     .andDo(print())
@@ -380,12 +518,12 @@ public class AcceptDeclineTaskByEmployeeControllerUnitTest {
 
             String notExistingEmployeeId = UUID.randomUUID().toString();
             String notExistingEmployeeToken = tokenFactory.getUserToken(notExistingEmployeeId);
-            String status = "APPROVE";
 
             RequestBuilder request = MockMvcRequestBuilders
-                    .put(uri+taskId+"/employee/"+notExistingEmployeeId+"/status/"+status)
+                    .put(uri+taskId+"/employee/"+notExistingEmployeeId+"/approvalStatus")
                     .header("Accept-Language", testedLocale.toString())
                     .header("Authorization", notExistingEmployeeToken)
+                    .content(validAcceptedTaskRequestContent)
                     .contentType(MediaType.APPLICATION_JSON);
 
 
@@ -393,7 +531,7 @@ public class AcceptDeclineTaskByEmployeeControllerUnitTest {
 
             doThrow(EmployeeNotFoundException.class)
                     .when(taskService)
-                    .acceptDeclineTaskByEmployee(taskId, notExistingEmployeeId, status);
+                    .acceptDeclineTaskByEmployee(taskId, notExistingEmployeeId, validAcceptTaskRequest);
 
             mockMvc.perform(request)
                     .andDo(print())
@@ -411,12 +549,11 @@ public class AcceptDeclineTaskByEmployeeControllerUnitTest {
             Map<String, String> messages = getMessagesAccordingToLocale(country);
             Locale testedLocale = convertEnumToLocale(country);
 
-            String invalidStatus = "INVALID_STATUS";
-
             RequestBuilder request = MockMvcRequestBuilders
-                    .put(uri+taskId+"/employee/"+employeeId+"/status/"+invalidStatus)
+                    .put(uri+taskId+"/employee/"+employeeId+"/approvalStatus")
                     .header("Accept-Language", testedLocale.toString())
                     .header("Authorization", employeeToken)
+                    .content(invalidTaskRequestInvalidAcceptanceStatusRequestContent)
                     .contentType(MediaType.APPLICATION_JSON);
 
 
@@ -424,7 +561,7 @@ public class AcceptDeclineTaskByEmployeeControllerUnitTest {
 
             doThrow(InvalidStatusException.class)
                     .when(taskService)
-                    .acceptDeclineTaskByEmployee(taskId, employeeId, invalidStatus);
+                    .acceptDeclineTaskByEmployee(taskId, employeeId, invalidTaskRequestInvalidAcceptanceStatus);
 
             mockMvc.perform(request)
                     .andDo(print())
@@ -442,17 +579,17 @@ public class AcceptDeclineTaskByEmployeeControllerUnitTest {
             Map<String, String> messages = getMessagesAccordingToLocale(country);
             Locale testedLocale = convertEnumToLocale(country);
 
-            String status = "STATUS";
             String taskIdForIllegalStateException = UUID.randomUUID().toString();
             RequestBuilder request = MockMvcRequestBuilders
-                    .put(uri+taskIdForIllegalStateException+"/employee/"+employeeId+"/status/"+status)
+                    .put(uri+taskIdForIllegalStateException+"/employee/"+employeeId+"/approvalStatus")
                     .header("Accept-Language", testedLocale.toString())
                     .header("Authorization", employeeToken)
+                    .content(invalidStateExceptionRequestContent)
                     .contentType(MediaType.APPLICATION_JSON);
 
             doThrow(IllegalStateException.class)
                     .when(taskService)
-                    .acceptDeclineTaskByEmployee(taskIdForIllegalStateException, employeeId, status);
+                    .acceptDeclineTaskByEmployee(taskIdForIllegalStateException, employeeId, invalidStateExceptionRequest);
 
             String expectedMessage = messages.get("exception.internal.error");
 

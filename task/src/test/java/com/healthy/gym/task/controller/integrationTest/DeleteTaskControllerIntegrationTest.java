@@ -20,9 +20,11 @@ import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.http.*;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.context.TestPropertySource;
+import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.MongoDBContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
@@ -42,12 +44,19 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
         "eureka.client.fetch-registry=false",
         "eureka.client.register-with-eureka=false"
 })
+@ActiveProfiles(value = "test")
 @Tag("integration")
 public class DeleteTaskControllerIntegrationTest {
 
     @Container
     static MongoDBContainer mongoDBContainer =
             new MongoDBContainer(DockerImageName.parse("mongo:4.4.4-bionic"));
+
+    @Container
+    static GenericContainer<?> rabbitMQContainer =
+            new GenericContainer<>(DockerImageName.parse("gza73/agh-praca-inzynierska-rabbitmq"))
+                    .withExposedPorts(5672);
+
     @Autowired
     private TestRestTemplate restTemplate;
     @Autowired
@@ -71,6 +80,7 @@ public class DeleteTaskControllerIntegrationTest {
     @DynamicPropertySource
     static void setProperties(DynamicPropertyRegistry registry) {
         registry.add("spring.data.mongodb.uri", mongoDBContainer::getReplicaSetUrl);
+        registry.add("spring.rabbitmq.port", rabbitMQContainer::getFirstMappedPort);
     }
 
     @BeforeEach
@@ -118,7 +128,8 @@ public class DeleteTaskControllerIntegrationTest {
         taskDocument.setTitle("Title 1");
         taskDocument.setDescription("Description 1");
         taskDocument.setDueDate(LocalDate.now().plusMonths(1));
-        taskDocument.setLastOrderUpdateDate(LocalDate.now());
+        taskDocument.setTaskCreationDate(LocalDate.now().minusMonths(1));
+        taskDocument.setLastTaskUpdateDate(LocalDate.now().minusDays(5));
         taskDocument.setEmployeeAccept(AcceptanceStatus.NO_ACTION);
         taskDocument.setManagerAccept(AcceptanceStatus.NO_ACTION);
 
@@ -171,8 +182,10 @@ public class DeleteTaskControllerIntegrationTest {
                 .isEqualTo("Title 1");
         assertThat(responseEntity.getBody().get("task").get("description").textValue())
                 .isEqualTo("Description 1");
-        assertThat(responseEntity.getBody().get("task").get("lastOrderUpdateDate").textValue())
-                .isEqualTo(LocalDate.now().toString());
+        assertThat(responseEntity.getBody().get("task").get("taskCreationDate").textValue())
+                .isEqualTo(LocalDate.now().minusMonths(1).toString());
+        assertThat(responseEntity.getBody().get("task").get("lastTaskUpdateDate").textValue())
+                .isEqualTo(LocalDate.now().minusDays(5).toString());
         assertThat(responseEntity.getBody().get("task").get("dueDate").textValue())
                 .isEqualTo(LocalDate.now().plusMonths(1).toString());
         assertThat(responseEntity.getBody().get("task").get("employeeAccept").textValue())

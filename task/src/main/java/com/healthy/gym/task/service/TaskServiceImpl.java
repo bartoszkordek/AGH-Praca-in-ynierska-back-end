@@ -7,8 +7,11 @@ import com.healthy.gym.task.data.repository.UserDAO;
 import com.healthy.gym.task.dto.TaskDTO;
 import com.healthy.gym.task.enums.AcceptanceStatus;
 import com.healthy.gym.task.enums.GymRole;
+import com.healthy.gym.task.enums.Priority;
 import com.healthy.gym.task.exception.*;
-import com.healthy.gym.task.pojo.request.ManagerOrderRequest;
+import com.healthy.gym.task.pojo.request.EmployeeAcceptDeclineTaskRequest;
+import com.healthy.gym.task.pojo.request.EmployeeReportRequest;
+import com.healthy.gym.task.pojo.request.ManagerTaskCreationRequest;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,6 +29,7 @@ public class TaskServiceImpl implements TaskService{
     private final ModelMapper modelMapper;
     private final GymRole managerRole;
     private final GymRole employeeRole;
+    private final GymRole trainerRole;
     private static final String ACCEPT_STATUS = "APPROVE";
     private static final String DECLINE_STATUS = "DECLINE";
 
@@ -40,77 +44,86 @@ public class TaskServiceImpl implements TaskService{
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         managerRole = GymRole.MANAGER;
         employeeRole = GymRole.EMPLOYEE;
+        trainerRole = GymRole.TRAINER;
     }
 
 
     @Override
-    public TaskDTO createTask(ManagerOrderRequest managerOrderRequest) throws ManagerNotFoundException,
+    public TaskDTO createTask(ManagerTaskCreationRequest managerTaskCreationRequest) throws ManagerNotFoundException,
             EmployeeNotFoundException, RetroDueDateException {
 
-        UserDocument managerDocument = userDAO.findByGymRolesContaining(managerRole);
-        if(managerDocument == null) throw new ManagerNotFoundException();
+        UserDocument managerDocument = getManagerDocument();
 
-        String employeeId = managerOrderRequest.getEmployeeId();
-        UserDocument employeeDocument = userDAO.findByUserId(employeeId);
-        if(employeeDocument == null) throw new EmployeeNotFoundException();
-        if(!employeeDocument.getGymRoles().contains(employeeRole)) throw new EmployeeNotFoundException();
+        String employeeId = managerTaskCreationRequest.getEmployeeId();
+        UserDocument employeeDocument = getEmployeeOrTrainerDocument(employeeId);
 
-        String dueDate = managerOrderRequest.getDueDate();
+        String dueDate = managerTaskCreationRequest.getDueDate();
         var now = LocalDate.now();
         LocalDate parsedDueDate = LocalDate.parse(dueDate, DateTimeFormatter.ISO_LOCAL_DATE);
         if(parsedDueDate.isBefore(now)) throw new RetroDueDateException();
 
-        String title = managerOrderRequest.getTitle();
-        String description = managerOrderRequest.getDescription();
+        String title = managerTaskCreationRequest.getTitle();
+        String description = managerTaskCreationRequest.getDescription();
+        String requestReminderDate = managerTaskCreationRequest.getReminderDate();
+        String requestPriority = managerTaskCreationRequest.getPriority();
         TaskDocument taskDocumentToBeSaved = new TaskDocument();
         taskDocumentToBeSaved.setTaskId(UUID.randomUUID().toString());
         taskDocumentToBeSaved.setManager(managerDocument);
         taskDocumentToBeSaved.setEmployee(employeeDocument);
         taskDocumentToBeSaved.setTitle(title);
         taskDocumentToBeSaved.setDescription(description);
-        taskDocumentToBeSaved.setLastOrderUpdateDate(now);
+        taskDocumentToBeSaved.setTaskCreationDate(now);
+        taskDocumentToBeSaved.setLastTaskUpdateDate(now);
         taskDocumentToBeSaved.setDueDate(parsedDueDate);
         taskDocumentToBeSaved.setEmployeeAccept(AcceptanceStatus.NO_ACTION);
         taskDocumentToBeSaved.setManagerAccept(AcceptanceStatus.NO_ACTION);
+        if(requestReminderDate != null)
+            taskDocumentToBeSaved.setReminderDate(LocalDate.parse(requestReminderDate, DateTimeFormatter.ISO_LOCAL_DATE));
+        setPriority(taskDocumentToBeSaved, requestPriority);
 
         TaskDocument taskDocumentSaved = taskDAO.save(taskDocumentToBeSaved);
         return modelMapper.map(taskDocumentSaved, TaskDTO.class);
     }
 
     @Override
-    public TaskDTO updateTask(String taskId, ManagerOrderRequest managerOrderRequest)
+    public TaskDTO updateTask(String taskId, ManagerTaskCreationRequest managerTaskCreationRequest)
             throws TaskNotFoundException, ManagerNotFoundException, EmployeeNotFoundException, RetroDueDateException {
 
-        TaskDocument taskDocumentToBeUpdated = taskDAO.findByTaskId(taskId);
-        if(taskDocumentToBeUpdated == null) throw new TaskNotFoundException();
+        TaskDocument taskDocumentToBeUpdated = getTaskDocument(taskId);
 
-        UserDocument managerDocument = userDAO.findByGymRolesContaining(managerRole);
-        if(managerDocument == null) throw new ManagerNotFoundException();
+        UserDocument managerDocument = getManagerDocument();
 
-
-        String requestEmployeeId = managerOrderRequest.getEmployeeId();
+        String requestEmployeeId = managerTaskCreationRequest.getEmployeeId();
         if(requestEmployeeId != null){
             UserDocument employeeDocument = userDAO.findByUserId(requestEmployeeId);
             if(employeeDocument == null) throw new EmployeeNotFoundException();
-            if(!employeeDocument.getGymRoles().contains(employeeRole)) throw new EmployeeNotFoundException();
+            if(!employeeDocument.getGymRoles().contains(employeeRole) && !employeeDocument.getGymRoles().contains(trainerRole))
+                throw new EmployeeNotFoundException();
+
             taskDocumentToBeUpdated.setEmployee(employeeDocument);
         }
 
         var now = LocalDate.now();
-        String requestDueDate = managerOrderRequest.getDueDate();
+        String requestDueDate = managerTaskCreationRequest.getDueDate();
         if(requestDueDate != null){
             LocalDate parsedDueDate = LocalDate.parse(requestDueDate, DateTimeFormatter.ISO_LOCAL_DATE);
             if(parsedDueDate.isBefore(now)) throw new RetroDueDateException();
             taskDocumentToBeUpdated.setDueDate(parsedDueDate);
         }
 
-        taskDocumentToBeUpdated.setLastOrderUpdateDate(now);
+        taskDocumentToBeUpdated.setLastTaskUpdateDate(now);
 
-        String title = managerOrderRequest.getTitle();
+        String title = managerTaskCreationRequest.getTitle();
         if(title != null) taskDocumentToBeUpdated.setTitle(title);
 
-        String description = managerOrderRequest.getDescription();
+        String description = managerTaskCreationRequest.getDescription();
         if(description != null) taskDocumentToBeUpdated.setDescription(description);
+
+        String requestReminderDate = managerTaskCreationRequest.getReminderDate();
+        if(requestReminderDate != null)
+            taskDocumentToBeUpdated.setReminderDate(LocalDate.parse(requestReminderDate, DateTimeFormatter.ISO_LOCAL_DATE));
+        String requestPriority = managerTaskCreationRequest.getPriority();
+        setPriority(taskDocumentToBeUpdated, requestPriority);
 
         TaskDocument updatedTaskDocument = taskDAO.save(taskDocumentToBeUpdated);
         return modelMapper.map(updatedTaskDocument, TaskDTO.class);
@@ -127,15 +140,17 @@ public class TaskServiceImpl implements TaskService{
     }
 
     @Override
-    public TaskDTO acceptDeclineTaskByEmployee(String taskId, String userId, String status)
-            throws TaskNotFoundException, EmployeeNotFoundException, InvalidStatusException {
+    public TaskDTO acceptDeclineTaskByEmployee(
+            String taskId,
+            String userId,
+            EmployeeAcceptDeclineTaskRequest employeeAcceptDeclineTaskRequest
+    ) throws TaskNotFoundException, EmployeeNotFoundException, InvalidStatusException {
 
-        TaskDocument taskDocumentToBeUpdated = taskDAO.findByTaskId(taskId);
-        if(taskDocumentToBeUpdated == null) throw new TaskNotFoundException();
+        TaskDocument taskDocumentToBeUpdated = getTaskDocument(taskId);
 
-        UserDocument employeeDocument = userDAO.findByUserId(userId);
-        if(employeeDocument == null) throw new EmployeeNotFoundException();
-        if(!employeeDocument.getGymRoles().contains(employeeRole)) throw new EmployeeNotFoundException();
+        UserDocument employeeDocument = getEmployeeOrTrainerDocument(userId);
+
+        String status = employeeAcceptDeclineTaskRequest.getAcceptanceStatus();
 
         if(!status.equalsIgnoreCase(ACCEPT_STATUS) && !status.equalsIgnoreCase(DECLINE_STATUS))
             throw new InvalidStatusException();
@@ -146,7 +161,73 @@ public class TaskServiceImpl implements TaskService{
         if(status.equalsIgnoreCase(DECLINE_STATUS))
             taskDocumentToBeUpdated.setEmployeeAccept(AcceptanceStatus.NOT_ACCEPTED);
 
+        String employeeComment = employeeAcceptDeclineTaskRequest.getEmployeeComment();
+        taskDocumentToBeUpdated.setEmployeeComment(employeeComment);
+
         TaskDocument updatedTaskDocument = taskDAO.save(taskDocumentToBeUpdated);
         return modelMapper.map(updatedTaskDocument, TaskDTO.class);
+    }
+
+    @Override
+    public TaskDTO sendReport(String taskId, String userId, EmployeeReportRequest reportRequest)
+            throws TaskNotFoundException, TaskDeclinedByEmployeeException, DueDateExceedException,
+            ReportAlreadySentException {
+
+        var now = LocalDate.now();
+        TaskDocument taskDocumentReportToBeAdded = getTaskDocument(taskId);
+
+        AcceptanceStatus status = taskDocumentReportToBeAdded.getEmployeeAccept();
+        if(status.equals(AcceptanceStatus.NOT_ACCEPTED)) throw new TaskDeclinedByEmployeeException();
+        taskDocumentReportToBeAdded.setEmployeeAccept(AcceptanceStatus.ACCEPTED);
+
+        LocalDate dueDate = taskDocumentReportToBeAdded.getDueDate();
+        if(dueDate.isBefore(now)) throw new DueDateExceedException();
+
+        if(taskDocumentReportToBeAdded.getReport() != null || taskDocumentReportToBeAdded.getReportDate() != null)
+            throw new ReportAlreadySentException();
+
+        String report = reportRequest.getResult();
+        taskDocumentReportToBeAdded.setReport(report);
+
+        taskDocumentReportToBeAdded.setLastTaskUpdateDate(now);
+        taskDocumentReportToBeAdded.setReportDate(now);
+
+        TaskDocument updatedTaskDocument = taskDAO.save(taskDocumentReportToBeAdded);
+        return modelMapper.map(updatedTaskDocument, TaskDTO.class);
+    }
+
+
+    private TaskDocument getTaskDocument(String taskId) throws TaskNotFoundException {
+        TaskDocument taskDocument = taskDAO.findByTaskId(taskId);
+        if(taskDocument == null) throw new TaskNotFoundException();
+        return taskDocument;
+    }
+
+    private UserDocument getManagerDocument() throws ManagerNotFoundException {
+        UserDocument managerDocument = userDAO.findByGymRolesContaining(managerRole);
+        if(managerDocument == null) throw new ManagerNotFoundException();
+        return managerDocument;
+    }
+
+    private UserDocument getEmployeeOrTrainerDocument(String userId) throws EmployeeNotFoundException {
+        UserDocument employeeDocument = userDAO.findByUserId(userId);
+        if(employeeDocument == null) throw new EmployeeNotFoundException();
+        if(!employeeDocument.getGymRoles().contains(employeeRole) && !employeeDocument.getGymRoles().contains(trainerRole))
+            throw new EmployeeNotFoundException();
+        return employeeDocument;
+    }
+
+    private TaskDocument setPriority(TaskDocument taskDocument, String priority){
+        if(priority != null){
+            if(priority.equals(Priority.CRITICAL.toString()))
+                taskDocument.setPriority(Priority.CRITICAL);
+            if(priority.equals(Priority.HIGH.toString()))
+                taskDocument.setPriority(Priority.HIGH);
+            if(priority.equals(Priority.MEDIUM.toString()))
+                taskDocument.setPriority(Priority.MEDIUM);
+            if(priority.equals(Priority.LOW.toString()))
+                taskDocument.setPriority(Priority.LOW);
+        }
+        return taskDocument;
     }
 }

@@ -8,11 +8,7 @@ import com.healthy.gym.task.dto.BasicUserInfoDTO;
 import com.healthy.gym.task.dto.TaskDTO;
 import com.healthy.gym.task.enums.AcceptanceStatus;
 import com.healthy.gym.task.enums.GymRole;
-import com.healthy.gym.task.exception.EmployeeNotFoundException;
-import com.healthy.gym.task.exception.ManagerNotFoundException;
-import com.healthy.gym.task.exception.RetroDueDateException;
 import com.healthy.gym.task.exception.TaskNotFoundException;
-import com.healthy.gym.task.pojo.request.ManagerOrderRequest;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -79,7 +75,8 @@ class DeleteTaskServiceUnitTest {
         taskDocumentToRemove.setEmployee(employeeDocument);
         taskDocumentToRemove.setTitle(title);
         taskDocumentToRemove.setDescription(description);
-        taskDocumentToRemove.setLastOrderUpdateDate(now);
+        taskDocumentToRemove.setTaskCreationDate(now.minusMonths(1));
+        taskDocumentToRemove.setLastTaskUpdateDate(now);
         taskDocumentToRemove.setDueDate(dueDate);
         taskDocumentToRemove.setEmployeeAccept(AcceptanceStatus.NO_ACTION);
         taskDocumentToRemove.setManagerAccept(AcceptanceStatus.NO_ACTION);
@@ -93,12 +90,16 @@ class DeleteTaskServiceUnitTest {
                 title,
                 description,
                 null,
-                null,
+                now.minusMonths(1),
                 now,
                 dueDate,
                 null,
+                null,
+                null,
+                0,
                 AcceptanceStatus.NO_ACTION,
-                AcceptanceStatus.NO_ACTION
+                AcceptanceStatus.NO_ACTION,
+                null
         );
 
         //when

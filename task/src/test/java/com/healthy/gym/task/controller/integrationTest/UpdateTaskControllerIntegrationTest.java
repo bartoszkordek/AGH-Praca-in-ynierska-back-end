@@ -8,7 +8,7 @@ import com.healthy.gym.task.data.document.TaskDocument;
 import com.healthy.gym.task.data.document.UserDocument;
 import com.healthy.gym.task.enums.AcceptanceStatus;
 import com.healthy.gym.task.enums.GymRole;
-import com.healthy.gym.task.pojo.request.ManagerOrderRequest;
+import com.healthy.gym.task.pojo.request.ManagerTaskCreationRequest;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -21,9 +21,11 @@ import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.http.*;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.context.TestPropertySource;
+import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.MongoDBContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
@@ -46,12 +48,19 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
         "eureka.client.fetch-registry=false",
         "eureka.client.register-with-eureka=false"
 })
+@ActiveProfiles(value = "test")
 @Tag("integration")
 public class UpdateTaskControllerIntegrationTest {
 
     @Container
     static MongoDBContainer mongoDBContainer =
             new MongoDBContainer(DockerImageName.parse("mongo:4.4.4-bionic"));
+
+    @Container
+    static GenericContainer<?> rabbitMQContainer =
+            new GenericContainer<>(DockerImageName.parse("gza73/agh-praca-inzynierska-rabbitmq"))
+                    .withExposedPorts(5672);
+
     @Autowired
     private TestRestTemplate restTemplate;
     @Autowired
@@ -75,16 +84,21 @@ public class UpdateTaskControllerIntegrationTest {
     private String taskId;
 
     private String requestContent;
+    private String requestContentWithOptionalParams;
     private String requestTitle;
     private String requestDescription;
     private String requestDueDate;
-    private ManagerOrderRequest managerOrderRequest;
+    private String requestReminderDate;
+    private String priority;
+    private ManagerTaskCreationRequest managerTaskCreationRequest;
+    private ManagerTaskCreationRequest managerTaskCreationRequestContentWithOptionalParams;
 
     private ObjectMapper objectMapper;
 
     @DynamicPropertySource
     static void setProperties(DynamicPropertyRegistry registry) {
         registry.add("spring.data.mongodb.uri", mongoDBContainer::getReplicaSetUrl);
+        registry.add("spring.rabbitmq.port", rabbitMQContainer::getFirstMappedPort);
     }
 
     @BeforeEach
@@ -111,13 +125,25 @@ public class UpdateTaskControllerIntegrationTest {
         requestTitle = "Updated test task 1";
         requestDescription = "Updated description for task 1";
         requestDueDate = LocalDate.now().plusMonths(2).format(DateTimeFormatter.ISO_LOCAL_DATE);
-        managerOrderRequest = new ManagerOrderRequest();
-        managerOrderRequest.setTitle(requestTitle);
-        managerOrderRequest.setDescription(requestDescription);
-        managerOrderRequest.setEmployeeId(employeeId2);
-        managerOrderRequest.setDueDate(requestDueDate);
+        requestReminderDate = LocalDate.now().plusDays(20).format(DateTimeFormatter.ISO_LOCAL_DATE);
+        priority = "HIGH";
+        managerTaskCreationRequest = new ManagerTaskCreationRequest();
+        managerTaskCreationRequest.setTitle(requestTitle);
+        managerTaskCreationRequest.setDescription(requestDescription);
+        managerTaskCreationRequest.setEmployeeId(employeeId2);
+        managerTaskCreationRequest.setDueDate(requestDueDate);
 
-        requestContent = objectMapper.writeValueAsString(managerOrderRequest);
+        requestContent = objectMapper.writeValueAsString(managerTaskCreationRequest);
+
+        managerTaskCreationRequestContentWithOptionalParams = new ManagerTaskCreationRequest();
+        managerTaskCreationRequestContentWithOptionalParams.setTitle(requestTitle);
+        managerTaskCreationRequestContentWithOptionalParams.setDescription(requestDescription);
+        managerTaskCreationRequestContentWithOptionalParams.setEmployeeId(employeeId2);
+        managerTaskCreationRequestContentWithOptionalParams.setDueDate(requestDueDate);
+        managerTaskCreationRequestContentWithOptionalParams.setReminderDate(requestReminderDate);
+        managerTaskCreationRequestContentWithOptionalParams.setPriority(priority);
+
+        requestContentWithOptionalParams = objectMapper.writeValueAsString(managerTaskCreationRequestContentWithOptionalParams);
 
 
         //existing DB docs
@@ -157,8 +183,9 @@ public class UpdateTaskControllerIntegrationTest {
         taskDocument.setEmployee(employeeDocument1);
         taskDocument.setTitle("Title 1");
         taskDocument.setDescription("Description 1");
+        taskDocument.setTaskCreationDate(LocalDate.now().minusMonths(1));
         taskDocument.setDueDate(LocalDate.now().plusMonths(1));
-        taskDocument.setLastOrderUpdateDate(LocalDate.now());
+        taskDocument.setLastTaskUpdateDate(LocalDate.now());
         taskDocument.setEmployeeAccept(AcceptanceStatus.NO_ACTION);
         taskDocument.setManagerAccept(AcceptanceStatus.NO_ACTION);
 
@@ -173,7 +200,7 @@ public class UpdateTaskControllerIntegrationTest {
 
     @ParameterizedTest
     @EnumSource(TestCountry.class)
-    void shouldUpdateTask_whenValidRequestAndTaskId(TestCountry country) throws Exception {
+    void shouldUpdateTask_whenValidRequestAndTaskIdWithoutOptionalParams(TestCountry country) throws Exception {
         Map<String, String> messages = getMessagesAccordingToLocale(country);
         Locale testedLocale = convertEnumToLocale(country);
 
@@ -211,7 +238,9 @@ public class UpdateTaskControllerIntegrationTest {
                 .isEqualTo("Updated test task 1");
         assertThat(responseEntity.getBody().get("task").get("description").textValue())
                 .isEqualTo("Updated description for task 1");
-        assertThat(responseEntity.getBody().get("task").get("lastOrderUpdateDate").textValue())
+        assertThat(responseEntity.getBody().get("task").get("taskCreationDate").textValue())
+                .isEqualTo(LocalDate.now().minusMonths(1).toString());
+        assertThat(responseEntity.getBody().get("task").get("lastTaskUpdateDate").textValue())
                 .isEqualTo(LocalDate.now().toString());
         assertThat(responseEntity.getBody().get("task").get("dueDate").textValue())
                 .isEqualTo(LocalDate.now().plusMonths(2).toString());
@@ -219,6 +248,67 @@ public class UpdateTaskControllerIntegrationTest {
                 .isEqualTo(AcceptanceStatus.NO_ACTION.toString());
         assertThat(responseEntity.getBody().get("task").get("managerAccept").textValue())
                 .isEqualTo(AcceptanceStatus.NO_ACTION.toString());
+        assertThat(responseEntity.getBody().get("task").get("reminderDate")).isNull();
+        assertThat(responseEntity.getBody().get("task").get("mark").intValue()).isZero();
+        assertThat(responseEntity.getBody().get("task").get("employeeComment")).isNull();
+    }
+
+
+    @ParameterizedTest
+    @EnumSource(TestCountry.class)
+    void shouldUpdateTask_whenValidRequestAndTaskIdWithOptionalParams(TestCountry country) throws Exception {
+        Map<String, String> messages = getMessagesAccordingToLocale(country);
+        Locale testedLocale = convertEnumToLocale(country);
+
+        URI uri = new URI("http://localhost:" + port +"/" + taskId);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Accept-Language", testedLocale.toString());
+        headers.set("Authorization", managerToken);
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        HttpEntity<Object> request = new HttpEntity<>(requestContentWithOptionalParams, headers);
+        String expectedMessage = messages.get("task.updated");
+
+        ResponseEntity<JsonNode> responseEntity = restTemplate
+                .exchange(uri, HttpMethod.PUT, request, JsonNode.class);
+
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(Objects.requireNonNull(responseEntity.getBody().get("message").textValue()))
+                .isEqualTo(expectedMessage);
+        assertThat(responseEntity.getBody().get("task").get("id")).isNotNull();
+        assertThat(responseEntity.getBody().get("task").get("manager")).isNotNull();
+        assertThat(responseEntity.getBody().get("task").get("manager").get("userId").textValue())
+                .isEqualTo(managerId);
+        assertThat(responseEntity.getBody().get("task").get("manager").get("name").textValue())
+                .isEqualTo("Adam");
+        assertThat(responseEntity.getBody().get("task").get("manager").get("surname").textValue())
+                .isEqualTo("Nowak");
+        assertThat(responseEntity.getBody().get("task").get("employee").get("userId").textValue())
+                .isEqualTo(employeeId2);
+        assertThat(responseEntity.getBody().get("task").get("employee").get("name").textValue())
+                .isEqualTo("Paweł");
+        assertThat(responseEntity.getBody().get("task").get("employee").get("surname").textValue())
+                .isEqualTo("Walczak");
+        assertThat(responseEntity.getBody().get("task").get("title").textValue())
+                .isEqualTo("Updated test task 1");
+        assertThat(responseEntity.getBody().get("task").get("description").textValue())
+                .isEqualTo("Updated description for task 1");
+        assertThat(responseEntity.getBody().get("task").get("taskCreationDate").textValue())
+                .isEqualTo(LocalDate.now().minusMonths(1).toString());
+        assertThat(responseEntity.getBody().get("task").get("lastTaskUpdateDate").textValue())
+                .isEqualTo(LocalDate.now().toString());
+        assertThat(responseEntity.getBody().get("task").get("dueDate").textValue())
+                .isEqualTo(LocalDate.now().plusMonths(2).toString());
+        assertThat(responseEntity.getBody().get("task").get("employeeAccept").textValue())
+                .isEqualTo(AcceptanceStatus.NO_ACTION.toString());
+        assertThat(responseEntity.getBody().get("task").get("managerAccept").textValue())
+                .isEqualTo(AcceptanceStatus.NO_ACTION.toString());
+        assertThat(responseEntity.getBody().get("task").get("reminderDate").textValue())
+                .isEqualTo(LocalDate.now().plusDays(20).format(DateTimeFormatter.ISO_LOCAL_DATE));
+        assertThat(responseEntity.getBody().get("task").get("mark").intValue())
+                .isZero();
+        assertThat(responseEntity.getBody().get("task").get("employeeComment")).isNull();
     }
 
 
@@ -311,13 +401,13 @@ public class UpdateTaskControllerIntegrationTest {
 
         String invalidTaskId = UUID.randomUUID().toString();
 
-        ManagerOrderRequest invalidEmployeeManagerOrderRequest = new ManagerOrderRequest();
-        invalidEmployeeManagerOrderRequest.setTitle(requestTitle);
-        invalidEmployeeManagerOrderRequest.setDescription(requestDescription);
-        invalidEmployeeManagerOrderRequest.setEmployeeId(employeeId2);
-        invalidEmployeeManagerOrderRequest.setDueDate(requestDueDate);
+        ManagerTaskCreationRequest invalidEmployeeManagerTaskCreationRequest = new ManagerTaskCreationRequest();
+        invalidEmployeeManagerTaskCreationRequest.setTitle(requestTitle);
+        invalidEmployeeManagerTaskCreationRequest.setDescription(requestDescription);
+        invalidEmployeeManagerTaskCreationRequest.setEmployeeId(employeeId2);
+        invalidEmployeeManagerTaskCreationRequest.setDueDate(requestDueDate);
 
-        String invalidEmployeeRequestContent = objectMapper.writeValueAsString(invalidEmployeeManagerOrderRequest);
+        String invalidEmployeeRequestContent = objectMapper.writeValueAsString(invalidEmployeeManagerTaskCreationRequest);
 
         URI uri = new URI("http://localhost:" + port + "/" + invalidTaskId);
 
@@ -347,13 +437,13 @@ public class UpdateTaskControllerIntegrationTest {
 
         String invalidEmployeeId = UUID.randomUUID().toString();
 
-        ManagerOrderRequest invalidEmployeeManagerOrderRequest = new ManagerOrderRequest();
-        invalidEmployeeManagerOrderRequest.setTitle(requestTitle);
-        invalidEmployeeManagerOrderRequest.setDescription(requestDescription);
-        invalidEmployeeManagerOrderRequest.setEmployeeId(invalidEmployeeId);
-        invalidEmployeeManagerOrderRequest.setDueDate(requestDueDate);
+        ManagerTaskCreationRequest invalidEmployeeManagerTaskCreationRequest = new ManagerTaskCreationRequest();
+        invalidEmployeeManagerTaskCreationRequest.setTitle(requestTitle);
+        invalidEmployeeManagerTaskCreationRequest.setDescription(requestDescription);
+        invalidEmployeeManagerTaskCreationRequest.setEmployeeId(invalidEmployeeId);
+        invalidEmployeeManagerTaskCreationRequest.setDueDate(requestDueDate);
 
-        String invalidEmployeeRequestContent = objectMapper.writeValueAsString(invalidEmployeeManagerOrderRequest);
+        String invalidEmployeeRequestContent = objectMapper.writeValueAsString(invalidEmployeeManagerTaskCreationRequest);
 
         URI uri = new URI("http://localhost:" + port + "/" + taskId);
 
@@ -381,13 +471,13 @@ public class UpdateTaskControllerIntegrationTest {
         Map<String, String> messages = getMessagesAccordingToLocale(country);
         Locale testedLocale = convertEnumToLocale(country);
 
-        ManagerOrderRequest invalidDueDateManagerOrderRequest = new ManagerOrderRequest();
-        invalidDueDateManagerOrderRequest.setTitle(requestTitle);
-        invalidDueDateManagerOrderRequest.setDescription(requestDescription);
-        invalidDueDateManagerOrderRequest.setEmployeeId(employeeId2);
-        invalidDueDateManagerOrderRequest.setDueDate(LocalDate.now().minusDays(1).toString());
+        ManagerTaskCreationRequest invalidDueDateManagerTaskCreationRequest = new ManagerTaskCreationRequest();
+        invalidDueDateManagerTaskCreationRequest.setTitle(requestTitle);
+        invalidDueDateManagerTaskCreationRequest.setDescription(requestDescription);
+        invalidDueDateManagerTaskCreationRequest.setEmployeeId(employeeId2);
+        invalidDueDateManagerTaskCreationRequest.setDueDate(LocalDate.now().minusDays(1).toString());
 
-        String invalidDueDateRequestContent = objectMapper.writeValueAsString(invalidDueDateManagerOrderRequest);
+        String invalidDueDateRequestContent = objectMapper.writeValueAsString(invalidDueDateManagerTaskCreationRequest);
 
         URI uri = new URI("http://localhost:" + port + "/" + taskId);
 

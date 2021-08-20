@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.RequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -41,6 +42,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
 @WebMvcTest(TaskController.class)
+@ActiveProfiles(value = "test")
 class DeleteTaskControllerUnitTest {
 
     @Autowired
@@ -104,6 +106,7 @@ class DeleteTaskControllerUnitTest {
         BasicUserInfoDTO employee = new BasicUserInfoDTO(employeeId, employeeName, employeeSurname);
         String title = "Test task 1";
         String description = "Description for task 1";
+        LocalDate taskCreationDate = now.minusMonths(1);
         LocalDate lastOrderUpdateDate = now;
         LocalDate dueDate = now.plusMonths(1);
         AcceptanceStatus employeeAccept = AcceptanceStatus.NO_ACTION;
@@ -116,12 +119,16 @@ class DeleteTaskControllerUnitTest {
                 title,
                 description,
                 null,
-                null,
+                taskCreationDate,
                 lastOrderUpdateDate,
                 dueDate,
                 null,
+                null,
+                null,
+                0,
                 employeeAccept,
-                managerAccept
+                managerAccept,
+                null
         );
 
         when(taskService.deleteTask(taskId))
@@ -149,8 +156,8 @@ class DeleteTaskControllerUnitTest {
                         jsonPath("$.task.title").value(is(title)),
                         jsonPath("$.task.description").value(is(description)),
                         jsonPath("$.task.report").doesNotExist(),
-                        jsonPath("$.task.orderDate").doesNotExist(),
-                        jsonPath("$.task.lastOrderUpdateDate").value(is(lastOrderUpdateDate.toString())),
+                        jsonPath("$.task.taskCreationDate").value(is(taskCreationDate.toString())),
+                        jsonPath("$.task.lastTaskUpdateDate").value(is(lastOrderUpdateDate.toString())),
                         jsonPath("$.task.dueDate").value(is(dueDate.toString())),
                         jsonPath("$.task.reportDate").doesNotExist(),
                         jsonPath("$.task.employeeAccept").value(is(employeeAccept.toString())),

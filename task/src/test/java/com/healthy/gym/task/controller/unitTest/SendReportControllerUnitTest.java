@@ -6,11 +6,13 @@ import com.healthy.gym.task.controller.TaskController;
 import com.healthy.gym.task.dto.BasicUserInfoDTO;
 import com.healthy.gym.task.dto.TaskDTO;
 import com.healthy.gym.task.enums.AcceptanceStatus;
-import com.healthy.gym.task.exception.EmployeeNotFoundException;
-import com.healthy.gym.task.exception.ManagerNotFoundException;
-import com.healthy.gym.task.exception.RetroDueDateException;
-import com.healthy.gym.task.pojo.request.ManagerTaskCreationRequest;
+import com.healthy.gym.task.exception.DueDateExceedException;
+import com.healthy.gym.task.exception.ReportAlreadySentException;
+import com.healthy.gym.task.exception.TaskDeclinedByEmployeeException;
+import com.healthy.gym.task.exception.TaskNotFoundException;
+import com.healthy.gym.task.pojo.request.EmployeeReportRequest;
 import com.healthy.gym.task.service.TaskService;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -18,8 +20,7 @@ import org.junit.jupiter.params.provider.EnumSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
+import org.springframework.http.*;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.RequestBuilder;
@@ -30,15 +31,16 @@ import org.testcontainers.shaded.com.fasterxml.jackson.databind.ObjectMapper;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Objects;
+import java.util.UUID;
 
 import static com.healthy.gym.task.configuration.LocaleConverter.convertEnumToLocale;
 import static com.healthy.gym.task.configuration.Messages.getMessagesAccordingToLocale;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.ResultMatcher.matchAll;
@@ -48,7 +50,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @WebMvcTest(TaskController.class)
 @ActiveProfiles(value = "test")
-public class CreateTaskControllerUnitTest {
+public class SendReportControllerUnitTest {
 
     @Autowired
     private MockMvc mockMvc;
@@ -64,23 +66,27 @@ public class CreateTaskControllerUnitTest {
     private String userToken;
     private String employeeToken;
 
-    private String requestContent;
-    private String requestTitle;
-    private String requestDescription;
-    private String requestDueDate;
-    private ManagerTaskCreationRequest managerTaskCreationRequest;
+    private String taskId;
+    private String employeeId;
 
     private ObjectMapper objectMapper;
 
+    private String requestContent;
+    private String emptyEmployeeReportRequestContent;
+    private String invalidEmployeeReportRequestContent;
+    private String requestResult;
+    private EmployeeReportRequest employeeReportRequest;
+    private EmployeeReportRequest emptyEmployeeReportRequest;
+    private EmployeeReportRequest invalidEmployeeReportRequest;
+
     private URI uri;
 
-
     @BeforeEach
-    void setUp() throws JsonProcessingException, URISyntaxException {
+    void setUp() throws URISyntaxException, JsonProcessingException {
         String userId = UUID.randomUUID().toString();
         userToken = tokenFactory.getUserToken(userId);
 
-        String employeeId = UUID.randomUUID().toString();
+        employeeId = UUID.randomUUID().toString();
         employeeToken = tokenFactory.getUserToken(employeeId);
 
         String managerId = UUID.randomUUID().toString();
@@ -89,52 +95,56 @@ public class CreateTaskControllerUnitTest {
         String adminId = UUID.randomUUID().toString();
         adminToken = tokenFactory.getAdminToken(adminId);
 
+        taskId = UUID.randomUUID().toString();
+
         objectMapper = new ObjectMapper();
 
-        requestTitle = "Test task 1";
-        requestDescription = "Description for task 1";
-        requestDueDate = LocalDate.now().plusMonths(1).format(DateTimeFormatter.ISO_LOCAL_DATE);
-        managerTaskCreationRequest = new ManagerTaskCreationRequest();
-        managerTaskCreationRequest.setTitle(requestTitle);
-        managerTaskCreationRequest.setDescription(requestDescription);
-        managerTaskCreationRequest.setEmployeeId(employeeId);
-        managerTaskCreationRequest.setDueDate(requestDueDate);
+        requestResult = "Done!";
+        employeeReportRequest = new EmployeeReportRequest();
+        employeeReportRequest.setResult(requestResult);
 
-        requestContent = objectMapper.writeValueAsString(managerTaskCreationRequest);
+        requestContent = objectMapper.writeValueAsString(employeeReportRequest);
 
-        uri = new URI("");
+        emptyEmployeeReportRequest = new EmployeeReportRequest();
+        emptyEmployeeReportRequestContent = objectMapper.writeValueAsString(emptyEmployeeReportRequest);
+
+        invalidEmployeeReportRequest = new EmployeeReportRequest();
+        invalidEmployeeReportRequest.setResult("R");
+        invalidEmployeeReportRequestContent = objectMapper.writeValueAsString(invalidEmployeeReportRequest);
+
+        uri = new URI("/");
     }
 
     @ParameterizedTest
     @EnumSource(TestCountry.class)
-    void shouldCreateTask(TestCountry country) throws Exception {
+    void shouldSendReport(TestCountry country) throws Exception {
         Map<String, String> messages = getMessagesAccordingToLocale(country);
         Locale testedLocale = convertEnumToLocale(country);
 
         RequestBuilder request = MockMvcRequestBuilders
-                .post(uri)
+                .put(uri+taskId+"/employee/"+employeeId+"/report")
                 .header("Accept-Language", testedLocale.toString())
-                .header("Authorization", managerToken)
+                .header("Authorization", employeeToken)
                 .content(requestContent)
                 .contentType(MediaType.APPLICATION_JSON);
 
         var now = LocalDate.now();
-        String taskId = UUID.randomUUID().toString();
         String managerId = UUID.randomUUID().toString();
         String managerName = "Martin";
         String managerSurname = "Manager";
         BasicUserInfoDTO manager = new BasicUserInfoDTO(managerId, managerName, managerSurname);
-        String employeeId = UUID.randomUUID().toString();
         String employeeName = "Eric";
         String employeeSurname = "Employee";
         BasicUserInfoDTO employee = new BasicUserInfoDTO(employeeId, employeeName, employeeSurname);
         String title = "Test task 1";
         String description = "Description for task 1";
-        LocalDate taskCreationDate = now;
+        LocalDate taskCreationDate = now.minusMonths(1);
         LocalDate lastTaskUpdateDate = now;
         LocalDate dueDate = now.plusMonths(1);
-        AcceptanceStatus employeeAccept = AcceptanceStatus.NO_ACTION;
+        LocalDate reportDate = now;
+        AcceptanceStatus employeeAccept = AcceptanceStatus.ACCEPTED;
         AcceptanceStatus managerAccept = AcceptanceStatus.NO_ACTION;
+        String report = "Done!";
 
         TaskDTO taskResponse = new TaskDTO(
                 taskId,
@@ -142,12 +152,12 @@ public class CreateTaskControllerUnitTest {
                 employee,
                 title,
                 description,
-                null,
+                report,
                 taskCreationDate,
                 lastTaskUpdateDate,
                 dueDate,
                 null,
-                null,
+                reportDate,
                 null,
                 0,
                 employeeAccept,
@@ -155,15 +165,15 @@ public class CreateTaskControllerUnitTest {
                 null
         );
 
-        when(taskService.createTask(managerTaskCreationRequest))
+        when(taskService.sendReport(taskId, employeeId, employeeReportRequest))
                 .thenReturn(taskResponse);
 
-        String expectedMessage = messages.get("task.created");
+        String expectedMessage = messages.get("report.sent");
 
         mockMvc.perform(request)
                 .andDo(print())
                 .andExpect(matchAll(
-                        status().isCreated(),
+                        status().isOk(),
                         content().contentType(MediaType.APPLICATION_JSON),
                         jsonPath("$.message").value(is(expectedMessage)),
                         jsonPath("$.task").exists(),
@@ -179,11 +189,11 @@ public class CreateTaskControllerUnitTest {
                         jsonPath("$.task.employee.surname").value(is(employeeSurname)),
                         jsonPath("$.task.title").value(is(title)),
                         jsonPath("$.task.description").value(is(description)),
-                        jsonPath("$.task.report").doesNotExist(),
+                        jsonPath("$.task.report").value(is(report)),
                         jsonPath("$.task.taskCreationDate").value(is(taskCreationDate.toString())),
                         jsonPath("$.task.lastTaskUpdateDate").value(is(lastTaskUpdateDate.toString())),
                         jsonPath("$.task.dueDate").value(is(dueDate.toString())),
-                        jsonPath("$.task.reportDate").doesNotExist(),
+                        jsonPath("$.task.reportDate").value(is(reportDate.toString())),
                         jsonPath("$.task.employeeAccept").value(is(employeeAccept.toString())),
                         jsonPath("$.task.managerAccept").value(is(managerAccept.toString()))
                 ));
@@ -191,7 +201,7 @@ public class CreateTaskControllerUnitTest {
     }
 
     @Nested
-    class ShouldNotCreateTaskWhenNotAuthorized{
+    class ShouldNotSendReportWhenNotAuthorized{
 
         @ParameterizedTest
         @EnumSource(TestCountry.class)
@@ -199,8 +209,10 @@ public class CreateTaskControllerUnitTest {
             Locale testedLocale = convertEnumToLocale(country);
 
             RequestBuilder request = MockMvcRequestBuilders
-                    .post(uri)
-                    .header("Accept-Language", testedLocale.toString());
+                    .put(uri+taskId+"/employee/"+employeeId+"/report")
+                    .header("Accept-Language", testedLocale.toString())
+                    .content(requestContent)
+                    .contentType(MediaType.APPLICATION_JSON);
 
             mockMvc.perform(request)
                     .andDo(print())
@@ -214,7 +226,7 @@ public class CreateTaskControllerUnitTest {
             Locale testedLocale = convertEnumToLocale(country);
 
             RequestBuilder request = MockMvcRequestBuilders
-                    .post(uri)
+                    .put(uri+taskId+"/employee/"+employeeId+"/report")
                     .header("Accept-Language", testedLocale.toString())
                     .header("Authorization", userToken)
                     .content(requestContent)
@@ -234,14 +246,14 @@ public class CreateTaskControllerUnitTest {
 
         @ParameterizedTest
         @EnumSource(TestCountry.class)
-        void whenUserIsNotLogInAsEmployee(TestCountry country) throws Exception {
+        void whenUserIsNotLogInAsManager(TestCountry country) throws Exception {
             Map<String, String> messages = getMessagesAccordingToLocale(country);
             Locale testedLocale = convertEnumToLocale(country);
 
             RequestBuilder request = MockMvcRequestBuilders
-                    .post(uri)
+                    .put(uri+taskId+"/employee/"+employeeId+"/report")
                     .header("Accept-Language", testedLocale.toString())
-                    .header("Authorization", employeeToken)
+                    .header("Authorization", managerToken)
                     .content(requestContent)
                     .contentType(MediaType.APPLICATION_JSON);
 
@@ -257,35 +269,46 @@ public class CreateTaskControllerUnitTest {
                     .andExpect(jsonPath("$.timestamp").exists());
         }
 
+        @ParameterizedTest
+        @EnumSource(TestCountry.class)
+        void whenUserIsNotLogInAsAdmin(TestCountry country) throws Exception {
+            Map<String, String> messages = getMessagesAccordingToLocale(country);
+            Locale testedLocale = convertEnumToLocale(country);
+
+            RequestBuilder request = MockMvcRequestBuilders
+                    .put(uri+taskId+"/employee/"+employeeId+"/report")
+                    .header("Accept-Language", testedLocale.toString())
+                    .header("Authorization", adminToken)
+                    .content(requestContent)
+                    .contentType(MediaType.APPLICATION_JSON);
+
+            String expectedMessage = messages.get("exception.access.denied");
+
+            mockMvc.perform(request)
+                    .andDo(print())
+                    .andExpect(status().isForbidden())
+                    .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(jsonPath("$.message").value(is(expectedMessage)))
+                    .andExpect(jsonPath("$.error").value(is("Forbidden")))
+                    .andExpect(jsonPath("$.status").value(403))
+                    .andExpect(jsonPath("$.timestamp").exists());
+        }
     }
 
     @Nested
-    class ShouldNotCreateTaskWhenInvalidRequest{
+    class ShouldNotSendReportWhenInvalidRequest{
 
         @ParameterizedTest
         @EnumSource(TestCountry.class)
-        void shouldThrowBindException_whenInvalidRequestBodyValues(TestCountry country) throws Exception {
+        void shouldThrowBindException_whenEmptyResultField(TestCountry country) throws Exception {
             Map<String, String> messages = getMessagesAccordingToLocale(country);
             Locale testedLocale = convertEnumToLocale(country);
 
-            //before
-            String invalidRequestTitle = "T";
-            String invalidRequestDescription = "D";
-            String invalidEmployeeId = "invalidEmployeeId";
-            String invalidRequestDueDate = "Invalid Date";
-            ManagerTaskCreationRequest invalidManagerTaskCreationRequest = new ManagerTaskCreationRequest();
-            invalidManagerTaskCreationRequest.setTitle(invalidRequestTitle);
-            invalidManagerTaskCreationRequest.setDescription(invalidRequestDescription);
-            invalidManagerTaskCreationRequest.setEmployeeId(invalidEmployeeId);
-            invalidManagerTaskCreationRequest.setDueDate(invalidRequestDueDate);
-
-            String invalidTitleRequestContent = objectMapper.writeValueAsString(invalidManagerTaskCreationRequest);
-
             RequestBuilder request = MockMvcRequestBuilders
-                    .post(uri)
+                    .put(uri+taskId+"/employee/"+employeeId+"/report")
                     .header("Accept-Language", testedLocale.toString())
-                    .header("Authorization", managerToken)
-                    .content(invalidTitleRequestContent)
+                    .header("Authorization", employeeToken)
+                    .content(emptyEmployeeReportRequestContent)
                     .contentType(MediaType.APPLICATION_JSON);
 
             String expectedMessage = messages.get("request.bind.exception");
@@ -298,146 +321,169 @@ public class CreateTaskControllerUnitTest {
                             jsonPath("$.error").value(is(HttpStatus.BAD_REQUEST.getReasonPhrase())),
                             jsonPath("$.message").value(is(expectedMessage)),
                             jsonPath("$.errors").value(is(notNullValue())),
-                            jsonPath("$.errors.title")
-                                    .value(is(messages.get("field.title.failure"))),
-                            jsonPath("$.errors.description")
-                                    .value(is(messages.get("field.description.failure"))),
-                            jsonPath("$.errors.employeeId")
-                                    .value(is(messages.get("exception.invalid.id.format"))),
-                            jsonPath("$.errors.dueDate")
-                                    .value(is(messages.get("exception.invalid.date.format")))
-                    ));
-        }
-
-
-        @ParameterizedTest
-        @EnumSource(TestCountry.class)
-        void shouldThrowBindException_whenInvalidEmptyBodyValues(TestCountry country) throws Exception {
-            Map<String, String> messages = getMessagesAccordingToLocale(country);
-            Locale testedLocale = convertEnumToLocale(country);
-
-            //before
-            ManagerTaskCreationRequest invalidManagerTaskCreationRequest = new ManagerTaskCreationRequest();
-            invalidManagerTaskCreationRequest.setEmployeeId(UUID.randomUUID().toString());
-            invalidManagerTaskCreationRequest.setDueDate("2030-12-31");
-
-            String invalidTitleRequestContent = objectMapper.writeValueAsString(invalidManagerTaskCreationRequest);
-
-            RequestBuilder request = MockMvcRequestBuilders
-                    .post(uri)
-                    .header("Accept-Language", testedLocale.toString())
-                    .header("Authorization", managerToken)
-                    .content(invalidTitleRequestContent)
-                    .contentType(MediaType.APPLICATION_JSON);
-
-            String expectedMessage = messages.get("request.bind.exception");
-
-            mockMvc.perform(request)
-                    .andDo(print())
-                    .andExpect(matchAll(
-                            status().isBadRequest(),
-                            content().contentType(MediaType.APPLICATION_JSON),
-                            jsonPath("$.error").value(is(HttpStatus.BAD_REQUEST.getReasonPhrase())),
-                            jsonPath("$.message").value(is(expectedMessage)),
-                            jsonPath("$.errors").value(is(notNullValue())),
-                            jsonPath("$.errors.title")
-                                    .value(is(messages.get("field.required"))),
-                            jsonPath("$.errors.description")
+                            jsonPath("$.errors.result")
                                     .value(is(messages.get("field.required")))
                     ));
         }
 
         @ParameterizedTest
         @EnumSource(TestCountry.class)
-        void shouldThrowManagerNotFoundException(TestCountry country) throws Exception {
+        void shouldThrowBindException_whenInvalidResultField(TestCountry country) throws Exception {
             Map<String, String> messages = getMessagesAccordingToLocale(country);
             Locale testedLocale = convertEnumToLocale(country);
 
             RequestBuilder request = MockMvcRequestBuilders
-                    .post(uri)
+                    .put(uri+taskId+"/employee/"+employeeId+"/report")
                     .header("Accept-Language", testedLocale.toString())
-                    .header("Authorization", adminToken)
-                    .content(requestContent)
+                    .header("Authorization", employeeToken)
+                    .content(invalidEmployeeReportRequestContent)
                     .contentType(MediaType.APPLICATION_JSON);
 
-
-            String expectedMessage = messages.get("exception.manager.not.found");
-
-            doThrow(ManagerNotFoundException.class)
-                    .when(taskService)
-                    .createTask(any());
+            String expectedMessage = messages.get("request.bind.exception");
 
             mockMvc.perform(request)
                     .andDo(print())
-                    .andExpect(status().isBadRequest())
-                    .andExpect(status().reason(is(expectedMessage)))
-                    .andExpect(result ->
-                            assertThat(Objects.requireNonNull(result.getResolvedException()).getCause())
-                                    .isInstanceOf(ManagerNotFoundException.class)
-                    );
-        }
-
-        @ParameterizedTest
-        @EnumSource(TestCountry.class)
-        void shouldThrowEmployeeNotFoundException(TestCountry country) throws Exception {
-            Map<String, String> messages = getMessagesAccordingToLocale(country);
-            Locale testedLocale = convertEnumToLocale(country);
-
-            RequestBuilder request = MockMvcRequestBuilders
-                    .post(uri)
-                    .header("Accept-Language", testedLocale.toString())
-                    .header("Authorization", adminToken)
-                    .content(requestContent)
-                    .contentType(MediaType.APPLICATION_JSON);
-
-
-            String expectedMessage = messages.get("exception.employee.not.found");
-
-            doThrow(EmployeeNotFoundException.class)
-                    .when(taskService)
-                    .createTask(any());
-
-            mockMvc.perform(request)
-                    .andDo(print())
-                    .andExpect(status().isBadRequest())
-                    .andExpect(status().reason(is(expectedMessage)))
-                    .andExpect(result ->
-                            assertThat(Objects.requireNonNull(result.getResolvedException()).getCause())
-                                    .isInstanceOf(EmployeeNotFoundException.class)
-                    );
+                    .andExpect(matchAll(
+                            status().isBadRequest(),
+                            content().contentType(MediaType.APPLICATION_JSON),
+                            jsonPath("$.error").value(is(HttpStatus.BAD_REQUEST.getReasonPhrase())),
+                            jsonPath("$.message").value(is(expectedMessage)),
+                            jsonPath("$.errors").value(is(notNullValue())),
+                            jsonPath("$.errors.result")
+                                    .value(is(messages.get("field.result.failure")))
+                    ));
         }
 
 
         @ParameterizedTest
         @EnumSource(TestCountry.class)
-        void shouldThrowRetroDueDateException(TestCountry country) throws Exception {
+        void shouldTaskDeclinedByEmployeeException(TestCountry country) throws Exception {
             Map<String, String> messages = getMessagesAccordingToLocale(country);
             Locale testedLocale = convertEnumToLocale(country);
 
+            String notExistingTaskId = UUID.randomUUID().toString();
+
             RequestBuilder request = MockMvcRequestBuilders
-                    .post(uri)
+                    .put(uri+notExistingTaskId+"/employee/"+employeeId+"/report")
                     .header("Accept-Language", testedLocale.toString())
-                    .header("Authorization", adminToken)
+                    .header("Authorization", employeeToken)
                     .content(requestContent)
                     .contentType(MediaType.APPLICATION_JSON);
 
 
-            String expectedMessage = messages.get("exception.retro.due.date");
+            String expectedMessage = messages.get("exception.declined.employee");
 
-            doThrow(RetroDueDateException.class)
+            doThrow(TaskDeclinedByEmployeeException.class)
                     .when(taskService)
-                    .createTask(any());
+                    .sendReport(notExistingTaskId, employeeId, employeeReportRequest);
 
             mockMvc.perform(request)
                     .andDo(print())
                     .andExpect(status().isBadRequest())
                     .andExpect(status().reason(is(expectedMessage)))
                     .andExpect(result ->
-                            assertThat(Objects.requireNonNull(result.getResolvedException()).getCause())
-                                    .isInstanceOf(RetroDueDateException.class)
+                            Assertions.assertThat(Objects.requireNonNull(result.getResolvedException()).getCause())
+                                    .isInstanceOf(TaskDeclinedByEmployeeException.class)
                     );
         }
 
+        @ParameterizedTest
+        @EnumSource(TestCountry.class)
+        void shouldThrowTaskNotFoundException(TestCountry country) throws Exception {
+            Map<String, String> messages = getMessagesAccordingToLocale(country);
+            Locale testedLocale = convertEnumToLocale(country);
+
+            String declinedTaskId = UUID.randomUUID().toString();
+
+            RequestBuilder request = MockMvcRequestBuilders
+                    .put(uri+declinedTaskId+"/employee/"+employeeId+"/report")
+                    .header("Accept-Language", testedLocale.toString())
+                    .header("Authorization", employeeToken)
+                    .content(requestContent)
+                    .contentType(MediaType.APPLICATION_JSON);
+
+
+            String expectedMessage = messages.get("exception.task.not.found");
+
+            doThrow(TaskNotFoundException.class)
+                    .when(taskService)
+                    .sendReport(declinedTaskId, employeeId, employeeReportRequest);
+
+            mockMvc.perform(request)
+                    .andDo(print())
+                    .andExpect(status().isBadRequest())
+                    .andExpect(status().reason(is(expectedMessage)))
+                    .andExpect(result ->
+                            Assertions.assertThat(Objects.requireNonNull(result.getResolvedException()).getCause())
+                                    .isInstanceOf(TaskNotFoundException.class)
+                    );
+        }
+
+
+        @ParameterizedTest
+        @EnumSource(TestCountry.class)
+        void shouldThrowDueDateExceedException(TestCountry country) throws Exception {
+            Map<String, String> messages = getMessagesAccordingToLocale(country);
+            Locale testedLocale = convertEnumToLocale(country);
+
+            String dueDateExceededTaskId = UUID.randomUUID().toString();
+
+            RequestBuilder request = MockMvcRequestBuilders
+                    .put(uri+dueDateExceededTaskId+"/employee/"+employeeId+"/report")
+                    .header("Accept-Language", testedLocale.toString())
+                    .header("Authorization", employeeToken)
+                    .content(requestContent)
+                    .contentType(MediaType.APPLICATION_JSON);
+
+
+            String expectedMessage = messages.get("exception.due.date.exceed");
+
+            doThrow(DueDateExceedException.class)
+                    .when(taskService)
+                    .sendReport(dueDateExceededTaskId, employeeId, employeeReportRequest);
+
+            mockMvc.perform(request)
+                    .andDo(print())
+                    .andExpect(status().isBadRequest())
+                    .andExpect(status().reason(is(expectedMessage)))
+                    .andExpect(result ->
+                            Assertions.assertThat(Objects.requireNonNull(result.getResolvedException()).getCause())
+                                    .isInstanceOf(DueDateExceedException.class)
+                    );
+        }
+
+
+        @ParameterizedTest
+        @EnumSource(TestCountry.class)
+        void shouldThrowReportAlreadySentException(TestCountry country) throws Exception {
+            Map<String, String> messages = getMessagesAccordingToLocale(country);
+            Locale testedLocale = convertEnumToLocale(country);
+
+            String reportAlreadySentTaskId = UUID.randomUUID().toString();
+
+            RequestBuilder request = MockMvcRequestBuilders
+                    .put(uri+reportAlreadySentTaskId+"/employee/"+employeeId+"/report")
+                    .header("Accept-Language", testedLocale.toString())
+                    .header("Authorization", employeeToken)
+                    .content(requestContent)
+                    .contentType(MediaType.APPLICATION_JSON);
+
+
+            String expectedMessage = messages.get("exception.already.sent.report");
+
+            doThrow(ReportAlreadySentException.class)
+                    .when(taskService)
+                    .sendReport(reportAlreadySentTaskId, employeeId, employeeReportRequest);
+
+            mockMvc.perform(request)
+                    .andDo(print())
+                    .andExpect(status().isBadRequest())
+                    .andExpect(status().reason(is(expectedMessage)))
+                    .andExpect(result ->
+                            Assertions.assertThat(Objects.requireNonNull(result.getResolvedException()).getCause())
+                                    .isInstanceOf(ReportAlreadySentException.class)
+                    );
+        }
 
         @ParameterizedTest
         @EnumSource(TestCountry.class)
@@ -445,16 +491,18 @@ public class CreateTaskControllerUnitTest {
             Map<String, String> messages = getMessagesAccordingToLocale(country);
             Locale testedLocale = convertEnumToLocale(country);
 
+            String taskIdForIllegalStateException = UUID.randomUUID().toString();
+
             RequestBuilder request = MockMvcRequestBuilders
-                    .post(uri)
+                    .put(uri+taskIdForIllegalStateException+"/employee/"+employeeId+"/report")
                     .header("Accept-Language", testedLocale.toString())
-                    .header("Authorization", managerToken)
+                    .header("Authorization", employeeToken)
                     .content(requestContent)
                     .contentType(MediaType.APPLICATION_JSON);
 
             doThrow(IllegalStateException.class)
                     .when(taskService)
-                    .createTask(any());
+                    .sendReport(taskIdForIllegalStateException,employeeId, employeeReportRequest);
 
             String expectedMessage = messages.get("exception.internal.error");
 
@@ -467,6 +515,5 @@ public class CreateTaskControllerUnitTest {
                                     .isInstanceOf(IllegalStateException.class)
                     );
         }
-
     }
 }

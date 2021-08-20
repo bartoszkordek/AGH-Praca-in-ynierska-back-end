@@ -80,6 +80,7 @@ public class VerifyReportControllerIntegrationTest {
 
     private String validTaskId;
     private String declinedByEmployeeTaskId;
+    private String reportNotSentTaskId;
 
     private ObjectMapper objectMapper;
 
@@ -198,6 +199,22 @@ public class VerifyReportControllerIntegrationTest {
         declinedByEmployeeTaskDocument.setEmployeeComment("I decline this task");
 
         mongoTemplate.save(declinedByEmployeeTaskDocument);
+
+        reportNotSentTaskId = UUID.randomUUID().toString();
+        TaskDocument reportNotSentEmployeeTaskDocument = new TaskDocument();
+        reportNotSentEmployeeTaskDocument.setTaskId(reportNotSentTaskId);
+        reportNotSentEmployeeTaskDocument.setManager(managerDocument);
+        reportNotSentEmployeeTaskDocument.setEmployee(employeeDocument);
+        reportNotSentEmployeeTaskDocument.setTitle("Title 1");
+        reportNotSentEmployeeTaskDocument.setDescription("Description 1");
+        reportNotSentEmployeeTaskDocument.setTaskCreationDate(LocalDate.now().minusMonths(1));
+        reportNotSentEmployeeTaskDocument.setDueDate(LocalDate.now().plusMonths(1));
+        reportNotSentEmployeeTaskDocument.setLastTaskUpdateDate(LocalDate.now().minusDays(5));
+        reportNotSentEmployeeTaskDocument.setEmployeeAccept(AcceptanceStatus.ACCEPTED);
+        reportNotSentEmployeeTaskDocument.setManagerAccept(AcceptanceStatus.NO_ACTION);
+        reportNotSentEmployeeTaskDocument.setEmployeeComment("I approve this task");
+
+        mongoTemplate.save(reportNotSentEmployeeTaskDocument);
     }
 
     @AfterEach
@@ -450,6 +467,32 @@ public class VerifyReportControllerIntegrationTest {
 
         HttpEntity<Object> request = new HttpEntity<>(invalidRequestContentInvalidStatus, headers);
         String expectedMessage = messages.get("exception.declined.employee");
+
+        ResponseEntity<JsonNode> responseEntity = restTemplate
+                .exchange(uri, HttpMethod.PUT, request, JsonNode.class);
+
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        assertThat(responseEntity.getBody().get("error").textValue()).isEqualTo("Bad Request");
+        assertThat(Objects.requireNonNull(responseEntity.getBody().get("message").textValue()))
+                .isEqualTo(expectedMessage);
+        assertThat(responseEntity.getBody().get("timestamp")).isNotNull();
+    }
+
+    @ParameterizedTest
+    @EnumSource(TestCountry.class)
+    void shouldNotSendReport_whenReportNotSent(TestCountry country) throws Exception {
+        Map<String, String> messages = getMessagesAccordingToLocale(country);
+        Locale testedLocale = convertEnumToLocale(country);
+
+        URI uri = new URI("http://localhost:" + port + "/"+ reportNotSentTaskId +"/reportVerification");
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Accept-Language", testedLocale.toString());
+        headers.set("Authorization", managerToken);
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        HttpEntity<Object> request = new HttpEntity<>(invalidRequestContentInvalidStatus, headers);
+        String expectedMessage = messages.get("exception.report.not.sent");
 
         ResponseEntity<JsonNode> responseEntity = restTemplate
                 .exchange(uri, HttpMethod.PUT, request, JsonNode.class);

@@ -30,6 +30,10 @@ import javax.validation.Valid;
 public class TaskController {
 
     private static final String INTERNAL_ERROR_EXCEPTION = "exception.internal.error";
+    private static final String REQUEST_BIND_EXCEPTION = "request.bind.exception";
+    private static final String TASK_NOT_FOUND_EXCEPTION = "exception.task.not.found";
+    private static final String MANAGER_NOT_FOUND_EXCEPTION = "exception.manager.not.found";
+    private static final String EMPLOYEE_NOT_FOUND_EXCEPTION = "exception.employee.not.found";
     private final Translator translator;
     private final TaskService taskService;
 
@@ -62,15 +66,15 @@ public class TaskController {
                     .body(new TaskResponse(message, taskDTO));
 
         } catch (BindException exception) {
-            String reason = translator.toLocale("request.bind.exception");
+            String reason = translator.toLocale(REQUEST_BIND_EXCEPTION);
             throw new RequestBindException(HttpStatus.BAD_REQUEST, reason, exception);
 
         } catch (ManagerNotFoundException exception){
-            String reason = translator.toLocale("exception.manager.not.found");
+            String reason = translator.toLocale(MANAGER_NOT_FOUND_EXCEPTION);
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, exception);
 
         } catch (EmployeeNotFoundException exception){
-            String reason = translator.toLocale("exception.employee.not.found");
+            String reason = translator.toLocale(EMPLOYEE_NOT_FOUND_EXCEPTION);
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, exception);
 
         } catch (RetroDueDateException exception){
@@ -104,19 +108,19 @@ public class TaskController {
                     .body(new TaskResponse(message, taskDTO));
 
         } catch (TaskNotFoundException exception){
-            String reason = translator.toLocale("exception.task.not.found");
+            String reason = translator.toLocale(TASK_NOT_FOUND_EXCEPTION);
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, exception);
 
         } catch (BindException exception) {
-            String reason = translator.toLocale("request.bind.exception");
+            String reason = translator.toLocale(REQUEST_BIND_EXCEPTION);
             throw new RequestBindException(HttpStatus.BAD_REQUEST, reason, exception);
 
         } catch (ManagerNotFoundException exception){
-            String reason = translator.toLocale("exception.manager.not.found");
+            String reason = translator.toLocale(MANAGER_NOT_FOUND_EXCEPTION);
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, exception);
 
         } catch (EmployeeNotFoundException exception){
-            String reason = translator.toLocale("exception.employee.not.found");
+            String reason = translator.toLocale(EMPLOYEE_NOT_FOUND_EXCEPTION);
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, exception);
 
         } catch (RetroDueDateException exception){
@@ -145,7 +149,7 @@ public class TaskController {
                     .body(new TaskResponse(message, taskDTO));
 
         } catch (TaskNotFoundException exception){
-            String reason = translator.toLocale("exception.task.not.found");
+            String reason = translator.toLocale(TASK_NOT_FOUND_EXCEPTION);
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, exception);
 
         } catch (Exception exception){
@@ -182,15 +186,15 @@ public class TaskController {
                     .body(new TaskResponse(message, taskDTO));
 
         } catch (BindException exception) {
-            String reason = translator.toLocale("request.bind.exception");
+            String reason = translator.toLocale(REQUEST_BIND_EXCEPTION);
             throw new RequestBindException(HttpStatus.BAD_REQUEST, reason, exception);
 
         } catch (TaskNotFoundException exception){
-            String reason = translator.toLocale("exception.task.not.found");
+            String reason = translator.toLocale(TASK_NOT_FOUND_EXCEPTION);
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, exception);
 
         } catch (EmployeeNotFoundException exception){
-            String reason = translator.toLocale("exception.employee.not.found");
+            String reason = translator.toLocale(EMPLOYEE_NOT_FOUND_EXCEPTION);
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, exception);
 
         } catch (InvalidStatusException exception){
@@ -224,11 +228,11 @@ public class TaskController {
                     .body(new TaskResponse(message, taskDTO));
 
         } catch (BindException exception) {
-            String reason = translator.toLocale("request.bind.exception");
+            String reason = translator.toLocale(REQUEST_BIND_EXCEPTION);
             throw new RequestBindException(HttpStatus.BAD_REQUEST, reason, exception);
 
         } catch (TaskNotFoundException exception){
-            String reason = translator.toLocale("exception.task.not.found");
+            String reason = translator.toLocale(TASK_NOT_FOUND_EXCEPTION);
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, exception);
 
         } catch (TaskDeclinedByEmployeeException exception){

@@ -72,6 +72,7 @@ public class SendReportControllerIntegrationTest {
     private String taskId;
     private String declinedByEmployeeTaskId;
     private String exceededDueDateTaskId;
+    private String reportAlreadySentTaskId;
 
     private String requestContent;
     private String emptyRequestContent;
@@ -180,6 +181,23 @@ public class SendReportControllerIntegrationTest {
         exceededDueDateTaskDocument.setManagerAccept(AcceptanceStatus.NO_ACTION);
 
         mongoTemplate.save(exceededDueDateTaskDocument);
+
+        reportAlreadySentTaskId = UUID.randomUUID().toString();
+        TaskDocument reportAlreadySentTaskDocument = new TaskDocument();
+        reportAlreadySentTaskDocument.setTaskId(reportAlreadySentTaskId);
+        reportAlreadySentTaskDocument.setManager(managerDocument);
+        reportAlreadySentTaskDocument.setEmployee(employeeDocument);
+        reportAlreadySentTaskDocument.setTitle("Title 1");
+        reportAlreadySentTaskDocument.setDescription("Description 1");
+        reportAlreadySentTaskDocument.setTaskCreationDate(LocalDate.now().minusMonths(1));
+        reportAlreadySentTaskDocument.setDueDate(LocalDate.now().plusMonths(1));
+        reportAlreadySentTaskDocument.setLastTaskUpdateDate(LocalDate.now().minusDays(5));
+        reportAlreadySentTaskDocument.setEmployeeAccept(AcceptanceStatus.ACCEPTED);
+        reportAlreadySentTaskDocument.setManagerAccept(AcceptanceStatus.NO_ACTION);
+        reportAlreadySentTaskDocument.setReport(report);
+        reportAlreadySentTaskDocument.setReportDate(LocalDate.now().minusDays(5));
+
+        mongoTemplate.save(reportAlreadySentTaskDocument);
     }
 
     @AfterEach
@@ -463,6 +481,34 @@ public class SendReportControllerIntegrationTest {
 
             HttpEntity<Object> request = new HttpEntity<>(requestContent, headers);
             String expectedMessage = messages.get("exception.due.date.exceed");
+
+            ResponseEntity<JsonNode> responseEntity = restTemplate
+                    .exchange(uri, HttpMethod.PUT, request, JsonNode.class);
+
+            assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+            assertThat(responseEntity.getBody().get("error").textValue()).isEqualTo("Bad Request");
+            assertThat(Objects.requireNonNull(responseEntity.getBody().get("message").textValue()))
+                    .isEqualTo(expectedMessage);
+            assertThat(responseEntity.getBody().get("timestamp")).isNotNull();
+        }
+
+
+        @ParameterizedTest
+        @EnumSource(TestCountry.class)
+        void shouldNotSendReport_whenReportAlreadySent(TestCountry country) throws Exception {
+            Map<String, String> messages = getMessagesAccordingToLocale(country);
+            Locale testedLocale = convertEnumToLocale(country);
+
+            URI uri = new URI("http://localhost:" + port + "/" + reportAlreadySentTaskId + "/employee/" + employeeId
+                    + "/report");
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.set("Accept-Language", testedLocale.toString());
+            headers.set("Authorization", employeeToken);
+            headers.setContentType(MediaType.APPLICATION_JSON);
+
+            HttpEntity<Object> request = new HttpEntity<>(requestContent, headers);
+            String expectedMessage = messages.get("exception.already.sent.report");
 
             ResponseEntity<JsonNode> responseEntity = restTemplate
                     .exchange(uri, HttpMethod.PUT, request, JsonNode.class);

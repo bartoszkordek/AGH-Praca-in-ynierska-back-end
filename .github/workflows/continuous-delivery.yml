@@ -113,7 +113,7 @@ jobs:
       - name: Build
         run: mvn spring-boot:build-info --file ./auth/pom.xml
       - name: Build image
-        run: mvn spring-boot:build-image --file ./auth/pom.xml
+        run: mvn -DskipTests spring-boot:build-image --file ./auth/pom.xml
       - name: Login to DockerHub
         uses: docker/login-action@v1
         with: 
@@ -143,7 +143,7 @@ jobs:
       - name: Build
         run: mvn spring-boot:build-info --file ./trainings/pom.xml
       - name: Build image
-        run: mvn spring-boot:build-image --file ./trainings/pom.xml
+        run: mvn -DskipTests spring-boot:build-image --file ./trainings/pom.xml
       - name: Login to DockerHub
         uses: docker/login-action@v1
         with: 
@@ -173,7 +173,7 @@ jobs:
         - name: Build
           run: mvn spring-boot:build-info --file ./account/pom.xml
         - name: Build image
-          run: mvn spring-boot:build-image --file ./account/pom.xml
+          run: mvn -DskipTests spring-boot:build-image --file ./account/pom.xml
         - name: Login to DockerHub
           uses: docker/login-action@v1
           with: 
@@ -202,7 +202,7 @@ jobs:
         - name: Build
           run: mvn spring-boot:build-info --file ./gympass/pom.xml
         - name: Build image
-          run: mvn spring-boot:build-image --file ./gympass/pom.xml
+          run: mvn -DskipTests spring-boot:build-image --file ./gympass/pom.xml
         - name: Login to DockerHub
           uses: docker/login-action@v1
           with: 
@@ -231,7 +231,7 @@ jobs:
       - name: Build
         run: mvn spring-boot:build-info --file ./task/pom.xml
       - name: Build image
-        run: mvn spring-boot:build-image --file ./task/pom.xml
+        run: mvn -DskipTests spring-boot:build-image --file ./task/pom.xml
       - name: Login to DockerHub
         uses: docker/login-action@v1
         with:

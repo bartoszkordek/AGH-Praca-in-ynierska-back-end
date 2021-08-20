@@ -59,7 +59,7 @@ public class SendReportServiceUnitTest {
         String description = "Opis przykładowego zadania";
         var now = LocalDate.now();
         LocalDate dueDate = now.plusMonths(1);
-        LocalDate lastOrderUpdateDate = now.minusMonths(1);
+        LocalDate lastTaskUpdateDate = now.minusMonths(1);
         String report = "Done!";
 
         //request
@@ -91,8 +91,8 @@ public class SendReportServiceUnitTest {
         taskDocumentReportToSend.setEmployee(employeeDocument);
         taskDocumentReportToSend.setTitle(title);
         taskDocumentReportToSend.setDescription(description);
-        taskDocumentReportToSend.setOrderDate(lastOrderUpdateDate);
-        taskDocumentReportToSend.setLastOrderUpdateDate(lastOrderUpdateDate);
+        taskDocumentReportToSend.setOrderDate(lastTaskUpdateDate);
+        taskDocumentReportToSend.setLastTaskUpdateDate(lastTaskUpdateDate);
         taskDocumentReportToSend.setDueDate(dueDate);
         taskDocumentReportToSend.setEmployeeAccept(AcceptanceStatus.NO_ACTION);
         taskDocumentReportToSend.setManagerAccept(AcceptanceStatus.NO_ACTION);
@@ -103,8 +103,8 @@ public class SendReportServiceUnitTest {
         declinedTaskDocument.setEmployee(employeeDocument);
         declinedTaskDocument.setTitle(title);
         declinedTaskDocument.setDescription(description);
-        declinedTaskDocument.setOrderDate(lastOrderUpdateDate);
-        declinedTaskDocument.setLastOrderUpdateDate(lastOrderUpdateDate);
+        declinedTaskDocument.setOrderDate(lastTaskUpdateDate);
+        declinedTaskDocument.setLastTaskUpdateDate(lastTaskUpdateDate);
         declinedTaskDocument.setDueDate(dueDate);
         declinedTaskDocument.setEmployeeAccept(AcceptanceStatus.NOT_ACCEPTED);
         declinedTaskDocument.setManagerAccept(AcceptanceStatus.NO_ACTION);
@@ -115,8 +115,8 @@ public class SendReportServiceUnitTest {
         taskDocumentWithReport.setEmployee(employeeDocument);
         taskDocumentWithReport.setTitle(title);
         taskDocumentWithReport.setDescription(description);
-        taskDocumentWithReport.setOrderDate(lastOrderUpdateDate);
-        taskDocumentWithReport.setLastOrderUpdateDate(now);
+        taskDocumentWithReport.setOrderDate(lastTaskUpdateDate);
+        taskDocumentWithReport.setLastTaskUpdateDate(now);
         taskDocumentWithReport.setDueDate(dueDate);
         taskDocumentWithReport.setEmployeeAccept(AcceptanceStatus.ACCEPTED);
         taskDocumentWithReport.setManagerAccept(AcceptanceStatus.NO_ACTION);

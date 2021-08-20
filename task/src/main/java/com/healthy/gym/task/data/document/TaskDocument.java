@@ -23,7 +23,7 @@ public class TaskDocument {
     private String description;
     private String report;
     private LocalDate orderDate;
-    private LocalDate lastOrderUpdateDate;
+    private LocalDate lastTaskUpdateDate;
     private LocalDate dueDate;
     private LocalDate reminderDate;
     private LocalDate reportDate;
@@ -65,8 +65,8 @@ public class TaskDocument {
         return orderDate;
     }
 
-    public LocalDate getLastOrderUpdateDate() {
-        return lastOrderUpdateDate;
+    public LocalDate getLastTaskUpdateDate() {
+        return lastTaskUpdateDate;
     }
 
     public LocalDate getDueDate() {
@@ -133,8 +133,8 @@ public class TaskDocument {
         this.orderDate = orderDate;
     }
 
-    public void setLastOrderUpdateDate(LocalDate lastOrderUpdateDate) {
-        this.lastOrderUpdateDate = lastOrderUpdateDate;
+    public void setLastTaskUpdateDate(LocalDate lastTaskUpdateDate) {
+        this.lastTaskUpdateDate = lastTaskUpdateDate;
     }
 
     public void setDueDate(LocalDate dueDate) {
@@ -180,7 +180,7 @@ public class TaskDocument {
                 ", description='" + description + '\'' +
                 ", report='" + report + '\'' +
                 ", orderDate=" + orderDate +
-                ", lastOrderUpdateDate=" + lastOrderUpdateDate +
+                ", lastTaskUpdateDate=" + lastTaskUpdateDate +
                 ", dueDate=" + dueDate +
                 ", reminderDate=" + reminderDate +
                 ", reportDate=" + reportDate +
@@ -206,7 +206,7 @@ public class TaskDocument {
                 Objects.equals(description, that.description) &&
                 Objects.equals(report, that.report) &&
                 Objects.equals(orderDate, that.orderDate) &&
-                Objects.equals(lastOrderUpdateDate, that.lastOrderUpdateDate) &&
+                Objects.equals(lastTaskUpdateDate, that.lastTaskUpdateDate) &&
                 Objects.equals(dueDate, that.dueDate) &&
                 Objects.equals(reminderDate, that.reminderDate) &&
                 Objects.equals(reportDate, that.reportDate) &&
@@ -227,7 +227,7 @@ public class TaskDocument {
                 description,
                 report,
                 orderDate,
-                lastOrderUpdateDate,
+                lastTaskUpdateDate,
                 dueDate,
                 reminderDate,
                 reportDate,

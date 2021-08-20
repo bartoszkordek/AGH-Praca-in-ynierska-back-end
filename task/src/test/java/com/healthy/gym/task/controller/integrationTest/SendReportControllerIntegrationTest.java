@@ -143,7 +143,7 @@ public class SendReportControllerIntegrationTest {
         taskDocument.setTitle("Title 1");
         taskDocument.setDescription("Description 1");
         taskDocument.setDueDate(LocalDate.now().plusMonths(1));
-        taskDocument.setLastOrderUpdateDate(LocalDate.now());
+        taskDocument.setLastTaskUpdateDate(LocalDate.now());
         taskDocument.setEmployeeAccept(AcceptanceStatus.NO_ACTION);
         taskDocument.setManagerAccept(AcceptanceStatus.NO_ACTION);
 
@@ -157,7 +157,7 @@ public class SendReportControllerIntegrationTest {
         declinedByEmployeeTaskDocument.setTitle("Title 1");
         declinedByEmployeeTaskDocument.setDescription("Description 1");
         declinedByEmployeeTaskDocument.setDueDate(LocalDate.now().plusMonths(1));
-        declinedByEmployeeTaskDocument.setLastOrderUpdateDate(LocalDate.now());
+        declinedByEmployeeTaskDocument.setLastTaskUpdateDate(LocalDate.now());
         declinedByEmployeeTaskDocument.setEmployeeAccept(AcceptanceStatus.NOT_ACCEPTED);
         declinedByEmployeeTaskDocument.setManagerAccept(AcceptanceStatus.NO_ACTION);
 
@@ -210,7 +210,7 @@ public class SendReportControllerIntegrationTest {
                 .isEqualTo("Title 1");
         assertThat(responseEntity.getBody().get("task").get("description").textValue())
                 .isEqualTo("Description 1");
-        assertThat(responseEntity.getBody().get("task").get("lastOrderUpdateDate").textValue())
+        assertThat(responseEntity.getBody().get("task").get("lastTaskUpdateDate").textValue())
                 .isEqualTo(LocalDate.now().toString());
         assertThat(responseEntity.getBody().get("task").get("dueDate").textValue())
                 .isEqualTo(LocalDate.now().plusMonths(1).toString());

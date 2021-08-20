@@ -86,7 +86,7 @@ public class CreateTaskServiceUnitTest {
         taskDocument.setEmployee(employeeDocument);
         taskDocument.setTitle(title);
         taskDocument.setDescription(description);
-        taskDocument.setLastOrderUpdateDate(now);
+        taskDocument.setLastTaskUpdateDate(now);
         taskDocument.setDueDate(dueDate);
         taskDocument.setEmployeeAccept(AcceptanceStatus.NO_ACTION);
         taskDocument.setManagerAccept(AcceptanceStatus.NO_ACTION);

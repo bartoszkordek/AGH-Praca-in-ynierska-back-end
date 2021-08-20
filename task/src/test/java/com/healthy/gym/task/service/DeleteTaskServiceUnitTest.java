@@ -75,7 +75,7 @@ class DeleteTaskServiceUnitTest {
         taskDocumentToRemove.setEmployee(employeeDocument);
         taskDocumentToRemove.setTitle(title);
         taskDocumentToRemove.setDescription(description);
-        taskDocumentToRemove.setLastOrderUpdateDate(now);
+        taskDocumentToRemove.setLastTaskUpdateDate(now);
         taskDocumentToRemove.setDueDate(dueDate);
         taskDocumentToRemove.setEmployeeAccept(AcceptanceStatus.NO_ACTION);
         taskDocumentToRemove.setManagerAccept(AcceptanceStatus.NO_ACTION);

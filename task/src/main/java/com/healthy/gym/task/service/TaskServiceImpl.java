@@ -72,7 +72,7 @@ public class TaskServiceImpl implements TaskService{
         taskDocumentToBeSaved.setEmployee(employeeDocument);
         taskDocumentToBeSaved.setTitle(title);
         taskDocumentToBeSaved.setDescription(description);
-        taskDocumentToBeSaved.setLastOrderUpdateDate(now);
+        taskDocumentToBeSaved.setLastTaskUpdateDate(now);
         taskDocumentToBeSaved.setDueDate(parsedDueDate);
         taskDocumentToBeSaved.setEmployeeAccept(AcceptanceStatus.NO_ACTION);
         taskDocumentToBeSaved.setManagerAccept(AcceptanceStatus.NO_ACTION);
@@ -110,7 +110,7 @@ public class TaskServiceImpl implements TaskService{
             taskDocumentToBeUpdated.setDueDate(parsedDueDate);
         }
 
-        taskDocumentToBeUpdated.setLastOrderUpdateDate(now);
+        taskDocumentToBeUpdated.setLastTaskUpdateDate(now);
 
         String title = managerTaskCreationRequest.getTitle();
         if(title != null) taskDocumentToBeUpdated.setTitle(title);
@@ -181,7 +181,7 @@ public class TaskServiceImpl implements TaskService{
         String report = reportRequest.getResult();
         taskDocumentReportToBeAdded.setReport(report);
 
-        taskDocumentReportToBeAdded.setLastOrderUpdateDate(now);
+        taskDocumentReportToBeAdded.setLastTaskUpdateDate(now);
         taskDocumentReportToBeAdded.setReportDate(now);
 
         TaskDocument updatedTaskDocument = taskDAO.save(taskDocumentReportToBeAdded);

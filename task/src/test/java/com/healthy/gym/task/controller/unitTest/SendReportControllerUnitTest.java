@@ -187,7 +187,7 @@ public class SendReportControllerUnitTest {
                         jsonPath("$.task.description").value(is(description)),
                         jsonPath("$.task.report").value(is(report)),
                         jsonPath("$.task.orderDate").doesNotExist(),
-                        jsonPath("$.task.lastOrderUpdateDate").value(is(lastOrderUpdateDate.toString())),
+                        jsonPath("$.task.lastTaskUpdateDate").value(is(lastOrderUpdateDate.toString())),
                         jsonPath("$.task.dueDate").value(is(dueDate.toString())),
                         jsonPath("$.task.reportDate").value(is(reportDate.toString())),
                         jsonPath("$.task.employeeAccept").value(is(employeeAccept.toString())),

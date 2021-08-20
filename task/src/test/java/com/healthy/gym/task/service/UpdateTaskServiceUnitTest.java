@@ -102,7 +102,7 @@ public class UpdateTaskServiceUnitTest {
         taskDocumentToUpdate.setEmployee(employeeDocumentToUpdate);
         taskDocumentToUpdate.setTitle(titleToUpdate);
         taskDocumentToUpdate.setDescription(descriptionToUpdate);
-        taskDocumentToUpdate.setLastOrderUpdateDate(now);
+        taskDocumentToUpdate.setLastTaskUpdateDate(now.minusMonths(1));
         taskDocumentToUpdate.setDueDate(dueDateToUpdate);
         taskDocumentToUpdate.setEmployeeAccept(AcceptanceStatus.NO_ACTION);
         taskDocumentToUpdate.setManagerAccept(AcceptanceStatus.NO_ACTION);
@@ -113,7 +113,7 @@ public class UpdateTaskServiceUnitTest {
         taskDocumentUpdated.setEmployee(employeeDocumentUpdated);
         taskDocumentUpdated.setTitle(titleUpdated);
         taskDocumentUpdated.setDescription(descriptionUpdated);
-        taskDocumentUpdated.setLastOrderUpdateDate(now);
+        taskDocumentUpdated.setLastTaskUpdateDate(now);
         taskDocumentUpdated.setDueDate(dueDateUpdated);
         taskDocumentUpdated.setEmployeeAccept(AcceptanceStatus.NO_ACTION);
         taskDocumentUpdated.setManagerAccept(AcceptanceStatus.NO_ACTION);

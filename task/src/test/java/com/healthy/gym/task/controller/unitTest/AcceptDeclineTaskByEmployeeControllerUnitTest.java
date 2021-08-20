@@ -179,7 +179,7 @@ public class AcceptDeclineTaskByEmployeeControllerUnitTest {
         BasicUserInfoDTO employee = new BasicUserInfoDTO(employeeId, employeeName, employeeSurname);
         String title = "Test task 1";
         String description = "Description for task 1";
-        LocalDate lastOrderUpdateDate = now;
+        LocalDate lastTaskUpdateDate = now;
         LocalDate dueDate = now.plusMonths(1);
         AcceptanceStatus employeeAccept = AcceptanceStatus.ACCEPTED;
         AcceptanceStatus managerAccept = AcceptanceStatus.NO_ACTION;
@@ -193,7 +193,7 @@ public class AcceptDeclineTaskByEmployeeControllerUnitTest {
                 description,
                 null,
                 null,
-                lastOrderUpdateDate,
+                lastTaskUpdateDate,
                 dueDate,
                 null,
                 null,
@@ -230,7 +230,7 @@ public class AcceptDeclineTaskByEmployeeControllerUnitTest {
                         jsonPath("$.task.description").value(is(description)),
                         jsonPath("$.task.report").doesNotExist(),
                         jsonPath("$.task.orderDate").doesNotExist(),
-                        jsonPath("$.task.lastOrderUpdateDate").value(is(lastOrderUpdateDate.toString())),
+                        jsonPath("$.task.lastTaskUpdateDate").value(is(lastTaskUpdateDate.toString())),
                         jsonPath("$.task.dueDate").value(is(dueDate.toString())),
                         jsonPath("$.task.reportDate").doesNotExist(),
                         jsonPath("$.task.employeeAccept").value(is(employeeAccept.toString())),
@@ -312,7 +312,7 @@ public class AcceptDeclineTaskByEmployeeControllerUnitTest {
                         jsonPath("$.task.description").value(is(description)),
                         jsonPath("$.task.report").doesNotExist(),
                         jsonPath("$.task.orderDate").doesNotExist(),
-                        jsonPath("$.task.lastOrderUpdateDate").value(is(lastOrderUpdateDate.toString())),
+                        jsonPath("$.task.lastTaskUpdateDate").value(is(lastOrderUpdateDate.toString())),
                         jsonPath("$.task.dueDate").value(is(dueDate.toString())),
                         jsonPath("$.task.reportDate").doesNotExist(),
                         jsonPath("$.task.employeeAccept").value(is(employeeAccept.toString())),

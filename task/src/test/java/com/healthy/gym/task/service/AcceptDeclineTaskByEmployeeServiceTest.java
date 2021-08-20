@@ -85,7 +85,7 @@ public class AcceptDeclineTaskByEmployeeServiceTest {
         taskDocumentToBeUpdated.setEmployee(employeeDocument);
         taskDocumentToBeUpdated.setTitle(title);
         taskDocumentToBeUpdated.setDescription(description);
-        taskDocumentToBeUpdated.setLastOrderUpdateDate(now);
+        taskDocumentToBeUpdated.setLastTaskUpdateDate(now);
         taskDocumentToBeUpdated.setDueDate(dueDate);
         taskDocumentToBeUpdated.setEmployeeAccept(AcceptanceStatus.NO_ACTION);
         taskDocumentToBeUpdated.setManagerAccept(AcceptanceStatus.NO_ACTION);
@@ -96,7 +96,7 @@ public class AcceptDeclineTaskByEmployeeServiceTest {
         taskDocumentUpdated.setEmployee(employeeDocument);
         taskDocumentUpdated.setTitle(title);
         taskDocumentUpdated.setDescription(description);
-        taskDocumentUpdated.setLastOrderUpdateDate(now);
+        taskDocumentUpdated.setLastTaskUpdateDate(now);
         taskDocumentUpdated.setDueDate(dueDate);
         taskDocumentUpdated.setEmployeeAccept(AcceptanceStatus.ACCEPTED);
         taskDocumentUpdated.setManagerAccept(AcceptanceStatus.NO_ACTION);

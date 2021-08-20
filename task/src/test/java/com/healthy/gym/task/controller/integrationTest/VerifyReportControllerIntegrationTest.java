@@ -83,6 +83,7 @@ public class VerifyReportControllerIntegrationTest {
     private ObjectMapper objectMapper;
 
     private String validRequestContentApproved;
+    private String validRequestContentDeclined;
 
     @DynamicPropertySource
     static void setProperties(DynamicPropertyRegistry registry) {
@@ -113,6 +114,12 @@ public class VerifyReportControllerIntegrationTest {
         managerReportVerificationRequestApproved.setMark(4);
 
         validRequestContentApproved = objectMapper.writeValueAsString(managerReportVerificationRequestApproved);
+
+        ManagerReportVerificationRequest managerReportVerificationRequestDeclined = new ManagerReportVerificationRequest();
+        managerReportVerificationRequestDeclined.setApprovalStatus("DECLINE");
+        managerReportVerificationRequestDeclined.setMark(2);
+
+        validRequestContentDeclined = objectMapper.writeValueAsString(managerReportVerificationRequestDeclined);
 
         //existing DB docs
         String employeeName = "Jan";
@@ -216,6 +223,68 @@ public class VerifyReportControllerIntegrationTest {
                 .isEqualTo("Sample report");
         assertThat(responseEntity.getBody().get("task").get("reportDate").textValue())
                 .isEqualTo(LocalDate.now().minusDays(5).toString());
+        assertThat(responseEntity.getBody().get("task").get("mark").intValue())
+                .isEqualTo(4);
+    }
+
+    @ParameterizedTest
+    @EnumSource(TestCountry.class)
+    void shouldDeclineReport(TestCountry country) throws Exception {
+        Map<String, String> messages = getMessagesAccordingToLocale(country);
+        Locale testedLocale = convertEnumToLocale(country);
+
+        URI uri = new URI("http://localhost:" + port + "/"+ validTaskId+"/reportVerification");
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Accept-Language", testedLocale.toString());
+        headers.set("Authorization", managerToken);
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        HttpEntity<Object> request = new HttpEntity<>(validRequestContentDeclined, headers);
+        String expectedMessage = messages.get("report.declined.manager");
+
+        ResponseEntity<JsonNode> responseEntity = restTemplate
+                .exchange(uri, HttpMethod.PUT, request, JsonNode.class);
+
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(Objects.requireNonNull(responseEntity.getBody().get("message").textValue()))
+                .isEqualTo(expectedMessage);
+        assertThat(responseEntity.getBody().get("task").get("id")).isNotNull();
+        assertThat(responseEntity.getBody().get("task").get("manager")).isNotNull();
+        assertThat(responseEntity.getBody().get("task").get("manager").get("userId").textValue())
+                .isEqualTo(managerId);
+        assertThat(responseEntity.getBody().get("task").get("manager").get("name").textValue())
+                .isEqualTo("Adam");
+        assertThat(responseEntity.getBody().get("task").get("manager").get("surname").textValue())
+                .isEqualTo("Nowak");
+        assertThat(responseEntity.getBody().get("task").get("employee").get("userId").textValue())
+                .isEqualTo(employeeId);
+        assertThat(responseEntity.getBody().get("task").get("employee").get("name").textValue())
+                .isEqualTo("Jan");
+        assertThat(responseEntity.getBody().get("task").get("employee").get("surname").textValue())
+                .isEqualTo("Kowalski");
+        assertThat(responseEntity.getBody().get("task").get("title").textValue())
+                .isEqualTo("Title 1");
+        assertThat(responseEntity.getBody().get("task").get("description").textValue())
+                .isEqualTo("Description 1");
+        assertThat(responseEntity.getBody().get("task").get("taskCreationDate").textValue())
+                .isEqualTo(LocalDate.now().minusMonths(1).toString());
+        assertThat(responseEntity.getBody().get("task").get("lastTaskUpdateDate").textValue())
+                .isEqualTo(LocalDate.now().toString());
+        assertThat(responseEntity.getBody().get("task").get("dueDate").textValue())
+                .isEqualTo(LocalDate.now().plusMonths(1).toString());
+        assertThat(responseEntity.getBody().get("task").get("employeeAccept").textValue())
+                .isEqualTo(AcceptanceStatus.ACCEPTED.toString());
+        assertThat(responseEntity.getBody().get("task").get("managerAccept").textValue())
+                .isEqualTo(AcceptanceStatus.NOT_ACCEPTED.toString());
+        assertThat(responseEntity.getBody().get("task").get("employeeComment").textValue())
+                .isEqualTo("I approve this task");
+        assertThat(responseEntity.getBody().get("task").get("report").textValue())
+                .isEqualTo("Sample report");
+        assertThat(responseEntity.getBody().get("task").get("reportDate").textValue())
+                .isEqualTo(LocalDate.now().minusDays(5).toString());
+        assertThat(responseEntity.getBody().get("task").get("mark").intValue())
+                .isEqualTo(2);
     }
 
 }

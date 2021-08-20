@@ -109,7 +109,7 @@ class VerifyReportServiceTest {
                 null,
                 reportDate,
                 null,
-                0,
+                5,
                 AcceptanceStatus.ACCEPTED,
                 AcceptanceStatus.ACCEPTED,
                 employeeComment
@@ -132,7 +132,7 @@ class VerifyReportServiceTest {
         //request
         ManagerReportVerificationRequest managerReportVerificationRequest = new ManagerReportVerificationRequest();
         managerReportVerificationRequest.setApprovalStatus("DECLINE");
-        managerReportVerificationRequest.setMark(5);
+        managerReportVerificationRequest.setMark(1);
 
         String title = "Przykładowe zadanie";
         String description = "Opis przykładowego zadania";
@@ -191,7 +191,7 @@ class VerifyReportServiceTest {
                 null,
                 reportDate,
                 null,
-                0,
+                1,
                 AcceptanceStatus.ACCEPTED,
                 AcceptanceStatus.NOT_ACCEPTED,
                 employeeComment

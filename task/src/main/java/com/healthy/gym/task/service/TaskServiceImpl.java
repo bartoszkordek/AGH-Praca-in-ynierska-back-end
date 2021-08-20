@@ -209,6 +209,7 @@ public class TaskServiceImpl implements TaskService{
 
         int mark = managerReportVerificationRequest.getMark();
         if(mark < 1 || mark > 5 ) throw new InvalidMarkException();
+        taskDocument.setMark(mark);
 
         String report = taskDocument.getReport();
         if(report == null) throw new ReportNotSentException();

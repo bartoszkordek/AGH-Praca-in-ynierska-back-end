@@ -5,6 +5,7 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Objects;
 
 @Document(collection = "users")
@@ -66,6 +67,20 @@ public class UserDocument {
         this.accountNonExpired = accountNonExpired;
         this.credentialsNonExpired = credentialsNonExpired;
         this.accountNonLocked = accountNonLocked;
+    }
+
+    public UserDocument(
+            String name,
+            String surname,
+            String email,
+            String userId,
+            List<GymRole> roles
+    ) {
+        this.name = name;
+        this.surname = surname;
+        this.email = email;
+        this.userId = userId;
+        this.gymRoles = roles;
     }
 
     public String getId() {

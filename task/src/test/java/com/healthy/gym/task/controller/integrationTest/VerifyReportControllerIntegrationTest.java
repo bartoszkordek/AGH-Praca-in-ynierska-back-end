@@ -84,6 +84,7 @@ public class VerifyReportControllerIntegrationTest {
 
     private String validRequestContentApproved;
     private String validRequestContentDeclined;
+    private String invalidRequestContentMissingValues;
 
     @DynamicPropertySource
     static void setProperties(DynamicPropertyRegistry registry) {
@@ -120,6 +121,11 @@ public class VerifyReportControllerIntegrationTest {
         managerReportVerificationRequestDeclined.setMark(2);
 
         validRequestContentDeclined = objectMapper.writeValueAsString(managerReportVerificationRequestDeclined);
+
+        ManagerReportVerificationRequest managerReportVerificationRequestMissingValues
+                = new ManagerReportVerificationRequest();
+        invalidRequestContentMissingValues = objectMapper
+                .writeValueAsString(managerReportVerificationRequestMissingValues);
 
         //existing DB docs
         String employeeName = "Jan";
@@ -237,7 +243,7 @@ public class VerifyReportControllerIntegrationTest {
 
         HttpHeaders headers = new HttpHeaders();
         headers.set("Accept-Language", testedLocale.toString());
-        headers.set("Authorization", managerToken);
+        headers.set("Authorization", adminToken);
         headers.setContentType(MediaType.APPLICATION_JSON);
 
         HttpEntity<Object> request = new HttpEntity<>(validRequestContentDeclined, headers);
@@ -285,6 +291,35 @@ public class VerifyReportControllerIntegrationTest {
                 .isEqualTo(LocalDate.now().minusDays(5).toString());
         assertThat(responseEntity.getBody().get("task").get("mark").intValue())
                 .isEqualTo(2);
+    }
+
+    @ParameterizedTest
+    @EnumSource(TestCountry.class)
+    void shouldNotSendReport_whenMissingRequiredValues(TestCountry country) throws Exception {
+        Map<String, String> messages = getMessagesAccordingToLocale(country);
+        Locale testedLocale = convertEnumToLocale(country);
+
+        URI uri = new URI("http://localhost:" + port + "/"+ validTaskId+"/reportVerification");
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Accept-Language", testedLocale.toString());
+        headers.set("Authorization", managerToken);
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        HttpEntity<Object> request = new HttpEntity<>(invalidRequestContentMissingValues, headers);
+        String expectedMessage = messages.get("request.bind.exception");
+
+        ResponseEntity<JsonNode> responseEntity = restTemplate
+                .exchange(uri, HttpMethod.PUT, request, JsonNode.class);
+
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        assertThat(responseEntity.getBody().get("error").textValue()).isEqualTo("Bad Request");
+        assertThat(Objects.requireNonNull(responseEntity.getBody().get("message").textValue()))
+                .isEqualTo(expectedMessage);
+        assertThat(responseEntity.getBody().get("timestamp")).isNotNull();
+        assertThat(responseEntity.getBody().get("errors")).isNotNull();
+        assertThat(responseEntity.getBody().get("errors").get("approvalStatus").textValue())
+                .isEqualTo(messages.get("field.required"));
     }
 
 }

@@ -281,7 +281,7 @@ public class SendReportControllerIntegrationTest {
 
             @ParameterizedTest
             @EnumSource(TestCountry.class)
-            void shouldNotSendReport_whenEmptyRequestContent(TestCountry country) throws Exception {
+            void shouldNotSendReport_whenMissingRequiredValues(TestCountry country) throws Exception {
                 Map<String, String> messages = getMessagesAccordingToLocale(country);
                 Locale testedLocale = convertEnumToLocale(country);
 

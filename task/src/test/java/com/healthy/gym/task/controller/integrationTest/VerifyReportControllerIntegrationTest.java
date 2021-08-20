@@ -85,6 +85,7 @@ public class VerifyReportControllerIntegrationTest {
     private String validRequestContentApproved;
     private String validRequestContentDeclined;
     private String invalidRequestContentMissingValues;
+    private String invalidRequestContentInvalidMark;
 
     @DynamicPropertySource
     static void setProperties(DynamicPropertyRegistry registry) {
@@ -126,6 +127,13 @@ public class VerifyReportControllerIntegrationTest {
                 = new ManagerReportVerificationRequest();
         invalidRequestContentMissingValues = objectMapper
                 .writeValueAsString(managerReportVerificationRequestMissingValues);
+
+        ManagerReportVerificationRequest managerReportVerificationRequestInvalidMark
+                = new ManagerReportVerificationRequest();
+        managerReportVerificationRequestInvalidMark.setApprovalStatus("APPROVE");
+        managerReportVerificationRequestInvalidMark.setMark(6);
+        invalidRequestContentInvalidMark = objectMapper
+                .writeValueAsString(managerReportVerificationRequestInvalidMark);
 
         //existing DB docs
         String employeeName = "Jan";
@@ -339,6 +347,32 @@ public class VerifyReportControllerIntegrationTest {
 
         HttpEntity<Object> request = new HttpEntity<>(validRequestContentApproved, headers);
         String expectedMessage = messages.get("exception.task.not.found");
+
+        ResponseEntity<JsonNode> responseEntity = restTemplate
+                .exchange(uri, HttpMethod.PUT, request, JsonNode.class);
+
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        assertThat(responseEntity.getBody().get("error").textValue()).isEqualTo("Bad Request");
+        assertThat(Objects.requireNonNull(responseEntity.getBody().get("message").textValue()))
+                .isEqualTo(expectedMessage);
+        assertThat(responseEntity.getBody().get("timestamp")).isNotNull();
+    }
+
+    @ParameterizedTest
+    @EnumSource(TestCountry.class)
+    void shouldNotSendReport_whenInvalidRequestMark(TestCountry country) throws Exception {
+        Map<String, String> messages = getMessagesAccordingToLocale(country);
+        Locale testedLocale = convertEnumToLocale(country);
+
+        URI uri = new URI("http://localhost:" + port + "/"+ validTaskId +"/reportVerification");
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Accept-Language", testedLocale.toString());
+        headers.set("Authorization", managerToken);
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        HttpEntity<Object> request = new HttpEntity<>(invalidRequestContentInvalidMark, headers);
+        String expectedMessage = messages.get("exception.invalid.mark");
 
         ResponseEntity<JsonNode> responseEntity = restTemplate
                 .exchange(uri, HttpMethod.PUT, request, JsonNode.class);

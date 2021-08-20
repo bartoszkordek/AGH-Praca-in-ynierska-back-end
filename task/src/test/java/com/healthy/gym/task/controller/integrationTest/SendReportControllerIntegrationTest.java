@@ -11,6 +11,7 @@ import com.healthy.gym.task.enums.GymRole;
 import com.healthy.gym.task.pojo.request.EmployeeReportRequest;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
@@ -72,6 +73,7 @@ public class SendReportControllerIntegrationTest {
     private String declinedByEmployeeTaskId;
 
     private String requestContent;
+    private String emptyRequestContent;
     private ObjectMapper objectMapper;
 
     @DynamicPropertySource
@@ -104,6 +106,9 @@ public class SendReportControllerIntegrationTest {
         employeeReportRequest.setResult(report);
 
         requestContent = objectMapper.writeValueAsString(employeeReportRequest);
+
+        EmployeeReportRequest emptyEmployeeReportRequest = new EmployeeReportRequest();
+        emptyRequestContent = objectMapper.writeValueAsString(emptyEmployeeReportRequest);
 
         //existing DB docs
         String employeeName = "Jan";
@@ -214,59 +219,99 @@ public class SendReportControllerIntegrationTest {
                 .isEqualTo(LocalDate.now().toString());
     }
 
-    @ParameterizedTest
-    @EnumSource(TestCountry.class)
-    void shouldNotSendReport_whenInvalidTaskId(TestCountry country) throws Exception {
-        Map<String, String> messages = getMessagesAccordingToLocale(country);
-        Locale testedLocale = convertEnumToLocale(country);
 
-        String notFoundTaskId = UUID.randomUUID().toString();
+    @Nested
+    class ShouldNotSendReportWhenInvalidRequest{
 
-        URI uri = new URI("http://localhost:" + port + "/"+ notFoundTaskId+"/employee/"+employeeId+"/report");
+        @Nested
+        class BindException{
+            @ParameterizedTest
+            @EnumSource(TestCountry.class)
+            void shouldNotSendReport_whenEmptyRequestContent(TestCountry country) throws Exception {
+                Map<String, String> messages = getMessagesAccordingToLocale(country);
+                Locale testedLocale = convertEnumToLocale(country);
 
-        HttpHeaders headers = new HttpHeaders();
-        headers.set("Accept-Language", testedLocale.toString());
-        headers.set("Authorization", employeeToken);
-        headers.setContentType(MediaType.APPLICATION_JSON);
+                String notFoundTaskId = UUID.randomUUID().toString();
 
-        HttpEntity<Object> request = new HttpEntity<>(requestContent, headers);
-        String expectedMessage = messages.get("exception.task.not.found");
+                URI uri = new URI("http://localhost:" + port + "/"+ notFoundTaskId+"/employee/"+employeeId+"/report");
 
-        ResponseEntity<JsonNode> responseEntity = restTemplate
-                .exchange(uri, HttpMethod.PUT, request, JsonNode.class);
+                HttpHeaders headers = new HttpHeaders();
+                headers.set("Accept-Language", testedLocale.toString());
+                headers.set("Authorization", employeeToken);
+                headers.setContentType(MediaType.APPLICATION_JSON);
 
-        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
-        assertThat(responseEntity.getBody().get("error").textValue()).isEqualTo("Bad Request");
-        assertThat(Objects.requireNonNull(responseEntity.getBody().get("message").textValue()))
-                .isEqualTo(expectedMessage);
-        assertThat(responseEntity.getBody().get("timestamp")).isNotNull();
-    }
+                HttpEntity<Object> request = new HttpEntity<>(emptyRequestContent, headers);
+                String expectedMessage = messages.get("request.bind.exception");
+
+                ResponseEntity<JsonNode> responseEntity = restTemplate
+                        .exchange(uri, HttpMethod.PUT, request, JsonNode.class);
+
+                assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+                assertThat(responseEntity.getBody().get("error").textValue()).isEqualTo("Bad Request");
+                assertThat(Objects.requireNonNull(responseEntity.getBody().get("message").textValue()))
+                        .isEqualTo(expectedMessage);
+                assertThat(responseEntity.getBody().get("timestamp")).isNotNull();
+                assertThat(responseEntity.getBody().get("errors")).isNotNull();
+                assertThat(responseEntity.getBody().get("errors").get("result").textValue())
+                        .isEqualTo(messages.get("field.required"));
+            }
+        }
+
+        @ParameterizedTest
+        @EnumSource(TestCountry.class)
+        void shouldNotSendReport_whenInvalidTaskId(TestCountry country) throws Exception {
+            Map<String, String> messages = getMessagesAccordingToLocale(country);
+            Locale testedLocale = convertEnumToLocale(country);
+
+            String notFoundTaskId = UUID.randomUUID().toString();
+
+            URI uri = new URI("http://localhost:" + port + "/"+ notFoundTaskId+"/employee/"+employeeId+"/report");
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.set("Accept-Language", testedLocale.toString());
+            headers.set("Authorization", employeeToken);
+            headers.setContentType(MediaType.APPLICATION_JSON);
+
+            HttpEntity<Object> request = new HttpEntity<>(requestContent, headers);
+            String expectedMessage = messages.get("exception.task.not.found");
+
+            ResponseEntity<JsonNode> responseEntity = restTemplate
+                    .exchange(uri, HttpMethod.PUT, request, JsonNode.class);
+
+            assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+            assertThat(responseEntity.getBody().get("error").textValue()).isEqualTo("Bad Request");
+            assertThat(Objects.requireNonNull(responseEntity.getBody().get("message").textValue()))
+                    .isEqualTo(expectedMessage);
+            assertThat(responseEntity.getBody().get("timestamp")).isNotNull();
+        }
 
 
-    @ParameterizedTest
-    @EnumSource(TestCountry.class)
-    void shouldNotSendReport_whenTaskAlreadyDeclinedByEmployee(TestCountry country) throws Exception {
-        Map<String, String> messages = getMessagesAccordingToLocale(country);
-        Locale testedLocale = convertEnumToLocale(country);
+        @ParameterizedTest
+        @EnumSource(TestCountry.class)
+        void shouldNotSendReport_whenTaskAlreadyDeclinedByEmployee(TestCountry country) throws Exception {
+            Map<String, String> messages = getMessagesAccordingToLocale(country);
+            Locale testedLocale = convertEnumToLocale(country);
 
-        URI uri = new URI("http://localhost:" + port + "/"+ declinedByEmployeeTaskId+"/employee/"+employeeId+"/report");
+            URI uri = new URI("http://localhost:" + port + "/"+ declinedByEmployeeTaskId+"/employee/"+employeeId+"/report");
 
-        HttpHeaders headers = new HttpHeaders();
-        headers.set("Accept-Language", testedLocale.toString());
-        headers.set("Authorization", employeeToken);
-        headers.setContentType(MediaType.APPLICATION_JSON);
+            HttpHeaders headers = new HttpHeaders();
+            headers.set("Accept-Language", testedLocale.toString());
+            headers.set("Authorization", employeeToken);
+            headers.setContentType(MediaType.APPLICATION_JSON);
 
-        HttpEntity<Object> request = new HttpEntity<>(requestContent, headers);
-        String expectedMessage = messages.get("exception.declined.employee");
+            HttpEntity<Object> request = new HttpEntity<>(requestContent, headers);
+            String expectedMessage = messages.get("exception.declined.employee");
 
-        ResponseEntity<JsonNode> responseEntity = restTemplate
-                .exchange(uri, HttpMethod.PUT, request, JsonNode.class);
+            ResponseEntity<JsonNode> responseEntity = restTemplate
+                    .exchange(uri, HttpMethod.PUT, request, JsonNode.class);
 
-        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
-        assertThat(responseEntity.getBody().get("error").textValue()).isEqualTo("Bad Request");
-        assertThat(Objects.requireNonNull(responseEntity.getBody().get("message").textValue()))
-                .isEqualTo(expectedMessage);
-        assertThat(responseEntity.getBody().get("timestamp")).isNotNull();
+            assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+            assertThat(responseEntity.getBody().get("error").textValue()).isEqualTo("Bad Request");
+            assertThat(Objects.requireNonNull(responseEntity.getBody().get("message").textValue()))
+                    .isEqualTo(expectedMessage);
+            assertThat(responseEntity.getBody().get("timestamp")).isNotNull();
+        }
+
     }
 
 }

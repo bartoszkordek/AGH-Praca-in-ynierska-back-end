@@ -33,7 +33,8 @@ public class UserAuditor implements AuditorAware<UserDocument> {
 
     private UserDocument createRoot() {
         String name = environment.getProperty("system.name");
-        return new UserDocument(name, "", "root");
+        var root = new UserDocument(name, "", "root");
+        return userDAO.save(root);
     }
 
 }

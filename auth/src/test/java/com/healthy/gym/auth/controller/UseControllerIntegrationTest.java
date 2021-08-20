@@ -3,6 +3,7 @@ package com.healthy.gym.auth.controller;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.healthy.gym.auth.configuration.tests.TestCountry;
+import com.healthy.gym.auth.data.document.NotificationDocument;
 import com.healthy.gym.auth.data.document.RegistrationTokenDocument;
 import com.healthy.gym.auth.data.document.UserDocument;
 import com.healthy.gym.auth.pojo.request.CreateUserRequest;
@@ -92,6 +93,7 @@ public class UseControllerIntegrationTest {
 
         @AfterEach
         void tearDown() {
+            mongoTemplate.dropCollection(NotificationDocument.class);
             mongoTemplate.dropCollection(UserDocument.class);
         }
 
@@ -99,7 +101,10 @@ public class UseControllerIntegrationTest {
         class ShouldAcceptUserRegistration {
             @ParameterizedTest
             @EnumSource(TestCountry.class)
-            void whenRequestHasEveryFieldValid(TestCountry country) throws URISyntaxException, JsonProcessingException {
+            void whenRequestHasEveryFieldValid(TestCountry country) throws URISyntaxException {
+                var notifications = mongoTemplate.findAll(NotificationDocument.class);
+                assertThat(notifications.size()).isZero();
+
                 Map<String, String> messages = getMessagesAccordingToLocale(country);
                 Locale testedLocale = convertEnumToLocale(country);
 
@@ -119,6 +124,16 @@ public class UseControllerIntegrationTest {
                 assertThat(responseEntity.getBody().get("message").textValue()).isEqualTo(expectedMessage);
                 assertThat(responseEntity.getBody().get("success").asBoolean()).isTrue();
                 assertThat(responseEntity.getBody().get("errors").isEmpty()).isTrue();
+
+                notifications = mongoTemplate.findAll(NotificationDocument.class);
+                assertThat(notifications.size()).isEqualTo(1);
+
+                var notification = notifications.get(0);
+                assertThat(notification.getContent()).isEqualTo(messages.get("notification.welcome.content"));
+                assertThat(notification.getTitle()).isEqualTo(messages.get("notification.welcome.title"));
+                assertThat(notification.getTo().getUserId()).isEqualTo(responseEntity.getBody().get("id").textValue());
+                assertThat(notification.getCreatedBy().getName())
+                        .isEqualTo("System do wspomagania zarządzania placówką profilaktyki zdrowotnej");
             }
 
             @ParameterizedTest

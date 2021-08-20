@@ -22,9 +22,10 @@ import org.springframework.http.*;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
-import org.springframework.test.context.TestPropertySource;
+import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.MongoDBContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
@@ -44,15 +45,17 @@ import static org.mockito.Mockito.doNothing;
 
 @Testcontainers
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@TestPropertySource(properties = {
-        "eureka.client.fetch-registry=false",
-        "eureka.client.register-with-eureka=false"
-})
+@ActiveProfiles(value = "test")
 @Tag("integration")
 public class UseControllerIntegrationTest {
     @Container
     static MongoDBContainer mongoDBContainer =
             new MongoDBContainer(DockerImageName.parse("mongo:4.4.4-bionic"));
+
+    @Container
+    static GenericContainer<?> rabbitMQContainer =
+            new GenericContainer<>(DockerImageName.parse("gza73/agh-praca-inzynierska-rabbitmq"))
+                    .withExposedPorts(5672);
 
     @LocalServerPort
     private Integer port;
@@ -69,6 +72,7 @@ public class UseControllerIntegrationTest {
     @DynamicPropertySource
     static void setProperties(DynamicPropertyRegistry registry) {
         registry.add("spring.data.mongodb.uri", mongoDBContainer::getReplicaSetUrl);
+        registry.add("spring.rabbitmq.port", rabbitMQContainer::getFirstMappedPort);
     }
 
     @Nested
@@ -183,7 +187,7 @@ public class UseControllerIntegrationTest {
 
             @ParameterizedTest
             @EnumSource(TestCountry.class)
-            void whenRequestHasSomeFieldInvalidEmpty(TestCountry country) throws URISyntaxException, JsonProcessingException {
+            void whenRequestHasSomeFieldInvalidEmpty(TestCountry country) throws URISyntaxException {
                 Map<String, String> messages = getMessagesAccordingToLocale(country);
                 Locale testedLocale = convertEnumToLocale(country);
 
@@ -218,7 +222,7 @@ public class UseControllerIntegrationTest {
 
             @ParameterizedTest
             @EnumSource(TestCountry.class)
-            void whenRequestHasEveryFieldInvalidEmpty(TestCountry country) throws URISyntaxException, JsonProcessingException {
+            void whenRequestHasEveryFieldInvalidEmpty(TestCountry country) throws URISyntaxException {
                 Map<String, String> messages = getMessagesAccordingToLocale(country);
                 Locale testedLocale = convertEnumToLocale(country);
 
@@ -257,7 +261,7 @@ public class UseControllerIntegrationTest {
         private URI uri;
 
         @BeforeEach
-        void setUp() throws URISyntaxException {
+        void setUp() {
             String userId = UUID.randomUUID().toString();
             UserDocument userDocument = new UserDocument(
                     "Jan",

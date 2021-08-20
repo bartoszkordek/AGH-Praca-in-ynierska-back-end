@@ -44,12 +44,14 @@ public class SendReportServiceUnitTest {
     private String managerId;
     private String taskId;
     private String taskIdWithExceededDueDate;
+    private String taskIdWithAlreadySentReport;
 
     private EmployeeReportRequest reportRequest;
     private TaskDocument taskDocumentReportToSend;
     private TaskDocument taskDocumentWithReport;
     private TaskDocument declinedTaskDocument;
     private TaskDocument taskDocumentWithExceededDueDate;
+    private TaskDocument taskDocumentWithAlreadySentReport;
     private TaskDTO taskResponse;
 
 
@@ -142,6 +144,21 @@ public class SendReportServiceUnitTest {
         taskDocumentWithExceededDueDate.setReport(report);
         taskDocumentWithExceededDueDate.setReportDate(now);
 
+        taskIdWithAlreadySentReport = UUID.randomUUID().toString();
+        taskDocumentWithAlreadySentReport = new TaskDocument();
+        taskDocumentWithAlreadySentReport.setTaskId(taskIdWithAlreadySentReport);
+        taskDocumentWithAlreadySentReport.setManager(managerDocument);
+        taskDocumentWithAlreadySentReport.setEmployee(employeeDocument);
+        taskDocumentWithAlreadySentReport.setTitle(title);
+        taskDocumentWithAlreadySentReport.setDescription(description);
+        taskDocumentWithAlreadySentReport.setTaskCreationDate(lastTaskUpdateDate);
+        taskDocumentWithAlreadySentReport.setLastTaskUpdateDate(now.minusDays(5));
+        taskDocumentWithAlreadySentReport.setDueDate(now.plusMonths(1));
+        taskDocumentWithAlreadySentReport.setEmployeeAccept(AcceptanceStatus.ACCEPTED);
+        taskDocumentWithAlreadySentReport.setManagerAccept(AcceptanceStatus.NO_ACTION);
+        taskDocumentWithAlreadySentReport.setReport(report);
+        taskDocumentWithAlreadySentReport.setReportDate(now.minusDays(5));
+
         //response
         taskResponse = new TaskDTO(
                 taskId,
@@ -206,5 +223,16 @@ public class SendReportServiceUnitTest {
         assertThatThrownBy(() ->
                 taskService.sendReport(taskIdWithExceededDueDate, employeeId, reportRequest)
         ).isInstanceOf(DueDateExceedException.class);
+    }
+
+    @Test
+    void shouldNotSendReport_whenReportAlreadySent(){
+        //when
+        when(taskDAO.findByTaskId(any())).thenReturn(taskDocumentWithAlreadySentReport);
+
+        //then
+        assertThatThrownBy(() ->
+                taskService.sendReport(taskIdWithAlreadySentReport, employeeId, reportRequest)
+        ).isInstanceOf(ReportAlreadySentException.class);
     }
 }

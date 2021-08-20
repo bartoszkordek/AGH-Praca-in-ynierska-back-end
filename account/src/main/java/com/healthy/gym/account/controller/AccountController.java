@@ -1,6 +1,7 @@
 package com.healthy.gym.account.controller;
 
 import com.healthy.gym.account.component.Translator;
+import com.healthy.gym.account.dto.UserDTO;
 import com.healthy.gym.account.exception.EmailOccupiedException;
 import com.healthy.gym.account.exception.ResponseBindException;
 import com.healthy.gym.account.exception.UserDataNotUpdatedException;
@@ -9,7 +10,6 @@ import com.healthy.gym.account.pojo.response.AccountUserInfoResponse;
 import com.healthy.gym.account.pojo.response.ChangeUserDataResponse;
 import com.healthy.gym.account.pojo.response.DeleteAccountResponse;
 import com.healthy.gym.account.service.AccountService;
-import com.healthy.gym.account.dto.UserDTO;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;

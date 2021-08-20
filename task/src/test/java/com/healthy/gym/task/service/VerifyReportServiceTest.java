@@ -162,20 +162,20 @@ public class VerifyReportServiceTest {
         managerDocument.setGymRoles(List.of(GymRole.MANAGER));
         managerDocument.setId("507f1f77bcf86cd799435002");
 
-        TaskDocument taskDocumentToAccept = new TaskDocument();
-        taskDocumentToAccept.setTaskId(taskId);
-        taskDocumentToAccept.setManager(managerDocument);
-        taskDocumentToAccept.setEmployee(employeeDocument);
-        taskDocumentToAccept.setTitle(title);
-        taskDocumentToAccept.setDescription(description);
-        taskDocumentToAccept.setTaskCreationDate(taskCreationDate);
-        taskDocumentToAccept.setLastTaskUpdateDate(reportDate);
-        taskDocumentToAccept.setDueDate(dueDate);
-        taskDocumentToAccept.setEmployeeAccept(AcceptanceStatus.ACCEPTED);
-        taskDocumentToAccept.setManagerAccept(AcceptanceStatus.NO_ACTION);
-        taskDocumentToAccept.setReport(report);
-        taskDocumentToAccept.setReportDate(reportDate);
-        taskDocumentToAccept.setEmployeeComment(employeeComment);
+        TaskDocument taskDocumentToDecline = new TaskDocument();
+        taskDocumentToDecline.setTaskId(taskId);
+        taskDocumentToDecline.setManager(managerDocument);
+        taskDocumentToDecline.setEmployee(employeeDocument);
+        taskDocumentToDecline.setTitle(title);
+        taskDocumentToDecline.setDescription(description);
+        taskDocumentToDecline.setTaskCreationDate(taskCreationDate);
+        taskDocumentToDecline.setLastTaskUpdateDate(reportDate);
+        taskDocumentToDecline.setDueDate(dueDate);
+        taskDocumentToDecline.setEmployeeAccept(AcceptanceStatus.ACCEPTED);
+        taskDocumentToDecline.setManagerAccept(AcceptanceStatus.NO_ACTION);
+        taskDocumentToDecline.setReport(report);
+        taskDocumentToDecline.setReportDate(reportDate);
+        taskDocumentToDecline.setEmployeeComment(employeeComment);
 
         //response
         TaskDTO taskResponse = new TaskDTO(
@@ -198,8 +198,8 @@ public class VerifyReportServiceTest {
         );
 
         //when
-        when(taskDAO.findByTaskId(taskId)).thenReturn(taskDocumentToAccept);
-        when(taskDAO.save(any())).thenReturn(taskDocumentToAccept);
+        when(taskDAO.findByTaskId(taskId)).thenReturn(taskDocumentToDecline);
+        when(taskDAO.save(any())).thenReturn(taskDocumentToDecline);
 
         //then
         assertThat(taskService.verifyReport(taskId, managerReportVerificationRequest)).isEqualTo(taskResponse);
@@ -217,5 +217,71 @@ public class VerifyReportServiceTest {
         assertThatThrownBy(() ->
                 taskService.verifyReport(notFoundTaskId, any())
         ).isInstanceOf(TaskNotFoundException.class);
+    }
+
+    @Test
+    void shouldNotVerifyReport_whenTaskDeclinedByEmployee(){
+        //before
+        String declinedByEmployeeTaskId = UUID.randomUUID().toString();
+
+        employeeId = UUID.randomUUID().toString();
+        managerId = UUID.randomUUID().toString();
+
+        //request
+        ManagerReportVerificationRequest managerReportVerificationRequest = new ManagerReportVerificationRequest();
+        managerReportVerificationRequest.setApprovalStatus("DECLINE");
+        managerReportVerificationRequest.setMark(5);
+
+        String title = "Przykładowe zadanie";
+        String description = "Opis przykładowego zadania";
+        var now = LocalDate.now();
+        LocalDate taskCreationDate = now.minusMonths(1);
+        LocalDate dueDate = now.plusMonths(1);
+        String report = "Przykładowy raport";
+        LocalDate reportDate = now.minusDays(5);
+        String employeeComment = "Przykładowy komentarz";
+
+        //DB documents
+        String employeeName = "Jan";
+        String employeeSurname = "Kowalski";
+        UserDocument employeeDocument = new UserDocument();
+        employeeDocument.setName(employeeName);
+        employeeDocument.setSurname(employeeSurname);
+        employeeDocument.setUserId(employeeId);
+        employeeDocument.setGymRoles(List.of(GymRole.EMPLOYEE));
+        employeeDocument.setId("507f1f77bcf86cd799435213");
+
+        String managerName = "Adam";
+        String managerSurname = "Nowak";
+        UserDocument managerDocument = new UserDocument();
+        managerDocument.setName(managerName);
+        managerDocument.setSurname(managerSurname);
+        managerDocument.setUserId(managerId);
+        managerDocument.setGymRoles(List.of(GymRole.MANAGER));
+        managerDocument.setId("507f1f77bcf86cd799435002");
+
+        TaskDocument declinedTaskDocument = new TaskDocument();
+        declinedTaskDocument.setTaskId(declinedByEmployeeTaskId);
+        declinedTaskDocument.setManager(managerDocument);
+        declinedTaskDocument.setEmployee(employeeDocument);
+        declinedTaskDocument.setTitle(title);
+        declinedTaskDocument.setDescription(description);
+        declinedTaskDocument.setTaskCreationDate(taskCreationDate);
+        declinedTaskDocument.setLastTaskUpdateDate(reportDate);
+        declinedTaskDocument.setDueDate(dueDate);
+        declinedTaskDocument.setEmployeeAccept(AcceptanceStatus.NOT_ACCEPTED);
+        declinedTaskDocument.setManagerAccept(AcceptanceStatus.NO_ACTION);
+        declinedTaskDocument.setReport(report);
+        declinedTaskDocument.setReportDate(reportDate);
+        declinedTaskDocument.setEmployeeComment(employeeComment);
+
+
+        //when
+        when(taskDAO.findByTaskId(declinedByEmployeeTaskId)).thenReturn(declinedTaskDocument);
+
+        //then
+        assertThatThrownBy(() ->
+                taskService.verifyReport(declinedByEmployeeTaskId, managerReportVerificationRequest)
+        ).isInstanceOf(TaskDeclinedByEmployeeException.class);
     }
 }

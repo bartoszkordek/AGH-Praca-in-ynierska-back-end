@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
@@ -120,5 +121,19 @@ public class VerifyReportServiceTest {
 
         //then
         assertThat(taskService.verifyReport(taskId, managerReportVerificationRequest)).isEqualTo(taskResponse);
+    }
+
+    @Test
+    void shouldNotVerifyReport_whenTaskIdNotExist(){
+        //before
+        String notFoundTaskId = UUID.randomUUID().toString();
+
+        //when
+        when(taskDAO.findByTaskId(notFoundTaskId)).thenReturn(null);
+
+        //then
+        assertThatThrownBy(() ->
+                taskService.verifyReport(notFoundTaskId, any())
+        ).isInstanceOf(TaskNotFoundException.class);
     }
 }

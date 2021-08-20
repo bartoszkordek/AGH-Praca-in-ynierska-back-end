@@ -59,6 +59,7 @@ public class AcceptDeclineTaskByEmployeeControllerIntegrationTest {
     static GenericContainer<?> rabbitMQContainer =
             new GenericContainer<>(DockerImageName.parse("gza73/agh-praca-inzynierska-rabbitmq"))
                     .withExposedPorts(5672);
+
     @Autowired
     private TestRestTemplate restTemplate;
     @Autowired

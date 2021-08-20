@@ -4,39 +4,28 @@ import com.healthy.gym.account.data.document.UserDocument;
 import com.healthy.gym.account.data.document.UserPrivacyDocument;
 import com.healthy.gym.account.data.repository.UserDAO;
 import com.healthy.gym.account.data.repository.UserPrivacyDAO;
+import com.healthy.gym.account.dto.UserPrivacyDTO;
 import com.healthy.gym.account.exception.UserPrivacyNotUpdatedException;
 import com.healthy.gym.account.service.AccountService;
-import com.healthy.gym.account.dto.UserPrivacyDTO;
+import com.healthy.gym.account.service.AccountServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-@SpringBootTest
 class WhenChangeUserPrivacyTest {
-    @Autowired
+
     private AccountService accountService;
-
-    @MockBean
     private UserDAO userDAO;
-
-    @MockBean
     private UserPrivacyDAO userPrivacyDAO;
-
-    @Autowired
-    private BCryptPasswordEncoder bCryptPasswordEncoder;
-
     private UserDocument andrzejNowak;
     private UserPrivacyDocument userPrivacyDocument;
     private String userId;
@@ -50,7 +39,7 @@ class WhenChangeUserPrivacyTest {
                 "Nowak",
                 "andrzej.nowak@test.com",
                 "676 777 888",
-                bCryptPasswordEncoder.encode("password4576"),
+                "encryptedPassword4576",
                 userId
         );
 
@@ -68,6 +57,10 @@ class WhenChangeUserPrivacyTest {
                 true,
                 true
         );
+
+        userDAO = mock(UserDAO.class);
+        userPrivacyDAO = mock(UserPrivacyDAO.class);
+        accountService = new AccountServiceImpl(userDAO, userPrivacyDAO, null);
     }
 
     @Test
@@ -125,11 +118,10 @@ class WhenChangeUserPrivacyTest {
     @Nested
     class ShouldSavePrivacyDocumentWhenUserPrivacyFound {
         private UserPrivacyDTO userPrivacyDTO;
-        private UserPrivacyDocument privacyDocument;
 
         @BeforeEach
         void setUp() throws UserPrivacyNotUpdatedException {
-            privacyDocument = new UserPrivacyDocument(
+            UserPrivacyDocument privacyDocument = new UserPrivacyDocument(
                     true,
                     false,
                     true,

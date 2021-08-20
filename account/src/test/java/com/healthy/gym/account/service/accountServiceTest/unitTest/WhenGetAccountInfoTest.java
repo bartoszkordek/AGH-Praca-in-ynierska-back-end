@@ -2,13 +2,11 @@ package com.healthy.gym.account.service.accountServiceTest.unitTest;
 
 import com.healthy.gym.account.data.document.UserDocument;
 import com.healthy.gym.account.data.repository.UserDAO;
-import com.healthy.gym.account.service.AccountService;
 import com.healthy.gym.account.dto.UserDTO;
+import com.healthy.gym.account.service.AccountService;
+import com.healthy.gym.account.service.AccountServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 import java.util.UUID;
@@ -16,20 +14,14 @@ import java.util.UUID;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
-@SpringBootTest
 class WhenGetAccountInfoTest {
 
     private UserDTO andrzejNowakDTO;
     private UserDocument andrzejNowak;
     private String userId;
-
-    @Autowired
     private AccountService accountService;
-
-    @MockBean
     private UserDAO userDAO;
 
     @BeforeEach
@@ -54,6 +46,9 @@ class WhenGetAccountInfoTest {
                 null,
                 userId
         );
+
+        userDAO = mock(UserDAO.class);
+        accountService = new AccountServiceImpl(userDAO, null, null);
 
         doNothing().when(userDAO).delete(any(UserDocument.class));
     }

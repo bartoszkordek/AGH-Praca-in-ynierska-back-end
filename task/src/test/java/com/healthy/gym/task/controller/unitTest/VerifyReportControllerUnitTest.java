@@ -62,9 +62,11 @@ public class VerifyReportControllerUnitTest {
 
     private ObjectMapper objectMapper;
 
-    private String validRequestContentApprove;
+    private String validRequestContentApproved;
+    private String validRequestContentDeclined;
 
-    private ManagerReportVerificationRequest managerReportVerificationRequestApprove;
+    private ManagerReportVerificationRequest managerReportVerificationRequestApproved;
+    private ManagerReportVerificationRequest managerReportVerificationRequestDeclined;
 
     private URI uri;
 
@@ -86,11 +88,17 @@ public class VerifyReportControllerUnitTest {
 
         objectMapper = new ObjectMapper();
 
-        managerReportVerificationRequestApprove = new ManagerReportVerificationRequest();
-        managerReportVerificationRequestApprove.setMark(5);
-        managerReportVerificationRequestApprove.setApprovalStatus("APPROVE");
+        managerReportVerificationRequestApproved = new ManagerReportVerificationRequest();
+        managerReportVerificationRequestApproved.setMark(5);
+        managerReportVerificationRequestApproved.setApprovalStatus("APPROVE");
 
-        validRequestContentApprove = objectMapper.writeValueAsString(managerReportVerificationRequestApprove);
+        validRequestContentApproved = objectMapper.writeValueAsString(managerReportVerificationRequestApproved);
+
+        managerReportVerificationRequestDeclined = new ManagerReportVerificationRequest();
+        managerReportVerificationRequestDeclined.setMark(1);
+        managerReportVerificationRequestDeclined.setApprovalStatus("APPROVE");
+
+        validRequestContentDeclined = objectMapper.writeValueAsString(managerReportVerificationRequestDeclined);
 
         uri = new URI("/");
     }
@@ -105,7 +113,7 @@ public class VerifyReportControllerUnitTest {
                 .put(uri+taskId+"/reportVerification")
                 .header("Accept-Language", testedLocale.toString())
                 .header("Authorization", managerToken)
-                .content(validRequestContentApprove)
+                .content(validRequestContentApproved)
                 .contentType(MediaType.APPLICATION_JSON);
 
         var now = LocalDate.now();
@@ -147,7 +155,7 @@ public class VerifyReportControllerUnitTest {
                 employeeComment
         );
 
-        when(taskService.verifyReport(taskId, managerReportVerificationRequestApprove))
+        when(taskService.verifyReport(taskId, managerReportVerificationRequestApproved))
                 .thenReturn(taskResponse);
 
         String expectedMessage = messages.get("report.approved.manager");
@@ -181,6 +189,94 @@ public class VerifyReportControllerUnitTest {
                         jsonPath("$.task.managerAccept").value(is(managerAccept.toString())),
                         jsonPath("$.task.employeeComment").value(is(employeeComment))
                 ));
+    }
 
+
+    @ParameterizedTest
+    @EnumSource(TestCountry.class)
+    void shouldDeclineReport(TestCountry country) throws Exception {
+        Map<String, String> messages = getMessagesAccordingToLocale(country);
+        Locale testedLocale = convertEnumToLocale(country);
+
+        RequestBuilder request = MockMvcRequestBuilders
+                .put(uri+taskId+"/reportVerification")
+                .header("Accept-Language", testedLocale.toString())
+                .header("Authorization", managerToken)
+                .content(validRequestContentDeclined)
+                .contentType(MediaType.APPLICATION_JSON);
+
+        var now = LocalDate.now();
+        String managerId = UUID.randomUUID().toString();
+        String managerName = "Martin";
+        String managerSurname = "Manager";
+        BasicUserInfoDTO manager = new BasicUserInfoDTO(managerId, managerName, managerSurname);
+        String employeeName = "Eric";
+        String employeeSurname = "Employee";
+        BasicUserInfoDTO employee = new BasicUserInfoDTO(employeeId, employeeName, employeeSurname);
+        String title = "Test task 1";
+        String description = "Description for task 1";
+        LocalDate taskCreationDate = now.minusMonths(1);
+        LocalDate lastTaskUpdateDate = now;
+        LocalDate dueDate = now.plusMonths(1);
+        LocalDate reportDate = now.minusDays(2);
+        int mark = 1;
+        AcceptanceStatus employeeAccept = AcceptanceStatus.ACCEPTED;
+        AcceptanceStatus managerAccept = AcceptanceStatus.NOT_ACCEPTED;
+        String report = "Done!";
+        String employeeComment = "I approve this task.";
+
+        TaskDTO taskResponse = new TaskDTO(
+                taskId,
+                manager,
+                employee,
+                title,
+                description,
+                report,
+                taskCreationDate,
+                lastTaskUpdateDate,
+                dueDate,
+                null,
+                reportDate,
+                null,
+                mark,
+                employeeAccept,
+                managerAccept,
+                employeeComment
+        );
+
+        when(taskService.verifyReport(taskId, managerReportVerificationRequestDeclined))
+                .thenReturn(taskResponse);
+
+        String expectedMessage = messages.get("report.declined.manager");
+
+        mockMvc.perform(request)
+                .andDo(print())
+                .andExpect(matchAll(
+                        status().isOk(),
+                        content().contentType(MediaType.APPLICATION_JSON),
+                        jsonPath("$.message").value(is(expectedMessage)),
+                        jsonPath("$.task").exists(),
+                        jsonPath("$.task.id").exists(),
+                        jsonPath("$.task.id").value(is(taskId)),
+                        jsonPath("$.task.manager").exists(),
+                        jsonPath("$.task.manager.userId").value(is(managerId)),
+                        jsonPath("$.task.manager.name").value(is(managerName)),
+                        jsonPath("$.task.manager.surname").value(is(managerSurname)),
+                        jsonPath("$.task.employee").exists(),
+                        jsonPath("$.task.employee.userId").exists(),
+                        jsonPath("$.task.employee.name").value(is(employeeName)),
+                        jsonPath("$.task.employee.surname").value(is(employeeSurname)),
+                        jsonPath("$.task.title").value(is(title)),
+                        jsonPath("$.task.description").value(is(description)),
+                        jsonPath("$.task.report").value(is(report)),
+                        jsonPath("$.task.taskCreationDate").value(is(taskCreationDate.toString())),
+                        jsonPath("$.task.lastTaskUpdateDate").value(is(lastTaskUpdateDate.toString())),
+                        jsonPath("$.task.dueDate").value(is(dueDate.toString())),
+                        jsonPath("$.task.reportDate").value(is(reportDate.toString())),
+                        jsonPath("$.task.mark").value(is(mark)),
+                        jsonPath("$.task.employeeAccept").value(is(employeeAccept.toString())),
+                        jsonPath("$.task.managerAccept").value(is(managerAccept.toString())),
+                        jsonPath("$.task.employeeComment").value(is(employeeComment))
+                ));
     }
 }

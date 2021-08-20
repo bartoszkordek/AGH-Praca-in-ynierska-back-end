@@ -7,13 +7,11 @@ import com.healthy.gym.trainings.data.repository.TrainingTypeDAO;
 import com.healthy.gym.trainings.exception.DuplicatedTrainingTypeException;
 import com.healthy.gym.trainings.model.request.TrainingTypeRequest;
 import com.healthy.gym.trainings.service.TrainingTypeService;
+import com.healthy.gym.trainings.service.TrainingTypeServiceImpl;
 import org.bson.types.Binary;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 
@@ -26,18 +24,13 @@ import java.util.UUID;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-@SpringBootTest
 class WhenCreateTrainingTypeTest {
 
-    @Autowired
     private TrainingTypeService trainingTypeService;
-
-    @MockBean
     private TrainingTypeDAO trainingTypeDAO;
-
-    @MockBean
     private ImageDAO imageDAO;
 
     private TrainingTypeRequest request;
@@ -50,11 +43,15 @@ class WhenCreateTrainingTypeTest {
         request.setDescription("Test description");
         request.setDuration("13:24:40.001");
 
+        trainingTypeDAO = mock(TrainingTypeDAO.class);
+        imageDAO = mock(ImageDAO.class);
+        trainingTypeService = new TrainingTypeServiceImpl(trainingTypeDAO, imageDAO);
+
         multipartFile = new MockMultipartFile(
                 "image",
                 "hello.png",
                 MediaType.IMAGE_PNG_VALUE,
-                "data".getBytes(StandardCharsets.UTF_8)
+                "data" .getBytes(StandardCharsets.UTF_8)
         );
     }
 

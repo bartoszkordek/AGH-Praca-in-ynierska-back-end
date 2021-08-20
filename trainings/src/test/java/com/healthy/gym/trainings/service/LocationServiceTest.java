@@ -2,16 +2,13 @@ package com.healthy.gym.trainings.service;
 
 import com.healthy.gym.trainings.data.document.LocationDocument;
 import com.healthy.gym.trainings.data.repository.LocationDAO;
+import com.healthy.gym.trainings.dto.LocationDTO;
 import com.healthy.gym.trainings.exception.duplicated.DuplicatedLocationNameException;
 import com.healthy.gym.trainings.exception.notfound.LocationNotFoundException;
 import com.healthy.gym.trainings.model.request.LocationRequest;
-import com.healthy.gym.trainings.dto.LocationDTO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 
 import java.util.List;
 import java.util.UUID;
@@ -19,16 +16,20 @@ import java.util.UUID;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-@SpringBootTest
+
 class LocationServiceTest {
 
-    @Autowired
     private LocationService locationService;
-
-    @MockBean
     private LocationDAO locationDAO;
+
+    @BeforeEach
+    void setUp() {
+        locationDAO = mock(LocationDAO.class);
+        locationService = new LocationServiceImpl(locationDAO);
+    }
 
     @Nested
     class WhenCreateLocation {

@@ -15,6 +15,7 @@ public class ImageValidatorImpl implements ImageValidator {
 
         String contentType = multipartFile.getContentType();
 
+        assert contentType != null;
         if (!contentType.equals(ContentType.IMAGE_JPEG.getMimeType())
                 && !contentType.equals(ContentType.IMAGE_PNG.getMimeType()))
             throw new UnsupportedDataTypeException();

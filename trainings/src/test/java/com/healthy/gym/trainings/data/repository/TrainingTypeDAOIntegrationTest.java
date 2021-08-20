@@ -6,8 +6,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.mongo.embedded.EmbeddedMongoAutoConfiguration;
 import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
+import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.MongoDBContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
@@ -22,11 +24,16 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @Testcontainers
 @DataMongoTest(excludeAutoConfiguration = EmbeddedMongoAutoConfiguration.class)
+@ActiveProfiles(value = "test")
 @Tags({@Tag("repository"), @Tag("integration")})
 class TrainingTypeDAOIntegrationTest {
     @Container
     static MongoDBContainer mongoDBContainer =
             new MongoDBContainer(DockerImageName.parse("mongo:4.4.4-bionic"));
+    @Container
+    static GenericContainer<?> rabbitMQContainer =
+            new GenericContainer<>(DockerImageName.parse("gza73/agh-praca-inzynierska-rabbitmq"))
+                    .withExposedPorts(5672);
     @Autowired
     private MongoTemplate mongoTemplate;
     @Autowired
@@ -37,6 +44,7 @@ class TrainingTypeDAOIntegrationTest {
     @DynamicPropertySource
     static void setProperties(DynamicPropertyRegistry registry) {
         registry.add("spring.data.mongodb.uri", mongoDBContainer::getReplicaSetUrl);
+        registry.add("spring.rabbitmq.port", rabbitMQContainer::getFirstMappedPort);
     }
 
     @BeforeEach

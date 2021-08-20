@@ -28,5 +28,6 @@ public interface TaskService {
             ReportAlreadySentException;
 
     TaskDTO verifyReport(String taskId, ManagerReportVerificationRequest managerReportVerificationRequest)
-        throws TaskNotFoundException, InvalidMarkException, TaskDeclinedByEmployeeException, ReportNotSentException;
+            throws TaskNotFoundException, InvalidMarkException, InvalidStatusException, TaskDeclinedByEmployeeException,
+            ReportNotSentException;
 }

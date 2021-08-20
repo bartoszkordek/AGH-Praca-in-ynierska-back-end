@@ -235,6 +235,14 @@ public class TaskController {
             String reason = translator.toLocale("exception.declined.employee");
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, exception);
 
+        } catch (DueDateExceedException exception){
+            String reason = translator.toLocale("exception.due.date.exceed");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, exception);
+
+        } catch (ReportAlreadySentException exception){
+            String reason = translator.toLocale("exception.already.sent.report");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, exception);
+
         } catch (Exception exception){
             String reason = translator.toLocale(INTERNAL_ERROR_EXCEPTION);
             exception.printStackTrace();

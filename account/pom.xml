@@ -49,7 +49,9 @@
         <java.version>11</java.version>
         <spring-cloud.version>Hoxton.SR10</spring-cloud.version>
         <docker-hub-repo>gza73/agh-praca-inzynierska</docker-hub-repo>
-        <spring-boot.build-image.imageName>${docker-hub-repo}-${project.artifactId}:latest</spring-boot.build-image.imageName>
+        <spring-boot.build-image.imageName>
+            ${docker-hub-repo}-${project.artifactId}:latest
+        </spring-boot.build-image.imageName>
     </properties>
 
     <dependencies>
@@ -130,6 +132,12 @@
             <groupId>org.testcontainers</groupId>
             <artifactId>mongodb</artifactId>
             <version>1.15.3</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.github.javafaker</groupId>
+            <artifactId>javafaker</artifactId>
+            <version>1.0.2</version>
             <scope>test</scope>
         </dependency>
         <dependency>

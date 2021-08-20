@@ -10,6 +10,7 @@ import com.healthy.gym.task.pojo.request.ManagerReportVerificationRequest;
 import com.healthy.gym.task.pojo.request.ManagerTaskCreationRequest;
 import com.healthy.gym.task.pojo.response.TaskResponse;
 import com.healthy.gym.task.service.TaskService;
+import com.healthy.gym.task.validation.ValidDateFormat;
 import com.healthy.gym.task.validation.ValidIDFormat;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -22,6 +23,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import javax.validation.Valid;
+import java.util.List;
 
 @RestController
 @RequestMapping(
@@ -301,6 +303,27 @@ public class TaskController {
 
         } catch (ReportNotSentException exception){
             String reason = translator.toLocale("exception.report.not.sent");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, exception);
+
+        } catch (Exception exception){
+            String reason = translator.toLocale(INTERNAL_ERROR_EXCEPTION);
+            exception.printStackTrace();
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, reason, exception);
+        }
+    }
+
+
+    @PreAuthorize("hasRole('ADMIN') or hasRole('MANAGER')")
+    @GetMapping
+    public List<TaskDTO> getTasks(
+            @ValidDateFormat @RequestParam(value = "startDueDate", required = false) final String startDueDate,
+            @ValidDateFormat @RequestParam(value = "startDueDate", required = false) final String endDueDate
+    ){
+        try{
+            return taskService.getTasks(startDueDate, endDueDate);
+
+        } catch (StartDateAfterEndDateException exception) {
+            String reason = translator.toLocale("exception.start.after.end");
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, exception);
 
         } catch (Exception exception){

@@ -20,6 +20,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -228,6 +229,11 @@ public class TaskServiceImpl implements TaskService{
 
         TaskDocument updatedTaskDocument = taskDAO.save(taskDocument);
         return modelMapper.map(updatedTaskDocument, TaskDTO.class);
+    }
+
+    @Override
+    public List<TaskDTO> getTasks(String startDueDate, String endDueDate) throws StartDateAfterEndDateException {
+        return null;
     }
 
 

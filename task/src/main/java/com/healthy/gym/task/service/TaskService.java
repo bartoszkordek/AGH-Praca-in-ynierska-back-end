@@ -7,6 +7,8 @@ import com.healthy.gym.task.pojo.request.EmployeeReportRequest;
 import com.healthy.gym.task.pojo.request.ManagerReportVerificationRequest;
 import com.healthy.gym.task.pojo.request.ManagerTaskCreationRequest;
 
+import java.util.List;
+
 public interface TaskService {
 
     TaskDTO createTask(ManagerTaskCreationRequest managerTaskCreationRequest)
@@ -30,4 +32,6 @@ public interface TaskService {
     TaskDTO verifyReport(String taskId, ManagerReportVerificationRequest managerReportVerificationRequest)
             throws TaskNotFoundException, InvalidMarkException, InvalidStatusException, TaskDeclinedByEmployeeException,
             ReportNotSentException;
+
+    List<TaskDTO> getTasks(String startDueDate, String endDueDate) throws StartDateAfterEndDateException;
 }

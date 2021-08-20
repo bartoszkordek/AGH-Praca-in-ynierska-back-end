@@ -198,6 +198,8 @@ public class CreateTaskControllerIntegrationTest {
                 .isEqualTo("Test task 1");
         assertThat(responseEntity.getBody().get("task").get("description").textValue())
                 .isEqualTo("Description for task 1");
+        assertThat(responseEntity.getBody().get("task").get("taskCreationDate").textValue())
+                .isEqualTo(LocalDate.now().toString());
         assertThat(responseEntity.getBody().get("task").get("lastTaskUpdateDate").textValue())
                 .isEqualTo(LocalDate.now().toString());
         assertThat(responseEntity.getBody().get("task").get("dueDate").textValue())
@@ -254,6 +256,8 @@ public class CreateTaskControllerIntegrationTest {
                 .isEqualTo("Test task 1");
         assertThat(responseEntity.getBody().get("task").get("description").textValue())
                 .isEqualTo("Description for task 1");
+        assertThat(responseEntity.getBody().get("task").get("taskCreationDate").textValue())
+                .isEqualTo(LocalDate.now().toString());
         assertThat(responseEntity.getBody().get("task").get("lastTaskUpdateDate").textValue())
                 .isEqualTo(LocalDate.now().toString());
         assertThat(responseEntity.getBody().get("task").get("dueDate").textValue())

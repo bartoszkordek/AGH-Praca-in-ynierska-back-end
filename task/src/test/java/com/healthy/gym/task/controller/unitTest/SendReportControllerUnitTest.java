@@ -38,7 +38,6 @@ import static com.healthy.gym.task.configuration.Messages.getMessagesAccordingTo
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.ResultMatcher.matchAll;
@@ -135,7 +134,8 @@ public class SendReportControllerUnitTest {
         BasicUserInfoDTO employee = new BasicUserInfoDTO(employeeId, employeeName, employeeSurname);
         String title = "Test task 1";
         String description = "Description for task 1";
-        LocalDate lastOrderUpdateDate = now.minusMonths(1);
+        LocalDate taskCreationDate = now.minusMonths(1);
+        LocalDate lastTaskUpdateDate = now;
         LocalDate dueDate = now.plusMonths(1);
         LocalDate reportDate = now;
         AcceptanceStatus employeeAccept = AcceptanceStatus.ACCEPTED;
@@ -149,8 +149,8 @@ public class SendReportControllerUnitTest {
                 title,
                 description,
                 report,
-                null,
-                lastOrderUpdateDate,
+                taskCreationDate,
+                lastTaskUpdateDate,
                 dueDate,
                 null,
                 reportDate,
@@ -186,8 +186,8 @@ public class SendReportControllerUnitTest {
                         jsonPath("$.task.title").value(is(title)),
                         jsonPath("$.task.description").value(is(description)),
                         jsonPath("$.task.report").value(is(report)),
-                        jsonPath("$.task.orderDate").doesNotExist(),
-                        jsonPath("$.task.lastTaskUpdateDate").value(is(lastOrderUpdateDate.toString())),
+                        jsonPath("$.task.taskCreationDate").value(is(taskCreationDate.toString())),
+                        jsonPath("$.task.lastTaskUpdateDate").value(is(lastTaskUpdateDate.toString())),
                         jsonPath("$.task.dueDate").value(is(dueDate.toString())),
                         jsonPath("$.task.reportDate").value(is(reportDate.toString())),
                         jsonPath("$.task.employeeAccept").value(is(employeeAccept.toString())),
@@ -399,9 +399,9 @@ public class SendReportControllerUnitTest {
                     .contentType(MediaType.APPLICATION_JSON);
 
 
-            String expectedMessage = messages.get("exception.declined.employee");
+            String expectedMessage = messages.get("exception.task.not.found");
 
-            doThrow(TaskDeclinedByEmployeeException.class)
+            doThrow(TaskNotFoundException.class)
                     .when(taskService)
                     .sendReport(declinedTaskId, employeeId, employeeReportRequest);
 
@@ -411,7 +411,7 @@ public class SendReportControllerUnitTest {
                     .andExpect(status().reason(is(expectedMessage)))
                     .andExpect(result ->
                             Assertions.assertThat(Objects.requireNonNull(result.getResolvedException()).getCause())
-                                    .isInstanceOf(TaskDeclinedByEmployeeException.class)
+                                    .isInstanceOf(TaskNotFoundException.class)
                     );
         }
 

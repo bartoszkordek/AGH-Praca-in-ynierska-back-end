@@ -173,6 +173,7 @@ public class UpdateTaskControllerIntegrationTest {
         taskDocument.setEmployee(employeeDocument1);
         taskDocument.setTitle("Title 1");
         taskDocument.setDescription("Description 1");
+        taskDocument.setTaskCreationDate(LocalDate.now().minusMonths(1));
         taskDocument.setDueDate(LocalDate.now().plusMonths(1));
         taskDocument.setLastTaskUpdateDate(LocalDate.now());
         taskDocument.setEmployeeAccept(AcceptanceStatus.NO_ACTION);
@@ -227,6 +228,8 @@ public class UpdateTaskControllerIntegrationTest {
                 .isEqualTo("Updated test task 1");
         assertThat(responseEntity.getBody().get("task").get("description").textValue())
                 .isEqualTo("Updated description for task 1");
+        assertThat(responseEntity.getBody().get("task").get("taskCreationDate").textValue())
+                .isEqualTo(LocalDate.now().minusMonths(1).toString());
         assertThat(responseEntity.getBody().get("task").get("lastTaskUpdateDate").textValue())
                 .isEqualTo(LocalDate.now().toString());
         assertThat(responseEntity.getBody().get("task").get("dueDate").textValue())
@@ -281,6 +284,8 @@ public class UpdateTaskControllerIntegrationTest {
                 .isEqualTo("Updated test task 1");
         assertThat(responseEntity.getBody().get("task").get("description").textValue())
                 .isEqualTo("Updated description for task 1");
+        assertThat(responseEntity.getBody().get("task").get("taskCreationDate").textValue())
+                .isEqualTo(LocalDate.now().minusMonths(1).toString());
         assertThat(responseEntity.getBody().get("task").get("lastTaskUpdateDate").textValue())
                 .isEqualTo(LocalDate.now().toString());
         assertThat(responseEntity.getBody().get("task").get("dueDate").textValue())

@@ -86,6 +86,7 @@ public class CreateTaskServiceUnitTest {
         taskDocument.setEmployee(employeeDocument);
         taskDocument.setTitle(title);
         taskDocument.setDescription(description);
+        taskDocument.setTaskCreationDate(now);
         taskDocument.setLastTaskUpdateDate(now);
         taskDocument.setDueDate(dueDate);
         taskDocument.setEmployeeAccept(AcceptanceStatus.NO_ACTION);
@@ -99,7 +100,7 @@ public class CreateTaskServiceUnitTest {
                 title,
                 description,
                 null,
-                null,
+                now,
                 now,
                 dueDate,
                 null,

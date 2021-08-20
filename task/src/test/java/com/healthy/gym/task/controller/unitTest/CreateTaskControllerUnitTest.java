@@ -128,7 +128,8 @@ public class CreateTaskControllerUnitTest {
         BasicUserInfoDTO employee = new BasicUserInfoDTO(employeeId, employeeName, employeeSurname);
         String title = "Test task 1";
         String description = "Description for task 1";
-        LocalDate lastOrderUpdateDate = now;
+        LocalDate taskCreationDate = now;
+        LocalDate lastTaskUpdateDate = now;
         LocalDate dueDate = now.plusMonths(1);
         AcceptanceStatus employeeAccept = AcceptanceStatus.NO_ACTION;
         AcceptanceStatus managerAccept = AcceptanceStatus.NO_ACTION;
@@ -140,8 +141,8 @@ public class CreateTaskControllerUnitTest {
                 title,
                 description,
                 null,
-                null,
-                lastOrderUpdateDate,
+                taskCreationDate,
+                lastTaskUpdateDate,
                 dueDate,
                 null,
                 null,
@@ -177,8 +178,8 @@ public class CreateTaskControllerUnitTest {
                         jsonPath("$.task.title").value(is(title)),
                         jsonPath("$.task.description").value(is(description)),
                         jsonPath("$.task.report").doesNotExist(),
-                        jsonPath("$.task.orderDate").doesNotExist(),
-                        jsonPath("$.task.lastTaskUpdateDate").value(is(lastOrderUpdateDate.toString())),
+                        jsonPath("$.task.taskCreationDate").value(is(taskCreationDate.toString())),
+                        jsonPath("$.task.lastTaskUpdateDate").value(is(lastTaskUpdateDate.toString())),
                         jsonPath("$.task.dueDate").value(is(dueDate.toString())),
                         jsonPath("$.task.reportDate").doesNotExist(),
                         jsonPath("$.task.employeeAccept").value(is(employeeAccept.toString())),

@@ -22,7 +22,7 @@ public class TaskDocument {
     private String title;
     private String description;
     private String report;
-    private LocalDate orderDate;
+    private LocalDate taskCreationDate;
     private LocalDate lastTaskUpdateDate;
     private LocalDate dueDate;
     private LocalDate reminderDate;
@@ -61,8 +61,8 @@ public class TaskDocument {
         return report;
     }
 
-    public LocalDate getOrderDate() {
-        return orderDate;
+    public LocalDate getTaskCreationDate() {
+        return taskCreationDate;
     }
 
     public LocalDate getLastTaskUpdateDate() {
@@ -129,8 +129,8 @@ public class TaskDocument {
         this.report = report;
     }
 
-    public void setOrderDate(LocalDate orderDate) {
-        this.orderDate = orderDate;
+    public void setTaskCreationDate(LocalDate taskCreationDate) {
+        this.taskCreationDate = taskCreationDate;
     }
 
     public void setLastTaskUpdateDate(LocalDate lastTaskUpdateDate) {
@@ -179,7 +179,7 @@ public class TaskDocument {
                 ", title='" + title + '\'' +
                 ", description='" + description + '\'' +
                 ", report='" + report + '\'' +
-                ", orderDate=" + orderDate +
+                ", taskCreationDate=" + taskCreationDate +
                 ", lastTaskUpdateDate=" + lastTaskUpdateDate +
                 ", dueDate=" + dueDate +
                 ", reminderDate=" + reminderDate +
@@ -205,7 +205,7 @@ public class TaskDocument {
                 Objects.equals(title, that.title) &&
                 Objects.equals(description, that.description) &&
                 Objects.equals(report, that.report) &&
-                Objects.equals(orderDate, that.orderDate) &&
+                Objects.equals(taskCreationDate, that.taskCreationDate) &&
                 Objects.equals(lastTaskUpdateDate, that.lastTaskUpdateDate) &&
                 Objects.equals(dueDate, that.dueDate) &&
                 Objects.equals(reminderDate, that.reminderDate) &&
@@ -226,7 +226,7 @@ public class TaskDocument {
                 title,
                 description,
                 report,
-                orderDate,
+                taskCreationDate,
                 lastTaskUpdateDate,
                 dueDate,
                 reminderDate,

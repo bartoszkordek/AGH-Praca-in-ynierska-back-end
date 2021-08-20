@@ -18,7 +18,7 @@ public class TaskDTO {
     private String title;
     private String description;
     private String report;
-    private LocalDate orderDate;
+    private LocalDate taskCreationDate;
     private LocalDate lastTaskUpdateDate;
     private LocalDate dueDate;
     private LocalDate reminderDate;
@@ -38,7 +38,7 @@ public class TaskDTO {
             String title,
             String description,
             String report,
-            LocalDate orderDate,
+            LocalDate taskCreationDate,
             LocalDate lastTaskUpdateDate,
             LocalDate dueDate,
             LocalDate reminderDate,
@@ -55,7 +55,7 @@ public class TaskDTO {
         this.title = title;
         this.description = description;
         this.report = report;
-        this.orderDate = orderDate;
+        this.taskCreationDate = taskCreationDate;
         this.lastTaskUpdateDate = lastTaskUpdateDate;
         this.dueDate = dueDate;
         this.reminderDate = reminderDate;
@@ -92,8 +92,8 @@ public class TaskDTO {
         return report;
     }
 
-    public LocalDate getOrderDate() {
-        return orderDate;
+    public LocalDate getTaskCreationDate() {
+        return taskCreationDate;
     }
 
     public LocalDate getLastTaskUpdateDate() {
@@ -156,8 +156,8 @@ public class TaskDTO {
         this.report = report;
     }
 
-    public void setOrderDate(LocalDate orderDate) {
-        this.orderDate = orderDate;
+    public void setTaskCreationDate(LocalDate taskCreationDate) {
+        this.taskCreationDate = taskCreationDate;
     }
 
     public void setLastTaskUpdateDate(LocalDate lastTaskUpdateDate) {
@@ -205,7 +205,7 @@ public class TaskDTO {
                 ", title='" + title + '\'' +
                 ", description='" + description + '\'' +
                 ", report='" + report + '\'' +
-                ", orderDate=" + orderDate +
+                ", taskCreationDate=" + taskCreationDate +
                 ", lastTaskUpdateDate=" + lastTaskUpdateDate +
                 ", dueDate=" + dueDate +
                 ", reminderDate=" + reminderDate +
@@ -230,7 +230,7 @@ public class TaskDTO {
                 Objects.equals(title, taskDTO.title) &&
                 Objects.equals(description, taskDTO.description) &&
                 Objects.equals(report, taskDTO.report) &&
-                Objects.equals(orderDate, taskDTO.orderDate) &&
+                Objects.equals(taskCreationDate, taskDTO.taskCreationDate) &&
                 Objects.equals(lastTaskUpdateDate, taskDTO.lastTaskUpdateDate) &&
                 Objects.equals(dueDate, taskDTO.dueDate) &&
                 Objects.equals(reminderDate, taskDTO.reminderDate) &&
@@ -250,7 +250,7 @@ public class TaskDTO {
                 title,
                 description,
                 report,
-                orderDate,
+                taskCreationDate,
                 lastTaskUpdateDate,
                 dueDate,
                 reminderDate,

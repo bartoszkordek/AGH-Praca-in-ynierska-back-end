@@ -85,6 +85,7 @@ public class AcceptDeclineTaskByEmployeeServiceTest {
         taskDocumentToBeUpdated.setEmployee(employeeDocument);
         taskDocumentToBeUpdated.setTitle(title);
         taskDocumentToBeUpdated.setDescription(description);
+        taskDocumentToBeUpdated.setTaskCreationDate(now.minusMonths(1));
         taskDocumentToBeUpdated.setLastTaskUpdateDate(now);
         taskDocumentToBeUpdated.setDueDate(dueDate);
         taskDocumentToBeUpdated.setEmployeeAccept(AcceptanceStatus.NO_ACTION);
@@ -96,6 +97,7 @@ public class AcceptDeclineTaskByEmployeeServiceTest {
         taskDocumentUpdated.setEmployee(employeeDocument);
         taskDocumentUpdated.setTitle(title);
         taskDocumentUpdated.setDescription(description);
+        taskDocumentUpdated.setTaskCreationDate(now.minusMonths(1));
         taskDocumentUpdated.setLastTaskUpdateDate(now);
         taskDocumentUpdated.setDueDate(dueDate);
         taskDocumentUpdated.setEmployeeAccept(AcceptanceStatus.ACCEPTED);
@@ -111,7 +113,7 @@ public class AcceptDeclineTaskByEmployeeServiceTest {
                 title,
                 description,
                 null,
-                null,
+                now.minusMonths(1),
                 now,
                 dueDate,
                 null,

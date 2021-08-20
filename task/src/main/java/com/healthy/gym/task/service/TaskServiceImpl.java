@@ -72,6 +72,7 @@ public class TaskServiceImpl implements TaskService{
         taskDocumentToBeSaved.setEmployee(employeeDocument);
         taskDocumentToBeSaved.setTitle(title);
         taskDocumentToBeSaved.setDescription(description);
+        taskDocumentToBeSaved.setTaskCreationDate(now);
         taskDocumentToBeSaved.setLastTaskUpdateDate(now);
         taskDocumentToBeSaved.setDueDate(parsedDueDate);
         taskDocumentToBeSaved.setEmployeeAccept(AcceptanceStatus.NO_ACTION);

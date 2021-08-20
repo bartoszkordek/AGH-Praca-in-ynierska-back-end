@@ -91,7 +91,7 @@ public class SendReportServiceUnitTest {
         taskDocumentReportToSend.setEmployee(employeeDocument);
         taskDocumentReportToSend.setTitle(title);
         taskDocumentReportToSend.setDescription(description);
-        taskDocumentReportToSend.setOrderDate(lastTaskUpdateDate);
+        taskDocumentReportToSend.setTaskCreationDate(lastTaskUpdateDate);
         taskDocumentReportToSend.setLastTaskUpdateDate(lastTaskUpdateDate);
         taskDocumentReportToSend.setDueDate(dueDate);
         taskDocumentReportToSend.setEmployeeAccept(AcceptanceStatus.NO_ACTION);
@@ -103,7 +103,7 @@ public class SendReportServiceUnitTest {
         declinedTaskDocument.setEmployee(employeeDocument);
         declinedTaskDocument.setTitle(title);
         declinedTaskDocument.setDescription(description);
-        declinedTaskDocument.setOrderDate(lastTaskUpdateDate);
+        declinedTaskDocument.setTaskCreationDate(lastTaskUpdateDate);
         declinedTaskDocument.setLastTaskUpdateDate(lastTaskUpdateDate);
         declinedTaskDocument.setDueDate(dueDate);
         declinedTaskDocument.setEmployeeAccept(AcceptanceStatus.NOT_ACCEPTED);
@@ -115,7 +115,7 @@ public class SendReportServiceUnitTest {
         taskDocumentWithReport.setEmployee(employeeDocument);
         taskDocumentWithReport.setTitle(title);
         taskDocumentWithReport.setDescription(description);
-        taskDocumentWithReport.setOrderDate(lastTaskUpdateDate);
+        taskDocumentWithReport.setTaskCreationDate(lastTaskUpdateDate);
         taskDocumentWithReport.setLastTaskUpdateDate(now);
         taskDocumentWithReport.setDueDate(dueDate);
         taskDocumentWithReport.setEmployeeAccept(AcceptanceStatus.ACCEPTED);

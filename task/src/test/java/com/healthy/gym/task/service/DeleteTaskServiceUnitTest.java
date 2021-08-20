@@ -75,6 +75,7 @@ class DeleteTaskServiceUnitTest {
         taskDocumentToRemove.setEmployee(employeeDocument);
         taskDocumentToRemove.setTitle(title);
         taskDocumentToRemove.setDescription(description);
+        taskDocumentToRemove.setTaskCreationDate(now.minusMonths(1));
         taskDocumentToRemove.setLastTaskUpdateDate(now);
         taskDocumentToRemove.setDueDate(dueDate);
         taskDocumentToRemove.setEmployeeAccept(AcceptanceStatus.NO_ACTION);
@@ -89,7 +90,7 @@ class DeleteTaskServiceUnitTest {
                 title,
                 description,
                 null,
-                null,
+                now.minusMonths(1),
                 now,
                 dueDate,
                 null,

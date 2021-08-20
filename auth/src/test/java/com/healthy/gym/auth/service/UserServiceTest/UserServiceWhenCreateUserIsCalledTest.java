@@ -1,17 +1,17 @@
 package com.healthy.gym.auth.service.UserServiceTest;
 
+import com.healthy.gym.auth.data.document.NotificationDocument;
 import com.healthy.gym.auth.data.document.UserDocument;
 import com.healthy.gym.auth.data.repository.mongo.UserDAO;
 import com.healthy.gym.auth.data.repository.mongo.UserPrivacyDAO;
 import com.healthy.gym.auth.enums.GymRole;
+import com.healthy.gym.auth.service.NotificationService;
 import com.healthy.gym.auth.service.UserService;
+import com.healthy.gym.auth.service.UserServiceImpl;
 import com.healthy.gym.auth.shared.UserDTO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.util.HashSet;
@@ -20,28 +20,32 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-@SpringBootTest
 class UserServiceWhenCreateUserIsCalledTest {
 
     private UserDTO savedUserDTO;
     private UserDTO andrzejNowakDTO;
 
-    @Autowired
-    private UserService userService;
-
-    @Autowired
     private BCryptPasswordEncoder bCryptPasswordEncoder;
-
-    @MockBean
-    private UserDAO userDAO;
-
-    @MockBean
-    private UserPrivacyDAO userPrivacyDAO;
 
     @BeforeEach
     void setUp() {
+
+        UserDAO userDAO = mock(UserDAO.class);
+        UserPrivacyDAO userPrivacyDAO = mock(UserPrivacyDAO.class);
+        NotificationService notificationService = mock(NotificationService.class);
+        bCryptPasswordEncoder = new BCryptPasswordEncoder();
+
+        UserService userService = new UserServiceImpl(
+                userDAO,
+                userPrivacyDAO,
+                bCryptPasswordEncoder,
+                null,
+                null,
+                notificationService
+        );
 
         andrzejNowakDTO = new UserDTO(
                 null,
@@ -71,6 +75,7 @@ class UserServiceWhenCreateUserIsCalledTest {
         when(userDAO.save(Mockito.any(UserDocument.class)))
                 .thenReturn(andrzejNowak);
         when(userPrivacyDAO.save(any())).thenReturn(null);
+        when(notificationService.createWelcomeNotification(any())).thenReturn(new NotificationDocument());
 
         savedUserDTO = userService.createUser(andrzejNowakDTO);
     }

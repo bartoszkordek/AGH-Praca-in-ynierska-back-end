@@ -28,6 +28,12 @@ public class UserDocument {
         //empty constructor required spring data mapper
     }
 
+    public UserDocument(String name, String surname, String email) {
+        this.name = name;
+        this.surname = surname;
+        this.email = email;
+    }
+
     public UserDocument(
             String name,
             String surname,

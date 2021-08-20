@@ -35,6 +35,7 @@ public class UserServiceImpl implements UserService {
     private final ModelMapper modelMapper;
     private final ApplicationEventPublisher applicationEventPublisher;
     private final TokenService tokenService;
+    private final NotificationService notificationService;
 
     @Autowired
     public UserServiceImpl(
@@ -42,13 +43,15 @@ public class UserServiceImpl implements UserService {
             UserPrivacyDAO userPrivacyDAO,
             BCryptPasswordEncoder bCryptPasswordEncoder,
             ApplicationEventPublisher applicationEventPublisher,
-            TokenService tokenService
+            TokenService tokenService,
+            NotificationService notificationService
     ) {
         this.userDAO = userDAO;
         this.userPrivacyDAO = userPrivacyDAO;
         this.bCryptPasswordEncoder = bCryptPasswordEncoder;
         this.applicationEventPublisher = applicationEventPublisher;
         this.tokenService = tokenService;
+        this.notificationService = notificationService;
         modelMapper = new ModelMapper();
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
     }
@@ -81,6 +84,7 @@ public class UserServiceImpl implements UserService {
         );
 
         userPrivacyDAO.save(userPrivacyDocument);
+        notificationService.createWelcomeNotification(userDocumentSaved);
 
         return modelMapper.map(userDocumentSaved, UserDTO.class);
     }

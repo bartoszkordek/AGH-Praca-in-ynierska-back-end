@@ -74,6 +74,7 @@ public class SendReportControllerIntegrationTest {
 
     private String requestContent;
     private String emptyRequestContent;
+    private String invalidRequestContent;
     private ObjectMapper objectMapper;
 
     @DynamicPropertySource
@@ -109,6 +110,10 @@ public class SendReportControllerIntegrationTest {
 
         EmployeeReportRequest emptyEmployeeReportRequest = new EmployeeReportRequest();
         emptyRequestContent = objectMapper.writeValueAsString(emptyEmployeeReportRequest);
+
+        EmployeeReportRequest invalidEmployeeReportRequest = new EmployeeReportRequest();
+        invalidEmployeeReportRequest.setResult("R");
+        invalidRequestContent = objectMapper.writeValueAsString(invalidEmployeeReportRequest);
 
         //existing DB docs
         String employeeName = "Jan";
@@ -225,15 +230,14 @@ public class SendReportControllerIntegrationTest {
 
         @Nested
         class BindException{
+
             @ParameterizedTest
             @EnumSource(TestCountry.class)
             void shouldNotSendReport_whenEmptyRequestContent(TestCountry country) throws Exception {
                 Map<String, String> messages = getMessagesAccordingToLocale(country);
                 Locale testedLocale = convertEnumToLocale(country);
 
-                String notFoundTaskId = UUID.randomUUID().toString();
-
-                URI uri = new URI("http://localhost:" + port + "/"+ notFoundTaskId+"/employee/"+employeeId+"/report");
+                URI uri = new URI("http://localhost:" + port + "/"+ taskId+"/employee/"+employeeId+"/report");
 
                 HttpHeaders headers = new HttpHeaders();
                 headers.set("Accept-Language", testedLocale.toString());
@@ -254,6 +258,35 @@ public class SendReportControllerIntegrationTest {
                 assertThat(responseEntity.getBody().get("errors")).isNotNull();
                 assertThat(responseEntity.getBody().get("errors").get("result").textValue())
                         .isEqualTo(messages.get("field.required"));
+            }
+
+            @ParameterizedTest
+            @EnumSource(TestCountry.class)
+            void shouldNotSendReport_whenInvalidRequestContent(TestCountry country) throws Exception {
+                Map<String, String> messages = getMessagesAccordingToLocale(country);
+                Locale testedLocale = convertEnumToLocale(country);
+
+                URI uri = new URI("http://localhost:" + port + "/"+ taskId+"/employee/"+employeeId+"/report");
+
+                HttpHeaders headers = new HttpHeaders();
+                headers.set("Accept-Language", testedLocale.toString());
+                headers.set("Authorization", employeeToken);
+                headers.setContentType(MediaType.APPLICATION_JSON);
+
+                HttpEntity<Object> request = new HttpEntity<>(invalidRequestContent, headers);
+                String expectedMessage = messages.get("request.bind.exception");
+
+                ResponseEntity<JsonNode> responseEntity = restTemplate
+                        .exchange(uri, HttpMethod.PUT, request, JsonNode.class);
+
+                assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+                assertThat(responseEntity.getBody().get("error").textValue()).isEqualTo("Bad Request");
+                assertThat(Objects.requireNonNull(responseEntity.getBody().get("message").textValue()))
+                        .isEqualTo(expectedMessage);
+                assertThat(responseEntity.getBody().get("timestamp")).isNotNull();
+                assertThat(responseEntity.getBody().get("errors")).isNotNull();
+                assertThat(responseEntity.getBody().get("errors").get("result").textValue())
+                        .isEqualTo(messages.get("field.result.failure"));
             }
         }
 

@@ -25,7 +25,6 @@ import org.springframework.http.*;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
-import org.springframework.test.context.TestPropertySource;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.testcontainers.containers.GenericContainer;
@@ -51,10 +50,6 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 @Testcontainers
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@TestPropertySource(properties = {
-        "eureka.client.fetch-registry=false",
-        "eureka.client.register-with-eureka=false"
-})
 @ActiveProfiles(value = "test")
 @Tag("integration")
 class WhenUpdateTrainingTypeByIdIntegrationTest {
@@ -98,7 +93,7 @@ class WhenUpdateTrainingTypeByIdIntegrationTest {
         adminToken = tokenFactory.getAdminToken(adminId);
 
         imageResource = new ClassPathResource("testImages/shiba_inu_smile_1.jpg");
-        updatedImageResource= new ClassPathResource("testImages/shiba_inu_smile_2.jpg");
+        updatedImageResource = new ClassPathResource("testImages/shiba_inu_smile_2.jpg");
 
         ImageDocument imageDocument = new ImageDocument(
                 UUID.randomUUID().toString(),

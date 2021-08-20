@@ -4,6 +4,7 @@ import com.healthy.gym.task.component.Translator;
 import com.healthy.gym.task.dto.TaskDTO;
 import com.healthy.gym.task.enums.AcceptanceStatus;
 import com.healthy.gym.task.exception.*;
+import com.healthy.gym.task.pojo.request.EmployeeAcceptDeclineTaskRequest;
 import com.healthy.gym.task.pojo.request.EmployeeReportRequest;
 import com.healthy.gym.task.pojo.request.ManagerOrderRequest;
 import com.healthy.gym.task.pojo.response.TaskResponse;
@@ -156,15 +157,19 @@ public class TaskController {
 
 
     @PreAuthorize("principal==#userId")
-    @PutMapping("/{taskId}/employee/{userId}/status/{status}")
+    @PutMapping("/{taskId}/employee/{userId}/approvalStatus")
     public ResponseEntity<TaskResponse> acceptDeclineTaskByEmployee(
             @PathVariable("taskId") @ValidIDFormat final String taskId,
             @PathVariable("userId") @ValidIDFormat final String userId,
-            @PathVariable("status") final String status
-    ){
+            @Valid @RequestBody final EmployeeAcceptDeclineTaskRequest request,
+            final BindingResult bindingResult
+    ) throws RequestBindException {
+
         try{
+            if (bindingResult.hasErrors()) throw new BindException(bindingResult);
+
             String message;
-            TaskDTO taskDTO = taskService.acceptDeclineTaskByEmployee(taskId, userId, status);
+            TaskDTO taskDTO = taskService.acceptDeclineTaskByEmployee(taskId, userId, request);
             AcceptanceStatus taskStatus = taskDTO.getEmployeeAccept();
             if(taskStatus.equals(AcceptanceStatus.ACCEPTED)){
                 message = translator.toLocale("task.approved.employee");
@@ -175,6 +180,10 @@ public class TaskController {
             return ResponseEntity
                     .status(HttpStatus.OK)
                     .body(new TaskResponse(message, taskDTO));
+
+        } catch (BindException exception) {
+            String reason = translator.toLocale("request.bind.exception");
+            throw new RequestBindException(HttpStatus.BAD_REQUEST, reason, exception);
 
         } catch (TaskNotFoundException exception){
             String reason = translator.toLocale("exception.task.not.found");

@@ -29,6 +29,7 @@ public class Messages {
                 {"field.title.failure", "Tytuł powinnien mieć od 2 do 20 znaków."},
                 {"field.description.failure", "Opis powinnien mieć od 2 do 200 znaków."},
                 {"field.result.failure", "Rezultat powinnien mieć od 2 do 500 znaków."},
+                {"field.employee.comment", "Komentarz powinnien mieć od 2 do 200 znaków."},
                 {"exception.invalid.id.format", "Nieprawidłowy format id. Zastosuj format UUID."},
                 {"exception.invalid.date.format", "Nieprawidłowy format daty. Zastosuj format 'YYYY-MM-dd'."},
                 {"exception.invalid.date.time.format", "Nieprawidłowy format daty i czasu. Zastosuj format 'YYYY-MM-dd'T'HH:mm'."}
@@ -60,6 +61,7 @@ public class Messages {
                 {"field.title.failure", "The title should be 2 to 20 characters long."},
                 {"field.description.failure", "The description should be 2 to 200 characters long."},
                 {"field.result.failure", "The result should be 2 to 500 characters long."},
+                {"field.employee.comment", "The comment should be 2 to 200 characters long."},
                 {"exception.invalid.id.format", "Invalid id format. Use UUID format."},
                 {"exception.invalid.date.format", "Invalid date format. Use the 'YYYY-MM-dd' format."},
                 {"exception.invalid.date.time.format", "Invalid date and time format. Use the 'YYYY-MM-dd'T'HH:mm' format."}

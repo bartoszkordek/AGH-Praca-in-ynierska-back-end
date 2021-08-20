@@ -9,6 +9,7 @@ import com.healthy.gym.task.enums.AcceptanceStatus;
 import com.healthy.gym.task.enums.GymRole;
 import com.healthy.gym.task.enums.Priority;
 import com.healthy.gym.task.exception.*;
+import com.healthy.gym.task.pojo.request.EmployeeAcceptDeclineTaskRequest;
 import com.healthy.gym.task.pojo.request.EmployeeReportRequest;
 import com.healthy.gym.task.pojo.request.ManagerOrderRequest;
 import org.modelmapper.ModelMapper;
@@ -138,12 +139,17 @@ public class TaskServiceImpl implements TaskService{
     }
 
     @Override
-    public TaskDTO acceptDeclineTaskByEmployee(String taskId, String userId, String status)
-            throws TaskNotFoundException, EmployeeNotFoundException, InvalidStatusException {
+    public TaskDTO acceptDeclineTaskByEmployee(
+            String taskId,
+            String userId,
+            EmployeeAcceptDeclineTaskRequest employeeAcceptDeclineTaskRequest
+    ) throws TaskNotFoundException, EmployeeNotFoundException, InvalidStatusException {
 
         TaskDocument taskDocumentToBeUpdated = getTaskDocument(taskId);
 
         UserDocument employeeDocument = getEmployeeOrTrainerDocument(userId);
+
+        String status = employeeAcceptDeclineTaskRequest.getAcceptanceStatus();
 
         if(!status.equalsIgnoreCase(ACCEPT_STATUS) && !status.equalsIgnoreCase(DECLINE_STATUS))
             throw new InvalidStatusException();
@@ -153,6 +159,9 @@ public class TaskServiceImpl implements TaskService{
 
         if(status.equalsIgnoreCase(DECLINE_STATUS))
             taskDocumentToBeUpdated.setEmployeeAccept(AcceptanceStatus.NOT_ACCEPTED);
+
+        String employeeComment = employeeAcceptDeclineTaskRequest.getEmployeeComment();
+        taskDocumentToBeUpdated.setEmployeeComment(employeeComment);
 
         TaskDocument updatedTaskDocument = taskDAO.save(taskDocumentToBeUpdated);
         return modelMapper.map(updatedTaskDocument, TaskDTO.class);

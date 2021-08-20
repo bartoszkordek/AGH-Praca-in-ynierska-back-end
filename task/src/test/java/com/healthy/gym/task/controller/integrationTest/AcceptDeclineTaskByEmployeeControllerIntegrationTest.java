@@ -8,6 +8,7 @@ import com.healthy.gym.task.data.document.TaskDocument;
 import com.healthy.gym.task.data.document.UserDocument;
 import com.healthy.gym.task.enums.AcceptanceStatus;
 import com.healthy.gym.task.enums.GymRole;
+import com.healthy.gym.task.pojo.request.EmployeeAcceptDeclineTaskRequest;
 import com.healthy.gym.task.pojo.request.ManagerOrderRequest;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -27,6 +28,8 @@ import org.springframework.test.context.TestPropertySource;
 import org.testcontainers.containers.MongoDBContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
+import org.testcontainers.shaded.com.fasterxml.jackson.core.JsonProcessingException;
+import org.testcontainers.shaded.com.fasterxml.jackson.databind.ObjectMapper;
 import org.testcontainers.utility.DockerImageName;
 
 import java.net.URI;
@@ -73,13 +76,21 @@ public class AcceptDeclineTaskByEmployeeControllerIntegrationTest {
     private String approvedTaskDocumentId;
     private String taskForTrainerDocumentId;
 
+    private ObjectMapper objectMapper;
+
+    private String validAcceptedTaskRequestContent;
+    private String validDeclinedTaskRequestContent;
+    private String invalidTaskRequestInvalidEmployeeCommentRequestContent;
+    private String invalidTaskRequestInvalidAcceptanceStatusRequestContent;
+    private String invalidTaskRequestMissingRequestDataRequestContent;
+
     @DynamicPropertySource
     static void setProperties(DynamicPropertyRegistry registry) {
         registry.add("spring.data.mongodb.uri", mongoDBContainer::getReplicaSetUrl);
     }
 
     @BeforeEach
-    void setUp(){
+    void setUp() throws JsonProcessingException {
 
         userId = UUID.randomUUID().toString();
         userToken = tokenFactory.getUserToken(userId);
@@ -97,6 +108,49 @@ public class AcceptDeclineTaskByEmployeeControllerIntegrationTest {
         adminToken = tokenFactory.getAdminToken(adminId);
 
         taskId = UUID.randomUUID().toString();
+
+        //requests
+        objectMapper = new ObjectMapper();
+
+        String requestAcceptanceStatusAccept = "approve";
+        String requestEmployeeCommentAccept = "I accept this task";
+
+        String requestAcceptanceStatusDecline = "DECLINE";
+        String requestEmployeeCommentDecline = "I decline this task";
+
+        String requestInvalidAcceptanceStatus = "INVALID_ACCEPTANCE_STATUS";
+        String requestInvalidEmployeeComment = "C";
+
+        //valid request - accepted task
+        EmployeeAcceptDeclineTaskRequest validAcceptTaskRequest = new EmployeeAcceptDeclineTaskRequest();
+        validAcceptTaskRequest.setAcceptanceStatus(requestAcceptanceStatusAccept);
+        validAcceptTaskRequest.setEmployeeComment(requestEmployeeCommentAccept);
+        validAcceptedTaskRequestContent = objectMapper.writeValueAsString(validAcceptTaskRequest);
+
+        //valid request - declined task
+        EmployeeAcceptDeclineTaskRequest validDeclineTaskRequest = new EmployeeAcceptDeclineTaskRequest();
+        validDeclineTaskRequest.setAcceptanceStatus(requestAcceptanceStatusDecline);
+        validDeclineTaskRequest.setEmployeeComment(requestEmployeeCommentDecline);
+        validDeclinedTaskRequestContent = objectMapper.writeValueAsString(validDeclineTaskRequest);
+
+        //invalid request - invalid employee comment
+        EmployeeAcceptDeclineTaskRequest invalidTaskRequestInvalidEmployeeComment = new EmployeeAcceptDeclineTaskRequest();
+        invalidTaskRequestInvalidEmployeeComment.setAcceptanceStatus(requestAcceptanceStatusAccept);
+        invalidTaskRequestInvalidEmployeeComment.setEmployeeComment(requestInvalidEmployeeComment);
+        invalidTaskRequestInvalidEmployeeCommentRequestContent = objectMapper
+                .writeValueAsString(invalidTaskRequestInvalidEmployeeComment);
+
+        //invalid request - invalid acceptance status
+        EmployeeAcceptDeclineTaskRequest invalidTaskRequestInvalidAcceptanceStatus = new EmployeeAcceptDeclineTaskRequest();
+        invalidTaskRequestInvalidAcceptanceStatus.setAcceptanceStatus(requestInvalidAcceptanceStatus);
+        invalidTaskRequestInvalidAcceptanceStatus.setEmployeeComment(requestEmployeeCommentAccept);
+        invalidTaskRequestInvalidAcceptanceStatusRequestContent = objectMapper
+                .writeValueAsString(invalidTaskRequestInvalidAcceptanceStatus);
+
+        //invalid request - missing required data
+        EmployeeAcceptDeclineTaskRequest invalidTaskRequestMissingRequestData = new EmployeeAcceptDeclineTaskRequest();
+        invalidTaskRequestMissingRequestDataRequestContent = objectMapper
+                .writeValueAsString(invalidTaskRequestMissingRequestData);
 
         //existing DB docs
         String employeeName = "Jan";
@@ -179,20 +233,18 @@ public class AcceptDeclineTaskByEmployeeControllerIntegrationTest {
 
     @ParameterizedTest
     @EnumSource(TestCountry.class)
-    void shouldAcceptTask_whenValidTaskIdEmployeeIdStatus(TestCountry country) throws Exception {
+    void shouldAcceptTask_whenValidTaskIdEmployeeIdRequestBody(TestCountry country) throws Exception {
         Map<String, String> messages = getMessagesAccordingToLocale(country);
         Locale testedLocale = convertEnumToLocale(country);
 
-        String status = "APPROVE";
-
-        URI uri = new URI("http://localhost:" + port + "/"+ taskId + "/employee/" + employeeId + "/status/" + status);
+        URI uri = new URI("http://localhost:" + port + "/"+ taskId + "/employee/" + employeeId + "/approvalStatus");
 
         HttpHeaders headers = new HttpHeaders();
         headers.set("Accept-Language", testedLocale.toString());
         headers.set("Authorization", employeeToken);
         headers.setContentType(MediaType.APPLICATION_JSON);
 
-        HttpEntity<Object> request = new HttpEntity<>(null, headers);
+        HttpEntity<Object> request = new HttpEntity<>(validAcceptedTaskRequestContent, headers);
         String expectedMessage = messages.get("task.approved.employee");
 
         ResponseEntity<JsonNode> responseEntity = restTemplate
@@ -227,24 +279,25 @@ public class AcceptDeclineTaskByEmployeeControllerIntegrationTest {
                 .isEqualTo(AcceptanceStatus.ACCEPTED.toString());
         assertThat(responseEntity.getBody().get("task").get("managerAccept").textValue())
                 .isEqualTo(AcceptanceStatus.NO_ACTION.toString());
+        assertThat(responseEntity.getBody().get("task").get("employeeComment").textValue())
+                .isEqualTo("I accept this task");
     }
 
     @ParameterizedTest
     @EnumSource(TestCountry.class)
-    void shouldAcceptTask_whenValidTaskIdTrainerIdStatus(TestCountry country) throws Exception {
+    void shouldAcceptTask_whenValidTaskIdTrainerIdRequestBody(TestCountry country) throws Exception {
         Map<String, String> messages = getMessagesAccordingToLocale(country);
         Locale testedLocale = convertEnumToLocale(country);
 
-        String status = "APPROVE";
-
-        URI uri = new URI("http://localhost:" + port + "/"+ taskForTrainerDocumentId + "/employee/" + trainerId + "/status/" + status);
+        URI uri = new URI("http://localhost:" + port + "/"+ taskForTrainerDocumentId + "/employee/" + trainerId +
+                "/approvalStatus");
 
         HttpHeaders headers = new HttpHeaders();
         headers.set("Accept-Language", testedLocale.toString());
         headers.set("Authorization", trainerToken);
         headers.setContentType(MediaType.APPLICATION_JSON);
 
-        HttpEntity<Object> request = new HttpEntity<>(null, headers);
+        HttpEntity<Object> request = new HttpEntity<>(validAcceptedTaskRequestContent, headers);
         String expectedMessage = messages.get("task.approved.employee");
 
         ResponseEntity<JsonNode> responseEntity = restTemplate
@@ -279,6 +332,8 @@ public class AcceptDeclineTaskByEmployeeControllerIntegrationTest {
                 .isEqualTo(AcceptanceStatus.ACCEPTED.toString());
         assertThat(responseEntity.getBody().get("task").get("managerAccept").textValue())
                 .isEqualTo(AcceptanceStatus.NO_ACTION.toString());
+        assertThat(responseEntity.getBody().get("task").get("employeeComment").textValue())
+                .isEqualTo("I accept this task");
     }
 
 
@@ -289,16 +344,14 @@ public class AcceptDeclineTaskByEmployeeControllerIntegrationTest {
         Map<String, String> messages = getMessagesAccordingToLocale(country);
         Locale testedLocale = convertEnumToLocale(country);
 
-        String status = "DECLINE";
-
-        URI uri = new URI("http://localhost:" + port + "/"+ taskId + "/employee/" + employeeId + "/status/" + status);
+        URI uri = new URI("http://localhost:" + port + "/"+ taskId + "/employee/" + employeeId + "/approvalStatus");
 
         HttpHeaders headers = new HttpHeaders();
         headers.set("Accept-Language", testedLocale.toString());
         headers.set("Authorization", employeeToken);
         headers.setContentType(MediaType.APPLICATION_JSON);
 
-        HttpEntity<Object> request = new HttpEntity<>(null, headers);
+        HttpEntity<Object> request = new HttpEntity<>(validDeclinedTaskRequestContent, headers);
         String expectedMessage = messages.get("task.declined.employee");
 
         ResponseEntity<JsonNode> responseEntity = restTemplate
@@ -333,26 +386,27 @@ public class AcceptDeclineTaskByEmployeeControllerIntegrationTest {
                 .isEqualTo(AcceptanceStatus.NOT_ACCEPTED.toString());
         assertThat(responseEntity.getBody().get("task").get("managerAccept").textValue())
                 .isEqualTo(AcceptanceStatus.NO_ACTION.toString());
+        assertThat(responseEntity.getBody().get("task").get("employeeComment").textValue())
+                .isEqualTo("I decline this task");
+
     }
 
 
     @ParameterizedTest
     @EnumSource(TestCountry.class)
-    void shouldAcceptTask_whenValidTaskIdEmployeeIdAndTheSameStatus(TestCountry country) throws Exception {
+    void shouldAcceptTask_whenValidTaskIdEmployeeIdAndApprovedStatus(TestCountry country) throws Exception {
         Map<String, String> messages = getMessagesAccordingToLocale(country);
         Locale testedLocale = convertEnumToLocale(country);
 
-        String status = "APPROVE";
-
         URI uri = new URI("http://localhost:" + port + "/"+ approvedTaskDocumentId + "/employee/" + employeeId
-                + "/status/" + status);
+                + "/approvalStatus");
 
         HttpHeaders headers = new HttpHeaders();
         headers.set("Accept-Language", testedLocale.toString());
         headers.set("Authorization", employeeToken);
         headers.setContentType(MediaType.APPLICATION_JSON);
 
-        HttpEntity<Object> request = new HttpEntity<>(null, headers);
+        HttpEntity<Object> request = new HttpEntity<>(validAcceptedTaskRequestContent, headers);
         String expectedMessage = messages.get("task.approved.employee");
 
         ResponseEntity<JsonNode> responseEntity = restTemplate
@@ -387,25 +441,25 @@ public class AcceptDeclineTaskByEmployeeControllerIntegrationTest {
                 .isEqualTo(AcceptanceStatus.ACCEPTED.toString());
         assertThat(responseEntity.getBody().get("task").get("managerAccept").textValue())
                 .isEqualTo(AcceptanceStatus.NO_ACTION.toString());
+        assertThat(responseEntity.getBody().get("task").get("employeeComment").textValue())
+                .isEqualTo("I accept this task");
     }
 
     @ParameterizedTest
     @EnumSource(TestCountry.class)
-    void shouldDeclineTask_whenValidTaskIdEmployeeIdAndAccepted(TestCountry country) throws Exception {
+    void shouldDeclineTask_whenValidTaskIdEmployeeIdAndAlreadyApproved(TestCountry country) throws Exception {
         Map<String, String> messages = getMessagesAccordingToLocale(country);
         Locale testedLocale = convertEnumToLocale(country);
 
-        String status = "DECLINE";
-
         URI uri = new URI("http://localhost:" + port + "/"+ approvedTaskDocumentId + "/employee/" + employeeId
-                + "/status/" + status);
+                + "/approvalStatus");
 
         HttpHeaders headers = new HttpHeaders();
         headers.set("Accept-Language", testedLocale.toString());
         headers.set("Authorization", employeeToken);
         headers.setContentType(MediaType.APPLICATION_JSON);
 
-        HttpEntity<Object> request = new HttpEntity<>(null, headers);
+        HttpEntity<Object> request = new HttpEntity<>(validDeclinedTaskRequestContent, headers);
         String expectedMessage = messages.get("task.declined.employee");
 
         ResponseEntity<JsonNode> responseEntity = restTemplate
@@ -440,6 +494,8 @@ public class AcceptDeclineTaskByEmployeeControllerIntegrationTest {
                 .isEqualTo(AcceptanceStatus.NOT_ACCEPTED.toString());
         assertThat(responseEntity.getBody().get("task").get("managerAccept").textValue())
                 .isEqualTo(AcceptanceStatus.NO_ACTION.toString());
+        assertThat(responseEntity.getBody().get("task").get("employeeComment").textValue())
+                .isEqualTo("I decline this task");
     }
 
     @Nested
@@ -450,16 +506,13 @@ public class AcceptDeclineTaskByEmployeeControllerIntegrationTest {
         void shouldNotAcceptTaskWhenNoToken(TestCountry country) throws Exception {
             Locale testedLocale = convertEnumToLocale(country);
 
-            String status = "APPROVE";
-
-            URI uri = new URI("http://localhost:" + port + "/"+ approvedTaskDocumentId + "/employee/" + employeeId
-                    + "/status/" + status);
+            URI uri = new URI("http://localhost:" + port + "/"+ taskId + "/employee/" + employeeId + "/approvalStatus");
 
             HttpHeaders headers = new HttpHeaders();
             headers.set("Accept-Language", testedLocale.toString());
             headers.setContentType(MediaType.APPLICATION_JSON);
 
-            HttpEntity<Object> request = new HttpEntity<>(null, headers);
+            HttpEntity<Object> request = new HttpEntity<>(validAcceptedTaskRequestContent, headers);
 
             ResponseEntity<JsonNode> responseEntity = restTemplate
                     .exchange(uri, HttpMethod.PUT, request, JsonNode.class);
@@ -477,17 +530,14 @@ public class AcceptDeclineTaskByEmployeeControllerIntegrationTest {
             Map<String, String> messages = getMessagesAccordingToLocale(country);
             Locale testedLocale = convertEnumToLocale(country);
 
-            String status = "APPROVE";
-
-            URI uri = new URI("http://localhost:" + port + "/"+ approvedTaskDocumentId + "/employee/" + employeeId
-                    + "/status/" + status);
+            URI uri = new URI("http://localhost:" + port + "/"+ taskId + "/employee/" + employeeId + "/approvalStatus");
 
             HttpHeaders headers = new HttpHeaders();
             headers.set("Accept-Language", testedLocale.toString());
             headers.set("Authorization", userToken);
             headers.setContentType(MediaType.APPLICATION_JSON);
 
-            HttpEntity<Object> request = new HttpEntity<>(null, headers);
+            HttpEntity<Object> request = new HttpEntity<>(validAcceptedTaskRequestContent, headers);
 
             ResponseEntity<JsonNode> responseEntity = restTemplate
                     .exchange(uri, HttpMethod.PUT, request, JsonNode.class);
@@ -507,17 +557,14 @@ public class AcceptDeclineTaskByEmployeeControllerIntegrationTest {
             Map<String, String> messages = getMessagesAccordingToLocale(country);
             Locale testedLocale = convertEnumToLocale(country);
 
-            String status = "APPROVE";
-
-            URI uri = new URI("http://localhost:" + port + "/"+ approvedTaskDocumentId + "/employee/" + employeeId
-                    + "/status/" + status);
+            URI uri = new URI("http://localhost:" + port + "/"+ taskId + "/employee/" + employeeId + "/approvalStatus");
 
             HttpHeaders headers = new HttpHeaders();
             headers.set("Accept-Language", testedLocale.toString());
             headers.set("Authorization", managerToken);
             headers.setContentType(MediaType.APPLICATION_JSON);
 
-            HttpEntity<Object> request = new HttpEntity<>(null, headers);
+            HttpEntity<Object> request = new HttpEntity<>(validAcceptedTaskRequestContent, headers);
 
             ResponseEntity<JsonNode> responseEntity = restTemplate
                     .exchange(uri, HttpMethod.PUT, request, JsonNode.class);
@@ -539,17 +586,16 @@ public class AcceptDeclineTaskByEmployeeControllerIntegrationTest {
         Locale testedLocale = convertEnumToLocale(country);
 
         String invalidTaskId = UUID.randomUUID().toString();
-        String status = "APPROVE";
 
         URI uri = new URI("http://localhost:" + port + "/"+ invalidTaskId + "/employee/" + employeeId
-                + "/status/" + status);
+                + "/approvalStatus");
 
         HttpHeaders headers = new HttpHeaders();
         headers.set("Accept-Language", testedLocale.toString());
         headers.set("Authorization", employeeToken);
         headers.setContentType(MediaType.APPLICATION_JSON);
 
-        HttpEntity<Object> request = new HttpEntity<>(null, headers);
+        HttpEntity<Object> request = new HttpEntity<>(validAcceptedTaskRequestContent, headers);
         String expectedMessage = messages.get("exception.task.not.found");
 
         ResponseEntity<JsonNode> responseEntity = restTemplate
@@ -569,17 +615,14 @@ public class AcceptDeclineTaskByEmployeeControllerIntegrationTest {
         Map<String, String> messages = getMessagesAccordingToLocale(country);
         Locale testedLocale = convertEnumToLocale(country);
 
-        String status = "INVALID_STATUS";
-
-        URI uri = new URI("http://localhost:" + port + "/"+ taskId + "/employee/" + employeeId
-                + "/status/" + status);
+        URI uri = new URI("http://localhost:" + port + "/"+ taskId + "/employee/" + employeeId + "/approvalStatus");
 
         HttpHeaders headers = new HttpHeaders();
         headers.set("Accept-Language", testedLocale.toString());
         headers.set("Authorization", employeeToken);
         headers.setContentType(MediaType.APPLICATION_JSON);
 
-        HttpEntity<Object> request = new HttpEntity<>(null, headers);
+        HttpEntity<Object> request = new HttpEntity<>(invalidTaskRequestInvalidAcceptanceStatusRequestContent, headers);
         String expectedMessage = messages.get("exception.invalid.status");
 
         ResponseEntity<JsonNode> responseEntity = restTemplate
@@ -590,5 +633,65 @@ public class AcceptDeclineTaskByEmployeeControllerIntegrationTest {
         assertThat(Objects.requireNonNull(responseEntity.getBody().get("message").textValue()))
                 .isEqualTo(expectedMessage);
         assertThat(responseEntity.getBody().get("timestamp")).isNotNull();
+    }
+
+    @ParameterizedTest
+    @EnumSource(TestCountry.class)
+    void shouldNotAcceptTask_whenInvalidComment(TestCountry country) throws Exception {
+        Map<String, String> messages = getMessagesAccordingToLocale(country);
+        Locale testedLocale = convertEnumToLocale(country);
+
+        URI uri = new URI("http://localhost:" + port + "/"+ taskId + "/employee/" + employeeId + "/approvalStatus");
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Accept-Language", testedLocale.toString());
+        headers.set("Authorization", employeeToken);
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        HttpEntity<Object> request = new HttpEntity<>(invalidTaskRequestInvalidEmployeeCommentRequestContent, headers);
+        String expectedMessage = messages.get("request.bind.exception");
+
+        ResponseEntity<JsonNode> responseEntity = restTemplate
+                .exchange(uri, HttpMethod.PUT, request, JsonNode.class);
+
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        assertThat(responseEntity.getBody().get("error").textValue()).isEqualTo("Bad Request");
+        assertThat(Objects.requireNonNull(responseEntity.getBody().get("message").textValue()))
+                .isEqualTo(expectedMessage);
+        assertThat(responseEntity.getBody().get("timestamp")).isNotNull();
+        assertThat(responseEntity.getBody().get("errors")).isNotNull();
+        assertThat(responseEntity.getBody().get("errors").get("employeeComment").textValue())
+                .isEqualTo(messages.get("field.employee.comment"));
+    }
+
+    @ParameterizedTest
+    @EnumSource(TestCountry.class)
+    void shouldNotAcceptTask_whenMissingRequiredData(TestCountry country) throws Exception {
+        Map<String, String> messages = getMessagesAccordingToLocale(country);
+        Locale testedLocale = convertEnumToLocale(country);
+
+        URI uri = new URI("http://localhost:" + port + "/"+ taskId + "/employee/" + employeeId + "/approvalStatus");
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Accept-Language", testedLocale.toString());
+        headers.set("Authorization", employeeToken);
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        HttpEntity<Object> request = new HttpEntity<>(invalidTaskRequestMissingRequestDataRequestContent, headers);
+        String expectedMessage = messages.get("request.bind.exception");
+
+        ResponseEntity<JsonNode> responseEntity = restTemplate
+                .exchange(uri, HttpMethod.PUT, request, JsonNode.class);
+
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        assertThat(responseEntity.getBody().get("error").textValue()).isEqualTo("Bad Request");
+        assertThat(Objects.requireNonNull(responseEntity.getBody().get("message").textValue()))
+                .isEqualTo(expectedMessage);
+        assertThat(responseEntity.getBody().get("timestamp")).isNotNull();
+        assertThat(responseEntity.getBody().get("errors")).isNotNull();
+        assertThat(responseEntity.getBody().get("errors").get("acceptanceStatus").textValue())
+                .isEqualTo(messages.get("field.required"));
+        assertThat(responseEntity.getBody().get("errors").get("employeeComment").textValue())
+                .isEqualTo(messages.get("field.required"));
     }
 }

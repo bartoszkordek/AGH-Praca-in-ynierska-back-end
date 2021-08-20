@@ -11,6 +11,7 @@ import com.healthy.gym.task.enums.GymRole;
 import com.healthy.gym.task.exception.EmployeeNotFoundException;
 import com.healthy.gym.task.exception.InvalidStatusException;
 import com.healthy.gym.task.exception.TaskNotFoundException;
+import com.healthy.gym.task.pojo.request.EmployeeAcceptDeclineTaskRequest;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -52,6 +53,13 @@ public class AcceptDeclineTaskByEmployeeServiceTest {
         var now = LocalDate.now();
         LocalDate dueDate = now.plusMonths(1);
 
+        //request
+        String status = "APPROVE";
+        String comment = "I approve this task.";
+        EmployeeAcceptDeclineTaskRequest employeeAcceptDeclineTaskRequest = new EmployeeAcceptDeclineTaskRequest();
+        employeeAcceptDeclineTaskRequest.setAcceptanceStatus(status);
+        employeeAcceptDeclineTaskRequest.setEmployeeComment(comment);
+
         //DB documents
         String employeeName = "Jan";
         String employeeSurname = "Kowalski";
@@ -92,6 +100,7 @@ public class AcceptDeclineTaskByEmployeeServiceTest {
         taskDocumentUpdated.setDueDate(dueDate);
         taskDocumentUpdated.setEmployeeAccept(AcceptanceStatus.ACCEPTED);
         taskDocumentUpdated.setManagerAccept(AcceptanceStatus.NO_ACTION);
+        taskDocumentUpdated.setEmployeeComment(comment);
 
 
         //response
@@ -111,7 +120,7 @@ public class AcceptDeclineTaskByEmployeeServiceTest {
                 0,
                 AcceptanceStatus.ACCEPTED,
                 AcceptanceStatus.NO_ACTION,
-                null
+                comment
         );
 
         //when
@@ -120,21 +129,28 @@ public class AcceptDeclineTaskByEmployeeServiceTest {
         when(taskDAO.save(taskDocumentUpdated)).thenReturn(taskDocumentUpdated);
 
         //then
-        assertThat(taskService.acceptDeclineTaskByEmployee(taskId, employeeId, "APPROVE")).isEqualTo(taskResponse);
+        assertThat(taskService.acceptDeclineTaskByEmployee(taskId, employeeId, employeeAcceptDeclineTaskRequest))
+                .isEqualTo(taskResponse);
     }
 
     @Test
     void shouldNotAcceptTask_whenTaskIdNotExist(){
         //before
         String notFoundTaskId = UUID.randomUUID().toString();
+
+        //request
         String status = "APPROVE";
+        String comment = "I approve this task.";
+        EmployeeAcceptDeclineTaskRequest employeeAcceptDeclineTaskRequest = new EmployeeAcceptDeclineTaskRequest();
+        employeeAcceptDeclineTaskRequest.setAcceptanceStatus(status);
+        employeeAcceptDeclineTaskRequest.setEmployeeComment(comment);
 
         //when
         when(taskDAO.findByTaskId(notFoundTaskId)).thenReturn(null);
 
         //then
         assertThatThrownBy(() ->
-                taskService.acceptDeclineTaskByEmployee(notFoundTaskId, employeeId, status)
+                taskService.acceptDeclineTaskByEmployee(notFoundTaskId, employeeId, employeeAcceptDeclineTaskRequest)
         ).isInstanceOf(TaskNotFoundException.class);
     }
 
@@ -142,7 +158,13 @@ public class AcceptDeclineTaskByEmployeeServiceTest {
     void shouldNotAcceptTask_whenEmployeeNotExist(){
         //before
         String notFoundEmployeeId = UUID.randomUUID().toString();
+
+        //request
         String status = "APPROVE";
+        String comment = "I approve this task.";
+        EmployeeAcceptDeclineTaskRequest employeeAcceptDeclineTaskRequest = new EmployeeAcceptDeclineTaskRequest();
+        employeeAcceptDeclineTaskRequest.setAcceptanceStatus(status);
+        employeeAcceptDeclineTaskRequest.setEmployeeComment(comment);
 
         //when
         when(taskDAO.findByTaskId(taskId)).thenReturn(new TaskDocument());
@@ -150,7 +172,7 @@ public class AcceptDeclineTaskByEmployeeServiceTest {
 
         //then
         assertThatThrownBy(() ->
-                taskService.acceptDeclineTaskByEmployee(taskId, notFoundEmployeeId, status)
+                taskService.acceptDeclineTaskByEmployee(taskId, notFoundEmployeeId, employeeAcceptDeclineTaskRequest)
         ).isInstanceOf(EmployeeNotFoundException.class);
     }
 
@@ -158,7 +180,13 @@ public class AcceptDeclineTaskByEmployeeServiceTest {
     void shouldNotAcceptTask_whenUserIsNotEmployeeNotExist(){
         //before
         String notEmployeeId = UUID.randomUUID().toString();
+
+        //request
         String status = "APPROVE";
+        String comment = "I approve this task.";
+        EmployeeAcceptDeclineTaskRequest employeeAcceptDeclineTaskRequest = new EmployeeAcceptDeclineTaskRequest();
+        employeeAcceptDeclineTaskRequest.setAcceptanceStatus(status);
+        employeeAcceptDeclineTaskRequest.setEmployeeComment(comment);
 
         String managerName = "Piotr";
         String managerSurname = "Kowalski";
@@ -175,14 +203,13 @@ public class AcceptDeclineTaskByEmployeeServiceTest {
 
         //then
         assertThatThrownBy(() ->
-                taskService.acceptDeclineTaskByEmployee(taskId, notEmployeeId, status)
+                taskService.acceptDeclineTaskByEmployee(taskId, notEmployeeId, employeeAcceptDeclineTaskRequest)
         ).isInstanceOf(EmployeeNotFoundException.class);
     }
 
     @Test
     void shouldNotAcceptTask_whenInvalidStatus(){
         //before
-        String status = "INVALID_STATUS";
         String employeeName = "Jan";
         String employeeSurname = "Kowalski";
         UserDocument employeeDocument = new UserDocument();
@@ -192,13 +219,20 @@ public class AcceptDeclineTaskByEmployeeServiceTest {
         employeeDocument.setGymRoles(List.of(GymRole.EMPLOYEE));
         employeeDocument.setId("507f1f77bcf86cd799435213");
 
+        //request
+        String status = "INVALID_STATUS";
+        String comment = "I approve this task.";
+        EmployeeAcceptDeclineTaskRequest employeeAcceptDeclineTaskRequest = new EmployeeAcceptDeclineTaskRequest();
+        employeeAcceptDeclineTaskRequest.setAcceptanceStatus(status);
+        employeeAcceptDeclineTaskRequest.setEmployeeComment(comment);
+
         //when
         when(taskDAO.findByTaskId(taskId)).thenReturn(new TaskDocument());
         when(userDAO.findByUserId(employeeId)).thenReturn(employeeDocument);
 
         //then
         assertThatThrownBy(() ->
-                taskService.acceptDeclineTaskByEmployee(taskId, employeeId, status)
+                taskService.acceptDeclineTaskByEmployee(taskId, employeeId, employeeAcceptDeclineTaskRequest)
         ).isInstanceOf(InvalidStatusException.class);
     }
 }

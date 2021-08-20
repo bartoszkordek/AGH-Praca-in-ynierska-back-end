@@ -67,16 +67,86 @@ public class TestDocumentUtil {
 
 
     public static NotificationDocument getTestNotificationDocument(String createdAt) {
+        return getNotificationDocument(
+                UUID.randomUUID().toString(),
+                faker.lorem().sentences(1).get(0),
+                faker.lorem().sentences(1).get(0),
+                TestDocumentUtil.getTestUser(),
+                TestDocumentUtil.getTestUser(),
+                faker.random().nextBoolean(),
+                LocalDateTime.parse(createdAt, DateTimeFormatter.ISO_LOCAL_DATE_TIME)
+        );
+    }
+
+    public static NotificationDocument getTestNotificationDocument(String createdAt, boolean markAsRead) {
+        return getNotificationDocument(
+                UUID.randomUUID().toString(),
+                faker.lorem().sentences(1).get(0),
+                faker.lorem().sentences(1).get(0),
+                TestDocumentUtil.getTestUser(),
+                TestDocumentUtil.getTestUser(),
+                markAsRead,
+                LocalDateTime.parse(createdAt, DateTimeFormatter.ISO_LOCAL_DATE_TIME)
+        );
+    }
+
+    public static NotificationDocument getTestNotificationDocument(
+            String createdAt,
+            boolean markAsRead,
+            UserDocument userDocument
+    ) {
+        return getNotificationDocument(
+                UUID.randomUUID().toString(),
+                faker.lorem().sentences(1).get(0),
+                faker.lorem().sentences(1).get(0),
+                TestDocumentUtil.getTestUser(),
+                userDocument,
+                markAsRead,
+                LocalDateTime.parse(createdAt, DateTimeFormatter.ISO_LOCAL_DATE_TIME)
+        );
+    }
+
+    public static NotificationDocument getNotificationDocument(
+            String notificationId,
+            String title,
+            String content,
+            UserDocument to,
+            boolean markAsRead
+    ) {
         var notification = new NotificationDocument();
-        notification.setNotificationId(UUID.randomUUID().toString());
-        String title = faker.lorem().sentences(1).get(0);
+
+        notification.setNotificationId(notificationId);
+        notification.setTo(to);
         notification.setTitle(title);
-        String content = faker.lorem().sentences(1).get(0);
         notification.setContent(content);
-        notification.setCreatedBy(TestDocumentUtil.getTestUser());
-        notification.setMarkAsRead(true);
-        notification.setCreatedAt(LocalDateTime.parse(createdAt, DateTimeFormatter.ISO_LOCAL_DATE_TIME));
+        notification.setMarkAsRead(markAsRead);
+
         return notification;
     }
+
+    public static NotificationDocument getNotificationDocument(
+            String notificationId,
+            String title,
+            String content,
+            UserDocument createdBy,
+            UserDocument to,
+            boolean markAsRead,
+            LocalDateTime createdAt
+    ) {
+        var notification = new NotificationDocument();
+
+        notification.setNotificationId(notificationId);
+        notification.setCreatedBy(createdBy);
+        notification.setTo(to);
+
+        notification.setTitle(title);
+        notification.setContent(content);
+
+        notification.setMarkAsRead(markAsRead);
+        notification.setCreatedAt(createdAt);
+
+        return notification;
+    }
+
 
 }

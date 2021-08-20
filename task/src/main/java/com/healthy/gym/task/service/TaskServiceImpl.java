@@ -170,7 +170,8 @@ public class TaskServiceImpl implements TaskService{
 
     @Override
     public TaskDTO sendReport(String taskId, String userId, EmployeeReportRequest reportRequest)
-            throws TaskNotFoundException, TaskDeclinedByEmployeeException {
+            throws TaskNotFoundException, TaskDeclinedByEmployeeException, DueDateExceedException,
+            ReportAlreadySentException {
 
         var now = LocalDate.now();
         TaskDocument taskDocumentReportToBeAdded = getTaskDocument(taskId);
@@ -178,6 +179,11 @@ public class TaskServiceImpl implements TaskService{
         AcceptanceStatus status = taskDocumentReportToBeAdded.getEmployeeAccept();
         if(status.equals(AcceptanceStatus.NOT_ACCEPTED)) throw new TaskDeclinedByEmployeeException();
         taskDocumentReportToBeAdded.setEmployeeAccept(AcceptanceStatus.ACCEPTED);
+
+        LocalDate dueDate = taskDocumentReportToBeAdded.getDueDate();
+        if(dueDate.isBefore(now)) throw new DueDateExceedException();
+
+        if(taskDocumentReportToBeAdded.getReport() != null) throw new ReportAlreadySentException();
 
         String report = reportRequest.getResult();
         taskDocumentReportToBeAdded.setReport(report);

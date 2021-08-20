@@ -7,6 +7,7 @@ import com.healthy.gym.task.dto.BasicUserInfoDTO;
 import com.healthy.gym.task.dto.TaskDTO;
 import com.healthy.gym.task.enums.AcceptanceStatus;
 import com.healthy.gym.task.exception.InvalidMarkException;
+import com.healthy.gym.task.exception.InvalidStatusException;
 import com.healthy.gym.task.exception.TaskNotFoundException;
 import com.healthy.gym.task.pojo.request.EmployeeReportRequest;
 import com.healthy.gym.task.pojo.request.ManagerReportVerificationRequest;
@@ -464,6 +465,45 @@ public class VerifyReportControllerUnitTest {
                     .andExpect(result ->
                             assertThat(Objects.requireNonNull(result.getResolvedException()).getCause())
                                     .isInstanceOf(InvalidMarkException.class)
+                    );
+        }
+
+
+        @ParameterizedTest
+        @EnumSource(TestCountry.class)
+        void shouldThrowInvalidStatusException(TestCountry country) throws Exception {
+            Map<String, String> messages = getMessagesAccordingToLocale(country);
+            Locale testedLocale = convertEnumToLocale(country);
+
+            //before
+            ManagerReportVerificationRequest managerReportVerificationRequestInvalidMark
+                    = new ManagerReportVerificationRequest();
+            managerReportVerificationRequestInvalidMark.setApprovalStatus("INVALID_STATUS");
+            managerReportVerificationRequestInvalidMark.setMark(4);
+            String invalidRequestContentInvalidMark = objectMapper
+                    .writeValueAsString(managerReportVerificationRequestInvalidMark);
+
+            RequestBuilder request = MockMvcRequestBuilders
+                    .put(uri+taskId+"/reportVerification")
+                    .header("Accept-Language", testedLocale.toString())
+                    .header("Authorization", adminToken)
+                    .content(invalidRequestContentInvalidMark)
+                    .contentType(MediaType.APPLICATION_JSON);
+
+
+            String expectedMessage = messages.get("exception.invalid.status");
+
+            doThrow(InvalidStatusException.class)
+                    .when(taskService)
+                    .verifyReport(any(),any());
+
+            mockMvc.perform(request)
+                    .andDo(print())
+                    .andExpect(status().isBadRequest())
+                    .andExpect(status().reason(is(expectedMessage)))
+                    .andExpect(result ->
+                            assertThat(Objects.requireNonNull(result.getResolvedException()).getCause())
+                                    .isInstanceOf(InvalidStatusException.class)
                     );
         }
     }

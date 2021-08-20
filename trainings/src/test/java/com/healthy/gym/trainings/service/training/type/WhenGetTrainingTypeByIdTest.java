@@ -4,11 +4,9 @@ import com.healthy.gym.trainings.data.document.TrainingTypeDocument;
 import com.healthy.gym.trainings.data.repository.TrainingTypeDAO;
 import com.healthy.gym.trainings.exception.notfound.TrainingTypeNotFoundException;
 import com.healthy.gym.trainings.service.TrainingTypeService;
+import com.healthy.gym.trainings.service.TrainingTypeServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
@@ -17,14 +15,13 @@ import java.util.UUID;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-@SpringBootTest
-class WhenGetTrainingTypeByIdTest {
-    @Autowired
-    private TrainingTypeService trainingTypeService;
 
-    @MockBean
+class WhenGetTrainingTypeByIdTest {
+
+    private TrainingTypeService trainingTypeService;
     private TrainingTypeDAO trainingTypeDAO;
 
     private TrainingTypeDocument trxDocument;
@@ -40,6 +37,9 @@ class WhenGetTrainingTypeByIdTest {
                 LocalTime.parse("00:30:00.000", DateTimeFormatter.ofPattern("HH:mm:ss.SSS")),
                 null
         );
+
+        trainingTypeDAO = mock(TrainingTypeDAO.class);
+        trainingTypeService = new TrainingTypeServiceImpl(trainingTypeDAO, null);
     }
 
     @Test

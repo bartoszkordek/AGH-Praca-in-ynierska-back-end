@@ -8,12 +8,10 @@ import com.healthy.gym.trainings.exception.DuplicatedTrainingTypeException;
 import com.healthy.gym.trainings.exception.notfound.TrainingTypeNotFoundException;
 import com.healthy.gym.trainings.model.request.TrainingTypeRequest;
 import com.healthy.gym.trainings.service.TrainingTypeService;
+import com.healthy.gym.trainings.service.TrainingTypeServiceImpl;
 import org.bson.types.Binary;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 
@@ -27,17 +25,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-@SpringBootTest
+
 class WhenUpdateTrainingTypeByIdTest {
-    @Autowired
+
     private TrainingTypeService trainingTypeService;
-
-    @MockBean
     private TrainingTypeDAO trainingTypeDAO;
-
-    @MockBean
     private ImageDAO imageDAO;
 
     private TrainingTypeRequest request;
@@ -60,7 +55,7 @@ class WhenUpdateTrainingTypeByIdTest {
                 "image",
                 "hello.png",
                 MediaType.IMAGE_PNG_VALUE,
-                "data".getBytes(StandardCharsets.UTF_8)
+                "data" .getBytes(StandardCharsets.UTF_8)
         );
 
         imageToUpdate = new ImageDocument(
@@ -79,6 +74,10 @@ class WhenUpdateTrainingTypeByIdTest {
                 localTime,
                 imageToUpdate
         );
+
+        trainingTypeDAO = mock(TrainingTypeDAO.class);
+        imageDAO = mock(ImageDAO.class);
+        trainingTypeService = new TrainingTypeServiceImpl(trainingTypeDAO, imageDAO);
     }
 
     @Test

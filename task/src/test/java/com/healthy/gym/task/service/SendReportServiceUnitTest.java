@@ -8,6 +8,8 @@ import com.healthy.gym.task.dto.BasicUserInfoDTO;
 import com.healthy.gym.task.dto.TaskDTO;
 import com.healthy.gym.task.enums.AcceptanceStatus;
 import com.healthy.gym.task.enums.GymRole;
+import com.healthy.gym.task.exception.DueDateExceedException;
+import com.healthy.gym.task.exception.ReportAlreadySentException;
 import com.healthy.gym.task.exception.TaskDeclinedByEmployeeException;
 import com.healthy.gym.task.exception.TaskNotFoundException;
 import com.healthy.gym.task.pojo.request.EmployeeReportRequest;
@@ -146,7 +148,8 @@ public class SendReportServiceUnitTest {
 
 
     @Test
-    void shouldSendReport_whenValidRequest() throws TaskNotFoundException, TaskDeclinedByEmployeeException {
+    void shouldSendReport_whenValidRequest() throws TaskNotFoundException, TaskDeclinedByEmployeeException,
+            DueDateExceedException, ReportAlreadySentException {
         //when
         when(taskDAO.findByTaskId(taskId)).thenReturn(taskDocumentReportToSend);
         when(taskDAO.save(taskDocumentWithReport)).thenReturn(taskDocumentWithReport);

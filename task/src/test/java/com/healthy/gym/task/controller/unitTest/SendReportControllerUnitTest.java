@@ -6,6 +6,7 @@ import com.healthy.gym.task.controller.TaskController;
 import com.healthy.gym.task.dto.BasicUserInfoDTO;
 import com.healthy.gym.task.dto.TaskDTO;
 import com.healthy.gym.task.enums.AcceptanceStatus;
+import com.healthy.gym.task.exception.DueDateExceedException;
 import com.healthy.gym.task.exception.TaskDeclinedByEmployeeException;
 import com.healthy.gym.task.exception.TaskNotFoundException;
 import com.healthy.gym.task.pojo.request.EmployeeReportRequest;
@@ -412,6 +413,39 @@ public class SendReportControllerUnitTest {
                     .andExpect(result ->
                             Assertions.assertThat(Objects.requireNonNull(result.getResolvedException()).getCause())
                                     .isInstanceOf(TaskNotFoundException.class)
+                    );
+        }
+
+
+        @ParameterizedTest
+        @EnumSource(TestCountry.class)
+        void shouldThrowDueDateExceedException(TestCountry country) throws Exception {
+            Map<String, String> messages = getMessagesAccordingToLocale(country);
+            Locale testedLocale = convertEnumToLocale(country);
+
+            String dueDateExceededTaskId = UUID.randomUUID().toString();
+
+            RequestBuilder request = MockMvcRequestBuilders
+                    .put(uri+dueDateExceededTaskId+"/employee/"+employeeId+"/report")
+                    .header("Accept-Language", testedLocale.toString())
+                    .header("Authorization", employeeToken)
+                    .content(requestContent)
+                    .contentType(MediaType.APPLICATION_JSON);
+
+
+            String expectedMessage = messages.get("exception.due.date.exceed");
+
+            doThrow(DueDateExceedException.class)
+                    .when(taskService)
+                    .sendReport(dueDateExceededTaskId, employeeId, employeeReportRequest);
+
+            mockMvc.perform(request)
+                    .andDo(print())
+                    .andExpect(status().isBadRequest())
+                    .andExpect(status().reason(is(expectedMessage)))
+                    .andExpect(result ->
+                            Assertions.assertThat(Objects.requireNonNull(result.getResolvedException()).getCause())
+                                    .isInstanceOf(DueDateExceedException.class)
                     );
         }
 

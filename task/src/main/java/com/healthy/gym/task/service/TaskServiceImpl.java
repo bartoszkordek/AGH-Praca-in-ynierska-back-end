@@ -183,7 +183,8 @@ public class TaskServiceImpl implements TaskService{
         LocalDate dueDate = taskDocumentReportToBeAdded.getDueDate();
         if(dueDate.isBefore(now)) throw new DueDateExceedException();
 
-        if(taskDocumentReportToBeAdded.getReport() != null) throw new ReportAlreadySentException();
+        if(taskDocumentReportToBeAdded.getReport() != null || taskDocumentReportToBeAdded.getReportDate() != null)
+            throw new ReportAlreadySentException();
 
         String report = reportRequest.getResult();
         taskDocumentReportToBeAdded.setReport(report);

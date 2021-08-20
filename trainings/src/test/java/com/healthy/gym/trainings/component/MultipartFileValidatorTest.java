@@ -10,6 +10,7 @@ import org.junit.jupiter.params.provider.EnumSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.i18n.LocaleContextHolder;
+import org.springframework.test.context.ActiveProfiles;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
@@ -23,6 +24,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @SpringBootTest
+@ActiveProfiles(value = "test")
 class MultipartFileValidatorTest {
 
     @Autowired
@@ -80,7 +82,7 @@ class MultipartFileValidatorTest {
         }
     }
 
-    private class TestRequest {
+    private static class TestRequest {
         @NotNull(message = "{field.required}")
         @Size(min = 2, max = 1000, message = "{field.required}")
         private String name;

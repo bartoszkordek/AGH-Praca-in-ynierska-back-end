@@ -16,6 +16,7 @@ import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.http.*;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.context.TestPropertySource;
@@ -42,6 +43,7 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
         "eureka.client.fetch-registry=false",
         "eureka.client.register-with-eureka=false"
 })
+@ActiveProfiles(value = "test")
 @Tag("integration")
 class LocationControllerIntegrationTest {
 

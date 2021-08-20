@@ -19,6 +19,7 @@ import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.context.TestPropertySource;
@@ -48,6 +49,7 @@ import static org.awaitility.Awaitility.await;
         "spring.mail.username=testEmailUsername",
         "spring.mail.password=password4Tests"
 })
+@ActiveProfiles(value = "test")
 class NotificationServiceIntegrationTest {
 
     private static final ServerSetup serverSetup = new ServerSetup(3025, "localhost", "smtp");

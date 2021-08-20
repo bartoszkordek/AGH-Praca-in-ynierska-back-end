@@ -54,7 +54,7 @@ class WhenCreateTrainingTypeTest {
                 "image",
                 "hello.png",
                 MediaType.IMAGE_PNG_VALUE,
-                "data".getBytes(StandardCharsets.UTF_8)
+                "data" .getBytes(StandardCharsets.UTF_8)
         );
     }
 

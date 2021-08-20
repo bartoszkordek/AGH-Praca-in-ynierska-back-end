@@ -6,6 +6,7 @@ import com.healthy.gym.task.enums.AcceptanceStatus;
 import com.healthy.gym.task.exception.*;
 import com.healthy.gym.task.pojo.request.EmployeeAcceptDeclineTaskRequest;
 import com.healthy.gym.task.pojo.request.EmployeeReportRequest;
+import com.healthy.gym.task.pojo.request.ManagerReportVerificationRequest;
 import com.healthy.gym.task.pojo.request.ManagerTaskCreationRequest;
 import com.healthy.gym.task.pojo.response.TaskResponse;
 import com.healthy.gym.task.service.TaskService;
@@ -34,6 +35,8 @@ public class TaskController {
     private static final String TASK_NOT_FOUND_EXCEPTION = "exception.task.not.found";
     private static final String MANAGER_NOT_FOUND_EXCEPTION = "exception.manager.not.found";
     private static final String EMPLOYEE_NOT_FOUND_EXCEPTION = "exception.employee.not.found";
+    private static final String TASK_DECLINED_BY_EMPLOYEE_EXCEPTION = "exception.declined.employee";
+    private static final String INVALID_STATUS_EXCEPTION = "exception.invalid.status";
     private final Translator translator;
     private final TaskService taskService;
 
@@ -198,7 +201,7 @@ public class TaskController {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, exception);
 
         } catch (InvalidStatusException exception){
-            String reason = translator.toLocale("exception.invalid.status");
+            String reason = translator.toLocale(INVALID_STATUS_EXCEPTION);
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, exception);
 
         } catch (Exception exception){
@@ -236,7 +239,7 @@ public class TaskController {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, exception);
 
         } catch (TaskDeclinedByEmployeeException exception){
-            String reason = translator.toLocale("exception.declined.employee");
+            String reason = translator.toLocale(TASK_DECLINED_BY_EMPLOYEE_EXCEPTION);
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, exception);
 
         } catch (DueDateExceedException exception){
@@ -245,6 +248,59 @@ public class TaskController {
 
         } catch (ReportAlreadySentException exception){
             String reason = translator.toLocale("exception.already.sent.report");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, exception);
+
+        } catch (Exception exception){
+            String reason = translator.toLocale(INTERNAL_ERROR_EXCEPTION);
+            exception.printStackTrace();
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, reason, exception);
+        }
+    }
+
+    @PreAuthorize("hasRole('ADMIN') or hasRole('MANAGER')")
+    @PutMapping("/{taskId}/reportVerification")
+    public ResponseEntity<TaskResponse> verifyReport(
+            @PathVariable("taskId") @ValidIDFormat final String taskId,
+            @Valid @RequestBody ManagerReportVerificationRequest request,
+            final BindingResult bindingResult
+    ) throws RequestBindException {
+        try{
+            if (bindingResult.hasErrors()) throw new BindException(bindingResult);
+
+            TaskDTO taskDTO = taskService.verifyReport(taskId, request);
+
+            String message = translator.toLocale("report.declined.manager");
+            AcceptanceStatus managerAcceptanceStatus = taskDTO.getManagerAccept();
+            if(managerAcceptanceStatus.equals(AcceptanceStatus.ACCEPTED))
+                message = translator.toLocale("report.approved.manager");
+
+            return ResponseEntity
+                    .status(HttpStatus.OK)
+                    .body(new TaskResponse(message, taskDTO));
+
+
+        } catch (BindException exception) {
+            String reason = translator.toLocale(REQUEST_BIND_EXCEPTION);
+            throw new RequestBindException(HttpStatus.BAD_REQUEST, reason, exception);
+
+        } catch (TaskNotFoundException exception) {
+            String reason = translator.toLocale(TASK_NOT_FOUND_EXCEPTION);
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, exception);
+
+        } catch (InvalidMarkException exception) {
+            String reason = translator.toLocale("exception.invalid.mark");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, exception);
+
+        } catch (InvalidStatusException exception){
+            String reason = translator.toLocale(INVALID_STATUS_EXCEPTION);
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, exception);
+
+        } catch (TaskDeclinedByEmployeeException exception){
+            String reason = translator.toLocale(TASK_DECLINED_BY_EMPLOYEE_EXCEPTION);
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, exception);
+
+        } catch (ReportNotSentException exception){
+            String reason = translator.toLocale("exception.report.not.sent");
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, exception);
 
         } catch (Exception exception){

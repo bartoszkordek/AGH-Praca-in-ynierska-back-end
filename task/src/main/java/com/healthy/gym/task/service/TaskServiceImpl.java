@@ -11,6 +11,7 @@ import com.healthy.gym.task.enums.Priority;
 import com.healthy.gym.task.exception.*;
 import com.healthy.gym.task.pojo.request.EmployeeAcceptDeclineTaskRequest;
 import com.healthy.gym.task.pojo.request.EmployeeReportRequest;
+import com.healthy.gym.task.pojo.request.ManagerReportVerificationRequest;
 import com.healthy.gym.task.pojo.request.ManagerTaskCreationRequest;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
@@ -193,6 +194,39 @@ public class TaskServiceImpl implements TaskService{
         taskDocumentReportToBeAdded.setReportDate(now);
 
         TaskDocument updatedTaskDocument = taskDAO.save(taskDocumentReportToBeAdded);
+        return modelMapper.map(updatedTaskDocument, TaskDTO.class);
+    }
+
+    @Override
+    public TaskDTO verifyReport(String taskId, ManagerReportVerificationRequest managerReportVerificationRequest)
+            throws TaskNotFoundException, InvalidMarkException, InvalidStatusException, TaskDeclinedByEmployeeException,
+            ReportNotSentException {
+
+        TaskDocument taskDocument = getTaskDocument(taskId);
+
+        AcceptanceStatus employeeAcceptanceStatus = taskDocument.getEmployeeAccept();
+        if(employeeAcceptanceStatus.equals(AcceptanceStatus.NOT_ACCEPTED)) throw new TaskDeclinedByEmployeeException();
+
+        int mark = managerReportVerificationRequest.getMark();
+        if(mark < 1 || mark > 5 ) throw new InvalidMarkException();
+        taskDocument.setMark(mark);
+
+        String report = taskDocument.getReport();
+        if(report == null) throw new ReportNotSentException();
+
+        taskDocument.setLastTaskUpdateDate(LocalDate.now());
+
+        String managerAcceptanceStatus = managerReportVerificationRequest.getApprovalStatus();
+        if(!managerAcceptanceStatus.equalsIgnoreCase(ACCEPT_STATUS) && !managerAcceptanceStatus.equalsIgnoreCase(DECLINE_STATUS))
+            throw new InvalidStatusException();
+
+        if(managerAcceptanceStatus.equalsIgnoreCase(ACCEPT_STATUS))
+            taskDocument.setManagerAccept(AcceptanceStatus.ACCEPTED);
+
+        if(managerAcceptanceStatus.equalsIgnoreCase(DECLINE_STATUS))
+            taskDocument.setManagerAccept(AcceptanceStatus.NOT_ACCEPTED);
+
+        TaskDocument updatedTaskDocument = taskDAO.save(taskDocument);
         return modelMapper.map(updatedTaskDocument, TaskDTO.class);
     }
 

@@ -568,5 +568,36 @@ public class VerifyReportControllerUnitTest {
                                     .isInstanceOf(ReportNotSentException.class)
                     );
         }
+
+        @ParameterizedTest
+        @EnumSource(TestCountry.class)
+        void shouldThrowIllegalStateExceptionWhenInternalErrorOccurs(TestCountry country) throws Exception {
+            Map<String, String> messages = getMessagesAccordingToLocale(country);
+            Locale testedLocale = convertEnumToLocale(country);
+
+            taskId = UUID.randomUUID().toString();
+
+            RequestBuilder request = MockMvcRequestBuilders
+                    .put(uri+taskId+"/reportVerification")
+                    .header("Accept-Language", testedLocale.toString())
+                    .header("Authorization", managerToken)
+                    .content(validRequestContentApproved)
+                    .contentType(MediaType.APPLICATION_JSON);
+
+            doThrow(IllegalStateException.class)
+                    .when(taskService)
+                    .verifyReport(any(),any());
+
+            String expectedMessage = messages.get("exception.internal.error");
+
+            mockMvc.perform(request)
+                    .andDo(print())
+                    .andExpect(status().isInternalServerError())
+                    .andExpect(status().reason(is(expectedMessage)))
+                    .andExpect(result ->
+                            assertThat(Objects.requireNonNull(result.getResolvedException()).getCause())
+                                    .isInstanceOf(IllegalStateException.class)
+                    );
+        }
     }
 }

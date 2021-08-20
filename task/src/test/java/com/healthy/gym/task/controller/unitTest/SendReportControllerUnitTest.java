@@ -367,9 +367,9 @@ public class SendReportControllerUnitTest {
                     .contentType(MediaType.APPLICATION_JSON);
 
 
-            String expectedMessage = messages.get("exception.task.not.found");
+            String expectedMessage = messages.get("exception.declined.employee");
 
-            doThrow(TaskNotFoundException.class)
+            doThrow(TaskDeclinedByEmployeeException.class)
                     .when(taskService)
                     .sendReport(notExistingTaskId, employeeId, employeeReportRequest);
 
@@ -379,7 +379,7 @@ public class SendReportControllerUnitTest {
                     .andExpect(status().reason(is(expectedMessage)))
                     .andExpect(result ->
                             Assertions.assertThat(Objects.requireNonNull(result.getResolvedException()).getCause())
-                                    .isInstanceOf(TaskNotFoundException.class)
+                                    .isInstanceOf(TaskDeclinedByEmployeeException.class)
                     );
         }
 

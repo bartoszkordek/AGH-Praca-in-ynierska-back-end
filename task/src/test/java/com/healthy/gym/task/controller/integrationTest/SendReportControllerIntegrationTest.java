@@ -69,6 +69,7 @@ public class SendReportControllerIntegrationTest {
     private String managerToken;
     private String adminToken;
     private String taskId;
+    private String declinedByEmployeeTaskId;
 
     private String requestContent;
     private ObjectMapper objectMapper;
@@ -137,6 +138,20 @@ public class SendReportControllerIntegrationTest {
         taskDocument.setManagerAccept(AcceptanceStatus.NO_ACTION);
 
         mongoTemplate.save(taskDocument);
+
+        declinedByEmployeeTaskId = UUID.randomUUID().toString();
+        TaskDocument declinedByEmployeeTaskDocument = new TaskDocument();
+        declinedByEmployeeTaskDocument.setTaskId(declinedByEmployeeTaskId);
+        declinedByEmployeeTaskDocument.setManager(managerDocument);
+        declinedByEmployeeTaskDocument.setEmployee(employeeDocument);
+        declinedByEmployeeTaskDocument.setTitle("Title 1");
+        declinedByEmployeeTaskDocument.setDescription("Description 1");
+        declinedByEmployeeTaskDocument.setDueDate(LocalDate.now().plusMonths(1));
+        declinedByEmployeeTaskDocument.setLastOrderUpdateDate(LocalDate.now());
+        declinedByEmployeeTaskDocument.setEmployeeAccept(AcceptanceStatus.NOT_ACCEPTED);
+        declinedByEmployeeTaskDocument.setManagerAccept(AcceptanceStatus.NO_ACTION);
+
+        mongoTemplate.save(declinedByEmployeeTaskDocument);
     }
 
     @AfterEach
@@ -216,6 +231,33 @@ public class SendReportControllerIntegrationTest {
 
         HttpEntity<Object> request = new HttpEntity<>(requestContent, headers);
         String expectedMessage = messages.get("exception.task.not.found");
+
+        ResponseEntity<JsonNode> responseEntity = restTemplate
+                .exchange(uri, HttpMethod.PUT, request, JsonNode.class);
+
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        assertThat(responseEntity.getBody().get("error").textValue()).isEqualTo("Bad Request");
+        assertThat(Objects.requireNonNull(responseEntity.getBody().get("message").textValue()))
+                .isEqualTo(expectedMessage);
+        assertThat(responseEntity.getBody().get("timestamp")).isNotNull();
+    }
+
+
+    @ParameterizedTest
+    @EnumSource(TestCountry.class)
+    void shouldNotSendReport_whenTaskAlreadyDeclinedByEmployee(TestCountry country) throws Exception {
+        Map<String, String> messages = getMessagesAccordingToLocale(country);
+        Locale testedLocale = convertEnumToLocale(country);
+
+        URI uri = new URI("http://localhost:" + port + "/"+ declinedByEmployeeTaskId+"/employee/"+employeeId+"/report");
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Accept-Language", testedLocale.toString());
+        headers.set("Authorization", employeeToken);
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        HttpEntity<Object> request = new HttpEntity<>(requestContent, headers);
+        String expectedMessage = messages.get("exception.declined.employee");
 
         ResponseEntity<JsonNode> responseEntity = restTemplate
                 .exchange(uri, HttpMethod.PUT, request, JsonNode.class);

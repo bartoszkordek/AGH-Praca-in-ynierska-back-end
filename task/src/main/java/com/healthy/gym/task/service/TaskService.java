@@ -33,5 +33,6 @@ public interface TaskService {
             throws TaskNotFoundException, InvalidMarkException, InvalidStatusException, TaskDeclinedByEmployeeException,
             ReportNotSentException;
 
-    List<TaskDTO> getTasks(String startDueDate, String endDueDate) throws StartDateAfterEndDateException;
+    List<TaskDTO> getTasks(String startDueDate, String endDueDate)
+            throws StartDateAfterEndDateException, NoTasksException;
 }

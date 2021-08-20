@@ -13,6 +13,7 @@ import com.healthy.gym.task.pojo.request.EmployeeAcceptDeclineTaskRequest;
 import com.healthy.gym.task.pojo.request.EmployeeReportRequest;
 import com.healthy.gym.task.pojo.request.ManagerReportVerificationRequest;
 import com.healthy.gym.task.pojo.request.ManagerTaskCreationRequest;
+import com.healthy.gym.task.util.RequestDateFormatter;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +23,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 public class TaskServiceImpl implements TaskService{
@@ -29,11 +31,14 @@ public class TaskServiceImpl implements TaskService{
     private final TaskDAO taskDAO;
     private final UserDAO userDAO;
     private final ModelMapper modelMapper;
+    private final RequestDateFormatter requestDateFormatter;
     private final GymRole managerRole;
     private final GymRole employeeRole;
     private final GymRole trainerRole;
     private static final String ACCEPT_STATUS = "APPROVE";
     private static final String DECLINE_STATUS = "DECLINE";
+    private static final String MIN_START_DATE = "1000-01-01";
+    private static final String MAX_END_DATE = "9999-12-31";
 
     @Autowired
     public TaskServiceImpl(
@@ -44,6 +49,7 @@ public class TaskServiceImpl implements TaskService{
         this.userDAO = userDAO;
         modelMapper = new ModelMapper();
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+        requestDateFormatter = new RequestDateFormatter();
         managerRole = GymRole.MANAGER;
         employeeRole = GymRole.EMPLOYEE;
         trainerRole = GymRole.TRAINER;
@@ -232,8 +238,30 @@ public class TaskServiceImpl implements TaskService{
     }
 
     @Override
-    public List<TaskDTO> getTasks(String startDueDate, String endDueDate) throws StartDateAfterEndDateException {
-        return null;
+    public List<TaskDTO> getTasks(String startDueDate, String endDueDate) throws StartDateAfterEndDateException, NoTasksException {
+        String startDate = MIN_START_DATE;
+        String endDate = MAX_END_DATE;
+        if(startDueDate != null) startDate = startDueDate;
+
+        if(endDueDate != null) endDate = endDueDate;
+
+        LocalDate formattedStartDate = requestDateFormatter.formatStartDate(startDate);
+        LocalDate formattedEndDate = requestDateFormatter.formatEndDate(endDate);
+
+        if(formattedStartDate.isAfter(formattedEndDate))
+            throw new StartDateAfterEndDateException();
+
+        List<TaskDocument> taskDocuments = taskDAO.findAllByDueDateBetween(
+                formattedStartDate.minusDays(1),
+                formattedEndDate.plusDays(1)
+        );
+
+        if(taskDocuments == null) throw new NoTasksException();
+
+        return taskDocuments
+                .stream()
+                .map(taskDocument -> modelMapper.map(taskDocument, TaskDTO.class))
+                .collect(Collectors.toList());
     }
 
 

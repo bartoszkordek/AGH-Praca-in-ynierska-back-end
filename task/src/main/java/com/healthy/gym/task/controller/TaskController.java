@@ -326,6 +326,10 @@ public class TaskController {
             String reason = translator.toLocale("exception.start.after.end");
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, exception);
 
+        } catch (NoTasksException exception) {
+            String reason = translator.toLocale("exception.no.tasks");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, exception);
+
         } catch (Exception exception){
             String reason = translator.toLocale(INTERNAL_ERROR_EXCEPTION);
             exception.printStackTrace();

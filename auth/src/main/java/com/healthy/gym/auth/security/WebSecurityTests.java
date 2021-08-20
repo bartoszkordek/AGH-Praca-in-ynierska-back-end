@@ -2,6 +2,7 @@ package com.healthy.gym.auth.security;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -13,6 +14,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @Configuration
 @EnableWebSecurity
 public class WebSecurityTests extends WebSecurityConfigurerAdapter {
+
+    private static final String ACTUATOR = "/actuator/**";
 
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
@@ -36,9 +39,11 @@ public class WebSecurityTests extends WebSecurityConfigurerAdapter {
                 .csrf().disable()
                 .headers().frameOptions().disable()
                 .and()
-                .authorizeRequests().antMatchers("/users/status").authenticated()
-                .and()
-                .authorizeRequests().antMatchers("/**").permitAll()
+                .authorizeRequests()
+                .antMatchers(HttpMethod.GET, ACTUATOR).permitAll()
+                .antMatchers(HttpMethod.POST, ACTUATOR).hasRole("ADMIN")
+                .antMatchers(HttpMethod.DELETE, ACTUATOR).hasRole("ADMIN")
+                .antMatchers("/**").permitAll()
                 .and()
                 .httpBasic();
     }

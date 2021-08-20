@@ -1,0 +1,14 @@
+spring:
+  mail:
+    host: localhost
+    port: 3025
+    password: password4Tests
+    username: testEmailUsername
+    personal: AGH Praca inzynierska - Tests
+  zipkin:
+    enabled: false
+
+eureka:
+  client:
+    fetch-registry: false
+    register-with-eureka: false

@@ -134,12 +134,6 @@ public class UserController {
         );
     }
 
-    @GetMapping("/status")
-    public @ResponseBody
-    String status() {
-        return userService.status();
-    }
-
     @GetMapping(value = "/confirmRegistration", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ConfirmationResponse> confirmRegistration(@RequestParam("token") String token) {
 

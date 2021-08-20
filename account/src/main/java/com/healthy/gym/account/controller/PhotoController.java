@@ -83,7 +83,7 @@ public class PhotoController {
         return gateway + "/" + name + requestURI;
     }
 
-    @GetMapping()
+    @GetMapping
     public ResponseEntity<byte[]> getAvatar(@PathVariable("id") String userId) {
         try {
             byte[] image = photoService.getAvatar(userId);

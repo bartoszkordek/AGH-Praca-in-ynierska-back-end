@@ -4,14 +4,12 @@ import com.healthy.gym.account.data.document.UserDocument;
 import com.healthy.gym.account.data.document.UserPrivacyDocument;
 import com.healthy.gym.account.data.repository.UserDAO;
 import com.healthy.gym.account.data.repository.UserPrivacyDAO;
+import com.healthy.gym.account.dto.UserPrivacyDTO;
 import com.healthy.gym.account.exception.UserPrivacyNotFoundException;
 import com.healthy.gym.account.service.AccountService;
-import com.healthy.gym.account.dto.UserPrivacyDTO;
+import com.healthy.gym.account.service.AccountServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 import java.util.UUID;
@@ -19,19 +17,14 @@ import java.util.UUID;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-@SpringBootTest
 class WhenGetUserPrivacyTest {
-    @Autowired
+
     private AccountService accountService;
-
-    @MockBean
     private UserDAO userDAO;
-
-    @MockBean
     private UserPrivacyDAO userPrivacyDAO;
-
     private UserPrivacyDocument userPrivacyDocument;
     private String userId;
 
@@ -45,6 +38,10 @@ class WhenGetUserPrivacyTest {
                 true,
                 new UserDocument()
         );
+
+        userDAO = mock(UserDAO.class);
+        userPrivacyDAO = mock(UserPrivacyDAO.class);
+        accountService = new AccountServiceImpl(userDAO, userPrivacyDAO, null);
     }
 
     @Test

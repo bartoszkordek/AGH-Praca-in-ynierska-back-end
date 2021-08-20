@@ -3,6 +3,7 @@ package com.healthy.gym.task.security;
 
 import com.healthy.gym.task.component.TokenManager;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -13,6 +14,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 @EnableWebSecurity
 public class WebSecurity extends WebSecurityConfigurerAdapter {
 
+    private static final String ACTUATOR = "/actuator/**";
     private final TokenManager tokenManager;
 
     @Autowired
@@ -26,6 +28,9 @@ public class WebSecurity extends WebSecurityConfigurerAdapter {
         http.headers().frameOptions().disable();
 
         http.authorizeRequests()
+                .antMatchers(HttpMethod.GET, ACTUATOR).permitAll()
+                .antMatchers(HttpMethod.POST, ACTUATOR).hasRole("ADMIN")
+                .antMatchers(HttpMethod.DELETE, ACTUATOR).hasRole("ADMIN")
                 .anyRequest().authenticated()
                 .and()
                 .addFilter(getAuthorizationFilter());

@@ -11,7 +11,6 @@ import com.healthy.gym.auth.shared.UserDTO;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +20,6 @@ import org.springframework.http.MediaType;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.RequestBuilder;
@@ -36,12 +34,11 @@ import java.util.UUID;
 import static com.healthy.gym.auth.configuration.tests.LocaleConverter.convertEnumToLocale;
 import static com.healthy.gym.auth.configuration.tests.Messages.getMessagesAccordingToLocale;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.anEmptyMap;
+import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.ResultMatcher.matchAll;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -63,19 +60,6 @@ class UserControllerTest {
     @BeforeEach
     void setUp() {
         doNothing().when(javaMailSender).send(any(SimpleMailMessage.class));
-    }
-
-    @Test
-    @WithMockUser
-    void shouldReturnDefaultStatusMessage() throws Exception {
-        URI uri = new URI("/users/status");
-
-        when(userService.status()).thenReturn("OK");
-
-        mockMvc.perform(get(uri))
-                .andDo(print())
-                .andExpect(status().isOk())
-                .andExpect(content().string(containsString("OK")));
     }
 
     @ParameterizedTest

@@ -15,7 +15,6 @@ import org.springframework.http.*;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
-import org.springframework.test.context.TestPropertySource;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.MongoDBContainer;
 import org.testcontainers.junit.jupiter.Container;
@@ -24,16 +23,15 @@ import org.testcontainers.utility.DockerImageName;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.*;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 @Testcontainers
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@TestPropertySource(properties = {
-        "eureka.client.fetch-registry=false",
-        "eureka.client.register-with-eureka=false"
-})
 @ActiveProfiles(value = "test")
 @Tag("integration")
 class WhenGetAllReviewsIntegrationTest {
@@ -105,7 +103,7 @@ class WhenGetAllReviewsIntegrationTest {
 
 
     @Nested
-    class ShouldGetAllReviews{
+    class ShouldGetAllReviews {
 
         @Test
         void test() throws URISyntaxException {
@@ -114,23 +112,24 @@ class WhenGetAllReviewsIntegrationTest {
     }
 
     @Nested
-    class ShouldNotGetAllReviews{
+    class ShouldNotGetAllReviews {
 
         @Test
         void whenNotAuthorized() throws URISyntaxException {
             int pageNo = 0;
             String startDate = "2021-06-10";
             String endDate = "2021-06-20";
-            URI uri = new URI("http://localhost:" + port + "/trainings/review/page/"+
-                    pageNo+
-                    "?"+"startDate="+startDate+
-                    "&"+"endDate="+endDate);
+            URI uri = new URI("http://localhost:" + port + "/trainings/review/page/" +
+                    pageNo +
+                    "?" + "startDate=" + startDate +
+                    "&" + "endDate=" + endDate);
             HttpHeaders headers = new HttpHeaders();
 
             HttpEntity<Object> requestEntity = new HttpEntity<>(null, headers);
 
             ResponseEntity<Map<String, Object>> responseEntity = restTemplate
-                    .exchange(uri, HttpMethod.GET, requestEntity, new ParameterizedTypeReference<Map<String, Object>>(){});
+                    .exchange(uri, HttpMethod.GET, requestEntity, new ParameterizedTypeReference<Map<String, Object>>() {
+                    });
 
             AssertionsForClassTypes.assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
         }

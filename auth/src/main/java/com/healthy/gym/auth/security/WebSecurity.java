@@ -60,12 +60,10 @@ public class WebSecurity extends WebSecurityConfigurerAdapter {
         http.headers().frameOptions().disable();
 
         http.authorizeRequests()
-                .antMatchers("/users/status").authenticated()
                 .antMatchers(HttpMethod.GET, ACTUATOR).permitAll()
                 .antMatchers(HttpMethod.POST, ACTUATOR).hasRole("ADMIN")
                 .antMatchers(HttpMethod.DELETE, ACTUATOR).hasRole("ADMIN")
-                .and()
-                .authorizeRequests().antMatchers("/**").permitAll()
+                .antMatchers("/**").permitAll()
                 .and()
                 .addFilter(getAuthenticationFilter())
                 .addFilterBefore(redisFilter, JWTAuthenticationFilter.class)

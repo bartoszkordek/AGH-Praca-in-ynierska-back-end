@@ -2,20 +2,24 @@ package com.healthy.gym.account.service.accountServiceTest.integrationTest;
 
 import com.healthy.gym.account.component.TokenManager;
 import com.healthy.gym.account.data.document.UserDocument;
+import com.healthy.gym.account.dto.UserDTO;
 import com.healthy.gym.account.enums.GymRole;
 import com.healthy.gym.account.exception.IdenticalOldAndNewPasswordException;
 import com.healthy.gym.account.exception.OldPasswordDoesNotMatchException;
 import com.healthy.gym.account.service.AccountService;
-import com.healthy.gym.account.dto.UserDTO;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
-import org.springframework.test.context.TestPropertySource;
+import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.MongoDBContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
@@ -30,38 +34,44 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @Testcontainers
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@TestPropertySource(properties = {
-        "eureka.client.fetch-registry=false",
-        "eureka.client.register-with-eureka=false"
-})
+@ActiveProfiles(value = "test")
 @Tag("integration")
 class WhenChangePasswordIntegrationTest {
 
     @Container
     static MongoDBContainer mongoDBContainer =
             new MongoDBContainer(DockerImageName.parse("mongo:4.4.4-bionic"));
+
+    @Container
+    static GenericContainer<?> rabbitMQContainer =
+            new GenericContainer<>(DockerImageName.parse("gza73/agh-praca-inzynierska-rabbitmq"))
+                    .withExposedPorts(5672);
+
     @Autowired
     private AccountService accountService;
+
     @Autowired
     private TokenManager tokenManager;
+
     @Autowired
     private MongoTemplate mongoTemplate;
+
     @Autowired
     private BCryptPasswordEncoder bCryptPasswordEncoder;
 
     private String userId;
-    private UserDocument andrzejNowak;
 
     @DynamicPropertySource
     static void setProperties(DynamicPropertyRegistry registry) {
         registry.add("spring.data.mongodb.uri", mongoDBContainer::getReplicaSetUrl);
+        registry.add("spring.rabbitmq.port", rabbitMQContainer::getFirstMappedPort);
     }
 
     @BeforeEach
     void setUp() {
         userId = UUID.randomUUID().toString();
         String encryptedPassword = bCryptPasswordEncoder.encode("password4576");
-        andrzejNowak = new UserDocument(
+        UserDocument andrzejNowak = new UserDocument(
                 "Andrzej",
                 "Nowak",
                 "andrzej.nowak@test.com",

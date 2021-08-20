@@ -1,13 +1,13 @@
 package com.healthy.gym.account.controller;
 
 import com.healthy.gym.account.component.Translator;
+import com.healthy.gym.account.dto.UserPrivacyDTO;
 import com.healthy.gym.account.exception.ResponseBindException;
 import com.healthy.gym.account.exception.UserPrivacyNotFoundException;
 import com.healthy.gym.account.exception.UserPrivacyNotUpdatedException;
 import com.healthy.gym.account.pojo.request.ChangePrivacyRequest;
 import com.healthy.gym.account.pojo.response.ChangePrivacyResponse;
 import com.healthy.gym.account.service.AccountService;
-import com.healthy.gym.account.dto.UserPrivacyDTO;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;

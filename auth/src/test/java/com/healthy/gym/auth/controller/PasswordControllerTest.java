@@ -17,6 +17,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.*;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.RequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -24,10 +25,7 @@ import org.springframework.validation.BindException;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 import static com.healthy.gym.auth.configuration.tests.LocaleConverter.convertEnumToLocale;
 import static com.healthy.gym.auth.configuration.tests.Messages.getMessagesAccordingToLocale;
@@ -41,6 +39,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(PasswordController.class)
+@ActiveProfiles(value = "test")
 class PasswordControllerTest {
 
     @Autowired
@@ -86,7 +85,7 @@ class PasswordControllerTest {
                         .andExpect(status().isBadRequest())
                         .andExpect(status().reason(is(expectedMessage)))
                         .andExpect(result ->
-                                assertThat(result.getResolvedException().getCause())
+                                assertThat(Objects.requireNonNull(result.getResolvedException()).getCause())
                                         .isInstanceOf(BindException.class)
                         );
             }
@@ -112,7 +111,7 @@ class PasswordControllerTest {
                         .andExpect(status().isBadRequest())
                         .andExpect(status().reason(is(expectedMessage)))
                         .andExpect(result ->
-                                assertThat(result.getResolvedException().getCause())
+                                assertThat(Objects.requireNonNull(result.getResolvedException()).getCause())
                                         .isInstanceOf(BindException.class)
                         );
             }
@@ -138,7 +137,7 @@ class PasswordControllerTest {
                         .andExpect(status().isBadRequest())
                         .andExpect(status().reason(is(expectedMessage)))
                         .andExpect(result ->
-                                assertThat(result.getResolvedException().getCause())
+                                assertThat(Objects.requireNonNull(result.getResolvedException()).getCause())
                                         .isInstanceOf(BindException.class)
                         );
             }
@@ -178,7 +177,7 @@ class PasswordControllerTest {
                             .andExpect(status().isBadRequest())
                             .andExpect(status().reason(is(expectedMessage)))
                             .andExpect(result ->
-                                    assertThat(result.getResolvedException().getCause())
+                                    assertThat(Objects.requireNonNull(result.getResolvedException()).getCause())
                                             .isInstanceOf(UsernameNotFoundException.class)
                             );
                 }
@@ -204,7 +203,7 @@ class PasswordControllerTest {
                             .andExpect(status().isInternalServerError())
                             .andExpect(status().reason(is(expectedMessage)))
                             .andExpect(result ->
-                                    assertThat(result.getResolvedException().getCause())
+                                    assertThat(Objects.requireNonNull(result.getResolvedException()).getCause())
                                             .isInstanceOf(Exception.class)
                             );
                 }
@@ -233,7 +232,7 @@ class PasswordControllerTest {
                                 .andExpect(status().isForbidden())
                                 .andExpect(status().reason(is(expectedMessage)))
                                 .andExpect(result ->
-                                        assertThat(result.getResolvedException().getCause())
+                                        assertThat(Objects.requireNonNull(result.getResolvedException()).getCause())
                                                 .isInstanceOf(AccountExpiredException.class)
                                 );
                     }
@@ -259,7 +258,7 @@ class PasswordControllerTest {
                                 .andExpect(status().isForbidden())
                                 .andExpect(status().reason(is(expectedMessage)))
                                 .andExpect(result ->
-                                        assertThat(result.getResolvedException().getCause())
+                                        assertThat(Objects.requireNonNull(result.getResolvedException()).getCause())
                                                 .isInstanceOf(CredentialsExpiredException.class)
                                 );
                     }
@@ -285,7 +284,7 @@ class PasswordControllerTest {
                                 .andExpect(status().isForbidden())
                                 .andExpect(status().reason(is(expectedMessage)))
                                 .andExpect(result ->
-                                        assertThat(result.getResolvedException().getCause())
+                                        assertThat(Objects.requireNonNull(result.getResolvedException()).getCause())
                                                 .isInstanceOf(DisabledException.class)
                                 );
                     }
@@ -311,7 +310,7 @@ class PasswordControllerTest {
                                 .andExpect(status().isForbidden())
                                 .andExpect(status().reason(is(expectedMessage)))
                                 .andExpect(result ->
-                                        assertThat(result.getResolvedException().getCause())
+                                        assertThat(Objects.requireNonNull(result.getResolvedException()).getCause())
                                                 .isInstanceOf(LockedException.class)
                                 );
                     }
@@ -337,7 +336,7 @@ class PasswordControllerTest {
                                 .andExpect(status().isForbidden())
                                 .andExpect(status().reason(is(expectedMessage)))
                                 .andExpect(result ->
-                                        assertThat(result.getResolvedException().getCause())
+                                        assertThat(Objects.requireNonNull(result.getResolvedException()).getCause())
                                                 .isInstanceOf(UnexpectedAccountStatusException.class)
                                 );
                     }
@@ -420,7 +419,7 @@ class PasswordControllerTest {
                         .andExpect(status().isUnauthorized())
                         .andExpect(status().reason(is(expectedMessage)))
                         .andExpect(result ->
-                                assertThat(result.getResolvedException().getCause())
+                                assertThat(Objects.requireNonNull(result.getResolvedException()).getCause())
                                         .isInstanceOf(ExpiredTokenException.class)
                         );
             }
@@ -448,7 +447,7 @@ class PasswordControllerTest {
                         .andExpect(status().isNotFound())
                         .andExpect(status().reason(is(expectedMessage)))
                         .andExpect(result ->
-                                assertThat(result.getResolvedException().getCause())
+                                assertThat(Objects.requireNonNull(result.getResolvedException()).getCause())
                                         .isInstanceOf(InvalidTokenException.class)
                         );
             }
@@ -476,7 +475,7 @@ class PasswordControllerTest {
                         .andExpect(status().isInternalServerError())
                         .andExpect(status().reason(is(expectedMessage)))
                         .andExpect(result ->
-                                assertThat(result.getResolvedException().getCause())
+                                assertThat(Objects.requireNonNull(result.getResolvedException()).getCause())
                                         .isInstanceOf(IllegalStateException.class)
                         );
             }

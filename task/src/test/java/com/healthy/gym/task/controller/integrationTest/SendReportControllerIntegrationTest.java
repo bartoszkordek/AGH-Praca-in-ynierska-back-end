@@ -71,6 +71,7 @@ public class SendReportControllerIntegrationTest {
     private String adminToken;
     private String taskId;
     private String declinedByEmployeeTaskId;
+    private String exceededDueDateTaskId;
 
     private String requestContent;
     private String emptyRequestContent;
@@ -164,6 +165,21 @@ public class SendReportControllerIntegrationTest {
         declinedByEmployeeTaskDocument.setManagerAccept(AcceptanceStatus.NO_ACTION);
 
         mongoTemplate.save(declinedByEmployeeTaskDocument);
+
+        exceededDueDateTaskId = UUID.randomUUID().toString();
+        TaskDocument exceededDueDateTaskDocument = new TaskDocument();
+        exceededDueDateTaskDocument.setTaskId(exceededDueDateTaskId);
+        exceededDueDateTaskDocument.setManager(managerDocument);
+        exceededDueDateTaskDocument.setEmployee(employeeDocument);
+        exceededDueDateTaskDocument.setTitle("Title 1");
+        exceededDueDateTaskDocument.setDescription("Description 1");
+        exceededDueDateTaskDocument.setTaskCreationDate(LocalDate.now().minusMonths(1));
+        exceededDueDateTaskDocument.setDueDate(LocalDate.now().minusDays(5));
+        exceededDueDateTaskDocument.setLastTaskUpdateDate(LocalDate.now().minusMonths(1));
+        exceededDueDateTaskDocument.setEmployeeAccept(AcceptanceStatus.ACCEPTED);
+        exceededDueDateTaskDocument.setManagerAccept(AcceptanceStatus.NO_ACTION);
+
+        mongoTemplate.save(exceededDueDateTaskDocument);
     }
 
     @AfterEach
@@ -420,6 +436,33 @@ public class SendReportControllerIntegrationTest {
 
             HttpEntity<Object> request = new HttpEntity<>(requestContent, headers);
             String expectedMessage = messages.get("exception.declined.employee");
+
+            ResponseEntity<JsonNode> responseEntity = restTemplate
+                    .exchange(uri, HttpMethod.PUT, request, JsonNode.class);
+
+            assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+            assertThat(responseEntity.getBody().get("error").textValue()).isEqualTo("Bad Request");
+            assertThat(Objects.requireNonNull(responseEntity.getBody().get("message").textValue()))
+                    .isEqualTo(expectedMessage);
+            assertThat(responseEntity.getBody().get("timestamp")).isNotNull();
+        }
+
+        @ParameterizedTest
+        @EnumSource(TestCountry.class)
+        void shouldNotSendReport_whenDueDateExceeded(TestCountry country) throws Exception {
+            Map<String, String> messages = getMessagesAccordingToLocale(country);
+            Locale testedLocale = convertEnumToLocale(country);
+
+            URI uri = new URI("http://localhost:" + port + "/" + exceededDueDateTaskId + "/employee/" + employeeId
+                    + "/report");
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.set("Accept-Language", testedLocale.toString());
+            headers.set("Authorization", employeeToken);
+            headers.setContentType(MediaType.APPLICATION_JSON);
+
+            HttpEntity<Object> request = new HttpEntity<>(requestContent, headers);
+            String expectedMessage = messages.get("exception.due.date.exceed");
 
             ResponseEntity<JsonNode> responseEntity = restTemplate
                     .exchange(uri, HttpMethod.PUT, request, JsonNode.class);

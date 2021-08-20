@@ -10,7 +10,7 @@ import com.healthy.gym.task.exception.EmployeeNotFoundException;
 import com.healthy.gym.task.exception.ManagerNotFoundException;
 import com.healthy.gym.task.exception.RetroDueDateException;
 import com.healthy.gym.task.exception.TaskNotFoundException;
-import com.healthy.gym.task.pojo.request.ManagerOrderRequest;
+import com.healthy.gym.task.pojo.request.ManagerTaskCreationRequest;
 import com.healthy.gym.task.service.TaskService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -72,7 +72,7 @@ public class UpdateTaskControllerUnitTest {
     private String requestTitle;
     private String requestDescription;
     private String requestDueDate;
-    private ManagerOrderRequest managerOrderRequest;
+    private ManagerTaskCreationRequest managerTaskCreationRequest;
 
     private ObjectMapper objectMapper;
 
@@ -99,13 +99,13 @@ public class UpdateTaskControllerUnitTest {
         requestTitle = "Test task 1";
         requestDescription = "Description for task 1";
         requestDueDate = LocalDate.now().plusMonths(1).format(DateTimeFormatter.ISO_LOCAL_DATE);
-        managerOrderRequest = new ManagerOrderRequest();
-        managerOrderRequest.setTitle(requestTitle);
-        managerOrderRequest.setDescription(requestDescription);
-        managerOrderRequest.setEmployeeId(employeeId);
-        managerOrderRequest.setDueDate(requestDueDate);
+        managerTaskCreationRequest = new ManagerTaskCreationRequest();
+        managerTaskCreationRequest.setTitle(requestTitle);
+        managerTaskCreationRequest.setDescription(requestDescription);
+        managerTaskCreationRequest.setEmployeeId(employeeId);
+        managerTaskCreationRequest.setDueDate(requestDueDate);
 
-        requestContent = objectMapper.writeValueAsString(managerOrderRequest);
+        requestContent = objectMapper.writeValueAsString(managerTaskCreationRequest);
 
         uri = new URI("/");
     }
@@ -158,7 +158,7 @@ public class UpdateTaskControllerUnitTest {
                 null
         );
 
-        when(taskService.updateTask(taskId, managerOrderRequest))
+        when(taskService.updateTask(taskId, managerTaskCreationRequest))
                 .thenReturn(taskResponse);
 
         String expectedMessage = messages.get("task.updated");
@@ -310,13 +310,13 @@ public class UpdateTaskControllerUnitTest {
             String invalidRequestDescription = "D";
             String invalidEmployeeId = "invalidEmployeeId";
             String invalidRequestDueDate = "Invalid Date";
-            ManagerOrderRequest invalidManagerOrderRequest = new ManagerOrderRequest();
-            invalidManagerOrderRequest.setTitle(invalidRequestTitle);
-            invalidManagerOrderRequest.setDescription(invalidRequestDescription);
-            invalidManagerOrderRequest.setEmployeeId(invalidEmployeeId);
-            invalidManagerOrderRequest.setDueDate(invalidRequestDueDate);
+            ManagerTaskCreationRequest invalidManagerTaskCreationRequest = new ManagerTaskCreationRequest();
+            invalidManagerTaskCreationRequest.setTitle(invalidRequestTitle);
+            invalidManagerTaskCreationRequest.setDescription(invalidRequestDescription);
+            invalidManagerTaskCreationRequest.setEmployeeId(invalidEmployeeId);
+            invalidManagerTaskCreationRequest.setDueDate(invalidRequestDueDate);
 
-            String invalidTitleRequestContent = objectMapper.writeValueAsString(invalidManagerOrderRequest);
+            String invalidTitleRequestContent = objectMapper.writeValueAsString(invalidManagerTaskCreationRequest);
 
             RequestBuilder request = MockMvcRequestBuilders
                     .put(uri+taskId)
@@ -354,11 +354,11 @@ public class UpdateTaskControllerUnitTest {
             Locale testedLocale = convertEnumToLocale(country);
 
             //before
-            ManagerOrderRequest invalidManagerOrderRequest = new ManagerOrderRequest();
-            invalidManagerOrderRequest.setEmployeeId(UUID.randomUUID().toString());
-            invalidManagerOrderRequest.setDueDate("2030-12-31");
+            ManagerTaskCreationRequest invalidManagerTaskCreationRequest = new ManagerTaskCreationRequest();
+            invalidManagerTaskCreationRequest.setEmployeeId(UUID.randomUUID().toString());
+            invalidManagerTaskCreationRequest.setDueDate("2030-12-31");
 
-            String invalidTitleRequestContent = objectMapper.writeValueAsString(invalidManagerOrderRequest);
+            String invalidTitleRequestContent = objectMapper.writeValueAsString(invalidManagerTaskCreationRequest);
 
             RequestBuilder request = MockMvcRequestBuilders
                     .put(uri+taskId)

@@ -9,7 +9,7 @@ import javax.validation.constraints.Size;
 import java.util.Objects;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class ManagerOrderRequest {
+public class ManagerTaskCreationRequest {
 
     @NotNull(message = "{field.required}")
     @Size(min = 2, max = 20, message = "{field.title.failure}")
@@ -95,7 +95,7 @@ public class ManagerOrderRequest {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        ManagerOrderRequest that = (ManagerOrderRequest) o;
+        ManagerTaskCreationRequest that = (ManagerTaskCreationRequest) o;
         return Objects.equals(title, that.title) &&
                 Objects.equals(description, that.description) &&
                 Objects.equals(employeeId, that.employeeId) &&

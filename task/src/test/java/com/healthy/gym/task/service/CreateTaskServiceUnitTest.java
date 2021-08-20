@@ -11,7 +11,7 @@ import com.healthy.gym.task.enums.GymRole;
 import com.healthy.gym.task.exception.EmployeeNotFoundException;
 import com.healthy.gym.task.exception.ManagerNotFoundException;
 import com.healthy.gym.task.exception.RetroDueDateException;
-import com.healthy.gym.task.pojo.request.ManagerOrderRequest;
+import com.healthy.gym.task.pojo.request.ManagerTaskCreationRequest;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -55,11 +55,11 @@ public class CreateTaskServiceUnitTest {
         LocalDate dueDate = now.plusMonths(1);
 
         //request
-        ManagerOrderRequest managerOrderRequest = new ManagerOrderRequest();
-        managerOrderRequest.setEmployeeId(employeeId);
-        managerOrderRequest.setTitle(title);
-        managerOrderRequest.setDescription(description);
-        managerOrderRequest.setDueDate(dueDate.toString());
+        ManagerTaskCreationRequest managerTaskCreationRequest = new ManagerTaskCreationRequest();
+        managerTaskCreationRequest.setEmployeeId(employeeId);
+        managerTaskCreationRequest.setTitle(title);
+        managerTaskCreationRequest.setDescription(description);
+        managerTaskCreationRequest.setDueDate(dueDate.toString());
 
         //DB documents
         String employeeName = "Jan";
@@ -117,25 +117,25 @@ public class CreateTaskServiceUnitTest {
         when(taskDAO.save(any())).thenReturn(taskDocument);
 
         //then
-        assertThat(taskService.createTask(managerOrderRequest)).isEqualTo(taskResponse);
+        assertThat(taskService.createTask(managerTaskCreationRequest)).isEqualTo(taskResponse);
     }
 
     @Test
     void shouldNotCreateTask_whenManagerNotExist(){
         //before
         //request
-        ManagerOrderRequest managerOrderRequest = new ManagerOrderRequest();
-        managerOrderRequest.setEmployeeId(employeeId);
-        managerOrderRequest.setTitle("Sample title");
-        managerOrderRequest.setDescription("Sample description");
-        managerOrderRequest.setDueDate(LocalDate.now().plusMonths(1).toString());
+        ManagerTaskCreationRequest managerTaskCreationRequest = new ManagerTaskCreationRequest();
+        managerTaskCreationRequest.setEmployeeId(employeeId);
+        managerTaskCreationRequest.setTitle("Sample title");
+        managerTaskCreationRequest.setDescription("Sample description");
+        managerTaskCreationRequest.setDueDate(LocalDate.now().plusMonths(1).toString());
 
         //when
         when(userDAO.findByGymRolesContaining(GymRole.MANAGER)).thenReturn(null);
 
         //then
         assertThatThrownBy(() ->
-                taskService.createTask(managerOrderRequest)
+                taskService.createTask(managerTaskCreationRequest)
         ).isInstanceOf(ManagerNotFoundException.class);
     }
 
@@ -144,11 +144,11 @@ public class CreateTaskServiceUnitTest {
         //before
         //request
         String invalidEmployeeId = UUID.randomUUID().toString();
-        ManagerOrderRequest managerOrderRequest = new ManagerOrderRequest();
-        managerOrderRequest.setEmployeeId(invalidEmployeeId);
-        managerOrderRequest.setTitle("Sample title");
-        managerOrderRequest.setDescription("Sample description");
-        managerOrderRequest.setDueDate(LocalDate.now().plusMonths(1).toString());
+        ManagerTaskCreationRequest managerTaskCreationRequest = new ManagerTaskCreationRequest();
+        managerTaskCreationRequest.setEmployeeId(invalidEmployeeId);
+        managerTaskCreationRequest.setTitle("Sample title");
+        managerTaskCreationRequest.setDescription("Sample description");
+        managerTaskCreationRequest.setDueDate(LocalDate.now().plusMonths(1).toString());
 
 
         //DB documents
@@ -167,7 +167,7 @@ public class CreateTaskServiceUnitTest {
 
         //then
         assertThatThrownBy(() ->
-                taskService.createTask(managerOrderRequest)
+                taskService.createTask(managerTaskCreationRequest)
         ).isInstanceOf(EmployeeNotFoundException.class);
     }
 
@@ -177,11 +177,11 @@ public class CreateTaskServiceUnitTest {
         employeeId = UUID.randomUUID().toString();
         //request
         String invalidEmployeeId = UUID.randomUUID().toString();
-        ManagerOrderRequest managerOrderRequest = new ManagerOrderRequest();
-        managerOrderRequest.setEmployeeId(invalidEmployeeId);
-        managerOrderRequest.setTitle("Sample title");
-        managerOrderRequest.setDescription("Sample description");
-        managerOrderRequest.setDueDate(LocalDate.now().plusMonths(1).toString());
+        ManagerTaskCreationRequest managerTaskCreationRequest = new ManagerTaskCreationRequest();
+        managerTaskCreationRequest.setEmployeeId(invalidEmployeeId);
+        managerTaskCreationRequest.setTitle("Sample title");
+        managerTaskCreationRequest.setDescription("Sample description");
+        managerTaskCreationRequest.setDueDate(LocalDate.now().plusMonths(1).toString());
 
 
         //DB documents
@@ -209,7 +209,7 @@ public class CreateTaskServiceUnitTest {
 
         //then
         assertThatThrownBy(() ->
-                taskService.createTask(managerOrderRequest)
+                taskService.createTask(managerTaskCreationRequest)
         ).isInstanceOf(EmployeeNotFoundException.class);
     }
 
@@ -219,11 +219,11 @@ public class CreateTaskServiceUnitTest {
         employeeId = UUID.randomUUID().toString();
 
         //request
-        ManagerOrderRequest managerOrderRequest = new ManagerOrderRequest();
-        managerOrderRequest.setEmployeeId(employeeId);
-        managerOrderRequest.setTitle("Sample title");
-        managerOrderRequest.setDescription("Sample description");
-        managerOrderRequest.setDueDate(LocalDate.now().minusDays(1).toString());
+        ManagerTaskCreationRequest managerTaskCreationRequest = new ManagerTaskCreationRequest();
+        managerTaskCreationRequest.setEmployeeId(employeeId);
+        managerTaskCreationRequest.setTitle("Sample title");
+        managerTaskCreationRequest.setDescription("Sample description");
+        managerTaskCreationRequest.setDueDate(LocalDate.now().minusDays(1).toString());
 
 
         //DB documents
@@ -251,7 +251,7 @@ public class CreateTaskServiceUnitTest {
 
         //then
         assertThatThrownBy(() ->
-                taskService.createTask(managerOrderRequest)
+                taskService.createTask(managerTaskCreationRequest)
         ).isInstanceOf(RetroDueDateException.class);
     }
 }

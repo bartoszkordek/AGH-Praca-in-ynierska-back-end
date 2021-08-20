@@ -8,7 +8,7 @@ import com.healthy.gym.task.data.document.TaskDocument;
 import com.healthy.gym.task.data.document.UserDocument;
 import com.healthy.gym.task.enums.AcceptanceStatus;
 import com.healthy.gym.task.enums.GymRole;
-import com.healthy.gym.task.pojo.request.ManagerOrderRequest;
+import com.healthy.gym.task.pojo.request.ManagerTaskCreationRequest;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -78,8 +78,8 @@ public class CreateTaskControllerIntegrationTest {
     private String requestDueDate;
     private String requestReminderDate;
     private String priority;
-    private ManagerOrderRequest managerOrderRequest;
-    private ManagerOrderRequest managerOrderRequestContentWithOptionalParams;
+    private ManagerTaskCreationRequest managerTaskCreationRequest;
+    private ManagerTaskCreationRequest managerTaskCreationRequestContentWithOptionalParams;
 
     private ObjectMapper objectMapper;
 
@@ -110,23 +110,23 @@ public class CreateTaskControllerIntegrationTest {
         requestDueDate = LocalDate.now().plusMonths(1).format(DateTimeFormatter.ISO_LOCAL_DATE);
         requestReminderDate = LocalDate.now().plusDays(20).format(DateTimeFormatter.ISO_LOCAL_DATE);
         priority = "HIGH";
-        managerOrderRequest = new ManagerOrderRequest();
-        managerOrderRequest.setTitle(requestTitle);
-        managerOrderRequest.setDescription(requestDescription);
-        managerOrderRequest.setEmployeeId(employeeId);
-        managerOrderRequest.setDueDate(requestDueDate);
+        managerTaskCreationRequest = new ManagerTaskCreationRequest();
+        managerTaskCreationRequest.setTitle(requestTitle);
+        managerTaskCreationRequest.setDescription(requestDescription);
+        managerTaskCreationRequest.setEmployeeId(employeeId);
+        managerTaskCreationRequest.setDueDate(requestDueDate);
 
-        requestContent = objectMapper.writeValueAsString(managerOrderRequest);
+        requestContent = objectMapper.writeValueAsString(managerTaskCreationRequest);
 
-        managerOrderRequestContentWithOptionalParams = new ManagerOrderRequest();
-        managerOrderRequestContentWithOptionalParams.setTitle(requestTitle);
-        managerOrderRequestContentWithOptionalParams.setDescription(requestDescription);
-        managerOrderRequestContentWithOptionalParams.setEmployeeId(employeeId);
-        managerOrderRequestContentWithOptionalParams.setDueDate(requestDueDate);
-        managerOrderRequestContentWithOptionalParams.setReminderDate(requestReminderDate);
-        managerOrderRequestContentWithOptionalParams.setPriority(priority);
+        managerTaskCreationRequestContentWithOptionalParams = new ManagerTaskCreationRequest();
+        managerTaskCreationRequestContentWithOptionalParams.setTitle(requestTitle);
+        managerTaskCreationRequestContentWithOptionalParams.setDescription(requestDescription);
+        managerTaskCreationRequestContentWithOptionalParams.setEmployeeId(employeeId);
+        managerTaskCreationRequestContentWithOptionalParams.setDueDate(requestDueDate);
+        managerTaskCreationRequestContentWithOptionalParams.setReminderDate(requestReminderDate);
+        managerTaskCreationRequestContentWithOptionalParams.setPriority(priority);
 
-        requestContentWithOptionalParams = objectMapper.writeValueAsString(managerOrderRequestContentWithOptionalParams);
+        requestContentWithOptionalParams = objectMapper.writeValueAsString(managerTaskCreationRequestContentWithOptionalParams);
 
         //existing DB docs
         String employeeName = "Jan";
@@ -360,13 +360,13 @@ public class CreateTaskControllerIntegrationTest {
 
         String invalidEmployeeId = UUID.randomUUID().toString();
 
-        ManagerOrderRequest invalidEmployeeManagerOrderRequest = new ManagerOrderRequest();
-        invalidEmployeeManagerOrderRequest.setTitle(requestTitle);
-        invalidEmployeeManagerOrderRequest.setDescription(requestDescription);
-        invalidEmployeeManagerOrderRequest.setEmployeeId(invalidEmployeeId);
-        invalidEmployeeManagerOrderRequest.setDueDate(requestDueDate);
+        ManagerTaskCreationRequest invalidEmployeeManagerTaskCreationRequest = new ManagerTaskCreationRequest();
+        invalidEmployeeManagerTaskCreationRequest.setTitle(requestTitle);
+        invalidEmployeeManagerTaskCreationRequest.setDescription(requestDescription);
+        invalidEmployeeManagerTaskCreationRequest.setEmployeeId(invalidEmployeeId);
+        invalidEmployeeManagerTaskCreationRequest.setDueDate(requestDueDate);
 
-        String invalidEmployeeRequestContent = objectMapper.writeValueAsString(invalidEmployeeManagerOrderRequest);
+        String invalidEmployeeRequestContent = objectMapper.writeValueAsString(invalidEmployeeManagerTaskCreationRequest);
 
         URI uri = new URI("http://localhost:" + port );
 
@@ -394,13 +394,13 @@ public class CreateTaskControllerIntegrationTest {
         Map<String, String> messages = getMessagesAccordingToLocale(country);
         Locale testedLocale = convertEnumToLocale(country);
 
-        ManagerOrderRequest invalidDueDateManagerOrderRequest = new ManagerOrderRequest();
-        invalidDueDateManagerOrderRequest.setTitle(requestTitle);
-        invalidDueDateManagerOrderRequest.setDescription(requestDescription);
-        invalidDueDateManagerOrderRequest.setEmployeeId(employeeId);
-        invalidDueDateManagerOrderRequest.setDueDate(LocalDate.now().minusDays(1).toString());
+        ManagerTaskCreationRequest invalidDueDateManagerTaskCreationRequest = new ManagerTaskCreationRequest();
+        invalidDueDateManagerTaskCreationRequest.setTitle(requestTitle);
+        invalidDueDateManagerTaskCreationRequest.setDescription(requestDescription);
+        invalidDueDateManagerTaskCreationRequest.setEmployeeId(employeeId);
+        invalidDueDateManagerTaskCreationRequest.setDueDate(LocalDate.now().minusDays(1).toString());
 
-        String invalidDueDateRequestContent = objectMapper.writeValueAsString(invalidDueDateManagerOrderRequest);
+        String invalidDueDateRequestContent = objectMapper.writeValueAsString(invalidDueDateManagerTaskCreationRequest);
 
         URI uri = new URI("http://localhost:" + port );
 

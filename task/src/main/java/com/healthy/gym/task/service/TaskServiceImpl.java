@@ -11,7 +11,7 @@ import com.healthy.gym.task.enums.Priority;
 import com.healthy.gym.task.exception.*;
 import com.healthy.gym.task.pojo.request.EmployeeAcceptDeclineTaskRequest;
 import com.healthy.gym.task.pojo.request.EmployeeReportRequest;
-import com.healthy.gym.task.pojo.request.ManagerOrderRequest;
+import com.healthy.gym.task.pojo.request.ManagerTaskCreationRequest;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,23 +49,23 @@ public class TaskServiceImpl implements TaskService{
 
 
     @Override
-    public TaskDTO createTask(ManagerOrderRequest managerOrderRequest) throws ManagerNotFoundException,
+    public TaskDTO createTask(ManagerTaskCreationRequest managerTaskCreationRequest) throws ManagerNotFoundException,
             EmployeeNotFoundException, RetroDueDateException {
 
         UserDocument managerDocument = getManagerDocument();
 
-        String employeeId = managerOrderRequest.getEmployeeId();
+        String employeeId = managerTaskCreationRequest.getEmployeeId();
         UserDocument employeeDocument = getEmployeeOrTrainerDocument(employeeId);
 
-        String dueDate = managerOrderRequest.getDueDate();
+        String dueDate = managerTaskCreationRequest.getDueDate();
         var now = LocalDate.now();
         LocalDate parsedDueDate = LocalDate.parse(dueDate, DateTimeFormatter.ISO_LOCAL_DATE);
         if(parsedDueDate.isBefore(now)) throw new RetroDueDateException();
 
-        String title = managerOrderRequest.getTitle();
-        String description = managerOrderRequest.getDescription();
-        String requestReminderDate = managerOrderRequest.getReminderDate();
-        String requestPriority = managerOrderRequest.getPriority();
+        String title = managerTaskCreationRequest.getTitle();
+        String description = managerTaskCreationRequest.getDescription();
+        String requestReminderDate = managerTaskCreationRequest.getReminderDate();
+        String requestPriority = managerTaskCreationRequest.getPriority();
         TaskDocument taskDocumentToBeSaved = new TaskDocument();
         taskDocumentToBeSaved.setTaskId(UUID.randomUUID().toString());
         taskDocumentToBeSaved.setManager(managerDocument);
@@ -85,14 +85,14 @@ public class TaskServiceImpl implements TaskService{
     }
 
     @Override
-    public TaskDTO updateTask(String taskId, ManagerOrderRequest managerOrderRequest)
+    public TaskDTO updateTask(String taskId, ManagerTaskCreationRequest managerTaskCreationRequest)
             throws TaskNotFoundException, ManagerNotFoundException, EmployeeNotFoundException, RetroDueDateException {
 
         TaskDocument taskDocumentToBeUpdated = getTaskDocument(taskId);
 
         UserDocument managerDocument = getManagerDocument();
 
-        String requestEmployeeId = managerOrderRequest.getEmployeeId();
+        String requestEmployeeId = managerTaskCreationRequest.getEmployeeId();
         if(requestEmployeeId != null){
             UserDocument employeeDocument = userDAO.findByUserId(requestEmployeeId);
             if(employeeDocument == null) throw new EmployeeNotFoundException();
@@ -103,7 +103,7 @@ public class TaskServiceImpl implements TaskService{
         }
 
         var now = LocalDate.now();
-        String requestDueDate = managerOrderRequest.getDueDate();
+        String requestDueDate = managerTaskCreationRequest.getDueDate();
         if(requestDueDate != null){
             LocalDate parsedDueDate = LocalDate.parse(requestDueDate, DateTimeFormatter.ISO_LOCAL_DATE);
             if(parsedDueDate.isBefore(now)) throw new RetroDueDateException();
@@ -112,16 +112,16 @@ public class TaskServiceImpl implements TaskService{
 
         taskDocumentToBeUpdated.setLastOrderUpdateDate(now);
 
-        String title = managerOrderRequest.getTitle();
+        String title = managerTaskCreationRequest.getTitle();
         if(title != null) taskDocumentToBeUpdated.setTitle(title);
 
-        String description = managerOrderRequest.getDescription();
+        String description = managerTaskCreationRequest.getDescription();
         if(description != null) taskDocumentToBeUpdated.setDescription(description);
 
-        String requestReminderDate = managerOrderRequest.getReminderDate();
+        String requestReminderDate = managerTaskCreationRequest.getReminderDate();
         if(requestReminderDate != null)
             taskDocumentToBeUpdated.setReminderDate(LocalDate.parse(requestReminderDate, DateTimeFormatter.ISO_LOCAL_DATE));
-        String requestPriority = managerOrderRequest.getPriority();
+        String requestPriority = managerTaskCreationRequest.getPriority();
         setPriority(taskDocumentToBeUpdated, requestPriority);
 
         TaskDocument updatedTaskDocument = taskDAO.save(taskDocumentToBeUpdated);

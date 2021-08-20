@@ -6,7 +6,7 @@ import com.healthy.gym.task.enums.AcceptanceStatus;
 import com.healthy.gym.task.exception.*;
 import com.healthy.gym.task.pojo.request.EmployeeAcceptDeclineTaskRequest;
 import com.healthy.gym.task.pojo.request.EmployeeReportRequest;
-import com.healthy.gym.task.pojo.request.ManagerOrderRequest;
+import com.healthy.gym.task.pojo.request.ManagerTaskCreationRequest;
 import com.healthy.gym.task.pojo.response.TaskResponse;
 import com.healthy.gym.task.service.TaskService;
 import com.healthy.gym.task.validation.ValidIDFormat;
@@ -46,7 +46,7 @@ public class TaskController {
     @PreAuthorize("hasRole('ADMIN') or hasRole('MANAGER')")
     @PostMapping
     public ResponseEntity<TaskResponse> createTask(
-            @Valid @RequestBody final ManagerOrderRequest request,
+            @Valid @RequestBody final ManagerTaskCreationRequest request,
             final BindingResult bindingResult
     ) throws RequestBindException {
 
@@ -88,7 +88,7 @@ public class TaskController {
     @PutMapping("/{id}")
     public ResponseEntity<TaskResponse> updateTask(
             @PathVariable("id") @ValidIDFormat final String id,
-            @Valid @RequestBody final ManagerOrderRequest request,
+            @Valid @RequestBody final ManagerTaskCreationRequest request,
             final BindingResult bindingResult
     ) throws RequestBindException {
 

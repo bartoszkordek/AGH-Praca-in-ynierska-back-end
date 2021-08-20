@@ -42,8 +42,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static com.healthy.gym.gympass.configuration.LocaleConverter.convertEnumToLocale;
 import static com.healthy.gym.gympass.configuration.Messages.getMessagesAccordingToLocale;
 
-@ActiveProfiles(value = "test")
 @WebMvcTest(OfferController.class)
+@ActiveProfiles(value = "test")
 class CreateOfferUnitTest {
 
     @Autowired

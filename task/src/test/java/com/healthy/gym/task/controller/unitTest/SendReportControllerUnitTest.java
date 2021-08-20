@@ -48,8 +48,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
-@ActiveProfiles(value = "test")
 @WebMvcTest(TaskController.class)
+@ActiveProfiles(value = "test")
 public class SendReportControllerUnitTest {
 
     @Autowired

@@ -37,8 +37,8 @@ import static com.healthy.gym.gympass.configuration.Messages.getMessagesAccordin
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
-@ActiveProfiles(value = "test")
 @WebMvcTest(OfferController.class)
+@ActiveProfiles(value = "test")
 class GetOffersUnitTest {
 
     @Autowired

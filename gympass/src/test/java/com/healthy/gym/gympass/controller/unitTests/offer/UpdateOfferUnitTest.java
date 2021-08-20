@@ -41,8 +41,8 @@ import static org.springframework.test.web.servlet.ResultMatcher.matchAll;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@ActiveProfiles(value = "test")
 @WebMvcTest(OfferController.class)
+@ActiveProfiles(value = "test")
 class UpdateOfferUnitTest {
 
     @Autowired

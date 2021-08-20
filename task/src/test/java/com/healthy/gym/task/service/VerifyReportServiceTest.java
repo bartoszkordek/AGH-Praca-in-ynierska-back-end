@@ -284,4 +284,80 @@ public class VerifyReportServiceTest {
                 taskService.verifyReport(declinedByEmployeeTaskId, managerReportVerificationRequest)
         ).isInstanceOf(TaskDeclinedByEmployeeException.class);
     }
+
+
+    @Test
+    void shouldNotVerifyReport_whenInvalidMark(){
+        //before
+        taskId = UUID.randomUUID().toString();
+        employeeId = UUID.randomUUID().toString();
+        managerId = UUID.randomUUID().toString();
+
+        //request: mark < 1
+        ManagerReportVerificationRequest managerReportVerificationRequestLessThan1 = new ManagerReportVerificationRequest();
+        managerReportVerificationRequestLessThan1.setApprovalStatus("DECLINE");
+        managerReportVerificationRequestLessThan1.setMark(0);
+
+        //request: mark > 5
+        ManagerReportVerificationRequest managerReportVerificationRequestGreaterThan5 = new ManagerReportVerificationRequest();
+        managerReportVerificationRequestGreaterThan5.setApprovalStatus("APPROVE");
+        managerReportVerificationRequestGreaterThan5.setMark(6);
+
+        String title = "Przykładowe zadanie";
+        String description = "Opis przykładowego zadania";
+        var now = LocalDate.now();
+        LocalDate taskCreationDate = now.minusMonths(1);
+        LocalDate dueDate = now.plusMonths(1);
+        String report = "Przykładowy raport";
+        LocalDate reportDate = now.minusDays(5);
+        String employeeComment = "Przykładowy komentarz";
+
+        //DB documents
+        String employeeName = "Jan";
+        String employeeSurname = "Kowalski";
+        UserDocument employeeDocument = new UserDocument();
+        employeeDocument.setName(employeeName);
+        employeeDocument.setSurname(employeeSurname);
+        employeeDocument.setUserId(employeeId);
+        employeeDocument.setGymRoles(List.of(GymRole.EMPLOYEE));
+        employeeDocument.setId("507f1f77bcf86cd799435213");
+
+        String managerName = "Adam";
+        String managerSurname = "Nowak";
+        UserDocument managerDocument = new UserDocument();
+        managerDocument.setName(managerName);
+        managerDocument.setSurname(managerSurname);
+        managerDocument.setUserId(managerId);
+        managerDocument.setGymRoles(List.of(GymRole.MANAGER));
+        managerDocument.setId("507f1f77bcf86cd799435002");
+
+        TaskDocument taskDocument = new TaskDocument();
+        taskDocument.setTaskId(taskId);
+        taskDocument.setManager(managerDocument);
+        taskDocument.setEmployee(employeeDocument);
+        taskDocument.setTitle(title);
+        taskDocument.setDescription(description);
+        taskDocument.setTaskCreationDate(taskCreationDate);
+        taskDocument.setLastTaskUpdateDate(reportDate);
+        taskDocument.setDueDate(dueDate);
+        taskDocument.setEmployeeAccept(AcceptanceStatus.ACCEPTED);
+        taskDocument.setManagerAccept(AcceptanceStatus.NO_ACTION);
+        taskDocument.setReport(report);
+        taskDocument.setReportDate(reportDate);
+        taskDocument.setEmployeeComment(employeeComment);
+
+
+        //when
+        when(taskDAO.findByTaskId(taskId)).thenReturn(taskDocument);
+
+        //then
+        assertThatThrownBy(() ->
+                taskService.verifyReport(taskId, managerReportVerificationRequestLessThan1)
+        ).isInstanceOf(InvalidMarkException.class);
+
+        assertThatThrownBy(() ->
+                taskService.verifyReport(taskId, managerReportVerificationRequestGreaterThan5)
+        ).isInstanceOf(InvalidMarkException.class);
+
+    }
 }

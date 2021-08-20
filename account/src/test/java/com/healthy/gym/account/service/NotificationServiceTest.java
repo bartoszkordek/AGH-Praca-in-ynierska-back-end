@@ -7,7 +7,6 @@ import com.healthy.gym.account.data.repository.UserDAO;
 import com.healthy.gym.account.exception.NoNotificationFoundException;
 import com.healthy.gym.account.exception.UserNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.data.domain.Page;
@@ -16,6 +15,8 @@ import org.springframework.data.domain.PageImpl;
 import java.util.List;
 import java.util.UUID;
 
+import static com.healthy.gym.account.utils.TestDocumentUtil.getTestNotificationDocument;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -60,18 +61,24 @@ class NotificationServiceTest {
             ).isInstanceOf(NoNotificationFoundException.class);
         }
 
-        @Disabled("need to be fixed")
         @Test
-        void shouldReturnProperList() {
+        void shouldReturnProperList() throws UserNotFoundException, NoNotificationFoundException {
             when(userDAO.findByUserId(anyString())).thenReturn(new UserDocument());
-            var notifications= List.of(new NotificationDocument());
-            when(notificationDAO.findAllByToEquals(any(), any()))
-                    .thenReturn(new PageImpl<>(notifications));
+            NotificationDocument[] notifications = new NotificationDocument[]{
+                    getTestNotificationDocument("2020-10-10T12:00:02"),
+                    getTestNotificationDocument("2020-10-10T13:01:40"),
+                    getTestNotificationDocument("2020-10-10T14:02:55"),
+            };
 
-            assertThatThrownBy(
-                    () -> notificationService.getRecentUserNotifications(userId, 0, 10)
-            ).isInstanceOf(NoNotificationFoundException.class);
+            when(notificationDAO.findAllByToEquals(any(), any()))
+                    .thenReturn(new PageImpl<>(List.of(notifications)));
+
+            var result = notificationService
+                    .getRecentUserNotifications(userId, 0, 10);
+
+            assertThat(result).hasSize(3);
         }
+
     }
 
 

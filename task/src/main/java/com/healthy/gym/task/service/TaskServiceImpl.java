@@ -11,6 +11,7 @@ import com.healthy.gym.task.enums.Priority;
 import com.healthy.gym.task.exception.*;
 import com.healthy.gym.task.pojo.request.EmployeeAcceptDeclineTaskRequest;
 import com.healthy.gym.task.pojo.request.EmployeeReportRequest;
+import com.healthy.gym.task.pojo.request.ManagerReportVerificationRequest;
 import com.healthy.gym.task.pojo.request.ManagerTaskCreationRequest;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
@@ -194,6 +195,11 @@ public class TaskServiceImpl implements TaskService{
 
         TaskDocument updatedTaskDocument = taskDAO.save(taskDocumentReportToBeAdded);
         return modelMapper.map(updatedTaskDocument, TaskDTO.class);
+    }
+
+    @Override
+    public TaskDTO verifyReport(String taskId, ManagerReportVerificationRequest managerReportVerificationRequest) throws TaskNotFoundException, InvalidMarkException, TaskDeclinedByEmployeeException, ReportNotSentException {
+        return null;
     }
 
 

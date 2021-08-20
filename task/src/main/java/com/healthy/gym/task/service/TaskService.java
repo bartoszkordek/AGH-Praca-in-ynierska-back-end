@@ -4,6 +4,7 @@ import com.healthy.gym.task.dto.TaskDTO;
 import com.healthy.gym.task.exception.*;
 import com.healthy.gym.task.pojo.request.EmployeeAcceptDeclineTaskRequest;
 import com.healthy.gym.task.pojo.request.EmployeeReportRequest;
+import com.healthy.gym.task.pojo.request.ManagerReportVerificationRequest;
 import com.healthy.gym.task.pojo.request.ManagerTaskCreationRequest;
 
 public interface TaskService {
@@ -25,4 +26,7 @@ public interface TaskService {
     TaskDTO sendReport(String taskId, String userId, EmployeeReportRequest report)
             throws TaskNotFoundException, TaskDeclinedByEmployeeException, DueDateExceedException,
             ReportAlreadySentException;
+
+    TaskDTO verifyReport(String taskId, ManagerReportVerificationRequest managerReportVerificationRequest)
+        throws TaskNotFoundException, InvalidMarkException, TaskDeclinedByEmployeeException, ReportNotSentException;
 }

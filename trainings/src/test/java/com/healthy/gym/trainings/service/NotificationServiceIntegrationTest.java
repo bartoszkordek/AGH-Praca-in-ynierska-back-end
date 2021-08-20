@@ -22,7 +22,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
-import org.springframework.test.context.TestPropertySource;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.MongoDBContainer;
 import org.testcontainers.junit.jupiter.Container;
@@ -41,15 +40,6 @@ import static org.awaitility.Awaitility.await;
 
 @Testcontainers
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@TestPropertySource(properties = {
-        "eureka.client.fetch-registry=false",
-        "eureka.client.register-with-eureka=false",
-        "spring.mail.host=localhost",
-        "spring.mail.port=3025",
-        "spring.mail.personal=AGH Praca inzynierska - Tests",
-        "spring.mail.username=testEmailUsername",
-        "spring.mail.password=password4Tests"
-})
 @ActiveProfiles(value = "test")
 class NotificationServiceIntegrationTest {
 
@@ -62,7 +52,6 @@ class NotificationServiceIntegrationTest {
                             .aConfig()
                             .withUser("testEmailUsername", "password4Tests")
             );
-
     @Container
     static GenericContainer<?> rabbitMQContainer =
             new GenericContainer<>(DockerImageName.parse("gza73/agh-praca-inzynierska-rabbitmq"))
@@ -112,7 +101,7 @@ class NotificationServiceIntegrationTest {
     }
 
     @Nested
-    class ShouldSendNotificationWithoutEmailsWhenRemovingGroupTraining{
+    class ShouldSendNotificationWithoutEmailsWhenRemovingGroupTraining {
         @BeforeEach
         void setUp() {
             notificationService.sendNotificationsAndEmailsWhenRemovingGroupTraining(
@@ -184,7 +173,7 @@ class NotificationServiceIntegrationTest {
     }
 
     @Nested
-    class ShouldSendNotificationWithEmailsWhenRemovingGroupTraining{
+    class ShouldSendNotificationWithEmailsWhenRemovingGroupTraining {
         @BeforeEach
         void setUp() {
             notificationService.sendNotificationsAndEmailsWhenRemovingGroupTraining(

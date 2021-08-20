@@ -6,10 +6,7 @@ import com.healthy.gym.task.controller.TaskController;
 import com.healthy.gym.task.dto.BasicUserInfoDTO;
 import com.healthy.gym.task.dto.TaskDTO;
 import com.healthy.gym.task.enums.AcceptanceStatus;
-import com.healthy.gym.task.exception.InvalidMarkException;
-import com.healthy.gym.task.exception.InvalidStatusException;
-import com.healthy.gym.task.exception.TaskDeclinedByEmployeeException;
-import com.healthy.gym.task.exception.TaskNotFoundException;
+import com.healthy.gym.task.exception.*;
 import com.healthy.gym.task.pojo.request.EmployeeReportRequest;
 import com.healthy.gym.task.pojo.request.ManagerReportVerificationRequest;
 import com.healthy.gym.task.pojo.request.ManagerTaskCreationRequest;
@@ -537,6 +534,38 @@ public class VerifyReportControllerUnitTest {
                     .andExpect(result ->
                             assertThat(Objects.requireNonNull(result.getResolvedException()).getCause())
                                     .isInstanceOf(TaskDeclinedByEmployeeException.class)
+                    );
+        }
+
+        @ParameterizedTest
+        @EnumSource(TestCountry.class)
+        void shouldThrowReportNotSentException(TestCountry country) throws Exception {
+            Map<String, String> messages = getMessagesAccordingToLocale(country);
+            Locale testedLocale = convertEnumToLocale(country);
+
+            taskId = UUID.randomUUID().toString();
+
+            RequestBuilder request = MockMvcRequestBuilders
+                    .put(uri+taskId+"/reportVerification")
+                    .header("Accept-Language", testedLocale.toString())
+                    .header("Authorization", adminToken)
+                    .content(validRequestContentApproved)
+                    .contentType(MediaType.APPLICATION_JSON);
+
+
+            String expectedMessage = messages.get("exception.report.not.sent");
+
+            doThrow(ReportNotSentException.class)
+                    .when(taskService)
+                    .verifyReport(any(),any());
+
+            mockMvc.perform(request)
+                    .andDo(print())
+                    .andExpect(status().isBadRequest())
+                    .andExpect(status().reason(is(expectedMessage)))
+                    .andExpect(result ->
+                            assertThat(Objects.requireNonNull(result.getResolvedException()).getCause())
+                                    .isInstanceOf(ReportNotSentException.class)
                     );
         }
     }

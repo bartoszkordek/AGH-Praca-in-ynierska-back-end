@@ -45,7 +45,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @WebMvcTest(TaskController.class)
 @ActiveProfiles(value = "test")
-public class GetTasksControllerUnitTest {
+class GetTasksControllerUnitTest {
 
     @Autowired
     private MockMvc mockMvc;
@@ -108,8 +108,8 @@ public class GetTasksControllerUnitTest {
                 null,
                 now.minusMonths(1),
                 now.minusMonths(1),
-                now.plusMonths(3),
                 now.plusMonths(2),
+                now.plusMonths(1),
                 null,
                 null,
                 0,
@@ -255,8 +255,8 @@ public class GetTasksControllerUnitTest {
                         jsonPath("$.[0].report").doesNotExist(),
                         jsonPath("$.[0].taskCreationDate").value(is(now.minusMonths(1).toString())),
                         jsonPath("$.[0].lastTaskUpdateDate").value(is(now.minusMonths(1).toString())),
-                        jsonPath("$.[0].dueDate").value(is(now.plusMonths(3).toString())),
-                        jsonPath("$.[0].reminderDate").value(is(now.plusMonths(2).toString())),
+                        jsonPath("$.[0].dueDate").value(is(now.plusMonths(2).toString())),
+                        jsonPath("$.[0].reminderDate").value(is(now.plusMonths(1).toString())),
                         jsonPath("$.[0].priority").doesNotExist(),
                         jsonPath("$.[0].mark").value(is(0)),
                         jsonPath("$.[0].reportDate").doesNotExist(),

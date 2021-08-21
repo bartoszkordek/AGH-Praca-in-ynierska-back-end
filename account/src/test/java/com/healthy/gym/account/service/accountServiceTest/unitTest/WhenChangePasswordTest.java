@@ -6,24 +6,20 @@ import com.healthy.gym.account.dto.UserDTO;
 import com.healthy.gym.account.exception.IdenticalOldAndNewPasswordException;
 import com.healthy.gym.account.exception.OldPasswordDoesNotMatchException;
 import com.healthy.gym.account.service.AccountService;
+import com.healthy.gym.account.service.AccountServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.test.context.ActiveProfiles;
 
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-@SpringBootTest
-@ActiveProfiles(value = "test")
 class WhenChangePasswordTest {
 
     private UserDTO andrzejNowakDTO;
@@ -31,17 +27,16 @@ class WhenChangePasswordTest {
     private UserDocument andrzejNowakUpdated;
     private String userId;
 
-    @Autowired
     private AccountService accountService;
-
-    @MockBean
     private UserDAO userDAO;
-
-    @Autowired
-    private BCryptPasswordEncoder bCryptPasswordEncoder;
 
     @BeforeEach
     void setUp() {
+        BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder();
+
+        userDAO = mock(UserDAO.class);
+        accountService = new AccountServiceImpl(userDAO, null, bCryptPasswordEncoder);
+
         userId = UUID.randomUUID().toString();
         andrzejNowak = new UserDocument(
                 "Andrzej",

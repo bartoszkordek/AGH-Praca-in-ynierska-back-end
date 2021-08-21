@@ -8,6 +8,7 @@ import com.healthy.gym.task.dto.TaskDTO;
 import com.healthy.gym.task.enums.AcceptanceStatus;
 import com.healthy.gym.task.enums.Priority;
 import com.healthy.gym.task.exception.NoTasksException;
+import com.healthy.gym.task.exception.StartDateAfterEndDateException;
 import com.healthy.gym.task.service.TaskService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -286,6 +287,37 @@ public class GetTasksControllerUnitTest {
                         jsonPath("$.[1].managerAccept").value(is(AcceptanceStatus.NO_ACTION.toString())),
                         jsonPath("$.[1].employeeComment").value(is("Employee Comment 2"))
                 ));
+    }
+
+    @ParameterizedTest
+    @EnumSource(TestCountry.class)
+    void shouldNotGetTasksWhenStartDateAfterEndDate(TestCountry country) throws Exception {
+        Map<String, String> messages = getMessagesAccordingToLocale(country);
+        Locale testedLocale = convertEnumToLocale(country);
+
+        String startDueDate= "2100-01-01";
+        String endDueDate= "2000-01-01";
+
+        RequestBuilder request = MockMvcRequestBuilders
+                .get(uri+String.valueOf(page)+"?startDueDate="+startDueDate+"&endDueDate="+endDueDate)
+                .header("Accept-Language", testedLocale.toString())
+                .header("Authorization", managerToken)
+                .contentType(MediaType.APPLICATION_JSON);
+
+        doThrow(StartDateAfterEndDateException.class)
+                .when(taskService)
+                .getTasks(any(), any(), any());
+
+        String expectedMessage = messages.get( "exception.start.after.end");
+
+        mockMvc.perform(request)
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(status().reason(is(expectedMessage)))
+                .andExpect(result ->
+                        assertThat(Objects.requireNonNull(result.getResolvedException()).getCause())
+                                .isInstanceOf(StartDateAfterEndDateException.class)
+                );
     }
 
     @ParameterizedTest

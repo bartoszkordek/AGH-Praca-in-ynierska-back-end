@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.when;
 
 @SpringBootTest
@@ -266,5 +267,12 @@ public class GetTasksServiceTest {
                 .isEqualTo(responseAll.get(1));
         assertThat(taskService.getTasks(requestStartDate, requestEndDate, paging).get(2))
                 .isEqualTo(responseAll.get(2));
+    }
+
+    @Test
+    void shouldNotGetTasks_whenStartDateAfterEndDate() {
+        assertThatThrownBy(() ->
+                taskService.getTasks("2030-12-31", "2000-01-01", paging)
+        ).isInstanceOf(StartDateAfterEndDateException.class);
     }
 }

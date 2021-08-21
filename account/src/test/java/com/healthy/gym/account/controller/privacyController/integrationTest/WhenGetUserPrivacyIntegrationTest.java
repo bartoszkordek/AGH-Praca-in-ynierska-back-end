@@ -58,7 +58,6 @@ class WhenGetUserPrivacyIntegrationTest {
     private String userToken;
     private String adminToken;
     private String userId;
-    private UserDocument janKowalski;
 
     @LocalServerPort
     private Integer port;
@@ -75,7 +74,7 @@ class WhenGetUserPrivacyIntegrationTest {
         userToken = tokenFactory.getUserToken(userId);
         adminToken = tokenFactory.getAdminToken();
 
-        janKowalski = new UserDocument("Jan",
+        UserDocument janKowalski = new UserDocument("Jan",
                 "Kowalski",
                 "jan.kowalski@test.com",
                 "666 777 888",
@@ -113,19 +112,22 @@ class WhenGetUserPrivacyIntegrationTest {
                 .exchange(uri, HttpMethod.GET, request, JsonNode.class);
 
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
-        assertThat(responseEntity.getBody().get("message")).isNull();
-        assertThat(responseEntity.getBody().get("regulationsAccepted").asBoolean()).isTrue();
-        assertThat(responseEntity.getBody().get("allowShowingTrainingsParticipation").asBoolean()).isFalse();
-        assertThat(responseEntity.getBody().get("allowShowingUserStatistics").asBoolean()).isTrue();
-        assertThat(responseEntity.getBody().get("allowShowingAvatar").asBoolean()).isFalse();
         assertThat(responseEntity.getHeaders().getContentType())
                 .isEqualTo(MediaType.APPLICATION_JSON);
+
+        JsonNode body = responseEntity.getBody();
+        assert body != null;
+
+        assertThat(body.get("message")).isNull();
+        assertThat(body.get("regulationsAccepted").asBoolean()).isTrue();
+        assertThat(body.get("allowShowingTrainingsParticipation").asBoolean()).isFalse();
+        assertThat(body.get("allowShowingUserStatistics").asBoolean()).isTrue();
+        assertThat(body.get("allowShowingAvatar").asBoolean()).isFalse();
     }
 
     @ParameterizedTest
     @EnumSource(TestCountry.class)
     void shouldThrowErrorWhenUserIsNotFound(TestCountry country) throws Exception {
-        Map<String, String> messages = getMessagesAccordingToLocale(country);
         Locale testedLocale = convertEnumToLocale(country);
 
         URI uri = new URI("http://localhost:" + port + "/" + UUID.randomUUID() + "/privacy");
@@ -135,13 +137,19 @@ class WhenGetUserPrivacyIntegrationTest {
         headers.set("Authorization", adminToken);
 
         HttpEntity<Object> request = new HttpEntity<>(null, headers);
-        String expectedMessage = messages.get("exception.account.not.found");
 
         ResponseEntity<JsonNode> responseEntity = restTemplate
                 .exchange(uri, HttpMethod.GET, request, JsonNode.class);
 
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
-        assertThat(responseEntity.getBody().get("message").textValue()).isEqualTo(expectedMessage);
+
         assertThat(responseEntity.getHeaders().getContentType()).isEqualTo(MediaType.APPLICATION_JSON);
+
+        JsonNode body = responseEntity.getBody();
+        assert body != null;
+
+        Map<String, String> messages = getMessagesAccordingToLocale(country);
+        String expectedMessage = messages.get("exception.account.not.found");
+        assertThat(body.get("message").textValue()).isEqualTo(expectedMessage);
     }
 }

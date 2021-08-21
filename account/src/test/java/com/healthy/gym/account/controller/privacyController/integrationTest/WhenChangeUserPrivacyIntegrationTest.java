@@ -73,7 +73,6 @@ class WhenChangeUserPrivacyIntegrationTest {
     @BeforeEach
     void setUp() {
         userId = UUID.randomUUID().toString();
-        String adminId = UUID.randomUUID().toString();
 
         userToken = tokenFactory.getUserToken(userId);
         adminToken = tokenFactory.getAdminToken();
@@ -119,21 +118,24 @@ class WhenChangeUserPrivacyIntegrationTest {
                 .exchange(uri, HttpMethod.PUT, request, JsonNode.class);
 
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
-        assertThat(responseEntity.getBody().get("message").textValue())
-                .isEqualTo(expectedMessage);
-        assertThat(responseEntity.getBody().get("regulationsAccepted").asBoolean()).isTrue();
-        assertThat(responseEntity.getBody().get("allowShowingTrainingsParticipation").asBoolean()).isFalse();
-        assertThat(responseEntity.getBody().get("allowShowingUserStatistics").asBoolean()).isTrue();
-        assertThat(responseEntity.getBody().get("allowShowingAvatar").asBoolean()).isFalse();
         assertThat(responseEntity.getHeaders().getContentType())
                 .isEqualTo(MediaType.APPLICATION_JSON);
+
+        JsonNode body = responseEntity.getBody();
+        assert body != null;
+
+        assertThat(body.get("message").textValue()).isEqualTo(expectedMessage);
+        assertThat(body.get("regulationsAccepted").asBoolean()).isTrue();
+        assertThat(body.get("allowShowingTrainingsParticipation").asBoolean()).isFalse();
+        assertThat(body.get("allowShowingUserStatistics").asBoolean()).isTrue();
+        assertThat(body.get("allowShowingAvatar").asBoolean()).isFalse();
+
     }
 
 
     @ParameterizedTest
     @EnumSource(TestCountry.class)
     void shouldRejectRequestWhenAdminChangesUserData(TestCountry country) throws Exception {
-        Map<String, String> messages = getMessagesAccordingToLocale(country);
         Locale testedLocale = convertEnumToLocale(country);
 
         URI uri = new URI("http://localhost:" + port + "/" + userId + "/privacy");
@@ -143,13 +145,19 @@ class WhenChangeUserPrivacyIntegrationTest {
         headers.set("Authorization", adminToken);
 
         HttpEntity<Object> request = new HttpEntity<>(privacyRequest, headers);
-        String expectedMessage = messages.get("exception.access.denied");
 
         ResponseEntity<JsonNode> responseEntity = restTemplate
                 .exchange(uri, HttpMethod.PUT, request, JsonNode.class);
 
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
-        assertThat(responseEntity.getBody().get("message").textValue()).isEqualTo(expectedMessage);
+
         assertThat(responseEntity.getHeaders().getContentType()).isEqualTo(MediaType.APPLICATION_JSON);
+
+        JsonNode body = responseEntity.getBody();
+        assert body != null;
+
+        Map<String, String> messages = getMessagesAccordingToLocale(country);
+        String expectedMessage = messages.get("exception.access.denied");
+        assertThat(body.get("message").textValue()).isEqualTo(expectedMessage);
     }
 }

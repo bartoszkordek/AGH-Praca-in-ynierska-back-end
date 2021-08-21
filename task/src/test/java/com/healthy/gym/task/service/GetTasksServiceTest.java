@@ -21,11 +21,11 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 @SpringBootTest
@@ -186,11 +186,11 @@ public class GetTasksServiceTest {
                 new BasicUserInfoDTO(managerId, managerName, managerSurname),
                 new BasicUserInfoDTO(employeeId, employeeName, employeeSurname),
                 "Title 3",
-                "Description 2",
+                "Description 3",
                 "Report 3",
                 now.minusMonths(5),
                 now.minusMonths(2),
-                now.minusMonths(1),
+                now.minusMonths(1).minusDays(1),
                 null,
                 now.minusMonths(2),
                 Priority.MEDIUM,
@@ -206,7 +206,7 @@ public class GetTasksServiceTest {
     }
 
     @Test
-    void shouldGetTask2And3Tasks_whenNotProvidedDateRange() throws StartDateAfterEndDateException, NoTasksException {
+    void shouldGetTask1And2Tasks_whenNotProvidedDateRange() throws StartDateAfterEndDateException, NoTasksException {
         LocalDate defaultStartDate = LocalDate.now().minusMonths(1).minusDays(1);
         LocalDate defaultEndDate = LocalDate.now().plusMonths(2).plusDays(1);
         Page<TaskDocument> taskDocumentPage = new PageImpl<>(dbBetweenLastAndTwoFutureMonths);
@@ -223,5 +223,24 @@ public class GetTasksServiceTest {
                 .isEqualTo(responseBetweenLastAndTwoFutureMonths.get(0));
         assertThat(taskService.getTasks(null, null, paging).get(1))
                 .isEqualTo(responseBetweenLastAndTwoFutureMonths.get(1));
+    }
+
+    @Test
+    void shouldGetTask3_whenDateRangeBeforeLastMonth() throws StartDateAfterEndDateException, NoTasksException {
+        var now = LocalDate.now();
+        String requestStartDate = now.minusYears(1).format(DateTimeFormatter.ISO_LOCAL_DATE);
+        String requestEndDate = now.format(DateTimeFormatter.ISO_LOCAL_DATE);
+        Page<TaskDocument> taskDocumentPage = new PageImpl<>(dbBeforeLastMonth);
+
+        //when
+        when(taskDAO.findAllByDueDateBetween(
+                now.minusYears(1).minusDays(1),
+                now.plusDays(1),
+                paging
+        )).thenReturn(taskDocumentPage);
+
+        //then
+        assertThat(taskService.getTasks(requestStartDate, requestEndDate, paging).get(0))
+                .isEqualTo(responseBeforeLastMonth.get(0));
     }
 }

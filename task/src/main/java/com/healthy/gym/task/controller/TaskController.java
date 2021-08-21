@@ -333,7 +333,7 @@ public class TaskController {
 
         } catch (NoTasksException exception) {
             String reason = translator.toLocale("exception.no.tasks");
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, exception);
+            throw new ResponseStatusException(HttpStatus.OK, reason, exception);
 
         } catch (Exception exception){
             String reason = translator.toLocale(INTERNAL_ERROR_EXCEPTION);

@@ -7,6 +7,7 @@ import com.healthy.gym.task.dto.BasicUserInfoDTO;
 import com.healthy.gym.task.dto.TaskDTO;
 import com.healthy.gym.task.enums.AcceptanceStatus;
 import com.healthy.gym.task.enums.Priority;
+import com.healthy.gym.task.exception.NoTasksException;
 import com.healthy.gym.task.service.TaskService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -26,12 +27,14 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.List;
-import java.util.Locale;
-import java.util.UUID;
+import java.util.*;
 
 import static com.healthy.gym.task.configuration.LocaleConverter.convertEnumToLocale;
+import static com.healthy.gym.task.configuration.Messages.getMessagesAccordingToLocale;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.is;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.ResultMatcher.matchAll;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -220,7 +223,7 @@ public class GetTasksControllerUnitTest {
         RequestBuilder request = MockMvcRequestBuilders
                 .get(uri+String.valueOf(page))
                 .header("Accept-Language", testedLocale.toString())
-                .header("Authorization", managerToken)
+                .header("Authorization", adminToken)
                 .contentType(MediaType.APPLICATION_JSON);
 
         var now = LocalDate.now();
@@ -283,5 +286,36 @@ public class GetTasksControllerUnitTest {
                         jsonPath("$.[1].managerAccept").value(is(AcceptanceStatus.NO_ACTION.toString())),
                         jsonPath("$.[1].employeeComment").value(is("Employee Comment 2"))
                 ));
+    }
+
+    @ParameterizedTest
+    @EnumSource(TestCountry.class)
+    void shouldNotGetTasksWhenEmptyList(TestCountry country) throws Exception {
+        Map<String, String> messages = getMessagesAccordingToLocale(country);
+        Locale testedLocale = convertEnumToLocale(country);
+
+        String startDueDate= "2100-01-01";
+        String endDueDate= "2100-02-01";
+
+        RequestBuilder request = MockMvcRequestBuilders
+                .get(uri+String.valueOf(page)+"?startDueDate="+startDueDate+"&endDueDate="+endDueDate)
+                .header("Accept-Language", testedLocale.toString())
+                .header("Authorization", managerToken)
+                .contentType(MediaType.APPLICATION_JSON);
+
+        doThrow(NoTasksException.class)
+                .when(taskService)
+                .getTasks(any(), any(), any());
+
+        String expectedMessage = messages.get( "exception.no.tasks");
+
+        mockMvc.perform(request)
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(status().reason(is(expectedMessage)))
+                .andExpect(result ->
+                        assertThat(Objects.requireNonNull(result.getResolvedException()).getCause())
+                                .isInstanceOf(NoTasksException.class)
+                );
     }
 }

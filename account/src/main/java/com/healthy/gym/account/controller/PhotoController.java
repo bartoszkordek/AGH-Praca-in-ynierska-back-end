@@ -73,6 +73,26 @@ public class PhotoController {
         }
     }
 
+    @PreAuthorize("hasRole('ADMIN') or principal==#userId")
+    @GetMapping
+    public ResponseEntity<AvatarResponse> getAvatarUrl(@PathVariable("id") String userId) {
+        try {
+            String avatarLocation = photoService.getAvatarUrl(userId);
+            return ResponseEntity
+                    .status(HttpStatus.OK)
+                    .body(new AvatarResponse(null, avatarLocation));
+
+        } catch (UsernameNotFoundException exception) {
+            String reason = translator.toLocale(EXCEPTION_ACCOUNT_NOT_FOUND);
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, reason, exception);
+
+        } catch (Exception exception) {
+            String reason = translator.toLocale(REQUEST_FAILURE);
+            exception.printStackTrace();
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, reason, exception);
+        }
+    }
+
     @GetMapping("/{version}")
     public ResponseEntity<byte[]> getAvatar(@PathVariable("id") String userId, @PathVariable String version) {
         try {

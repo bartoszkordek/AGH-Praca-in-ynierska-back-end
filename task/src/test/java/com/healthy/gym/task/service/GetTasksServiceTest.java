@@ -31,7 +31,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.when;
 
 @SpringBootTest
-public class GetTasksServiceTest {
+class GetTasksServiceTest {
 
     @Autowired
     private TaskService taskService;

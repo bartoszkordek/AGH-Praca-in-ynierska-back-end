@@ -23,6 +23,10 @@ import java.time.Duration;
 @RestController
 @RequestMapping("/photos/{id}/avatar")
 public class PhotoController {
+
+    private static final String EXCEPTION_ACCOUNT_NOT_FOUND = "exception.account.not.found";
+    private static final String REQUEST_FAILURE = "request.failure";
+
     private final Translator translator;
     private final PhotoService photoService;
     private final ImageValidator imageValidator;
@@ -58,7 +62,7 @@ public class PhotoController {
                     .body(new AvatarResponse(message, avatarLocation));
 
         } catch (UsernameNotFoundException exception) {
-            String reason = translator.toLocale("exception.account.not.found");
+            String reason = translator.toLocale(EXCEPTION_ACCOUNT_NOT_FOUND);
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, reason, exception);
 
         } catch (PhotoSavingException exception) {
@@ -70,7 +74,7 @@ public class PhotoController {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, exception);
 
         } catch (Exception exception) {
-            String reason = translator.toLocale("request.failure");
+            String reason = translator.toLocale(REQUEST_FAILURE);
             exception.printStackTrace();
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, reason, exception);
         }
@@ -108,11 +112,11 @@ public class PhotoController {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, reason, exception);
 
         } catch (UsernameNotFoundException exception) {
-            String reason = translator.toLocale("exception.account.not.found");
+            String reason = translator.toLocale(EXCEPTION_ACCOUNT_NOT_FOUND);
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, reason, exception);
 
         } catch (Exception exception) {
-            String reason = translator.toLocale("request.failure");
+            String reason = translator.toLocale(REQUEST_FAILURE);
             exception.printStackTrace();
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, reason, exception);
         }
@@ -133,11 +137,11 @@ public class PhotoController {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, reason, exception);
 
         } catch (UsernameNotFoundException exception) {
-            String reason = translator.toLocale("exception.account.not.found");
+            String reason = translator.toLocale(EXCEPTION_ACCOUNT_NOT_FOUND);
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, reason, exception);
 
         } catch (Exception exception) {
-            String reason = translator.toLocale("request.failure");
+            String reason = translator.toLocale(REQUEST_FAILURE);
             exception.printStackTrace();
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, reason, exception);
         }

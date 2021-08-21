@@ -100,8 +100,8 @@ public class GetTasksServiceTest {
         taskDocument1.setDescription("Description 1");
         taskDocument1.setTaskCreationDate(now.minusMonths(1));
         taskDocument1.setLastTaskUpdateDate(now.minusMonths(1));
-        taskDocument1.setDueDate(now.plusMonths(3));
-        taskDocument1.setReminderDate(now.plusMonths(2));
+        taskDocument1.setDueDate(now.plusMonths(2));
+        taskDocument1.setReminderDate(now.plusMonths(1));
         taskDocument1.setEmployeeAccept(AcceptanceStatus.NO_ACTION);
         taskDocument1.setManagerAccept(AcceptanceStatus.NO_ACTION);
 
@@ -153,8 +153,8 @@ public class GetTasksServiceTest {
                 null,
                 now.minusMonths(1),
                 now.minusMonths(1),
-                now.plusMonths(3),
                 now.plusMonths(2),
+                now.plusMonths(1),
                 null,
                 null,
                 0,

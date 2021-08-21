@@ -25,9 +25,9 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
-import org.springframework.test.context.TestPropertySource;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.MongoDBContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
@@ -37,7 +37,10 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.URI;
-import java.util.*;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.UUID;
 
 import static com.healthy.gym.account.configuration.tests.LocaleConverter.convertEnumToLocale;
 import static com.healthy.gym.account.configuration.tests.Messages.getMessagesAccordingToLocale;
@@ -45,10 +48,6 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 @Testcontainers
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@TestPropertySource(properties = {
-        "eureka.client.fetch-registry=false",
-        "eureka.client.register-with-eureka=false"
-})
 @ActiveProfiles(value = "test")
 @Tag("integration")
 class WhenSetAvatarIntegrationTest {
@@ -56,6 +55,10 @@ class WhenSetAvatarIntegrationTest {
     @Container
     static MongoDBContainer mongoDBContainer =
             new MongoDBContainer(DockerImageName.parse("mongo:4.4.4-bionic"));
+    @Container
+    static GenericContainer<?> rabbitMQContainer =
+            new GenericContainer<>(DockerImageName.parse("gza73/agh-praca-inzynierska-rabbitmq"))
+                    .withExposedPorts(5672);
     @Autowired
     private TestRestTemplate restTemplate;
     @Autowired
@@ -80,6 +83,7 @@ class WhenSetAvatarIntegrationTest {
     @DynamicPropertySource
     static void setProperties(DynamicPropertyRegistry registry) {
         registry.add("spring.data.mongodb.uri", mongoDBContainer::getReplicaSetUrl);
+        registry.add("spring.rabbitmq.port", rabbitMQContainer::getFirstMappedPort);
     }
 
     @BeforeEach

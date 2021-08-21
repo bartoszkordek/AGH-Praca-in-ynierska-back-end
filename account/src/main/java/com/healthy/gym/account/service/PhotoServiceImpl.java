@@ -1,10 +1,10 @@
 package com.healthy.gym.account.service;
 
+import com.healthy.gym.account.component.AvatarUrlCreator;
 import com.healthy.gym.account.data.document.PhotoDocument;
 import com.healthy.gym.account.data.document.UserDocument;
 import com.healthy.gym.account.data.repository.PhotoDAO;
 import com.healthy.gym.account.data.repository.UserDAO;
-import com.healthy.gym.account.data.repository.UserPrivacyDAO;
 import com.healthy.gym.account.exception.PhotoSavingException;
 import com.healthy.gym.account.exception.UserAvatarNotFoundException;
 import com.healthy.gym.account.pojo.Image;
@@ -12,6 +12,7 @@ import org.bson.types.Binary;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.util.DigestUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -20,15 +21,17 @@ import java.io.IOException;
 public class PhotoServiceImpl implements PhotoService {
     private final PhotoDAO photoDAO;
     private final UserDAO userDAO;
+    private final AvatarUrlCreator avatarUrlCreator;
 
     @Autowired
     public PhotoServiceImpl(
             PhotoDAO photoDAO,
             UserDAO userDAO,
-            UserPrivacyDAO userPrivacyDAO
+            AvatarUrlCreator avatarUrlCreator
     ) {
         this.photoDAO = photoDAO;
         this.userDAO = userDAO;
+        this.avatarUrlCreator = avatarUrlCreator;
     }
 
     @Override
@@ -46,12 +49,17 @@ public class PhotoServiceImpl implements PhotoService {
         PhotoDocument photoDocument = photoDAO.findByUserId(userId);
         if (photoDocument == null) throw new UserAvatarNotFoundException();
 
+        UserDocument userDocument = userDAO.findByUserId(userId);
+        if (userDocument == null) throw new UsernameNotFoundException("No user found id:" + userId);
+
         photoDAO.delete(photoDocument);
+        userDocument.setAvatarUrl(null);
+        userDAO.save(userDocument);
         return photoDAO.findPhotoDocumentById(photoDocument.getId());
     }
 
     @Override
-    public PhotoDocument setAvatar(String userId, MultipartFile multipartFile)
+    public String setAvatar(String userId, MultipartFile multipartFile)
             throws PhotoSavingException, IOException {
 
         UserDocument userDocument = userDAO.findByUserId(userId);
@@ -66,7 +74,19 @@ public class PhotoServiceImpl implements PhotoService {
         PhotoDocument photoUpdated = setOrUpdateAvatar(userId, imageTitle, image);
         checkIfSavedCorrectly(photoUpdated, image, imageTitle);
 
-        return photoUpdated;
+        String avatarUrl = avatarUrlCreator.createAvatarUrl(userId);
+        String version = DigestUtils.md5DigestAsHex(multipartFile.getBytes());
+        userDocument.setAvatarUrl(avatarUrl + "/" + version);
+        UserDocument updatedUser = userDAO.save(userDocument);
+
+        return updatedUser.getAvatarUrl();
+    }
+
+    @Override
+    public String getAvatarUrl(String userId) {
+        UserDocument userDocument = userDAO.findByUserId(userId);
+        if (userDocument == null) throw new UsernameNotFoundException("No user with provided id " + userId);
+        return userDocument.getAvatarUrl();
     }
 
     private PhotoDocument setOrUpdateAvatar(
@@ -75,7 +95,7 @@ public class PhotoServiceImpl implements PhotoService {
             Image image
     ) {
         PhotoDocument photoUpdated;
-        PhotoDocument actualPhoto = getCurrentAvatar(userId);
+        PhotoDocument actualPhoto = photoDAO.findByUserId(userId);
 
         if (actualPhoto != null) {
             actualPhoto.setTitle(title);
@@ -87,10 +107,6 @@ public class PhotoServiceImpl implements PhotoService {
         }
 
         return photoUpdated;
-    }
-
-    private PhotoDocument getCurrentAvatar(String userId) {
-        return photoDAO.findByUserId(userId);
     }
 
     private void checkIfSavedCorrectly(PhotoDocument photoUpdated, Image imageToSave, String imageTitleToSave)

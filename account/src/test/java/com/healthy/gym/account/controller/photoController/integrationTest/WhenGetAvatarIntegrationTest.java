@@ -8,8 +8,7 @@ import org.bson.types.Binary;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.EnumSource;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
@@ -23,6 +22,8 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.context.TestPropertySource;
+import org.springframework.util.DigestUtils;
+import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.MongoDBContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
@@ -34,9 +35,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 
-import static com.healthy.gym.account.configuration.tests.LocaleConverter.convertEnumToLocale;
 import static com.healthy.gym.account.configuration.tests.Messages.getMessagesAccordingToLocale;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
@@ -53,6 +54,10 @@ class WhenGetAvatarIntegrationTest {
     @Container
     static MongoDBContainer mongoDBContainer =
             new MongoDBContainer(DockerImageName.parse("mongo:4.4.4-bionic"));
+    @Container
+    static GenericContainer<?> rabbitMQContainer =
+            new GenericContainer<>(DockerImageName.parse("gza73/agh-praca-inzynierska-rabbitmq"))
+                    .withExposedPorts(5672);
     @Autowired
     private TestRestTemplate restTemplate;
     @Autowired
@@ -62,6 +67,7 @@ class WhenGetAvatarIntegrationTest {
 
     private String userId;
     private byte[] imageBytes;
+    private String digest;
 
     @LocalServerPort
     private Integer port;
@@ -69,6 +75,7 @@ class WhenGetAvatarIntegrationTest {
     @DynamicPropertySource
     static void setProperties(DynamicPropertyRegistry registry) {
         registry.add("spring.data.mongodb.uri", mongoDBContainer::getReplicaSetUrl);
+        registry.add("spring.rabbitmq.port", rabbitMQContainer::getFirstMappedPort);
     }
 
     @BeforeEach
@@ -78,6 +85,7 @@ class WhenGetAvatarIntegrationTest {
         Resource resource = new ClassPathResource("mem.jpg");
         Path filePath = resource.getFile().toPath();
         imageBytes = Files.readAllBytes(filePath);
+        digest = DigestUtils.md5DigestAsHex(imageBytes);
         Binary image = new Binary(imageBytes);
         PhotoDocument avatar = new PhotoDocument(userId, "title", new Image(image, MediaType.IMAGE_JPEG_VALUE));
 
@@ -89,24 +97,18 @@ class WhenGetAvatarIntegrationTest {
         mongoTemplate.dropCollection(PhotoDocument.class);
     }
 
-    @ParameterizedTest
-    @EnumSource(TestCountry.class)
-    void shouldAcceptRequestAndShouldReturnAvatar(TestCountry country) throws Exception {
-        Map<String, String> messages = getMessagesAccordingToLocale(country);
-        Locale testedLocale = convertEnumToLocale(country);
-
-        URI uri = new URI("http://localhost:" + port + "/photos/" + userId + "/avatar");
+    @Test
+    void shouldAcceptRequestAndShouldReturnAvatar() throws Exception {
+        URI uri = new URI("http://localhost:" + port + "/photos/" + userId + "/avatar/" + digest);
 
         HttpHeaders headers = new HttpHeaders();
-        headers.set("Accept-Language", testedLocale.toString());
+        headers.set("Accept-Language", Locale.ENGLISH.toString());
         headers.set("Content-Type", MediaType.APPLICATION_JSON_VALUE);
 
-        HttpEntity<Object> requestEntity = new HttpEntity<>(null, headers);
+        HttpEntity<JsonNode> requestEntity = new HttpEntity<>(null, headers);
 
         ResponseEntity<byte[]> responseEntity = restTemplate
                 .exchange(uri, HttpMethod.GET, requestEntity, byte[].class);
-
-        System.out.println(responseEntity);
 
         HttpStatus httpStatus = responseEntity.getStatusCode();
         assertThat(httpStatus).isEqualTo(HttpStatus.OK);
@@ -115,34 +117,37 @@ class WhenGetAvatarIntegrationTest {
         assertThat(returnData).isEqualTo(imageBytes);
 
         HttpHeaders httpHeaders = responseEntity.getHeaders();
-        assertThat(httpHeaders.getContentType().toString()).isEqualTo(MediaType.IMAGE_JPEG_VALUE);
+        assertThat(Objects.requireNonNull(httpHeaders.getContentType()).toString())
+                .hasToString(MediaType.IMAGE_JPEG_VALUE);
         assertThat(httpHeaders.getETag()).isNotNull();
         assertThat(httpHeaders.getCacheControl()).isEqualTo("max-age=600, private");
     }
 
-    @ParameterizedTest
-    @EnumSource(TestCountry.class)
-    void shouldAcceptRequestAndShouldThrowExceptionWhenAvatarNotFound(TestCountry country) throws Exception {
-        Map<String, String> messages = getMessagesAccordingToLocale(country);
-        Locale testedLocale = convertEnumToLocale(country);
-
-        URI uri = new URI("http://localhost:" + port + "/photos/" + UUID.randomUUID() + "/avatar");
+    @Test
+    void shouldAcceptRequestAndShouldThrowExceptionWhenAvatarNotFound() throws Exception {
+        URI uri = new URI("http://localhost:" + port + "/photos/" + UUID.randomUUID() + "/avatar/" + digest);
 
         HttpHeaders headers = new HttpHeaders();
-        headers.set("Accept-Language", testedLocale.toString());
+        headers.set("Accept-Language", Locale.ENGLISH.toString());
         headers.set("Content-Type", MediaType.APPLICATION_JSON_VALUE);
 
         HttpEntity<Object> requestEntity = new HttpEntity<>(null, headers);
-        String expectedMessage = messages.get("avatar.not.found.exception");
 
         ResponseEntity<JsonNode> responseEntity = restTemplate
                 .exchange(uri, HttpMethod.GET, requestEntity, JsonNode.class);
 
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
         assertThat(responseEntity.getHeaders().getContentType()).hasToString(MediaType.APPLICATION_JSON_VALUE);
-        assertThat(responseEntity.getBody().get("message").textValue()).isEqualTo(expectedMessage);
-        assertThat(responseEntity.getBody().get("error").textValue()).isEqualTo("Not Found");
-        assertThat(responseEntity.getBody().get("status").numberValue()).isEqualTo(404);
-        assertThat(responseEntity.getBody().get("timestamp")).isNotNull();
+
+        JsonNode body = responseEntity.getBody();
+        assert body != null;
+
+        assertThat(body.get("error").textValue()).isEqualTo("Not Found");
+        assertThat(body.get("status").numberValue()).isEqualTo(404);
+        assertThat(body.get("timestamp")).isNotNull();
+
+        Map<String, String> messages = getMessagesAccordingToLocale(TestCountry.ENGLAND);
+        String expectedMessage = messages.get("avatar.not.found.exception");
+        assertThat(body.get("message").textValue()).isEqualTo(expectedMessage);
     }
 }

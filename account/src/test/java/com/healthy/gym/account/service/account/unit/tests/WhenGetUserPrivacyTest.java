@@ -1,4 +1,4 @@
-package com.healthy.gym.account.service.accountServiceTest.unitTest;
+package com.healthy.gym.account.service.account.unit.tests;
 
 import com.healthy.gym.account.data.document.UserDocument;
 import com.healthy.gym.account.data.document.UserPrivacyDocument;

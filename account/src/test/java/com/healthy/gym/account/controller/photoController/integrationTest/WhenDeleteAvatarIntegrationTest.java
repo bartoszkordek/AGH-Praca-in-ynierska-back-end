@@ -24,7 +24,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
-import org.springframework.test.context.TestPropertySource;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.MongoDBContainer;
 import org.testcontainers.junit.jupiter.Container;
@@ -125,8 +124,7 @@ class WhenDeleteAvatarIntegrationTest {
     @ParameterizedTest
     @EnumSource(TestCountry.class)
     void shouldAcceptRequestAndShouldReturnAvatar(TestCountry country) throws Exception {
-        List<PhotoDocument> avatars = mongoTemplate.findAll(PhotoDocument.class);
-        assertThat(avatars.size()).isEqualTo(1);
+        testDatabaseSize(1);
 
         Map<String, String> messages = getMessagesAccordingToLocale(country);
         Locale testedLocale = convertEnumToLocale(country);
@@ -144,17 +142,20 @@ class WhenDeleteAvatarIntegrationTest {
         ResponseEntity<JsonNode> responseEntity = restTemplate
                 .exchange(uri, HttpMethod.DELETE, requestEntity, JsonNode.class);
 
-        JsonNode responseBody = responseEntity.getBody();
-
-        System.out.println(responseBody.toString());
-
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(responseEntity.getHeaders().getContentType()).isEqualTo(MediaType.APPLICATION_JSON);
-        assertThat(responseBody.get("message").textValue()).isEqualTo(expectedMessage);
-        assertThat(responseBody.get("avatar")).isNull();
 
-        avatars = mongoTemplate.findAll(PhotoDocument.class);
-        assertThat(avatars.isEmpty()).isTrue();
+        JsonNode body = responseEntity.getBody();
+        assert body != null;
+        assertThat(body.get("message").textValue()).isEqualTo(expectedMessage);
+        assertThat(body.get("avatar")).isNull();
+
+        testDatabaseSize(0);
+    }
+
+    private void testDatabaseSize(int expectedSize) {
+        List<PhotoDocument> avatars = mongoTemplate.findAll(PhotoDocument.class);
+        assertThat(avatars.size()).isEqualTo(expectedSize);
     }
 
     @ParameterizedTest
@@ -176,13 +177,14 @@ class WhenDeleteAvatarIntegrationTest {
         ResponseEntity<JsonNode> responseEntity = restTemplate
                 .exchange(uri, HttpMethod.DELETE, requestEntity, JsonNode.class);
 
-        JsonNode responseBody = responseEntity.getBody();
-
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
         assertThat(responseEntity.getHeaders().getContentType()).hasToString(MediaType.APPLICATION_JSON_VALUE);
-        assertThat(responseBody.get("message").textValue()).isEqualTo(expectedMessage);
-        assertThat(responseBody.get("error").textValue()).isEqualTo("Not Found");
-        assertThat(responseBody.get("status").numberValue()).isEqualTo(404);
-        assertThat(responseBody.get("timestamp")).isNotNull();
+
+        JsonNode body = responseEntity.getBody();
+        assert body != null;
+        assertThat(body.get("message").textValue()).isEqualTo(expectedMessage);
+        assertThat(body.get("error").textValue()).isEqualTo("Not Found");
+        assertThat(body.get("status").numberValue()).isEqualTo(404);
+        assertThat(body.get("timestamp")).isNotNull();
     }
 }

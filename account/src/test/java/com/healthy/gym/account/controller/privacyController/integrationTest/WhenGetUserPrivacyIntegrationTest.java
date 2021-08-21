@@ -19,7 +19,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
-import org.springframework.test.context.TestPropertySource;
+import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.MongoDBContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
@@ -36,16 +36,16 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 @Testcontainers
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@TestPropertySource(properties = {
-        "eureka.client.fetch-registry=false",
-        "eureka.client.register-with-eureka=false"
-})
 @ActiveProfiles(value = "test")
 @Tag("integration")
 class WhenGetUserPrivacyIntegrationTest {
     @Container
     static MongoDBContainer mongoDBContainer =
             new MongoDBContainer(DockerImageName.parse("mongo:4.4.4-bionic"));
+    @Container
+    static GenericContainer<?> rabbitMQContainer =
+            new GenericContainer<>(DockerImageName.parse("gza73/agh-praca-inzynierska-rabbitmq"))
+                    .withExposedPorts(5672);
     @Autowired
     private TestRestTemplate restTemplate;
     @Autowired
@@ -58,7 +58,6 @@ class WhenGetUserPrivacyIntegrationTest {
     private String userToken;
     private String adminToken;
     private String userId;
-    private UserDocument janKowalski;
 
     @LocalServerPort
     private Integer port;
@@ -66,6 +65,7 @@ class WhenGetUserPrivacyIntegrationTest {
     @DynamicPropertySource
     static void setProperties(DynamicPropertyRegistry registry) {
         registry.add("spring.data.mongodb.uri", mongoDBContainer::getReplicaSetUrl);
+        registry.add("spring.rabbitmq.port", rabbitMQContainer::getFirstMappedPort);
     }
 
     @BeforeEach
@@ -74,7 +74,7 @@ class WhenGetUserPrivacyIntegrationTest {
         userToken = tokenFactory.getUserToken(userId);
         adminToken = tokenFactory.getAdminToken();
 
-        janKowalski = new UserDocument("Jan",
+        UserDocument janKowalski = new UserDocument("Jan",
                 "Kowalski",
                 "jan.kowalski@test.com",
                 "666 777 888",
@@ -112,19 +112,22 @@ class WhenGetUserPrivacyIntegrationTest {
                 .exchange(uri, HttpMethod.GET, request, JsonNode.class);
 
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
-        assertThat(responseEntity.getBody().get("message")).isNull();
-        assertThat(responseEntity.getBody().get("regulationsAccepted").asBoolean()).isTrue();
-        assertThat(responseEntity.getBody().get("allowShowingTrainingsParticipation").asBoolean()).isFalse();
-        assertThat(responseEntity.getBody().get("allowShowingUserStatistics").asBoolean()).isTrue();
-        assertThat(responseEntity.getBody().get("allowShowingAvatar").asBoolean()).isFalse();
         assertThat(responseEntity.getHeaders().getContentType())
                 .isEqualTo(MediaType.APPLICATION_JSON);
+
+        JsonNode body = responseEntity.getBody();
+        assert body != null;
+
+        assertThat(body.get("message")).isNull();
+        assertThat(body.get("regulationsAccepted").asBoolean()).isTrue();
+        assertThat(body.get("allowShowingTrainingsParticipation").asBoolean()).isFalse();
+        assertThat(body.get("allowShowingUserStatistics").asBoolean()).isTrue();
+        assertThat(body.get("allowShowingAvatar").asBoolean()).isFalse();
     }
 
     @ParameterizedTest
     @EnumSource(TestCountry.class)
     void shouldThrowErrorWhenUserIsNotFound(TestCountry country) throws Exception {
-        Map<String, String> messages = getMessagesAccordingToLocale(country);
         Locale testedLocale = convertEnumToLocale(country);
 
         URI uri = new URI("http://localhost:" + port + "/" + UUID.randomUUID() + "/privacy");
@@ -134,13 +137,19 @@ class WhenGetUserPrivacyIntegrationTest {
         headers.set("Authorization", adminToken);
 
         HttpEntity<Object> request = new HttpEntity<>(null, headers);
-        String expectedMessage = messages.get("exception.account.not.found");
 
         ResponseEntity<JsonNode> responseEntity = restTemplate
                 .exchange(uri, HttpMethod.GET, request, JsonNode.class);
 
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
-        assertThat(responseEntity.getBody().get("message").textValue()).isEqualTo(expectedMessage);
+
         assertThat(responseEntity.getHeaders().getContentType()).isEqualTo(MediaType.APPLICATION_JSON);
+
+        JsonNode body = responseEntity.getBody();
+        assert body != null;
+
+        Map<String, String> messages = getMessagesAccordingToLocale(country);
+        String expectedMessage = messages.get("exception.account.not.found");
+        assertThat(body.get("message").textValue()).isEqualTo(expectedMessage);
     }
 }

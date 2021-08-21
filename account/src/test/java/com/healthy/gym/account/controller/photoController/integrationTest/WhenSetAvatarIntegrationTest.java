@@ -25,6 +25,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
+import org.springframework.util.DigestUtils;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.testcontainers.containers.GenericContainer;
@@ -131,18 +132,19 @@ class WhenSetAvatarIntegrationTest {
         return new HttpEntity<>(updatedImageResource, imageHeaders);
     }
 
-    private String getExpectedAvatarLocation(String userId) {
+    private String getExpectedAvatarLocation(String userId) throws IOException {
         String gateway = environment.getProperty("gateway");
         String microservice = environment.getProperty("spring.application.name");
-        return gateway + "/" + microservice + "/photos/" + userId + "/avatar";
+        byte[] image = getImageBytes(updatedImageResource);
+        String digest = DigestUtils.md5DigestAsHex(image);
+        return gateway + "/" + microservice + "/photos/" + userId + "/avatar/" + digest;
     }
 
     @ParameterizedTest
     @EnumSource(TestCountry.class)
     void shouldAcceptRequestAndShouldSetAvatar(TestCountry country) throws Exception {
         mongoTemplate.dropCollection(PhotoDocument.class);
-        List<PhotoDocument> avatarList = mongoTemplate.findAll(PhotoDocument.class);
-        assertThat(avatarList.size()).isZero();
+        testDatabaseSize(0);
 
         Map<String, String> messages = getMessagesAccordingToLocale(country);
         Locale testedLocale = convertEnumToLocale(country);
@@ -158,8 +160,6 @@ class WhenSetAvatarIntegrationTest {
         multipartRequest.add("avatar", getImagePart());
 
         HttpEntity<Object> requestEntity = new HttpEntity<>(multipartRequest, headers);
-        String expectedMessage = messages.get("avatar.update.success");
-        String expectedAvatarLocation = getExpectedAvatarLocation(userId);
 
         ResponseEntity<JsonNode> responseEntity = restTemplate
                 .exchange(uri, HttpMethod.POST, requestEntity, JsonNode.class);
@@ -170,21 +170,27 @@ class WhenSetAvatarIntegrationTest {
         HttpHeaders httpHeaders = responseEntity.getHeaders();
         assertThat(httpHeaders.getContentType()).isEqualTo(MediaType.APPLICATION_JSON);
 
-        JsonNode responseBody = responseEntity.getBody();
-        assertThat(responseBody.get("message").textValue()).isEqualTo(expectedMessage);
-        assertThat(responseBody.get("avatar").textValue()).isEqualTo(expectedAvatarLocation);
+        JsonNode body = responseEntity.getBody();
+        assert body != null;
 
-        avatarList = mongoTemplate.findAll(PhotoDocument.class);
-        assertThat(avatarList.size()).isEqualTo(1);
+        String expectedMessage = messages.get("avatar.update.success");
+        assertThat(body.get("message").textValue()).isEqualTo(expectedMessage);
+
+        String expectedAvatarLocation = getExpectedAvatarLocation(userId);
+        assertThat(body.get("avatar").textValue()).isEqualTo(expectedAvatarLocation);
+
+        testDatabaseSize(1);
+    }
+
+    private void testDatabaseSize(int expectedSize) {
+        List<PhotoDocument> avatarList = mongoTemplate.findAll(PhotoDocument.class);
+        assertThat(avatarList.size()).isEqualTo(expectedSize);
     }
 
     @ParameterizedTest
     @EnumSource(TestCountry.class)
     void shouldAcceptRequestAndShouldUpdateAvatar(TestCountry country) throws Exception {
-        List<PhotoDocument> avatarList = mongoTemplate.findAll(PhotoDocument.class);
-        assertThat(avatarList.size()).isEqualTo(1);
-        assertThat(avatarList.get(0).getImage().getData().getData())
-                .isEqualTo(getImageBytes(currentImageResource));
+        testDatabaseWhenUpdate(currentImageResource);
 
         Map<String, String> messages = getMessagesAccordingToLocale(country);
         Locale testedLocale = convertEnumToLocale(country);
@@ -200,8 +206,6 @@ class WhenSetAvatarIntegrationTest {
         multipartRequest.add("avatar", getImagePart());
 
         HttpEntity<Object> requestEntity = new HttpEntity<>(multipartRequest, headers);
-        String expectedMessage = messages.get("avatar.update.success");
-        String expectedAvatarLocation = getExpectedAvatarLocation(userId);
 
         ResponseEntity<JsonNode> responseEntity = restTemplate
                 .exchange(uri, HttpMethod.POST, requestEntity, JsonNode.class);
@@ -212,14 +216,23 @@ class WhenSetAvatarIntegrationTest {
         HttpHeaders httpHeaders = responseEntity.getHeaders();
         assertThat(httpHeaders.getContentType()).isEqualTo(MediaType.APPLICATION_JSON);
 
-        JsonNode responseBody = responseEntity.getBody();
-        assertThat(responseBody.get("message").textValue()).isEqualTo(expectedMessage);
-        assertThat(responseBody.get("avatar").textValue()).isEqualTo(expectedAvatarLocation);
+        JsonNode body = responseEntity.getBody();
+        assert body != null;
 
-        avatarList = mongoTemplate.findAll(PhotoDocument.class);
+        String expectedMessage = messages.get("avatar.update.success");
+        assertThat(body.get("message").textValue()).isEqualTo(expectedMessage);
+
+        String expectedAvatarLocation = getExpectedAvatarLocation(userId);
+        assertThat(body.get("avatar").textValue()).isEqualTo(expectedAvatarLocation);
+
+        testDatabaseWhenUpdate(updatedImageResource);
+    }
+
+    private void testDatabaseWhenUpdate(Resource imageResource) throws IOException {
+        List<PhotoDocument> avatarList = mongoTemplate.findAll(PhotoDocument.class);
         assertThat(avatarList.size()).isEqualTo(1);
         assertThat(avatarList.get(0).getImage().getData().getData())
-                .isEqualTo(getImageBytes(updatedImageResource));
+                .isEqualTo(getImageBytes(imageResource));
     }
 
 }

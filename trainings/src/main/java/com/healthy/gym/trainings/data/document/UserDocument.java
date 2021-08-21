@@ -23,6 +23,7 @@ public class UserDocument {
     private boolean credentialsNonExpired;
     private boolean accountNonLocked;
     private Collection<GymRole> gymRoles;
+    private String avatarUrl;
 
     public UserDocument() {
         //empty constructor required spring data mapper
@@ -179,6 +180,14 @@ public class UserDocument {
         this.gymRoles = gymRoles;
     }
 
+    public String getAvatarUrl() {
+        return avatarUrl;
+    }
+
+    public void setAvatarUrl(String avatarUrl) {
+        this.avatarUrl = avatarUrl;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -195,7 +204,8 @@ public class UserDocument {
                 && Objects.equals(phoneNumber, that.phoneNumber)
                 && Objects.equals(encryptedPassword, that.encryptedPassword)
                 && Objects.equals(userId, that.userId)
-                && Objects.equals(gymRoles, that.gymRoles);
+                && Objects.equals(gymRoles, that.gymRoles)
+                && Objects.equals(avatarUrl, that.avatarUrl);
     }
 
     @Override
@@ -212,7 +222,9 @@ public class UserDocument {
                 accountNonExpired,
                 credentialsNonExpired,
                 accountNonLocked,
-                gymRoles);
+                gymRoles,
+                avatarUrl
+        );
     }
 
     @Override
@@ -230,6 +242,7 @@ public class UserDocument {
                 ", credentialsNonExpired=" + credentialsNonExpired +
                 ", accountNonLocked=" + accountNonLocked +
                 ", gymRoles=" + gymRoles +
+                ", avatarUrl='" + avatarUrl + '\'' +
                 '}';
     }
 }

@@ -22,6 +22,7 @@ import org.springframework.data.domain.Pageable;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -274,5 +275,24 @@ public class GetTasksServiceTest {
         assertThatThrownBy(() ->
                 taskService.getTasks("2030-12-31", "2000-01-01", paging)
         ).isInstanceOf(StartDateAfterEndDateException.class);
+    }
+
+    @Test
+    void shouldNotGetTasks_whenNoContent() {
+        var now = LocalDate.now();
+        String requestStartDate = now.plusYears(100).format(DateTimeFormatter.ISO_LOCAL_DATE);
+        String requestEndDate = now.plusYears(200).format(DateTimeFormatter.ISO_LOCAL_DATE);
+        List<TaskDocument> taskDocuments = new ArrayList<>();
+        Page<TaskDocument> taskDocumentPage = new PageImpl<>(taskDocuments);
+        //when
+        when(taskDAO.findAllByDueDateBetween(
+                now.plusYears(100).minusDays(1),
+                now.plusYears(200).plusDays(1),
+                paging
+        )).thenReturn(taskDocumentPage);
+
+        assertThatThrownBy(() ->
+                taskService.getTasks(requestStartDate, requestEndDate, paging)
+        ).isInstanceOf(NoTasksException.class);
     }
 }

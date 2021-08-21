@@ -17,7 +17,6 @@ import com.healthy.gym.task.util.RequestDateFormatter;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
@@ -256,7 +255,7 @@ public class TaskServiceImpl implements TaskService{
                 pageable
         ).getContent();
 
-        if(taskDocuments == null) throw new NoTasksException();
+        if(taskDocuments.isEmpty()) throw new NoTasksException();
 
         return taskDocuments
                 .stream()

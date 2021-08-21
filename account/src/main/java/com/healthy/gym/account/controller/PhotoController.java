@@ -7,7 +7,6 @@ import com.healthy.gym.account.exception.UserAvatarNotFoundException;
 import com.healthy.gym.account.pojo.response.AvatarResponse;
 import com.healthy.gym.account.service.PhotoService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.env.Environment;
 import org.springframework.http.*;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -17,7 +16,6 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
 import javax.activation.UnsupportedDataTypeException;
-import javax.servlet.http.HttpServletRequest;
 import java.time.Duration;
 
 @RestController
@@ -30,32 +28,27 @@ public class PhotoController {
     private final Translator translator;
     private final PhotoService photoService;
     private final ImageValidator imageValidator;
-    private final Environment environment;
 
     @Autowired
     public PhotoController(
             Translator translator,
             PhotoService photoService,
-            ImageValidator imageValidator,
-            Environment environment
+            ImageValidator imageValidator
     ) {
         this.translator = translator;
         this.photoService = photoService;
         this.imageValidator = imageValidator;
-        this.environment = environment;
     }
 
     @PreAuthorize("hasRole('ADMIN') or principal==#userId")
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<AvatarResponse> setAvatar(
             @PathVariable("id") String userId,
-            @RequestParam("avatar") MultipartFile multipartFile,
-            final HttpServletRequest request
+            @RequestParam("avatar") MultipartFile multipartFile
     ) {
         try {
             imageValidator.isFileSupported(multipartFile);
-            photoService.setAvatar(userId, multipartFile);
-            String avatarLocation = getAvatarLocation(request);
+            String avatarLocation = photoService.setAvatar(userId, multipartFile);
             String message = translator.toLocale("avatar.update.success");
             return ResponseEntity
                     .status(HttpStatus.OK)
@@ -80,15 +73,8 @@ public class PhotoController {
         }
     }
 
-    private String getAvatarLocation(HttpServletRequest request) {
-        String requestURI = request.getRequestURI();
-        String name = environment.getProperty("spring.application.name");
-        String gateway = environment.getProperty("gateway");
-        return gateway + "/" + name + requestURI;
-    }
-
-    @GetMapping
-    public ResponseEntity<byte[]> getAvatar(@PathVariable("id") String userId) {
+    @GetMapping("/{version}")
+    public ResponseEntity<byte[]> getAvatar(@PathVariable("id") String userId, @PathVariable String version) {
         try {
             byte[] image = photoService.getAvatar(userId);
             String etag = DigestUtils.md5DigestAsHex(image);

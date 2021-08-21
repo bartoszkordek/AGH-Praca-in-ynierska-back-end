@@ -3,9 +3,7 @@ package com.healthy.gym.account.controller.photoController.unitTest;
 import com.healthy.gym.account.configuration.tests.TestCountry;
 import com.healthy.gym.account.configuration.tests.TestRoleTokenFactory;
 import com.healthy.gym.account.controller.PhotoController;
-import com.healthy.gym.account.data.document.PhotoDocument;
 import com.healthy.gym.account.exception.PhotoSavingException;
-import com.healthy.gym.account.pojo.Image;
 import com.healthy.gym.account.service.AccountService;
 import com.healthy.gym.account.service.PhotoService;
 import org.junit.jupiter.api.BeforeEach;
@@ -24,7 +22,6 @@ import org.springframework.test.web.servlet.RequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import javax.activation.UnsupportedDataTypeException;
-import java.io.IOException;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.util.Locale;
@@ -58,13 +55,12 @@ class WhenSetAvatarTest {
 
     private String userToken;
     private String userId;
-    private PhotoDocument photoDocument;
     private MockMultipartFile invalidFile;
     private MockMultipartFile validFile;
 
 
     @BeforeEach
-    void setUp() throws IOException {
+    void setUp() {
         userId = UUID.randomUUID().toString();
         userToken = tokenFactory.getUserToken(userId);
 
@@ -81,8 +77,6 @@ class WhenSetAvatarTest {
                 MediaType.IMAGE_PNG_VALUE,
                 "data".getBytes(StandardCharsets.UTF_8)
         );
-        photoDocument = new PhotoDocument(userId, "avatar",
-                new Image("data".getBytes(StandardCharsets.UTF_8), MediaType.IMAGE_PNG_VALUE));
     }
 
     @ParameterizedTest
@@ -94,7 +88,8 @@ class WhenSetAvatarTest {
         URI uri = new URI("/photos/" + userId + "/avatar");
 
         String expectedMessage = messages.get("avatar.update.success");
-        when(photoService.setAvatar(userId, validFile)).thenReturn(photoDocument);
+        when(photoService.setAvatar(userId, validFile))
+                .thenReturn("http://localhost:8020/account/photos/" + userId + "/avatar");
 
         RequestBuilder request = MockMvcRequestBuilders
                 .multipart(uri)

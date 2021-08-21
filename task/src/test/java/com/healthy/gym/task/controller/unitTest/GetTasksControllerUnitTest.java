@@ -3,7 +3,6 @@ package com.healthy.gym.task.controller.unitTest;
 import com.healthy.gym.task.configuration.TestCountry;
 import com.healthy.gym.task.configuration.TestRoleTokenFactory;
 import com.healthy.gym.task.controller.TaskController;
-import com.healthy.gym.task.data.document.TaskDocument;
 import com.healthy.gym.task.dto.BasicUserInfoDTO;
 import com.healthy.gym.task.dto.TaskDTO;
 import com.healthy.gym.task.enums.AcceptanceStatus;

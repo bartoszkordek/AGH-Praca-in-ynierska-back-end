@@ -11,6 +11,7 @@ import com.healthy.gym.task.exception.NoTasksException;
 import com.healthy.gym.task.exception.StartDateAfterEndDateException;
 import com.healthy.gym.task.service.TaskService;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -349,5 +350,76 @@ public class GetTasksControllerUnitTest {
                         assertThat(Objects.requireNonNull(result.getResolvedException()).getCause())
                                 .isInstanceOf(NoTasksException.class)
                 );
+    }
+
+    @ParameterizedTest
+    @EnumSource(TestCountry.class)
+    void shouldThrowIllegalStateExceptionWhenInternalErrorOccurs(TestCountry country)
+            throws Exception {
+        Map<String, String> messages = getMessagesAccordingToLocale(country);
+        Locale testedLocale = convertEnumToLocale(country);
+
+        RequestBuilder request = MockMvcRequestBuilders
+                .get(uri+String.valueOf(page))
+                .header("Accept-Language", testedLocale.toString())
+                .header("Authorization", managerToken)
+                .contentType(MediaType.APPLICATION_JSON);
+
+        doThrow(IllegalStateException.class)
+                .when(taskService)
+                .getTasks(any(), any(), any());
+
+        String expectedMessage = messages.get("exception.internal.error");
+
+        mockMvc.perform(request)
+                .andDo(print())
+                .andExpect(status().isInternalServerError())
+                .andExpect(status().reason(is(expectedMessage)))
+                .andExpect(result ->
+                        assertThat(Objects.requireNonNull(result.getResolvedException()).getCause())
+                                .isInstanceOf(IllegalStateException.class)
+                );
+    }
+
+    @Nested
+    class ShouldNotGetTasksWhenNotAuthorized{
+
+        @ParameterizedTest
+        @EnumSource(TestCountry.class)
+        void whenUserIsNotLogIn(TestCountry country) throws Exception {
+            Locale testedLocale = convertEnumToLocale(country);
+
+            RequestBuilder request = MockMvcRequestBuilders
+                    .get(uri+String.valueOf(page))
+                    .header("Accept-Language", testedLocale.toString());
+
+            mockMvc.perform(request)
+                    .andDo(print())
+                    .andExpect(status().isForbidden());
+        }
+
+        @ParameterizedTest
+        @EnumSource(TestCountry.class)
+        void whenUserIsNotLogInAsRandomUser(TestCountry country) throws Exception {
+            Map<String, String> messages = getMessagesAccordingToLocale(country);
+            Locale testedLocale = convertEnumToLocale(country);
+
+            RequestBuilder request = MockMvcRequestBuilders
+                    .get(uri+String.valueOf(page))
+                    .header("Accept-Language", testedLocale.toString())
+                    .header("Authorization", userToken)
+                    .contentType(MediaType.APPLICATION_JSON);
+
+            String expectedMessage = messages.get("exception.access.denied");
+
+            mockMvc.perform(request)
+                    .andDo(print())
+                    .andExpect(status().isForbidden())
+                    .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(jsonPath("$.message").value(is(expectedMessage)))
+                    .andExpect(jsonPath("$.error").value(is("Forbidden")))
+                    .andExpect(jsonPath("$.status").value(403))
+                    .andExpect(jsonPath("$.timestamp").exists());
+        }
     }
 }

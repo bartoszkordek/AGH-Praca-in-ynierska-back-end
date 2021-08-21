@@ -4,7 +4,6 @@ import com.healthy.gym.account.configuration.tests.TestCountry;
 import com.healthy.gym.account.configuration.tests.TestRoleTokenFactory;
 import com.healthy.gym.account.controller.PhotoController;
 import com.healthy.gym.account.exception.UserAvatarNotFoundException;
-import com.healthy.gym.account.service.AccountService;
 import com.healthy.gym.account.service.PhotoService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -17,12 +16,15 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.RequestBuilder;
+import org.springframework.test.web.servlet.ResultMatcher;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 
 import static com.healthy.gym.account.configuration.tests.LocaleConverter.convertEnumToLocale;
@@ -45,18 +47,30 @@ class WhenGetAvatarTest {
     private TestRoleTokenFactory tokenFactory;
 
     @MockBean
-    private AccountService accountService; // do NOT remove - necessary to load application context
-
-    @MockBean
     private PhotoService photoService;
 
     private String userToken;
     private String userId;
+    private URI uri;
+    private RequestBuilder request;
 
     @BeforeEach
-    void setUp() {
+    void setUp() throws URISyntaxException {
         userId = UUID.randomUUID().toString();
         userToken = tokenFactory.getUserToken(userId);
+        uri = getUri(userId);
+    }
+
+    private URI getUri(String userId) throws URISyntaxException {
+        return new URI("/photos/" + userId + "/avatar/" + UUID.randomUUID());
+    }
+
+    private RequestBuilder performRequest(String token, Locale locale) {
+        return MockMvcRequestBuilders
+                .get(uri)
+                .header("Accept-Language", locale.toString())
+                .header("Authorization", token)
+                .contentType(MediaType.APPLICATION_JSON_VALUE);
     }
 
     @ParameterizedTest
@@ -64,15 +78,9 @@ class WhenGetAvatarTest {
     void shouldAcceptRequestAndShouldReturnAvatar(TestCountry country) throws Exception {
         Locale testedLocale = convertEnumToLocale(country);
 
-        URI uri = new URI("/photos/" + userId + "/avatar");
-
         when(photoService.getAvatar(userId)).thenReturn("data".getBytes(StandardCharsets.UTF_8));
 
-        RequestBuilder request = MockMvcRequestBuilders
-                .get(uri)
-                .header("Accept-Language", testedLocale.toString())
-                .header("Authorization", userToken)
-                .contentType(MediaType.APPLICATION_JSON_VALUE);
+        request = performRequest(userToken, testedLocale);
 
         mockMvc.perform(request)
                 .andDo(print())
@@ -87,27 +95,30 @@ class WhenGetAvatarTest {
     @ParameterizedTest
     @EnumSource(TestCountry.class)
     void shouldAcceptRequestAndShouldThrowWhenAvatarNotFound(TestCountry country) throws Exception {
-        Map<String, String> messages = getMessagesAccordingToLocale(country);
-        Locale testedLocale = convertEnumToLocale(country);
-
-        URI uri = new URI("/photos/" + userId + "/avatar");
-
-        String expectedMessage = messages.get("avatar.not.found.exception");
         doThrow(UserAvatarNotFoundException.class).when(photoService).getAvatar(userId);
 
-        RequestBuilder request = MockMvcRequestBuilders
-                .get(uri)
-                .header("Accept-Language", testedLocale.toString())
-                .header("Authorization", userToken)
-                .contentType(MediaType.APPLICATION_JSON_VALUE);
+        Locale testedLocale = convertEnumToLocale(country);
+        request = performRequest(userToken, testedLocale);
+
+        Map<String, String> messages = getMessagesAccordingToLocale(country);
+        String expectedMessage = messages.get("avatar.not.found.exception");
+
+        performAndTestException(status().isNotFound(), expectedMessage, UserAvatarNotFoundException.class);
+    }
+
+    private void performAndTestException(
+            ResultMatcher matcher,
+            String expectedMessage,
+            Class<? extends Exception> exception
+    ) throws Exception {
 
         mockMvc.perform(request)
                 .andDo(print())
-                .andExpect(status().isNotFound())
+                .andExpect(matcher)
                 .andExpect(status().reason(is(expectedMessage)))
                 .andExpect(result ->
-                        assertThat(result.getResolvedException().getCause())
-                                .isInstanceOf(UserAvatarNotFoundException.class)
+                        assertThat(Objects.requireNonNull(result.getResolvedException()).getCause())
+                                .isInstanceOf(exception)
                 );
     }
 
@@ -117,51 +128,23 @@ class WhenGetAvatarTest {
         Map<String, String> messages = getMessagesAccordingToLocale(country);
         Locale testedLocale = convertEnumToLocale(country);
 
-        URI uri = new URI("/photos/" + userId + "/avatar");
-
         String expectedMessage = messages.get("exception.account.not.found");
         doThrow(UsernameNotFoundException.class).when(photoService).getAvatar(userId);
 
-        RequestBuilder request = MockMvcRequestBuilders
-                .get(uri)
-                .header("Accept-Language", testedLocale.toString())
-                .header("Authorization", userToken)
-                .contentType(MediaType.APPLICATION_JSON_VALUE);
-
-        mockMvc.perform(request)
-                .andDo(print())
-                .andExpect(status().isNotFound())
-                .andExpect(status().reason(is(expectedMessage)))
-                .andExpect(result ->
-                        assertThat(result.getResolvedException().getCause())
-                                .isInstanceOf(UsernameNotFoundException.class)
-                );
+        request = performRequest(userToken, testedLocale);
+        performAndTestException(status().isNotFound(), expectedMessage, UsernameNotFoundException.class);
     }
 
     @ParameterizedTest
     @EnumSource(TestCountry.class)
     void shouldAcceptRequestAndShouldThrowWhenInternalErrorHappens(TestCountry country) throws Exception {
-        Map<String, String> messages = getMessagesAccordingToLocale(country);
-        Locale testedLocale = convertEnumToLocale(country);
-
-        URI uri = new URI("/photos/" + userId + "/avatar");
-
-        String expectedMessage = messages.get("request.failure");
         doThrow(IllegalStateException.class).when(photoService).getAvatar(userId);
 
-        RequestBuilder request = MockMvcRequestBuilders
-                .get(uri)
-                .header("Accept-Language", testedLocale.toString())
-                .header("Authorization", userToken)
-                .contentType(MediaType.APPLICATION_JSON_VALUE);
+        Locale testedLocale = convertEnumToLocale(country);
+        request = performRequest(userToken, testedLocale);
 
-        mockMvc.perform(request)
-                .andDo(print())
-                .andExpect(status().isInternalServerError())
-                .andExpect(status().reason(is(expectedMessage)))
-                .andExpect(result ->
-                        assertThat(result.getResolvedException().getCause())
-                                .isInstanceOf(IllegalStateException.class)
-                );
+        Map<String, String> messages = getMessagesAccordingToLocale(country);
+        String expectedMessage = messages.get("request.failure");
+        performAndTestException(status().isInternalServerError(), expectedMessage, IllegalStateException.class);
     }
 }

@@ -4,7 +4,6 @@ import com.healthy.gym.account.configuration.tests.TestCountry;
 import com.healthy.gym.account.configuration.tests.TestRoleTokenFactory;
 import com.healthy.gym.account.controller.PhotoController;
 import com.healthy.gym.account.exception.PhotoSavingException;
-import com.healthy.gym.account.service.AccountService;
 import com.healthy.gym.account.service.PhotoService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -19,13 +18,16 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.RequestBuilder;
+import org.springframework.test.web.servlet.ResultMatcher;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import javax.activation.UnsupportedDataTypeException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 
 import static com.healthy.gym.account.configuration.tests.LocaleConverter.convertEnumToLocale;
@@ -48,19 +50,18 @@ class WhenSetAvatarTest {
     private TestRoleTokenFactory tokenFactory;
 
     @MockBean
-    private AccountService accountService; // do NOT remove - necessary to load application context
-
-    @MockBean
     private PhotoService photoService;
 
     private String userToken;
     private String userId;
     private MockMultipartFile invalidFile;
     private MockMultipartFile validFile;
+    private RequestBuilder request;
+    private URI uri;
 
 
     @BeforeEach
-    void setUp() {
+    void setUp() throws URISyntaxException {
         userId = UUID.randomUUID().toString();
         userToken = tokenFactory.getUserToken(userId);
 
@@ -77,27 +78,33 @@ class WhenSetAvatarTest {
                 MediaType.IMAGE_PNG_VALUE,
                 "data".getBytes(StandardCharsets.UTF_8)
         );
+        uri = getUri(userId);
+    }
+
+    private URI getUri(String userId) throws URISyntaxException {
+        return new URI("/photos/" + userId + "/avatar");
+    }
+
+    private RequestBuilder getRequest(MockMultipartFile file, String token, Locale locale) {
+        return MockMvcRequestBuilders
+                .multipart(uri)
+                .file(file)
+                .header("Accept-Language", locale.toString())
+                .header("Authorization", token)
+                .contentType(MediaType.MULTIPART_FORM_DATA_VALUE);
     }
 
     @ParameterizedTest
     @EnumSource(TestCountry.class)
     void shouldAcceptRequestAndShouldSetUserAvatar(TestCountry country) throws Exception {
-        Map<String, String> messages = getMessagesAccordingToLocale(country);
-        Locale testedLocale = convertEnumToLocale(country);
-
-        URI uri = new URI("/photos/" + userId + "/avatar");
-
-        String expectedMessage = messages.get("avatar.update.success");
         when(photoService.setAvatar(userId, validFile))
                 .thenReturn("http://localhost:8020/account/photos/" + userId + "/avatar");
 
-        RequestBuilder request = MockMvcRequestBuilders
-                .multipart(uri)
-                .file(validFile)
-                .header("Accept-Language", testedLocale.toString())
-                .header("Authorization", userToken)
-                .contentType(MediaType.MULTIPART_FORM_DATA_VALUE);
+        Locale testedLocale = convertEnumToLocale(country);
+        request = getRequest(validFile, userToken, testedLocale);
 
+        Map<String, String> messages = getMessagesAccordingToLocale(country);
+        String expectedMessage = messages.get("avatar.update.success");
         mockMvc.perform(request)
                 .andDo(print())
                 .andExpect(status().isOk())
@@ -109,113 +116,71 @@ class WhenSetAvatarTest {
 
     @ParameterizedTest
     @EnumSource(TestCountry.class)
-    void shouldAcceptRequestAndShouldThrowUsernameNotFoundExceptionWhenUserNotFound(TestCountry country) throws Exception {
-        Map<String, String> messages = getMessagesAccordingToLocale(country);
-        Locale testedLocale = convertEnumToLocale(country);
-
-        URI uri = new URI("/photos/" + userId + "/avatar");
-
-        String expectedMessage = messages.get("exception.account.not.found");
+    void shouldAcceptRequestAndShouldThrowUsernameNotFoundExceptionWhenUserNotFound(TestCountry country)
+            throws Exception {
         doThrow(UsernameNotFoundException.class).when(photoService).setAvatar(userId, validFile);
 
-        RequestBuilder request = MockMvcRequestBuilders
-                .multipart(uri)
-                .file(validFile)
-                .header("Accept-Language", testedLocale.toString())
-                .header("Authorization", userToken)
-                .contentType(MediaType.MULTIPART_FORM_DATA_VALUE);
+        Locale testedLocale = convertEnumToLocale(country);
+        request = getRequest(validFile, userToken, testedLocale);
+
+        Map<String, String> messages = getMessagesAccordingToLocale(country);
+        String expectedMessage = messages.get("exception.account.not.found");
+        performAndTestException(status().isNotFound(), expectedMessage, UsernameNotFoundException.class);
+    }
+
+    private void performAndTestException(
+            ResultMatcher matcher,
+            String expectedMessage,
+            Class<? extends Exception> exception
+    ) throws Exception {
 
         mockMvc.perform(request)
                 .andDo(print())
-                .andExpect(status().isNotFound())
+                .andExpect(matcher)
                 .andExpect(status().reason(is(expectedMessage)))
                 .andExpect(result ->
-                        assertThat(result.getResolvedException().getCause())
-                                .isInstanceOf(UsernameNotFoundException.class)
+                        assertThat(Objects.requireNonNull(result.getResolvedException()).getCause())
+                                .isInstanceOf(exception)
                 );
     }
 
     @ParameterizedTest
     @EnumSource(TestCountry.class)
-    void shouldAcceptRequestAndShouldThrowPhotoSavingExceptionWhenErrorHappens(TestCountry country) throws Exception {
-        Map<String, String> messages = getMessagesAccordingToLocale(country);
-        Locale testedLocale = convertEnumToLocale(country);
-
-        URI uri = new URI("/photos/" + userId + "/avatar");
-
-        String expectedMessage = messages.get("avatar.update.failure");
+    void shouldAcceptRequestAndShouldThrowPhotoSavingExceptionWhenErrorHappens(TestCountry country)
+            throws Exception {
         doThrow(PhotoSavingException.class).when(photoService).setAvatar(userId, validFile);
 
-        RequestBuilder request = MockMvcRequestBuilders
-                .multipart(uri)
-                .file(validFile)
-                .header("Accept-Language", testedLocale.toString())
-                .header("Authorization", userToken)
-                .contentType(MediaType.MULTIPART_FORM_DATA_VALUE);
+        Locale testedLocale = convertEnumToLocale(country);
+        request = getRequest(validFile, userToken, testedLocale);
 
-        mockMvc.perform(request)
-                .andDo(print())
-                .andExpect(status().isBadRequest())
-                .andExpect(status().reason(is(expectedMessage)))
-                .andExpect(result ->
-                        assertThat(result.getResolvedException().getCause())
-                                .isInstanceOf(PhotoSavingException.class)
-                );
+        Map<String, String> messages = getMessagesAccordingToLocale(country);
+        String expectedMessage = messages.get("avatar.update.failure");
+        performAndTestException(status().isBadRequest(), expectedMessage, PhotoSavingException.class);
     }
 
     @ParameterizedTest
     @EnumSource(TestCountry.class)
-    void shouldAcceptRequestAndShouldThrowUnsupportedDataTypeExceptionWhenInvalidFileProvided(TestCountry country) throws Exception {
-        Map<String, String> messages = getMessagesAccordingToLocale(country);
+    void shouldAcceptRequestAndShouldThrowUnsupportedDataTypeExceptionWhenInvalidFileProvided(TestCountry country)
+            throws Exception {
         Locale testedLocale = convertEnumToLocale(country);
+        request = getRequest(invalidFile, userToken, testedLocale);
 
-        URI uri = new URI("/photos/" + userId + "/avatar");
-
+        Map<String, String> messages = getMessagesAccordingToLocale(country);
         String expectedMessage = messages.get("avatar.update.data.exception");
-
-        RequestBuilder request = MockMvcRequestBuilders
-                .multipart(uri)
-                .file(invalidFile)
-                .header("Accept-Language", testedLocale.toString())
-                .header("Authorization", userToken)
-                .contentType(MediaType.MULTIPART_FORM_DATA_VALUE);
-
-        mockMvc.perform(request)
-                .andDo(print())
-                .andExpect(status().isBadRequest())
-                .andExpect(status().reason(is(expectedMessage)))
-                .andExpect(result ->
-                        assertThat(result.getResolvedException().getCause())
-                                .isInstanceOf(UnsupportedDataTypeException.class)
-                );
+        performAndTestException(status().isBadRequest(), expectedMessage, UnsupportedDataTypeException.class);
     }
 
     @ParameterizedTest
     @EnumSource(TestCountry.class)
     void shouldAcceptRequestAndShouldThrowWhenInternalErrorHappens(TestCountry country) throws Exception {
-        Map<String, String> messages = getMessagesAccordingToLocale(country);
-        Locale testedLocale = convertEnumToLocale(country);
-
-        URI uri = new URI("/photos/" + userId + "/avatar");
-
-        String expectedMessage = messages.get("request.failure");
         doThrow(IllegalStateException.class).when(photoService).setAvatar(userId, validFile);
 
-        RequestBuilder request = MockMvcRequestBuilders
-                .multipart(uri)
-                .file(validFile)
-                .header("Accept-Language", testedLocale.toString())
-                .header("Authorization", userToken)
-                .contentType(MediaType.MULTIPART_FORM_DATA_VALUE);
+        Locale testedLocale = convertEnumToLocale(country);
+        request = getRequest(validFile, userToken, testedLocale);
 
-        mockMvc.perform(request)
-                .andDo(print())
-                .andExpect(status().isInternalServerError())
-                .andExpect(status().reason(is(expectedMessage)))
-                .andExpect(result ->
-                        assertThat(result.getResolvedException().getCause())
-                                .isInstanceOf(IllegalStateException.class)
-                );
+        Map<String, String> messages = getMessagesAccordingToLocale(country);
+        String expectedMessage = messages.get("request.failure");
+        performAndTestException(status().isInternalServerError(), expectedMessage, IllegalStateException.class);
     }
 
     @Nested
@@ -227,17 +192,15 @@ class WhenSetAvatarTest {
             Locale testedLocale = convertEnumToLocale(country);
 
             String invalidId = UUID.randomUUID().toString();
-            URI uri = new URI("/photos/" + invalidId + "/avatar");
+            uri = getUri(invalidId);
 
-            RequestBuilder request = MockMvcRequestBuilders
-                    .multipart(uri)
-                    .file(invalidFile)
-                    .header("Accept-Language", testedLocale.toString())
-                    .header("Authorization", userToken)
-                    .contentType(MediaType.MULTIPART_FORM_DATA_VALUE);
+            request = getRequest(invalidFile, userToken, testedLocale);
 
             String expectedMessage = messages.get("exception.access.denied");
+            performAndTestAccessDenied(expectedMessage);
+        }
 
+        private void performAndTestAccessDenied(String expectedMessage) throws Exception {
             mockMvc.perform(request)
                     .andDo(print())
                     .andExpect(status().isForbidden())
@@ -255,24 +218,16 @@ class WhenSetAvatarTest {
             Locale testedLocale = convertEnumToLocale(country);
 
             String invalidId = UUID.randomUUID().toString();
-            URI uri = new URI("/photos/" + invalidId + "/avatar");
+            uri = getUri(invalidId);
 
-            RequestBuilder request = MockMvcRequestBuilders
+            request = MockMvcRequestBuilders
                     .multipart(uri)
                     .file(invalidFile)
                     .header("Accept-Language", testedLocale.toString())
                     .contentType(MediaType.MULTIPART_FORM_DATA_VALUE);
 
             String expectedMessage = messages.get("exception.access.denied");
-
-            mockMvc.perform(request)
-                    .andDo(print())
-                    .andExpect(status().isForbidden())
-                    .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                    .andExpect(jsonPath("$.message").value(is(expectedMessage)))
-                    .andExpect(jsonPath("$.error").value(is("Forbidden")))
-                    .andExpect(jsonPath("$.status").value(403))
-                    .andExpect(jsonPath("$.timestamp").exists());
+            performAndTestAccessDenied(expectedMessage);
         }
     }
 

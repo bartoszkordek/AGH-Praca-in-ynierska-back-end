@@ -5,7 +5,6 @@ import com.healthy.gym.account.configuration.tests.TestRoleTokenFactory;
 import com.healthy.gym.account.controller.PhotoController;
 import com.healthy.gym.account.data.document.PhotoDocument;
 import com.healthy.gym.account.exception.UserAvatarNotFoundException;
-import com.healthy.gym.account.service.AccountService;
 import com.healthy.gym.account.service.PhotoService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -19,11 +18,14 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.RequestBuilder;
+import org.springframework.test.web.servlet.ResultMatcher;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 
 import static com.healthy.gym.account.configuration.tests.LocaleConverter.convertEnumToLocale;
@@ -46,21 +48,30 @@ class WhenDeleteAvatarTest {
     private TestRoleTokenFactory tokenFactory;
 
     @MockBean
-    private AccountService accountService; // do NOT remove - necessary to load application context
-
-    @MockBean
     private PhotoService photoService;
 
     private String userToken;
     private String userId;
-    private String adminToken;
+    private RequestBuilder request;
+    private URI uri;
 
     @BeforeEach
-    void setUp() {
+    void setUp() throws URISyntaxException {
         userId = UUID.randomUUID().toString();
         userToken = tokenFactory.getUserToken(userId);
-        String adminId = UUID.randomUUID().toString();
-        adminToken = tokenFactory.getAdminToken(adminId);
+        uri = getUri(userId);
+    }
+
+    private URI getUri(String userId) throws URISyntaxException {
+        return new URI("/photos/" + userId + "/avatar");
+    }
+
+    private RequestBuilder getRequest(String token, Locale locale) {
+        return MockMvcRequestBuilders
+                .delete(uri)
+                .header("Accept-Language", locale.toString())
+                .header("Authorization", token)
+                .contentType(MediaType.APPLICATION_JSON_VALUE);
     }
 
     @ParameterizedTest
@@ -69,16 +80,10 @@ class WhenDeleteAvatarTest {
         Map<String, String> messages = getMessagesAccordingToLocale(country);
         Locale testedLocale = convertEnumToLocale(country);
 
-        URI uri = new URI("/photos/" + userId + "/avatar");
-
         String expectedMessage = messages.get("avatar.removed");
         when(photoService.removeAvatar(userId)).thenReturn(new PhotoDocument());
 
-        RequestBuilder request = MockMvcRequestBuilders
-                .delete(uri)
-                .header("Accept-Language", testedLocale.toString())
-                .header("Authorization", userToken)
-                .contentType(MediaType.APPLICATION_JSON_VALUE);
+        request = getRequest(userToken, testedLocale);
 
         mockMvc.perform(request)
                 .andDo(print())
@@ -94,24 +99,27 @@ class WhenDeleteAvatarTest {
         Map<String, String> messages = getMessagesAccordingToLocale(country);
         Locale testedLocale = convertEnumToLocale(country);
 
-        URI uri = new URI("/photos/" + userId + "/avatar");
-
         String expectedMessage = messages.get("avatar.not.found.exception");
         doThrow(UserAvatarNotFoundException.class).when(photoService).removeAvatar(userId);
 
-        RequestBuilder request = MockMvcRequestBuilders
-                .delete(uri)
-                .header("Accept-Language", testedLocale.toString())
-                .header("Authorization", adminToken)
-                .contentType(MediaType.APPLICATION_JSON_VALUE);
+        request = getRequest(userToken, testedLocale);
+
+        performAndTestException(status().isNotFound(), expectedMessage, UserAvatarNotFoundException.class);
+    }
+
+    private void performAndTestException(
+            ResultMatcher matcher,
+            String expectedMessage,
+            Class<? extends Exception> exception
+    ) throws Exception {
 
         mockMvc.perform(request)
                 .andDo(print())
-                .andExpect(status().isNotFound())
+                .andExpect(matcher)
                 .andExpect(status().reason(is(expectedMessage)))
                 .andExpect(result ->
-                        assertThat(result.getResolvedException().getCause())
-                                .isInstanceOf(UserAvatarNotFoundException.class)
+                        assertThat(Objects.requireNonNull(result.getResolvedException()).getCause())
+                                .isInstanceOf(exception)
                 );
     }
 
@@ -121,25 +129,12 @@ class WhenDeleteAvatarTest {
         Map<String, String> messages = getMessagesAccordingToLocale(country);
         Locale testedLocale = convertEnumToLocale(country);
 
-        URI uri = new URI("/photos/" + userId + "/avatar");
-
         String expectedMessage = messages.get("exception.account.not.found");
         doThrow(UsernameNotFoundException.class).when(photoService).removeAvatar(userId);
 
-        RequestBuilder request = MockMvcRequestBuilders
-                .delete(uri)
-                .header("Accept-Language", testedLocale.toString())
-                .header("Authorization", userToken)
-                .contentType(MediaType.APPLICATION_JSON_VALUE);
+        request = getRequest(userToken, testedLocale);
 
-        mockMvc.perform(request)
-                .andDo(print())
-                .andExpect(status().isNotFound())
-                .andExpect(status().reason(is(expectedMessage)))
-                .andExpect(result ->
-                        assertThat(result.getResolvedException().getCause())
-                                .isInstanceOf(UsernameNotFoundException.class)
-                );
+        performAndTestException(status().isNotFound(), expectedMessage, UsernameNotFoundException.class);
     }
 
     @ParameterizedTest
@@ -148,29 +143,23 @@ class WhenDeleteAvatarTest {
         Map<String, String> messages = getMessagesAccordingToLocale(country);
         Locale testedLocale = convertEnumToLocale(country);
 
-        URI uri = new URI("/photos/" + userId + "/avatar");
-
         String expectedMessage = messages.get("request.failure");
         doThrow(IllegalStateException.class).when(photoService).removeAvatar(userId);
 
-        RequestBuilder request = MockMvcRequestBuilders
-                .delete(uri)
-                .header("Accept-Language", testedLocale.toString())
-                .header("Authorization", adminToken)
-                .contentType(MediaType.APPLICATION_JSON_VALUE);
+        request = getRequest(userToken, testedLocale);
 
-        mockMvc.perform(request)
-                .andDo(print())
-                .andExpect(status().isInternalServerError())
-                .andExpect(status().reason(is(expectedMessage)))
-                .andExpect(result ->
-                        assertThat(result.getResolvedException().getCause())
-                                .isInstanceOf(IllegalStateException.class)
-                );
+        performAndTestException(status().isInternalServerError(), expectedMessage, IllegalStateException.class);
     }
 
     @Nested
     class ShouldRejectRequest {
+
+        private RequestBuilder getUnauthenticatedRequest(Locale locale) {
+            return MockMvcRequestBuilders
+                    .delete(uri)
+                    .header("Accept-Language", locale.toString())
+                    .contentType(MediaType.APPLICATION_JSON_VALUE);
+        }
 
         @ParameterizedTest
         @EnumSource(TestCountry.class)
@@ -179,15 +168,15 @@ class WhenDeleteAvatarTest {
             Locale testedLocale = convertEnumToLocale(country);
 
             String invalidId = UUID.randomUUID().toString();
-            URI uri = new URI("/photos/" + invalidId + "/avatar");
+            uri = getUri(invalidId);
 
-            RequestBuilder request = MockMvcRequestBuilders
-                    .delete(uri)
-                    .header("Accept-Language", testedLocale.toString())
-                    .contentType(MediaType.APPLICATION_JSON_VALUE);
+            request = getUnauthenticatedRequest(testedLocale);
 
             String expectedMessage = messages.get("exception.access.denied");
+            performAndTestAccessDenied(expectedMessage);
+        }
 
+        private void performAndTestAccessDenied(String expectedMessage) throws Exception {
             mockMvc.perform(request)
                     .andDo(print())
                     .andExpect(status().isForbidden())
@@ -201,28 +190,15 @@ class WhenDeleteAvatarTest {
         @ParameterizedTest
         @EnumSource(TestCountry.class)
         void whenIdDoesNotMatchUserIdInToken(TestCountry country) throws Exception {
-            Map<String, String> messages = getMessagesAccordingToLocale(country);
-            Locale testedLocale = convertEnumToLocale(country);
-
             String invalidId = UUID.randomUUID().toString();
-            URI uri = new URI("/photos/" + invalidId + "/avatar");
+            uri = getUri(invalidId);
 
-            RequestBuilder request = MockMvcRequestBuilders
-                    .delete(uri)
-                    .header("Accept-Language", testedLocale.toString())
-                    .header("Authorization", userToken)
-                    .contentType(MediaType.APPLICATION_JSON_VALUE);
+            Locale testedLocale = convertEnumToLocale(country);
+            request = getRequest(userToken, testedLocale);
 
+            Map<String, String> messages = getMessagesAccordingToLocale(country);
             String expectedMessage = messages.get("exception.access.denied");
-
-            mockMvc.perform(request)
-                    .andDo(print())
-                    .andExpect(status().isForbidden())
-                    .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                    .andExpect(jsonPath("$.message").value(is(expectedMessage)))
-                    .andExpect(jsonPath("$.error").value(is("Forbidden")))
-                    .andExpect(jsonPath("$.status").value(403))
-                    .andExpect(jsonPath("$.timestamp").exists());
+            performAndTestAccessDenied(expectedMessage);
         }
     }
 }

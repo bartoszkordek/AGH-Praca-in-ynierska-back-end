@@ -281,6 +281,9 @@ public class GetTasksControllerIntegrationTests {
                 .isEqualTo(AcceptanceStatus.NO_ACTION.toString());
         assertThat(responseEntity.getBody().get(1).get("employeeComment").textValue())
                 .isEqualTo("Employee Comment 2");
+
+        List<TaskDocument> gymPassDocumentList = mongoTemplate.findAll(TaskDocument.class);
+        assertThat(gymPassDocumentList.size()).isEqualTo(2);
     }
 
     @ParameterizedTest
@@ -343,6 +346,9 @@ public class GetTasksControllerIntegrationTests {
                 .isEqualTo(AcceptanceStatus.NO_ACTION.toString());
         assertThat(responseEntity.getBody().get(0).get("employeeComment").textValue())
                 .isEqualTo("Employee Comment 2");
+
+        List<TaskDocument> gymPassDocumentList = mongoTemplate.findAll(TaskDocument.class);
+        assertThat(gymPassDocumentList.size()).isEqualTo(2);
     }
 
 
@@ -429,5 +435,33 @@ public class GetTasksControllerIntegrationTests {
         assertThat(Objects.requireNonNull(responseEntity.getBody().get("message").textValue()))
                 .isEqualTo(expectedMessage);
         assertThat(responseEntity.getBody().get("timestamp")).isNotNull();
+    }
+
+    @ParameterizedTest
+    @EnumSource(TestCountry.class)
+    void shouldNotGetTasks_whenEmptyList(TestCountry country) throws Exception {
+        Map<String, String> messages = getMessagesAccordingToLocale(country);
+        Locale testedLocale = convertEnumToLocale(country);
+
+        String startDueDate = "2100-01-01";
+        String endDueDate = "2100-02-01";
+
+        URI uri = new URI("http://localhost:" + port + "/page/" + page
+                + "?startDueDate="+startDueDate +"&endDueDate=" + endDueDate);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Accept-Language", testedLocale.toString());
+        headers.set("Authorization", managerToken);
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        HttpEntity<Object> request = new HttpEntity<>(null, headers);
+        String expectedMessage = messages.get("exception.no.tasks");
+
+        ResponseEntity<JsonNode> responseEntity = restTemplate
+                .exchange(uri, HttpMethod.GET, request, JsonNode.class);
+
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(Objects.requireNonNull(responseEntity.getBody().get("message").textValue()))
+                .isEqualTo(expectedMessage);
     }
 }

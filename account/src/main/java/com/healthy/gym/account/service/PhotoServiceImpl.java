@@ -49,7 +49,12 @@ public class PhotoServiceImpl implements PhotoService {
         PhotoDocument photoDocument = photoDAO.findByUserId(userId);
         if (photoDocument == null) throw new UserAvatarNotFoundException();
 
+        UserDocument userDocument = userDAO.findByUserId(userId);
+        if (userDocument == null) throw new UsernameNotFoundException("No user found id:" + userId);
+
         photoDAO.delete(photoDocument);
+        userDocument.setAvatarUrl(null);
+        userDAO.save(userDocument);
         return photoDAO.findPhotoDocumentById(photoDocument.getId());
     }
 
@@ -75,6 +80,13 @@ public class PhotoServiceImpl implements PhotoService {
         UserDocument updatedUser = userDAO.save(userDocument);
 
         return updatedUser.getAvatarUrl();
+    }
+
+    @Override
+    public String getAvatarUrl(String userId) {
+        UserDocument userDocument = userDAO.findByUserId(userId);
+        if (userDocument == null) throw new UsernameNotFoundException("No user with provided id " + userId);
+        return userDocument.getAvatarUrl();
     }
 
     private PhotoDocument setOrUpdateAvatar(

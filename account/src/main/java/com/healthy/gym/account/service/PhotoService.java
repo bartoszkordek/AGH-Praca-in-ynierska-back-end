@@ -13,4 +13,6 @@ public interface PhotoService {
     PhotoDocument removeAvatar(String userId) throws UserAvatarNotFoundException;
 
     String setAvatar(String userId, MultipartFile multipartFile) throws PhotoSavingException, IOException;
+
+    String getAvatarUrl(String userId);
 }

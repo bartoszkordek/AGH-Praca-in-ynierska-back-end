@@ -1,4 +1,4 @@
-package com.healthy.gym.account.service.photoServiceTest;
+package com.healthy.gym.account.service.photo.unit.tests;
 
 import com.healthy.gym.account.data.document.PhotoDocument;
 import com.healthy.gym.account.data.repository.PhotoDAO;
@@ -15,11 +15,11 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-
-class WhenGetAvatarTest {
+class WhenRemoveAvatarTest {
 
     private PhotoDAO photoDAO;
     private PhotoService photoService;
@@ -43,15 +43,17 @@ class WhenGetAvatarTest {
     @Test
     void shouldThrowExceptionWhenProvidedUserIdIsInvalidOrAvatarDoestNotExist() {
         when(photoDAO.findByUserId(userId)).thenReturn(null);
-        assertThatThrownBy(() -> photoService.getAvatar(userId))
+        assertThatThrownBy(() -> photoService.removeAvatar(userId))
                 .isInstanceOf(UserAvatarNotFoundException.class);
     }
 
     @Test
     void shouldReturnAvatarWhenProvidedUserIdValid() throws UserAvatarNotFoundException {
         when(photoDAO.findByUserId(userId)).thenReturn(photoDocument);
-        byte[] avatar = photoService.getAvatar(userId);
+        when(photoDAO.findPhotoDocumentById(any())).thenReturn(null);
 
-        assertThat(avatar).isEqualTo("testData".getBytes(StandardCharsets.UTF_8));
+        PhotoDocument photoDocument = photoService.removeAvatar(userId);
+
+        assertThat(photoDocument).isNull();
     }
 }

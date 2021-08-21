@@ -1,4 +1,4 @@
-package com.healthy.gym.account.service.photoServiceTest;
+package com.healthy.gym.account.service.photo.unit.tests;
 
 import com.healthy.gym.account.component.AvatarUrlCreator;
 import com.healthy.gym.account.data.document.PhotoDocument;

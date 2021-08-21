@@ -1,4 +1,4 @@
-package com.healthy.gym.account.service.accountServiceTest.integrationTest;
+package com.healthy.gym.account.service.account.integration.tests;
 
 import com.healthy.gym.account.component.TokenManager;
 import com.healthy.gym.account.data.document.UserDocument;

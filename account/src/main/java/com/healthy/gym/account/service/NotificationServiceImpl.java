@@ -14,6 +14,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -55,15 +56,36 @@ public class NotificationServiceImpl implements NotificationService {
     @Override
     public UserNotificationDTO markNotificationAsRead(String notificationId, String userId)
             throws NotificationNotFoundException, UserNotFoundException {
+
+        NotificationDocument notification = getNotification(notificationId, userId);
+
+        notification.setMarkAsRead(true);
+        NotificationDocument updatedNotification = notificationDAO.save(notification);
+        return modelMapper.map(updatedNotification, UserNotificationDTO.class);
+    }
+
+    private NotificationDocument getNotification(String notificationId, String userId)
+            throws UserNotFoundException, NotificationNotFoundException {
+
         UserDocument userDocument = userDAO.findByUserId(userId);
         if (userDocument == null) throw new UserNotFoundException();
 
         Optional<NotificationDocument> notificationDocument = notificationDAO.findByNotificationId(notificationId);
         NotificationDocument notification = notificationDocument.orElseThrow(NotificationNotFoundException::new);
 
-        notification.setMarkAsRead(true);
-        NotificationDocument updatedNotification = notificationDAO.save(notification);
+        if (!notification.getTo().equals(userDocument)) throw new AccessDeniedException("");
+        return notification;
+    }
 
-        return modelMapper.map(updatedNotification, UserNotificationDTO.class);
+    @Override
+    public UserNotificationDTO deleteNotification(String notificationId, String userId)
+            throws NotificationNotFoundException, UserNotFoundException {
+
+        NotificationDocument notification = getNotification(notificationId, userId);
+        notificationDAO.delete(notification);
+
+        var removedNotification = new UserNotificationDTO();
+        removedNotification.setNotificationId(notificationId);
+        return removedNotification;
     }
 }

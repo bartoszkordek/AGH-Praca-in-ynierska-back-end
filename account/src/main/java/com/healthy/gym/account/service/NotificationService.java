@@ -13,4 +13,7 @@ public interface NotificationService {
 
     UserNotificationDTO markNotificationAsRead(String notificationId, String userId)
             throws NotificationNotFoundException, UserNotFoundException;
+
+    UserNotificationDTO deleteNotification(String notificationId, String userId)
+            throws NotificationNotFoundException, UserNotFoundException;
 }

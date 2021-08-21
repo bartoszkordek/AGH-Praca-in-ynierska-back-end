@@ -319,7 +319,7 @@ public class TaskController {
     @GetMapping("/page/{page}")
     public List<TaskDTO> getTasks(
             @ValidDateFormat @RequestParam(value = "startDueDate", required = false) final String startDueDate,
-            @ValidDateFormat @RequestParam(value = "startDueDate", required = false) final String endDueDate,
+            @ValidDateFormat @RequestParam(value = "endDueDate", required = false) final String endDueDate,
             @RequestParam(defaultValue = "10", required = false) final int size,
             @PathVariable("page") final int page
     ){

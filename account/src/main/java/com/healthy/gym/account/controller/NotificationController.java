@@ -26,6 +26,10 @@ import java.util.List;
 @Validated
 public class NotificationController {
 
+    private static final String EXCEPTION_NOT_FOUND_NOTIFICATION = "exception.not.found.notification";
+    private static final String EXCEPTION_NOT_FOUND_USER_ID = "exception.not.found.user.id";
+    private static final String EXCEPTION_INTERNAL_ERROR = "exception.internal.error";
+
     private final Translator translator;
     private final NotificationService notificationService;
 
@@ -52,11 +56,11 @@ public class NotificationController {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, reason, exception);
 
         } catch (UserNotFoundException exception) {
-            String reason = translator.toLocale("exception.not.found.user.id");
+            String reason = translator.toLocale(EXCEPTION_NOT_FOUND_USER_ID);
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, reason, exception);
 
         } catch (Exception exception) {
-            String reason = translator.toLocale("exception.internal.error");
+            String reason = translator.toLocale(EXCEPTION_INTERNAL_ERROR);
             exception.printStackTrace();
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, reason, exception);
         }
@@ -74,15 +78,15 @@ public class NotificationController {
             return ResponseEntity.status(HttpStatus.OK).body(notificationDTO);
 
         } catch (NotificationNotFoundException exception) {
-            String reason = translator.toLocale("exception.not.found.notification");
+            String reason = translator.toLocale(EXCEPTION_NOT_FOUND_NOTIFICATION);
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, reason, exception);
 
         } catch (UserNotFoundException exception) {
-            String reason = translator.toLocale("exception.not.found.user.id");
+            String reason = translator.toLocale(EXCEPTION_NOT_FOUND_USER_ID);
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, reason, exception);
 
         } catch (Exception exception) {
-            String reason = translator.toLocale("exception.internal.error");
+            String reason = translator.toLocale(EXCEPTION_INTERNAL_ERROR);
             exception.printStackTrace();
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, reason, exception);
         }
@@ -103,15 +107,15 @@ public class NotificationController {
                     .body(new DeleteNotificationResponse(message, notificationDTO));
 
         } catch (NotificationNotFoundException exception) {
-            String reason = translator.toLocale("exception.not.found.notification");
+            String reason = translator.toLocale(EXCEPTION_NOT_FOUND_NOTIFICATION);
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, reason, exception);
 
         } catch (UserNotFoundException exception) {
-            String reason = translator.toLocale("exception.not.found.user.id");
+            String reason = translator.toLocale(EXCEPTION_NOT_FOUND_USER_ID);
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, reason, exception);
 
         } catch (Exception exception) {
-            String reason = translator.toLocale("exception.internal.error");
+            String reason = translator.toLocale(EXCEPTION_INTERNAL_ERROR);
             exception.printStackTrace();
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, reason, exception);
         }

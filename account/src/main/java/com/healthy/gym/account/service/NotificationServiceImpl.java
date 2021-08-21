@@ -82,8 +82,10 @@ public class NotificationServiceImpl implements NotificationService {
             throws NotificationNotFoundException, UserNotFoundException {
 
         NotificationDocument notification = getNotification(notificationId, userId);
-
         notificationDAO.delete(notification);
-        return modelMapper.map(notification, UserNotificationDTO.class);
+
+        var removedNotification = new UserNotificationDTO();
+        removedNotification.setNotificationId(notificationId);
+        return removedNotification;
     }
 }

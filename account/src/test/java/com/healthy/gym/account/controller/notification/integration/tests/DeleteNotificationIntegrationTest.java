@@ -1,13 +1,10 @@
 package com.healthy.gym.account.controller.notification.integration.tests;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.healthy.gym.account.configuration.tests.TestCountry;
 import com.healthy.gym.account.configuration.tests.TestRoleTokenFactory;
 import com.healthy.gym.account.data.document.NotificationDocument;
 import com.healthy.gym.account.data.document.UserDocument;
-import com.healthy.gym.account.dto.UserNotificationDTO;
 import com.healthy.gym.account.utils.TestDocumentUtilComponent;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -41,7 +38,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles(value = "test")
 @Tag("integration")
-class MarkNotificationAsReadIntegrationTest {
+class DeleteNotificationIntegrationTest {
 
     @Container
     static MongoDBContainer mongoDBContainer =
@@ -97,7 +94,7 @@ class MarkNotificationAsReadIntegrationTest {
     }
 
     private ResponseEntity<JsonNode> performRequest(URI uri, HttpEntity<Object> request) {
-        return restTemplate.exchange(uri, HttpMethod.POST, request, JsonNode.class);
+        return restTemplate.exchange(uri, HttpMethod.DELETE, request, JsonNode.class);
     }
 
     private HttpEntity<Object> getAuthRequest() {
@@ -123,8 +120,8 @@ class MarkNotificationAsReadIntegrationTest {
     }
 
     @Test
-    void shouldMarkAsRead() throws Exception {
-        testDatabase(false, 1);
+    void shouldDeleteNotification() throws Exception {
+        testDatabase(1);
 
         URI uri = getUri(userId, notificationId);
         ResponseEntity<JsonNode> responseEntity = performAuthRequest(uri);
@@ -134,27 +131,24 @@ class MarkNotificationAsReadIntegrationTest {
 
         JsonNode body = responseEntity.getBody();
         assert body != null;
-        ObjectMapper objectMapper = new ObjectMapper();
-        UserNotificationDTO userNotificationDTO = objectMapper
-                .readValue(body.toString(), new TypeReference<>() {
-                });
 
-        assertThat(userNotificationDTO.getNotificationId()).isEqualTo(notificationId);
-        assertThat(userNotificationDTO.isMarkAsRead()).isTrue();
+        Map<String, String> messages = getMessagesAccordingToLocale(TestCountry.ENGLAND);
+        String expectedMessage = messages.get("notification.removed");
+        assertThat(body.get("message").textValue()).isEqualTo(expectedMessage);
 
-        testDatabase(true, 1);
+        assertThat(body.get("notification").get("notificationId").textValue()).isEqualTo(notificationId);
+
+        testDatabase(0);
     }
 
-    private void testDatabase(boolean isMarkAsRead, int expectedSize) {
+    private void testDatabase(int exepectedSize) {
         var notifications = mongoTemplate.findAll(NotificationDocument.class);
-        assertThat(notifications).hasSize(expectedSize);
-        var notification = notifications.get(0);
-        assertThat(notification.isMarkAsRead()).isEqualTo(isMarkAsRead);
+        assertThat(notifications).hasSize(exepectedSize);
     }
 
     @Test
     void shouldThrowUserNotFoundException() throws Exception {
-        testDatabase(false, 1);
+        testDatabase(1);
         mongoTemplate.dropCollection(UserDocument.class);
 
         URI uri = getUri(userId, notificationId);
@@ -169,12 +163,12 @@ class MarkNotificationAsReadIntegrationTest {
         String expectedMessage = messages.get("exception.not.found.user.id");
         assertThat(body.get("message").textValue()).isEqualTo(expectedMessage);
 
-        testDatabase(false, 1);
+        testDatabase(1);
     }
 
     @Test
     void shouldThrowNotificationNotFoundException() throws Exception {
-        testDatabase(false, 1);
+        testDatabase(1);
         mongoTemplate.dropCollection(NotificationDocument.class);
 
         URI uri = getUri(userId, notificationId);
@@ -198,7 +192,7 @@ class MarkNotificationAsReadIntegrationTest {
         notificationId = notificationDocument.getNotificationId();
         mongoTemplate.save(notificationDocument);
 
-        testDatabase(false, 2);
+        testDatabase(2);
 
         URI uri = getUri(userId, notificationId);
         ResponseEntity<JsonNode> responseEntity = performAuthRequest(uri);
@@ -212,6 +206,6 @@ class MarkNotificationAsReadIntegrationTest {
         String expectedMessage = messages.get("exception.access.denied");
         assertThat(body.get("message").textValue()).isEqualTo(expectedMessage);
 
-        testDatabase(false, 2);
+        testDatabase(2);
     }
 }

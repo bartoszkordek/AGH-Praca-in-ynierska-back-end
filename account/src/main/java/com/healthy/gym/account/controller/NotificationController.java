@@ -5,6 +5,7 @@ import com.healthy.gym.account.dto.UserNotificationDTO;
 import com.healthy.gym.account.exception.NoNotificationFoundException;
 import com.healthy.gym.account.exception.NotificationNotFoundException;
 import com.healthy.gym.account.exception.UserNotFoundException;
+import com.healthy.gym.account.pojo.response.DeleteNotificationResponse;
 import com.healthy.gym.account.service.NotificationService;
 import com.healthy.gym.account.validation.ValidIDFormat;
 import com.healthy.gym.account.validation.ValidPageNumber;
@@ -71,6 +72,35 @@ public class NotificationController {
             UserNotificationDTO notificationDTO = notificationService
                     .markNotificationAsRead(notificationId, userId);
             return ResponseEntity.status(HttpStatus.OK).body(notificationDTO);
+
+        } catch (NotificationNotFoundException exception) {
+            String reason = translator.toLocale("exception.not.found.notification");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, reason, exception);
+
+        } catch (UserNotFoundException exception) {
+            String reason = translator.toLocale("exception.not.found.user.id");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, reason, exception);
+
+        } catch (Exception exception) {
+            String reason = translator.toLocale("exception.internal.error");
+            exception.printStackTrace();
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, reason, exception);
+        }
+    }
+
+    @PreAuthorize("hasRole('ADMIN') or principal==#userId")
+    @DeleteMapping("/{notificationId}/user/{userId}")
+    public ResponseEntity<DeleteNotificationResponse> deleteNotification(
+            @ValidIDFormat @PathVariable String notificationId,
+            @ValidIDFormat @PathVariable String userId
+    ) {
+        try {
+            UserNotificationDTO notificationDTO = notificationService
+                    .deleteNotification(notificationId, userId);
+            String message = translator.toLocale("notification.removed");
+            return ResponseEntity
+                    .status(HttpStatus.OK)
+                    .body(new DeleteNotificationResponse(message, notificationDTO));
 
         } catch (NotificationNotFoundException exception) {
             String reason = translator.toLocale("exception.not.found.notification");

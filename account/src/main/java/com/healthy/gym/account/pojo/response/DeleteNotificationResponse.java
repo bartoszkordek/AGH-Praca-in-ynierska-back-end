@@ -3,18 +3,18 @@ package com.healthy.gym.account.pojo.response;
 import com.healthy.gym.account.dto.UserNotificationDTO;
 
 public class DeleteNotificationResponse extends AbstractResponse {
-    private UserNotificationDTO notificationDTO;
+    private UserNotificationDTO notification;
 
-    public DeleteNotificationResponse(String message, UserNotificationDTO notificationDTO) {
+    public DeleteNotificationResponse(String message, UserNotificationDTO notification) {
         super(message);
-        this.notificationDTO = notificationDTO;
+        this.notification = notification;
     }
 
-    public UserNotificationDTO getNotificationDTO() {
-        return notificationDTO;
+    public UserNotificationDTO getNotification() {
+        return notification;
     }
 
-    public void setNotificationDTO(UserNotificationDTO notificationDTO) {
-        this.notificationDTO = notificationDTO;
+    public void setNotification(UserNotificationDTO notification) {
+        this.notification = notification;
     }
 }

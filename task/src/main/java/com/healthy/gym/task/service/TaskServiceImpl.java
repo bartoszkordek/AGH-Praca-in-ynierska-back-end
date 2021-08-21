@@ -39,8 +39,8 @@ public class TaskServiceImpl implements TaskService{
     private final GymRole trainerRole;
     private static final String ACCEPT_STATUS = "APPROVE";
     private static final String DECLINE_STATUS = "DECLINE";
-    private static final String MIN_START_DATE = "1000-01-01";
-    private static final String MAX_END_DATE = "9999-12-31";
+    private static final LocalDate DEFAULT_START_DATE = LocalDate.now().minusMonths(1).minusDays(1);
+    private static final LocalDate DEFAULT_END_DATE = LocalDate.now().plusMonths(2).plusDays(1);
 
     @Autowired
     public TaskServiceImpl(
@@ -242,23 +242,19 @@ public class TaskServiceImpl implements TaskService{
     @Override
     public List<TaskDTO> getTasks(String startDueDate, String endDueDate, Pageable pageable)
             throws StartDateAfterEndDateException, NoTasksException {
-        String startDate = MIN_START_DATE;
-        String endDate = MAX_END_DATE;
-        if(startDueDate != null) startDate = startDueDate;
+        LocalDate startDate = DEFAULT_START_DATE;
+        LocalDate endDate = DEFAULT_END_DATE;
+        if(startDueDate != null) startDate = requestDateFormatter.formatStartDate(startDueDate);
+        if(endDueDate != null) endDate = requestDateFormatter.formatEndDate(endDueDate);
 
-        if(endDueDate != null) endDate = endDueDate;
-
-        LocalDate formattedStartDate = requestDateFormatter.formatStartDate(startDate);
-        LocalDate formattedEndDate = requestDateFormatter.formatEndDate(endDate);
-
-        if(formattedStartDate.isAfter(formattedEndDate))
+        if(startDate.isAfter(endDate))
             throw new StartDateAfterEndDateException();
 
-        Page<List<TaskDocument>> taskDocuments = taskDAO.findAllByDueDateBetween(
-                formattedStartDate.minusDays(1),
-                formattedEndDate.plusDays(1),
+        List<TaskDocument> taskDocuments = taskDAO.findAllByDueDateBetween(
+                startDate,
+                endDate,
                 pageable
-        );
+        ).getContent();
 
         if(taskDocuments == null) throw new NoTasksException();
 

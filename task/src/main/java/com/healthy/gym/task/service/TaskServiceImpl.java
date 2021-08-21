@@ -17,6 +17,8 @@ import com.healthy.gym.task.util.RequestDateFormatter;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -238,7 +240,8 @@ public class TaskServiceImpl implements TaskService{
     }
 
     @Override
-    public List<TaskDTO> getTasks(String startDueDate, String endDueDate) throws StartDateAfterEndDateException, NoTasksException {
+    public List<TaskDTO> getTasks(String startDueDate, String endDueDate, Pageable pageable)
+            throws StartDateAfterEndDateException, NoTasksException {
         String startDate = MIN_START_DATE;
         String endDate = MAX_END_DATE;
         if(startDueDate != null) startDate = startDueDate;
@@ -251,9 +254,10 @@ public class TaskServiceImpl implements TaskService{
         if(formattedStartDate.isAfter(formattedEndDate))
             throw new StartDateAfterEndDateException();
 
-        List<TaskDocument> taskDocuments = taskDAO.findAllByDueDateBetween(
+        Page<List<TaskDocument>> taskDocuments = taskDAO.findAllByDueDateBetween(
                 formattedStartDate.minusDays(1),
-                formattedEndDate.plusDays(1)
+                formattedEndDate.plusDays(1),
+                pageable
         );
 
         if(taskDocuments == null) throw new NoTasksException();

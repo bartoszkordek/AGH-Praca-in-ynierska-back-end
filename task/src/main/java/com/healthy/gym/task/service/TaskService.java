@@ -6,6 +6,7 @@ import com.healthy.gym.task.pojo.request.EmployeeAcceptDeclineTaskRequest;
 import com.healthy.gym.task.pojo.request.EmployeeReportRequest;
 import com.healthy.gym.task.pojo.request.ManagerReportVerificationRequest;
 import com.healthy.gym.task.pojo.request.ManagerTaskCreationRequest;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
@@ -33,6 +34,6 @@ public interface TaskService {
             throws TaskNotFoundException, InvalidMarkException, InvalidStatusException, TaskDeclinedByEmployeeException,
             ReportNotSentException;
 
-    List<TaskDTO> getTasks(String startDueDate, String endDueDate)
+    List<TaskDTO> getTasks(String startDueDate, String endDueDate, Pageable pageable)
             throws StartDateAfterEndDateException, NoTasksException;
 }

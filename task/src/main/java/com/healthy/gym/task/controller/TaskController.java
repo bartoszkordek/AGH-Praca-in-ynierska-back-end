@@ -13,6 +13,8 @@ import com.healthy.gym.task.service.TaskService;
 import com.healthy.gym.task.validation.ValidDateFormat;
 import com.healthy.gym.task.validation.ValidIDFormat;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -314,13 +316,16 @@ public class TaskController {
 
 
     @PreAuthorize("hasRole('ADMIN') or hasRole('MANAGER')")
-    @GetMapping
+    @GetMapping("/page/{page}")
     public List<TaskDTO> getTasks(
             @ValidDateFormat @RequestParam(value = "startDueDate", required = false) final String startDueDate,
-            @ValidDateFormat @RequestParam(value = "startDueDate", required = false) final String endDueDate
+            @ValidDateFormat @RequestParam(value = "startDueDate", required = false) final String endDueDate,
+            @RequestParam(defaultValue = "10", required = false) final int size,
+            @PathVariable("page") final int page
     ){
         try{
-            return taskService.getTasks(startDueDate, endDueDate);
+            Pageable paging = PageRequest.of(page, size);
+            return taskService.getTasks(startDueDate, endDueDate, paging);
 
         } catch (StartDateAfterEndDateException exception) {
             String reason = translator.toLocale("exception.start.after.end");

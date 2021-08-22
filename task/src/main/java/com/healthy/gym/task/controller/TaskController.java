@@ -315,17 +315,19 @@ public class TaskController {
     }
 
 
-    @PreAuthorize("hasRole('ADMIN') or hasRole('MANAGER')")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('MANAGER')  or principal==#userId")
     @GetMapping("/page/{page}")
     public List<TaskDTO> getTasks(
             @ValidDateFormat @RequestParam(value = "startDueDate", required = false) final String startDueDate,
             @ValidDateFormat @RequestParam(value = "endDueDate", required = false) final String endDueDate,
+            @ValidIDFormat @RequestParam(value = "userId", required = false) final String userId,
+            @RequestParam(value = "priority", required = false) final String priority,
             @RequestParam(defaultValue = "10", required = false) final int size,
             @PathVariable("page") final int page
     ){
         try{
             Pageable paging = PageRequest.of(page, size);
-            return taskService.getTasks(startDueDate, endDueDate, paging);
+            return taskService.getTasks(startDueDate, endDueDate, userId, priority, paging);
 
         } catch (StartDateAfterEndDateException exception) {
             String reason = translator.toLocale("exception.start.after.end");
@@ -334,6 +336,14 @@ public class TaskController {
         } catch (NoTasksException exception) {
             String reason = translator.toLocale("exception.no.tasks");
             throw new ResponseStatusException(HttpStatus.OK, reason, exception);
+
+        } catch (EmployeeNotFoundException exception){
+            String reason = translator.toLocale(EMPLOYEE_NOT_FOUND_EXCEPTION);
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, exception);
+
+        } catch (InvalidPriorityException exception){
+            String reason = translator.toLocale("exception.invalid.priority");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, exception);
 
         } catch (Exception exception){
             String reason = translator.toLocale(INTERNAL_ERROR_EXCEPTION);

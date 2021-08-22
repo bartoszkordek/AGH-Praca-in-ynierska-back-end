@@ -55,9 +55,11 @@ class GetTasksServiceTest {
     private List<TaskDocument> dbAll;
     private List<TaskDocument> dbBeforeLastMonth;
     private List<TaskDocument> dbBetweenLastAndTwoFutureMonths;
+    private List<TaskDocument> dbPriorityHigh;
     private List<TaskDTO> responseAll;
     private List<TaskDTO> responseBeforeLastMonth;
     private List<TaskDTO> responseBetweenLastAndTwoFutureMonths;
+    private List<TaskDTO> responsePriorityHigh;
 
 
     @BeforeEach
@@ -141,6 +143,7 @@ class GetTasksServiceTest {
         dbAll = List.of(taskDocument1, taskDocument2, taskDocument3);
         dbBeforeLastMonth = List.of(taskDocument3);
         dbBetweenLastAndTwoFutureMonths = List.of(taskDocument1, taskDocument2);
+        dbPriorityHigh = List.of(taskDocument2);
 
 
         //DTOs
@@ -205,10 +208,11 @@ class GetTasksServiceTest {
         responseAll = List.of(taskDTO1, taskDTO2, taskDTO3);
         responseBeforeLastMonth = List.of(taskDTO3);
         responseBetweenLastAndTwoFutureMonths = List.of(taskDTO1, taskDTO2);
+        responsePriorityHigh = List.of(taskDTO2);
     }
 
     @Test
-    void shouldGetTask1And2Tasks_whenNotProvidedDateRange() throws StartDateAfterEndDateException, NoTasksException {
+    void shouldGetTask1And2Tasks_whenNotProvidedDateRange() throws StartDateAfterEndDateException, NoTasksException, InvalidPriorityException, EmployeeNotFoundException {
         LocalDate defaultStartDate = LocalDate.now().minusMonths(1).minusDays(1);
         LocalDate defaultEndDate = LocalDate.now().plusMonths(2).plusDays(1);
         Page<TaskDocument> taskDocumentPage = new PageImpl<>(dbBetweenLastAndTwoFutureMonths);
@@ -221,14 +225,14 @@ class GetTasksServiceTest {
         )).thenReturn(taskDocumentPage);
 
         //then
-        assertThat(taskService.getTasks(null, null, paging).get(0))
+        assertThat(taskService.getTasks(null, null, null, null, paging).get(0))
                 .isEqualTo(responseBetweenLastAndTwoFutureMonths.get(0));
-        assertThat(taskService.getTasks(null, null, paging).get(1))
+        assertThat(taskService.getTasks(null, null, null, null, paging).get(1))
                 .isEqualTo(responseBetweenLastAndTwoFutureMonths.get(1));
     }
 
     @Test
-    void shouldGetTask3_whenDateRangeBeforeLastMonth() throws StartDateAfterEndDateException, NoTasksException {
+    void shouldGetTask3_whenDateRangeBeforeLastMonth() throws StartDateAfterEndDateException, NoTasksException, InvalidPriorityException, EmployeeNotFoundException {
         var now = LocalDate.now();
         String requestStartDate = now.minusYears(1).format(DateTimeFormatter.ISO_LOCAL_DATE);
         String requestEndDate = now.format(DateTimeFormatter.ISO_LOCAL_DATE);
@@ -242,13 +246,13 @@ class GetTasksServiceTest {
         )).thenReturn(taskDocumentPage);
 
         //then
-        assertThat(taskService.getTasks(requestStartDate, requestEndDate, paging).get(0))
+        assertThat(taskService.getTasks(requestStartDate, requestEndDate, null, null, paging).get(0))
                 .isEqualTo(responseBeforeLastMonth.get(0));
     }
 
 
     @Test
-    void shouldGetAllTasks() throws StartDateAfterEndDateException, NoTasksException {
+    void shouldGetAllTasks() throws StartDateAfterEndDateException, NoTasksException, InvalidPriorityException, EmployeeNotFoundException {
         var now = LocalDate.now();
         String requestStartDate = now.minusYears(1).format(DateTimeFormatter.ISO_LOCAL_DATE);
         String requestEndDate = now.plusYears(1).format(DateTimeFormatter.ISO_LOCAL_DATE);
@@ -262,18 +266,18 @@ class GetTasksServiceTest {
         )).thenReturn(taskDocumentPage);
 
         //then
-        assertThat(taskService.getTasks(requestStartDate, requestEndDate, paging).get(0))
+        assertThat(taskService.getTasks(requestStartDate, requestEndDate, null, null, paging).get(0))
                 .isEqualTo(responseAll.get(0));
-        assertThat(taskService.getTasks(requestStartDate, requestEndDate, paging).get(1))
+        assertThat(taskService.getTasks(requestStartDate, requestEndDate, null, null, paging).get(1))
                 .isEqualTo(responseAll.get(1));
-        assertThat(taskService.getTasks(requestStartDate, requestEndDate, paging).get(2))
+        assertThat(taskService.getTasks(requestStartDate, requestEndDate, null, null, paging).get(2))
                 .isEqualTo(responseAll.get(2));
     }
 
     @Test
     void shouldNotGetTasks_whenStartDateAfterEndDate() {
         assertThatThrownBy(() ->
-                taskService.getTasks("2030-12-31", "2000-01-01", paging)
+                taskService.getTasks("2030-12-31", "2000-01-01", null, null, paging)
         ).isInstanceOf(StartDateAfterEndDateException.class);
     }
 
@@ -292,7 +296,7 @@ class GetTasksServiceTest {
         )).thenReturn(taskDocumentPage);
 
         assertThatThrownBy(() ->
-                taskService.getTasks(requestStartDate, requestEndDate, paging)
+                taskService.getTasks(requestStartDate, requestEndDate, null, null, paging)
         ).isInstanceOf(NoTasksException.class);
     }
 }

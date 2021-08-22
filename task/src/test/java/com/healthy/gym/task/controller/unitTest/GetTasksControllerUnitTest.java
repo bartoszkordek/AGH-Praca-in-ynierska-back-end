@@ -183,6 +183,8 @@ class GetTasksControllerUnitTest {
         when(taskService.getTasks(
                 now.minusYears(1).format(DateTimeFormatter.ISO_LOCAL_DATE),
                 now.format(DateTimeFormatter.ISO_LOCAL_DATE),
+                null,
+                null,
                 paging)
         ).thenReturn(responseBeforeLastMonth);
 
@@ -231,7 +233,7 @@ class GetTasksControllerUnitTest {
         var now = LocalDate.now();
 
 
-        when(taskService.getTasks(null, null, paging))
+        when(taskService.getTasks(null, null, null, null, paging))
                 .thenReturn(responseBetweenLastAndTwoFutureMonths);
 
         mockMvc.perform(request)
@@ -307,7 +309,7 @@ class GetTasksControllerUnitTest {
 
         doThrow(StartDateAfterEndDateException.class)
                 .when(taskService)
-                .getTasks(any(), any(), any());
+                .getTasks(any(), any(), any(), any(), any());
 
         String expectedMessage = messages.get( "exception.start.after.end");
 
@@ -338,7 +340,7 @@ class GetTasksControllerUnitTest {
 
         doThrow(NoTasksException.class)
                 .when(taskService)
-                .getTasks(any(), any(), any());
+                .getTasks(any(), any(), any(), any(), any());
 
         String expectedMessage = messages.get( "exception.no.tasks");
 
@@ -367,7 +369,7 @@ class GetTasksControllerUnitTest {
 
         doThrow(IllegalStateException.class)
                 .when(taskService)
-                .getTasks(any(), any(), any());
+                .getTasks(any(), any(), any(), any(), any());
 
         String expectedMessage = messages.get("exception.internal.error");
 

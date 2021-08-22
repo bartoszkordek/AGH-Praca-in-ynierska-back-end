@@ -8,10 +8,7 @@ import com.healthy.gym.task.dto.BasicUserInfoDTO;
 import com.healthy.gym.task.dto.TaskDTO;
 import com.healthy.gym.task.enums.AcceptanceStatus;
 import com.healthy.gym.task.enums.GymRole;
-import com.healthy.gym.task.exception.EmployeeNotFoundException;
-import com.healthy.gym.task.exception.ManagerNotFoundException;
-import com.healthy.gym.task.exception.RetroDueDateException;
-import com.healthy.gym.task.exception.TaskNotFoundException;
+import com.healthy.gym.task.exception.*;
 import com.healthy.gym.task.pojo.request.ManagerTaskCreationRequest;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,7 +43,7 @@ public class UpdateTaskServiceUnitTest {
 
     @Test
     void shouldUpdateTask_whenValidRequest() throws ManagerNotFoundException, EmployeeNotFoundException,
-            RetroDueDateException, TaskNotFoundException {
+            RetroDueDateException, TaskNotFoundException, InvalidPriorityException {
 
         employeeIdToUpdate = UUID.randomUUID().toString();
         employeeIdUpdated = UUID.randomUUID().toString();
@@ -317,5 +314,50 @@ public class UpdateTaskServiceUnitTest {
         assertThatThrownBy(() ->
                 taskService.updateTask(taskId, managerTaskCreationRequest)
         ).isInstanceOf(RetroDueDateException.class);
+    }
+
+    @Test
+    void shouldNotUpdateTask_whenInvalidPriority(){
+        //before
+        String taskId = UUID.randomUUID().toString();
+        String employeeId = UUID.randomUUID().toString();
+        TaskDocument taskDocumentToUpdate = new TaskDocument();
+
+        //request
+        ManagerTaskCreationRequest managerTaskCreationRequest = new ManagerTaskCreationRequest();
+        managerTaskCreationRequest.setEmployeeId(employeeId);
+        managerTaskCreationRequest.setTitle("Sample title");
+        managerTaskCreationRequest.setDescription("Sample description");
+        managerTaskCreationRequest.setDueDate(LocalDate.now().toString());
+        managerTaskCreationRequest.setPriority("INVALID_PRIORITY");
+
+        //DB documents
+        String managerName = "Adam";
+        String managerSurname = "Nowak";
+        UserDocument managerDocument = new UserDocument();
+        managerDocument.setName(managerName);
+        managerDocument.setSurname(managerSurname);
+        managerDocument.setUserId(managerId);
+        managerDocument.setGymRoles(List.of(GymRole.MANAGER));
+        managerDocument.setId("507f1f77bcf86cd799435002");
+
+        String employeeName = "Jan";
+        String employeeSurname = "Kowalski";
+        UserDocument employeeDocument = new UserDocument();
+        employeeDocument.setName(employeeName);
+        employeeDocument.setSurname(employeeSurname);
+        employeeDocument.setUserId(employeeId);
+        employeeDocument.setGymRoles(List.of(GymRole.EMPLOYEE));
+        employeeDocument.setId("507f1f77bcf86cd799435213");
+
+        //when
+        when(taskDAO.findByTaskId(taskId)).thenReturn(taskDocumentToUpdate);
+        when(userDAO.findByGymRolesContaining(GymRole.MANAGER)).thenReturn(managerDocument);
+        when(userDAO.findByUserId(employeeId)).thenReturn(employeeDocument);
+
+        //then
+        assertThatThrownBy(() ->
+                taskService.updateTask(taskId, managerTaskCreationRequest)
+        ).isInstanceOf(InvalidPriorityException.class);
     }
 }

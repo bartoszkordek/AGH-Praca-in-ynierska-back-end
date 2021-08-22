@@ -13,14 +13,18 @@ import com.healthy.gym.task.pojo.request.EmployeeAcceptDeclineTaskRequest;
 import com.healthy.gym.task.pojo.request.EmployeeReportRequest;
 import com.healthy.gym.task.pojo.request.ManagerReportVerificationRequest;
 import com.healthy.gym.task.pojo.request.ManagerTaskCreationRequest;
+import com.healthy.gym.task.util.RequestDateFormatter;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 public class TaskServiceImpl implements TaskService{
@@ -28,11 +32,14 @@ public class TaskServiceImpl implements TaskService{
     private final TaskDAO taskDAO;
     private final UserDAO userDAO;
     private final ModelMapper modelMapper;
+    private final RequestDateFormatter requestDateFormatter;
     private final GymRole managerRole;
     private final GymRole employeeRole;
     private final GymRole trainerRole;
     private static final String ACCEPT_STATUS = "APPROVE";
     private static final String DECLINE_STATUS = "DECLINE";
+    private static final LocalDate DEFAULT_START_DATE = LocalDate.now().minusMonths(1).minusDays(1);
+    private static final LocalDate DEFAULT_END_DATE = LocalDate.now().plusMonths(2).plusDays(1);
 
     @Autowired
     public TaskServiceImpl(
@@ -43,6 +50,7 @@ public class TaskServiceImpl implements TaskService{
         this.userDAO = userDAO;
         modelMapper = new ModelMapper();
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+        requestDateFormatter = new RequestDateFormatter();
         managerRole = GymRole.MANAGER;
         employeeRole = GymRole.EMPLOYEE;
         trainerRole = GymRole.TRAINER;
@@ -51,7 +59,7 @@ public class TaskServiceImpl implements TaskService{
 
     @Override
     public TaskDTO createTask(ManagerTaskCreationRequest managerTaskCreationRequest) throws ManagerNotFoundException,
-            EmployeeNotFoundException, RetroDueDateException {
+            EmployeeNotFoundException, RetroDueDateException, InvalidPriorityException {
 
         UserDocument managerDocument = getManagerDocument();
 
@@ -80,6 +88,7 @@ public class TaskServiceImpl implements TaskService{
         taskDocumentToBeSaved.setManagerAccept(AcceptanceStatus.NO_ACTION);
         if(requestReminderDate != null)
             taskDocumentToBeSaved.setReminderDate(LocalDate.parse(requestReminderDate, DateTimeFormatter.ISO_LOCAL_DATE));
+        if(requestPriority != null) checkPriority(requestPriority);
         setPriority(taskDocumentToBeSaved, requestPriority);
 
         TaskDocument taskDocumentSaved = taskDAO.save(taskDocumentToBeSaved);
@@ -88,11 +97,11 @@ public class TaskServiceImpl implements TaskService{
 
     @Override
     public TaskDTO updateTask(String taskId, ManagerTaskCreationRequest managerTaskCreationRequest)
-            throws TaskNotFoundException, ManagerNotFoundException, EmployeeNotFoundException, RetroDueDateException {
+            throws TaskNotFoundException, ManagerNotFoundException, EmployeeNotFoundException, RetroDueDateException, InvalidPriorityException {
 
         TaskDocument taskDocumentToBeUpdated = getTaskDocument(taskId);
 
-        UserDocument managerDocument = getManagerDocument();
+        checkManagerDocument();
 
         String requestEmployeeId = managerTaskCreationRequest.getEmployeeId();
         if(requestEmployeeId != null){
@@ -124,6 +133,7 @@ public class TaskServiceImpl implements TaskService{
         if(requestReminderDate != null)
             taskDocumentToBeUpdated.setReminderDate(LocalDate.parse(requestReminderDate, DateTimeFormatter.ISO_LOCAL_DATE));
         String requestPriority = managerTaskCreationRequest.getPriority();
+        if(requestPriority != null) checkPriority(requestPriority);
         setPriority(taskDocumentToBeUpdated, requestPriority);
 
         TaskDocument updatedTaskDocument = taskDAO.save(taskDocumentToBeUpdated);
@@ -149,7 +159,7 @@ public class TaskServiceImpl implements TaskService{
 
         TaskDocument taskDocumentToBeUpdated = getTaskDocument(taskId);
 
-        UserDocument employeeDocument = getEmployeeOrTrainerDocument(userId);
+        checkEmployeeOrTrainerDocument(userId);
 
         String status = employeeAcceptDeclineTaskRequest.getAcceptanceStatus();
 
@@ -230,6 +240,78 @@ public class TaskServiceImpl implements TaskService{
         return modelMapper.map(updatedTaskDocument, TaskDTO.class);
     }
 
+    @Override
+    public List<TaskDTO> getTasks(
+            String startDueDate,
+            String endDueDate,
+            String userId,
+            String priority,
+            Pageable pageable
+    ) throws StartDateAfterEndDateException, NoTasksException, EmployeeNotFoundException, InvalidPriorityException {
+        LocalDate startDate = DEFAULT_START_DATE;
+        LocalDate endDate = DEFAULT_END_DATE;
+        if(startDueDate != null) startDate = requestDateFormatter.formatStartDate(startDueDate);
+        if(endDueDate != null) endDate = requestDateFormatter.formatEndDate(endDueDate);
+
+        if(startDate.isAfter(endDate))
+            throw new StartDateAfterEndDateException();
+
+        UserDocument employeeOrTrainerDocument = null;
+        if(userId != null){
+            employeeOrTrainerDocument = getEmployeeOrTrainerDocument(userId);
+        }
+
+        Priority transformedPriority = null;
+        if(priority != null){
+            checkPriority(priority);
+            transformedPriority = transformPriority(priority);
+        }
+
+        List<TaskDocument> taskDocuments = null;
+        if(userId == null && priority == null){
+            taskDocuments = taskDAO.findAllByDueDateBetween(
+                    startDate,
+                    endDate,
+                    pageable
+            ).getContent();
+        }
+
+        if(userId != null && priority == null){
+            taskDocuments = taskDAO.findAllByDueDateBetweenAndEmployee(
+                    startDate,
+                    endDate,
+                    employeeOrTrainerDocument,
+                    pageable
+            ).getContent();
+        }
+
+        if(userId == null && priority != null){
+            taskDocuments = taskDAO.findAllByDueDateBetweenAndPriorityEquals(
+                    startDate,
+                    endDate,
+                    transformedPriority,
+                    pageable
+            ).getContent();
+        }
+
+        if(userId != null && priority != null){
+            taskDocuments = taskDAO.findAllByDueDateBetweenAndEmployeeAndPriorityEquals(
+                    startDate,
+                    endDate,
+                    employeeOrTrainerDocument,
+                    transformedPriority,
+                    pageable
+            ).getContent();
+        }
+
+        if(taskDocuments.isEmpty()) throw new NoTasksException();
+
+        return taskDocuments
+                .stream()
+                .map(taskDocument -> modelMapper.map(taskDocument, TaskDTO.class))
+                .collect(Collectors.toList());
+    }
+
 
     private TaskDocument getTaskDocument(String taskId) throws TaskNotFoundException {
         TaskDocument taskDocument = taskDAO.findByTaskId(taskId);
@@ -263,5 +345,36 @@ public class TaskServiceImpl implements TaskService{
                 taskDocument.setPriority(Priority.LOW);
         }
         return taskDocument;
+    }
+
+    private void checkManagerDocument() throws ManagerNotFoundException {
+        UserDocument managerDocument = userDAO.findByGymRolesContaining(managerRole);
+        if(managerDocument == null) throw new ManagerNotFoundException();
+    }
+
+    private void checkEmployeeOrTrainerDocument(String userId) throws EmployeeNotFoundException {
+        UserDocument employeeDocument = userDAO.findByUserId(userId);
+        if(employeeDocument == null) throw new EmployeeNotFoundException();
+        if(!employeeDocument.getGymRoles().contains(employeeRole) && !employeeDocument.getGymRoles().contains(trainerRole))
+            throw new EmployeeNotFoundException();
+    }
+
+    private void checkPriority(String priority) throws InvalidPriorityException {
+            if(!priority.equals(Priority.CRITICAL.toString()) && !priority.equals(Priority.HIGH.toString())
+                    && !priority.equals(Priority.MEDIUM.toString()) && !priority.equals(Priority.LOW.toString())){
+                throw new InvalidPriorityException();
+            }
+    }
+
+    private Priority transformPriority(String priority){
+            if(priority.equals(Priority.CRITICAL.toString()))
+                return Priority.CRITICAL;
+            if(priority.equals(Priority.HIGH.toString()))
+                return Priority.HIGH;
+            if(priority.equals(Priority.MEDIUM.toString()))
+                return Priority.MEDIUM;
+            if(priority.equals(Priority.LOW.toString()))
+                return Priority.LOW;
+        return null;
     }
 }

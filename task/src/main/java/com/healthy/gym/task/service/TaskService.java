@@ -6,14 +6,17 @@ import com.healthy.gym.task.pojo.request.EmployeeAcceptDeclineTaskRequest;
 import com.healthy.gym.task.pojo.request.EmployeeReportRequest;
 import com.healthy.gym.task.pojo.request.ManagerReportVerificationRequest;
 import com.healthy.gym.task.pojo.request.ManagerTaskCreationRequest;
+import org.springframework.data.domain.Pageable;
+
+import java.util.List;
 
 public interface TaskService {
 
     TaskDTO createTask(ManagerTaskCreationRequest managerTaskCreationRequest)
-            throws ManagerNotFoundException, EmployeeNotFoundException, RetroDueDateException;
+            throws ManagerNotFoundException, EmployeeNotFoundException, RetroDueDateException, InvalidPriorityException;
 
     TaskDTO updateTask(String taskId, ManagerTaskCreationRequest managerTaskCreationRequest)
-            throws TaskNotFoundException, ManagerNotFoundException, EmployeeNotFoundException, RetroDueDateException;
+            throws TaskNotFoundException, ManagerNotFoundException, EmployeeNotFoundException, RetroDueDateException, InvalidPriorityException;
 
     TaskDTO deleteTask(String taskId) throws TaskNotFoundException;
 
@@ -30,4 +33,7 @@ public interface TaskService {
     TaskDTO verifyReport(String taskId, ManagerReportVerificationRequest managerReportVerificationRequest)
             throws TaskNotFoundException, InvalidMarkException, InvalidStatusException, TaskDeclinedByEmployeeException,
             ReportNotSentException;
+
+    List<TaskDTO> getTasks(String startDueDate, String endDueDate, String userId, String priority, Pageable pageable)
+            throws StartDateAfterEndDateException, NoTasksException, EmployeeNotFoundException, InvalidPriorityException;
 }

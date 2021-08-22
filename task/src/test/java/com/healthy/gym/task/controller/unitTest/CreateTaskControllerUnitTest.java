@@ -7,6 +7,7 @@ import com.healthy.gym.task.dto.BasicUserInfoDTO;
 import com.healthy.gym.task.dto.TaskDTO;
 import com.healthy.gym.task.enums.AcceptanceStatus;
 import com.healthy.gym.task.exception.EmployeeNotFoundException;
+import com.healthy.gym.task.exception.InvalidPriorityException;
 import com.healthy.gym.task.exception.ManagerNotFoundException;
 import com.healthy.gym.task.exception.RetroDueDateException;
 import com.healthy.gym.task.pojo.request.ManagerTaskCreationRequest;
@@ -435,6 +436,37 @@ public class CreateTaskControllerUnitTest {
                     .andExpect(result ->
                             assertThat(Objects.requireNonNull(result.getResolvedException()).getCause())
                                     .isInstanceOf(RetroDueDateException.class)
+                    );
+        }
+
+
+        @ParameterizedTest
+        @EnumSource(TestCountry.class)
+        void shouldInvalidPriorityException(TestCountry country) throws Exception {
+            Map<String, String> messages = getMessagesAccordingToLocale(country);
+            Locale testedLocale = convertEnumToLocale(country);
+
+            RequestBuilder request = MockMvcRequestBuilders
+                    .post(uri)
+                    .header("Accept-Language", testedLocale.toString())
+                    .header("Authorization", adminToken)
+                    .content(requestContent)
+                    .contentType(MediaType.APPLICATION_JSON);
+
+
+            String expectedMessage = messages.get("exception.invalid.priority");
+
+            doThrow(InvalidPriorityException.class)
+                    .when(taskService)
+                    .createTask(any());
+
+            mockMvc.perform(request)
+                    .andDo(print())
+                    .andExpect(status().isBadRequest())
+                    .andExpect(status().reason(is(expectedMessage)))
+                    .andExpect(result ->
+                            assertThat(Objects.requireNonNull(result.getResolvedException()).getCause())
+                                    .isInstanceOf(InvalidPriorityException.class)
                     );
         }
 

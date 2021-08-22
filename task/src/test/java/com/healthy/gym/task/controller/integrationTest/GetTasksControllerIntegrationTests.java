@@ -487,6 +487,74 @@ public class GetTasksControllerIntegrationTests {
         assertThat(gymPassDocumentList.size()).isEqualTo(2);
     }
 
+    @ParameterizedTest
+    @EnumSource(TestCountry.class)
+    void shouldGetTasks_whenNotProvidedDatesNotProvidedUserIdProvidedPriority(TestCountry country) throws Exception {
+        Locale testedLocale = convertEnumToLocale(country);
+
+        String priority = "HIGH";
+
+        URI uri = new URI("http://localhost:" + port + "/page/" + page
+                + "?priority=" + priority);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Accept-Language", testedLocale.toString());
+        headers.set("Authorization", managerToken);
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        HttpEntity<Object> request = new HttpEntity<>(null, headers);
+
+        ResponseEntity<JsonNode> responseEntity = restTemplate
+                .exchange(uri, HttpMethod.GET, request, JsonNode.class);
+
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(responseEntity.getBody().get(0).get("id")).isNotNull();
+        assertThat(responseEntity.getBody().get(0).get("id").textValue())
+                .isEqualTo(taskId2);
+        assertThat(responseEntity.getBody().get(0).get("manager")).isNotNull();
+        assertThat(responseEntity.getBody().get(0).get("manager").get("userId").textValue())
+                .isEqualTo(managerId);
+        assertThat(responseEntity.getBody().get(0).get("manager").get("name").textValue())
+                .isEqualTo("Adam");
+        assertThat(responseEntity.getBody().get(0).get("manager").get("surname").textValue())
+                .isEqualTo("Nowak");
+        assertThat(responseEntity.getBody().get(0).get("employee").get("userId").textValue())
+                .isEqualTo(employeeId);
+        assertThat(responseEntity.getBody().get(0).get("employee").get("name").textValue())
+                .isEqualTo("Jan");
+        assertThat(responseEntity.getBody().get(0).get("employee").get("surname").textValue())
+                .isEqualTo("Kowalski");
+        assertThat(responseEntity.getBody().get(0).get("title").textValue())
+                .isEqualTo("Title 2");
+        assertThat(responseEntity.getBody().get(0).get("description").textValue())
+                .isEqualTo("Description 2");
+        assertThat(responseEntity.getBody().get(0).get("report"))
+                .isNull();
+        assertThat(responseEntity.getBody().get(0).get("taskCreationDate").textValue())
+                .isEqualTo(LocalDate.now().minusDays(10).toString());
+        assertThat(responseEntity.getBody().get(0).get("lastTaskUpdateDate").textValue())
+                .isEqualTo(LocalDate.now().minusDays(3).toString());
+        assertThat(responseEntity.getBody().get(0).get("dueDate").textValue())
+                .isEqualTo(LocalDate.now().plusDays(20).toString());
+        assertThat(responseEntity.getBody().get(0).get("reminderDate"))
+                .isNull();
+        assertThat(responseEntity.getBody().get(0).get("priority").textValue())
+                .isEqualTo("HIGH");
+        assertThat(responseEntity.getBody().get(0).get("mark").intValue())
+                .isZero();
+        assertThat(responseEntity.getBody().get(0).get("reportDate"))
+                .isNull();
+        assertThat(responseEntity.getBody().get(0).get("employeeAccept").textValue())
+                .isEqualTo(AcceptanceStatus.ACCEPTED.toString());
+        assertThat(responseEntity.getBody().get(0).get("managerAccept").textValue())
+                .isEqualTo(AcceptanceStatus.NO_ACTION.toString());
+        assertThat(responseEntity.getBody().get(0).get("employeeComment").textValue())
+                .isEqualTo("Employee Comment 2");
+
+        List<TaskDocument> gymPassDocumentList = mongoTemplate.findAll(TaskDocument.class);
+        assertThat(gymPassDocumentList.size()).isEqualTo(2);
+    }
+
 
     @Nested
     class ShouldNotGetTasksWhenNotAuthorized {

@@ -412,6 +412,80 @@ class GetTasksControllerUnitTest {
                 ));
     }
 
+
+    @ParameterizedTest
+    @EnumSource(TestCountry.class)
+    void shouldGetTasks_whenNotProvidedDateRangeAndProvidedUserId_correctEmployeeToken(TestCountry country) throws Exception {
+        Locale testedLocale = convertEnumToLocale(country);
+
+        RequestBuilder request = MockMvcRequestBuilders
+                .get(uri+String.valueOf(page) + "?userId=" + employeeId)
+                .header("Accept-Language", testedLocale.toString())
+                .header("Authorization", employeeToken)
+                .contentType(MediaType.APPLICATION_JSON);
+
+        var now = LocalDate.now();
+
+
+        when(taskService.getTasks(null, null, employeeId, null, paging))
+                .thenReturn(responseBetweenLastAndTwoFutureMonths);
+
+        mockMvc.perform(request)
+                .andDo(print())
+                .andExpect(matchAll(
+                        status().isOk(),
+                        content().contentType(MediaType.APPLICATION_JSON),
+
+                        jsonPath("$.[0].id").exists(),
+                        jsonPath("$.[0].id").value(is(taskId1)),
+                        jsonPath("$.[0].manager").exists(),
+                        jsonPath("$.[0].manager.userId").exists(),
+                        jsonPath("$.[0].manager.name").value(is("Adam")),
+                        jsonPath("$.[0].manager.surname").value(is("Nowak")),
+                        jsonPath("$.[0].employee").exists(),
+                        jsonPath("$.[0].employee.userId").exists(),
+                        jsonPath("$.[0].employee.name").value(is("Jan")),
+                        jsonPath("$.[0].employee.surname").value(is("Kowalski")),
+                        jsonPath("$.[0].title").value(is("Title 1")),
+                        jsonPath("$.[0].description").value(is("Description 1")),
+                        jsonPath("$.[0].report").doesNotExist(),
+                        jsonPath("$.[0].taskCreationDate").value(is(now.minusMonths(1).toString())),
+                        jsonPath("$.[0].lastTaskUpdateDate").value(is(now.minusMonths(1).toString())),
+                        jsonPath("$.[0].dueDate").value(is(now.plusMonths(2).toString())),
+                        jsonPath("$.[0].reminderDate").value(is(now.plusMonths(1).toString())),
+                        jsonPath("$.[0].priority").doesNotExist(),
+                        jsonPath("$.[0].mark").value(is(0)),
+                        jsonPath("$.[0].reportDate").doesNotExist(),
+                        jsonPath("$.[0].employeeAccept").value(is(AcceptanceStatus.NO_ACTION.toString())),
+                        jsonPath("$.[0].managerAccept").value(is(AcceptanceStatus.NO_ACTION.toString())),
+                        jsonPath("$.[0].employeeComment").doesNotExist(),
+
+                        jsonPath("$.[1].id").exists(),
+                        jsonPath("$.[1].id").value(is(taskId2)),
+                        jsonPath("$.[1].manager").exists(),
+                        jsonPath("$.[1].manager.userId").exists(),
+                        jsonPath("$.[1].manager.name").value(is("Adam")),
+                        jsonPath("$.[1].manager.surname").value(is("Nowak")),
+                        jsonPath("$.[1].employee").exists(),
+                        jsonPath("$.[1].employee.userId").exists(),
+                        jsonPath("$.[1].employee.name").value(is("Jan")),
+                        jsonPath("$.[1].employee.surname").value(is("Kowalski")),
+                        jsonPath("$.[1].title").value(is("Title 2")),
+                        jsonPath("$.[1].description").value(is("Description 2")),
+                        jsonPath("$.[1].report").doesNotExist(),
+                        jsonPath("$.[1].taskCreationDate").value(is(now.minusDays(10).toString())),
+                        jsonPath("$.[1].lastTaskUpdateDate").value(is(now.minusDays(3).toString())),
+                        jsonPath("$.[1].dueDate").value(is(now.plusDays(20).toString())),
+                        jsonPath("$.[1].reminderDate").doesNotExist(),
+                        jsonPath("$.[1].priority").value(is("HIGH")),
+                        jsonPath("$.[1].mark").value(is(0)),
+                        jsonPath("$.[1].reportDate").doesNotExist(),
+                        jsonPath("$.[1].employeeAccept").value(is(AcceptanceStatus.ACCEPTED.toString())),
+                        jsonPath("$.[1].managerAccept").value(is(AcceptanceStatus.NO_ACTION.toString())),
+                        jsonPath("$.[1].employeeComment").value(is("Employee Comment 2"))
+                ));
+    }
+
     @ParameterizedTest
     @EnumSource(TestCountry.class)
     void shouldNotGetTasksWhenStartDateAfterEndDate(TestCountry country) throws Exception {

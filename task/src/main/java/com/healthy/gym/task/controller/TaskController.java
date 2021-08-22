@@ -139,6 +139,10 @@ public class TaskController {
             String reason = translator.toLocale("exception.retro.due.date");
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, exception);
 
+        } catch (InvalidPriorityException exception){
+            String reason = translator.toLocale(INVALID_PRIORITY_EXCEPTION);
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, exception);
+
         } catch (Exception exception){
             String reason = translator.toLocale(INTERNAL_ERROR_EXCEPTION);
             exception.printStackTrace();

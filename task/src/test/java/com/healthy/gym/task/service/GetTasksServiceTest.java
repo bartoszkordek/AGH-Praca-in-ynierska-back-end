@@ -392,4 +392,12 @@ class GetTasksServiceTest {
                 taskService.getTasks(requestStartDate, requestEndDate, null, null, paging)
         ).isInstanceOf(NoTasksException.class);
     }
+
+    @Test
+    void shouldNotGetTasks_whenInvalidPriorityAndNotProvidedUserId() {
+        //then
+        assertThatThrownBy(() ->
+                taskService.getTasks(null, null, null, "INVALID", paging)
+        ).isInstanceOf(InvalidPriorityException.class);
+    }
 }

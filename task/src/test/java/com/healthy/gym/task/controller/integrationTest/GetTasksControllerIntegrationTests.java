@@ -437,6 +437,36 @@ public class GetTasksControllerIntegrationTests {
         assertThat(responseEntity.getBody().get("timestamp")).isNotNull();
     }
 
+
+    @ParameterizedTest
+    @EnumSource(TestCountry.class)
+    void shouldNotGetTasks_whenInvalidPriority(TestCountry country) throws Exception {
+        Map<String, String> messages = getMessagesAccordingToLocale(country);
+        Locale testedLocale = convertEnumToLocale(country);
+
+        String priority = "INVALID";
+
+        URI uri = new URI("http://localhost:" + port + "/page/" + page
+                + "?priority="+priority);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Accept-Language", testedLocale.toString());
+        headers.set("Authorization", managerToken);
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        HttpEntity<Object> request = new HttpEntity<>(null, headers);
+        String expectedMessage = messages.get("exception.invalid.priority");
+
+        ResponseEntity<JsonNode> responseEntity = restTemplate
+                .exchange(uri, HttpMethod.GET, request, JsonNode.class);
+
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        assertThat(responseEntity.getBody().get("error").textValue()).isEqualTo("Bad Request");
+        assertThat(Objects.requireNonNull(responseEntity.getBody().get("message").textValue()))
+                .isEqualTo(expectedMessage);
+        assertThat(responseEntity.getBody().get("timestamp")).isNotNull();
+    }
+
     @ParameterizedTest
     @EnumSource(TestCountry.class)
     void shouldNotGetTasks_whenEmptyList(TestCountry country) throws Exception {

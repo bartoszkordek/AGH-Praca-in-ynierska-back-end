@@ -435,4 +435,39 @@ public class CreateTaskControllerIntegrationTest {
                 .isEqualTo(expectedMessage);
         assertThat(responseEntity.getBody().get("timestamp")).isNotNull();
     }
+
+    @ParameterizedTest
+    @EnumSource(TestCountry.class)
+    void shouldNotCreateTask_whenInvalidPriority(TestCountry country) throws Exception {
+        Map<String, String> messages = getMessagesAccordingToLocale(country);
+        Locale testedLocale = convertEnumToLocale(country);
+
+        ManagerTaskCreationRequest invalidPriorityManagerTaskCreationRequest = new ManagerTaskCreationRequest();
+        invalidPriorityManagerTaskCreationRequest.setTitle(requestTitle);
+        invalidPriorityManagerTaskCreationRequest.setDescription(requestDescription);
+        invalidPriorityManagerTaskCreationRequest.setEmployeeId(employeeId);
+        invalidPriorityManagerTaskCreationRequest.setDueDate(LocalDate.now().toString());
+        invalidPriorityManagerTaskCreationRequest.setPriority("INVALID_PRIORITY");
+
+        String invalidDueDateRequestContent = objectMapper.writeValueAsString(invalidPriorityManagerTaskCreationRequest);
+
+        URI uri = new URI("http://localhost:" + port );
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Accept-Language", testedLocale.toString());
+        headers.set("Authorization", managerToken);
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        HttpEntity<Object> request = new HttpEntity<>(invalidDueDateRequestContent, headers);
+        String expectedMessage = messages.get("exception.invalid.priority");
+
+        ResponseEntity<JsonNode> responseEntity = restTemplate
+                .exchange(uri, HttpMethod.POST, request, JsonNode.class);
+
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        assertThat(responseEntity.getBody().get("error").textValue()).isEqualTo("Bad Request");
+        assertThat(Objects.requireNonNull(responseEntity.getBody().get("message").textValue()))
+                .isEqualTo(expectedMessage);
+        assertThat(responseEntity.getBody().get("timestamp")).isNotNull();
+    }
 }

@@ -61,6 +61,8 @@ class GetTasksServiceTest {
     private List<TaskDTO> responseBetweenLastAndTwoFutureMonths;
     private List<TaskDTO> responsePriorityHigh;
 
+    private UserDocument employeeDocument;
+
 
     @BeforeEach
     void setUp() {
@@ -77,7 +79,7 @@ class GetTasksServiceTest {
         //DB documents
         String employeeName = "Jan";
         String employeeSurname = "Kowalski";
-        UserDocument employeeDocument = new UserDocument();
+        employeeDocument = new UserDocument();
         employeeDocument.setName(employeeName);
         employeeDocument.setSurname(employeeSurname);
         employeeDocument.setUserId(employeeId);
@@ -267,6 +269,28 @@ class GetTasksServiceTest {
 
         //then
         assertThat(taskService.getTasks(requestStartDate, requestEndDate, null, "HIGH", paging).get(0))
+                .isEqualTo(responsePriorityHigh.get(0));
+    }
+
+    @Test
+    void shouldGetAllTasks_whenProvidedUser() throws StartDateAfterEndDateException, NoTasksException, InvalidPriorityException, EmployeeNotFoundException {
+        var now = LocalDate.now();
+        String requestStartDate = now.minusYears(1).format(DateTimeFormatter.ISO_LOCAL_DATE);
+        String requestEndDate = now.plusYears(1).format(DateTimeFormatter.ISO_LOCAL_DATE);
+        Page<TaskDocument> taskDocumentPage = new PageImpl<>(dbPriorityHigh);
+
+        //when
+        when(userDAO.findByUserId(employeeId))
+                .thenReturn(employeeDocument);
+        when(taskDAO.findAllByDueDateBetweenAndEmployee(
+                now.minusYears(1).minusDays(1),
+                now.plusYears(1).plusDays(1),
+                employeeDocument,
+                paging
+        )).thenReturn(taskDocumentPage);
+
+        //then
+        assertThat(taskService.getTasks(requestStartDate, requestEndDate, employeeId, null, paging).get(0))
                 .isEqualTo(responsePriorityHigh.get(0));
     }
 

@@ -7,6 +7,7 @@ import com.healthy.gym.task.dto.BasicUserInfoDTO;
 import com.healthy.gym.task.dto.TaskDTO;
 import com.healthy.gym.task.enums.AcceptanceStatus;
 import com.healthy.gym.task.enums.Priority;
+import com.healthy.gym.task.exception.EmployeeNotFoundException;
 import com.healthy.gym.task.exception.InvalidPriorityException;
 import com.healthy.gym.task.exception.NoTasksException;
 import com.healthy.gym.task.exception.StartDateAfterEndDateException;
@@ -470,6 +471,36 @@ class GetTasksControllerUnitTest {
                 .andExpect(result ->
                         assertThat(Objects.requireNonNull(result.getResolvedException()).getCause())
                                 .isInstanceOf(NoTasksException.class)
+                );
+    }
+
+    @ParameterizedTest
+    @EnumSource(TestCountry.class)
+    void shouldNotGetTasksWhenInvalidUserId(TestCountry country) throws Exception {
+        Map<String, String> messages = getMessagesAccordingToLocale(country);
+        Locale testedLocale = convertEnumToLocale(country);
+
+        String userNotFoundId = UUID.randomUUID().toString();
+
+        RequestBuilder request = MockMvcRequestBuilders
+                .get(uri+String.valueOf(page)+"?userId="+userNotFoundId)
+                .header("Accept-Language", testedLocale.toString())
+                .header("Authorization", managerToken)
+                .contentType(MediaType.APPLICATION_JSON);
+
+        doThrow(EmployeeNotFoundException.class)
+                .when(taskService)
+                .getTasks(any(), any(), any(), any(), any());
+
+        String expectedMessage = messages.get( "exception.employee.not.found");
+
+        mockMvc.perform(request)
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(status().reason(is(expectedMessage)))
+                .andExpect(result ->
+                        assertThat(Objects.requireNonNull(result.getResolvedException()).getCause())
+                                .isInstanceOf(EmployeeNotFoundException.class)
                 );
     }
 

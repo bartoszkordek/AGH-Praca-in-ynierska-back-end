@@ -270,6 +270,28 @@ class GetTasksServiceTest {
                 .isEqualTo(responsePriorityHigh.get(0));
     }
 
+    @Test
+    void shouldNotGetTasks_whenProvidedEmptyListLowPriority() throws StartDateAfterEndDateException, NoTasksException, InvalidPriorityException, EmployeeNotFoundException {
+        var now = LocalDate.now();
+        String requestStartDate = now.minusYears(1).format(DateTimeFormatter.ISO_LOCAL_DATE);
+        String requestEndDate = now.plusYears(1).format(DateTimeFormatter.ISO_LOCAL_DATE);
+        List<TaskDocument> taskDocuments = new ArrayList<>();
+        Page<TaskDocument> taskDocumentPage = new PageImpl<>(taskDocuments);
+
+        //when
+        when(taskDAO.findAllByDueDateBetweenAndPriorityEquals(
+                now.minusYears(1).minusDays(1),
+                now.plusYears(1).plusDays(1),
+                Priority.LOW,
+                paging
+        )).thenReturn(taskDocumentPage);
+
+        //then
+        assertThatThrownBy(() ->
+                taskService.getTasks(requestStartDate, requestEndDate, null, "LOW", paging)
+        ).isInstanceOf(NoTasksException.class);
+    }
+
 
     @Test
     void shouldGetAllTasks() throws StartDateAfterEndDateException, NoTasksException, InvalidPriorityException, EmployeeNotFoundException {

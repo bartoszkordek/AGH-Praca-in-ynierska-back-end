@@ -9,6 +9,7 @@ import com.healthy.gym.task.dto.TaskDTO;
 import com.healthy.gym.task.enums.AcceptanceStatus;
 import com.healthy.gym.task.enums.GymRole;
 import com.healthy.gym.task.exception.EmployeeNotFoundException;
+import com.healthy.gym.task.exception.InvalidPriorityException;
 import com.healthy.gym.task.exception.ManagerNotFoundException;
 import com.healthy.gym.task.exception.RetroDueDateException;
 import com.healthy.gym.task.pojo.request.ManagerTaskCreationRequest;
@@ -43,7 +44,7 @@ public class CreateTaskServiceUnitTest {
     private String taskId;
 
     @Test
-    void shouldCreateTask_whenValidRequest() throws ManagerNotFoundException, EmployeeNotFoundException, RetroDueDateException {
+    void shouldCreateTask_whenValidRequest() throws ManagerNotFoundException, EmployeeNotFoundException, RetroDueDateException, InvalidPriorityException {
 
         employeeId = UUID.randomUUID().toString();
         managerId = UUID.randomUUID().toString();
@@ -254,5 +255,48 @@ public class CreateTaskServiceUnitTest {
         assertThatThrownBy(() ->
                 taskService.createTask(managerTaskCreationRequest)
         ).isInstanceOf(RetroDueDateException.class);
+    }
+
+    @Test
+    void shouldNotCreateTask_whenInvalidPriority(){
+        //before
+        employeeId = UUID.randomUUID().toString();
+
+        //request
+        ManagerTaskCreationRequest managerTaskCreationRequest = new ManagerTaskCreationRequest();
+        managerTaskCreationRequest.setEmployeeId(employeeId);
+        managerTaskCreationRequest.setTitle("Sample title");
+        managerTaskCreationRequest.setDescription("Sample description");
+        managerTaskCreationRequest.setDueDate(LocalDate.now().toString());
+        managerTaskCreationRequest.setPriority("INVALID");
+
+
+        //DB documents
+        String managerName = "Adam";
+        String managerSurname = "Nowak";
+        UserDocument managerDocument = new UserDocument();
+        managerDocument.setName(managerName);
+        managerDocument.setSurname(managerSurname);
+        managerDocument.setUserId(managerId);
+        managerDocument.setGymRoles(List.of(GymRole.MANAGER));
+        managerDocument.setId("507f1f77bcf86cd799435002");
+
+        String employeeName = "Jan";
+        String employeeSurname = "Kowalski";
+        UserDocument employeeDocument = new UserDocument();
+        employeeDocument.setName(employeeName);
+        employeeDocument.setSurname(employeeSurname);
+        employeeDocument.setUserId(employeeId);
+        employeeDocument.setGymRoles(List.of(GymRole.EMPLOYEE));
+        employeeDocument.setId("507f1f77bcf86cd799435213");
+
+        //when
+        when(userDAO.findByGymRolesContaining(GymRole.MANAGER)).thenReturn(managerDocument);
+        when(userDAO.findByUserId(employeeId)).thenReturn(employeeDocument);
+
+        //then
+        assertThatThrownBy(() ->
+                taskService.createTask(managerTaskCreationRequest)
+        ).isInstanceOf(InvalidPriorityException.class);
     }
 }

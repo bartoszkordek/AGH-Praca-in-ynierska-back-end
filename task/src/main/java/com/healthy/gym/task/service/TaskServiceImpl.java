@@ -59,7 +59,7 @@ public class TaskServiceImpl implements TaskService{
 
     @Override
     public TaskDTO createTask(ManagerTaskCreationRequest managerTaskCreationRequest) throws ManagerNotFoundException,
-            EmployeeNotFoundException, RetroDueDateException {
+            EmployeeNotFoundException, RetroDueDateException, InvalidPriorityException {
 
         UserDocument managerDocument = getManagerDocument();
 
@@ -88,6 +88,7 @@ public class TaskServiceImpl implements TaskService{
         taskDocumentToBeSaved.setManagerAccept(AcceptanceStatus.NO_ACTION);
         if(requestReminderDate != null)
             taskDocumentToBeSaved.setReminderDate(LocalDate.parse(requestReminderDate, DateTimeFormatter.ISO_LOCAL_DATE));
+        if(requestPriority != null) checkPriority(requestPriority);
         setPriority(taskDocumentToBeSaved, requestPriority);
 
         TaskDocument taskDocumentSaved = taskDAO.save(taskDocumentToBeSaved);

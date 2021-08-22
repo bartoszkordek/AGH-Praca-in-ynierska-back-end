@@ -13,7 +13,7 @@ import java.util.List;
 public interface TaskService {
 
     TaskDTO createTask(ManagerTaskCreationRequest managerTaskCreationRequest)
-            throws ManagerNotFoundException, EmployeeNotFoundException, RetroDueDateException;
+            throws ManagerNotFoundException, EmployeeNotFoundException, RetroDueDateException, InvalidPriorityException;
 
     TaskDTO updateTask(String taskId, ManagerTaskCreationRequest managerTaskCreationRequest)
             throws TaskNotFoundException, ManagerNotFoundException, EmployeeNotFoundException, RetroDueDateException;

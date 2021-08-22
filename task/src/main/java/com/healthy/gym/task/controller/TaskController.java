@@ -41,6 +41,7 @@ public class TaskController {
     private static final String EMPLOYEE_NOT_FOUND_EXCEPTION = "exception.employee.not.found";
     private static final String TASK_DECLINED_BY_EMPLOYEE_EXCEPTION = "exception.declined.employee";
     private static final String INVALID_STATUS_EXCEPTION = "exception.invalid.status";
+    private static final String INVALID_PRIORITY_EXCEPTION = "exception.invalid.priority";
     private final Translator translator;
     private final TaskService taskService;
 
@@ -86,6 +87,10 @@ public class TaskController {
 
         } catch (RetroDueDateException exception){
             String reason = translator.toLocale("exception.retro.due.date");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, exception);
+
+        } catch (InvalidPriorityException exception){
+            String reason = translator.toLocale(INVALID_PRIORITY_EXCEPTION);
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, exception);
 
         } catch (Exception exception){
@@ -342,7 +347,7 @@ public class TaskController {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, exception);
 
         } catch (InvalidPriorityException exception){
-            String reason = translator.toLocale("exception.invalid.priority");
+            String reason = translator.toLocale(INVALID_PRIORITY_EXCEPTION);
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, exception);
 
         } catch (Exception exception){

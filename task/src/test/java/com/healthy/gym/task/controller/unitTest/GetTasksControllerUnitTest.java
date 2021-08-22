@@ -56,6 +56,7 @@ class GetTasksControllerUnitTest {
     @MockBean
     private TaskService taskService;
 
+    private String employeeId;
     private String managerToken;
     private String adminToken;
     private String userToken;
@@ -79,7 +80,7 @@ class GetTasksControllerUnitTest {
         String userId = UUID.randomUUID().toString();
         userToken = tokenFactory.getUserToken(userId);
 
-        String employeeId = UUID.randomUUID().toString();
+        employeeId = UUID.randomUUID().toString();
         employeeToken = tokenFactory.getUserToken(employeeId);
 
         String managerId = UUID.randomUUID().toString();
@@ -242,6 +243,64 @@ class GetTasksControllerUnitTest {
                 now.minusYears(1).format(DateTimeFormatter.ISO_LOCAL_DATE),
                 now.format(DateTimeFormatter.ISO_LOCAL_DATE),
                 null,
+                priority,
+                paging)
+        ).thenReturn(responseBeforeLastMonth);
+
+        mockMvc.perform(request)
+                .andDo(print())
+                .andExpect(matchAll(
+                        status().isOk(),
+                        content().contentType(MediaType.APPLICATION_JSON),
+                        jsonPath("$.[0].id").exists(),
+                        jsonPath("$.[0].id").value(is(taskId3)),
+                        jsonPath("$.[0].manager").exists(),
+                        jsonPath("$.[0].manager.userId").exists(),
+                        jsonPath("$.[0].manager.name").value(is("Adam")),
+                        jsonPath("$.[0].manager.surname").value(is("Nowak")),
+                        jsonPath("$.[0].employee").exists(),
+                        jsonPath("$.[0].employee.userId").exists(),
+                        jsonPath("$.[0].employee.name").value(is("Jan")),
+                        jsonPath("$.[0].employee.surname").value(is("Kowalski")),
+                        jsonPath("$.[0].title").value(is("Title 3")),
+                        jsonPath("$.[0].description").value(is("Description 3")),
+                        jsonPath("$.[0].report").value(is("Report 3")),
+                        jsonPath("$.[0].taskCreationDate").value(is(now.minusMonths(5).toString())),
+                        jsonPath("$.[0].lastTaskUpdateDate").value(is(now.minusMonths(2).plusDays(1).toString())),
+                        jsonPath("$.[0].dueDate").value(is(now.minusMonths(1).minusDays(1).toString())),
+                        jsonPath("$.[0].reminderDate").doesNotExist(),
+                        jsonPath("$.[0].priority").value(is(Priority.MEDIUM.toString())),
+                        jsonPath("$.[0].mark").value(is(5)),
+                        jsonPath("$.[0].reportDate").value(is(now.minusMonths(2).toString())),
+                        jsonPath("$.[0].employeeAccept").value(is(AcceptanceStatus.ACCEPTED.toString())),
+                        jsonPath("$.[0].managerAccept").value(is(AcceptanceStatus.ACCEPTED.toString())),
+                        jsonPath("$.[0].employeeComment").value(is("Employee Comment 3"))
+                ));
+    }
+
+
+    @ParameterizedTest
+    @EnumSource(TestCountry.class)
+    void shouldGetTasks_whenProvidedDateRangeAndUserIdAndPriority(TestCountry country) throws Exception {
+        Locale testedLocale = convertEnumToLocale(country);
+
+        var now = LocalDate.now();
+        String startDueDate = now.minusYears(1).format(DateTimeFormatter.ISO_LOCAL_DATE);
+        String endDueDate = now.format(DateTimeFormatter.ISO_LOCAL_DATE);
+        String priority = "MEDIUM";
+
+        RequestBuilder request = MockMvcRequestBuilders
+                .get(uri+String.valueOf(page)+"?startDueDate="+startDueDate+"&endDueDate="+endDueDate
+                        + "&userId=" + employeeId + "&priority=" + priority)
+                .header("Accept-Language", testedLocale.toString())
+                .header("Authorization", managerToken)
+                .contentType(MediaType.APPLICATION_JSON);
+
+
+        when(taskService.getTasks(
+                now.minusYears(1).format(DateTimeFormatter.ISO_LOCAL_DATE),
+                now.format(DateTimeFormatter.ISO_LOCAL_DATE),
+                employeeId,
                 priority,
                 paging)
         ).thenReturn(responseBeforeLastMonth);

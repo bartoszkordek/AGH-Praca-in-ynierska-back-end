@@ -400,4 +400,15 @@ class GetTasksServiceTest {
                 taskService.getTasks(null, null, null, "INVALID", paging)
         ).isInstanceOf(InvalidPriorityException.class);
     }
+
+    @Test
+    void shouldNotGetTasks_whenInvalidPriorityAndProvidedUserId() {
+        //when
+        when(userDAO.findByUserId(employeeId))
+                .thenReturn(employeeDocument);
+        //then
+        assertThatThrownBy(() ->
+                taskService.getTasks(null, null, employeeId, "INVALID", paging)
+        ).isInstanceOf(InvalidPriorityException.class);
+    }
 }

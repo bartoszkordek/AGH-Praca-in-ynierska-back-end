@@ -1,6 +1,7 @@
 package com.healthy.gym.task.controller.integrationTest;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.healthy.gym.task.component.TokenManager;
 import com.healthy.gym.task.configuration.FixedClockConfig;
 import com.healthy.gym.task.configuration.TestCountry;
 import com.healthy.gym.task.configuration.TestRoleTokenFactory;
@@ -687,6 +688,36 @@ public class GetTasksControllerIntegrationTests {
             HttpHeaders headers = new HttpHeaders();
             headers.set("Accept-Language", testedLocale.toString());
             headers.set("Authorization", employeeToken);
+            headers.setContentType(MediaType.APPLICATION_JSON);
+
+            HttpEntity<Object> request = new HttpEntity<>(null, headers);
+
+            ResponseEntity<JsonNode> responseEntity = restTemplate
+                    .exchange(uri, HttpMethod.GET, request, JsonNode.class);
+
+            String expectedMessage = messages.get("exception.access.denied");
+
+            assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
+            assertThat(responseEntity.getBody().get("status").intValue()).isEqualTo(403);
+            assertThat(responseEntity.getBody().get("error").textValue()).isEqualTo("Forbidden");
+            assertThat(responseEntity.getBody().get("message").textValue()).isEqualTo(expectedMessage);
+            assertThat(responseEntity.getBody().get("timestamp")).isNotNull();
+        }
+
+        @ParameterizedTest
+        @EnumSource(TestCountry.class)
+        void shouldNotGetTasksWhenLoggedAsOtherEmployee(TestCountry country) throws Exception {
+            Map<String, String> messages = getMessagesAccordingToLocale(country);
+            Locale testedLocale = convertEnumToLocale(country);
+
+            String otherEmployeeId = UUID.randomUUID().toString();
+            String otherEmployeeToken = tokenFactory.getEmployeeToken(otherEmployeeId);
+
+            URI uri = new URI("http://localhost:" + port + "/page/" + page + "?userId=" + employeeId);
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.set("Accept-Language", testedLocale.toString());
+            headers.set("Authorization", otherEmployeeToken);
             headers.setContentType(MediaType.APPLICATION_JSON);
 
             HttpEntity<Object> request = new HttpEntity<>(null, headers);

@@ -63,6 +63,7 @@ class GetTasksControllerUnitTest {
     private String adminToken;
     private String userToken;
     private String employeeToken;
+    private String otherEmployeeToken;
 
     private String taskId1;
     private String taskId2;
@@ -84,6 +85,9 @@ class GetTasksControllerUnitTest {
 
         employeeId = UUID.randomUUID().toString();
         employeeToken = tokenFactory.getUserToken(employeeId);
+
+        String otherEmployeeId = UUID.randomUUID().toString();
+        otherEmployeeToken = tokenFactory.getEmployeeToken(otherEmployeeId);
 
         String managerId = UUID.randomUUID().toString();
         managerToken = tokenFactory.getMangerToken(managerId);
@@ -665,6 +669,30 @@ class GetTasksControllerUnitTest {
                     .get(uri+String.valueOf(page))
                     .header("Accept-Language", testedLocale.toString())
                     .header("Authorization", userToken)
+                    .contentType(MediaType.APPLICATION_JSON);
+
+            String expectedMessage = messages.get("exception.access.denied");
+
+            mockMvc.perform(request)
+                    .andDo(print())
+                    .andExpect(status().isForbidden())
+                    .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(jsonPath("$.message").value(is(expectedMessage)))
+                    .andExpect(jsonPath("$.error").value(is("Forbidden")))
+                    .andExpect(jsonPath("$.status").value(403))
+                    .andExpect(jsonPath("$.timestamp").exists());
+        }
+
+        @ParameterizedTest
+        @EnumSource(TestCountry.class)
+        void whenUserIsNotLogInAsOtherEmployee(TestCountry country) throws Exception {
+            Map<String, String> messages = getMessagesAccordingToLocale(country);
+            Locale testedLocale = convertEnumToLocale(country);
+
+            RequestBuilder request = MockMvcRequestBuilders
+                    .get(uri+String.valueOf(page)+"?userId=" + employeeId)
+                    .header("Accept-Language", testedLocale.toString())
+                    .header("Authorization", otherEmployeeToken)
                     .contentType(MediaType.APPLICATION_JSON);
 
             String expectedMessage = messages.get("exception.access.denied");

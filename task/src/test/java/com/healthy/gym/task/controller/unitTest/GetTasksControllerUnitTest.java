@@ -7,6 +7,7 @@ import com.healthy.gym.task.dto.BasicUserInfoDTO;
 import com.healthy.gym.task.dto.TaskDTO;
 import com.healthy.gym.task.enums.AcceptanceStatus;
 import com.healthy.gym.task.enums.Priority;
+import com.healthy.gym.task.exception.InvalidPriorityException;
 import com.healthy.gym.task.exception.NoTasksException;
 import com.healthy.gym.task.exception.StartDateAfterEndDateException;
 import com.healthy.gym.task.service.TaskService;
@@ -469,6 +470,37 @@ class GetTasksControllerUnitTest {
                 .andExpect(result ->
                         assertThat(Objects.requireNonNull(result.getResolvedException()).getCause())
                                 .isInstanceOf(NoTasksException.class)
+                );
+    }
+
+
+    @ParameterizedTest
+    @EnumSource(TestCountry.class)
+    void shouldNotGetTasksWhenInvalidPriority(TestCountry country) throws Exception {
+        Map<String, String> messages = getMessagesAccordingToLocale(country);
+        Locale testedLocale = convertEnumToLocale(country);
+
+        String priority = "INVALID";
+
+        RequestBuilder request = MockMvcRequestBuilders
+                .get(uri+String.valueOf(page)+"?priority="+priority)
+                .header("Accept-Language", testedLocale.toString())
+                .header("Authorization", managerToken)
+                .contentType(MediaType.APPLICATION_JSON);
+
+        doThrow(InvalidPriorityException.class)
+                .when(taskService)
+                .getTasks(any(), any(), any(), any(), any());
+
+        String expectedMessage = messages.get( "exception.invalid.priority");
+
+        mockMvc.perform(request)
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(status().reason(is(expectedMessage)))
+                .andExpect(result ->
+                        assertThat(Objects.requireNonNull(result.getResolvedException()).getCause())
+                                .isInstanceOf(InvalidPriorityException.class)
                 );
     }
 

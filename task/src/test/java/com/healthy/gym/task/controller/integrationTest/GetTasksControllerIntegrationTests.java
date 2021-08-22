@@ -437,6 +437,35 @@ public class GetTasksControllerIntegrationTests {
         assertThat(responseEntity.getBody().get("timestamp")).isNotNull();
     }
 
+    @ParameterizedTest
+    @EnumSource(TestCountry.class)
+    void shouldNotGetTasks_whenEmployeeNotFound(TestCountry country) throws Exception {
+        Map<String, String> messages = getMessagesAccordingToLocale(country);
+        Locale testedLocale = convertEnumToLocale(country);
+
+        String employeeNotFoundId = UUID.randomUUID().toString();
+
+        URI uri = new URI("http://localhost:" + port + "/page/" + page
+                + "?userId="+employeeNotFoundId);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Accept-Language", testedLocale.toString());
+        headers.set("Authorization", managerToken);
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        HttpEntity<Object> request = new HttpEntity<>(null, headers);
+        String expectedMessage = messages.get("exception.employee.not.found");
+
+        ResponseEntity<JsonNode> responseEntity = restTemplate
+                .exchange(uri, HttpMethod.GET, request, JsonNode.class);
+
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        assertThat(responseEntity.getBody().get("error").textValue()).isEqualTo("Bad Request");
+        assertThat(Objects.requireNonNull(responseEntity.getBody().get("message").textValue()))
+                .isEqualTo(expectedMessage);
+        assertThat(responseEntity.getBody().get("timestamp")).isNotNull();
+    }
+
 
     @ParameterizedTest
     @EnumSource(TestCountry.class)

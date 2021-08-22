@@ -277,7 +277,7 @@ class GetTasksServiceTest {
         var now = LocalDate.now();
         String requestStartDate = now.minusYears(1).format(DateTimeFormatter.ISO_LOCAL_DATE);
         String requestEndDate = now.plusYears(1).format(DateTimeFormatter.ISO_LOCAL_DATE);
-        Page<TaskDocument> taskDocumentPage = new PageImpl<>(dbPriorityHigh);
+        Page<TaskDocument> taskDocumentPage = new PageImpl<>(dbAll);
 
         //when
         when(userDAO.findByUserId(employeeId))
@@ -291,7 +291,11 @@ class GetTasksServiceTest {
 
         //then
         assertThat(taskService.getTasks(requestStartDate, requestEndDate, employeeId, null, paging).get(0))
-                .isEqualTo(responsePriorityHigh.get(0));
+                .isEqualTo(responseAll.get(0));
+        assertThat(taskService.getTasks(requestStartDate, requestEndDate, employeeId, null, paging).get(1))
+                .isEqualTo(responseAll.get(1));
+        assertThat(taskService.getTasks(requestStartDate, requestEndDate, employeeId, null, paging).get(2))
+                .isEqualTo(responseAll.get(2));
     }
 
     @Test

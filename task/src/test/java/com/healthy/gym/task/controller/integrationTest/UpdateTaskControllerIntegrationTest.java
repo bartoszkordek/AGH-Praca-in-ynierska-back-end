@@ -204,7 +204,7 @@ public class UpdateTaskControllerIntegrationTest {
         Map<String, String> messages = getMessagesAccordingToLocale(country);
         Locale testedLocale = convertEnumToLocale(country);
 
-        URI uri = new URI("http://localhost:" + port +"/" + taskId);
+        URI uri = new URI("http://localhost:" + port +"/" + taskId + "/manager/" + managerId);
 
         HttpHeaders headers = new HttpHeaders();
         headers.set("Accept-Language", testedLocale.toString());
@@ -260,7 +260,7 @@ public class UpdateTaskControllerIntegrationTest {
         Map<String, String> messages = getMessagesAccordingToLocale(country);
         Locale testedLocale = convertEnumToLocale(country);
 
-        URI uri = new URI("http://localhost:" + port +"/" + taskId);
+        URI uri = new URI("http://localhost:" + port +"/" + taskId + "/manager/" + managerId);
 
         HttpHeaders headers = new HttpHeaders();
         headers.set("Accept-Language", testedLocale.toString());
@@ -320,7 +320,7 @@ public class UpdateTaskControllerIntegrationTest {
         void shouldNotUpdateTaskWhenNoToken(TestCountry country) throws Exception {
             Locale testedLocale = convertEnumToLocale(country);
 
-            URI uri = new URI("http://localhost:" + port + "/" + taskId);
+            URI uri = new URI("http://localhost:" + port + "/" + taskId + "/manager/" + managerId);
 
             HttpHeaders headers = new HttpHeaders();
             headers.set("Accept-Language", testedLocale.toString());
@@ -344,7 +344,7 @@ public class UpdateTaskControllerIntegrationTest {
             Map<String, String> messages = getMessagesAccordingToLocale(country);
             Locale testedLocale = convertEnumToLocale(country);
 
-            URI uri = new URI("http://localhost:" + port + "/" + taskId);
+            URI uri = new URI("http://localhost:" + port + "/" + taskId + "/manager/" + managerId);
 
             HttpHeaders headers = new HttpHeaders();
             headers.set("Accept-Language", testedLocale.toString());
@@ -371,7 +371,7 @@ public class UpdateTaskControllerIntegrationTest {
             Map<String, String> messages = getMessagesAccordingToLocale(country);
             Locale testedLocale = convertEnumToLocale(country);
 
-            URI uri = new URI("http://localhost:" + port + "/" + taskId);
+            URI uri = new URI("http://localhost:" + port + "/" + taskId + "/manager/" + managerId);
 
             HttpHeaders headers = new HttpHeaders();
             headers.set("Accept-Language", testedLocale.toString());
@@ -409,7 +409,7 @@ public class UpdateTaskControllerIntegrationTest {
 
         String invalidEmployeeRequestContent = objectMapper.writeValueAsString(invalidEmployeeManagerTaskCreationRequest);
 
-        URI uri = new URI("http://localhost:" + port + "/" + invalidTaskId);
+        URI uri = new URI("http://localhost:" + port + "/" + invalidTaskId + "/manager/" + managerId);
 
         HttpHeaders headers = new HttpHeaders();
         headers.set("Accept-Language", testedLocale.toString());
@@ -445,7 +445,7 @@ public class UpdateTaskControllerIntegrationTest {
 
         String invalidEmployeeRequestContent = objectMapper.writeValueAsString(invalidEmployeeManagerTaskCreationRequest);
 
-        URI uri = new URI("http://localhost:" + port + "/" + taskId);
+        URI uri = new URI("http://localhost:" + port + "/" + taskId + "/manager/" + managerId);
 
         HttpHeaders headers = new HttpHeaders();
         headers.set("Accept-Language", testedLocale.toString());
@@ -479,7 +479,7 @@ public class UpdateTaskControllerIntegrationTest {
 
         String invalidDueDateRequestContent = objectMapper.writeValueAsString(invalidDueDateManagerTaskCreationRequest);
 
-        URI uri = new URI("http://localhost:" + port + "/" + taskId);
+        URI uri = new URI("http://localhost:" + port + "/" + taskId + "/manager/" + managerId);
 
         HttpHeaders headers = new HttpHeaders();
         headers.set("Accept-Language", testedLocale.toString());
@@ -514,7 +514,7 @@ public class UpdateTaskControllerIntegrationTest {
 
         String invalidDueDateRequestContent = objectMapper.writeValueAsString(invalidPriorityManagerTaskCreationRequest);
 
-        URI uri = new URI("http://localhost:" + port + "/" + taskId);
+        URI uri = new URI("http://localhost:" + port + "/" + taskId + "/manager/" + managerId);
 
         HttpHeaders headers = new HttpHeaders();
         headers.set("Accept-Language", testedLocale.toString());

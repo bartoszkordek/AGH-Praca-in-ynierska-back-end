@@ -114,12 +114,12 @@ public class CreateTaskServiceUnitTest {
         );
 
         //when
-        when(userDAO.findByGymRolesContaining(GymRole.MANAGER)).thenReturn(managerDocument);
+        when(userDAO.findByUserId(managerId)).thenReturn(managerDocument);
         when(userDAO.findByUserId(employeeId)).thenReturn(employeeDocument);
         when(taskDAO.save(any())).thenReturn(taskDocument);
 
         //then
-        assertThat(taskService.createTask(managerTaskCreationRequest)).isEqualTo(taskResponse);
+        assertThat(taskService.createTask(managerId, managerTaskCreationRequest)).isEqualTo(taskResponse);
     }
 
     @Test
@@ -133,11 +133,39 @@ public class CreateTaskServiceUnitTest {
         managerTaskCreationRequest.setDueDate(LocalDate.now().plusMonths(1).toString());
 
         //when
-        when(userDAO.findByGymRolesContaining(GymRole.MANAGER)).thenReturn(null);
+        when(userDAO.findByUserId(managerId)).thenReturn(null);
 
         //then
         assertThatThrownBy(() ->
-                taskService.createTask(managerTaskCreationRequest)
+                taskService.createTask(managerId, managerTaskCreationRequest)
+        ).isInstanceOf(ManagerNotFoundException.class);
+    }
+
+    @Test
+    void shouldNotCreateTask_whenUserIsNotManager(){
+        //before
+        String employeeName = "Jan";
+        String employeeSurname = "Kowalski";
+        UserDocument employeeDocument = new UserDocument();
+        employeeDocument.setName(employeeName);
+        employeeDocument.setSurname(employeeSurname);
+        employeeDocument.setUserId(employeeId);
+        employeeDocument.setGymRoles(List.of(GymRole.EMPLOYEE));
+        employeeDocument.setId("507f1f77bcf86cd799435213");
+
+        //request
+        ManagerTaskCreationRequest managerTaskCreationRequest = new ManagerTaskCreationRequest();
+        managerTaskCreationRequest.setEmployeeId(employeeId);
+        managerTaskCreationRequest.setTitle("Sample title");
+        managerTaskCreationRequest.setDescription("Sample description");
+        managerTaskCreationRequest.setDueDate(LocalDate.now().plusMonths(1).toString());
+
+        //when
+        when(userDAO.findByUserId(managerId)).thenReturn(employeeDocument);
+
+        //then
+        assertThatThrownBy(() ->
+                taskService.createTask(managerId, managerTaskCreationRequest)
         ).isInstanceOf(ManagerNotFoundException.class);
     }
 
@@ -164,12 +192,11 @@ public class CreateTaskServiceUnitTest {
         managerDocument.setId("507f1f77bcf86cd799435002");
 
         //when
-        when(userDAO.findByGymRolesContaining(GymRole.MANAGER)).thenReturn(managerDocument);
-        when(userDAO.findByUserId(employeeId)).thenReturn(null);
+        when(userDAO.findByUserId(managerId)).thenReturn(managerDocument);
 
         //then
         assertThatThrownBy(() ->
-                taskService.createTask(managerTaskCreationRequest)
+                taskService.createTask(managerId, managerTaskCreationRequest)
         ).isInstanceOf(EmployeeNotFoundException.class);
     }
 
@@ -206,12 +233,12 @@ public class CreateTaskServiceUnitTest {
         notEmployeeDocument.setId("507f1f77bcf86cd799435213");
 
         //when
-        when(userDAO.findByGymRolesContaining(GymRole.MANAGER)).thenReturn(managerDocument);
+        when(userDAO.findByUserId(managerId)).thenReturn(managerDocument);
         when(userDAO.findByUserId(employeeId)).thenReturn(notEmployeeDocument);
 
         //then
         assertThatThrownBy(() ->
-                taskService.createTask(managerTaskCreationRequest)
+                taskService.createTask(managerId, managerTaskCreationRequest)
         ).isInstanceOf(EmployeeNotFoundException.class);
     }
 
@@ -248,12 +275,12 @@ public class CreateTaskServiceUnitTest {
         employeeDocument.setId("507f1f77bcf86cd799435213");
 
         //when
-        when(userDAO.findByGymRolesContaining(GymRole.MANAGER)).thenReturn(managerDocument);
+        when(userDAO.findByUserId(managerId)).thenReturn(managerDocument);
         when(userDAO.findByUserId(employeeId)).thenReturn(employeeDocument);
 
         //then
         assertThatThrownBy(() ->
-                taskService.createTask(managerTaskCreationRequest)
+                taskService.createTask(managerId, managerTaskCreationRequest)
         ).isInstanceOf(RetroDueDateException.class);
     }
 
@@ -291,12 +318,12 @@ public class CreateTaskServiceUnitTest {
         employeeDocument.setId("507f1f77bcf86cd799435213");
 
         //when
-        when(userDAO.findByGymRolesContaining(GymRole.MANAGER)).thenReturn(managerDocument);
+        when(userDAO.findByUserId(managerId)).thenReturn(managerDocument);
         when(userDAO.findByUserId(employeeId)).thenReturn(employeeDocument);
 
         //then
         assertThatThrownBy(() ->
-                taskService.createTask(managerTaskCreationRequest)
+                taskService.createTask(managerId, managerTaskCreationRequest)
         ).isInstanceOf(InvalidPriorityException.class);
     }
 }

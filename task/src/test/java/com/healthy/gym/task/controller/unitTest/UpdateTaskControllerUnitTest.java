@@ -265,6 +265,35 @@ public class UpdateTaskControllerUnitTest {
                     .andExpect(jsonPath("$.timestamp").exists());
         }
 
+
+        @ParameterizedTest
+        @EnumSource(TestCountry.class)
+        void whenUserIsNotLogInAsOtherManager(TestCountry country) throws Exception {
+            Map<String, String> messages = getMessagesAccordingToLocale(country);
+            Locale testedLocale = convertEnumToLocale(country);
+
+            String otherManagerId = UUID.randomUUID().toString();
+            String otherManagerToken = tokenFactory.getMangerToken(otherManagerId);
+
+            RequestBuilder request = MockMvcRequestBuilders
+                    .put(uri+taskId+"/manager/"+managerId)
+                    .header("Accept-Language", testedLocale.toString())
+                    .header("Authorization", otherManagerToken)
+                    .content(requestContent)
+                    .contentType(MediaType.APPLICATION_JSON);
+
+            String expectedMessage = messages.get("exception.access.denied");
+
+            mockMvc.perform(request)
+                    .andDo(print())
+                    .andExpect(status().isForbidden())
+                    .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(jsonPath("$.message").value(is(expectedMessage)))
+                    .andExpect(jsonPath("$.error").value(is("Forbidden")))
+                    .andExpect(jsonPath("$.status").value(403))
+                    .andExpect(jsonPath("$.timestamp").exists());
+        }
+
     }
 
 

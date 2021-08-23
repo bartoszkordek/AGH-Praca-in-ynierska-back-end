@@ -227,7 +227,7 @@ public class CreateTaskControllerIntegrationTest {
 
     @ParameterizedTest
     @EnumSource(TestCountry.class)
-    void shouldCreateTask_whenValidRequestWithOptionalParams(TestCountry country) throws Exception {
+    void shouldCreateTask_whenValidRequestWithOptionalParamsAndAdminToken(TestCountry country) throws Exception {
         Map<String, String> messages = getMessagesAccordingToLocale(country);
         Locale testedLocale = convertEnumToLocale(country);
 
@@ -235,7 +235,7 @@ public class CreateTaskControllerIntegrationTest {
 
         HttpHeaders headers = new HttpHeaders();
         headers.set("Accept-Language", testedLocale.toString());
-        headers.set("Authorization", managerToken);
+        headers.set("Authorization", adminToken);
         headers.setContentType(MediaType.APPLICATION_JSON);
 
         HttpEntity<Object> request = new HttpEntity<>(requestContentWithOptionalParams, headers);

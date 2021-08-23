@@ -75,6 +75,7 @@ public class UpdateTaskControllerIntegrationTest {
     private String employeeId1;
     private String employeeId2;
     private String managerId;
+    private String otherManagerId;
     private String adminId;
     private String userToken;
     private String employeeToken;
@@ -176,6 +177,17 @@ public class UpdateTaskControllerIntegrationTest {
         managerDocument.setGymRoles(List.of(GymRole.MANAGER));
 
         mongoTemplate.save(managerDocument);
+
+        otherManagerId = UUID.randomUUID().toString();
+        String otherManagerName = "Adam";
+        String otherManagerSurname = "Nowak";
+        UserDocument otherManagerDocument = new UserDocument();
+        otherManagerDocument.setName(otherManagerName);
+        otherManagerDocument.setSurname(otherManagerSurname);
+        otherManagerDocument.setUserId(otherManagerId);
+        otherManagerDocument.setGymRoles(List.of(GymRole.MANAGER));
+
+        mongoTemplate.save(otherManagerDocument);
 
         TaskDocument taskDocument = new TaskDocument();
         taskDocument.setTaskId(taskId);
@@ -398,7 +410,6 @@ public class UpdateTaskControllerIntegrationTest {
             Map<String, String> messages = getMessagesAccordingToLocale(country);
             Locale testedLocale = convertEnumToLocale(country);
 
-            String otherManagerId = UUID.randomUUID().toString();
             String otherManagerToken = tokenFactory.getMangerToken(otherManagerId);
 
             URI uri = new URI("http://localhost:" + port + "/" + taskId + "/manager/" + managerId);

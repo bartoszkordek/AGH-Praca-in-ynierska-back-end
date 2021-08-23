@@ -12,10 +12,10 @@ import java.util.List;
 
 public interface TaskService {
 
-    TaskDTO createTask(ManagerTaskCreationRequest managerTaskCreationRequest)
+    TaskDTO createTask(String managerId, ManagerTaskCreationRequest managerTaskCreationRequest)
             throws ManagerNotFoundException, EmployeeNotFoundException, RetroDueDateException, InvalidPriorityException;
 
-    TaskDTO updateTask(String taskId, ManagerTaskCreationRequest managerTaskCreationRequest)
+    TaskDTO updateTask(String taskId, String managerId, ManagerTaskCreationRequest managerTaskCreationRequest)
             throws TaskNotFoundException, ManagerNotFoundException, EmployeeNotFoundException, RetroDueDateException, InvalidPriorityException;
 
     TaskDTO deleteTask(String taskId) throws TaskNotFoundException;

@@ -75,6 +75,7 @@ public class UpdateTaskControllerIntegrationTest {
     private String employeeId1;
     private String employeeId2;
     private String managerId;
+    private String otherManagerId;
     private String adminId;
     private String userToken;
     private String employeeToken;
@@ -177,6 +178,17 @@ public class UpdateTaskControllerIntegrationTest {
 
         mongoTemplate.save(managerDocument);
 
+        otherManagerId = UUID.randomUUID().toString();
+        String otherManagerName = "Adam";
+        String otherManagerSurname = "Nowak";
+        UserDocument otherManagerDocument = new UserDocument();
+        otherManagerDocument.setName(otherManagerName);
+        otherManagerDocument.setSurname(otherManagerSurname);
+        otherManagerDocument.setUserId(otherManagerId);
+        otherManagerDocument.setGymRoles(List.of(GymRole.MANAGER));
+
+        mongoTemplate.save(otherManagerDocument);
+
         TaskDocument taskDocument = new TaskDocument();
         taskDocument.setTaskId(taskId);
         taskDocument.setManager(managerDocument);
@@ -204,7 +216,7 @@ public class UpdateTaskControllerIntegrationTest {
         Map<String, String> messages = getMessagesAccordingToLocale(country);
         Locale testedLocale = convertEnumToLocale(country);
 
-        URI uri = new URI("http://localhost:" + port +"/" + taskId);
+        URI uri = new URI("http://localhost:" + port +"/" + taskId + "/manager/" + managerId);
 
         HttpHeaders headers = new HttpHeaders();
         headers.set("Accept-Language", testedLocale.toString());
@@ -260,7 +272,7 @@ public class UpdateTaskControllerIntegrationTest {
         Map<String, String> messages = getMessagesAccordingToLocale(country);
         Locale testedLocale = convertEnumToLocale(country);
 
-        URI uri = new URI("http://localhost:" + port +"/" + taskId);
+        URI uri = new URI("http://localhost:" + port +"/" + taskId + "/manager/" + managerId);
 
         HttpHeaders headers = new HttpHeaders();
         headers.set("Accept-Language", testedLocale.toString());
@@ -320,7 +332,7 @@ public class UpdateTaskControllerIntegrationTest {
         void shouldNotUpdateTaskWhenNoToken(TestCountry country) throws Exception {
             Locale testedLocale = convertEnumToLocale(country);
 
-            URI uri = new URI("http://localhost:" + port + "/" + taskId);
+            URI uri = new URI("http://localhost:" + port + "/" + taskId + "/manager/" + managerId);
 
             HttpHeaders headers = new HttpHeaders();
             headers.set("Accept-Language", testedLocale.toString());
@@ -344,7 +356,7 @@ public class UpdateTaskControllerIntegrationTest {
             Map<String, String> messages = getMessagesAccordingToLocale(country);
             Locale testedLocale = convertEnumToLocale(country);
 
-            URI uri = new URI("http://localhost:" + port + "/" + taskId);
+            URI uri = new URI("http://localhost:" + port + "/" + taskId + "/manager/" + managerId);
 
             HttpHeaders headers = new HttpHeaders();
             headers.set("Accept-Language", testedLocale.toString());
@@ -371,11 +383,40 @@ public class UpdateTaskControllerIntegrationTest {
             Map<String, String> messages = getMessagesAccordingToLocale(country);
             Locale testedLocale = convertEnumToLocale(country);
 
-            URI uri = new URI("http://localhost:" + port + "/" + taskId);
+            URI uri = new URI("http://localhost:" + port + "/" + taskId + "/manager/" + managerId);
 
             HttpHeaders headers = new HttpHeaders();
             headers.set("Accept-Language", testedLocale.toString());
             headers.set("Authorization", employeeToken);
+            headers.setContentType(MediaType.APPLICATION_JSON);
+
+            HttpEntity<Object> request = new HttpEntity<>(requestContent, headers);
+
+            ResponseEntity<JsonNode> responseEntity = restTemplate
+                    .exchange(uri, HttpMethod.PUT, request, JsonNode.class);
+
+            String expectedMessage = messages.get("exception.access.denied");
+
+            assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
+            assertThat(responseEntity.getBody().get("status").intValue()).isEqualTo(403);
+            assertThat(responseEntity.getBody().get("error").textValue()).isEqualTo("Forbidden");
+            assertThat(responseEntity.getBody().get("message").textValue()).isEqualTo(expectedMessage);
+            assertThat(responseEntity.getBody().get("timestamp")).isNotNull();
+        }
+
+        @ParameterizedTest
+        @EnumSource(TestCountry.class)
+        void shouldNotUpdateTaskWhenLoggedAsOtherManager(TestCountry country) throws Exception {
+            Map<String, String> messages = getMessagesAccordingToLocale(country);
+            Locale testedLocale = convertEnumToLocale(country);
+
+            String otherManagerToken = tokenFactory.getMangerToken(otherManagerId);
+
+            URI uri = new URI("http://localhost:" + port + "/" + taskId + "/manager/" + managerId);
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.set("Accept-Language", testedLocale.toString());
+            headers.set("Authorization", otherManagerToken);
             headers.setContentType(MediaType.APPLICATION_JSON);
 
             HttpEntity<Object> request = new HttpEntity<>(requestContent, headers);
@@ -409,7 +450,7 @@ public class UpdateTaskControllerIntegrationTest {
 
         String invalidEmployeeRequestContent = objectMapper.writeValueAsString(invalidEmployeeManagerTaskCreationRequest);
 
-        URI uri = new URI("http://localhost:" + port + "/" + invalidTaskId);
+        URI uri = new URI("http://localhost:" + port + "/" + invalidTaskId + "/manager/" + managerId);
 
         HttpHeaders headers = new HttpHeaders();
         headers.set("Accept-Language", testedLocale.toString());
@@ -445,7 +486,7 @@ public class UpdateTaskControllerIntegrationTest {
 
         String invalidEmployeeRequestContent = objectMapper.writeValueAsString(invalidEmployeeManagerTaskCreationRequest);
 
-        URI uri = new URI("http://localhost:" + port + "/" + taskId);
+        URI uri = new URI("http://localhost:" + port + "/" + taskId + "/manager/" + managerId);
 
         HttpHeaders headers = new HttpHeaders();
         headers.set("Accept-Language", testedLocale.toString());
@@ -479,7 +520,7 @@ public class UpdateTaskControllerIntegrationTest {
 
         String invalidDueDateRequestContent = objectMapper.writeValueAsString(invalidDueDateManagerTaskCreationRequest);
 
-        URI uri = new URI("http://localhost:" + port + "/" + taskId);
+        URI uri = new URI("http://localhost:" + port + "/" + taskId + "/manager/" + managerId);
 
         HttpHeaders headers = new HttpHeaders();
         headers.set("Accept-Language", testedLocale.toString());
@@ -514,7 +555,7 @@ public class UpdateTaskControllerIntegrationTest {
 
         String invalidDueDateRequestContent = objectMapper.writeValueAsString(invalidPriorityManagerTaskCreationRequest);
 
-        URI uri = new URI("http://localhost:" + port + "/" + taskId);
+        URI uri = new URI("http://localhost:" + port + "/" + taskId + "/manager/" + managerId);
 
         HttpHeaders headers = new HttpHeaders();
         headers.set("Accept-Language", testedLocale.toString());

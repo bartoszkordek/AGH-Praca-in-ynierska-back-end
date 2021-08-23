@@ -58,10 +58,10 @@ public class TaskServiceImpl implements TaskService{
 
 
     @Override
-    public TaskDTO createTask(ManagerTaskCreationRequest managerTaskCreationRequest) throws ManagerNotFoundException,
+    public TaskDTO createTask(String managerId, ManagerTaskCreationRequest managerTaskCreationRequest) throws ManagerNotFoundException,
             EmployeeNotFoundException, RetroDueDateException, InvalidPriorityException {
 
-        UserDocument managerDocument = getManagerDocument();
+        UserDocument managerDocument = getManagerDocument(managerId);
 
         String employeeId = managerTaskCreationRequest.getEmployeeId();
         UserDocument employeeDocument = getEmployeeOrTrainerDocument(employeeId);
@@ -96,12 +96,13 @@ public class TaskServiceImpl implements TaskService{
     }
 
     @Override
-    public TaskDTO updateTask(String taskId, ManagerTaskCreationRequest managerTaskCreationRequest)
+    public TaskDTO updateTask(String taskId, String managerId, ManagerTaskCreationRequest managerTaskCreationRequest)
             throws TaskNotFoundException, ManagerNotFoundException, EmployeeNotFoundException, RetroDueDateException, InvalidPriorityException {
 
         TaskDocument taskDocumentToBeUpdated = getTaskDocument(taskId);
 
-        checkManagerDocument();
+        UserDocument managerDocument = getManagerDocument(managerId);
+        taskDocumentToBeUpdated.setManager(managerDocument);
 
         String requestEmployeeId = managerTaskCreationRequest.getEmployeeId();
         if(requestEmployeeId != null){
@@ -319,9 +320,11 @@ public class TaskServiceImpl implements TaskService{
         return taskDocument;
     }
 
-    private UserDocument getManagerDocument() throws ManagerNotFoundException {
-        UserDocument managerDocument = userDAO.findByGymRolesContaining(managerRole);
+    private UserDocument getManagerDocument(String userId) throws ManagerNotFoundException {
+        UserDocument managerDocument = userDAO.findByUserId(userId);
         if(managerDocument == null) throw new ManagerNotFoundException();
+        if(!managerDocument.getGymRoles().contains(managerRole))
+            throw new ManagerNotFoundException();
         return managerDocument;
     }
 
@@ -345,11 +348,6 @@ public class TaskServiceImpl implements TaskService{
                 taskDocument.setPriority(Priority.LOW);
         }
         return taskDocument;
-    }
-
-    private void checkManagerDocument() throws ManagerNotFoundException {
-        UserDocument managerDocument = userDAO.findByGymRolesContaining(managerRole);
-        if(managerDocument == null) throw new ManagerNotFoundException();
     }
 
     private void checkEmployeeOrTrainerDocument(String userId) throws EmployeeNotFoundException {

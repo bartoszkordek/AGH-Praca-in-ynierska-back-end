@@ -140,12 +140,12 @@ public class UpdateTaskServiceUnitTest {
 
         //when
         when(taskDAO.findByTaskId(taskId)).thenReturn(taskDocumentToUpdate);
-        when(userDAO.findByGymRolesContaining(GymRole.MANAGER)).thenReturn(managerDocument);
+        when(userDAO.findByUserId(managerId)).thenReturn(managerDocument);
         when(userDAO.findByUserId(employeeIdUpdated)).thenReturn(employeeDocumentUpdated);
         when(taskDAO.save(any())).thenReturn(taskDocumentUpdated);
 
         //then
-        assertThat(taskService.updateTask(taskId, managerTaskCreationRequest)).isEqualTo(taskResponse);
+        assertThat(taskService.updateTask(taskId, managerId, managerTaskCreationRequest)).isEqualTo(taskResponse);
     }
 
     @Test
@@ -164,7 +164,7 @@ public class UpdateTaskServiceUnitTest {
 
         //then
         assertThatThrownBy(() ->
-                taskService.updateTask(notFoundTaskId, managerTaskCreationRequest)
+                taskService.updateTask(managerId, notFoundTaskId, managerTaskCreationRequest)
         ).isInstanceOf(TaskNotFoundException.class);
     }
 
@@ -183,11 +183,11 @@ public class UpdateTaskServiceUnitTest {
 
         //when
         when(taskDAO.findByTaskId(taskIdToRequest)).thenReturn(taskDocumentToUpdate);
-        when(userDAO.findByGymRolesContaining(GymRole.MANAGER)).thenReturn(null);
+        when(userDAO.findByUserId(managerId)).thenReturn(null);
 
         //then
         assertThatThrownBy(() ->
-                taskService.updateTask(taskIdToRequest, managerTaskCreationRequest)
+                taskService.updateTask(taskIdToRequest, managerId, managerTaskCreationRequest)
         ).isInstanceOf(ManagerNotFoundException.class);
     }
 
@@ -218,12 +218,11 @@ public class UpdateTaskServiceUnitTest {
 
         //when
         when(taskDAO.findByTaskId(taskIdToRequest)).thenReturn(taskDocumentToUpdate);
-        when(userDAO.findByGymRolesContaining(GymRole.MANAGER)).thenReturn(managerDocument);
-        when(userDAO.findByUserId(employeeIdUpdated)).thenReturn(null);
+        when(userDAO.findByUserId(managerId)).thenReturn(managerDocument);
 
         //then
         assertThatThrownBy(() ->
-                taskService.updateTask(taskIdToRequest, managerTaskCreationRequest)
+                taskService.updateTask(taskIdToRequest, managerId, managerTaskCreationRequest)
         ).isInstanceOf(EmployeeNotFoundException.class);
     }
 
@@ -263,12 +262,12 @@ public class UpdateTaskServiceUnitTest {
 
         //when
         when(taskDAO.findByTaskId(taskId)).thenReturn(taskDocumentToUpdate);
-        when(userDAO.findByGymRolesContaining(GymRole.MANAGER)).thenReturn(managerDocument);
+        when(userDAO.findByUserId(managerId)).thenReturn(managerDocument);
         when(userDAO.findByUserId(employeeId)).thenReturn(notEmployeeDocument);
 
         //then
         assertThatThrownBy(() ->
-                taskService.updateTask(taskId, managerTaskCreationRequest)
+                taskService.updateTask(taskId, managerId, managerTaskCreationRequest)
         ).isInstanceOf(EmployeeNotFoundException.class);
     }
 
@@ -307,12 +306,12 @@ public class UpdateTaskServiceUnitTest {
 
         //when
         when(taskDAO.findByTaskId(taskId)).thenReturn(taskDocumentToUpdate);
-        when(userDAO.findByGymRolesContaining(GymRole.MANAGER)).thenReturn(managerDocument);
+        when(userDAO.findByUserId(managerId)).thenReturn(managerDocument);
         when(userDAO.findByUserId(employeeId)).thenReturn(employeeDocument);
 
         //then
         assertThatThrownBy(() ->
-                taskService.updateTask(taskId, managerTaskCreationRequest)
+                taskService.updateTask(taskId, managerId, managerTaskCreationRequest)
         ).isInstanceOf(RetroDueDateException.class);
     }
 
@@ -352,12 +351,12 @@ public class UpdateTaskServiceUnitTest {
 
         //when
         when(taskDAO.findByTaskId(taskId)).thenReturn(taskDocumentToUpdate);
-        when(userDAO.findByGymRolesContaining(GymRole.MANAGER)).thenReturn(managerDocument);
+        when(userDAO.findByUserId(managerId)).thenReturn(managerDocument);
         when(userDAO.findByUserId(employeeId)).thenReturn(employeeDocument);
 
         //then
         assertThatThrownBy(() ->
-                taskService.updateTask(taskId, managerTaskCreationRequest)
+                taskService.updateTask(taskId, managerId, managerTaskCreationRequest)
         ).isInstanceOf(InvalidPriorityException.class);
     }
 }

@@ -60,6 +60,11 @@ public class UpdateTaskControllerUnitTest {
     @MockBean
     private TaskService taskService;
 
+    private String userId;
+    private String employeeId;
+    private String managerId;
+    private String adminId;
+
     private String managerToken;
     private String adminToken;
     private String userToken;
@@ -79,16 +84,16 @@ public class UpdateTaskControllerUnitTest {
 
     @BeforeEach
     void setUp() throws JsonProcessingException, URISyntaxException {
-        String userId = UUID.randomUUID().toString();
+        userId = UUID.randomUUID().toString();
         userToken = tokenFactory.getUserToken(userId);
 
-        String employeeId = UUID.randomUUID().toString();
+        employeeId = UUID.randomUUID().toString();
         employeeToken = tokenFactory.getUserToken(employeeId);
 
-        String managerId = UUID.randomUUID().toString();
+        managerId = UUID.randomUUID().toString();
         managerToken = tokenFactory.getMangerToken(managerId);
 
-        String adminId = UUID.randomUUID().toString();
+        adminId = UUID.randomUUID().toString();
         adminToken = tokenFactory.getAdminToken(adminId);
 
         taskId = UUID.randomUUID().toString();
@@ -116,14 +121,13 @@ public class UpdateTaskControllerUnitTest {
         Locale testedLocale = convertEnumToLocale(country);
 
         RequestBuilder request = MockMvcRequestBuilders
-                .put(uri+taskId)
+                .put(uri+taskId+"/manager/"+managerId)
                 .header("Accept-Language", testedLocale.toString())
                 .header("Authorization", managerToken)
                 .content(requestContent)
                 .contentType(MediaType.APPLICATION_JSON);
 
         var now = LocalDate.now();
-        String managerId = UUID.randomUUID().toString();
         String managerName = "Martin";
         String managerSurname = "Manager";
         BasicUserInfoDTO manager = new BasicUserInfoDTO(managerId, managerName, managerSurname);
@@ -158,7 +162,7 @@ public class UpdateTaskControllerUnitTest {
                 null
         );
 
-        when(taskService.updateTask(taskId, managerTaskCreationRequest))
+        when(taskService.updateTask(taskId, managerId, managerTaskCreationRequest))
                 .thenReturn(taskResponse);
 
         String expectedMessage = messages.get("task.updated");
@@ -203,7 +207,7 @@ public class UpdateTaskControllerUnitTest {
             Locale testedLocale = convertEnumToLocale(country);
 
             RequestBuilder request = MockMvcRequestBuilders
-                    .put(uri+taskId)
+                    .put(uri+taskId+"/manager/"+managerId)
                     .header("Accept-Language", testedLocale.toString());
 
             mockMvc.perform(request)
@@ -218,7 +222,7 @@ public class UpdateTaskControllerUnitTest {
             Locale testedLocale = convertEnumToLocale(country);
 
             RequestBuilder request = MockMvcRequestBuilders
-                    .put(uri+taskId)
+                    .put(uri+taskId+"/manager/"+managerId)
                     .header("Accept-Language", testedLocale.toString())
                     .header("Authorization", userToken)
                     .content(requestContent)
@@ -243,9 +247,38 @@ public class UpdateTaskControllerUnitTest {
             Locale testedLocale = convertEnumToLocale(country);
 
             RequestBuilder request = MockMvcRequestBuilders
-                    .put(uri+taskId)
+                    .put(uri+taskId+"/manager/"+managerId)
                     .header("Accept-Language", testedLocale.toString())
                     .header("Authorization", employeeToken)
+                    .content(requestContent)
+                    .contentType(MediaType.APPLICATION_JSON);
+
+            String expectedMessage = messages.get("exception.access.denied");
+
+            mockMvc.perform(request)
+                    .andDo(print())
+                    .andExpect(status().isForbidden())
+                    .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(jsonPath("$.message").value(is(expectedMessage)))
+                    .andExpect(jsonPath("$.error").value(is("Forbidden")))
+                    .andExpect(jsonPath("$.status").value(403))
+                    .andExpect(jsonPath("$.timestamp").exists());
+        }
+
+
+        @ParameterizedTest
+        @EnumSource(TestCountry.class)
+        void whenUserIsNotLogInAsOtherManager(TestCountry country) throws Exception {
+            Map<String, String> messages = getMessagesAccordingToLocale(country);
+            Locale testedLocale = convertEnumToLocale(country);
+
+            String otherManagerId = UUID.randomUUID().toString();
+            String otherManagerToken = tokenFactory.getMangerToken(otherManagerId);
+
+            RequestBuilder request = MockMvcRequestBuilders
+                    .put(uri+taskId+"/manager/"+managerId)
+                    .header("Accept-Language", testedLocale.toString())
+                    .header("Authorization", otherManagerToken)
                     .content(requestContent)
                     .contentType(MediaType.APPLICATION_JSON);
 
@@ -276,7 +309,7 @@ public class UpdateTaskControllerUnitTest {
             String notExistingTaskId = UUID.randomUUID().toString();
 
             RequestBuilder request = MockMvcRequestBuilders
-                    .put(uri+notExistingTaskId)
+                    .put(uri+notExistingTaskId+"/manager/"+managerId)
                     .header("Accept-Language", testedLocale.toString())
                     .header("Authorization", adminToken)
                     .content(requestContent)
@@ -287,7 +320,7 @@ public class UpdateTaskControllerUnitTest {
 
             doThrow(TaskNotFoundException.class)
                     .when(taskService)
-                    .updateTask(any(),any());
+                    .updateTask(any(), any(),any());
 
             mockMvc.perform(request)
                     .andDo(print())
@@ -319,7 +352,7 @@ public class UpdateTaskControllerUnitTest {
             String invalidTitleRequestContent = objectMapper.writeValueAsString(invalidManagerTaskCreationRequest);
 
             RequestBuilder request = MockMvcRequestBuilders
-                    .put(uri+taskId)
+                    .put(uri+taskId+"/manager/"+managerId)
                     .header("Accept-Language", testedLocale.toString())
                     .header("Authorization", managerToken)
                     .content(invalidTitleRequestContent)
@@ -361,7 +394,7 @@ public class UpdateTaskControllerUnitTest {
             String invalidTitleRequestContent = objectMapper.writeValueAsString(invalidManagerTaskCreationRequest);
 
             RequestBuilder request = MockMvcRequestBuilders
-                    .put(uri+taskId)
+                    .put(uri+taskId+"/manager/"+managerId)
                     .header("Accept-Language", testedLocale.toString())
                     .header("Authorization", managerToken)
                     .content(invalidTitleRequestContent)
@@ -391,7 +424,7 @@ public class UpdateTaskControllerUnitTest {
             Locale testedLocale = convertEnumToLocale(country);
 
             RequestBuilder request = MockMvcRequestBuilders
-                    .put(uri+taskId)
+                    .put(uri+taskId+"/manager/"+managerId)
                     .header("Accept-Language", testedLocale.toString())
                     .header("Authorization", adminToken)
                     .content(requestContent)
@@ -402,7 +435,7 @@ public class UpdateTaskControllerUnitTest {
 
             doThrow(ManagerNotFoundException.class)
                     .when(taskService)
-                    .updateTask(any(),any());
+                    .updateTask(any(), any(), any());
 
             mockMvc.perform(request)
                     .andDo(print())
@@ -421,7 +454,7 @@ public class UpdateTaskControllerUnitTest {
             Locale testedLocale = convertEnumToLocale(country);
 
             RequestBuilder request = MockMvcRequestBuilders
-                    .put(uri+taskId)
+                    .put(uri+taskId+"/manager/"+managerId)
                     .header("Accept-Language", testedLocale.toString())
                     .header("Authorization", adminToken)
                     .content(requestContent)
@@ -432,7 +465,7 @@ public class UpdateTaskControllerUnitTest {
 
             doThrow(EmployeeNotFoundException.class)
                     .when(taskService)
-                    .updateTask(any(),any());
+                    .updateTask(any(), any(), any());
 
             mockMvc.perform(request)
                     .andDo(print())
@@ -452,7 +485,7 @@ public class UpdateTaskControllerUnitTest {
             Locale testedLocale = convertEnumToLocale(country);
 
             RequestBuilder request = MockMvcRequestBuilders
-                    .put(uri+taskId)
+                    .put(uri+taskId+"/manager/"+managerId)
                     .header("Accept-Language", testedLocale.toString())
                     .header("Authorization", adminToken)
                     .content(requestContent)
@@ -463,7 +496,7 @@ public class UpdateTaskControllerUnitTest {
 
             doThrow(RetroDueDateException.class)
                     .when(taskService)
-                    .updateTask(any(),any());
+                    .updateTask(any(), any(), any());
 
             mockMvc.perform(request)
                     .andDo(print())
@@ -483,7 +516,7 @@ public class UpdateTaskControllerUnitTest {
             Locale testedLocale = convertEnumToLocale(country);
 
             RequestBuilder request = MockMvcRequestBuilders
-                    .put(uri+taskId)
+                    .put(uri+taskId+"/manager/"+managerId)
                     .header("Accept-Language", testedLocale.toString())
                     .header("Authorization", adminToken)
                     .content(requestContent)
@@ -494,7 +527,7 @@ public class UpdateTaskControllerUnitTest {
 
             doThrow(InvalidPriorityException.class)
                     .when(taskService)
-                    .updateTask(any(),any());
+                    .updateTask(any(), any(), any());
 
             mockMvc.perform(request)
                     .andDo(print())
@@ -514,7 +547,7 @@ public class UpdateTaskControllerUnitTest {
             Locale testedLocale = convertEnumToLocale(country);
 
             RequestBuilder request = MockMvcRequestBuilders
-                    .put(uri+taskId)
+                    .put(uri+taskId+"/manager/"+managerId)
                     .header("Accept-Language", testedLocale.toString())
                     .header("Authorization", managerToken)
                     .content(requestContent)
@@ -522,7 +555,7 @@ public class UpdateTaskControllerUnitTest {
 
             doThrow(IllegalStateException.class)
                     .when(taskService)
-                    .updateTask(any(),any());
+                    .updateTask(any(), any(), any());
 
             String expectedMessage = messages.get("exception.internal.error");
 

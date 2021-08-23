@@ -55,9 +55,10 @@ public class TaskController {
     }
 
 
-    @PreAuthorize("hasRole('ADMIN') or hasRole('MANAGER')")
-    @PostMapping
+    @PreAuthorize("hasRole('ADMIN') or (hasRole('MANAGER') and principal==#userId)")
+    @PostMapping("/manager/{userId}")
     public ResponseEntity<TaskResponse> createTask(
+            @PathVariable("userId") @ValidIDFormat final String userId,
             @Valid @RequestBody final ManagerTaskCreationRequest request,
             final BindingResult bindingResult
     ) throws RequestBindException {
@@ -67,7 +68,7 @@ public class TaskController {
 
             String message = translator.toLocale("task.created");
 
-            TaskDTO taskDTO = taskService.createTask(request);
+            TaskDTO taskDTO = taskService.createTask(userId, request);
 
             return ResponseEntity
                     .status(HttpStatus.CREATED)
@@ -100,10 +101,11 @@ public class TaskController {
         }
     }
 
-    @PreAuthorize("hasRole('ADMIN') or hasRole('MANAGER')")
-    @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN') or (hasRole('MANAGER') and principal==#userId)")
+    @PutMapping("/{taskId}/manager/{userId}")
     public ResponseEntity<TaskResponse> updateTask(
-            @PathVariable("id") @ValidIDFormat final String id,
+            @PathVariable("taskId") @ValidIDFormat final String taskId,
+            @PathVariable("userId") @ValidIDFormat final String userId,
             @Valid @RequestBody final ManagerTaskCreationRequest request,
             final BindingResult bindingResult
     ) throws RequestBindException {
@@ -113,7 +115,7 @@ public class TaskController {
 
             String message = translator.toLocale("task.updated");
 
-            TaskDTO taskDTO = taskService.updateTask(id, request);
+            TaskDTO taskDTO = taskService.updateTask(taskId, userId, request);
 
             return ResponseEntity
                     .status(HttpStatus.OK)

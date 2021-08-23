@@ -44,7 +44,11 @@ public class Messages {
                 {"avatar.not.found.exception", "Nie znaleziono zdjęcie profilowe."},
                 {"avatar.get.found", "Zdjęcie profilowe znalezione."},
                 {"avatar.removed", "Zdjęcie profilowe zostało usunięte."},
-                {"notification.removed", "Usunięto powiadomienie."}
+                {"notification.removed", "Usunięto powiadomienie."},
+                {"exception.no.user.found", "Nie znaleziono żadnego użytkownika w systemie."},
+                {"exception.no.trainer.found", "W systemie nie znaleziono żadnego trenera."},
+                {"exception.no.employee.found", "W systemie nie znaleziono żadnego pracownika."},
+                {"exception.no.manager.found", "W systemie nie znaleziono żadnego menedżera."}
         }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
     }
 
@@ -87,7 +91,11 @@ public class Messages {
                 {"avatar.not.found.exception", "Profile picture not found."},
                 {"avatar.get.found", "Profile picture found successfully."},
                 {"avatar.removed", "Profile picture removed successfully."},
-                {"notification.removed", "The notification has been removed."}
+                {"notification.removed", "The notification has been removed."},
+                {"exception.no.user.found", "No user was found in the system."},
+                {"exception.no.trainer.found", "No trainer was found in the system."},
+                {"exception.no.employee.found","No employee was found in the system."},
+                {"exception.no.manager.found","No manager was found in the system."}
         }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
     }
 

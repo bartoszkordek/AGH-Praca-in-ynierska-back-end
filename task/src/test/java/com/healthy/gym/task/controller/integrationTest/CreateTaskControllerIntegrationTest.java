@@ -364,6 +364,36 @@ public class CreateTaskControllerIntegrationTest {
             assertThat(responseEntity.getBody().get("message").textValue()).isEqualTo(expectedMessage);
             assertThat(responseEntity.getBody().get("timestamp")).isNotNull();
         }
+
+        @ParameterizedTest
+        @EnumSource(TestCountry.class)
+        void shouldNotCreateTaskWhenLoggedAsOtherManager(TestCountry country) throws Exception {
+            Map<String, String> messages = getMessagesAccordingToLocale(country);
+            Locale testedLocale = convertEnumToLocale(country);
+
+            String otherManagerId = UUID.randomUUID().toString();
+            String otherManagerToken = tokenFactory.getMangerToken(otherManagerId);
+
+            URI uri = new URI("http://localhost:" + port +"/manager/" + managerId);
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.set("Accept-Language", testedLocale.toString());
+            headers.set("Authorization", otherManagerToken);
+            headers.setContentType(MediaType.APPLICATION_JSON);
+
+            HttpEntity<Object> request = new HttpEntity<>(requestContent, headers);
+
+            ResponseEntity<JsonNode> responseEntity = restTemplate
+                    .exchange(uri, HttpMethod.POST, request, JsonNode.class);
+
+            String expectedMessage = messages.get("exception.access.denied");
+
+            assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
+            assertThat(responseEntity.getBody().get("status").intValue()).isEqualTo(403);
+            assertThat(responseEntity.getBody().get("error").textValue()).isEqualTo("Forbidden");
+            assertThat(responseEntity.getBody().get("message").textValue()).isEqualTo(expectedMessage);
+            assertThat(responseEntity.getBody().get("timestamp")).isNotNull();
+        }
     }
 
     @ParameterizedTest

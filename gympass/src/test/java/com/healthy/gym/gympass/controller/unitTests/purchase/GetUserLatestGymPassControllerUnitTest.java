@@ -5,9 +5,11 @@ import com.healthy.gym.gympass.configuration.TestRoleTokenFactory;
 import com.healthy.gym.gympass.controller.purchase.EmployeePurchaseController;
 import com.healthy.gym.gympass.dto.PurchasedUserGymPassDTO;
 import com.healthy.gym.gympass.dto.SimpleGymPassDTO;
+import com.healthy.gym.gympass.exception.UserNotFoundException;
 import com.healthy.gym.gympass.service.PurchaseService;
 import com.healthy.gym.gympass.shared.Price;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,14 +25,13 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 import static com.healthy.gym.gympass.configuration.LocaleConverter.convertEnumToLocale;
 import static com.healthy.gym.gympass.configuration.Messages.getMessagesAccordingToLocale;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.is;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.ResultMatcher.matchAll;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -135,5 +136,37 @@ public class GetUserLatestGymPassControllerUnitTest {
                         jsonPath("$.suspensionDate").doesNotExist()
 
                 ));
+    }
+
+    @Nested
+    class ShouldNotGetLatestGymPass {
+
+        @ParameterizedTest
+        @EnumSource(TestCountry.class)
+        void shouldNotGetLatestGymPasseWhenInvalidUserId(TestCountry country) throws Exception {
+            Map<String, String> messages = getMessagesAccordingToLocale(country);
+            Locale testedLocale = convertEnumToLocale(country);
+
+            RequestBuilder request = MockMvcRequestBuilders
+                    .get(uri + invalidUserId+"/latest")
+                    .header("Accept-Language", testedLocale.toString())
+                    .header("Authorization", adminToken)
+                    .contentType(MediaType.APPLICATION_JSON);
+
+            String expectedMessage = messages.get("exception.user.not.found");
+
+            doThrow(UserNotFoundException.class)
+                    .when(purchaseService)
+                    .getUserLatestGympass(invalidUserId);
+
+            mockMvc.perform(request)
+                    .andDo(print())
+                    .andExpect(status().isBadRequest())
+                    .andExpect(status().reason(is(expectedMessage)))
+                    .andExpect(result ->
+                            assertThat(Objects.requireNonNull(result.getResolvedException()).getCause())
+                                    .isInstanceOf(UserNotFoundException.class)
+                    );
+        }
     }
 }

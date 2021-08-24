@@ -5,6 +5,7 @@ import com.healthy.gym.gympass.configuration.TestRoleTokenFactory;
 import com.healthy.gym.gympass.controller.purchase.EmployeePurchaseController;
 import com.healthy.gym.gympass.dto.PurchasedUserGymPassDTO;
 import com.healthy.gym.gympass.dto.SimpleGymPassDTO;
+import com.healthy.gym.gympass.exception.NoGymPassesException;
 import com.healthy.gym.gympass.exception.UserNotFoundException;
 import com.healthy.gym.gympass.service.PurchaseService;
 import com.healthy.gym.gympass.shared.Price;
@@ -168,5 +169,36 @@ public class GetUserLatestGymPassControllerUnitTest {
                                     .isInstanceOf(UserNotFoundException.class)
                     );
         }
+
+        @ParameterizedTest
+        @EnumSource(TestCountry.class)
+        void shouldNotGetLatestGymPassWhenNoneExists(TestCountry country) throws Exception {
+            Map<String, String> messages = getMessagesAccordingToLocale(country);
+            Locale testedLocale = convertEnumToLocale(country);
+
+            String userIdWithNoGymPass = UUID.randomUUID().toString();
+
+            RequestBuilder request = MockMvcRequestBuilders
+                    .get(uri+userIdWithNoGymPass+"/latest")
+                    .header("Accept-Language", testedLocale.toString())
+                    .header("Authorization", employeeToken)
+                    .contentType(MediaType.APPLICATION_JSON);
+
+            String expectedMessage = messages.get("exception.no.gympasses");
+
+            doThrow(NoGymPassesException.class)
+                    .when(purchaseService)
+                    .getUserLatestGympass(userIdWithNoGymPass);
+
+            mockMvc.perform(request)
+                    .andDo(print())
+                    .andExpect(status().isNoContent())
+                    .andExpect(status().reason(is(expectedMessage)))
+                    .andExpect(result ->
+                            assertThat(Objects.requireNonNull(result.getResolvedException()).getCause())
+                                    .isInstanceOf(NoGymPassesException.class)
+                    );
+        }
+
     }
 }

@@ -57,6 +57,7 @@ public class GetUserGymPassesControllerUnitTest {
     private String adminToken;
     private String managerToken;
     private String employeeToken;
+    private String userToken;
     private String otherUserToken;
     private String validUserId;
     private String invalidUserId;
@@ -77,6 +78,8 @@ public class GetUserGymPassesControllerUnitTest {
         otherUserToken = tokenFactory.getUserToken(otherUserId);
 
         validUserId = UUID.randomUUID().toString();
+        userToken = tokenFactory.getUserToken(validUserId);
+
         invalidUserId = UUID.randomUUID().toString();
 
         uri = new URI("/purchase/user/");
@@ -95,6 +98,97 @@ public class GetUserGymPassesControllerUnitTest {
                     .get(uri+validUserId)
                     .header("Accept-Language", testedLocale.toString())
                     .header("Authorization", managerToken)
+                    .contentType(MediaType.APPLICATION_JSON);
+
+            String purchasedGymPassDocumentId1 = UUID.randomUUID().toString();
+            String purchasedGymPassDocumentId2 = UUID.randomUUID().toString();
+            String gymPassOfferId1 = UUID.randomUUID().toString();
+            String gymPassOfferId2 = UUID.randomUUID().toString();
+            String title1 = "Karnet miesięczny";
+            String title2 = "Karnet kwartalny";
+            double amount1 = 139.99;
+            double amount2 = 399.99;
+            String currency = "zł";
+            String period1 = "miesiąc";
+            String period2 = "kwartał";
+            Price price1 = new Price(amount1, currency, period1);
+            Price price2 = new Price(amount2, currency, period2);
+            boolean isPremium = false;
+            SimpleGymPassDTO gymPassOffer1 = new SimpleGymPassDTO(gymPassOfferId1, title1, price1, isPremium);
+            SimpleGymPassDTO gymPassOffer2 = new SimpleGymPassDTO(gymPassOfferId2, title2, price2, isPremium);
+            LocalDateTime purchaseDateTime = LocalDateTime.now();
+            LocalDate startDate = LocalDate.now();
+            LocalDate endDate1 = LocalDate.now().plusMonths(1);
+            LocalDate endDate2 = LocalDate.now().plusMonths(3);
+            int entries = Integer.MAX_VALUE;
+            LocalDate suspensionDate2 = LocalDate.now().plusDays(5);
+
+            PurchasedUserGymPassDTO purchasedUserGymPassDTO1 = new PurchasedUserGymPassDTO(
+                    purchasedGymPassDocumentId1,
+                    gymPassOffer1,
+                    purchaseDateTime,
+                    startDate,
+                    endDate1,
+                    entries,
+                    null
+            );
+
+            PurchasedUserGymPassDTO purchasedUserGymPassDTO2 = new PurchasedUserGymPassDTO(
+                    purchasedGymPassDocumentId2,
+                    gymPassOffer2,
+                    purchaseDateTime,
+                    startDate,
+                    endDate2,
+                    entries,
+                    suspensionDate2
+            );
+
+            List<PurchasedUserGymPassDTO> purchasedUserGymPassDTOs = List.of(
+                    purchasedUserGymPassDTO1, purchasedUserGymPassDTO2
+            );
+
+            when(purchaseService.getUserGymPasses(validUserId, null, null))
+                    .thenReturn(purchasedUserGymPassDTOs);
+
+            mockMvc.perform(request)
+                    .andDo(print())
+                    .andExpect(matchAll(
+                            status().isOk(),
+                            content().contentType(MediaType.APPLICATION_JSON),
+                            jsonPath("$.[0].purchasedGymPassDocumentId").value(is(purchasedGymPassDocumentId1)),
+                            jsonPath("$.[0].gymPassOffer.title").value(is(title1)),
+                            jsonPath("$.[0].gymPassOffer.price.amount").value(is(amount1)),
+                            jsonPath("$.[0].gymPassOffer.price.currency").value(is(currency)),
+                            jsonPath("$.[0].gymPassOffer.premium").value(is(false)),
+                            jsonPath("$.[0].purchaseDateTime").isNotEmpty(),
+                            jsonPath("$.[0].startDate").value(is(startDate.toString())),
+                            jsonPath("$.[0].endDate").value(is(endDate1.toString())),
+                            jsonPath("$.[0].entries").value(is(entries)),
+                            jsonPath("$.[0].suspensionDate").doesNotExist(),
+                            jsonPath("$.[1].purchasedGymPassDocumentId").value(is(purchasedGymPassDocumentId2)),
+                            jsonPath("$.[1].gymPassOffer.title").value(is(title2)),
+                            jsonPath("$.[1].gymPassOffer.price.amount").value(is(amount2)),
+                            jsonPath("$.[1].gymPassOffer.price.currency").value(is(currency)),
+                            jsonPath("$.[1].gymPassOffer.premium").value(is(false)),
+                            jsonPath("$.[1].purchaseDateTime").isNotEmpty(),
+                            jsonPath("$.[1].startDate").value(is(startDate.toString())),
+                            jsonPath("$.[1].endDate").value(is(endDate2.toString())),
+                            jsonPath("$.[1].entries").value(is(entries)),
+                            jsonPath("$.[1].suspensionDate").value(is(suspensionDate2.toString()))
+
+                    ));
+        }
+
+        @ParameterizedTest
+        @EnumSource(TestCountry.class)
+        void shouldGetGymPassesWhenValidUserIdAndGymPassesExistAndLoggedAsSpecificUser(TestCountry country) throws Exception {
+            Map<String, String> messages = getMessagesAccordingToLocale(country);
+            Locale testedLocale = convertEnumToLocale(country);
+
+            RequestBuilder request = MockMvcRequestBuilders
+                    .get(uri+validUserId)
+                    .header("Accept-Language", testedLocale.toString())
+                    .header("Authorization", userToken)
                     .contentType(MediaType.APPLICATION_JSON);
 
             String purchasedGymPassDocumentId1 = UUID.randomUUID().toString();

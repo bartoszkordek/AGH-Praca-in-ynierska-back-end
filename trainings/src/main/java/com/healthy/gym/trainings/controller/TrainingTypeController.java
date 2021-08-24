@@ -5,13 +5,13 @@ import com.healthy.gym.trainings.component.MultipartFileValidator;
 import com.healthy.gym.trainings.component.Translator;
 import com.healthy.gym.trainings.data.document.ImageDocument;
 import com.healthy.gym.trainings.data.document.TrainingTypeDocument;
+import com.healthy.gym.trainings.dto.ImageDTO;
 import com.healthy.gym.trainings.exception.DuplicatedTrainingTypeException;
 import com.healthy.gym.trainings.exception.MultipartBodyException;
 import com.healthy.gym.trainings.exception.notfound.TrainingTypeNotFoundException;
 import com.healthy.gym.trainings.model.request.TrainingTypeRequest;
 import com.healthy.gym.trainings.model.response.TrainingTypeResponse;
 import com.healthy.gym.trainings.service.TrainingTypeService;
-import com.healthy.gym.trainings.dto.ImageDTO;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +31,9 @@ import java.util.List;
 @RestController
 @RequestMapping("/trainingType")
 public class TrainingTypeController {
+
+    private static final String EXCEPTION_INTERNAL_ERROR = "exception.internal.error";
+    private static final String EXCEPTION_NOT_FOUND_TRAINING_TYPE = "exception.not.found.training.type";
 
     private final TrainingTypeService trainingTypeService;
     private final Translator translator;
@@ -101,7 +104,7 @@ public class TrainingTypeController {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, exception);
 
         } catch (Exception exception) {
-            String reason = translator.toLocale("exception.internal.error");
+            String reason = translator.toLocale(EXCEPTION_INTERNAL_ERROR);
             exception.printStackTrace();
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, reason, exception);
         }
@@ -135,11 +138,11 @@ public class TrainingTypeController {
                     .body(trainingTypeResponse);
 
         } catch (TrainingTypeNotFoundException exception) {
-            String reason = translator.toLocale("exception.not.found.training.type");
+            String reason = translator.toLocale(EXCEPTION_NOT_FOUND_TRAINING_TYPE);
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, reason, exception);
 
         } catch (Exception exception) {
-            String reason = translator.toLocale("exception.internal.error");
+            String reason = translator.toLocale(EXCEPTION_INTERNAL_ERROR);
             exception.printStackTrace();
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, reason, exception);
         }
@@ -161,7 +164,7 @@ public class TrainingTypeController {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, reason, exception);
 
         } catch (Exception exception) {
-            String reason = translator.toLocale("exception.internal.error");
+            String reason = translator.toLocale(EXCEPTION_INTERNAL_ERROR);
             exception.printStackTrace();
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, reason, exception);
         }
@@ -226,7 +229,7 @@ public class TrainingTypeController {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, exception);
 
         } catch (TrainingTypeNotFoundException exception) {
-            String reason = translator.toLocale("exception.not.found.training.type");
+            String reason = translator.toLocale(EXCEPTION_NOT_FOUND_TRAINING_TYPE);
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, reason, exception);
 
         } catch (DuplicatedTrainingTypeException exception) {
@@ -234,7 +237,7 @@ public class TrainingTypeController {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, exception);
 
         } catch (Exception exception) {
-            String reason = translator.toLocale("exception.internal.error");
+            String reason = translator.toLocale(EXCEPTION_INTERNAL_ERROR);
             exception.printStackTrace();
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, reason, exception);
         }
@@ -258,11 +261,11 @@ public class TrainingTypeController {
                     .contentType(MediaType.APPLICATION_JSON).body(trainingTypeResponse);
 
         } catch (TrainingTypeNotFoundException exception) {
-            String reason = translator.toLocale("exception.not.found.training.type");
+            String reason = translator.toLocale(EXCEPTION_NOT_FOUND_TRAINING_TYPE);
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, reason, exception);
 
         } catch (Exception exception) {
-            String reason = translator.toLocale("exception.internal.error");
+            String reason = translator.toLocale(EXCEPTION_INTERNAL_ERROR);
             exception.printStackTrace();
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, reason, exception);
         }

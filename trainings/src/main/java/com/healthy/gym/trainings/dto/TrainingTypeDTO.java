@@ -1,8 +1,10 @@
 package com.healthy.gym.trainings.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import java.time.LocalTime;
 import java.util.Objects;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -11,14 +13,17 @@ public class TrainingTypeDTO {
     private String trainingTypeId;
     private String name;
     private String description;
-    private String duration;
+
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "HH:mm:ss")
+    private LocalTime duration;
+
     @JsonProperty("image")
     private String imageUrl;
 
     public TrainingTypeDTO() {
     }
 
-    public TrainingTypeDTO(String trainingTypeId, String name, String description, String duration, String imageUrl) {
+    public TrainingTypeDTO(String trainingTypeId, String name, String description, LocalTime duration, String imageUrl) {
         this.trainingTypeId = trainingTypeId;
         this.name = name;
         this.description = description;
@@ -50,11 +55,11 @@ public class TrainingTypeDTO {
         this.description = description;
     }
 
-    public String getDuration() {
+    public LocalTime getDuration() {
         return duration;
     }
 
-    public void setDuration(String duration) {
+    public void setDuration(LocalTime duration) {
         this.duration = duration;
     }
 

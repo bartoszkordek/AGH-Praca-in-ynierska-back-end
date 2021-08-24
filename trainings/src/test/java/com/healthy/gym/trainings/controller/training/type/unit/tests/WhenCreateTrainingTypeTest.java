@@ -28,6 +28,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import javax.activation.UnsupportedDataTypeException;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
+import java.time.LocalTime;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
@@ -142,7 +143,7 @@ class WhenCreateTrainingTypeTest {
                     UUID.randomUUID().toString(),
                     "Test name",
                     "Test description",
-                    "02:30:00.000",
+                    LocalTime.parse("02:30:00.000"),
                     "http://localhost:8020/trainings/trainingType/image/imageurl"
             );
 
@@ -189,7 +190,7 @@ class WhenCreateTrainingTypeTest {
                     UUID.randomUUID().toString(),
                     "Test name",
                     "Test description",
-                    "02:30:00.000",
+                    LocalTime.parse("02:30:00.000"),
                     "http://localhost:8020/trainings/trainingType/image/imageurl"
             );
 

@@ -54,6 +54,7 @@ public class TrainingTypeServiceImpl implements TrainingTypeService {
         if (trainingTypeDAO.existsByName(name)) throw new DuplicatedTrainingTypeException();
         ImageDocument savedImageDocument = null;
         String imageUrl = null;
+        String trainingTypeId = UUID.randomUUID().toString();
         if (multipartFile != null) {
             try {
                 ImageDocument imageDocument = new ImageDocument(
@@ -62,14 +63,14 @@ public class TrainingTypeServiceImpl implements TrainingTypeService {
                         multipartFile.getContentType()
                 );
                 savedImageDocument = imageDAO.save(imageDocument);
-                imageUrl = imageUrlCreator.createImageUrl(savedImageDocument.getImageId());
-                imageUrl+="?version="+ DigestUtils.md5DigestAsHex(multipartFile.getBytes());
+                imageUrl = imageUrlCreator.createImageUrl(trainingTypeId);
+                imageUrl += "?version=" + DigestUtils.md5DigestAsHex(multipartFile.getBytes());
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
         TrainingTypeDocument trainingTypeDocument = new TrainingTypeDocument(
-                UUID.randomUUID().toString(),
+                trainingTypeId,
                 name,
                 trainingTypeRequest.getDescription(),
                 getDuration(trainingTypeRequest),

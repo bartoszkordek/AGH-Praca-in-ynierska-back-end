@@ -219,20 +219,15 @@ public class TrainingTypeController {
 
     @PreAuthorize("hasRole('ADMIN') or hasRole('MANAGER')")
     @DeleteMapping("/{trainingTypeId}")
-    public ResponseEntity<TrainingTypeResponse> removeTrainingTypeById(@PathVariable final String trainingTypeId) {
+    public ResponseEntity<TrainingTypeDTOResponse> removeTrainingTypeById(@PathVariable final String trainingTypeId) {
         try {
-            TrainingTypeDocument trainingTypeDocument = trainingTypeService.removeTrainingTypeById(trainingTypeId);
-            TrainingTypeResponse trainingTypeResponse =
-                    modelMapper.map(trainingTypeDocument, TrainingTypeResponse.class);
-
+            TrainingTypeDTO trainingTypeDTO = trainingTypeService.removeTrainingTypeById(trainingTypeId);
             String message = translator.toLocale("training.type.removed");
-            trainingTypeResponse.setMessage(message);
 
-            ImageDTO imageDTO = getImageDTO(trainingTypeDocument);
-            trainingTypeResponse.setImageDTO(imageDTO);
-
-            return ResponseEntity.status(HttpStatus.OK)
-                    .contentType(MediaType.APPLICATION_JSON).body(trainingTypeResponse);
+            return ResponseEntity
+                    .status(HttpStatus.OK)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(new TrainingTypeDTOResponse(message, trainingTypeDTO));
 
         } catch (TrainingTypeNotFoundException exception) {
             String reason = translator.toLocale(EXCEPTION_NOT_FOUND_TRAINING_TYPE);

@@ -3,7 +3,7 @@ package com.healthy.gym.trainings.controller.training.type.unit.tests;
 import com.healthy.gym.trainings.configuration.TestCountry;
 import com.healthy.gym.trainings.configuration.TestRoleTokenFactory;
 import com.healthy.gym.trainings.controller.TrainingTypeController;
-import com.healthy.gym.trainings.data.document.TrainingTypeDocument;
+import com.healthy.gym.trainings.dto.TrainingTypeDTO;
 import com.healthy.gym.trainings.exception.notfound.TrainingTypeNotFoundException;
 import com.healthy.gym.trainings.service.TrainingTypeService;
 import org.junit.jupiter.api.BeforeEach;
@@ -24,6 +24,7 @@ import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 
 import static com.healthy.gym.trainings.configuration.LocaleConverter.convertEnumToLocale;
@@ -74,7 +75,7 @@ class WhenRemoveTrainingTypeByIdTest {
 
         String trainingTypeId = UUID.randomUUID().toString();
 
-        TrainingTypeDocument trainingTypeDocument = new TrainingTypeDocument(
+        TrainingTypeDTO trainingTypeDocument = new TrainingTypeDTO(
                 trainingTypeId,
                 "Test name",
                 "Test description",
@@ -105,10 +106,10 @@ class WhenRemoveTrainingTypeByIdTest {
                         jsonPath("$.message").value(is(expectedMessage)),
                         jsonPath("$.errors").doesNotHaveJsonPath(),
                         jsonPath("$.image").doesNotHaveJsonPath(),
-                        jsonPath("$.trainingTypeId").value(is(trainingTypeId)),
-                        jsonPath("$.name").value(is("Test name")),
-                        jsonPath("$.description").value(is("Test description")),
-                        jsonPath("$.duration").value(is("00:30:00.000"))
+                        jsonPath("$.trainingType.trainingTypeId").value(is(trainingTypeId)),
+                        jsonPath("$.trainingType.name").value(is("Test name")),
+                        jsonPath("$.trainingType.description").value(is("Test description")),
+                        jsonPath("$.trainingType.duration").value(is("00:30:00"))
                 ));
     }
 
@@ -141,7 +142,7 @@ class WhenRemoveTrainingTypeByIdTest {
                     .andExpect(status().isNotFound())
                     .andExpect(status().reason(is(expectedMessage)))
                     .andExpect(result ->
-                            assertThat(result.getResolvedException().getCause())
+                            assertThat(Objects.requireNonNull(result.getResolvedException()).getCause())
                                     .isInstanceOf(TrainingTypeNotFoundException.class)
                     );
         }
@@ -171,7 +172,7 @@ class WhenRemoveTrainingTypeByIdTest {
                     .andExpect(status().isInternalServerError())
                     .andExpect(status().reason(is(expectedMessage)))
                     .andExpect(result ->
-                            assertThat(result.getResolvedException().getCause())
+                            assertThat(Objects.requireNonNull(result.getResolvedException()).getCause())
                                     .isInstanceOf(IllegalStateException.class)
                     );
         }

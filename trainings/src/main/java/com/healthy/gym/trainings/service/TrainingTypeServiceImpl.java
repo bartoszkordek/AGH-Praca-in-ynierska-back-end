@@ -149,7 +149,7 @@ public class TrainingTypeServiceImpl implements TrainingTypeService {
     }
 
     @Override
-    public TrainingTypeDocument removeTrainingTypeById(String trainingId) throws TrainingTypeNotFoundException {
+    public TrainingTypeDTO removeTrainingTypeById(String trainingId) throws TrainingTypeNotFoundException {
         TrainingTypeDocument trainingTypeToRemove = trainingTypeDAO.findByTrainingTypeId(trainingId);
         if (trainingTypeToRemove == null) throw new TrainingTypeNotFoundException();
         trainingTypeDAO.deleteByTrainingTypeId(trainingId);
@@ -158,6 +158,6 @@ public class TrainingTypeServiceImpl implements TrainingTypeService {
             String imageId = imageDocument.getImageId();
             imageDAO.deleteByImageId(imageId);
         }
-        return trainingTypeToRemove;
+        return modelMapper.map(trainingTypeToRemove, TrainingTypeDTO.class);
     }
 }

@@ -2,7 +2,7 @@ package com.healthy.gym.gympass.controller.unitTests.purchase;
 
 import com.healthy.gym.gympass.configuration.TestCountry;
 import com.healthy.gym.gympass.configuration.TestRoleTokenFactory;
-import com.healthy.gym.gympass.controller.PurchaseController;
+import com.healthy.gym.gympass.controller.purchase.GeneralPurchaseController;
 import com.healthy.gym.gympass.dto.PurchasedGymPassStatusValidationResultDTO;
 import com.healthy.gym.gympass.exception.GymPassNotFoundException;
 import com.healthy.gym.gympass.service.PurchaseService;
@@ -39,7 +39,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
-@WebMvcTest(PurchaseController.class)
+@WebMvcTest(GeneralPurchaseController.class)
 @ActiveProfiles(value = "test")
 public class CheckGymPassValidityControllerUnitTest {
 
@@ -81,7 +81,7 @@ public class CheckGymPassValidityControllerUnitTest {
         notValidTimeValidPurchasedGymPassDocumentId = UUID.randomUUID().toString();
         notValidEntriesValidPurchasedGymPassDocumentId = UUID.randomUUID().toString();
 
-        uri = new URI("/purchase/status");
+        uri = new URI("/purchase/");
     }
 
     @Nested
@@ -96,7 +96,7 @@ public class CheckGymPassValidityControllerUnitTest {
             String endDate = LocalDateTime.now().minusDays(5).plusMonths(1).format(DateTimeFormatter.ISO_LOCAL_DATE);
 
             RequestBuilder request = MockMvcRequestBuilders
-                    .get(uri+"/"+validTimeValidPurchasedGymPassDocumentId)
+                    .get(uri+"/"+validTimeValidPurchasedGymPassDocumentId+"/status")
                     .header("Accept-Language", testedLocale.toString())
                     .header("Authorization", employeeToken)
                     .contentType(MediaType.APPLICATION_JSON);
@@ -134,7 +134,7 @@ public class CheckGymPassValidityControllerUnitTest {
             int entries = 5;
 
             RequestBuilder request = MockMvcRequestBuilders
-                    .get(uri+"/"+validEntriesValidPurchasedGymPassDocumentId)
+                    .get(uri+"/"+validEntriesValidPurchasedGymPassDocumentId+"/status")
                     .header("Accept-Language", testedLocale.toString())
                     .header("Authorization", managerToken)
                     .contentType(MediaType.APPLICATION_JSON);
@@ -171,7 +171,7 @@ public class CheckGymPassValidityControllerUnitTest {
             String endDate = LocalDateTime.now().minusDays(5).format(DateTimeFormatter.ISO_LOCAL_DATE);
 
             RequestBuilder request = MockMvcRequestBuilders
-                    .get(uri+"/"+notValidTimeValidPurchasedGymPassDocumentId)
+                    .get(uri+"/"+notValidTimeValidPurchasedGymPassDocumentId+"/status")
                     .header("Accept-Language", testedLocale.toString())
                     .header("Authorization", managerToken)
                     .contentType(MediaType.APPLICATION_JSON);
@@ -210,7 +210,7 @@ public class CheckGymPassValidityControllerUnitTest {
             int entries = 5;
 
             RequestBuilder request = MockMvcRequestBuilders
-                    .get(uri+"/"+notValidEntriesValidPurchasedGymPassDocumentId)
+                    .get(uri+"/"+notValidEntriesValidPurchasedGymPassDocumentId+"/status")
                     .header("Accept-Language", testedLocale.toString())
                     .header("Authorization", managerToken)
                     .contentType(MediaType.APPLICATION_JSON);
@@ -249,7 +249,7 @@ public class CheckGymPassValidityControllerUnitTest {
             int entries = 0;
 
             RequestBuilder request = MockMvcRequestBuilders
-                    .get(uri+"/"+notValidEntriesValidPurchasedGymPassDocumentId)
+                    .get(uri+"/"+notValidEntriesValidPurchasedGymPassDocumentId+"/status")
                     .header("Accept-Language", testedLocale.toString())
                     .header("Authorization", managerToken)
                     .contentType(MediaType.APPLICATION_JSON);
@@ -291,7 +291,7 @@ public class CheckGymPassValidityControllerUnitTest {
             String invalidGymPassDocumentId = UUID.randomUUID().toString();
 
             RequestBuilder request = MockMvcRequestBuilders
-                    .get(uri+"/"+invalidGymPassDocumentId)
+                    .get(uri+"/"+invalidGymPassDocumentId+"/status")
                     .header("Accept-Language", testedLocale.toString())
                     .header("Authorization", managerToken)
                     .contentType(MediaType.APPLICATION_JSON);
@@ -322,7 +322,7 @@ public class CheckGymPassValidityControllerUnitTest {
                 Locale testedLocale = convertEnumToLocale(country);
 
                 RequestBuilder request = MockMvcRequestBuilders
-                        .get(uri+"/"+validEntriesValidPurchasedGymPassDocumentId)
+                        .get(uri+"/"+validEntriesValidPurchasedGymPassDocumentId+"/status")
                         .header("Accept-Language", testedLocale.toString());
 
                 mockMvc.perform(request)
@@ -337,7 +337,7 @@ public class CheckGymPassValidityControllerUnitTest {
                 Locale testedLocale = convertEnumToLocale(country);
 
                 RequestBuilder request = MockMvcRequestBuilders
-                        .get(uri+"/"+validEntriesValidPurchasedGymPassDocumentId)
+                        .get(uri+"/"+validEntriesValidPurchasedGymPassDocumentId+"/status")
                         .header("Accept-Language", testedLocale.toString())
                         .header("Authorization", userToken)
                         .contentType(MediaType.APPLICATION_JSON);
@@ -366,7 +366,7 @@ public class CheckGymPassValidityControllerUnitTest {
             String id = UUID.randomUUID().toString();
 
             RequestBuilder request = MockMvcRequestBuilders
-                    .get(uri+"/"+id)
+                    .get(uri+"/"+id+"/status")
                     .header("Accept-Language", testedLocale.toString())
                     .header("Authorization", adminToken)
                     .contentType(MediaType.APPLICATION_JSON);

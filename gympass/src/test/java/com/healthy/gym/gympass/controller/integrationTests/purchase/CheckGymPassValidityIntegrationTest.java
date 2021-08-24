@@ -220,11 +220,44 @@ class CheckGymPassValidityIntegrationTest {
             Map<String, String> messages = getMessagesAccordingToLocale(country);
             Locale testedLocale = convertEnumToLocale(country);
 
-            URI uri = new URI("http://localhost:" + port + "/purchase/status/"+timeLimitedGymPassDocumentId);
+            URI uri = new URI("http://localhost:" + port + "/purchase/"+timeLimitedGymPassDocumentId +"/status");
 
             HttpHeaders headers = new HttpHeaders();
             headers.set("Accept-Language", testedLocale.toString());
             headers.set("Authorization", managerToken);
+            headers.setContentType(MediaType.APPLICATION_JSON);
+
+            HttpEntity<Object> request = new HttpEntity<>(null, headers);
+            String expectedMessage = messages.get("gympass.valid");
+
+            ResponseEntity<JsonNode> responseEntity = restTemplate
+                    .exchange(uri, HttpMethod.GET, request, JsonNode.class);
+
+            assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
+            assertThat(Objects.requireNonNull(responseEntity.getBody().get("message").textValue()))
+                    .isEqualTo(expectedMessage);
+            assertThat(responseEntity.getBody().get("result")).isNotNull();
+            assertThat(responseEntity.getBody().get("result").get("valid").asBoolean()).isTrue();
+            assertThat(responseEntity.getBody().get("result").get("endDate").textValue())
+                    .isEqualTo(LocalDate.now().minusDays(2).plusMonths(1).toString());
+            assertThat(responseEntity.getBody().get("result").get("entries").intValue())
+                    .isEqualTo(entriesTimeLimitedGymPass);
+            assertThat(responseEntity.getBody().get("result").get("suspensionDate"))
+                    .isNull();
+        }
+
+        @ParameterizedTest
+        @EnumSource(TestCountry.class)
+        void shouldReturnValidStatus_whenNotSuspendedTimeLimitedGympassAndValidEndDateAndLoggedAsUser(TestCountry country)
+                throws Exception {
+            Map<String, String> messages = getMessagesAccordingToLocale(country);
+            Locale testedLocale = convertEnumToLocale(country);
+
+            URI uri = new URI("http://localhost:" + port + "/purchase/"+timeLimitedGymPassDocumentId +"/status");
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.set("Accept-Language", testedLocale.toString());
+            headers.set("Authorization", userToken);
             headers.setContentType(MediaType.APPLICATION_JSON);
 
             HttpEntity<Object> request = new HttpEntity<>(null, headers);
@@ -253,8 +286,8 @@ class CheckGymPassValidityIntegrationTest {
             Map<String, String> messages = getMessagesAccordingToLocale(country);
             Locale testedLocale = convertEnumToLocale(country);
 
-            URI uri = new URI("http://localhost:" + port + "/purchase/status/"
-                    +alreadySuspendedPurchasedGymPassDocumentId);
+            URI uri = new URI("http://localhost:" + port + "/purchase/"
+                    +alreadySuspendedPurchasedGymPassDocumentId+"/status");
 
             HttpHeaders headers = new HttpHeaders();
             headers.set("Accept-Language", testedLocale.toString());
@@ -287,8 +320,8 @@ class CheckGymPassValidityIntegrationTest {
             Map<String, String> messages = getMessagesAccordingToLocale(country);
             Locale testedLocale = convertEnumToLocale(country);
 
-            URI uri = new URI("http://localhost:" + port + "/purchase/status/"
-                    +timeLimitedWithRetroDateGymPassDocumentId);
+            URI uri = new URI("http://localhost:" + port + "/purchase/"
+                    +timeLimitedWithRetroDateGymPassDocumentId+"/status");
 
             HttpHeaders headers = new HttpHeaders();
             headers.set("Accept-Language", testedLocale.toString());
@@ -322,8 +355,8 @@ class CheckGymPassValidityIntegrationTest {
             Map<String, String> messages = getMessagesAccordingToLocale(country);
             Locale testedLocale = convertEnumToLocale(country);
 
-            URI uri = new URI("http://localhost:" + port + "/purchase/status/"
-                    +entriesLimitedPurchasedGymPassDocumentId);
+            URI uri = new URI("http://localhost:" + port + "/purchase/"
+                    +entriesLimitedPurchasedGymPassDocumentId+"/status");
 
             HttpHeaders headers = new HttpHeaders();
             headers.set("Accept-Language", testedLocale.toString());
@@ -356,8 +389,8 @@ class CheckGymPassValidityIntegrationTest {
             Map<String, String> messages = getMessagesAccordingToLocale(country);
             Locale testedLocale = convertEnumToLocale(country);
 
-            URI uri = new URI("http://localhost:" + port + "/purchase/status/"
-                    +alreadySuspendedEntriesLimitedPurchasedGymPassDocumentId);
+            URI uri = new URI("http://localhost:" + port + "/purchase/"
+                    +alreadySuspendedEntriesLimitedPurchasedGymPassDocumentId+"/status");
 
             HttpHeaders headers = new HttpHeaders();
             headers.set("Accept-Language", testedLocale.toString());
@@ -397,7 +430,7 @@ class CheckGymPassValidityIntegrationTest {
 
             String invalidId = UUID.randomUUID().toString();
 
-            URI uri = new URI("http://localhost:" + port + "/purchase/status/" +invalidId);
+            URI uri = new URI("http://localhost:" + port + "/purchase/" +invalidId+"/status");
 
             HttpHeaders headers = new HttpHeaders();
             headers.set("Accept-Language", testedLocale.toString());
@@ -418,14 +451,14 @@ class CheckGymPassValidityIntegrationTest {
         }
 
         @Nested
-        class ShouldNotCheckGymPassValidationWhenNotAuthorized{
+        class ShouldNotCheckGymPassValidationWhenNotAuthorized {
 
             @ParameterizedTest
             @EnumSource(TestCountry.class)
             void shouldNotCheckGymPassValidationWhenNoToken(TestCountry country) throws Exception {
                 Locale testedLocale = convertEnumToLocale(country);
 
-                URI uri = new URI("http://localhost:" + port + "/purchase/status/"+timeLimitedGymPassDocumentId);
+                URI uri = new URI("http://localhost:" + port + "/purchase/" + timeLimitedGymPassDocumentId + "/status");
 
                 HttpHeaders headers = new HttpHeaders();
                 headers.set("Accept-Language", testedLocale.toString());
@@ -441,33 +474,6 @@ class CheckGymPassValidityIntegrationTest {
                 assertThat(responseEntity.getBody().get("status").intValue()).isEqualTo(403);
                 assertThat(responseEntity.getBody().get("error").textValue()).isEqualTo("Forbidden");
                 assertThat(responseEntity.getBody().get("message").textValue()).isEqualTo("Access Denied");
-                assertThat(responseEntity.getBody().get("timestamp")).isNotNull();
-            }
-
-            @ParameterizedTest
-            @EnumSource(TestCountry.class)
-            void shouldNotCheckGymPassValidationWhenLoggedAsUser(TestCountry country) throws Exception {
-                Map<String, String> messages = getMessagesAccordingToLocale(country);
-                Locale testedLocale = convertEnumToLocale(country);
-
-                URI uri = new URI("http://localhost:" + port + "/purchase/status/"+timeLimitedGymPassDocumentId);
-
-                HttpHeaders headers = new HttpHeaders();
-                headers.set("Accept-Language", testedLocale.toString());
-                headers.set("Authorization", userToken);
-                headers.setContentType(MediaType.APPLICATION_JSON);
-
-                HttpEntity<Object> request = new HttpEntity<>(null, headers);
-
-                ResponseEntity<JsonNode> responseEntity = restTemplate
-                        .exchange(uri, HttpMethod.GET, request, JsonNode.class);
-
-                String expectedMessage = messages.get("exception.access.denied");
-
-                assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
-                assertThat(responseEntity.getBody().get("status").intValue()).isEqualTo(403);
-                assertThat(responseEntity.getBody().get("error").textValue()).isEqualTo("Forbidden");
-                assertThat(responseEntity.getBody().get("message").textValue()).isEqualTo(expectedMessage);
                 assertThat(responseEntity.getBody().get("timestamp")).isNotNull();
             }
         }

@@ -2,7 +2,8 @@ package com.healthy.gym.gympass.controller.unitTests.purchase;
 
 import com.healthy.gym.gympass.configuration.TestCountry;
 import com.healthy.gym.gympass.configuration.TestRoleTokenFactory;
-import com.healthy.gym.gympass.controller.PurchaseController;
+import com.healthy.gym.gympass.controller.purchase.GeneralPurchaseController;
+import com.healthy.gym.gympass.controller.purchase.UserPurchaseController;
 import com.healthy.gym.gympass.dto.PurchasedUserGymPassDTO;
 import com.healthy.gym.gympass.dto.SimpleGymPassDTO;
 import com.healthy.gym.gympass.exception.NoGymPassesException;
@@ -40,7 +41,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
-@WebMvcTest(PurchaseController.class)
+@WebMvcTest(UserPurchaseController.class)
 @ActiveProfiles(value = "test")
 public class GetUserGymPassesControllerUnitTest {
 

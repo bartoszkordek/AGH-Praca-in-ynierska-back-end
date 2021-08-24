@@ -2,7 +2,7 @@ package com.healthy.gym.gympass.controller.unitTests.offer;
 
 import com.healthy.gym.gympass.configuration.TestCountry;
 import com.healthy.gym.gympass.configuration.TestRoleTokenFactory;
-import com.healthy.gym.gympass.controller.OfferController;
+import com.healthy.gym.gympass.controller.offer.OfferController;
 import com.healthy.gym.gympass.dto.GymPassDTO;
 import com.healthy.gym.gympass.exception.DuplicatedOffersException;
 import com.healthy.gym.gympass.pojo.request.GymPassOfferRequest;

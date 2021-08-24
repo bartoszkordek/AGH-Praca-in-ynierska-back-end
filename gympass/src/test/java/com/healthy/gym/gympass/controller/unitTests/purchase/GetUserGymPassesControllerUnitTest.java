@@ -91,7 +91,6 @@ public class GetUserGymPassesControllerUnitTest {
         @ParameterizedTest
         @EnumSource(TestCountry.class)
         void shouldGetGymPassesWhenValidUserIdAndGymPassesExist(TestCountry country) throws Exception {
-            Map<String, String> messages = getMessagesAccordingToLocale(country);
             Locale testedLocale = convertEnumToLocale(country);
 
             RequestBuilder request = MockMvcRequestBuilders
@@ -182,7 +181,6 @@ public class GetUserGymPassesControllerUnitTest {
         @ParameterizedTest
         @EnumSource(TestCountry.class)
         void shouldGetGymPassesWhenValidUserIdAndGymPassesExistAndLoggedAsSpecificUser(TestCountry country) throws Exception {
-            Map<String, String> messages = getMessagesAccordingToLocale(country);
             Locale testedLocale = convertEnumToLocale(country);
 
             RequestBuilder request = MockMvcRequestBuilders

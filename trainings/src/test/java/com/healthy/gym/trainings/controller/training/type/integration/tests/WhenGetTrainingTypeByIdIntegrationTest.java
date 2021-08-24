@@ -24,7 +24,6 @@ import org.springframework.http.*;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
-import org.springframework.test.context.TestPropertySource;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.MongoDBContainer;
 import org.testcontainers.junit.jupiter.Container;
@@ -66,8 +65,6 @@ class WhenGetTrainingTypeByIdIntegrationTest {
     private MongoTemplate mongoTemplate;
 
     private String trainingTypeId;
-    private TrainingTypeRequest trainingTypeRequest;
-    private Resource imageResource;
 
     @LocalServerPort
     private Integer port;
@@ -87,7 +84,7 @@ class WhenGetTrainingTypeByIdIntegrationTest {
         trainingTypeRequest.setDescription("Test description");
         trainingTypeRequest.setDuration("02:30:00.000");
 
-        imageResource = new ClassPathResource("testImages/shiba_inu_smile_1.jpg");
+        Resource imageResource = new ClassPathResource("testImages/shiba_inu_smile_1.jpg");
 
         ImageDocument imageDocument = new ImageDocument(
                 UUID.randomUUID().toString(),
@@ -102,7 +99,8 @@ class WhenGetTrainingTypeByIdIntegrationTest {
                 "Test name",
                 "Test description",
                 LocalTime.of(2, 30),
-                savedImageDocument
+                savedImageDocument,
+                "testUrl"
         );
 
         mongoTemplate.save(typeDocument);
@@ -132,16 +130,9 @@ class WhenGetTrainingTypeByIdIntegrationTest {
         return new HttpEntity<>(null, headers);
     }
 
-    private String getExpectedImageBase64() throws IOException {
-        File imageFile = imageResource.getFile();
-        FileInputStream inputStream = new FileInputStream(imageFile);
-        byte[] imageBytes = inputStream.readAllBytes();
-        Base64.Encoder encoder = Base64.getEncoder();
-        return encoder.encodeToString(imageBytes);
-    }
-
     @Nested
     class shouldAcceptRequestAndShouldResponseWithProperTrainingType {
+
         @ParameterizedTest
         @EnumSource(TestCountry.class)
         void shouldReturnResponseWithStatusOK(TestCountry country) throws URISyntaxException {
@@ -195,22 +186,15 @@ class WhenGetTrainingTypeByIdIntegrationTest {
         @EnumSource(TestCountry.class)
         void shouldReturnProperDuration(TestCountry country) throws URISyntaxException {
             ResponseEntity<JsonNode> responseEntity = getResponseEntity(country);
-            assertThat(responseEntity.getBody().get("duration").textValue()).isEqualTo("02:30:00.000");
+            assertThat(responseEntity.getBody().get("duration").textValue()).isEqualTo("02:30:00");
         }
 
         @ParameterizedTest
         @EnumSource(TestCountry.class)
-        void shouldReturnProperImageData(TestCountry country) throws URISyntaxException, IOException {
+        void shouldReturnProperImageData(TestCountry country) throws URISyntaxException {
             ResponseEntity<JsonNode> responseEntity = getResponseEntity(country);
-            assertThat(responseEntity.getBody().get("image").get("data").textValue())
-                    .isEqualTo(getExpectedImageBase64());
-        }
-
-        @ParameterizedTest
-        @EnumSource(TestCountry.class)
-        void shouldReturnProperImageFormat(TestCountry country) throws URISyntaxException {
-            ResponseEntity<JsonNode> responseEntity = getResponseEntity(country);
-            assertThat(responseEntity.getBody().get("image").get("format").textValue()).isEqualTo("image/jpeg");
+            assertThat(responseEntity.getBody().get("image").textValue())
+                    .isEqualTo("testUrl");
         }
 
         private ResponseEntity<JsonNode> getResponseEntity(TestCountry country) throws URISyntaxException {
@@ -226,7 +210,7 @@ class WhenGetTrainingTypeByIdIntegrationTest {
     }
 
     @Nested
-    class shouldAcceptRequestAndShouldResponseWithNotFoundTrainingType{
+    class shouldAcceptRequestAndShouldResponseWithNotFoundTrainingType {
 
         @ParameterizedTest
         @EnumSource(TestCountry.class)

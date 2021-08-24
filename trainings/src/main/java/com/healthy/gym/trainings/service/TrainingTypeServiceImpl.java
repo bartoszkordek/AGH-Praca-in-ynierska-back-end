@@ -99,10 +99,10 @@ public class TrainingTypeServiceImpl implements TrainingTypeService {
     }
 
     @Override
-    public TrainingTypeDocument getTrainingTypeById(String trainingTypeId) throws TrainingTypeNotFoundException {
+    public TrainingTypeDTO getTrainingTypeById(String trainingTypeId) throws TrainingTypeNotFoundException {
         TrainingTypeDocument trainingTypeDocument = trainingTypeDAO.findByTrainingTypeId(trainingTypeId);
         if (trainingTypeDocument == null) throw new TrainingTypeNotFoundException();
-        return trainingTypeDocument;
+        return modelMapper.map(trainingTypeDocument, TrainingTypeDTO.class);
     }
 
     @Override

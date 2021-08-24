@@ -117,20 +117,14 @@ public class TrainingTypeController {
     }
 
     @GetMapping("/{trainingTypeId}")
-    public ResponseEntity<TrainingTypeResponse> getTrainingTypeById(@PathVariable final String trainingTypeId) {
+    public ResponseEntity<TrainingTypeDTO> getTrainingTypeById(@PathVariable final String trainingTypeId) {
         try {
-            TrainingTypeDocument trainingTypeDocument = trainingTypeService.getTrainingTypeById(trainingTypeId);
-
-            TrainingTypeResponse trainingTypeResponse = modelMapper
-                    .map(trainingTypeDocument, TrainingTypeResponse.class);
-
-            ImageDTO imageDTO = getImageDTO(trainingTypeDocument);
-            trainingTypeResponse.setImageDTO(imageDTO);
+            TrainingTypeDTO trainingTypeDTO = trainingTypeService.getTrainingTypeById(trainingTypeId);
 
             return ResponseEntity
                     .status(HttpStatus.OK)
                     .contentType(MediaType.APPLICATION_JSON)
-                    .body(trainingTypeResponse);
+                    .body(trainingTypeDTO);
 
         } catch (TrainingTypeNotFoundException exception) {
             String reason = translator.toLocale(EXCEPTION_NOT_FOUND_TRAINING_TYPE);

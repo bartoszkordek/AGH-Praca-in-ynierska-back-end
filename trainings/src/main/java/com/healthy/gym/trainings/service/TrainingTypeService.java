@@ -16,7 +16,7 @@ public interface TrainingTypeService {
 
     List<TrainingTypeDTO> getAllTrainingTypes() throws TrainingTypeNotFoundException;
 
-    TrainingTypeDocument getTrainingTypeById(String trainingTypeId) throws TrainingTypeNotFoundException;
+    TrainingTypeDTO getTrainingTypeById(String trainingTypeId) throws TrainingTypeNotFoundException;
 
     TrainingTypeDocument updateTrainingTypeById(
             String trainingId, TrainingTypeRequest trainingTypeRequest, MultipartFile multipartFile

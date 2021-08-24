@@ -94,7 +94,7 @@ public class TrainingTypeDTO {
                 "trainingTypeId='" + trainingTypeId + '\'' +
                 ", name='" + name + '\'' +
                 ", description='" + description + '\'' +
-                ", duration='" + duration + '\'' +
+                ", duration=" + duration +
                 ", imageUrl='" + imageUrl + '\'' +
                 '}';
     }

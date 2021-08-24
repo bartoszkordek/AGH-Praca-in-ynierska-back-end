@@ -96,8 +96,9 @@ class WhenUpdateTrainingTypeByIdIntegrationTest {
         Resource imageResource = new ClassPathResource("testImages/shiba_inu_smile_1.jpg");
         updatedImageResource = new ClassPathResource("testImages/shiba_inu_smile_2.jpg");
 
+        String imageId = UUID.randomUUID().toString();
         ImageDocument imageDocument = new ImageDocument(
-                UUID.randomUUID().toString(),
+                imageId,
                 new Binary(getImageBytes(imageResource)),
                 MediaType.IMAGE_JPEG_VALUE
         );
@@ -120,8 +121,8 @@ class WhenUpdateTrainingTypeByIdIntegrationTest {
         trainingTypeRequest.setDuration("01:30:00.000");
         String digestUpdated = DigestUtils.md5DigestAsHex(getImageBytes(updatedImageResource));
         String digestCurrent = DigestUtils.md5DigestAsHex(getImageBytes(imageResource));
-        expectedUpdatedImageUrl = "http://localhost:8020/trainings/trainingType/image/" + trainingTypeId + "?version=" + digestUpdated;
-        expectedCurrentImageUrl = "http://localhost:8020/trainings/trainingType/image/" + trainingTypeId + "?version=" + digestCurrent;
+        expectedUpdatedImageUrl = "http://localhost:8020/trainings/trainingType/image/" + imageId + "?version=" + digestUpdated;
+        expectedCurrentImageUrl = "http://localhost:8020/trainings/trainingType/image/" + imageId + "?version=" + digestCurrent;
     }
 
     private byte[] getImageBytes(Resource imageResource) throws IOException {

@@ -2,6 +2,7 @@ package com.healthy.gym.trainings.service.training.type;
 
 import com.healthy.gym.trainings.data.document.TrainingTypeDocument;
 import com.healthy.gym.trainings.data.repository.TrainingTypeDAO;
+import com.healthy.gym.trainings.dto.TrainingTypeDTO;
 import com.healthy.gym.trainings.exception.notfound.TrainingTypeNotFoundException;
 import com.healthy.gym.trainings.service.TrainingTypeService;
 import com.healthy.gym.trainings.service.TrainingTypeServiceImpl;
@@ -52,6 +53,14 @@ class WhenGetTrainingTypeByIdTest {
     @Test
     void shouldReturnTrainingTypeById() throws TrainingTypeNotFoundException {
         when(trainingTypeDAO.findByTrainingTypeId(trainingTypeId)).thenReturn(trxDocument);
-        assertThat(trainingTypeService.getTrainingTypeById(trainingTypeId)).isEqualTo(trxDocument);
+        assertThat(trainingTypeService.getTrainingTypeById(trainingTypeId))
+                .isEqualTo(
+                        new TrainingTypeDTO(
+                                trainingTypeId,
+                                "TRX", "Test description",
+                                LocalTime.parse("00:30:00.000", DateTimeFormatter.ofPattern("HH:mm:ss.SSS")),
+                                null
+                        )
+                );
     }
 }

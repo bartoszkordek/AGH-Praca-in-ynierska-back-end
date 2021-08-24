@@ -64,7 +64,7 @@ public class TrainingTypeServiceImpl implements TrainingTypeService {
                         multipartFile.getContentType()
                 );
                 savedImageDocument = imageDAO.save(imageDocument);
-                imageUrl = imageUrlCreator.createImageUrl(trainingTypeId);
+                imageUrl = imageUrlCreator.createImageUrl(imageDocument.getImageId());
                 imageUrl += "?version=" + DigestUtils.md5DigestAsHex(multipartFile.getBytes());
             } catch (IOException e) {
                 e.printStackTrace();
@@ -140,7 +140,7 @@ public class TrainingTypeServiceImpl implements TrainingTypeService {
                 }
                 ImageDocument savedImageDocument = imageDAO.save(imageToUpdate);
                 trainingTypeDocumentFound.setImageDocument(savedImageDocument);
-                String imageUrl = imageUrlCreator.createImageUrl(trainingTypeId);
+                String imageUrl = imageUrlCreator.createImageUrl(savedImageDocument.getImageId());
                 imageUrl += "?version=" + DigestUtils.md5DigestAsHex(multipartFile.getBytes());
                 trainingTypeDocumentFound.setImageUrl(imageUrl);
             } catch (IOException e) {

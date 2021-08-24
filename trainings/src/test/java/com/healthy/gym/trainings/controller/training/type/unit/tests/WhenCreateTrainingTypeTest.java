@@ -165,7 +165,7 @@ class WhenCreateTrainingTypeTest {
                                     .value(is(trainingTypeDTO.getTrainingTypeId())),
                             jsonPath("$.trainingType.name").value(is("Test name")),
                             jsonPath("$.trainingType.description").value(is("Test description")),
-                            jsonPath("$.trainingType.duration").value(is("02:30:00.000")),
+                            jsonPath("$.trainingType.duration").value(is("02:30:00")),
                             jsonPath("$.trainingType.image")
                                     .value(is("http://localhost:8020/trainings/trainingType/image/imageurl"))
                     ));
@@ -212,7 +212,7 @@ class WhenCreateTrainingTypeTest {
                                     .value(is(trainingTypeDTO.getTrainingTypeId())),
                             jsonPath("$.trainingType.name").value(is("Test name")),
                             jsonPath("$.trainingType.description").value(is("Test description")),
-                            jsonPath("$.trainingType.duration").value(is("02:30:00.000")),
+                            jsonPath("$.trainingType.duration").value(is("02:30:00")),
                             jsonPath("$.trainingType.image")
                                     .value(is("http://localhost:8020/trainings/trainingType/image/imageurl"))
                     ));

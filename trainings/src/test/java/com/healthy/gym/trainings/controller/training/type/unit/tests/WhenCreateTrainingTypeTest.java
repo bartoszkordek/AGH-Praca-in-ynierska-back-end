@@ -5,12 +5,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.healthy.gym.trainings.configuration.TestCountry;
 import com.healthy.gym.trainings.configuration.TestRoleTokenFactory;
 import com.healthy.gym.trainings.controller.TrainingTypeController;
-import com.healthy.gym.trainings.data.document.ImageDocument;
-import com.healthy.gym.trainings.data.document.TrainingTypeDocument;
+import com.healthy.gym.trainings.dto.TrainingTypeDTO;
 import com.healthy.gym.trainings.exception.DuplicatedTrainingTypeException;
 import com.healthy.gym.trainings.model.request.TrainingTypeRequest;
 import com.healthy.gym.trainings.service.TrainingTypeService;
-import org.bson.types.Binary;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -24,16 +22,15 @@ import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.RequestBuilder;
+import org.springframework.test.web.servlet.ResultMatcher;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import javax.activation.UnsupportedDataTypeException;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
-import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
-import java.util.Base64;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 
 import static com.healthy.gym.trainings.configuration.LocaleConverter.convertEnumToLocale;
@@ -66,6 +63,8 @@ class WhenCreateTrainingTypeTest {
     private MockMultipartFile validFile;
     private MockMultipartFile validBody;
     private MockMultipartFile invalidBody;
+    private RequestBuilder request;
+    private String expectedMessage;
 
     @BeforeEach
     void setUp() throws JsonProcessingException {
@@ -131,7 +130,7 @@ class WhenCreateTrainingTypeTest {
 
             URI uri = new URI("/trainingType");
 
-            RequestBuilder request = MockMvcRequestBuilders
+            request = MockMvcRequestBuilders
                     .multipart(uri)
                     .file(validFile)
                     .file(validBody)
@@ -139,26 +138,20 @@ class WhenCreateTrainingTypeTest {
                     .header("Authorization", adminToken)
                     .contentType(MediaType.MULTIPART_FORM_DATA_VALUE);
 
-            ImageDocument imageDocument = new ImageDocument(
-                    UUID.randomUUID().toString(),
-                    new Binary(validBody.getBytes()),
-                    MediaType.IMAGE_JPEG_VALUE
-            );
-
-            TrainingTypeDocument trainingTypeDocument = new TrainingTypeDocument(
+            TrainingTypeDTO trainingTypeDTO = new TrainingTypeDTO(
                     UUID.randomUUID().toString(),
                     "Test name",
                     "Test description",
-                    LocalTime.parse("02:30:00.000", DateTimeFormatter.ofPattern("HH:mm:ss.SSS")),
-                    imageDocument
+                    "02:30:00.000",
+                    "http://localhost:8020/trainings/trainingType/image/imageurl"
             );
 
             when(trainingTypeService.createTrainingType(
                     ArgumentMatchers.any(TrainingTypeRequest.class),
                     ArgumentMatchers.any(MockMultipartFile.class)
-            )).thenReturn(trainingTypeDocument);
+            )).thenReturn(trainingTypeDTO);
 
-            String expectedMessage = messages.get("training.type.created");
+            expectedMessage = messages.get("training.type.created");
 
             mockMvc.perform(request)
                     .andDo(print())
@@ -167,20 +160,14 @@ class WhenCreateTrainingTypeTest {
                             content().contentType(MediaType.APPLICATION_JSON),
                             jsonPath("$.message").value(is(expectedMessage)),
                             jsonPath("$.errors").doesNotHaveJsonPath(),
-                            jsonPath("$.image.data").value(is(getExpectedImageBase64(imageDocument))),
-                            jsonPath("$.image.format").value(is(MediaType.IMAGE_JPEG_VALUE)),
-                            jsonPath("$.trainingTypeId")
-                                    .value(is(trainingTypeDocument.getTrainingTypeId())),
-                            jsonPath("$.name").value(is("Test name")),
-                            jsonPath("$.description").value(is("Test description")),
-                            jsonPath("$.duration").value(is("02:30:00.000"))
+                            jsonPath("$.trainingType.trainingTypeId")
+                                    .value(is(trainingTypeDTO.getTrainingTypeId())),
+                            jsonPath("$.trainingType.name").value(is("Test name")),
+                            jsonPath("$.trainingType.description").value(is("Test description")),
+                            jsonPath("$.trainingType.duration").value(is("02:30:00.000")),
+                            jsonPath("$.trainingType.image")
+                                    .value(is("http://localhost:8020/trainings/trainingType/image/imageurl"))
                     ));
-        }
-
-        private String getExpectedImageBase64(ImageDocument imageDocument) {
-            byte[] imageData = imageDocument.getImageData().getData();
-            return Base64.getEncoder()
-                    .encodeToString(imageData);
         }
 
         @ParameterizedTest
@@ -191,27 +178,27 @@ class WhenCreateTrainingTypeTest {
 
             URI uri = new URI("/trainingType");
 
-            RequestBuilder request = MockMvcRequestBuilders
+            request = MockMvcRequestBuilders
                     .multipart(uri)
                     .file(validBody)
                     .header("Accept-Language", testedLocale.toString())
                     .header("Authorization", adminToken)
                     .contentType(MediaType.MULTIPART_FORM_DATA_VALUE);
 
-            TrainingTypeDocument trainingTypeDocument = new TrainingTypeDocument(
+            TrainingTypeDTO trainingTypeDTO = new TrainingTypeDTO(
                     UUID.randomUUID().toString(),
                     "Test name",
                     "Test description",
-                    LocalTime.parse("02:30:00.000", DateTimeFormatter.ofPattern("HH:mm:ss.SSS")),
-                    null
+                    "02:30:00.000",
+                    "http://localhost:8020/trainings/trainingType/image/imageurl"
             );
 
             when(trainingTypeService.createTrainingType(
                     ArgumentMatchers.any(TrainingTypeRequest.class),
                     ArgumentMatchers.isNull()
-            )).thenReturn(trainingTypeDocument);
+            )).thenReturn(trainingTypeDTO);
 
-            String expectedMessage = messages.get("training.type.created");
+            expectedMessage = messages.get("training.type.created");
 
             mockMvc.perform(request)
                     .andDo(print())
@@ -220,12 +207,13 @@ class WhenCreateTrainingTypeTest {
                             content().contentType(MediaType.APPLICATION_JSON),
                             jsonPath("$.message").value(is(expectedMessage)),
                             jsonPath("$.errors").doesNotHaveJsonPath(),
-                            jsonPath("$.image").doesNotHaveJsonPath(),
-                            jsonPath("$.trainingTypeId")
-                                    .value(is(trainingTypeDocument.getTrainingTypeId())),
-                            jsonPath("$.name").value(is("Test name")),
-                            jsonPath("$.description").value(is("Test description")),
-                            jsonPath("$.duration").value(is("02:30:00.000"))
+                            jsonPath("$.trainingType.trainingTypeId")
+                                    .value(is(trainingTypeDTO.getTrainingTypeId())),
+                            jsonPath("$.trainingType.name").value(is("Test name")),
+                            jsonPath("$.trainingType.description").value(is("Test description")),
+                            jsonPath("$.trainingType.duration").value(is("02:30:00.000")),
+                            jsonPath("$.trainingType.image")
+                                    .value(is("http://localhost:8020/trainings/trainingType/image/imageurl"))
                     ));
         }
 
@@ -237,9 +225,9 @@ class WhenCreateTrainingTypeTest {
 
             URI uri = new URI("/trainingType");
 
-            String expectedMessage = messages.get("exception.unsupported.data.type");
+            expectedMessage = messages.get("exception.unsupported.data.type");
 
-            RequestBuilder request = MockMvcRequestBuilders
+            request = MockMvcRequestBuilders
                     .multipart(uri)
                     .file(invalidFile)
                     .file(validBody)
@@ -247,13 +235,20 @@ class WhenCreateTrainingTypeTest {
                     .header("Authorization", managerToken)
                     .contentType(MediaType.MULTIPART_FORM_DATA_VALUE);
 
+            performRequestAndTestErrorResponse(status().isBadRequest(), UnsupportedDataTypeException.class);
+        }
+
+        private void performRequestAndTestErrorResponse(
+                ResultMatcher matcher,
+                Class<? extends Exception> expectedException
+        ) throws Exception {
             mockMvc.perform(request)
                     .andDo(print())
-                    .andExpect(status().isBadRequest())
+                    .andExpect(matcher)
                     .andExpect(status().reason(is(expectedMessage)))
                     .andExpect(result ->
-                            assertThat(result.getResolvedException().getCause())
-                                    .isInstanceOf(UnsupportedDataTypeException.class)
+                            assertThat(Objects.requireNonNull(result.getResolvedException()).getCause())
+                                    .isInstanceOf(expectedException)
                     );
         }
 
@@ -273,7 +268,7 @@ class WhenCreateTrainingTypeTest {
                     .header("Authorization", managerToken)
                     .contentType(MediaType.MULTIPART_FORM_DATA_VALUE);
 
-            String expectedMessage = messages.get("exception.multipart.body");
+            expectedMessage = messages.get("exception.multipart.body");
 
             mockMvc.perform(request)
                     .andDo(print())
@@ -303,7 +298,7 @@ class WhenCreateTrainingTypeTest {
 
             URI uri = new URI("/trainingType");
 
-            RequestBuilder request = MockMvcRequestBuilders
+            request = MockMvcRequestBuilders
                     .multipart(uri)
                     .file(validFile)
                     .file(validBody)
@@ -318,16 +313,9 @@ class WhenCreateTrainingTypeTest {
                             ArgumentMatchers.any(MockMultipartFile.class)
                     );
 
-            String expectedMessage = messages.get("exception.duplicated.training.type");
+            expectedMessage = messages.get("exception.duplicated.training.type");
 
-            mockMvc.perform(request)
-                    .andDo(print())
-                    .andExpect(status().isBadRequest())
-                    .andExpect(status().reason(is(expectedMessage)))
-                    .andExpect(result ->
-                            assertThat(result.getResolvedException().getCause())
-                                    .isInstanceOf(DuplicatedTrainingTypeException.class)
-                    );
+            performRequestAndTestErrorResponse(status().isBadRequest(), DuplicatedTrainingTypeException.class);
         }
 
         @ParameterizedTest
@@ -339,7 +327,7 @@ class WhenCreateTrainingTypeTest {
 
             URI uri = new URI("/trainingType");
 
-            RequestBuilder request = MockMvcRequestBuilders
+            request = MockMvcRequestBuilders
                     .multipart(uri)
                     .file(validFile)
                     .file(validBody)
@@ -354,16 +342,8 @@ class WhenCreateTrainingTypeTest {
                             ArgumentMatchers.any(MockMultipartFile.class)
                     );
 
-            String expectedMessage = messages.get("exception.internal.error");
-
-            mockMvc.perform(request)
-                    .andDo(print())
-                    .andExpect(status().isInternalServerError())
-                    .andExpect(status().reason(is(expectedMessage)))
-                    .andExpect(result ->
-                            assertThat(result.getResolvedException().getCause())
-                                    .isInstanceOf(IllegalStateException.class)
-                    );
+            expectedMessage = messages.get("exception.internal.error");
+            performRequestAndTestErrorResponse(status().isInternalServerError(), IllegalStateException.class);
         }
     }
 

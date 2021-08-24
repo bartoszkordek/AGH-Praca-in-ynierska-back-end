@@ -6,10 +6,12 @@ import com.healthy.gym.trainings.component.Translator;
 import com.healthy.gym.trainings.data.document.ImageDocument;
 import com.healthy.gym.trainings.data.document.TrainingTypeDocument;
 import com.healthy.gym.trainings.dto.ImageDTO;
+import com.healthy.gym.trainings.dto.TrainingTypeDTO;
 import com.healthy.gym.trainings.exception.DuplicatedTrainingTypeException;
 import com.healthy.gym.trainings.exception.MultipartBodyException;
 import com.healthy.gym.trainings.exception.notfound.TrainingTypeNotFoundException;
 import com.healthy.gym.trainings.model.request.TrainingTypeRequest;
+import com.healthy.gym.trainings.model.response.TrainingTypeDTOResponse;
 import com.healthy.gym.trainings.model.response.TrainingTypeResponse;
 import com.healthy.gym.trainings.service.TrainingTypeService;
 import org.modelmapper.ModelMapper;
@@ -61,33 +63,27 @@ public class TrainingTypeController {
             consumes = {MediaType.MULTIPART_FORM_DATA_VALUE, MediaType.APPLICATION_JSON_VALUE},
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    public ResponseEntity<TrainingTypeResponse> createTrainingType(
+    public ResponseEntity<TrainingTypeDTOResponse> createTrainingType(
             @RequestPart(value = "body") TrainingTypeRequest trainingTypeRequest,
             @RequestPart(value = "image", required = false) MultipartFile multipartFile
     ) {
-        TrainingTypeResponse response = new TrainingTypeResponse();
+
         try {
             multipartFileValidator.validateBody(trainingTypeRequest);
             if (multipartFile != null) imageValidator.isFileSupported(multipartFile);
 
-            TrainingTypeDocument trainingTypeDocument =
+            TrainingTypeDTO trainingTypeDocument =
                     trainingTypeService.createTrainingType(trainingTypeRequest, multipartFile);
-
-            response = modelMapper.map(trainingTypeDocument, TrainingTypeResponse.class);
-
             String message = translator.toLocale("training.type.created");
-            response.setMessage(message);
-            ImageDTO imageDTO = getImageDTO(trainingTypeDocument);
-            response.setImageDTO(imageDTO);
 
             return ResponseEntity
                     .status(HttpStatus.CREATED)
                     .contentType(MediaType.APPLICATION_JSON)
-                    .body(response);
+                    .body(new TrainingTypeDTOResponse(message, trainingTypeDocument));
 
         } catch (MultipartBodyException exception) {
             String message = translator.toLocale("exception.multipart.body");
-            response.setMessage(message);
+            TrainingTypeDTOResponse response = new TrainingTypeDTOResponse(message, null);
             response.setErrors(exception.getErrorMap());
 
             return ResponseEntity

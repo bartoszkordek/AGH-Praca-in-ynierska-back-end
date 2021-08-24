@@ -26,7 +26,6 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
 import javax.activation.UnsupportedDataTypeException;
-import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
 
@@ -145,15 +144,14 @@ public class TrainingTypeController {
     }
 
     @GetMapping
-    public ResponseEntity<List<TrainingTypeResponse>> getAllTrainingTypes() {
+    public ResponseEntity<List<TrainingTypeDTO>> getAllTrainingTypes() {
         try {
-            List<TrainingTypeDocument> trainingTypes = trainingTypeService.getAllTrainingTypes();
-            List<TrainingTypeResponse> trainingTypeResponseList = mapTrainingDocumentToTrainingResponse(trainingTypes);
+            List<TrainingTypeDTO> trainingTypes = trainingTypeService.getAllTrainingTypes();
 
             return ResponseEntity
                     .status(HttpStatus.OK)
                     .contentType(MediaType.APPLICATION_JSON)
-                    .body(trainingTypeResponseList);
+                    .body(trainingTypes);
 
         } catch (TrainingTypeNotFoundException exception) {
             String reason = translator.toLocale("exception.not.found.training.type.all");
@@ -164,20 +162,6 @@ public class TrainingTypeController {
             exception.printStackTrace();
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, reason, exception);
         }
-    }
-
-    private List<TrainingTypeResponse> mapTrainingDocumentToTrainingResponse(List<TrainingTypeDocument> trainingTypes) {
-        List<TrainingTypeResponse> trainingTypeResponseList = new ArrayList<>();
-
-        for (TrainingTypeDocument trainingTypeDocument : trainingTypes) {
-            TrainingTypeResponse trainingTypeResponse = modelMapper
-                    .map(trainingTypeDocument, TrainingTypeResponse.class);
-            ImageDTO imageDTO = getImageDTO(trainingTypeDocument);
-            trainingTypeResponse.setImageDTO(imageDTO);
-            trainingTypeResponseList.add(trainingTypeResponse);
-        }
-
-        return trainingTypeResponseList;
     }
 
     @PreAuthorize("hasRole('ADMIN') or hasRole('MANAGER')")

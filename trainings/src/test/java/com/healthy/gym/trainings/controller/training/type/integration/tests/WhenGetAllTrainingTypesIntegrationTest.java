@@ -23,7 +23,6 @@ import org.springframework.http.*;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
-import org.springframework.test.context.TestPropertySource;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.MongoDBContainer;
 import org.testcontainers.junit.jupiter.Container;
@@ -66,8 +65,6 @@ class WhenGetAllTrainingTypesIntegrationTest {
 
     @LocalServerPort
     private Integer port;
-    private Resource imageResource1;
-    private Resource imageResource2;
 
     @DynamicPropertySource
     static void setProperties(DynamicPropertyRegistry registry) {
@@ -77,7 +74,7 @@ class WhenGetAllTrainingTypesIntegrationTest {
 
     @BeforeEach
     void setUp() throws IOException {
-        imageResource1 = new ClassPathResource("testImages/shiba_inu_smile_1.jpg");
+        Resource imageResource1 = new ClassPathResource("testImages/shiba_inu_smile_1.jpg");
 
         ImageDocument imageDocument1 = new ImageDocument(
                 UUID.randomUUID().toString(),
@@ -87,17 +84,19 @@ class WhenGetAllTrainingTypesIntegrationTest {
 
         ImageDocument savedImageDocument1 = mongoTemplate.save(imageDocument1);
 
+        String trainingTypeId1 = UUID.randomUUID().toString();
         TrainingTypeDocument typeDocument1 = new TrainingTypeDocument(
-                UUID.randomUUID().toString(),
+                trainingTypeId1,
                 "Test name",
                 "Test description",
                 LocalTime.of(1, 30),
-                savedImageDocument1
+                savedImageDocument1,
+                "http://localhost:8020/trainings/trainingType/" + trainingTypeId1 + "?version=test1"
         );
 
         mongoTemplate.save(typeDocument1);
 
-        imageResource2 = new ClassPathResource("testImages/shiba_inu_smile_2.jpg");
+        Resource imageResource2 = new ClassPathResource("testImages/shiba_inu_smile_2.jpg");
 
         ImageDocument imageDocument2 = new ImageDocument(
                 UUID.randomUUID().toString(),
@@ -112,7 +111,8 @@ class WhenGetAllTrainingTypesIntegrationTest {
                 "Test name2",
                 "Test description2",
                 LocalTime.of(2, 30),
-                savedImageDocument2
+                savedImageDocument2,
+                "http://localhost:8020/trainings/trainingType/" + trainingTypeId1 + "?version=test1"
         );
 
         mongoTemplate.save(typeDocument2);
@@ -202,26 +202,17 @@ class WhenGetAllTrainingTypesIntegrationTest {
         @EnumSource(TestCountry.class)
         void shouldReturnProperDuration(TestCountry country) throws URISyntaxException {
             ResponseEntity<JsonNode> responseEntity = getResponseEntity(country);
-            assertThat(responseEntity.getBody().get(0).get("duration").textValue()).isEqualTo("01:30:00.000");
-            assertThat(responseEntity.getBody().get(1).get("duration").textValue()).isEqualTo("02:30:00.000");
+            assertThat(responseEntity.getBody().get(0).get("duration").textValue()).isEqualTo("01:30:00");
+            assertThat(responseEntity.getBody().get(1).get("duration").textValue()).isEqualTo("02:30:00");
         }
 
         @ParameterizedTest
         @EnumSource(TestCountry.class)
-        void shouldReturnProperImageData(TestCountry country) throws URISyntaxException, IOException {
+        void shouldReturnProperImageUrl(TestCountry country) throws URISyntaxException, IOException {
             ResponseEntity<JsonNode> responseEntity = getResponseEntity(country);
-            assertThat(responseEntity.getBody().get(0).get("image").get("data").textValue())
-                    .isEqualTo(getExpectedImageBase64(imageResource1));
-            assertThat(responseEntity.getBody().get(1).get("image").get("data").textValue())
-                    .isEqualTo(getExpectedImageBase64(imageResource2));
-        }
-
-        @ParameterizedTest
-        @EnumSource(TestCountry.class)
-        void shouldReturnProperImageFormat(TestCountry country) throws URISyntaxException {
-            ResponseEntity<JsonNode> responseEntity = getResponseEntity(country);
-            assertThat(responseEntity.getBody().get(0).get("image").get("format").textValue()).isEqualTo("image/jpeg");
-            assertThat(responseEntity.getBody().get(1).get("image").get("format").textValue()).isEqualTo("image/jpeg");
+            System.out.println(responseEntity.getBody());
+            assertThat(responseEntity.getBody().get(0).get("image").textValue()).isNotNull();
+            assertThat(responseEntity.getBody().get(1).get("image").textValue()).isNotNull();
         }
 
 

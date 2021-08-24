@@ -22,6 +22,7 @@ import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 public class TrainingTypeServiceImpl implements TrainingTypeService {
@@ -88,10 +89,13 @@ public class TrainingTypeServiceImpl implements TrainingTypeService {
     }
 
     @Override
-    public List<TrainingTypeDocument> getAllTrainingTypes() throws TrainingTypeNotFoundException {
+    public List<TrainingTypeDTO> getAllTrainingTypes() throws TrainingTypeNotFoundException {
         List<TrainingTypeDocument> trainingTypes = trainingTypeDAO.findAll();
         if (trainingTypes.isEmpty()) throw new TrainingTypeNotFoundException();
-        return trainingTypes;
+        return trainingTypes
+                .stream()
+                .map(trainingTypeDocument -> modelMapper.map(trainingTypeDocument, TrainingTypeDTO.class))
+                .collect(Collectors.toList());
     }
 
     @Override

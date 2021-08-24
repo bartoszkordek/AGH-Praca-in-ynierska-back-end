@@ -14,7 +14,7 @@ public interface TrainingTypeService {
     TrainingTypeDTO createTrainingType(TrainingTypeRequest trainingTypeRequest, MultipartFile multipartFile)
             throws DuplicatedTrainingTypeException;
 
-    List<TrainingTypeDocument> getAllTrainingTypes() throws TrainingTypeNotFoundException;
+    List<TrainingTypeDTO> getAllTrainingTypes() throws TrainingTypeNotFoundException;
 
     TrainingTypeDocument getTrainingTypeById(String trainingTypeId) throws TrainingTypeNotFoundException;
 

@@ -61,7 +61,6 @@ class WhenGetAllTrainingTypesTest {
         when(trainingTypeDAO.findAll()).thenReturn(List.of(trxDocument, pilatesDocument));
         assertThat(trainingTypeService.getAllTrainingTypes())
                 .isNotNull()
-                .hasSize(2)
-                .contains(trxDocument, pilatesDocument);
+                .hasSize(2);
     }
 }

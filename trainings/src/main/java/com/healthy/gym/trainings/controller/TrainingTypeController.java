@@ -3,15 +3,13 @@ package com.healthy.gym.trainings.controller;
 import com.healthy.gym.trainings.component.ImageValidator;
 import com.healthy.gym.trainings.component.MultipartFileValidator;
 import com.healthy.gym.trainings.component.Translator;
-import com.healthy.gym.trainings.data.document.ImageDocument;
-import com.healthy.gym.trainings.data.document.TrainingTypeDocument;
+import com.healthy.gym.trainings.dto.TrainingTypeDTO;
 import com.healthy.gym.trainings.exception.DuplicatedTrainingTypeException;
 import com.healthy.gym.trainings.exception.MultipartBodyException;
 import com.healthy.gym.trainings.exception.notfound.TrainingTypeNotFoundException;
 import com.healthy.gym.trainings.model.request.TrainingTypeRequest;
-import com.healthy.gym.trainings.model.response.TrainingTypeResponse;
+import com.healthy.gym.trainings.model.response.TrainingTypeDTOResponse;
 import com.healthy.gym.trainings.service.TrainingTypeService;
-import com.healthy.gym.trainings.dto.ImageDTO;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,13 +22,14 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
 import javax.activation.UnsupportedDataTypeException;
-import java.util.ArrayList;
-import java.util.Base64;
 import java.util.List;
 
 @RestController
 @RequestMapping("/trainingType")
 public class TrainingTypeController {
+
+    private static final String EXCEPTION_INTERNAL_ERROR = "exception.internal.error";
+    private static final String EXCEPTION_NOT_FOUND_TRAINING_TYPE = "exception.not.found.training.type";
 
     private final TrainingTypeService trainingTypeService;
     private final Translator translator;
@@ -58,33 +57,27 @@ public class TrainingTypeController {
             consumes = {MediaType.MULTIPART_FORM_DATA_VALUE, MediaType.APPLICATION_JSON_VALUE},
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    public ResponseEntity<TrainingTypeResponse> createTrainingType(
+    public ResponseEntity<TrainingTypeDTOResponse> createTrainingType(
             @RequestPart(value = "body") TrainingTypeRequest trainingTypeRequest,
             @RequestPart(value = "image", required = false) MultipartFile multipartFile
     ) {
-        TrainingTypeResponse response = new TrainingTypeResponse();
+
         try {
             multipartFileValidator.validateBody(trainingTypeRequest);
             if (multipartFile != null) imageValidator.isFileSupported(multipartFile);
 
-            TrainingTypeDocument trainingTypeDocument =
+            TrainingTypeDTO trainingTypeDocument =
                     trainingTypeService.createTrainingType(trainingTypeRequest, multipartFile);
-
-            response = modelMapper.map(trainingTypeDocument, TrainingTypeResponse.class);
-
             String message = translator.toLocale("training.type.created");
-            response.setMessage(message);
-            ImageDTO imageDTO = getImageDTO(trainingTypeDocument);
-            response.setImageDTO(imageDTO);
 
             return ResponseEntity
                     .status(HttpStatus.CREATED)
                     .contentType(MediaType.APPLICATION_JSON)
-                    .body(response);
+                    .body(new TrainingTypeDTOResponse(message, trainingTypeDocument));
 
         } catch (MultipartBodyException exception) {
             String message = translator.toLocale("exception.multipart.body");
-            response.setMessage(message);
+            TrainingTypeDTOResponse response = new TrainingTypeDTOResponse(message, null);
             response.setErrors(exception.getErrorMap());
 
             return ResponseEntity
@@ -101,84 +94,52 @@ public class TrainingTypeController {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, exception);
 
         } catch (Exception exception) {
-            String reason = translator.toLocale("exception.internal.error");
+            String reason = translator.toLocale(EXCEPTION_INTERNAL_ERROR);
             exception.printStackTrace();
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, reason, exception);
         }
     }
 
-    private ImageDTO getImageDTO(TrainingTypeDocument trainingTypeDocument) {
-        ImageDocument imageDocument = trainingTypeDocument.getImageDocument();
-        if (imageDocument == null) return null;
-        byte[] updatedMultipartFile = imageDocument.getImageData().getData();
-
-        String data = Base64.getEncoder().encodeToString(updatedMultipartFile);
-        String format = imageDocument.getContentType();
-
-        return new ImageDTO(data, format);
-    }
-
     @GetMapping("/{trainingTypeId}")
-    public ResponseEntity<TrainingTypeResponse> getTrainingTypeById(@PathVariable final String trainingTypeId) {
+    public ResponseEntity<TrainingTypeDTO> getTrainingTypeById(@PathVariable final String trainingTypeId) {
         try {
-            TrainingTypeDocument trainingTypeDocument = trainingTypeService.getTrainingTypeById(trainingTypeId);
-
-            TrainingTypeResponse trainingTypeResponse = modelMapper
-                    .map(trainingTypeDocument, TrainingTypeResponse.class);
-
-            ImageDTO imageDTO = getImageDTO(trainingTypeDocument);
-            trainingTypeResponse.setImageDTO(imageDTO);
+            TrainingTypeDTO trainingTypeDTO = trainingTypeService.getTrainingTypeById(trainingTypeId);
 
             return ResponseEntity
                     .status(HttpStatus.OK)
                     .contentType(MediaType.APPLICATION_JSON)
-                    .body(trainingTypeResponse);
+                    .body(trainingTypeDTO);
 
         } catch (TrainingTypeNotFoundException exception) {
-            String reason = translator.toLocale("exception.not.found.training.type");
+            String reason = translator.toLocale(EXCEPTION_NOT_FOUND_TRAINING_TYPE);
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, reason, exception);
 
         } catch (Exception exception) {
-            String reason = translator.toLocale("exception.internal.error");
+            String reason = translator.toLocale(EXCEPTION_INTERNAL_ERROR);
             exception.printStackTrace();
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, reason, exception);
         }
     }
 
     @GetMapping
-    public ResponseEntity<List<TrainingTypeResponse>> getAllTrainingTypes() {
+    public ResponseEntity<List<TrainingTypeDTO>> getAllTrainingTypes() {
         try {
-            List<TrainingTypeDocument> trainingTypes = trainingTypeService.getAllTrainingTypes();
-            List<TrainingTypeResponse> trainingTypeResponseList = mapTrainingDocumentToTrainingResponse(trainingTypes);
+            List<TrainingTypeDTO> trainingTypes = trainingTypeService.getAllTrainingTypes();
 
             return ResponseEntity
                     .status(HttpStatus.OK)
                     .contentType(MediaType.APPLICATION_JSON)
-                    .body(trainingTypeResponseList);
+                    .body(trainingTypes);
 
         } catch (TrainingTypeNotFoundException exception) {
             String reason = translator.toLocale("exception.not.found.training.type.all");
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, reason, exception);
 
         } catch (Exception exception) {
-            String reason = translator.toLocale("exception.internal.error");
+            String reason = translator.toLocale(EXCEPTION_INTERNAL_ERROR);
             exception.printStackTrace();
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, reason, exception);
         }
-    }
-
-    private List<TrainingTypeResponse> mapTrainingDocumentToTrainingResponse(List<TrainingTypeDocument> trainingTypes) {
-        List<TrainingTypeResponse> trainingTypeResponseList = new ArrayList<>();
-
-        for (TrainingTypeDocument trainingTypeDocument : trainingTypes) {
-            TrainingTypeResponse trainingTypeResponse = modelMapper
-                    .map(trainingTypeDocument, TrainingTypeResponse.class);
-            ImageDTO imageDTO = getImageDTO(trainingTypeDocument);
-            trainingTypeResponse.setImageDTO(imageDTO);
-            trainingTypeResponseList.add(trainingTypeResponse);
-        }
-
-        return trainingTypeResponseList;
     }
 
     @PreAuthorize("hasRole('ADMIN') or hasRole('MANAGER')")
@@ -187,24 +148,22 @@ public class TrainingTypeController {
             consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    public ResponseEntity<TrainingTypeResponse> updateTrainingTypeById(
+    public ResponseEntity<TrainingTypeDTOResponse> updateTrainingTypeById(
             @PathVariable final String trainingTypeId,
             @RequestPart(value = "body") final TrainingTypeRequest trainingTypeRequest,
             @RequestPart(value = "image", required = false) final MultipartFile multipartFile
     ) {
-        TrainingTypeResponse response = new TrainingTypeResponse();
+        TrainingTypeDTOResponse response = new TrainingTypeDTOResponse();
         try {
             multipartFileValidator.validateBody(trainingTypeRequest);
             if (multipartFile != null) imageValidator.isFileSupported(multipartFile);
 
-            TrainingTypeDocument trainingTypeDocument = trainingTypeService
+            TrainingTypeDTO trainingTypeDTO = trainingTypeService
                     .updateTrainingTypeById(trainingTypeId, trainingTypeRequest, multipartFile);
 
-            response = modelMapper.map(trainingTypeDocument, TrainingTypeResponse.class);
             String message = translator.toLocale("training.type.updated");
             response.setMessage(message);
-            ImageDTO imageDTO = getImageDTO(trainingTypeDocument);
-            response.setImageDTO(imageDTO);
+            response.setTrainingType(trainingTypeDTO);
 
             return ResponseEntity
                     .status(HttpStatus.OK)
@@ -226,7 +185,7 @@ public class TrainingTypeController {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, exception);
 
         } catch (TrainingTypeNotFoundException exception) {
-            String reason = translator.toLocale("exception.not.found.training.type");
+            String reason = translator.toLocale(EXCEPTION_NOT_FOUND_TRAINING_TYPE);
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, reason, exception);
 
         } catch (DuplicatedTrainingTypeException exception) {
@@ -234,7 +193,7 @@ public class TrainingTypeController {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, exception);
 
         } catch (Exception exception) {
-            String reason = translator.toLocale("exception.internal.error");
+            String reason = translator.toLocale(EXCEPTION_INTERNAL_ERROR);
             exception.printStackTrace();
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, reason, exception);
         }
@@ -242,27 +201,22 @@ public class TrainingTypeController {
 
     @PreAuthorize("hasRole('ADMIN') or hasRole('MANAGER')")
     @DeleteMapping("/{trainingTypeId}")
-    public ResponseEntity<TrainingTypeResponse> removeTrainingTypeById(@PathVariable final String trainingTypeId) {
+    public ResponseEntity<TrainingTypeDTOResponse> removeTrainingTypeById(@PathVariable final String trainingTypeId) {
         try {
-            TrainingTypeDocument trainingTypeDocument = trainingTypeService.removeTrainingTypeById(trainingTypeId);
-            TrainingTypeResponse trainingTypeResponse =
-                    modelMapper.map(trainingTypeDocument, TrainingTypeResponse.class);
-
+            TrainingTypeDTO trainingTypeDTO = trainingTypeService.removeTrainingTypeById(trainingTypeId);
             String message = translator.toLocale("training.type.removed");
-            trainingTypeResponse.setMessage(message);
 
-            ImageDTO imageDTO = getImageDTO(trainingTypeDocument);
-            trainingTypeResponse.setImageDTO(imageDTO);
-
-            return ResponseEntity.status(HttpStatus.OK)
-                    .contentType(MediaType.APPLICATION_JSON).body(trainingTypeResponse);
+            return ResponseEntity
+                    .status(HttpStatus.OK)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(new TrainingTypeDTOResponse(message, trainingTypeDTO));
 
         } catch (TrainingTypeNotFoundException exception) {
-            String reason = translator.toLocale("exception.not.found.training.type");
+            String reason = translator.toLocale(EXCEPTION_NOT_FOUND_TRAINING_TYPE);
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, reason, exception);
 
         } catch (Exception exception) {
-            String reason = translator.toLocale("exception.internal.error");
+            String reason = translator.toLocale(EXCEPTION_INTERNAL_ERROR);
             exception.printStackTrace();
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, reason, exception);
         }

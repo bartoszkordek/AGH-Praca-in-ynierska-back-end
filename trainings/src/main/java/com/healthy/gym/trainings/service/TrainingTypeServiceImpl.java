@@ -1,15 +1,20 @@
 package com.healthy.gym.trainings.service;
 
+import com.healthy.gym.trainings.component.ImageUrlCreator;
 import com.healthy.gym.trainings.data.document.ImageDocument;
 import com.healthy.gym.trainings.data.document.TrainingTypeDocument;
 import com.healthy.gym.trainings.data.repository.ImageDAO;
 import com.healthy.gym.trainings.data.repository.TrainingTypeDAO;
+import com.healthy.gym.trainings.dto.TrainingTypeDTO;
 import com.healthy.gym.trainings.exception.DuplicatedTrainingTypeException;
 import com.healthy.gym.trainings.exception.notfound.TrainingTypeNotFoundException;
 import com.healthy.gym.trainings.model.request.TrainingTypeRequest;
 import org.bson.types.Binary;
+import org.modelmapper.ModelMapper;
+import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.DigestUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -17,24 +22,31 @@ import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 public class TrainingTypeServiceImpl implements TrainingTypeService {
 
     private final TrainingTypeDAO trainingTypeDAO;
     private final ImageDAO imageDAO;
+    private final ImageUrlCreator imageUrlCreator;
+    private final ModelMapper modelMapper;
 
     @Autowired
     public TrainingTypeServiceImpl(
             TrainingTypeDAO trainingTypeDAO,
-            ImageDAO imageDAO
+            ImageDAO imageDAO,
+            ImageUrlCreator imageUrlCreator
     ) {
         this.trainingTypeDAO = trainingTypeDAO;
         this.imageDAO = imageDAO;
+        this.imageUrlCreator = imageUrlCreator;
+        this.modelMapper = new ModelMapper();
+        this.modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
     }
 
     @Override
-    public TrainingTypeDocument createTrainingType(
+    public TrainingTypeDTO createTrainingType(
             TrainingTypeRequest trainingTypeRequest,
             MultipartFile multipartFile
     ) throws DuplicatedTrainingTypeException {
@@ -42,6 +54,8 @@ public class TrainingTypeServiceImpl implements TrainingTypeService {
 
         if (trainingTypeDAO.existsByName(name)) throw new DuplicatedTrainingTypeException();
         ImageDocument savedImageDocument = null;
+        String imageUrl = null;
+        String trainingTypeId = UUID.randomUUID().toString();
         if (multipartFile != null) {
             try {
                 ImageDocument imageDocument = new ImageDocument(
@@ -50,19 +64,23 @@ public class TrainingTypeServiceImpl implements TrainingTypeService {
                         multipartFile.getContentType()
                 );
                 savedImageDocument = imageDAO.save(imageDocument);
+                imageUrl = imageUrlCreator.createImageUrl(imageDocument.getImageId());
+                imageUrl += "?version=" + DigestUtils.md5DigestAsHex(multipartFile.getBytes());
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
         TrainingTypeDocument trainingTypeDocument = new TrainingTypeDocument(
-                UUID.randomUUID().toString(),
+                trainingTypeId,
                 name,
                 trainingTypeRequest.getDescription(),
                 getDuration(trainingTypeRequest),
-                savedImageDocument
+                savedImageDocument,
+                imageUrl
         );
 
-        return trainingTypeDAO.save(trainingTypeDocument);
+        var savedTraining = trainingTypeDAO.save(trainingTypeDocument);
+        return modelMapper.map(savedTraining, TrainingTypeDTO.class);
     }
 
     private LocalTime getDuration(TrainingTypeRequest trainingTypeRequest) {
@@ -71,26 +89,29 @@ public class TrainingTypeServiceImpl implements TrainingTypeService {
     }
 
     @Override
-    public List<TrainingTypeDocument> getAllTrainingTypes() throws TrainingTypeNotFoundException {
+    public List<TrainingTypeDTO> getAllTrainingTypes() throws TrainingTypeNotFoundException {
         List<TrainingTypeDocument> trainingTypes = trainingTypeDAO.findAll();
         if (trainingTypes.isEmpty()) throw new TrainingTypeNotFoundException();
-        return trainingTypes;
+        return trainingTypes
+                .stream()
+                .map(trainingTypeDocument -> modelMapper.map(trainingTypeDocument, TrainingTypeDTO.class))
+                .collect(Collectors.toList());
     }
 
     @Override
-    public TrainingTypeDocument getTrainingTypeById(String trainingTypeId) throws TrainingTypeNotFoundException {
+    public TrainingTypeDTO getTrainingTypeById(String trainingTypeId) throws TrainingTypeNotFoundException {
         TrainingTypeDocument trainingTypeDocument = trainingTypeDAO.findByTrainingTypeId(trainingTypeId);
         if (trainingTypeDocument == null) throw new TrainingTypeNotFoundException();
-        return trainingTypeDocument;
+        return modelMapper.map(trainingTypeDocument, TrainingTypeDTO.class);
     }
 
     @Override
-    public TrainingTypeDocument updateTrainingTypeById(
-            String trainingId,
+    public TrainingTypeDTO updateTrainingTypeById(
+            String trainingTypeId,
             TrainingTypeRequest trainingTypeRequest,
             MultipartFile multipartFile
     ) throws TrainingTypeNotFoundException, DuplicatedTrainingTypeException {
-        TrainingTypeDocument trainingTypeDocumentFound = trainingTypeDAO.findByTrainingTypeId(trainingId);
+        TrainingTypeDocument trainingTypeDocumentFound = trainingTypeDAO.findByTrainingTypeId(trainingTypeId);
         if (trainingTypeDocumentFound == null) throw new TrainingTypeNotFoundException();
 
         String updatedTrainingName = trainingTypeRequest.getName();
@@ -119,16 +140,20 @@ public class TrainingTypeServiceImpl implements TrainingTypeService {
                 }
                 ImageDocument savedImageDocument = imageDAO.save(imageToUpdate);
                 trainingTypeDocumentFound.setImageDocument(savedImageDocument);
+                String imageUrl = imageUrlCreator.createImageUrl(savedImageDocument.getImageId());
+                imageUrl += "?version=" + DigestUtils.md5DigestAsHex(multipartFile.getBytes());
+                trainingTypeDocumentFound.setImageUrl(imageUrl);
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
 
-        return trainingTypeDAO.save(trainingTypeDocumentFound);
+        var updatedTrainingType = trainingTypeDAO.save(trainingTypeDocumentFound);
+        return modelMapper.map(updatedTrainingType, TrainingTypeDTO.class);
     }
 
     @Override
-    public TrainingTypeDocument removeTrainingTypeById(String trainingId) throws TrainingTypeNotFoundException {
+    public TrainingTypeDTO removeTrainingTypeById(String trainingId) throws TrainingTypeNotFoundException {
         TrainingTypeDocument trainingTypeToRemove = trainingTypeDAO.findByTrainingTypeId(trainingId);
         if (trainingTypeToRemove == null) throw new TrainingTypeNotFoundException();
         trainingTypeDAO.deleteByTrainingTypeId(trainingId);
@@ -137,6 +162,6 @@ public class TrainingTypeServiceImpl implements TrainingTypeService {
             String imageId = imageDocument.getImageId();
             imageDAO.deleteByImageId(imageId);
         }
-        return trainingTypeToRemove;
+        return modelMapper.map(trainingTypeToRemove, TrainingTypeDTO.class);
     }
 }

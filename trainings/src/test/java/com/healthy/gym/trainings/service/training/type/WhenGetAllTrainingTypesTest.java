@@ -46,7 +46,7 @@ class WhenGetAllTrainingTypesTest {
         );
 
         trainingTypeDAO = mock(TrainingTypeDAO.class);
-        trainingTypeService = new TrainingTypeServiceImpl(trainingTypeDAO, null);
+        trainingTypeService = new TrainingTypeServiceImpl(trainingTypeDAO, null, null);
     }
 
     @Test
@@ -61,7 +61,6 @@ class WhenGetAllTrainingTypesTest {
         when(trainingTypeDAO.findAll()).thenReturn(List.of(trxDocument, pilatesDocument));
         assertThat(trainingTypeService.getAllTrainingTypes())
                 .isNotNull()
-                .hasSize(2)
-                .contains(trxDocument, pilatesDocument);
+                .hasSize(2);
     }
 }

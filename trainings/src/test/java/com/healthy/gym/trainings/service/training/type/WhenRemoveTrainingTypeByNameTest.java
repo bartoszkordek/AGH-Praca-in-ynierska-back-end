@@ -2,6 +2,7 @@ package com.healthy.gym.trainings.service.training.type;
 
 import com.healthy.gym.trainings.data.document.TrainingTypeDocument;
 import com.healthy.gym.trainings.data.repository.TrainingTypeDAO;
+import com.healthy.gym.trainings.dto.TrainingTypeDTO;
 import com.healthy.gym.trainings.exception.notfound.TrainingTypeNotFoundException;
 import com.healthy.gym.trainings.service.TrainingTypeService;
 import com.healthy.gym.trainings.service.TrainingTypeServiceImpl;
@@ -38,7 +39,7 @@ class WhenRemoveTrainingTypeByNameTest {
         );
 
         trainingTypeDAO = mock(TrainingTypeDAO.class);
-        trainingTypeService = new TrainingTypeServiceImpl(trainingTypeDAO, null);
+        trainingTypeService = new TrainingTypeServiceImpl(trainingTypeDAO, null, null);
     }
 
     @Test
@@ -51,6 +52,14 @@ class WhenRemoveTrainingTypeByNameTest {
     @Test
     void shouldReturnTrainingTypeById() throws TrainingTypeNotFoundException {
         when(trainingTypeDAO.findByTrainingTypeId(trainingTypeId)).thenReturn(trxDocument);
-        assertThat(trainingTypeService.removeTrainingTypeById(trainingTypeId)).isEqualTo(trxDocument);
+        assertThat(trainingTypeService.removeTrainingTypeById(trainingTypeId))
+                .isEqualTo(
+                        new TrainingTypeDTO(
+                                trainingTypeId,
+                                "TRX", "Test description",
+                                LocalTime.parse("00:30:00.000", DateTimeFormatter.ofPattern("HH:mm:ss.SSS")),
+                                null
+                        )
+                );
     }
 }

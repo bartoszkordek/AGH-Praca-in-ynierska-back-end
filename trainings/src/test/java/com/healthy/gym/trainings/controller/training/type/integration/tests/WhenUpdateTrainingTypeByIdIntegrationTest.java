@@ -25,6 +25,7 @@ import org.springframework.http.*;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
+import org.springframework.util.DigestUtils;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.testcontainers.containers.GenericContainer;
@@ -39,7 +40,6 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.time.LocalTime;
-import java.util.Base64;
 import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
@@ -72,9 +72,10 @@ class WhenUpdateTrainingTypeByIdIntegrationTest {
 
     private String trainingTypeId;
     private String adminToken;
-    private Resource imageResource;
     private Resource updatedImageResource;
     private TrainingTypeRequest trainingTypeRequest;
+    private String expectedUpdatedImageUrl;
+    private String expectedCurrentImageUrl;
 
     @LocalServerPort
     private Integer port;
@@ -92,11 +93,12 @@ class WhenUpdateTrainingTypeByIdIntegrationTest {
         String adminId = UUID.randomUUID().toString();
         adminToken = tokenFactory.getAdminToken(adminId);
 
-        imageResource = new ClassPathResource("testImages/shiba_inu_smile_1.jpg");
+        Resource imageResource = new ClassPathResource("testImages/shiba_inu_smile_1.jpg");
         updatedImageResource = new ClassPathResource("testImages/shiba_inu_smile_2.jpg");
 
+        String imageId = UUID.randomUUID().toString();
         ImageDocument imageDocument = new ImageDocument(
-                UUID.randomUUID().toString(),
+                imageId,
                 new Binary(getImageBytes(imageResource)),
                 MediaType.IMAGE_JPEG_VALUE
         );
@@ -117,6 +119,10 @@ class WhenUpdateTrainingTypeByIdIntegrationTest {
         trainingTypeRequest.setName("Test name2");
         trainingTypeRequest.setDescription("Test description2");
         trainingTypeRequest.setDuration("01:30:00.000");
+        String digestUpdated = DigestUtils.md5DigestAsHex(getImageBytes(updatedImageResource));
+        String digestCurrent = DigestUtils.md5DigestAsHex(getImageBytes(imageResource));
+        expectedUpdatedImageUrl = "http://localhost:8020/trainings/trainingType/image/" + imageId + "?version=" + digestUpdated;
+        expectedCurrentImageUrl = "http://localhost:8020/trainings/trainingType/image/" + imageId + "?version=" + digestCurrent;
     }
 
     private byte[] getImageBytes(Resource imageResource) throws IOException {
@@ -155,13 +161,6 @@ class WhenUpdateTrainingTypeByIdIntegrationTest {
         HttpHeaders bodyHeaders = new HttpHeaders();
         bodyHeaders.setContentType(MediaType.APPLICATION_JSON);
         return new HttpEntity<>(trainingTypeRequest, bodyHeaders);
-    }
-
-    private String getExpectedImageBase64(Resource imageResource) throws IOException {
-        File imageFile = imageResource.getFile();
-        FileInputStream inputStream = new FileInputStream(imageFile);
-        byte[] imageBytes = inputStream.readAllBytes();
-        return Base64.getEncoder().encodeToString(imageBytes);
     }
 
     private HttpHeaders getHeaders(Locale testedLocale) {
@@ -209,43 +208,36 @@ class WhenUpdateTrainingTypeByIdIntegrationTest {
         @EnumSource(TestCountry.class)
         void shouldReturnNotNullTrainingTypeId(TestCountry country) throws URISyntaxException {
             ResponseEntity<JsonNode> responseEntity = getResponseEntity(country);
-            assertThat(responseEntity.getBody().get("trainingTypeId").textValue()).isNotNull();
+            assertThat(responseEntity.getBody().get("trainingType").get("trainingTypeId").textValue()).isNotNull();
         }
 
         @ParameterizedTest
         @EnumSource(TestCountry.class)
         void shouldReturnProperName(TestCountry country) throws URISyntaxException {
             ResponseEntity<JsonNode> responseEntity = getResponseEntity(country);
-            assertThat(responseEntity.getBody().get("name").textValue()).isEqualTo("Test name2");
+            assertThat(responseEntity.getBody().get("trainingType").get("name").textValue()).isEqualTo("Test name2");
         }
 
         @ParameterizedTest
         @EnumSource(TestCountry.class)
         void shouldReturnProperDescription(TestCountry country) throws URISyntaxException {
             ResponseEntity<JsonNode> responseEntity = getResponseEntity(country);
-            assertThat(responseEntity.getBody().get("description").textValue()).isEqualTo("Test description2");
+            assertThat(responseEntity.getBody().get("trainingType").get("description").textValue()).isEqualTo("Test description2");
         }
 
         @ParameterizedTest
         @EnumSource(TestCountry.class)
         void shouldReturnProperDuration(TestCountry country) throws URISyntaxException {
             ResponseEntity<JsonNode> responseEntity = getResponseEntity(country);
-            assertThat(responseEntity.getBody().get("duration").textValue()).isEqualTo("01:30:00.000");
+            assertThat(responseEntity.getBody().get("trainingType").get("duration").textValue()).isEqualTo("01:30:00");
         }
 
         @ParameterizedTest
         @EnumSource(TestCountry.class)
         void shouldReturnProperImageData(TestCountry country) throws URISyntaxException, IOException {
             ResponseEntity<JsonNode> responseEntity = getResponseEntity(country);
-            assertThat(responseEntity.getBody().get("image").get("data").textValue())
-                    .isEqualTo(getExpectedImageBase64(updatedImageResource));
-        }
-
-        @ParameterizedTest
-        @EnumSource(TestCountry.class)
-        void shouldReturnProperImageFormat(TestCountry country) throws URISyntaxException {
-            ResponseEntity<JsonNode> responseEntity = getResponseEntity(country);
-            assertThat(responseEntity.getBody().get("image").get("format").textValue()).isEqualTo("image/jpeg");
+            assertThat(responseEntity.getBody().get("trainingType").get("image").textValue())
+                    .isEqualTo(expectedUpdatedImageUrl);
         }
 
         private ResponseEntity<JsonNode> getResponseEntity(TestCountry country) throws URISyntaxException {
@@ -297,43 +289,35 @@ class WhenUpdateTrainingTypeByIdIntegrationTest {
         @EnumSource(TestCountry.class)
         void shouldReturnNotNullTrainingTypeId(TestCountry country) throws URISyntaxException {
             ResponseEntity<JsonNode> responseEntity = getResponseEntity(country);
-            assertThat(responseEntity.getBody().get("trainingTypeId").textValue()).isNotNull();
+            assertThat(responseEntity.getBody().get("trainingType").get("trainingTypeId").textValue()).isNotNull();
         }
 
         @ParameterizedTest
         @EnumSource(TestCountry.class)
         void shouldReturnProperName(TestCountry country) throws URISyntaxException {
             ResponseEntity<JsonNode> responseEntity = getResponseEntity(country);
-            assertThat(responseEntity.getBody().get("name").textValue()).isEqualTo("Test name2");
+            assertThat(responseEntity.getBody().get("trainingType").get("name").textValue()).isEqualTo("Test name2");
         }
 
         @ParameterizedTest
         @EnumSource(TestCountry.class)
         void shouldReturnProperDescription(TestCountry country) throws URISyntaxException {
             ResponseEntity<JsonNode> responseEntity = getResponseEntity(country);
-            assertThat(responseEntity.getBody().get("description").textValue()).isEqualTo("Test description2");
+            assertThat(responseEntity.getBody().get("trainingType").get("description").textValue()).isEqualTo("Test description2");
         }
 
         @ParameterizedTest
         @EnumSource(TestCountry.class)
         void shouldReturnProperDuration(TestCountry country) throws URISyntaxException {
             ResponseEntity<JsonNode> responseEntity = getResponseEntity(country);
-            assertThat(responseEntity.getBody().get("duration").textValue()).isEqualTo("01:30:00.000");
+            assertThat(responseEntity.getBody().get("trainingType").get("duration").textValue()).isEqualTo("01:30:00");
         }
 
         @ParameterizedTest
         @EnumSource(TestCountry.class)
         void shouldReturnProperImageData(TestCountry country) throws URISyntaxException, IOException {
             ResponseEntity<JsonNode> responseEntity = getResponseEntity(country);
-            assertThat(responseEntity.getBody().get("image").get("data").textValue())
-                    .isEqualTo(getExpectedImageBase64(imageResource));
-        }
-
-        @ParameterizedTest
-        @EnumSource(TestCountry.class)
-        void shouldReturnProperImageFormat(TestCountry country) throws URISyntaxException {
-            ResponseEntity<JsonNode> responseEntity = getResponseEntity(country);
-            assertThat(responseEntity.getBody().get("image").get("format").textValue()).isEqualTo("image/jpeg");
+            assertThat(responseEntity.getBody().get("trainingType").get("image")).isNull();
         }
 
         private ResponseEntity<JsonNode> getResponseEntity(TestCountry country) throws URISyntaxException {

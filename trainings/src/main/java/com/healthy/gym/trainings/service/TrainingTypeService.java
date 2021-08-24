@@ -1,6 +1,6 @@
 package com.healthy.gym.trainings.service;
 
-import com.healthy.gym.trainings.data.document.TrainingTypeDocument;
+import com.healthy.gym.trainings.dto.TrainingTypeDTO;
 import com.healthy.gym.trainings.exception.DuplicatedTrainingTypeException;
 import com.healthy.gym.trainings.exception.notfound.TrainingTypeNotFoundException;
 import com.healthy.gym.trainings.model.request.TrainingTypeRequest;
@@ -10,16 +10,16 @@ import java.util.List;
 
 public interface TrainingTypeService {
 
-    TrainingTypeDocument createTrainingType(TrainingTypeRequest trainingTypeRequest, MultipartFile multipartFile)
+    TrainingTypeDTO createTrainingType(TrainingTypeRequest trainingTypeRequest, MultipartFile multipartFile)
             throws DuplicatedTrainingTypeException;
 
-    List<TrainingTypeDocument> getAllTrainingTypes() throws TrainingTypeNotFoundException;
+    List<TrainingTypeDTO> getAllTrainingTypes() throws TrainingTypeNotFoundException;
 
-    TrainingTypeDocument getTrainingTypeById(String trainingTypeId) throws TrainingTypeNotFoundException;
+    TrainingTypeDTO getTrainingTypeById(String trainingTypeId) throws TrainingTypeNotFoundException;
 
-    TrainingTypeDocument updateTrainingTypeById(
+    TrainingTypeDTO updateTrainingTypeById(
             String trainingId, TrainingTypeRequest trainingTypeRequest, MultipartFile multipartFile
     ) throws TrainingTypeNotFoundException, DuplicatedTrainingTypeException;
 
-    TrainingTypeDocument removeTrainingTypeById(String trainingName) throws TrainingTypeNotFoundException;
+    TrainingTypeDTO removeTrainingTypeById(String trainingName) throws TrainingTypeNotFoundException;
 }

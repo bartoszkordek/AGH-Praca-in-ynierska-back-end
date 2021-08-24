@@ -23,7 +23,6 @@ import org.springframework.http.*;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
-import org.springframework.test.context.TestPropertySource;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.MongoDBContainer;
 import org.testcontainers.junit.jupiter.Container;
@@ -142,13 +141,11 @@ class WhenRemoveTrainingTypeByIdIntegrationTest {
         assertThat(responseEntity.getBody().get("message").textValue()).isEqualTo(expectedMessage);
 
         assertThat(responseEntity.getBody().get("errors")).isNull();
-        assertThat(responseEntity.getBody().get("trainingTypeId").textValue()).isEqualTo(trainingTypeId);
-        assertThat(responseEntity.getBody().get("name").textValue()).isEqualTo("Test name");
-        assertThat(responseEntity.getBody().get("description").textValue()).isEqualTo("Test description");
-        assertThat(responseEntity.getBody().get("duration").textValue()).isEqualTo("02:30:00.000");
-        assertThat(responseEntity.getBody().get("image").get("data").textValue())
-                .isEqualTo(getExpectedImageBase64());
-        assertThat(responseEntity.getBody().get("image").get("format").textValue()).isEqualTo("image/jpeg");
+        assertThat(responseEntity.getBody().get("trainingType").get("trainingTypeId").textValue()).isEqualTo(trainingTypeId);
+        assertThat(responseEntity.getBody().get("trainingType").get("name").textValue()).isEqualTo("Test name");
+        assertThat(responseEntity.getBody().get("trainingType").get("description").textValue()).isEqualTo("Test description");
+        assertThat(responseEntity.getBody().get("trainingType").get("duration").textValue()).isEqualTo("02:30:00");
+        assertThat(responseEntity.getBody().get("trainingType").get("image")).isNull();
 
         trainingTypeDocumentList = mongoTemplate.findAll(TrainingTypeDocument.class);
         assertThat(trainingTypeDocumentList.size()).isZero();

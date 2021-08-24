@@ -71,4 +71,13 @@ public class UserPurchaseController {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, reason, exception);
         }
     }
+
+    @PreAuthorize("hasRole('ADMIN') or hasRole('MANAGER') or hasRole('EMPLOYEE') or principal==#userId")
+    @GetMapping("/user/{userId}/latest")
+    public PurchasedUserGymPassDTO getUserLatestGymPass(
+        @PathVariable("userId") @ValidIDFormat final String userId
+    ){
+        return purchaseService.getUserLatestGympass(userId);
+    }
+
 }

@@ -234,6 +234,11 @@ public class PurchaseServiceImpl implements PurchaseService{
     }
 
     @Override
+    public PurchasedUserGymPassDTO getUserLatestGympass(String userId) {
+        return null;
+    }
+
+    @Override
     public PurchasedGymPassDTO deleteGymPass(String individualGymPassId) throws GymPassNotFoundException {
 
         PurchasedGymPassDocument purchasedGymPassDocumentToRemove = purchasedGymPassDAO

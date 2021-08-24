@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.when;
 
 @SpringBootTest
@@ -134,5 +135,20 @@ public class GetUserLatestGymPassServiceUnitTest {
         //then
         assertThat(purchaseService.getUserLatestGympass(userId))
                 .isEqualTo(timeTypeUserGymPass);
+    }
+
+    @Test
+    void shouldNotGetUserLatestGymPass_whenInvalidId() {
+        //before
+        String invalidUserId = UUID.randomUUID().toString();
+
+        //when
+        when(userDAO.findByUserId(invalidUserId))
+                .thenReturn(null);
+
+        //then
+        assertThatThrownBy(() ->
+                purchaseService.getUserLatestGympass(invalidUserId)
+        ).isInstanceOf(UserNotFoundException.class);
     }
 }

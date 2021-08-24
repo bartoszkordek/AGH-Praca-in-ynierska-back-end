@@ -16,6 +16,7 @@ public class TrainingTypeDocument {
     private String name;
     private String description;
     private LocalTime duration;
+    private String imageUrl;
     @DBRef
     private ImageDocument imageDocument;
 
@@ -41,6 +42,23 @@ public class TrainingTypeDocument {
         this.duration = duration;
         this.imageDocument = imageDocument;
     }
+
+    public TrainingTypeDocument(
+            String trainingTypeId,
+            String name,
+            String description,
+            LocalTime duration,
+            ImageDocument imageDocument,
+            String imageUrl
+    ) {
+        this.trainingTypeId = trainingTypeId;
+        this.name = name;
+        this.description = description;
+        this.duration = duration;
+        this.imageDocument = imageDocument;
+        this.imageUrl = imageUrl;
+    }
+
 
     public String getId() {
         return id;
@@ -90,6 +108,14 @@ public class TrainingTypeDocument {
         this.imageDocument = imageDocument;
     }
 
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -100,12 +126,13 @@ public class TrainingTypeDocument {
                 && Objects.equals(name, that.name)
                 && Objects.equals(description, that.description)
                 && Objects.equals(duration, that.duration)
+                && Objects.equals(imageUrl, that.imageUrl)
                 && Objects.equals(imageDocument, that.imageDocument);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, trainingTypeId, name, description, duration, imageDocument);
+        return Objects.hash(id, trainingTypeId, name, description, duration, imageUrl, imageDocument);
     }
 
     @Override
@@ -116,6 +143,7 @@ public class TrainingTypeDocument {
                 ", name='" + name + '\'' +
                 ", description='" + description + '\'' +
                 ", duration=" + duration +
+                ", imageUrl='" + imageUrl + '\'' +
                 ", imageDocument=" + imageDocument +
                 '}';
     }

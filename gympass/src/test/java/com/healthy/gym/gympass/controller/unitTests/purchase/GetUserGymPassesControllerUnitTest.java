@@ -57,7 +57,7 @@ public class GetUserGymPassesControllerUnitTest {
     private String adminToken;
     private String managerToken;
     private String employeeToken;
-    private String userToken;
+    private String otherUserToken;
     private String validUserId;
     private String invalidUserId;
     private URI uri;
@@ -73,8 +73,8 @@ public class GetUserGymPassesControllerUnitTest {
         String employeeId = UUID.randomUUID().toString();
         employeeToken = tokenFactory.getEmployeeToken(employeeId);
 
-        String userId = UUID.randomUUID().toString();
-        userToken = tokenFactory.getUserToken(userId);
+        String otherUserId = UUID.randomUUID().toString();
+        otherUserToken = tokenFactory.getUserToken(otherUserId);
 
         validUserId = UUID.randomUUID().toString();
         invalidUserId = UUID.randomUUID().toString();
@@ -318,14 +318,14 @@ public class GetUserGymPassesControllerUnitTest {
 
             @ParameterizedTest
             @EnumSource(TestCountry.class)
-            void whenUserIsNotLogInAsUsualUser(TestCountry country) throws Exception {
+            void whenUserIsNotLogInAsOtherUser(TestCountry country) throws Exception {
                 Map<String, String> messages = getMessagesAccordingToLocale(country);
                 Locale testedLocale = convertEnumToLocale(country);
 
                 RequestBuilder request = MockMvcRequestBuilders
                         .get(uri+validUserId)
                         .header("Accept-Language", testedLocale.toString())
-                        .header("Authorization", userToken)
+                        .header("Authorization", otherUserToken)
                         .contentType(MediaType.APPLICATION_JSON);
 
                 String expectedMessage = messages.get("exception.access.denied");

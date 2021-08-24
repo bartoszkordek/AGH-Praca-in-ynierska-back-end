@@ -29,6 +29,7 @@ public class UserPurchaseController {
     private static final String INTERNAL_ERROR_EXCEPTION = "exception.internal.error";
     private static final String USER_NOT_FOUND_EXCEPTION = "exception.user.not.found";
     private static final String START_DATE_AFTER_END_DATE_EXCEPTION = "exception.start.after.end";
+    private static final String NO_GYMPASSES_TO_DISPLAY_EXCEPTION = "exception.no.gympasses";
     private final Translator translator;
     private final PurchaseService purchaseService;
 
@@ -62,7 +63,7 @@ public class UserPurchaseController {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, exception);
 
         } catch (NoGymPassesException exception){
-            String reason = translator.toLocale("exception.no.gympasses");
+            String reason = translator.toLocale(NO_GYMPASSES_TO_DISPLAY_EXCEPTION);
             throw new ResponseStatusException(HttpStatus.NO_CONTENT, reason, exception);
 
         } catch (Exception exception){
@@ -77,7 +78,22 @@ public class UserPurchaseController {
     public PurchasedUserGymPassDTO getUserLatestGymPass(
         @PathVariable("userId") @ValidIDFormat final String userId
     ){
-        return purchaseService.getUserLatestGympass(userId);
+        try{
+            return purchaseService.getUserLatestGympass(userId);
+
+        } catch (UserNotFoundException exception) {
+            String reason = translator.toLocale(USER_NOT_FOUND_EXCEPTION);
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, exception);
+
+        } catch (NoGymPassesException exception){
+            String reason = translator.toLocale(NO_GYMPASSES_TO_DISPLAY_EXCEPTION);
+            throw new ResponseStatusException(HttpStatus.NO_CONTENT, reason, exception);
+
+        } catch (Exception exception){
+            String reason = translator.toLocale(INTERNAL_ERROR_EXCEPTION);
+            exception.printStackTrace();
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, reason, exception);
+        }
     }
 
 }

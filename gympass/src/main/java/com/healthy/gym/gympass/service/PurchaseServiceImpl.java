@@ -234,8 +234,20 @@ public class PurchaseServiceImpl implements PurchaseService{
     }
 
     @Override
-    public PurchasedUserGymPassDTO getUserLatestGympass(String userId) {
-        return null;
+    public PurchasedUserGymPassDTO getUserLatestGympass(String userId)
+            throws UserNotFoundException, NoGymPassesException {
+
+        UserDocument userDocument = userDAO.findByUserId(userId);
+        if(userDocument == null) throw  new UserNotFoundException(USER_NOT_EXIST_MESSAGE);
+
+        PurchasedGymPassDocument purchasedGymPassDocument = purchasedGymPassDAO.findFirstByUserAndEndDateAfter(
+                userDocument,
+                LocalDate.now()
+        );
+
+        if(purchasedGymPassDocument == null) throw new NoGymPassesException();
+
+        return modelMapper.map(purchasedGymPassDocument, PurchasedUserGymPassDTO.class);
     }
 
     @Override

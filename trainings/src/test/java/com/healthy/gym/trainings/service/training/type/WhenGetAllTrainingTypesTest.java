@@ -46,7 +46,7 @@ class WhenGetAllTrainingTypesTest {
         );
 
         trainingTypeDAO = mock(TrainingTypeDAO.class);
-        trainingTypeService = new TrainingTypeServiceImpl(trainingTypeDAO, null);
+        trainingTypeService = new TrainingTypeServiceImpl(trainingTypeDAO, null, null);
     }
 
     @Test

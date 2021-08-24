@@ -55,7 +55,7 @@ class WhenUpdateTrainingTypeByIdTest {
                 "image",
                 "hello.png",
                 MediaType.IMAGE_PNG_VALUE,
-                "data" .getBytes(StandardCharsets.UTF_8)
+                "data".getBytes(StandardCharsets.UTF_8)
         );
 
         imageToUpdate = new ImageDocument(
@@ -77,7 +77,7 @@ class WhenUpdateTrainingTypeByIdTest {
 
         trainingTypeDAO = mock(TrainingTypeDAO.class);
         imageDAO = mock(ImageDAO.class);
-        trainingTypeService = new TrainingTypeServiceImpl(trainingTypeDAO, imageDAO);
+        trainingTypeService = new TrainingTypeServiceImpl(trainingTypeDAO, imageDAO, null);
     }
 
     @Test

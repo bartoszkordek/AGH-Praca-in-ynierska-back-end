@@ -106,12 +106,12 @@ public class TrainingTypeServiceImpl implements TrainingTypeService {
     }
 
     @Override
-    public TrainingTypeDocument updateTrainingTypeById(
-            String trainingId,
+    public TrainingTypeDTO updateTrainingTypeById(
+            String trainingTypeId,
             TrainingTypeRequest trainingTypeRequest,
             MultipartFile multipartFile
     ) throws TrainingTypeNotFoundException, DuplicatedTrainingTypeException {
-        TrainingTypeDocument trainingTypeDocumentFound = trainingTypeDAO.findByTrainingTypeId(trainingId);
+        TrainingTypeDocument trainingTypeDocumentFound = trainingTypeDAO.findByTrainingTypeId(trainingTypeId);
         if (trainingTypeDocumentFound == null) throw new TrainingTypeNotFoundException();
 
         String updatedTrainingName = trainingTypeRequest.getName();
@@ -140,12 +140,16 @@ public class TrainingTypeServiceImpl implements TrainingTypeService {
                 }
                 ImageDocument savedImageDocument = imageDAO.save(imageToUpdate);
                 trainingTypeDocumentFound.setImageDocument(savedImageDocument);
+                String imageUrl = imageUrlCreator.createImageUrl(trainingTypeId);
+                imageUrl += "?version=" + DigestUtils.md5DigestAsHex(multipartFile.getBytes());
+                trainingTypeDocumentFound.setImageUrl(imageUrl);
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
 
-        return trainingTypeDAO.save(trainingTypeDocumentFound);
+        var updatedTrainingType = trainingTypeDAO.save(trainingTypeDocumentFound);
+        return modelMapper.map(updatedTrainingType, TrainingTypeDTO.class);
     }
 
     @Override

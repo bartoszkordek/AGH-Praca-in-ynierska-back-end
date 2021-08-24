@@ -3,16 +3,12 @@ package com.healthy.gym.trainings.controller;
 import com.healthy.gym.trainings.component.ImageValidator;
 import com.healthy.gym.trainings.component.MultipartFileValidator;
 import com.healthy.gym.trainings.component.Translator;
-import com.healthy.gym.trainings.data.document.ImageDocument;
-import com.healthy.gym.trainings.data.document.TrainingTypeDocument;
-import com.healthy.gym.trainings.dto.ImageDTO;
 import com.healthy.gym.trainings.dto.TrainingTypeDTO;
 import com.healthy.gym.trainings.exception.DuplicatedTrainingTypeException;
 import com.healthy.gym.trainings.exception.MultipartBodyException;
 import com.healthy.gym.trainings.exception.notfound.TrainingTypeNotFoundException;
 import com.healthy.gym.trainings.model.request.TrainingTypeRequest;
 import com.healthy.gym.trainings.model.response.TrainingTypeDTOResponse;
-import com.healthy.gym.trainings.model.response.TrainingTypeResponse;
 import com.healthy.gym.trainings.service.TrainingTypeService;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
@@ -26,7 +22,6 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
 import javax.activation.UnsupportedDataTypeException;
-import java.util.Base64;
 import java.util.List;
 
 @RestController
@@ -105,17 +100,6 @@ public class TrainingTypeController {
         }
     }
 
-    private ImageDTO getImageDTO(TrainingTypeDocument trainingTypeDocument) {
-        ImageDocument imageDocument = trainingTypeDocument.getImageDocument();
-        if (imageDocument == null) return null;
-        byte[] updatedMultipartFile = imageDocument.getImageData().getData();
-
-        String data = Base64.getEncoder().encodeToString(updatedMultipartFile);
-        String format = imageDocument.getContentType();
-
-        return new ImageDTO(data, format);
-    }
-
     @GetMapping("/{trainingTypeId}")
     public ResponseEntity<TrainingTypeDTO> getTrainingTypeById(@PathVariable final String trainingTypeId) {
         try {
@@ -164,24 +148,22 @@ public class TrainingTypeController {
             consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    public ResponseEntity<TrainingTypeResponse> updateTrainingTypeById(
+    public ResponseEntity<TrainingTypeDTOResponse> updateTrainingTypeById(
             @PathVariable final String trainingTypeId,
             @RequestPart(value = "body") final TrainingTypeRequest trainingTypeRequest,
             @RequestPart(value = "image", required = false) final MultipartFile multipartFile
     ) {
-        TrainingTypeResponse response = new TrainingTypeResponse();
+        TrainingTypeDTOResponse response = new TrainingTypeDTOResponse();
         try {
             multipartFileValidator.validateBody(trainingTypeRequest);
             if (multipartFile != null) imageValidator.isFileSupported(multipartFile);
 
-            TrainingTypeDocument trainingTypeDocument = trainingTypeService
+            TrainingTypeDTO trainingTypeDTO = trainingTypeService
                     .updateTrainingTypeById(trainingTypeId, trainingTypeRequest, multipartFile);
 
-            response = modelMapper.map(trainingTypeDocument, TrainingTypeResponse.class);
             String message = translator.toLocale("training.type.updated");
             response.setMessage(message);
-            ImageDTO imageDTO = getImageDTO(trainingTypeDocument);
-            response.setImageDTO(imageDTO);
+            response.setTrainingType(trainingTypeDTO);
 
             return ResponseEntity
                     .status(HttpStatus.OK)

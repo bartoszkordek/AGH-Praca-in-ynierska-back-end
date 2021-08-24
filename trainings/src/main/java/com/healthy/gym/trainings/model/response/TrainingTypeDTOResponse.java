@@ -13,6 +13,10 @@ public class TrainingTypeDTOResponse extends AbstractResponse {
         this.trainingType = trainingTypeDTO;
     }
 
+    public TrainingTypeDTOResponse() {
+
+    }
+
     public TrainingTypeDTO getTrainingType() {
         return trainingType;
     }

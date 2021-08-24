@@ -1,6 +1,5 @@
 package com.healthy.gym.trainings.service;
 
-import com.healthy.gym.trainings.data.document.TrainingTypeDocument;
 import com.healthy.gym.trainings.dto.TrainingTypeDTO;
 import com.healthy.gym.trainings.exception.DuplicatedTrainingTypeException;
 import com.healthy.gym.trainings.exception.notfound.TrainingTypeNotFoundException;
@@ -18,7 +17,7 @@ public interface TrainingTypeService {
 
     TrainingTypeDTO getTrainingTypeById(String trainingTypeId) throws TrainingTypeNotFoundException;
 
-    TrainingTypeDocument updateTrainingTypeById(
+    TrainingTypeDTO updateTrainingTypeById(
             String trainingId, TrainingTypeRequest trainingTypeRequest, MultipartFile multipartFile
     ) throws TrainingTypeNotFoundException, DuplicatedTrainingTypeException;
 

@@ -1,0 +1,220 @@
+package com.healthy.gym.trainings.controller.userNextTraining;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.healthy.gym.trainings.configuration.FixedClockConfig;
+import com.healthy.gym.trainings.configuration.TestCountry;
+import com.healthy.gym.trainings.configuration.TestRoleTokenFactory;
+import com.healthy.gym.trainings.data.document.GroupTrainingDocument;
+import com.healthy.gym.trainings.data.document.LocationDocument;
+import com.healthy.gym.trainings.data.document.TrainingTypeDocument;
+import com.healthy.gym.trainings.data.document.UserDocument;
+import com.healthy.gym.trainings.enums.GymRole;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.boot.web.server.LocalServerPort;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.http.*;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
+import org.testcontainers.containers.GenericContainer;
+import org.testcontainers.containers.MongoDBContainer;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
+import org.testcontainers.utility.DockerImageName;
+
+import java.net.URI;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Locale;
+import java.util.UUID;
+
+import static com.healthy.gym.trainings.configuration.LocaleConverter.convertEnumToLocale;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+
+@Testcontainers
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, classes = FixedClockConfig.class)
+@ActiveProfiles(value = "test")
+@Tag("integration")
+public class GetUserNextTrainingIntegrationTest {
+
+    @Container
+    static MongoDBContainer mongoDBContainer =
+            new MongoDBContainer(DockerImageName.parse("mongo:4.4.4-bionic"));
+    @Container
+    static GenericContainer<?> rabbitMQContainer =
+            new GenericContainer<>(DockerImageName.parse("gza73/agh-praca-inzynierska-rabbitmq"))
+                    .withExposedPorts(5672);
+    @Autowired
+    private TestRestTemplate restTemplate;
+    @Autowired
+    private TestRoleTokenFactory tokenFactory;
+    @Autowired
+    private MongoTemplate mongoTemplate;
+
+    @LocalServerPort
+    private Integer port;
+
+    private String userToken;
+    private UserDocument user;
+    private String userId;
+
+    private String groupTrainingId1;
+    private String groupTrainingId2;
+    private String groupTrainingId3;
+
+    @DynamicPropertySource
+    static void setProperties(DynamicPropertyRegistry registry) {
+        registry.add("spring.data.mongodb.uri", mongoDBContainer::getReplicaSetUrl);
+        registry.add("spring.rabbitmq.port", rabbitMQContainer::getFirstMappedPort);
+    }
+
+    @BeforeEach
+    void setUp() {
+        userId = UUID.randomUUID().toString();
+        userToken = tokenFactory.getUserToken(userId);
+
+        var now = LocalDateTime.now();
+
+        String userName = "Jan";
+        String userSurname = "Kowalski";
+        UserDocument userDocument = new UserDocument();
+        userDocument.setName(userName);
+        userDocument.setSurname(userSurname);
+        userDocument.setUserId(userId);
+        userDocument.setGymRoles(List.of(GymRole.USER));
+
+        mongoTemplate.save(userDocument);
+
+        String trainerId = UUID.randomUUID().toString();
+        String trainerName = "Tadeusz";
+        String trainerSurname = "Trener";
+        UserDocument trainerDocument = new UserDocument();
+        trainerDocument.setName(trainerName);
+        trainerDocument.setSurname(trainerSurname);
+        trainerDocument.setUserId(trainerId);
+        trainerDocument.setGymRoles(List.of(GymRole.TRAINER));
+
+        mongoTemplate.save(trainerDocument);
+
+        String trainingTypeId1 = UUID.randomUUID().toString();
+        String trainingName1 = "Pilates";
+        TrainingTypeDocument trainingTypeDocument1 = new TrainingTypeDocument(trainingTypeId1, trainingName1);
+        mongoTemplate.save(trainingTypeDocument1);
+
+        String trainingTypeId2 = UUID.randomUUID().toString();
+        String trainingName2 = "Rowery";
+        TrainingTypeDocument trainingTypeDocument2 = new TrainingTypeDocument(trainingTypeId2, trainingName2);
+        mongoTemplate.save(trainingTypeDocument2);
+
+        String trainingTypeId3 = UUID.randomUUID().toString();
+        String trainingName3 = "Joga";
+        TrainingTypeDocument trainingTypeDocument3 = new TrainingTypeDocument(trainingTypeId3, trainingName3);
+        mongoTemplate.save(trainingTypeDocument3);
+
+        String locationId1 = UUID.randomUUID().toString();
+        String locationName1 = "Sala nr 2";
+        LocationDocument locationDocument1 = new LocationDocument(locationId1, locationName1);
+        mongoTemplate.save(locationDocument1);
+
+        String locationId2 = UUID.randomUUID().toString();
+        String locationName2 = "Sala nr 3";
+        LocationDocument locationDocument2 = new LocationDocument(locationId2, locationName2);
+        mongoTemplate.save(locationDocument2);
+
+       groupTrainingId1 = UUID.randomUUID().toString();
+        GroupTrainingDocument groupTrainingDocument1 = new GroupTrainingDocument(
+                groupTrainingId1,
+                trainingTypeDocument1,
+                List.of(trainerDocument),
+                now.plusDays(10),
+                now.plusDays(10).plusMinutes(30),
+                locationDocument1,
+                20,
+                List.of(userDocument),
+        null
+        );
+
+        mongoTemplate.save(groupTrainingDocument1);
+
+
+        groupTrainingId2 = UUID.randomUUID().toString();
+        GroupTrainingDocument groupTrainingDocument2 = new GroupTrainingDocument(
+                groupTrainingId2,
+                trainingTypeDocument2,
+                List.of(trainerDocument),
+                now.plusDays(1),
+                now.plusDays(1).plusHours(1),
+                locationDocument2,
+                15,
+                List.of(userDocument),
+                null
+        );
+
+        mongoTemplate.save(groupTrainingDocument2);
+
+
+        groupTrainingId3 = UUID.randomUUID().toString();
+        GroupTrainingDocument groupTrainingDocument3 = new GroupTrainingDocument(
+                groupTrainingId3,
+                trainingTypeDocument3,
+                List.of(trainerDocument),
+                now.plusDays(5),
+                now.plusDays(5).plusHours(1),
+                locationDocument1,
+                25,
+                List.of(userDocument),
+                null
+        );
+
+        mongoTemplate.save(groupTrainingDocument3);
+
+    }
+
+    @AfterEach
+    void tearDown() {
+        mongoTemplate.dropCollection(GroupTrainingDocument.class);
+        mongoTemplate.dropCollection(TrainingTypeDocument.class);
+        mongoTemplate.dropCollection(UserDocument.class);
+        mongoTemplate.dropCollection(LocationDocument.class);
+    }
+
+    @ParameterizedTest
+    @EnumSource(TestCountry.class)
+    void shouldGetUserNextTraining_whenValidUserId(TestCountry country)
+            throws Exception {
+        Locale testedLocale = convertEnumToLocale(country);
+
+        URI uri = new URI("http://localhost:" + port + "/user/" + userId + "/next");
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Accept-Language", testedLocale.toString());
+        headers.set("Authorization", userToken);
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        HttpEntity<Object> request = new HttpEntity<>(null, headers);
+
+        ResponseEntity<JsonNode> responseEntity = restTemplate
+                .exchange(uri, HttpMethod.GET, request, JsonNode.class);
+
+        System.out.println(responseEntity.getBody());
+
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(responseEntity.getBody()).isNotNull();
+
+        assertThat(responseEntity.getBody().get("id")).isNotNull();
+        assertThat(responseEntity.getBody().get("id").textValue())
+                .isEqualTo(groupTrainingId2);
+        assertThat(responseEntity.getBody().get("title").textValue())
+                .isEqualTo("Rowery");
+        assertThat(responseEntity.getBody().get("startDate").textValue()).isNotNull();
+        assertThat(responseEntity.getBody().get("location").textValue())
+                .isEqualTo("Sala nr 3");
+    }
+}

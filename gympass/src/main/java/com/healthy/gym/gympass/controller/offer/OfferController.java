@@ -1,4 +1,4 @@
-package com.healthy.gym.gympass.controller;
+package com.healthy.gym.gympass.controller.offer;
 
 
 import com.healthy.gym.gympass.component.Translator;

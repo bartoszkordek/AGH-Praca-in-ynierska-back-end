@@ -15,12 +15,24 @@ public interface PurchasedGymPassDAO extends MongoRepository<PurchasedGymPassDoc
     PurchasedGymPassDocument findByPurchasedGymPassDocumentId(String purchasedGymPassDocumentId);
 
     List<PurchasedGymPassDocument> findAllByUserAndStartDateAfterAndEndDateBefore(
-            UserDocument userDocument, LocalDate startDate, LocalDate endDate
+            UserDocument userDocument,
+            LocalDate startDate,
+            LocalDate endDate
     );
 
     Page<PurchasedGymPassDocument> findAllByPurchaseDateTimeBetween(
             LocalDateTime purchasedStartDateTime,
             LocalDateTime purchasedEndDateTime,
             Pageable pageable
+    );
+
+    PurchasedGymPassDocument findFirstByUserAndEndDateAfter(
+            UserDocument userDocument,
+            LocalDate endDate
+    );
+
+    List<PurchasedGymPassDocument> findAllByUserAndEndDateAfter(
+            UserDocument userDocument,
+            LocalDate endDate
     );
 }

@@ -372,6 +372,91 @@ class GetUserGymPassesIntegrationTest {
             List<PurchasedGymPassDocument> gymPassDocumentList = mongoTemplate.findAll(PurchasedGymPassDocument.class);
             assertThat(gymPassDocumentList.size()).isEqualTo(4);
         }
+
+        @ParameterizedTest
+        @EnumSource(TestCountry.class)
+        void shouldGetUserGymPasses_whenValidUserIdNotEmptyListAndCorrectDatesAndLoggedAsSpecificUser(TestCountry country)
+                throws Exception {
+            Locale testedLocale = convertEnumToLocale(country);
+
+            URI uri = new URI("http://localhost:" + port + "/purchase/user/"+userId);
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.set("Accept-Language", testedLocale.toString());
+            headers.set("Authorization", userToken);
+            headers.setContentType(MediaType.APPLICATION_JSON);
+
+            HttpEntity<Object> request = new HttpEntity<>(null, headers);
+
+            ResponseEntity<JsonNode> responseEntity = restTemplate
+                    .exchange(uri, HttpMethod.GET, request, JsonNode.class);
+
+            assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
+            assertThat(responseEntity.getBody()).isNotNull();
+
+            assertThat(responseEntity.getBody().get(0).get("purchasedGymPassDocumentId")).isNotNull();
+            assertThat(responseEntity.getBody().get(0).get("gymPassOffer").get("gymPassOfferId")).isNotNull();
+            assertThat(responseEntity.getBody().get(0).get("gymPassOffer").get("title").textValue())
+                    .isEqualTo("Karnet miesięczny");
+            assertThat(responseEntity.getBody().get(0).get("gymPassOffer").get("price").get("amount").doubleValue())
+                    .isEqualTo(139.99);
+            assertThat(responseEntity.getBody().get(0).get("gymPassOffer").get("price").get("currency").textValue())
+                    .isEqualTo("zł");
+            assertThat(responseEntity.getBody().get(0).get("gymPassOffer").get("price").get("period").textValue())
+                    .isEqualTo("miesiąc");
+            assertThat(responseEntity.getBody().get(0).get("purchaseDateTime")).isNotNull();
+            assertThat(responseEntity.getBody().get(0).get("startDate").textValue())
+                    .isEqualTo(LocalDate.now().minusDays(2).toString());
+            assertThat(responseEntity.getBody().get(0).get("endDate").textValue())
+                    .isEqualTo(LocalDate.now().minusDays(2).plusMonths(1).toString());
+            assertThat(responseEntity.getBody().get(0).get("entries").intValue())
+                    .isEqualTo(Integer.MAX_VALUE);
+            assertThat(responseEntity.getBody().get(0).get("suspensionDate")).isNull();
+
+            assertThat(responseEntity.getBody().get(1).get("purchasedGymPassDocumentId")).isNotNull();
+            assertThat(responseEntity.getBody().get(1).get("gymPassOffer").get("gymPassOfferId")).isNotNull();
+            assertThat(responseEntity.getBody().get(1).get("gymPassOffer").get("title").textValue())
+                    .isEqualTo("Karnet semestralny");
+            assertThat(responseEntity.getBody().get(1).get("gymPassOffer").get("price").get("amount").doubleValue())
+                    .isEqualTo(399.99);
+            assertThat(responseEntity.getBody().get(1).get("gymPassOffer").get("price").get("currency").textValue())
+                    .isEqualTo("zł");
+            assertThat(responseEntity.getBody().get(1).get("gymPassOffer").get("price").get("period").textValue())
+                    .isEqualTo("semestr");
+            assertThat(responseEntity.getBody().get(1).get("purchaseDateTime")).isNotNull();
+            assertThat(responseEntity.getBody().get(1).get("startDate").textValue())
+                    .isEqualTo(LocalDate.now().minusDays(2).toString());
+            assertThat(responseEntity.getBody().get(1).get("endDate").textValue())
+                    .isEqualTo(LocalDate.now().minusDays(2).plusMonths(6).plusDays(10).toString());
+            assertThat(responseEntity.getBody().get(1).get("entries").intValue())
+                    .isEqualTo(Integer.MAX_VALUE);
+            assertThat(responseEntity.getBody().get(1).get("suspensionDate").textValue())
+                    .isEqualTo(LocalDate.now().plusDays(10).toString());
+
+            assertThat(responseEntity.getBody().get(2).get("purchasedGymPassDocumentId")).isNotNull();
+            assertThat(responseEntity.getBody().get(2).get("gymPassOffer").get("gymPassOfferId")).isNotNull();
+            assertThat(responseEntity.getBody().get(2).get("gymPassOffer").get("title").textValue())
+                    .isEqualTo("Karnet 10 wejść");
+            assertThat(responseEntity.getBody().get(2).get("gymPassOffer").get("price").get("amount").doubleValue())
+                    .isEqualTo(99.99);
+            assertThat(responseEntity.getBody().get(2).get("gymPassOffer").get("price").get("currency").textValue())
+                    .isEqualTo("zł");
+            assertThat(responseEntity.getBody().get(2).get("gymPassOffer").get("price").get("period").textValue())
+                    .isEqualTo("nielimitowany");
+            assertThat(responseEntity.getBody().get(2).get("purchaseDateTime")).isNotNull();
+            assertThat(responseEntity.getBody().get(2).get("startDate").textValue())
+                    .isEqualTo(LocalDate.now().minusDays(2).toString());
+            assertThat(responseEntity.getBody().get(2).get("endDate").textValue())
+                    .isEqualTo(LocalDate.parse("9999-12-31", DateTimeFormatter.ISO_LOCAL_DATE).toString());
+            assertThat(responseEntity.getBody().get(2).get("entries").intValue())
+                    .isEqualTo(10);
+            assertThat(responseEntity.getBody().get(2).get("suspensionDate")).isNull();
+
+            assertThat(responseEntity.getBody().size()).isEqualTo(3);
+
+            List<PurchasedGymPassDocument> gymPassDocumentList = mongoTemplate.findAll(PurchasedGymPassDocument.class);
+            assertThat(gymPassDocumentList.size()).isEqualTo(4);
+        }
     }
 
     @Nested
@@ -486,17 +571,20 @@ class GetUserGymPassesIntegrationTest {
                 assertThat(responseEntity.getBody().get("timestamp")).isNotNull();
             }
 
+
             @ParameterizedTest
             @EnumSource(TestCountry.class)
-            void shouldNotGetUserGymPassesWhenLoggedAsUser(TestCountry country) throws Exception {
-                Map<String, String> messages = getMessagesAccordingToLocale(country);
+            void shouldNotGetUserGymPassesWhenLoggedAsOtherUser(TestCountry country) throws Exception {
                 Locale testedLocale = convertEnumToLocale(country);
+
+                String otherUserId = UUID.randomUUID().toString();
+                String otherUserToken = tokenFactory.getUserToken(otherUserId);
 
                 URI uri = new URI("http://localhost:" + port + "/purchase/user/"+userId);
 
                 HttpHeaders headers = new HttpHeaders();
                 headers.set("Accept-Language", testedLocale.toString());
-                headers.set("Authorization", userToken);
+                headers.set("Authorization", otherUserToken);
                 headers.setContentType(MediaType.APPLICATION_JSON);
 
                 HttpEntity<Object> request = new HttpEntity<>(null, headers);
@@ -504,12 +592,11 @@ class GetUserGymPassesIntegrationTest {
                 ResponseEntity<JsonNode> responseEntity = restTemplate
                         .exchange(uri, HttpMethod.GET, request, JsonNode.class);
 
-                String expectedMessage = messages.get("exception.access.denied");
 
                 assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
                 assertThat(responseEntity.getBody().get("status").intValue()).isEqualTo(403);
                 assertThat(responseEntity.getBody().get("error").textValue()).isEqualTo("Forbidden");
-                assertThat(responseEntity.getBody().get("message").textValue()).isEqualTo(expectedMessage);
+                assertThat(responseEntity.getBody().get("message")).isNotNull();
                 assertThat(responseEntity.getBody().get("timestamp")).isNotNull();
             }
         }

@@ -2,7 +2,7 @@ package com.healthy.gym.task.controller.unitTest;
 
 import com.healthy.gym.task.configuration.TestCountry;
 import com.healthy.gym.task.configuration.TestRoleTokenFactory;
-import com.healthy.gym.task.controller.TaskController;
+import com.healthy.gym.task.controller.GeneralTaskController;
 import com.healthy.gym.task.dto.BasicUserInfoDTO;
 import com.healthy.gym.task.dto.TaskDTO;
 import com.healthy.gym.task.enums.AcceptanceStatus;
@@ -45,7 +45,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
-@WebMvcTest(TaskController.class)
+@WebMvcTest(GeneralTaskController.class)
 @ActiveProfiles(value = "test")
 class GetTasksControllerUnitTest {
 

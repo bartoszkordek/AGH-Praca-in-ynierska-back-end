@@ -22,8 +22,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -231,6 +230,30 @@ public class PurchaseServiceImpl implements PurchaseService{
                 .stream()
                 .map(purchasedGymPassDocument -> modelMapper.map(purchasedGymPassDocument, PurchasedUserGymPassDTO.class))
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public PurchasedUserGymPassDTO getUserLatestGympass(String userId)
+            throws UserNotFoundException, NoGymPassesException {
+
+        UserDocument userDocument = userDAO.findByUserId(userId);
+        if(userDocument == null) throw  new UserNotFoundException(USER_NOT_EXIST_MESSAGE);
+
+        List<PurchasedGymPassDocument> purchasedGymPassDocuments = purchasedGymPassDAO.findAllByUserAndEndDateAfter(
+                userDocument,
+                LocalDate.now()
+        );
+
+        if(purchasedGymPassDocuments.isEmpty()) throw new NoGymPassesException();
+
+        Optional<PurchasedGymPassDocument> latestGympassDocumentOptional = purchasedGymPassDocuments
+                .stream()
+                .sorted(Comparator.nullsLast((d1, d2) -> d1.getEndDate().compareTo(d2.getEndDate())))
+                .findFirst();
+
+        PurchasedGymPassDocument latestGympassDocument = latestGympassDocumentOptional.get();
+
+        return modelMapper.map(latestGympassDocument, PurchasedUserGymPassDTO.class);
     }
 
     @Override

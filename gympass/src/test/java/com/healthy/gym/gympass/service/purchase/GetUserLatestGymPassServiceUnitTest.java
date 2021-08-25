@@ -151,4 +151,22 @@ public class GetUserLatestGymPassServiceUnitTest {
                 purchaseService.getUserLatestGympass(invalidUserId)
         ).isInstanceOf(UserNotFoundException.class);
     }
+
+    @Test
+    void shouldNotGetUserLatestGymPass_whenEmptyList() {
+        //before
+        String userIdWithNoGymPasses = UUID.randomUUID().toString();
+        UserDocument userWithNoGymPassesDocument = new UserDocument();
+
+        //when
+        when(userDAO.findByUserId(userIdWithNoGymPasses))
+                .thenReturn(userWithNoGymPassesDocument);
+        when(purchasedGymPassDAO.findFirstByUserAndEndDateAfter(userDocument, LocalDate.now()))
+                .thenReturn(null);
+
+        //then
+        assertThatThrownBy(() ->
+                purchaseService.getUserLatestGympass(userIdWithNoGymPasses)
+        ).isInstanceOf(NoGymPassesException.class);
+    }
 }

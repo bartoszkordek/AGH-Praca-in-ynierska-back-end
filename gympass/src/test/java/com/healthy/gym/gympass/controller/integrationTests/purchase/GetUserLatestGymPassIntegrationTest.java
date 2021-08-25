@@ -14,6 +14,7 @@ import com.healthy.gym.gympass.shared.Description;
 import com.healthy.gym.gympass.shared.Price;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
@@ -39,9 +40,11 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.UUID;
 
 import static com.healthy.gym.gympass.configuration.LocaleConverter.convertEnumToLocale;
+import static com.healthy.gym.gympass.configuration.Messages.getMessagesAccordingToLocale;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 
@@ -221,5 +224,39 @@ public class GetUserLatestGymPassIntegrationTest {
                 .isEqualTo(LocalDate.now().plusDays(5).toString());
         assertThat(responseEntity.getBody().get("entries").intValue())
                 .isEqualTo(Integer.MAX_VALUE);
+    }
+
+    @Nested
+    class ShouldNotGetLastGymPass{
+
+        @ParameterizedTest
+        @EnumSource(TestCountry.class)
+        void shouldNotGetUserLatestGymPass_whenInvalidUserId(TestCountry country)
+                throws Exception {
+            Map<String, String> messages = getMessagesAccordingToLocale(country);
+            Locale testedLocale = convertEnumToLocale(country);
+
+            String invalidUserId = UUID.randomUUID().toString();
+
+            URI uri = new URI("http://localhost:" + port + "/purchase/user/"+invalidUserId+"/latest");
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.set("Accept-Language", testedLocale.toString());
+            headers.set("Authorization", employeeToken);
+            headers.setContentType(MediaType.APPLICATION_JSON);
+
+            HttpEntity<Object> request = new HttpEntity<>(null, headers);
+
+            ResponseEntity<JsonNode> responseEntity = restTemplate
+                    .exchange(uri, HttpMethod.GET, request, JsonNode.class);
+
+            String expectedMessage = messages.get("exception.user.not.found");
+
+            assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+            assertThat(responseEntity.getBody().get("status").intValue()).isEqualTo(400);
+            assertThat(responseEntity.getBody().get("error").textValue()).isEqualTo("Bad Request");
+            assertThat(responseEntity.getBody().get("message").textValue()).isEqualTo(expectedMessage);
+            assertThat(responseEntity.getBody().get("timestamp")).isNotNull();
+        }
     }
 }

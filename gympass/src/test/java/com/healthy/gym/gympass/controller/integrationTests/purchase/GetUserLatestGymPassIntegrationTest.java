@@ -226,6 +226,46 @@ public class GetUserLatestGymPassIntegrationTest {
                 .isEqualTo(Integer.MAX_VALUE);
     }
 
+    @ParameterizedTest
+    @EnumSource(TestCountry.class)
+    void shouldGetUserLatestGymPass_whenValidUserIdAndLoggedAsSpecificUser(TestCountry country)
+            throws Exception {
+        Locale testedLocale = convertEnumToLocale(country);
+
+        URI uri = new URI("http://localhost:" + port + "/purchase/user/" + userId+"/latest");
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Accept-Language", testedLocale.toString());
+        headers.set("Authorization", userToken);
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        HttpEntity<Object> request = new HttpEntity<>(null, headers);
+
+        ResponseEntity<JsonNode> responseEntity = restTemplate
+                .exchange(uri, HttpMethod.GET, request, JsonNode.class);
+
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(responseEntity.getBody()).isNotNull();
+
+        assertThat(responseEntity.getBody().get("purchasedGymPassDocumentId")).isNotNull();
+        assertThat(responseEntity.getBody().get("gymPassOffer").get("gymPassOfferId")).isNotNull();
+        assertThat(responseEntity.getBody().get("gymPassOffer").get("title").textValue())
+                .isEqualTo("Karnet semestralny");
+        assertThat(responseEntity.getBody().get("gymPassOffer").get("price").get("amount").doubleValue())
+                .isEqualTo(399.99);
+        assertThat(responseEntity.getBody().get("gymPassOffer").get("price").get("currency").textValue())
+                .isEqualTo("zł");
+        assertThat(responseEntity.getBody().get("gymPassOffer").get("price").get("period").textValue())
+                .isEqualTo("semestr");
+        assertThat(responseEntity.getBody().get("purchaseDateTime")).isNotNull();
+        assertThat(responseEntity.getBody().get("startDate").textValue())
+                .isEqualTo(LocalDate.now().minusMonths(5).toString());
+        assertThat(responseEntity.getBody().get("endDate").textValue())
+                .isEqualTo(LocalDate.now().plusDays(5).toString());
+        assertThat(responseEntity.getBody().get("entries").intValue())
+                .isEqualTo(Integer.MAX_VALUE);
+    }
+
     @Nested
     class ShouldNotGetLastGymPass{
 

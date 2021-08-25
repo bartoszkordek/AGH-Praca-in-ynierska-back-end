@@ -127,6 +127,44 @@ public class CheckGymPassValidityControllerUnitTest {
 
         @ParameterizedTest
         @EnumSource(TestCountry.class)
+        void shouldReturnValid_timeValidTypeGymPassAndLoggedAsUser(TestCountry country) throws Exception {
+            Map<String, String> messages = getMessagesAccordingToLocale(country);
+            Locale testedLocale = convertEnumToLocale(country);
+
+            String endDate = LocalDateTime.now().minusDays(5).plusMonths(1).format(DateTimeFormatter.ISO_LOCAL_DATE);
+
+            RequestBuilder request = MockMvcRequestBuilders
+                    .get(uri+"/"+validTimeValidPurchasedGymPassDocumentId+"/status")
+                    .header("Accept-Language", testedLocale.toString())
+                    .header("Authorization", userToken)
+                    .contentType(MediaType.APPLICATION_JSON);
+
+            when(purchaseService.checkGymPassValidityStatus(validTimeValidPurchasedGymPassDocumentId))
+                    .thenReturn(new PurchasedGymPassStatusValidationResultDTO(
+                            true,
+                            endDate,
+                            Integer.MAX_VALUE,
+                            null
+                    ));
+
+            String expectedMessage = messages.get("gympass.valid");
+
+            mockMvc.perform(request)
+                    .andDo(print())
+                    .andExpect(matchAll(
+                            status().isOk(),
+                            content().contentType(MediaType.APPLICATION_JSON),
+                            jsonPath("$.message").value(is(expectedMessage)),
+                            jsonPath("$.result.valid").value(is(true)),
+                            jsonPath("$.result.endDate").value(is(endDate)),
+                            jsonPath("$.result.entries").value(is(Integer.MAX_VALUE)),
+                            jsonPath("$.result.suspensionDate").doesNotExist()
+                    ));
+
+        }
+
+        @ParameterizedTest
+        @EnumSource(TestCountry.class)
         void shouldReturnValid_entriesValidTypeGymPass(TestCountry country) throws Exception {
             Map<String, String> messages = getMessagesAccordingToLocale(country);
             Locale testedLocale = convertEnumToLocale(country);
@@ -314,7 +352,7 @@ public class CheckGymPassValidityControllerUnitTest {
         }
 
         @Nested
-        class ShouldNotCheckGymPassValidationWhenNotAuthorized{
+        class ShouldNotCheckGymPassValidationWhenNotAuthorized {
 
             @ParameterizedTest
             @EnumSource(TestCountry.class)
@@ -322,7 +360,7 @@ public class CheckGymPassValidityControllerUnitTest {
                 Locale testedLocale = convertEnumToLocale(country);
 
                 RequestBuilder request = MockMvcRequestBuilders
-                        .get(uri+"/"+validEntriesValidPurchasedGymPassDocumentId+"/status")
+                        .get(uri + "/" + validEntriesValidPurchasedGymPassDocumentId + "/status")
                         .header("Accept-Language", testedLocale.toString());
 
                 mockMvc.perform(request)
@@ -332,60 +370,35 @@ public class CheckGymPassValidityControllerUnitTest {
 
             @ParameterizedTest
             @EnumSource(TestCountry.class)
-            void whenUserIsNotLogInAsUsualUser(TestCountry country) throws Exception {
+            void shouldThrowIllegalStateExceptionWhenInternalErrorOccurs(TestCountry country)
+                    throws Exception {
                 Map<String, String> messages = getMessagesAccordingToLocale(country);
                 Locale testedLocale = convertEnumToLocale(country);
 
+                String id = UUID.randomUUID().toString();
+
                 RequestBuilder request = MockMvcRequestBuilders
-                        .get(uri+"/"+validEntriesValidPurchasedGymPassDocumentId+"/status")
+                        .get(uri + "/" + id + "/status")
                         .header("Accept-Language", testedLocale.toString())
-                        .header("Authorization", userToken)
+                        .header("Authorization", adminToken)
                         .contentType(MediaType.APPLICATION_JSON);
 
-                String expectedMessage = messages.get("exception.access.denied");
+                doThrow(IllegalStateException.class)
+                        .when(purchaseService)
+                        .checkGymPassValidityStatus(id);
+
+                String expectedMessage = messages.get("exception.internal.error");
+
 
                 mockMvc.perform(request)
                         .andDo(print())
-                        .andExpect(status().isForbidden())
-                        .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                        .andExpect(jsonPath("$.message").value(is(expectedMessage)))
-                        .andExpect(jsonPath("$.error").value(is("Forbidden")))
-                        .andExpect(jsonPath("$.status").value(403))
-                        .andExpect(jsonPath("$.timestamp").exists());
+                        .andExpect(status().isInternalServerError())
+                        .andExpect(status().reason(is(expectedMessage)))
+                        .andExpect(result ->
+                                assertThat(Objects.requireNonNull(result.getResolvedException()).getCause())
+                                        .isInstanceOf(IllegalStateException.class)
+                        );
             }
-
-        }
-
-        @ParameterizedTest
-        @EnumSource(TestCountry.class)
-        void shouldThrowIllegalStateExceptionWhenInternalErrorOccurs(TestCountry country)
-                throws Exception {
-            Map<String, String> messages = getMessagesAccordingToLocale(country);
-            Locale testedLocale = convertEnumToLocale(country);
-
-            String id = UUID.randomUUID().toString();
-
-            RequestBuilder request = MockMvcRequestBuilders
-                    .get(uri+"/"+id+"/status")
-                    .header("Accept-Language", testedLocale.toString())
-                    .header("Authorization", adminToken)
-                    .contentType(MediaType.APPLICATION_JSON);
-
-            doThrow(IllegalStateException.class)
-                    .when(purchaseService)
-                    .checkGymPassValidityStatus(id);
-
-            String expectedMessage = messages.get("exception.internal.error");
-
-
-            mockMvc.perform(request)
-                    .andDo(print())
-                    .andExpect(status().isInternalServerError())
-                    .andExpect(status().reason(is(expectedMessage)))
-                    .andExpect(result ->
-                            assertThat(Objects.requireNonNull(result.getResolvedException()).getCause())
-                                    .isInstanceOf(IllegalStateException.class)
-                    );
         }
     }
 

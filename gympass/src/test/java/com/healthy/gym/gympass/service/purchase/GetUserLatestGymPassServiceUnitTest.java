@@ -23,6 +23,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -49,6 +50,7 @@ public class GetUserLatestGymPassServiceUnitTest {
     private String userId;
     private UserDocument userDocument;
     private PurchasedGymPassDocument purchasedGymPassDocument;
+    private List purchasedGymPassDocuments;
     private PurchasedUserGymPassDTO timeTypeUserGymPass;
 
     @BeforeEach
@@ -120,6 +122,8 @@ public class GetUserLatestGymPassServiceUnitTest {
                 timeTypeEntries,
                 null
         );
+
+        purchasedGymPassDocuments = List.of(purchasedGymPassDocument);
     }
 
     @Test
@@ -128,10 +132,10 @@ public class GetUserLatestGymPassServiceUnitTest {
         //when
         when(userDAO.findByUserId(userId))
                 .thenReturn(userDocument);
-        when(purchasedGymPassDAO.findFirstByUserAndEndDateAfter(
+        when(purchasedGymPassDAO.findAllByUserAndEndDateAfter(
                 userDocument,
                 LocalDate.now()))
-                .thenReturn(purchasedGymPassDocument);
+                .thenReturn(purchasedGymPassDocuments);
         //then
         assertThat(purchaseService.getUserLatestGympass(userId))
                 .isEqualTo(timeTypeUserGymPass);
@@ -161,8 +165,8 @@ public class GetUserLatestGymPassServiceUnitTest {
         //when
         when(userDAO.findByUserId(userIdWithNoGymPasses))
                 .thenReturn(userWithNoGymPassesDocument);
-        when(purchasedGymPassDAO.findFirstByUserAndEndDateAfter(userDocument, LocalDate.now()))
-                .thenReturn(null);
+        when(purchasedGymPassDAO.findAllByUserAndEndDateAfter(userDocument, LocalDate.now()))
+                .thenReturn(new ArrayList<>());
 
         //then
         assertThatThrownBy(() ->

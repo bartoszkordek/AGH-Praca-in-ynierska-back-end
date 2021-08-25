@@ -30,4 +30,9 @@ public interface PurchasedGymPassDAO extends MongoRepository<PurchasedGymPassDoc
             UserDocument userDocument,
             LocalDate endDate
     );
+
+    List<PurchasedGymPassDocument> findAllByUserAndEndDateAfter(
+            UserDocument userDocument,
+            LocalDate endDate
+    );
 }

@@ -81,6 +81,7 @@ public class GetUserLatestGymPassIntegrationTest {
     private String managerToken;
 
     private String userId;
+    private String userIdWithNotPurchasedGymPasses;
 
 
     @DynamicPropertySource
@@ -109,7 +110,7 @@ public class GetUserLatestGymPassIntegrationTest {
 
         mongoTemplate.save(userDocument);
 
-        String userIdWithNotPurchasedGymPasses = UUID.randomUUID().toString();
+        userIdWithNotPurchasedGymPasses = UUID.randomUUID().toString();
         UserDocument userWithNotPurchasedGymPasses = new UserDocument();
         userWithNotPurchasedGymPasses.setName("No");
         userWithNotPurchasedGymPasses.setSurname("GymPasses");
@@ -120,7 +121,6 @@ public class GetUserLatestGymPassIntegrationTest {
 
         String title1 = "Karnet miesięczny";
         String title2 = "Karnet semestralny";
-        String title3 = "Karnet 10 wejść";
         double amount1 = 139.99;
         double amount2 = 399.99;
         String currency = "zł";
@@ -258,5 +258,28 @@ public class GetUserLatestGymPassIntegrationTest {
             assertThat(responseEntity.getBody().get("message").textValue()).isEqualTo(expectedMessage);
             assertThat(responseEntity.getBody().get("timestamp")).isNotNull();
         }
+
+        @ParameterizedTest
+        @EnumSource(TestCountry.class)
+        void shouldNotGetUserLatestGymPass_whenEmptyList(TestCountry country)
+                throws Exception {
+            Locale testedLocale = convertEnumToLocale(country);
+
+            URI uri = new URI("http://localhost:" + port + "/purchase/user/"+userIdWithNotPurchasedGymPasses+"/latest");
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.set("Accept-Language", testedLocale.toString());
+            headers.set("Authorization", employeeToken);
+            headers.setContentType(MediaType.APPLICATION_JSON);
+
+            HttpEntity<Object> request = new HttpEntity<>(null, headers);
+
+            ResponseEntity<JsonNode> responseEntity = restTemplate
+                    .exchange(uri, HttpMethod.GET, request, JsonNode.class);
+
+            assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
+            assertThat(responseEntity.getBody()).isNull();
+        }
+
     }
 }

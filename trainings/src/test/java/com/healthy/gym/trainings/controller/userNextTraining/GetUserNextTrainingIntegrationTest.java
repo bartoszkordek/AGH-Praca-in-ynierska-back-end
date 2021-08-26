@@ -30,9 +30,11 @@ import java.net.URI;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.UUID;
 
 import static com.healthy.gym.trainings.configuration.LocaleConverter.convertEnumToLocale;
+import static com.healthy.gym.trainings.configuration.Messages.getMessagesAccordingToLocale;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 @Testcontainers
@@ -59,8 +61,10 @@ public class GetUserNextTrainingIntegrationTest {
     private Integer port;
 
     private String userToken;
+    private String managerToken;
     private UserDocument user;
     private String userId;
+    private String managerId;
 
     private UserDocument userDocument;
     private UserDocument trainerDocument;
@@ -79,6 +83,9 @@ public class GetUserNextTrainingIntegrationTest {
     void setUp() {
         userId = UUID.randomUUID().toString();
         userToken = tokenFactory.getUserToken(userId);
+
+        managerId = UUID.randomUUID().toString();
+        managerToken = tokenFactory.getManagerToken(managerId);
 
         var now = LocalDateTime.now();
 
@@ -337,5 +344,35 @@ public class GetUserNextTrainingIntegrationTest {
         assertThat(responseEntity.getBody().get("startDate").textValue()).isNotNull();
         assertThat(responseEntity.getBody().get("location").textValue())
                 .isEqualTo("Sala nr 3");
+    }
+
+    @ParameterizedTest
+    @EnumSource(TestCountry.class)
+    void shouldNotGetNextTraining_whenInvalidUserId(TestCountry country)
+            throws Exception {
+        Map<String, String> messages = getMessagesAccordingToLocale(country);
+        Locale testedLocale = convertEnumToLocale(country);
+
+        String invalidUserId = UUID.randomUUID().toString();
+
+        URI uri = new URI("http://localhost:" + port + "/user/" + invalidUserId + "/next");
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Accept-Language", testedLocale.toString());
+        headers.set("Authorization", managerToken);
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        HttpEntity<Object> request = new HttpEntity<>(null, headers);
+
+        ResponseEntity<JsonNode> responseEntity = restTemplate
+                .exchange(uri, HttpMethod.GET, request, JsonNode.class);
+
+        String expectedMessage = messages.get("exception.not.found.user.id");
+
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        assertThat(responseEntity.getBody().get("status").intValue()).isEqualTo(400);
+        assertThat(responseEntity.getBody().get("error").textValue()).isEqualTo("Bad Request");
+        assertThat(responseEntity.getBody().get("message").textValue()).isEqualTo(expectedMessage);
+        assertThat(responseEntity.getBody().get("timestamp")).isNotNull();
     }
 }

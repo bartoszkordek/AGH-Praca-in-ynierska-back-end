@@ -42,7 +42,7 @@ public class UserNextTrainingController {
         this.translator = translator;
     }
 
-    @PreAuthorize("hasRole('ADMIN') or hasRole('EMPLOYEE') or principal==#userId")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('MANAGER') or hasRole('EMPLOYEE') or principal==#userId")
     @GetMapping("/next")
     public BasicTrainingDTO getMyNextTraining(
             @PathVariable @ValidIDFormat final String userId

@@ -1,6 +1,7 @@
 package com.healthy.gym.trainings.utils;
 
 import com.healthy.gym.trainings.data.document.GroupTrainingDocument;
+import com.healthy.gym.trainings.dto.BasicTrainingDTO;
 import com.healthy.gym.trainings.dto.GroupTrainingDTO;
 import com.healthy.gym.trainings.dto.GroupTrainingWithoutParticipantsDTO;
 import org.modelmapper.ModelMapper;
@@ -40,5 +41,16 @@ public class GroupTrainingMapper {
         long startDateLong = startDateTime.toEpochSecond(ZoneOffset.UTC);
         long endDateLong = endDateTime.toEpochSecond(ZoneOffset.UTC);
         return new long[]{startDateLong, endDateLong};
+    }
+
+    public static BasicTrainingDTO mapGroupTrainingToBasicTrainingDTO(
+            GroupTrainingDocument groupTrainingDocument
+    ){
+        return modelMapper
+                .typeMap(GroupTrainingDocument.class, BasicTrainingDTO.class)
+                .addMapping(source -> source.getGroupTrainingId(), BasicTrainingDTO::setTrainingId)
+                .addMapping(source -> source.getLocation().getName(), BasicTrainingDTO::setLocation)
+                .addMapping(source -> source.getTraining().getName(), BasicTrainingDTO::setTitle)
+                .map(groupTrainingDocument);
     }
 }

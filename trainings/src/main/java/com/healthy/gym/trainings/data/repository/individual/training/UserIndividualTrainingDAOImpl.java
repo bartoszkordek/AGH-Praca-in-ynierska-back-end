@@ -34,4 +34,13 @@ public class UserIndividualTrainingDAOImpl implements UserIndividualTrainingDAO 
 
         return mongoTemplate.find(new Query(criteria), IndividualTrainingDocument.class);
     }
+
+    @Override
+    public List<IndividualTrainingDocument> findAllIndividualTrainingsWithStartDateAfterNow(UserDocument userDocument) {
+        var now = LocalDateTime.now();
+        Criteria criteria = Criteria
+                .where("startDateTime").gte(now)
+                .and("basicList").in(userDocument);
+        return mongoTemplate.find(new Query(criteria), IndividualTrainingDocument.class);
+    }
 }

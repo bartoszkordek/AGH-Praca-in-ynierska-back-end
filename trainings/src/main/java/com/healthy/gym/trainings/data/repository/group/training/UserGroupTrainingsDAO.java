@@ -11,4 +11,6 @@ public interface UserGroupTrainingsDAO {
     List<GroupTrainingDocument> findAllGroupTrainings(UserDocument userDocument,
                                                       LocalDateTime startDateTime,
                                                       LocalDateTime endDateTime);
+
+    List<GroupTrainingDocument> findAllGroupTrainingsByUserAndStartDateAfterNow(UserDocument userDocument);
 }

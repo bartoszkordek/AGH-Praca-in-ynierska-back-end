@@ -39,4 +39,18 @@ public class UserGroupTrainingsDAOImpl implements UserGroupTrainingsDAO {
 
         return mongoTemplate.find(new Query(criteria), GroupTrainingDocument.class);
     }
+
+    @Override
+    public List<GroupTrainingDocument> findAllGroupTrainingsByUserAndStartDateAfterNow(UserDocument userDocument) {
+        var now = LocalDateTime.now();
+
+        Criteria criteria = Criteria
+                .where("startDate").gte(now)
+                .orOperator(
+                        where("basicList").in(userDocument),
+                        where("reserveList").in(userDocument)
+                );
+
+        return mongoTemplate.find(new Query(criteria), GroupTrainingDocument.class);
+    }
 }

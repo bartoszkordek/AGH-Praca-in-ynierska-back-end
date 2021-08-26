@@ -1,10 +1,12 @@
 package com.healthy.gym.trainings.service.individual.training;
 
+import com.healthy.gym.trainings.data.document.GroupTrainingDocument;
 import com.healthy.gym.trainings.data.document.IndividualTrainingDocument;
 import com.healthy.gym.trainings.data.document.UserDocument;
 import com.healthy.gym.trainings.data.repository.UserDAO;
 import com.healthy.gym.trainings.data.repository.individual.training.IndividualTrainingRepository;
 import com.healthy.gym.trainings.data.repository.individual.training.UserIndividualTrainingDAO;
+import com.healthy.gym.trainings.dto.BasicTrainingDTO;
 import com.healthy.gym.trainings.dto.IndividualTrainingDTO;
 import com.healthy.gym.trainings.enums.GymRole;
 import com.healthy.gym.trainings.exception.*;
@@ -24,14 +26,12 @@ import org.springframework.stereotype.Service;
 
 import java.time.Clock;
 import java.time.LocalDateTime;
-import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.healthy.gym.trainings.utils.DateParser.parseDateTime;
 import static com.healthy.gym.trainings.utils.IndividualTrainingMapper.mapIndividualTrainingDocumentToDTO;
+import static com.healthy.gym.trainings.utils.IndividualTrainingMapper.mapGroupTrainingToBasicTrainingDTO;
 
 @Service
 public class UserIndividualTrainingServiceImpl implements UserIndividualTrainingService {
@@ -179,6 +179,26 @@ public class UserIndividualTrainingServiceImpl implements UserIndividualTraining
         IndividualTrainingDocument trainingDocumentUpdated = cancelIndividualTraining(individualTraining);
 
         return mapIndividualTrainingDocumentToDTO(trainingDocumentUpdated);
+    }
+
+    @Override
+    public BasicTrainingDTO getMyNextTraining(String clientId) throws UserNotFoundException {
+
+        UserDocument user = userDAO.findByUserId(clientId);
+        if (user == null) throw new UserNotFoundException();
+
+        List<IndividualTrainingDocument> individualTrainingDocuments = userIndividualTrainingDAO
+                .findAllIndividualTrainingsWithStartDateAfterNow(user);
+
+        Optional<IndividualTrainingDocument> nextUserIndividualTrainingDocumentOptional = individualTrainingDocuments
+                .stream()
+                .sorted(Comparator.nullsLast((d1, d2) -> d1.getStartDateTime().compareTo(d2.getStartDateTime())))
+                .findFirst();
+
+        if(nextUserIndividualTrainingDocumentOptional.isEmpty()) return null;
+
+        IndividualTrainingDocument nextUserIndividualTrainingDocument = nextUserIndividualTrainingDocumentOptional.get();
+        return mapGroupTrainingToBasicTrainingDTO(nextUserIndividualTrainingDocument);
     }
 
     private IndividualTrainingDocument getAndValidateIndividualTraining(String trainingId)

@@ -5,6 +5,7 @@ import com.healthy.gym.trainings.data.document.UserDocument;
 import com.healthy.gym.trainings.data.repository.UserDAO;
 import com.healthy.gym.trainings.data.repository.group.training.GroupTrainingsDAO;
 import com.healthy.gym.trainings.data.repository.group.training.UserGroupTrainingsDAO;
+import com.healthy.gym.trainings.dto.BasicTrainingDTO;
 import com.healthy.gym.trainings.dto.GroupTrainingDTO;
 import com.healthy.gym.trainings.exception.PastDateException;
 import com.healthy.gym.trainings.exception.StartDateAfterEndDateException;
@@ -19,10 +20,13 @@ import org.springframework.stereotype.Service;
 
 import java.time.Clock;
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static com.healthy.gym.trainings.utils.GroupTrainingMapper.mapGroupTrainingsDocumentToDTO;
+import static com.healthy.gym.trainings.utils.GroupTrainingMapper.mapGroupTrainingToBasicTrainingDTO;
 import static com.healthy.gym.trainings.utils.ParticipantsExtractor.*;
 
 @Service
@@ -136,5 +140,26 @@ public class UserGroupTrainingServiceImpl implements UserGroupTrainingService {
 
         GroupTrainingDocument groupTrainingUpdated = groupTrainingsDAO.save(groupTraining);
         return mapGroupTrainingsDocumentToDTO(groupTrainingUpdated);
+    }
+
+    @Override
+    public BasicTrainingDTO getMyNextTraining(String clientId) throws UserNotFoundException {
+
+        UserDocument user = userDAO.findByUserId(clientId);
+        if (user == null) throw new UserNotFoundException();
+
+        List<GroupTrainingDocument> groupTrainingDocuments = userGroupTrainingsDAO
+                .findAllGroupTrainingsByUserAndStartDateAfterNow(user);
+
+        Optional<GroupTrainingDocument> nextUserGroupTrainingDocumentOptional = groupTrainingDocuments
+                .stream()
+                .sorted(Comparator.nullsLast((d1, d2) -> d1.getStartDate().compareTo(d2.getStartDate())))
+                .findFirst();
+
+        if(nextUserGroupTrainingDocumentOptional.isEmpty()) return null;
+
+        GroupTrainingDocument nextUserGroupTrainingDocument = nextUserGroupTrainingDocumentOptional.get();
+
+        return mapGroupTrainingToBasicTrainingDTO(nextUserGroupTrainingDocument);
     }
 }

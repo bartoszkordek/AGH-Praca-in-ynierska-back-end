@@ -1,5 +1,6 @@
 package com.healthy.gym.trainings.service.group.training;
 
+import com.healthy.gym.trainings.dto.BasicTrainingDTO;
 import com.healthy.gym.trainings.dto.GroupTrainingDTO;
 import com.healthy.gym.trainings.exception.PastDateException;
 import com.healthy.gym.trainings.exception.StartDateAfterEndDateException;
@@ -26,4 +27,6 @@ public interface UserGroupTrainingService {
             PastDateException,
             TrainingEnrollmentException,
             UserNotFoundException;
+
+    BasicTrainingDTO getMyNextTraining(String clientId) throws UserNotFoundException;
 }

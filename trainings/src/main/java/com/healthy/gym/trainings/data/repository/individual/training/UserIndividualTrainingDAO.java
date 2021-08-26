@@ -10,4 +10,6 @@ public interface UserIndividualTrainingDAO {
     List<IndividualTrainingDocument> findAllIndividualTrainingsWithDatesByUserDocument(UserDocument userDocument,
                                                                                        LocalDateTime startDateTime,
                                                                                        LocalDateTime endDateTime);
+
+    List<IndividualTrainingDocument> findAllIndividualTrainingsWithStartDateAfterNow(UserDocument userDocument);
 }

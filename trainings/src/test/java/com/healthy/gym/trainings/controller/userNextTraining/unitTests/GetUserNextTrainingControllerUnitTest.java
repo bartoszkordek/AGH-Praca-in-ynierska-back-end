@@ -9,6 +9,7 @@ import com.healthy.gym.trainings.exception.notfound.UserNotFoundException;
 import com.healthy.gym.trainings.service.group.training.UserGroupTrainingService;
 import com.healthy.gym.trainings.service.individual.training.UserIndividualTrainingService;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -275,6 +276,48 @@ public class GetUserNextTrainingControllerUnitTest {
                         assertThat(Objects.requireNonNull(result.getResolvedException()).getCause())
                                 .isInstanceOf(UserNextTrainingNotFoundException.class)
                 );
+    }
+
+    @Nested
+    class ShouldNotGetUserNextTrainingWhenNotAuthorized{
+
+        @ParameterizedTest
+        @EnumSource(TestCountry.class)
+        void whenUserIsNotLogIn(TestCountry country) throws Exception {
+            Locale testedLocale = convertEnumToLocale(country);
+
+            RequestBuilder request = MockMvcRequestBuilders
+                    .get(uri+userId+"/next")
+                    .header("Accept-Language", testedLocale.toString());
+
+            mockMvc.perform(request)
+                    .andDo(print())
+                    .andExpect(status().isForbidden());
+        }
+
+        @ParameterizedTest
+        @EnumSource(TestCountry.class)
+        void whenUserIsNotLogInAsOtherUser(TestCountry country) throws Exception {
+            Map<String, String> messages = getMessagesAccordingToLocale(country);
+            Locale testedLocale = convertEnumToLocale(country);
+
+            RequestBuilder request = MockMvcRequestBuilders
+                    .get(uri+userId+"/next")
+                    .header("Accept-Language", testedLocale.toString())
+                    .header("Authorization", otherUserToken)
+                    .contentType(MediaType.APPLICATION_JSON);
+
+            String expectedMessage = messages.get("exception.access.denied");
+
+            mockMvc.perform(request)
+                    .andDo(print())
+                    .andExpect(status().isForbidden())
+                    .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(jsonPath("$.message").value(is(expectedMessage)))
+                    .andExpect(jsonPath("$.error").value(is("Forbidden")))
+                    .andExpect(jsonPath("$.status").value(403))
+                    .andExpect(jsonPath("$.timestamp").exists());
+        }
     }
 
 

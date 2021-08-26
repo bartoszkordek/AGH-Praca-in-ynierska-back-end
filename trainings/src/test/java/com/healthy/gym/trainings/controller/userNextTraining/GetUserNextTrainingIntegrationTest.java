@@ -8,6 +8,7 @@ import com.healthy.gym.trainings.data.document.*;
 import com.healthy.gym.trainings.enums.GymRole;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
@@ -193,244 +194,256 @@ public class GetUserNextTrainingIntegrationTest {
         mongoTemplate.dropCollection(LocationDocument.class);
     }
 
-    @ParameterizedTest
-    @EnumSource(TestCountry.class)
-    void shouldGetUserNextTraining_whenValidUserId(TestCountry country)
-            throws Exception {
-        Locale testedLocale = convertEnumToLocale(country);
+    @Nested
+    class ShouldGetUserNestTraining{
 
-        URI uri = new URI("http://localhost:" + port + "/user/" + userId + "/next");
+        @ParameterizedTest
+        @EnumSource(TestCountry.class)
+        void shouldGetUserNextTraining_whenValidUserId(TestCountry country)
+                throws Exception {
+            Locale testedLocale = convertEnumToLocale(country);
 
-        HttpHeaders headers = new HttpHeaders();
-        headers.set("Accept-Language", testedLocale.toString());
-        headers.set("Authorization", userToken);
-        headers.setContentType(MediaType.APPLICATION_JSON);
+            URI uri = new URI("http://localhost:" + port + "/user/" + userId + "/next");
 
-        HttpEntity<Object> request = new HttpEntity<>(null, headers);
+            HttpHeaders headers = new HttpHeaders();
+            headers.set("Accept-Language", testedLocale.toString());
+            headers.set("Authorization", userToken);
+            headers.setContentType(MediaType.APPLICATION_JSON);
 
-        ResponseEntity<JsonNode> responseEntity = restTemplate
-                .exchange(uri, HttpMethod.GET, request, JsonNode.class);
+            HttpEntity<Object> request = new HttpEntity<>(null, headers);
 
-        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
-        assertThat(responseEntity.getBody()).isNotNull();
+            ResponseEntity<JsonNode> responseEntity = restTemplate
+                    .exchange(uri, HttpMethod.GET, request, JsonNode.class);
 
-        assertThat(responseEntity.getBody().get("id")).isNotNull();
-        assertThat(responseEntity.getBody().get("id").textValue())
-                .isEqualTo(groupTrainingId2);
-        assertThat(responseEntity.getBody().get("title").textValue())
-                .isEqualTo("Rowery");
-        assertThat(responseEntity.getBody().get("startDate").textValue()).isNotNull();
-        assertThat(responseEntity.getBody().get("location").textValue())
-                .isEqualTo("Sala nr 3");
+            assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
+            assertThat(responseEntity.getBody()).isNotNull();
+
+            assertThat(responseEntity.getBody().get("id")).isNotNull();
+            assertThat(responseEntity.getBody().get("id").textValue())
+                    .isEqualTo(groupTrainingId2);
+            assertThat(responseEntity.getBody().get("title").textValue())
+                    .isEqualTo("Rowery");
+            assertThat(responseEntity.getBody().get("startDate").textValue()).isNotNull();
+            assertThat(responseEntity.getBody().get("location").textValue())
+                    .isEqualTo("Sala nr 3");
+        }
+
+        @ParameterizedTest
+        @EnumSource(TestCountry.class)
+        void shouldGetUserNextTraining_whenValidUserId_addedIndividualTrainingBeforeGroup(TestCountry country)
+                throws Exception {
+            Locale testedLocale = convertEnumToLocale(country);
+
+            //before
+            var now = LocalDateTime.now();
+
+            String individualTrainingTypeId = UUID.randomUUID().toString();
+            String individualTrainingName = "Trening indywidualny";
+            TrainingTypeDocument individualTrainingTypeDocument = new TrainingTypeDocument(
+                    individualTrainingTypeId,
+                    individualTrainingName
+            );
+            mongoTemplate.save(individualTrainingTypeDocument);
+
+            String locationId10 = UUID.randomUUID().toString();
+            String locationName10 = "Sala nr 10";
+            LocationDocument locationDocument10 = new LocationDocument(locationId10, locationName10);
+            mongoTemplate.save(locationDocument10);
+
+            String individualTrainingId = UUID.randomUUID().toString();
+            IndividualTrainingDocument individualTrainingDocument = new IndividualTrainingDocument(
+                    individualTrainingId,
+                    individualTrainingTypeDocument,
+                    List.of(userDocument),
+                    List.of(trainerDocument),
+                    now.plusHours(2),
+                    now.plusHours(3),
+                    locationDocument10,
+                    "Komentarz"
+            );
+
+            mongoTemplate.save(individualTrainingDocument);
+
+            URI uri = new URI("http://localhost:" + port + "/user/" + userId + "/next");
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.set("Accept-Language", testedLocale.toString());
+            headers.set("Authorization", userToken);
+            headers.setContentType(MediaType.APPLICATION_JSON);
+
+            HttpEntity<Object> request = new HttpEntity<>(null, headers);
+
+            ResponseEntity<JsonNode> responseEntity = restTemplate
+                    .exchange(uri, HttpMethod.GET, request, JsonNode.class);
+
+            assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
+            assertThat(responseEntity.getBody()).isNotNull();
+
+            assertThat(responseEntity.getBody().get("id")).isNotNull();
+            assertThat(responseEntity.getBody().get("id").textValue())
+                    .isEqualTo(individualTrainingId);
+            assertThat(responseEntity.getBody().get("title").textValue())
+                    .isEqualTo("Trening indywidualny");
+            assertThat(responseEntity.getBody().get("startDate").textValue()).isNotNull();
+            assertThat(responseEntity.getBody().get("location").textValue())
+                    .isEqualTo("Sala nr 10");
+        }
+
+        @ParameterizedTest
+        @EnumSource(TestCountry.class)
+        void shouldGetUserNextTraining_whenValidUserId_addedIndividualTrainingAfterGroup(TestCountry country)
+                throws Exception {
+            Locale testedLocale = convertEnumToLocale(country);
+
+            //before
+            var now = LocalDateTime.now();
+
+            String individualTrainingTypeId = UUID.randomUUID().toString();
+            String individualTrainingName = "Trening indywidualny";
+            TrainingTypeDocument individualTrainingTypeDocument = new TrainingTypeDocument(
+                    individualTrainingTypeId,
+                    individualTrainingName
+            );
+            mongoTemplate.save(individualTrainingTypeDocument);
+
+            String locationId10 = UUID.randomUUID().toString();
+            String locationName10 = "Sala nr 10";
+            LocationDocument locationDocument10 = new LocationDocument(locationId10, locationName10);
+            mongoTemplate.save(locationDocument10);
+
+            String individualTrainingId = UUID.randomUUID().toString();
+            IndividualTrainingDocument individualTrainingDocument = new IndividualTrainingDocument(
+                    individualTrainingId,
+                    individualTrainingTypeDocument,
+                    List.of(userDocument),
+                    List.of(trainerDocument),
+                    now.plusDays(1).plusHours(1),
+                    now.plusDays(1).plusHours(2),
+                    locationDocument10,
+                    "Komentarz"
+            );
+
+            mongoTemplate.save(individualTrainingDocument);
+
+            URI uri = new URI("http://localhost:" + port + "/user/" + userId + "/next");
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.set("Accept-Language", testedLocale.toString());
+            headers.set("Authorization", userToken);
+            headers.setContentType(MediaType.APPLICATION_JSON);
+
+            HttpEntity<Object> request = new HttpEntity<>(null, headers);
+
+            ResponseEntity<JsonNode> responseEntity = restTemplate
+                    .exchange(uri, HttpMethod.GET, request, JsonNode.class);
+
+            assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
+            assertThat(responseEntity.getBody()).isNotNull();
+
+            assertThat(responseEntity.getBody().get("id")).isNotNull();
+            assertThat(responseEntity.getBody().get("id").textValue())
+                    .isEqualTo(groupTrainingId2);
+            assertThat(responseEntity.getBody().get("title").textValue())
+                    .isEqualTo("Rowery");
+            assertThat(responseEntity.getBody().get("startDate").textValue()).isNotNull();
+            assertThat(responseEntity.getBody().get("location").textValue())
+                    .isEqualTo("Sala nr 3");
+        }
     }
 
-    @ParameterizedTest
-    @EnumSource(TestCountry.class)
-    void shouldGetUserNextTraining_whenValidUserId_addedIndividualTrainingBeforeGroup(TestCountry country)
-            throws Exception {
-        Locale testedLocale = convertEnumToLocale(country);
+    @Nested
+    class ShouldNotGetUserNestTraining{
 
-        //before
-        var now = LocalDateTime.now();
+        @ParameterizedTest
+        @EnumSource(TestCountry.class)
+        void shouldNotGetNextTraining_whenInvalidUserId(TestCountry country)
+                throws Exception {
+            Map<String, String> messages = getMessagesAccordingToLocale(country);
+            Locale testedLocale = convertEnumToLocale(country);
 
-        String individualTrainingTypeId = UUID.randomUUID().toString();
-        String individualTrainingName = "Trening indywidualny";
-        TrainingTypeDocument individualTrainingTypeDocument = new TrainingTypeDocument(
-                individualTrainingTypeId,
-                individualTrainingName
-        );
-        mongoTemplate.save(individualTrainingTypeDocument);
+            String invalidUserId = UUID.randomUUID().toString();
 
-        String locationId10 = UUID.randomUUID().toString();
-        String locationName10 = "Sala nr 10";
-        LocationDocument locationDocument10 = new LocationDocument(locationId10, locationName10);
-        mongoTemplate.save(locationDocument10);
+            URI uri = new URI("http://localhost:" + port + "/user/" + invalidUserId + "/next");
 
-        String individualTrainingId = UUID.randomUUID().toString();
-        IndividualTrainingDocument individualTrainingDocument = new IndividualTrainingDocument(
-                individualTrainingId,
-                individualTrainingTypeDocument,
-                List.of(userDocument),
-                List.of(trainerDocument),
-                now.plusHours(2),
-                now.plusHours(3),
-                locationDocument10,
-                "Komentarz"
-        );
+            HttpHeaders headers = new HttpHeaders();
+            headers.set("Accept-Language", testedLocale.toString());
+            headers.set("Authorization", managerToken);
+            headers.setContentType(MediaType.APPLICATION_JSON);
 
-        mongoTemplate.save(individualTrainingDocument);
+            HttpEntity<Object> request = new HttpEntity<>(null, headers);
 
-        URI uri = new URI("http://localhost:" + port + "/user/" + userId + "/next");
+            ResponseEntity<JsonNode> responseEntity = restTemplate
+                    .exchange(uri, HttpMethod.GET, request, JsonNode.class);
 
-        HttpHeaders headers = new HttpHeaders();
-        headers.set("Accept-Language", testedLocale.toString());
-        headers.set("Authorization", userToken);
-        headers.setContentType(MediaType.APPLICATION_JSON);
+            String expectedMessage = messages.get("exception.not.found.user.id");
 
-        HttpEntity<Object> request = new HttpEntity<>(null, headers);
+            assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+            assertThat(responseEntity.getBody().get("status").intValue()).isEqualTo(400);
+            assertThat(responseEntity.getBody().get("error").textValue()).isEqualTo("Bad Request");
+            assertThat(responseEntity.getBody().get("message").textValue()).isEqualTo(expectedMessage);
+            assertThat(responseEntity.getBody().get("timestamp")).isNotNull();
+        }
 
-        ResponseEntity<JsonNode> responseEntity = restTemplate
-                .exchange(uri, HttpMethod.GET, request, JsonNode.class);
+        @Nested
+        class Authentication{
 
-        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
-        assertThat(responseEntity.getBody()).isNotNull();
+            @ParameterizedTest
+            @EnumSource(TestCountry.class)
+            void shouldNotGetNextTraining_whenNoToken(TestCountry country)
+                    throws Exception {
+                Locale testedLocale = convertEnumToLocale(country);
 
-        assertThat(responseEntity.getBody().get("id")).isNotNull();
-        assertThat(responseEntity.getBody().get("id").textValue())
-                .isEqualTo(individualTrainingId);
-        assertThat(responseEntity.getBody().get("title").textValue())
-                .isEqualTo("Trening indywidualny");
-        assertThat(responseEntity.getBody().get("startDate").textValue()).isNotNull();
-        assertThat(responseEntity.getBody().get("location").textValue())
-                .isEqualTo("Sala nr 10");
-    }
+                String invalidUserId = UUID.randomUUID().toString();
 
-    @ParameterizedTest
-    @EnumSource(TestCountry.class)
-    void shouldGetUserNextTraining_whenValidUserId_addedIndividualTrainingAfterGroup(TestCountry country)
-            throws Exception {
-        Locale testedLocale = convertEnumToLocale(country);
+                URI uri = new URI("http://localhost:" + port + "/user/" + invalidUserId + "/next");
 
-        //before
-        var now = LocalDateTime.now();
+                HttpHeaders headers = new HttpHeaders();
+                headers.set("Accept-Language", testedLocale.toString());
+                headers.setContentType(MediaType.APPLICATION_JSON);
 
-        String individualTrainingTypeId = UUID.randomUUID().toString();
-        String individualTrainingName = "Trening indywidualny";
-        TrainingTypeDocument individualTrainingTypeDocument = new TrainingTypeDocument(
-                individualTrainingTypeId,
-                individualTrainingName
-        );
-        mongoTemplate.save(individualTrainingTypeDocument);
+                HttpEntity<Object> request = new HttpEntity<>(null, headers);
 
-        String locationId10 = UUID.randomUUID().toString();
-        String locationName10 = "Sala nr 10";
-        LocationDocument locationDocument10 = new LocationDocument(locationId10, locationName10);
-        mongoTemplate.save(locationDocument10);
+                ResponseEntity<JsonNode> responseEntity = restTemplate
+                        .exchange(uri, HttpMethod.GET, request, JsonNode.class);
 
-        String individualTrainingId = UUID.randomUUID().toString();
-        IndividualTrainingDocument individualTrainingDocument = new IndividualTrainingDocument(
-                individualTrainingId,
-                individualTrainingTypeDocument,
-                List.of(userDocument),
-                List.of(trainerDocument),
-                now.plusDays(1).plusHours(1),
-                now.plusDays(1).plusHours(2),
-                locationDocument10,
-                "Komentarz"
-        );
-
-        mongoTemplate.save(individualTrainingDocument);
-
-        URI uri = new URI("http://localhost:" + port + "/user/" + userId + "/next");
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.set("Accept-Language", testedLocale.toString());
-        headers.set("Authorization", userToken);
-        headers.setContentType(MediaType.APPLICATION_JSON);
-
-        HttpEntity<Object> request = new HttpEntity<>(null, headers);
-
-        ResponseEntity<JsonNode> responseEntity = restTemplate
-                .exchange(uri, HttpMethod.GET, request, JsonNode.class);
-
-        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
-        assertThat(responseEntity.getBody()).isNotNull();
-
-        assertThat(responseEntity.getBody().get("id")).isNotNull();
-        assertThat(responseEntity.getBody().get("id").textValue())
-                .isEqualTo(groupTrainingId2);
-        assertThat(responseEntity.getBody().get("title").textValue())
-                .isEqualTo("Rowery");
-        assertThat(responseEntity.getBody().get("startDate").textValue()).isNotNull();
-        assertThat(responseEntity.getBody().get("location").textValue())
-                .isEqualTo("Sala nr 3");
-    }
-
-    @ParameterizedTest
-    @EnumSource(TestCountry.class)
-    void shouldNotGetNextTraining_whenInvalidUserId(TestCountry country)
-            throws Exception {
-        Map<String, String> messages = getMessagesAccordingToLocale(country);
-        Locale testedLocale = convertEnumToLocale(country);
-
-        String invalidUserId = UUID.randomUUID().toString();
-
-        URI uri = new URI("http://localhost:" + port + "/user/" + invalidUserId + "/next");
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.set("Accept-Language", testedLocale.toString());
-        headers.set("Authorization", managerToken);
-        headers.setContentType(MediaType.APPLICATION_JSON);
-
-        HttpEntity<Object> request = new HttpEntity<>(null, headers);
-
-        ResponseEntity<JsonNode> responseEntity = restTemplate
-                .exchange(uri, HttpMethod.GET, request, JsonNode.class);
-
-        String expectedMessage = messages.get("exception.not.found.user.id");
-
-        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
-        assertThat(responseEntity.getBody().get("status").intValue()).isEqualTo(400);
-        assertThat(responseEntity.getBody().get("error").textValue()).isEqualTo("Bad Request");
-        assertThat(responseEntity.getBody().get("message").textValue()).isEqualTo(expectedMessage);
-        assertThat(responseEntity.getBody().get("timestamp")).isNotNull();
-    }
-
-    @ParameterizedTest
-    @EnumSource(TestCountry.class)
-    void shouldNotGetNextTraining_whenNoToken(TestCountry country)
-            throws Exception {
-        Locale testedLocale = convertEnumToLocale(country);
-
-        String invalidUserId = UUID.randomUUID().toString();
-
-        URI uri = new URI("http://localhost:" + port + "/user/" + invalidUserId + "/next");
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.set("Accept-Language", testedLocale.toString());
-        headers.setContentType(MediaType.APPLICATION_JSON);
-
-        HttpEntity<Object> request = new HttpEntity<>(null, headers);
-
-        ResponseEntity<JsonNode> responseEntity = restTemplate
-                .exchange(uri, HttpMethod.GET, request, JsonNode.class);
-
-        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
-        assertThat(responseEntity.getBody().get("status").intValue()).isEqualTo(403);
-        assertThat(responseEntity.getBody().get("error").textValue()).isEqualTo("Forbidden");
-        assertThat(responseEntity.getBody().get("message").textValue()).isEqualTo("Access Denied");
-        assertThat(responseEntity.getBody().get("timestamp")).isNotNull();
-    }
+                assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
+                assertThat(responseEntity.getBody().get("status").intValue()).isEqualTo(403);
+                assertThat(responseEntity.getBody().get("error").textValue()).isEqualTo("Forbidden");
+                assertThat(responseEntity.getBody().get("message").textValue()).isEqualTo("Access Denied");
+                assertThat(responseEntity.getBody().get("timestamp")).isNotNull();
+            }
 
 
-    @ParameterizedTest
-    @EnumSource(TestCountry.class)
-    void shouldNotGetNextTraining_whenOtherUserToken(TestCountry country)
-            throws Exception {
-        Map<String, String> messages = getMessagesAccordingToLocale(country);
-        Locale testedLocale = convertEnumToLocale(country);
+            @ParameterizedTest
+            @EnumSource(TestCountry.class)
+            void shouldNotGetNextTraining_whenOtherUserToken(TestCountry country)
+                    throws Exception {
+                Map<String, String> messages = getMessagesAccordingToLocale(country);
+                Locale testedLocale = convertEnumToLocale(country);
 
-        String otherUserId = UUID.randomUUID().toString();
-        String otherUserToken = tokenFactory.getUserToken(otherUserId);
+                String otherUserId = UUID.randomUUID().toString();
+                String otherUserToken = tokenFactory.getUserToken(otherUserId);
 
-        URI uri = new URI("http://localhost:" + port + "/user/" + userId + "/next");
+                URI uri = new URI("http://localhost:" + port + "/user/" + userId + "/next");
 
-        HttpHeaders headers = new HttpHeaders();
-        headers.set("Accept-Language", testedLocale.toString());
-        headers.set("Authorization", otherUserToken);
-        headers.setContentType(MediaType.APPLICATION_JSON);
+                HttpHeaders headers = new HttpHeaders();
+                headers.set("Accept-Language", testedLocale.toString());
+                headers.set("Authorization", otherUserToken);
+                headers.setContentType(MediaType.APPLICATION_JSON);
 
-        HttpEntity<Object> request = new HttpEntity<>(null, headers);
+                HttpEntity<Object> request = new HttpEntity<>(null, headers);
 
-        String expectedMessage = messages.get("exception.access.denied");
+                String expectedMessage = messages.get("exception.access.denied");
 
-        ResponseEntity<JsonNode> responseEntity = restTemplate
-                .exchange(uri, HttpMethod.GET, request, JsonNode.class);
+                ResponseEntity<JsonNode> responseEntity = restTemplate
+                        .exchange(uri, HttpMethod.GET, request, JsonNode.class);
 
-        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
-        assertThat(responseEntity.getBody().get("status").intValue()).isEqualTo(403);
-        assertThat(responseEntity.getBody().get("error").textValue()).isEqualTo("Forbidden");
-        assertThat(responseEntity.getBody().get("message").textValue()).isEqualTo(expectedMessage);
-        assertThat(responseEntity.getBody().get("timestamp")).isNotNull();
+                assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
+                assertThat(responseEntity.getBody().get("status").intValue()).isEqualTo(403);
+                assertThat(responseEntity.getBody().get("error").textValue()).isEqualTo("Forbidden");
+                assertThat(responseEntity.getBody().get("message").textValue()).isEqualTo(expectedMessage);
+                assertThat(responseEntity.getBody().get("timestamp")).isNotNull();
+            }
+        }
     }
 }

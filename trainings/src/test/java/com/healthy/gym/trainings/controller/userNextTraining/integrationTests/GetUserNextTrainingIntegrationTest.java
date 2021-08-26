@@ -1,4 +1,4 @@
-package com.healthy.gym.trainings.controller.userNextTraining;
+package com.healthy.gym.trainings.controller.userNextTraining.integrationTests;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.healthy.gym.trainings.configuration.FixedClockConfig;

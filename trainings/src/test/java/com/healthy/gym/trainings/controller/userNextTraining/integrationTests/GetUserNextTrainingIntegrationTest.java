@@ -195,7 +195,7 @@ public class GetUserNextTrainingIntegrationTest {
     }
 
     @Nested
-    class ShouldGetUserNestTraining{
+    class ShouldGetUserNextTraining{
 
         @ParameterizedTest
         @EnumSource(TestCountry.class)
@@ -352,7 +352,7 @@ public class GetUserNextTrainingIntegrationTest {
     }
 
     @Nested
-    class ShouldNotGetUserNestTraining{
+    class ShouldNotGetUserNextTraining{
 
         @ParameterizedTest
         @EnumSource(TestCountry.class)
@@ -380,6 +380,36 @@ public class GetUserNextTrainingIntegrationTest {
             assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
             assertThat(responseEntity.getBody().get("status").intValue()).isEqualTo(400);
             assertThat(responseEntity.getBody().get("error").textValue()).isEqualTo("Bad Request");
+            assertThat(responseEntity.getBody().get("message").textValue()).isEqualTo(expectedMessage);
+            assertThat(responseEntity.getBody().get("timestamp")).isNotNull();
+        }
+
+        @ParameterizedTest
+        @EnumSource(TestCountry.class)
+        void shouldNotGetNextTraining_whenNoTrainings(TestCountry country)
+                throws Exception {
+            Map<String, String> messages = getMessagesAccordingToLocale(country);
+            Locale testedLocale = convertEnumToLocale(country);
+
+            mongoTemplate.dropCollection(GroupTrainingDocument.class);
+            mongoTemplate.dropCollection(IndividualTrainingDocument.class);
+
+            URI uri = new URI("http://localhost:" + port + "/user/" + userId + "/next");
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.set("Accept-Language", testedLocale.toString());
+            headers.set("Authorization", userToken);
+            headers.setContentType(MediaType.APPLICATION_JSON);
+
+            HttpEntity<Object> request = new HttpEntity<>(null, headers);
+
+            ResponseEntity<JsonNode> responseEntity = restTemplate
+                    .exchange(uri, HttpMethod.GET, request, JsonNode.class);
+
+            String expectedMessage = messages.get("exception.user.next.training.not.found");
+
+            assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
+            assertThat(responseEntity.getBody().get("status").intValue()).isEqualTo(200);
             assertThat(responseEntity.getBody().get("message").textValue()).isEqualTo(expectedMessage);
             assertThat(responseEntity.getBody().get("timestamp")).isNotNull();
         }

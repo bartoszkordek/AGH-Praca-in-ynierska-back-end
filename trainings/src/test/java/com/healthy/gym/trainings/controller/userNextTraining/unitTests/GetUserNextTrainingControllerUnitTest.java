@@ -4,6 +4,7 @@ import com.healthy.gym.trainings.configuration.TestCountry;
 import com.healthy.gym.trainings.configuration.TestRoleTokenFactory;
 import com.healthy.gym.trainings.controller.UserNextTrainingController;
 import com.healthy.gym.trainings.dto.BasicTrainingDTO;
+import com.healthy.gym.trainings.exception.notfound.UserNextTrainingNotFoundException;
 import com.healthy.gym.trainings.exception.notfound.UserNotFoundException;
 import com.healthy.gym.trainings.service.group.training.UserGroupTrainingService;
 import com.healthy.gym.trainings.service.individual.training.UserIndividualTrainingService;
@@ -243,6 +244,36 @@ public class GetUserNextTrainingControllerUnitTest {
                 .andExpect(result ->
                         assertThat(Objects.requireNonNull(result.getResolvedException()).getCause())
                                 .isInstanceOf(UserNotFoundException.class)
+                );
+    }
+
+
+    @ParameterizedTest
+    @EnumSource(TestCountry.class)
+    void shouldNotGetNexTrainingWhenNoTrainings(TestCountry country) throws Exception {
+        Map<String, String> messages = getMessagesAccordingToLocale(country);
+        Locale testedLocale = convertEnumToLocale(country);
+
+        RequestBuilder request = MockMvcRequestBuilders
+                .get(uri+userId+"/next")
+                .header("Accept-Language", testedLocale.toString())
+                .header("Authorization", adminToken)
+                .contentType(MediaType.APPLICATION_JSON);
+
+        String expectedMessage = messages.get("exception.user.next.training.not.found");
+
+        when(userGroupTrainingService.getMyNextTraining(userId))
+                .thenReturn(null);
+        when(userIndividualTrainingService.getMyNextTraining(userId))
+                .thenReturn(null);
+
+        mockMvc.perform(request)
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(status().reason(is(expectedMessage)))
+                .andExpect(result ->
+                        assertThat(Objects.requireNonNull(result.getResolvedException()).getCause())
+                                .isInstanceOf(UserNextTrainingNotFoundException.class)
                 );
     }
 

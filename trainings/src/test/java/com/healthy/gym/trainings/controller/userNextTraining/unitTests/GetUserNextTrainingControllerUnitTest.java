@@ -169,4 +169,45 @@ public class GetUserNextTrainingControllerUnitTest {
     }
 
 
+    @ParameterizedTest
+    @EnumSource(TestCountry.class)
+    void shouldGetUserNextIndividualTrainingWhenGroupNotExist(TestCountry country) throws Exception {
+        Locale testedLocale = convertEnumToLocale(country);
+
+        RequestBuilder request = MockMvcRequestBuilders
+                .get(uri+userId+"/next")
+                .header("Accept-Language", testedLocale.toString())
+                .header("Authorization", userToken)
+                .contentType(MediaType.APPLICATION_JSON);
+
+        var now = LocalDateTime.now();
+
+        String individualTrainingId = UUID.randomUUID().toString();
+        LocalDateTime individualTrainingStartDate = now.plusHours(11);
+        BasicTrainingDTO individual = new BasicTrainingDTO();
+        individual.setTrainingId(individualTrainingId);
+        individual.setTitle("Trening indywidualny");
+        individual.setStartDate(individualTrainingStartDate.toString());
+        individual.setLocation("Sala nr 10");
+
+
+        when(userGroupTrainingService.getMyNextTraining(userId))
+                .thenReturn(null);
+        when(userIndividualTrainingService.getMyNextTraining(userId))
+                .thenReturn(individual);
+
+        mockMvc.perform(request)
+                .andDo(print())
+                .andExpect(matchAll(
+                        status().isOk(),
+                        content().contentType(MediaType.APPLICATION_JSON),
+                        jsonPath("$.id").value(is(individualTrainingId)),
+                        jsonPath("$.title").value(is("Trening indywidualny")),
+                        jsonPath("$.startDate").value(is(individualTrainingStartDate.toString())),
+                        jsonPath("$.location").value(is("Sala nr 10"))
+
+                ));
+    }
+
+
 }

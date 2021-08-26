@@ -156,6 +156,8 @@ public class UserGroupTrainingServiceImpl implements UserGroupTrainingService {
                 .sorted(Comparator.nullsLast((d1, d2) -> d1.getStartDate().compareTo(d2.getStartDate())))
                 .findFirst();
 
+        if(nextUserGroupTrainingDocumentOptional.isEmpty()) return null;
+
         GroupTrainingDocument nextUserGroupTrainingDocument = nextUserGroupTrainingDocumentOptional.get();
 
         return mapGroupTrainingToBasicTrainingDTO(nextUserGroupTrainingDocument);

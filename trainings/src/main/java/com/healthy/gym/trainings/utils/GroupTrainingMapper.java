@@ -48,6 +48,7 @@ public class GroupTrainingMapper {
     ){
         return modelMapper
                 .typeMap(GroupTrainingDocument.class, BasicTrainingDTO.class)
+                .addMapping(source -> source.getGroupTrainingId(), BasicTrainingDTO::setTrainingId)
                 .addMapping(source -> source.getLocation().getName(), BasicTrainingDTO::setLocation)
                 .addMapping(source -> source.getTraining().getName(), BasicTrainingDTO::setTitle)
                 .map(groupTrainingDocument);

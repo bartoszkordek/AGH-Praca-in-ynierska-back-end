@@ -9,7 +9,7 @@ import java.util.Objects;
 public class BasicTrainingDTO {
 
     @JsonProperty("id")
-    private String groupTrainingId;
+    private String trainingId;
     private String title;
     private String startDate;
     private String location;
@@ -17,19 +17,17 @@ public class BasicTrainingDTO {
     public BasicTrainingDTO(){}
 
     public BasicTrainingDTO(
-            String groupTrainingId,
             String title,
             String startDate,
             String location
     ){
-        this.groupTrainingId = title;
         this.title = title;
         this.startDate = startDate;
         this.location = location;
     }
 
-    public String getGroupTrainingId() {
-        return groupTrainingId;
+    public String getTrainingId() {
+        return trainingId;
     }
 
     public String getTitle() {
@@ -44,8 +42,8 @@ public class BasicTrainingDTO {
         return location;
     }
 
-    public void setGroupTrainingId(String groupTrainingId) {
-        this.groupTrainingId = groupTrainingId;
+    public void setTrainingId(String trainingId) {
+        this.trainingId = trainingId;
     }
 
     public void setTitle(String title) {
@@ -63,7 +61,7 @@ public class BasicTrainingDTO {
     @Override
     public String toString() {
         return "BasicTrainingDTO{" +
-                "groupTrainingId='" + groupTrainingId + '\'' +
+                "trainingId='" + trainingId + '\'' +
                 ", title='" + title + '\'' +
                 ", startDate='" + startDate + '\'' +
                 ", location='" + location + '\'' +
@@ -75,7 +73,7 @@ public class BasicTrainingDTO {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         BasicTrainingDTO that = (BasicTrainingDTO) o;
-        return Objects.equals(groupTrainingId, that.groupTrainingId) &&
+        return Objects.equals(trainingId, that.trainingId) &&
                 Objects.equals(title, that.title) &&
                 Objects.equals(startDate, that.startDate) &&
                 Objects.equals(location, that.location);
@@ -84,7 +82,7 @@ public class BasicTrainingDTO {
     @Override
     public int hashCode() {
         return Objects.hash(
-                groupTrainingId,
+                trainingId,
                 title,
                 startDate,
                 location

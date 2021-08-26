@@ -4,10 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.healthy.gym.trainings.configuration.FixedClockConfig;
 import com.healthy.gym.trainings.configuration.TestCountry;
 import com.healthy.gym.trainings.configuration.TestRoleTokenFactory;
-import com.healthy.gym.trainings.data.document.GroupTrainingDocument;
-import com.healthy.gym.trainings.data.document.LocationDocument;
-import com.healthy.gym.trainings.data.document.TrainingTypeDocument;
-import com.healthy.gym.trainings.data.document.UserDocument;
+import com.healthy.gym.trainings.data.document.*;
 import com.healthy.gym.trainings.enums.GymRole;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -65,6 +62,9 @@ public class GetUserNextTrainingIntegrationTest {
     private UserDocument user;
     private String userId;
 
+    private UserDocument userDocument;
+    private UserDocument trainerDocument;
+
     private String groupTrainingId1;
     private String groupTrainingId2;
     private String groupTrainingId3;
@@ -84,7 +84,7 @@ public class GetUserNextTrainingIntegrationTest {
 
         String userName = "Jan";
         String userSurname = "Kowalski";
-        UserDocument userDocument = new UserDocument();
+        userDocument = new UserDocument();
         userDocument.setName(userName);
         userDocument.setSurname(userSurname);
         userDocument.setUserId(userId);
@@ -95,7 +95,7 @@ public class GetUserNextTrainingIntegrationTest {
         String trainerId = UUID.randomUUID().toString();
         String trainerName = "Tadeusz";
         String trainerSurname = "Trener";
-        UserDocument trainerDocument = new UserDocument();
+        trainerDocument = new UserDocument();
         trainerDocument.setName(trainerName);
         trainerDocument.setSurname(trainerSurname);
         trainerDocument.setUserId(trainerId);
@@ -128,7 +128,7 @@ public class GetUserNextTrainingIntegrationTest {
         LocationDocument locationDocument2 = new LocationDocument(locationId2, locationName2);
         mongoTemplate.save(locationDocument2);
 
-       groupTrainingId1 = UUID.randomUUID().toString();
+        groupTrainingId1 = UUID.randomUUID().toString();
         GroupTrainingDocument groupTrainingDocument1 = new GroupTrainingDocument(
                 groupTrainingId1,
                 trainingTypeDocument1,
@@ -180,6 +180,7 @@ public class GetUserNextTrainingIntegrationTest {
     @AfterEach
     void tearDown() {
         mongoTemplate.dropCollection(GroupTrainingDocument.class);
+        mongoTemplate.dropCollection(IndividualTrainingDocument.class);
         mongoTemplate.dropCollection(TrainingTypeDocument.class);
         mongoTemplate.dropCollection(UserDocument.class);
         mongoTemplate.dropCollection(LocationDocument.class);
@@ -203,8 +204,6 @@ public class GetUserNextTrainingIntegrationTest {
         ResponseEntity<JsonNode> responseEntity = restTemplate
                 .exchange(uri, HttpMethod.GET, request, JsonNode.class);
 
-        System.out.println(responseEntity.getBody());
-
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(responseEntity.getBody()).isNotNull();
 
@@ -216,5 +215,68 @@ public class GetUserNextTrainingIntegrationTest {
         assertThat(responseEntity.getBody().get("startDate").textValue()).isNotNull();
         assertThat(responseEntity.getBody().get("location").textValue())
                 .isEqualTo("Sala nr 3");
+    }
+
+    @ParameterizedTest
+    @EnumSource(TestCountry.class)
+    void shouldGetUserNextTraining_whenValidUserId_addedIndividualTrainingBeforeGroup(TestCountry country)
+            throws Exception {
+        Locale testedLocale = convertEnumToLocale(country);
+
+        //before
+        var now = LocalDateTime.now();
+
+        String individualTrainingTypeId = UUID.randomUUID().toString();
+        String individualTrainingName = "Trening indywidualny";
+        TrainingTypeDocument individualTrainingTypeDocument = new TrainingTypeDocument(
+                individualTrainingTypeId,
+                individualTrainingName
+        );
+        mongoTemplate.save(individualTrainingTypeDocument);
+
+        String locationId10 = UUID.randomUUID().toString();
+        String locationName10 = "Sala nr 10";
+        LocationDocument locationDocument10 = new LocationDocument(locationId10, locationName10);
+        mongoTemplate.save(locationDocument10);
+
+        String individualTrainingId = UUID.randomUUID().toString();
+        IndividualTrainingDocument individualTrainingDocument = new IndividualTrainingDocument(
+                individualTrainingId,
+                individualTrainingTypeDocument,
+                List.of(userDocument),
+                List.of(trainerDocument),
+                now.plusHours(2),
+                now.plusHours(3),
+                locationDocument10,
+                "Komentarz"
+        );
+
+        mongoTemplate.save(individualTrainingDocument);
+
+        URI uri = new URI("http://localhost:" + port + "/user/" + userId + "/next");
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Accept-Language", testedLocale.toString());
+        headers.set("Authorization", userToken);
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        HttpEntity<Object> request = new HttpEntity<>(null, headers);
+
+        ResponseEntity<JsonNode> responseEntity = restTemplate
+                .exchange(uri, HttpMethod.GET, request, JsonNode.class);
+
+        System.out.println(responseEntity.getBody());
+
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(responseEntity.getBody()).isNotNull();
+
+        assertThat(responseEntity.getBody().get("id")).isNotNull();
+        assertThat(responseEntity.getBody().get("id").textValue())
+                .isEqualTo(individualTrainingId);
+        assertThat(responseEntity.getBody().get("title").textValue())
+                .isEqualTo("Trening indywidualny");
+        assertThat(responseEntity.getBody().get("startDate").textValue()).isNotNull();
+        assertThat(responseEntity.getBody().get("location").textValue())
+                .isEqualTo("Sala nr 10");
     }
 }

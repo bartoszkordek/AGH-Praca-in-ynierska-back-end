@@ -1,5 +1,6 @@
 package com.healthy.gym.trainings.service.individual.training;
 
+import com.healthy.gym.trainings.dto.BasicTrainingDTO;
 import com.healthy.gym.trainings.dto.IndividualTrainingDTO;
 import com.healthy.gym.trainings.exception.*;
 import com.healthy.gym.trainings.exception.invalid.InvalidTrainerSpecifiedException;
@@ -33,4 +34,6 @@ public interface UserIndividualTrainingService {
             UserIsNotParticipantException,
             IndividualTrainingHasBeenRejectedException,
             AlreadyCancelledIndividualTrainingException;
+
+    BasicTrainingDTO getMyNextTraining(String clientId) throws UserNotFoundException;
 }

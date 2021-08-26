@@ -23,7 +23,6 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -84,276 +83,283 @@ public class GetUserNextTrainingControllerUnitTest {
     }
 
 
-    @ParameterizedTest
-    @EnumSource(TestCountry.class)
-    void shouldGetUserNextTrainingWhenValidUserIdAndTrainingExist(TestCountry country) throws Exception {
-        Locale testedLocale = convertEnumToLocale(country);
-
-        RequestBuilder request = MockMvcRequestBuilders
-                .get(uri+userId+"/next")
-                .header("Accept-Language", testedLocale.toString())
-                .header("Authorization", userToken)
-                .contentType(MediaType.APPLICATION_JSON);
-
-        var now = LocalDateTime.now();
-
-        String groupTrainingId = UUID.randomUUID().toString();
-        LocalDateTime groupTrainingStartDate = now.plusHours(10);
-        BasicTrainingDTO group = new BasicTrainingDTO();
-        group.setTrainingId(groupTrainingId);
-        group.setTitle("TRX");
-        group.setStartDate(groupTrainingStartDate.toString());
-        group.setLocation("Sala TRX");
-
-        String individualTrainingId = UUID.randomUUID().toString();
-        LocalDateTime individualTrainingStartDate = now.plusHours(11);
-        BasicTrainingDTO individual = new BasicTrainingDTO();
-        individual.setTrainingId(individualTrainingId);
-        individual.setTitle("Trening indywidualny");
-        individual.setStartDate(individualTrainingStartDate.toString());
-        individual.setLocation("Sala nr 10");
-
-
-        when(userGroupTrainingService.getMyNextTraining(userId))
-                .thenReturn(group);
-        when(userIndividualTrainingService.getMyNextTraining(userId))
-                .thenReturn(individual);
-
-        mockMvc.perform(request)
-                .andDo(print())
-                .andExpect(matchAll(
-                        status().isOk(),
-                        content().contentType(MediaType.APPLICATION_JSON),
-                        jsonPath("$.id").value(is(groupTrainingId)),
-                        jsonPath("$.title").value(is("TRX")),
-                        jsonPath("$.startDate").value(is(groupTrainingStartDate.toString())),
-                        jsonPath("$.location").value(is("Sala TRX"))
-
-                ));
-    }
-
-
-    @ParameterizedTest
-    @EnumSource(TestCountry.class)
-    void shouldGetUserNextGroupTrainingWhenIndividualNotExist(TestCountry country) throws Exception {
-        Locale testedLocale = convertEnumToLocale(country);
-
-        RequestBuilder request = MockMvcRequestBuilders
-                .get(uri+userId+"/next")
-                .header("Accept-Language", testedLocale.toString())
-                .header("Authorization", userToken)
-                .contentType(MediaType.APPLICATION_JSON);
-
-        var now = LocalDateTime.now();
-
-        String groupTrainingId = UUID.randomUUID().toString();
-        LocalDateTime groupTrainingStartDate = now.plusHours(10);
-        BasicTrainingDTO group = new BasicTrainingDTO();
-        group.setTrainingId(groupTrainingId);
-        group.setTitle("TRX");
-        group.setStartDate(groupTrainingStartDate.toString());
-        group.setLocation("Sala TRX");
-
-        when(userGroupTrainingService.getMyNextTraining(userId))
-                .thenReturn(group);
-        when(userIndividualTrainingService.getMyNextTraining(userId))
-                .thenReturn(null);
-
-        mockMvc.perform(request)
-                .andDo(print())
-                .andExpect(matchAll(
-                        status().isOk(),
-                        content().contentType(MediaType.APPLICATION_JSON),
-                        jsonPath("$.id").value(is(groupTrainingId)),
-                        jsonPath("$.title").value(is("TRX")),
-                        jsonPath("$.startDate").value(is(groupTrainingStartDate.toString())),
-                        jsonPath("$.location").value(is("Sala TRX"))
-
-                ));
-    }
-
-
-    @ParameterizedTest
-    @EnumSource(TestCountry.class)
-    void shouldGetUserNextIndividualTrainingWhenGroupNotExist(TestCountry country) throws Exception {
-        Locale testedLocale = convertEnumToLocale(country);
-
-        RequestBuilder request = MockMvcRequestBuilders
-                .get(uri+userId+"/next")
-                .header("Accept-Language", testedLocale.toString())
-                .header("Authorization", userToken)
-                .contentType(MediaType.APPLICATION_JSON);
-
-        var now = LocalDateTime.now();
-
-        String individualTrainingId = UUID.randomUUID().toString();
-        LocalDateTime individualTrainingStartDate = now.plusHours(11);
-        BasicTrainingDTO individual = new BasicTrainingDTO();
-        individual.setTrainingId(individualTrainingId);
-        individual.setTitle("Trening indywidualny");
-        individual.setStartDate(individualTrainingStartDate.toString());
-        individual.setLocation("Sala nr 10");
-
-
-        when(userGroupTrainingService.getMyNextTraining(userId))
-                .thenReturn(null);
-        when(userIndividualTrainingService.getMyNextTraining(userId))
-                .thenReturn(individual);
-
-        mockMvc.perform(request)
-                .andDo(print())
-                .andExpect(matchAll(
-                        status().isOk(),
-                        content().contentType(MediaType.APPLICATION_JSON),
-                        jsonPath("$.id").value(is(individualTrainingId)),
-                        jsonPath("$.title").value(is("Trening indywidualny")),
-                        jsonPath("$.startDate").value(is(individualTrainingStartDate.toString())),
-                        jsonPath("$.location").value(is("Sala nr 10"))
-
-                ));
-    }
-
-
-    @ParameterizedTest
-    @EnumSource(TestCountry.class)
-    void shouldNotGetNexTrainingWhenInvalidUserId(TestCountry country) throws Exception {
-        Map<String, String> messages = getMessagesAccordingToLocale(country);
-        Locale testedLocale = convertEnumToLocale(country);
-
-        String invalidUserId = UUID.randomUUID().toString();
-
-        RequestBuilder request = MockMvcRequestBuilders
-                .get(uri+invalidUserId+"/next")
-                .header("Accept-Language", testedLocale.toString())
-                .header("Authorization", adminToken)
-                .contentType(MediaType.APPLICATION_JSON);
-
-        String expectedMessage = messages.get("exception.not.found.user.id");
-
-        doThrow(UserNotFoundException.class)
-                .when(userGroupTrainingService)
-                .getMyNextTraining(invalidUserId);
-
-        doThrow(UserNotFoundException.class)
-                .when(userIndividualTrainingService)
-                .getMyNextTraining(invalidUserId);
-
-        mockMvc.perform(request)
-                .andDo(print())
-                .andExpect(status().isBadRequest())
-                .andExpect(status().reason(is(expectedMessage)))
-                .andExpect(result ->
-                        assertThat(Objects.requireNonNull(result.getResolvedException()).getCause())
-                                .isInstanceOf(UserNotFoundException.class)
-                );
-    }
-
-
-    @ParameterizedTest
-    @EnumSource(TestCountry.class)
-    void shouldNotGetNexTrainingWhenNoTrainings(TestCountry country) throws Exception {
-        Map<String, String> messages = getMessagesAccordingToLocale(country);
-        Locale testedLocale = convertEnumToLocale(country);
-
-        RequestBuilder request = MockMvcRequestBuilders
-                .get(uri+userId+"/next")
-                .header("Accept-Language", testedLocale.toString())
-                .header("Authorization", adminToken)
-                .contentType(MediaType.APPLICATION_JSON);
-
-        String expectedMessage = messages.get("exception.user.next.training.not.found");
-
-        when(userGroupTrainingService.getMyNextTraining(userId))
-                .thenReturn(null);
-        when(userIndividualTrainingService.getMyNextTraining(userId))
-                .thenReturn(null);
-
-        mockMvc.perform(request)
-                .andDo(print())
-                .andExpect(status().isOk())
-                .andExpect(status().reason(is(expectedMessage)))
-                .andExpect(result ->
-                        assertThat(Objects.requireNonNull(result.getResolvedException()).getCause())
-                                .isInstanceOf(UserNextTrainingNotFoundException.class)
-                );
-    }
-
-    @ParameterizedTest
-    @EnumSource(TestCountry.class)
-    void shouldThrowIllegalStateExceptionWhenInternalErrorOccurs(TestCountry country)
-            throws Exception {
-        Map<String, String> messages = getMessagesAccordingToLocale(country);
-        Locale testedLocale = convertEnumToLocale(country);
-
-        String userId = UUID.randomUUID().toString();
-
-        RequestBuilder request = MockMvcRequestBuilders
-                .get(uri+userId+"/next")
-                .header("Accept-Language", testedLocale.toString())
-                .header("Authorization", managerToken)
-                .contentType(MediaType.APPLICATION_JSON);
-
-        doThrow(IllegalStateException.class)
-                .when(userGroupTrainingService)
-                .getMyNextTraining(userId);
-
-        doThrow(IllegalStateException.class)
-                .when(userIndividualTrainingService)
-                .getMyNextTraining(userId);
-
-        String expectedMessage = messages.get("exception.internal.error");
-
-        mockMvc.perform(request)
-                .andDo(print())
-                .andExpect(status().isInternalServerError())
-                .andExpect(status().reason(is(expectedMessage)))
-                .andExpect(result ->
-                        assertThat(Objects.requireNonNull(result.getResolvedException()).getCause())
-                                .isInstanceOf(IllegalStateException.class)
-                );
-    }
-
     @Nested
-    class ShouldNotGetUserNextTrainingWhenNotAuthorized{
+    class ShouldGetNextTraining{
 
         @ParameterizedTest
         @EnumSource(TestCountry.class)
-        void whenUserIsNotLogIn(TestCountry country) throws Exception {
+        void shouldGetUserNextTrainingWhenValidUserIdAndTrainingExist(TestCountry country) throws Exception {
             Locale testedLocale = convertEnumToLocale(country);
 
             RequestBuilder request = MockMvcRequestBuilders
                     .get(uri+userId+"/next")
-                    .header("Accept-Language", testedLocale.toString());
+                    .header("Accept-Language", testedLocale.toString())
+                    .header("Authorization", userToken)
+                    .contentType(MediaType.APPLICATION_JSON);
+
+            var now = LocalDateTime.now();
+
+            String groupTrainingId = UUID.randomUUID().toString();
+            LocalDateTime groupTrainingStartDate = now.plusHours(10);
+            BasicTrainingDTO group = new BasicTrainingDTO();
+            group.setTrainingId(groupTrainingId);
+            group.setTitle("TRX");
+            group.setStartDate(groupTrainingStartDate.toString());
+            group.setLocation("Sala TRX");
+
+            String individualTrainingId = UUID.randomUUID().toString();
+            LocalDateTime individualTrainingStartDate = now.plusHours(11);
+            BasicTrainingDTO individual = new BasicTrainingDTO();
+            individual.setTrainingId(individualTrainingId);
+            individual.setTitle("Trening indywidualny");
+            individual.setStartDate(individualTrainingStartDate.toString());
+            individual.setLocation("Sala nr 10");
+
+
+            when(userGroupTrainingService.getMyNextTraining(userId))
+                    .thenReturn(group);
+            when(userIndividualTrainingService.getMyNextTraining(userId))
+                    .thenReturn(individual);
 
             mockMvc.perform(request)
                     .andDo(print())
-                    .andExpect(status().isForbidden());
+                    .andExpect(matchAll(
+                            status().isOk(),
+                            content().contentType(MediaType.APPLICATION_JSON),
+                            jsonPath("$.id").value(is(groupTrainingId)),
+                            jsonPath("$.title").value(is("TRX")),
+                            jsonPath("$.startDate").value(is(groupTrainingStartDate.toString())),
+                            jsonPath("$.location").value(is("Sala TRX"))
+
+                    ));
         }
+
 
         @ParameterizedTest
         @EnumSource(TestCountry.class)
-        void whenUserIsNotLogInAsOtherUser(TestCountry country) throws Exception {
+        void shouldGetUserNextGroupTrainingWhenIndividualNotExist(TestCountry country) throws Exception {
+            Locale testedLocale = convertEnumToLocale(country);
+
+            RequestBuilder request = MockMvcRequestBuilders
+                    .get(uri+userId+"/next")
+                    .header("Accept-Language", testedLocale.toString())
+                    .header("Authorization", userToken)
+                    .contentType(MediaType.APPLICATION_JSON);
+
+            var now = LocalDateTime.now();
+
+            String groupTrainingId = UUID.randomUUID().toString();
+            LocalDateTime groupTrainingStartDate = now.plusHours(10);
+            BasicTrainingDTO group = new BasicTrainingDTO();
+            group.setTrainingId(groupTrainingId);
+            group.setTitle("TRX");
+            group.setStartDate(groupTrainingStartDate.toString());
+            group.setLocation("Sala TRX");
+
+            when(userGroupTrainingService.getMyNextTraining(userId))
+                    .thenReturn(group);
+            when(userIndividualTrainingService.getMyNextTraining(userId))
+                    .thenReturn(null);
+
+            mockMvc.perform(request)
+                    .andDo(print())
+                    .andExpect(matchAll(
+                            status().isOk(),
+                            content().contentType(MediaType.APPLICATION_JSON),
+                            jsonPath("$.id").value(is(groupTrainingId)),
+                            jsonPath("$.title").value(is("TRX")),
+                            jsonPath("$.startDate").value(is(groupTrainingStartDate.toString())),
+                            jsonPath("$.location").value(is("Sala TRX"))
+
+                    ));
+        }
+
+
+        @ParameterizedTest
+        @EnumSource(TestCountry.class)
+        void shouldGetUserNextIndividualTrainingWhenGroupNotExist(TestCountry country) throws Exception {
+            Locale testedLocale = convertEnumToLocale(country);
+
+            RequestBuilder request = MockMvcRequestBuilders
+                    .get(uri+userId+"/next")
+                    .header("Accept-Language", testedLocale.toString())
+                    .header("Authorization", userToken)
+                    .contentType(MediaType.APPLICATION_JSON);
+
+            var now = LocalDateTime.now();
+
+            String individualTrainingId = UUID.randomUUID().toString();
+            LocalDateTime individualTrainingStartDate = now.plusHours(11);
+            BasicTrainingDTO individual = new BasicTrainingDTO();
+            individual.setTrainingId(individualTrainingId);
+            individual.setTitle("Trening indywidualny");
+            individual.setStartDate(individualTrainingStartDate.toString());
+            individual.setLocation("Sala nr 10");
+
+
+            when(userGroupTrainingService.getMyNextTraining(userId))
+                    .thenReturn(null);
+            when(userIndividualTrainingService.getMyNextTraining(userId))
+                    .thenReturn(individual);
+
+            mockMvc.perform(request)
+                    .andDo(print())
+                    .andExpect(matchAll(
+                            status().isOk(),
+                            content().contentType(MediaType.APPLICATION_JSON),
+                            jsonPath("$.id").value(is(individualTrainingId)),
+                            jsonPath("$.title").value(is("Trening indywidualny")),
+                            jsonPath("$.startDate").value(is(individualTrainingStartDate.toString())),
+                            jsonPath("$.location").value(is("Sala nr 10"))
+
+                    ));
+        }
+
+    }
+
+    @Nested
+    class ShouldNotGetNextTraining{
+
+        @ParameterizedTest
+        @EnumSource(TestCountry.class)
+        void shouldNotGetNexTrainingWhenInvalidUserId(TestCountry country) throws Exception {
+            Map<String, String> messages = getMessagesAccordingToLocale(country);
+            Locale testedLocale = convertEnumToLocale(country);
+
+            String invalidUserId = UUID.randomUUID().toString();
+
+            RequestBuilder request = MockMvcRequestBuilders
+                    .get(uri+invalidUserId+"/next")
+                    .header("Accept-Language", testedLocale.toString())
+                    .header("Authorization", adminToken)
+                    .contentType(MediaType.APPLICATION_JSON);
+
+            String expectedMessage = messages.get("exception.not.found.user.id");
+
+            doThrow(UserNotFoundException.class)
+                    .when(userGroupTrainingService)
+                    .getMyNextTraining(invalidUserId);
+
+            doThrow(UserNotFoundException.class)
+                    .when(userIndividualTrainingService)
+                    .getMyNextTraining(invalidUserId);
+
+            mockMvc.perform(request)
+                    .andDo(print())
+                    .andExpect(status().isBadRequest())
+                    .andExpect(status().reason(is(expectedMessage)))
+                    .andExpect(result ->
+                            assertThat(Objects.requireNonNull(result.getResolvedException()).getCause())
+                                    .isInstanceOf(UserNotFoundException.class)
+                    );
+        }
+
+
+        @ParameterizedTest
+        @EnumSource(TestCountry.class)
+        void shouldNotGetNexTrainingWhenNoTrainings(TestCountry country) throws Exception {
             Map<String, String> messages = getMessagesAccordingToLocale(country);
             Locale testedLocale = convertEnumToLocale(country);
 
             RequestBuilder request = MockMvcRequestBuilders
                     .get(uri+userId+"/next")
                     .header("Accept-Language", testedLocale.toString())
-                    .header("Authorization", otherUserToken)
+                    .header("Authorization", adminToken)
                     .contentType(MediaType.APPLICATION_JSON);
 
-            String expectedMessage = messages.get("exception.access.denied");
+            String expectedMessage = messages.get("exception.user.next.training.not.found");
+
+            when(userGroupTrainingService.getMyNextTraining(userId))
+                    .thenReturn(null);
+            when(userIndividualTrainingService.getMyNextTraining(userId))
+                    .thenReturn(null);
 
             mockMvc.perform(request)
                     .andDo(print())
-                    .andExpect(status().isForbidden())
-                    .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                    .andExpect(jsonPath("$.message").value(is(expectedMessage)))
-                    .andExpect(jsonPath("$.error").value(is("Forbidden")))
-                    .andExpect(jsonPath("$.status").value(403))
-                    .andExpect(jsonPath("$.timestamp").exists());
+                    .andExpect(status().isOk())
+                    .andExpect(status().reason(is(expectedMessage)))
+                    .andExpect(result ->
+                            assertThat(Objects.requireNonNull(result.getResolvedException()).getCause())
+                                    .isInstanceOf(UserNextTrainingNotFoundException.class)
+                    );
+        }
+
+        @ParameterizedTest
+        @EnumSource(TestCountry.class)
+        void shouldThrowIllegalStateExceptionWhenInternalErrorOccurs(TestCountry country)
+                throws Exception {
+            Map<String, String> messages = getMessagesAccordingToLocale(country);
+            Locale testedLocale = convertEnumToLocale(country);
+
+            String userId = UUID.randomUUID().toString();
+
+            RequestBuilder request = MockMvcRequestBuilders
+                    .get(uri+userId+"/next")
+                    .header("Accept-Language", testedLocale.toString())
+                    .header("Authorization", managerToken)
+                    .contentType(MediaType.APPLICATION_JSON);
+
+            doThrow(IllegalStateException.class)
+                    .when(userGroupTrainingService)
+                    .getMyNextTraining(userId);
+
+            doThrow(IllegalStateException.class)
+                    .when(userIndividualTrainingService)
+                    .getMyNextTraining(userId);
+
+            String expectedMessage = messages.get("exception.internal.error");
+
+            mockMvc.perform(request)
+                    .andDo(print())
+                    .andExpect(status().isInternalServerError())
+                    .andExpect(status().reason(is(expectedMessage)))
+                    .andExpect(result ->
+                            assertThat(Objects.requireNonNull(result.getResolvedException()).getCause())
+                                    .isInstanceOf(IllegalStateException.class)
+                    );
+        }
+
+        @Nested
+        class ShouldNotGetUserNextTrainingWhenNotAuthorized{
+
+            @ParameterizedTest
+            @EnumSource(TestCountry.class)
+            void whenUserIsNotLogIn(TestCountry country) throws Exception {
+                Locale testedLocale = convertEnumToLocale(country);
+
+                RequestBuilder request = MockMvcRequestBuilders
+                        .get(uri+userId+"/next")
+                        .header("Accept-Language", testedLocale.toString());
+
+                mockMvc.perform(request)
+                        .andDo(print())
+                        .andExpect(status().isForbidden());
+            }
+
+            @ParameterizedTest
+            @EnumSource(TestCountry.class)
+            void whenUserIsNotLogInAsOtherUser(TestCountry country) throws Exception {
+                Map<String, String> messages = getMessagesAccordingToLocale(country);
+                Locale testedLocale = convertEnumToLocale(country);
+
+                RequestBuilder request = MockMvcRequestBuilders
+                        .get(uri+userId+"/next")
+                        .header("Accept-Language", testedLocale.toString())
+                        .header("Authorization", otherUserToken)
+                        .contentType(MediaType.APPLICATION_JSON);
+
+                String expectedMessage = messages.get("exception.access.denied");
+
+                mockMvc.perform(request)
+                        .andDo(print())
+                        .andExpect(status().isForbidden())
+                        .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                        .andExpect(jsonPath("$.message").value(is(expectedMessage)))
+                        .andExpect(jsonPath("$.error").value(is("Forbidden")))
+                        .andExpect(jsonPath("$.status").value(403))
+                        .andExpect(jsonPath("$.timestamp").exists());
+            }
         }
     }
-
 
 }

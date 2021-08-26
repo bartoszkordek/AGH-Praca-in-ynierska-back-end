@@ -164,9 +164,9 @@ class LocationControllerIntegrationTest {
 
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(responseEntity.getBody().isArray()).isTrue();
-        assertThat(responseEntity.getBody().get(0).get("id").textValue()).isEqualTo(locationID1);
+        assertThat(responseEntity.getBody().get(0).get("locationId").textValue()).isEqualTo(locationID1);
         assertThat(responseEntity.getBody().get(0).get("name").textValue()).isEqualTo("Sala nr 1");
-        assertThat(responseEntity.getBody().get(1).get("id").textValue()).isEqualTo(locationID2);
+        assertThat(responseEntity.getBody().get(1).get("locationId").textValue()).isEqualTo(locationID2);
         assertThat(responseEntity.getBody().get(1).get("name").textValue()).isEqualTo("Sala nr 2");
         assertThat(responseEntity.getHeaders().getContentType()).isEqualTo(MediaType.APPLICATION_JSON);
     }
@@ -228,7 +228,7 @@ class LocationControllerIntegrationTest {
 
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(responseEntity.getBody().get("message").textValue()).isEqualTo(expectedMessage);
-        assertThat(responseEntity.getBody().get("location").get("id").textValue()).isEqualTo(locationID1);
+        assertThat(responseEntity.getBody().get("location").get("locationId").textValue()).isEqualTo(locationID1);
         assertThat(responseEntity.getBody().get("location").get("name").textValue()).isEqualTo("Sala nr 1");
         assertThat(responseEntity.getHeaders().getContentType()).isEqualTo(MediaType.APPLICATION_JSON);
 

@@ -1,11 +1,9 @@
 package com.healthy.gym.trainings.dto;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-
 import java.util.Objects;
 
 public class LocationDTO {
-    @JsonProperty("id")
+
     private String locationId;
     private String name;
 

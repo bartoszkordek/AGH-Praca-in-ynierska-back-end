@@ -1,0 +1,17 @@
+spring:
+  data:
+    mongodb:
+      uri: mongodb://adminPracaInz:thisPAsswordNeed2BeChange@mongodb:27017/databasePracaInz
+  rabbitmq:
+    host: rabbitmq
+  zipkin:
+    base-url: http://zipkin:9411
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://discovery:8010/eureka
+
+#custom settings
+front-end:
+  port: 5000

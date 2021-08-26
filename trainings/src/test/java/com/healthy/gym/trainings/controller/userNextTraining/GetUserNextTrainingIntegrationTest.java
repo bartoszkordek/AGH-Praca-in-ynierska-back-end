@@ -375,4 +375,30 @@ public class GetUserNextTrainingIntegrationTest {
         assertThat(responseEntity.getBody().get("message").textValue()).isEqualTo(expectedMessage);
         assertThat(responseEntity.getBody().get("timestamp")).isNotNull();
     }
+
+    @ParameterizedTest
+    @EnumSource(TestCountry.class)
+    void shouldNotGetNextTraining_whenNoToken(TestCountry country)
+            throws Exception {
+        Locale testedLocale = convertEnumToLocale(country);
+
+        String invalidUserId = UUID.randomUUID().toString();
+
+        URI uri = new URI("http://localhost:" + port + "/user/" + invalidUserId + "/next");
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Accept-Language", testedLocale.toString());
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        HttpEntity<Object> request = new HttpEntity<>(null, headers);
+
+        ResponseEntity<JsonNode> responseEntity = restTemplate
+                .exchange(uri, HttpMethod.GET, request, JsonNode.class);
+
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
+        assertThat(responseEntity.getBody().get("status").intValue()).isEqualTo(403);
+        assertThat(responseEntity.getBody().get("error").textValue()).isEqualTo("Forbidden");
+        assertThat(responseEntity.getBody().get("message").textValue()).isEqualTo("Access Denied");
+        assertThat(responseEntity.getBody().get("timestamp")).isNotNull();
+    }
 }

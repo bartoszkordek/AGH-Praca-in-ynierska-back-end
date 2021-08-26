@@ -265,8 +265,6 @@ public class GetUserNextTrainingIntegrationTest {
         ResponseEntity<JsonNode> responseEntity = restTemplate
                 .exchange(uri, HttpMethod.GET, request, JsonNode.class);
 
-        System.out.println(responseEntity.getBody());
-
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(responseEntity.getBody()).isNotNull();
 
@@ -278,5 +276,66 @@ public class GetUserNextTrainingIntegrationTest {
         assertThat(responseEntity.getBody().get("startDate").textValue()).isNotNull();
         assertThat(responseEntity.getBody().get("location").textValue())
                 .isEqualTo("Sala nr 10");
+    }
+
+    @ParameterizedTest
+    @EnumSource(TestCountry.class)
+    void shouldGetUserNextTraining_whenValidUserId_addedIndividualTrainingAfterGroup(TestCountry country)
+            throws Exception {
+        Locale testedLocale = convertEnumToLocale(country);
+
+        //before
+        var now = LocalDateTime.now();
+
+        String individualTrainingTypeId = UUID.randomUUID().toString();
+        String individualTrainingName = "Trening indywidualny";
+        TrainingTypeDocument individualTrainingTypeDocument = new TrainingTypeDocument(
+                individualTrainingTypeId,
+                individualTrainingName
+        );
+        mongoTemplate.save(individualTrainingTypeDocument);
+
+        String locationId10 = UUID.randomUUID().toString();
+        String locationName10 = "Sala nr 10";
+        LocationDocument locationDocument10 = new LocationDocument(locationId10, locationName10);
+        mongoTemplate.save(locationDocument10);
+
+        String individualTrainingId = UUID.randomUUID().toString();
+        IndividualTrainingDocument individualTrainingDocument = new IndividualTrainingDocument(
+                individualTrainingId,
+                individualTrainingTypeDocument,
+                List.of(userDocument),
+                List.of(trainerDocument),
+                now.plusDays(1).plusHours(1),
+                now.plusDays(1).plusHours(2),
+                locationDocument10,
+                "Komentarz"
+        );
+
+        mongoTemplate.save(individualTrainingDocument);
+
+        URI uri = new URI("http://localhost:" + port + "/user/" + userId + "/next");
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Accept-Language", testedLocale.toString());
+        headers.set("Authorization", userToken);
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        HttpEntity<Object> request = new HttpEntity<>(null, headers);
+
+        ResponseEntity<JsonNode> responseEntity = restTemplate
+                .exchange(uri, HttpMethod.GET, request, JsonNode.class);
+
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(responseEntity.getBody()).isNotNull();
+
+        assertThat(responseEntity.getBody().get("id")).isNotNull();
+        assertThat(responseEntity.getBody().get("id").textValue())
+                .isEqualTo(groupTrainingId2);
+        assertThat(responseEntity.getBody().get("title").textValue())
+                .isEqualTo("Rowery");
+        assertThat(responseEntity.getBody().get("startDate").textValue()).isNotNull();
+        assertThat(responseEntity.getBody().get("location").textValue())
+                .isEqualTo("Sala nr 3");
     }
 }

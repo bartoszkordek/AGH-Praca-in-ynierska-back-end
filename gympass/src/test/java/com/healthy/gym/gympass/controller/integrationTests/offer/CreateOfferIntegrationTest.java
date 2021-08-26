@@ -8,7 +8,10 @@ import com.healthy.gym.gympass.data.document.GymPassDocument;
 import com.healthy.gym.gympass.pojo.request.GymPassOfferRequest;
 import com.healthy.gym.gympass.shared.Description;
 import com.healthy.gym.gympass.shared.Price;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -93,7 +96,7 @@ class CreateOfferIntegrationTest {
         gymPassOfferRequest.setAmount(139.99);
         gymPassOfferRequest.setCurrency("zł");
         gymPassOfferRequest.setPeriod("miesiąc");
-        gymPassOfferRequest.setPremium(false);
+        gymPassOfferRequest.setPremium(true);
         gymPassOfferRequest.setSynopsis("Karnet uprawniający do korzystania w pełni z usług ośrodka");
         gymPassOfferRequest.setFeatures(List.of("Full pakiet", "sauna", "siłownia", "basen"));
 
@@ -120,8 +123,8 @@ class CreateOfferIntegrationTest {
         invalidSynopsisRequestContent = objectMapper.writeValueAsString(invalidSynopsisGymPassOfferRequest);
 
         List<String> features = new ArrayList<>();
-        for (int i = 0; i<21; i++)
-            features.add("element "+i+1);
+        for (int i = 0; i < 21; i++)
+            features.add("element " + i + 1);
 
         GymPassOfferRequest invalidFeaturesGymPassOfferRequest = new GymPassOfferRequest();
         invalidFeaturesGymPassOfferRequest.setFeatures(features);
@@ -135,7 +138,7 @@ class CreateOfferIntegrationTest {
     }
 
     @Nested
-    class ShouldCreateOffer{
+    class ShouldCreateOffer {
 
         @ParameterizedTest
         @EnumSource(TestCountry.class)
@@ -164,7 +167,7 @@ class CreateOfferIntegrationTest {
             assertThat(responseEntity.getBody().get("gymPass").get("price").get("amount").asDouble()).isEqualTo(139.99);
             assertThat(responseEntity.getBody().get("gymPass").get("price").get("currency").textValue()).isEqualTo("zł");
             assertThat(responseEntity.getBody().get("gymPass").get("price").get("period").textValue()).isEqualTo("miesiąc");
-            assertThat(responseEntity.getBody().get("gymPass").get("isPremium").booleanValue()).isFalse();
+            assertThat(responseEntity.getBody().get("gymPass").get("isPremium").booleanValue()).isTrue();
             assertThat(responseEntity.getBody().get("gymPass").get("description").get("synopsis").textValue())
                     .isEqualTo("Karnet uprawniający do korzystania w pełni z usług ośrodka");
             assertThat(responseEntity.getBody().get("gymPass").get("description").get("features").get(0).textValue())
@@ -184,7 +187,7 @@ class CreateOfferIntegrationTest {
 
 
     @Nested
-    class ShouldNotCreateOffer{
+    class ShouldNotCreateOffer {
 
         @ParameterizedTest
         @EnumSource(TestCountry.class)
@@ -222,7 +225,7 @@ class CreateOfferIntegrationTest {
         }
 
         @Nested
-        class ShouldNotCreateOfferWhenNotAuthorized{
+        class ShouldNotCreateOfferWhenNotAuthorized {
 
             @ParameterizedTest
             @EnumSource(TestCountry.class)
@@ -277,7 +280,7 @@ class CreateOfferIntegrationTest {
         }
 
         @Nested
-        class ShouldThrowBindException{
+        class ShouldThrowBindException {
 
             @ParameterizedTest
             @EnumSource(TestCountry.class)

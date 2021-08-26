@@ -4,6 +4,7 @@ import com.healthy.gym.trainings.configuration.TestCountry;
 import com.healthy.gym.trainings.configuration.TestRoleTokenFactory;
 import com.healthy.gym.trainings.controller.UserNextTrainingController;
 import com.healthy.gym.trainings.dto.BasicTrainingDTO;
+import com.healthy.gym.trainings.exception.notfound.UserNotFoundException;
 import com.healthy.gym.trainings.service.group.training.UserGroupTrainingService;
 import com.healthy.gym.trainings.service.individual.training.UserIndividualTrainingService;
 import org.junit.jupiter.api.BeforeEach;
@@ -22,11 +23,11 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Locale;
-import java.util.UUID;
+import java.util.*;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.is;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.ResultMatcher.matchAll;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -34,6 +35,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
 import static com.healthy.gym.trainings.configuration.LocaleConverter.convertEnumToLocale;
+import static com.healthy.gym.trainings.configuration.Messages.getMessagesAccordingToLocale;
 
 @WebMvcTest(UserNextTrainingController.class)
 @ActiveProfiles(value = "test")
@@ -207,6 +209,41 @@ public class GetUserNextTrainingControllerUnitTest {
                         jsonPath("$.location").value(is("Sala nr 10"))
 
                 ));
+    }
+
+
+    @ParameterizedTest
+    @EnumSource(TestCountry.class)
+    void shouldNotGetNexTrainingWhenInvalidUserId(TestCountry country) throws Exception {
+        Map<String, String> messages = getMessagesAccordingToLocale(country);
+        Locale testedLocale = convertEnumToLocale(country);
+
+        String invalidUserId = UUID.randomUUID().toString();
+
+        RequestBuilder request = MockMvcRequestBuilders
+                .get(uri+invalidUserId+"/next")
+                .header("Accept-Language", testedLocale.toString())
+                .header("Authorization", adminToken)
+                .contentType(MediaType.APPLICATION_JSON);
+
+        String expectedMessage = messages.get("exception.not.found.user.id");
+
+        doThrow(UserNotFoundException.class)
+                .when(userGroupTrainingService)
+                .getMyNextTraining(invalidUserId);
+
+        doThrow(UserNotFoundException.class)
+                .when(userIndividualTrainingService)
+                .getMyNextTraining(invalidUserId);
+
+        mockMvc.perform(request)
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(status().reason(is(expectedMessage)))
+                .andExpect(result ->
+                        assertThat(Objects.requireNonNull(result.getResolvedException()).getCause())
+                                .isInstanceOf(UserNotFoundException.class)
+                );
     }
 
 

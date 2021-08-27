@@ -6,6 +6,7 @@ import com.healthy.gym.equipment.component.Translator;
 import com.healthy.gym.equipment.dto.DescriptionDTO;
 import com.healthy.gym.equipment.dto.EquipmentDTO;
 import com.healthy.gym.equipment.dto.TrainingDTO;
+import com.healthy.gym.equipment.exception.DuplicatedEquipmentTypeException;
 import com.healthy.gym.equipment.exception.MultipartBodyException;
 import com.healthy.gym.equipment.model.request.EquipmentRequest;
 import com.healthy.gym.equipment.model.response.EquipmentDTOResponse;
@@ -90,6 +91,10 @@ public class EquipmentController {
 
         } catch (UnsupportedDataTypeException exception) {
             String reason = translator.toLocale("exception.unsupported.data.type");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, exception);
+
+        } catch (DuplicatedEquipmentTypeException exception) {
+            String reason = translator.toLocale("exception.duplicated.equipment.type");
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, exception);
 
         } catch (Exception exception) {

@@ -1,6 +1,7 @@
 package com.healthy.gym.equipment.service;
 
 import com.healthy.gym.equipment.dto.EquipmentDTO;
+import com.healthy.gym.equipment.exception.DuplicatedEquipmentTypeException;
 import com.healthy.gym.equipment.model.request.EquipmentRequest;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -10,5 +11,6 @@ public interface EquipmentService {
 
     List<EquipmentDTO> getEquipments();
 
-    EquipmentDTO createEquipment(EquipmentRequest equipmentRequest, MultipartFile multipartFile);
+    EquipmentDTO createEquipment(EquipmentRequest equipmentRequest, MultipartFile multipartFile)
+        throws DuplicatedEquipmentTypeException;
 }

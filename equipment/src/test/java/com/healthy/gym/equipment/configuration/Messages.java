@@ -11,7 +11,8 @@ public class Messages {
                 {"exception.internal.error", "Podczas przetwarzania żądania wystąpił błąd."},
                 {"exception.multipart.body", "Źle wypełniony formularz."},
                 {"exception.unsupported.data.type", "Błąd. Dopuszczalny format pliku to JPEG lub PNG."},
-                {"equipment.created", "Nowy sprzęt został utworzony."}
+                {"equipment.created", "Nowy sprzęt został utworzony."},
+                {"exception.duplicated.equipment.type", "Sprzęt o tej samej nazwie już istnieje."}
         }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
     }
 
@@ -21,7 +22,8 @@ public class Messages {
                 {"exception.internal.error" ,"An error occurred while processing your request."},
                 {"exception.multipart.body", "Incorrectly completed form."},
                 {"exception.unsupported.data.type", "Error. The acceptable file format is JPEG or PNG."},
-                {"equipment.created", "New equipment has been created."}
+                {"equipment.created", "New equipment has been created."},
+                {"exception.duplicated.equipment.type", "Equipment with the same title already exists."}
         }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
     }
 

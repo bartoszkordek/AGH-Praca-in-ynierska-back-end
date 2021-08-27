@@ -15,7 +15,7 @@ public class GymPassOfferRequest {
     @Size(min = 2, max = 20, message = "{field.name.failure}")
     private String title;
 
-    @Size(min = 2, max = 60, message = "{field.subheader.failure}")
+    @Size(max = 60, message = "{field.subheader.failure}")
     private String subheader;
 
     @NotNull(message = "{field.required}")
@@ -41,60 +41,60 @@ public class GymPassOfferRequest {
         return title;
     }
 
-    public String getSubheader() {
-        return subheader;
-    }
-
-    public double getAmount() {
-        return amount;
-    }
-
-    public String getCurrency() {
-        return currency;
-    }
-
-    public String getPeriod() {
-        return period;
-    }
-
-    public boolean isPremium() {
-        return isPremium;
-    }
-
-    public String getSynopsis() {
-        return synopsis;
-    }
-
-    public List<String> getFeatures() {
-        return features;
-    }
-
     public void setTitle(String title) {
         this.title = title;
+    }
+
+    public String getSubheader() {
+        return subheader;
     }
 
     public void setSubheader(String subheader) {
         this.subheader = subheader;
     }
 
+    public double getAmount() {
+        return amount;
+    }
+
     public void setAmount(double amount) {
         this.amount = amount;
+    }
+
+    public String getCurrency() {
+        return currency;
     }
 
     public void setCurrency(String currency) {
         this.currency = currency;
     }
 
+    public String getPeriod() {
+        return period;
+    }
+
     public void setPeriod(String period) {
         this.period = period;
     }
 
+    public boolean isPremium() {
+        return isPremium;
+    }
+
     public void setPremium(boolean premium) {
-        isPremium = premium;
+        this.isPremium = premium;
+    }
+
+    public String getSynopsis() {
+        return synopsis;
     }
 
     public void setSynopsis(String synopsis) {
         this.synopsis = synopsis;
+    }
+
+    public List<String> getFeatures() {
+        return features;
     }
 
     public void setFeatures(List<String> features) {

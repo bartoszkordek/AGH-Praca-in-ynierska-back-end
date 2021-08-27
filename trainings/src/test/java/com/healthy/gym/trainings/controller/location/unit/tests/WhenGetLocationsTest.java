@@ -95,9 +95,9 @@ class WhenGetLocationsTest {
                         status().isOk(),
                         content().contentType(MediaType.APPLICATION_JSON),
                         jsonPath("$.message").doesNotHaveJsonPath(),
-                        jsonPath("$.[0].id").value(is(locationID1)),
+                        jsonPath("$.[0].locationId").value(is(locationID1)),
                         jsonPath("$.[0].name").value(is("Sala nr 1")),
-                        jsonPath("$.[1].id").value(is(locationID2)),
+                        jsonPath("$.[1].locationId").value(is(locationID2)),
                         jsonPath("$.[1].name").value(is("Sala nr 2"))
                 ));
     }

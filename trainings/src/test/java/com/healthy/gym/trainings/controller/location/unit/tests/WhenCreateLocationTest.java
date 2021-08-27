@@ -117,7 +117,7 @@ class WhenCreateLocationTest {
                         content().contentType(MediaType.APPLICATION_JSON),
                         jsonPath("$.message").value(is(expectedMessage)),
                         jsonPath("$.location").exists(),
-                        jsonPath("$.location.id").value(is(locationID)),
+                        jsonPath("$.location.locationId").value(is(locationID)),
                         jsonPath("$.location.name").value(is("Sala nr 1"))
                 ));
     }

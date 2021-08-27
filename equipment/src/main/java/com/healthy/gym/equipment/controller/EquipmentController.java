@@ -126,6 +126,7 @@ public class EquipmentController {
         equipment2.setImages(List.of("https://www.e-insportline.pl/upload/image/320x320/IMG_79931_stin.jpg"));
         equipment2.setDescription(new DescriptionDTO("Bieżnia", List.of(training1)));
 
-        return List.of(equipment1, equipment2);
+        //return List.of(equipment1, equipment2);
+        return equipmentService.getEquipments();
     }
 }

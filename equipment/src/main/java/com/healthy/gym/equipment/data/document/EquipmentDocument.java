@@ -14,6 +14,7 @@ public class EquipmentDocument {
     private String id;
     private String equipmentId;
     private String title;
+    private List<ImageDocument> imagesDocuments;
     private List<String> images;
     private String synopsis;
     @DBRef
@@ -25,12 +26,15 @@ public class EquipmentDocument {
     public EquipmentDocument(
             String equipmentId,
             String title,
+            List<ImageDocument> imagesDocuments,
             List<String> images,
             String synopsis,
             List<TrainingTypeDocument> trainings
     ) {
         this.equipmentId = equipmentId;
         this.title = title;
+        this.images = images;
+        this.imagesDocuments = imagesDocuments;
         this.images = images;
         this.synopsis = synopsis;
         this.trainings = trainings;
@@ -46,6 +50,10 @@ public class EquipmentDocument {
 
     public String getTitle() {
         return title;
+    }
+
+    public List<ImageDocument> getImagesDocuments() {
+        return imagesDocuments;
     }
 
     public List<String> getImages() {
@@ -72,6 +80,10 @@ public class EquipmentDocument {
         this.title = title;
     }
 
+    public void setImagesDocuments(List<ImageDocument> imagesDocuments) {
+        this.imagesDocuments = imagesDocuments;
+    }
+
     public void setImages(List<String> images) {
         this.images = images;
     }
@@ -90,6 +102,7 @@ public class EquipmentDocument {
                 "id='" + id + '\'' +
                 ", equipmentId='" + equipmentId + '\'' +
                 ", title='" + title + '\'' +
+                ", imagesDocuments=" + imagesDocuments +
                 ", images=" + images +
                 ", synopsis='" + synopsis + '\'' +
                 ", trainings=" + trainings +
@@ -104,6 +117,7 @@ public class EquipmentDocument {
         return Objects.equals(id, that.id) &&
                 Objects.equals(equipmentId, that.equipmentId) &&
                 Objects.equals(title, that.title) &&
+                Objects.equals(imagesDocuments, that.imagesDocuments) &&
                 Objects.equals(images, that.images) &&
                 Objects.equals(synopsis, that.synopsis) &&
                 Objects.equals(trainings, that.trainings);
@@ -115,6 +129,7 @@ public class EquipmentDocument {
                 id,
                 equipmentId,
                 title,
+                imagesDocuments,
                 images,
                 synopsis,
                 trainings

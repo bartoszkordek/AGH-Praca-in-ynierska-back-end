@@ -13,7 +13,8 @@ public class Messages {
                 {"exception.unsupported.data.type", "Błąd. Dopuszczalny format pliku to JPEG lub PNG."},
                 {"equipment.created", "Nowy sprzęt został utworzony."},
                 {"exception.duplicated.equipment.type", "Sprzęt o tej samej nazwie już istnieje."},
-                {"exception.not.found.equipment.all", "Nie znaleziono żadnego sprzętu."}
+                {"exception.not.found.equipment.all", "Nie znaleziono żadnego sprzętu."},
+                {"field.required", "Pole jest wymagane."}
         }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
     }
 
@@ -25,7 +26,8 @@ public class Messages {
                 {"exception.unsupported.data.type", "Error. The acceptable file format is JPEG or PNG."},
                 {"equipment.created", "New equipment has been created."},
                 {"exception.duplicated.equipment.type", "Equipment with the same title already exists."},
-                {"exception.not.found.equipment.all", "Not found any equipment."}
+                {"exception.not.found.equipment.all", "Not found any equipment."},
+                {"field.required", "Field is required."}
         }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
     }
 

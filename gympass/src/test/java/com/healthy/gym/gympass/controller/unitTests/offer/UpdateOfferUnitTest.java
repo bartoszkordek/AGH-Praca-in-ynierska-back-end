@@ -115,8 +115,8 @@ class UpdateOfferUnitTest {
         GymPassOfferRequest invalidFeaturesGymPassOfferRequest = new GymPassOfferRequest();
 
         List<String> features = new ArrayList<>();
-        for (int i = 0; i<21; i++)
-            features.add("element "+i+1);
+        for (int i = 0; i < 21; i++)
+            features.add("element " + i + 1);
 
         invalidFeaturesGymPassOfferRequest.setFeatures(features);
         invalidFeaturesRequestContent = objectMapper.writeValueAsString(invalidFeaturesGymPassOfferRequest);
@@ -132,7 +132,7 @@ class UpdateOfferUnitTest {
         Locale testedLocale = convertEnumToLocale(country);
 
         RequestBuilder request = MockMvcRequestBuilders
-                .put(uri+"/"+validId)
+                .put(uri + "/" + validId)
                 .header("Accept-Language", testedLocale.toString())
                 .header("Authorization", managerToken)
                 .content(requestContent)
@@ -164,29 +164,29 @@ class UpdateOfferUnitTest {
         mockMvc.perform(request)
                 .andDo(print())
                 .andExpect(matchAll(
-                status().isOk(),
-                content().contentType(MediaType.APPLICATION_JSON),
-                jsonPath("$.message").value(is(expectedMessage)),
-                jsonPath("$.gymPass").exists(),
-                jsonPath("$.gymPass.documentId").value(is(gymPassId)),
-                jsonPath("$.gymPass.title").value(is(title)),
-                jsonPath("$.gymPass.subheader").value(is(subheader)),
-                jsonPath("$.gymPass.price.amount").value(is(199.99)),
-                jsonPath("$.gymPass.price.currency").value(is("zł")),
-                jsonPath("$.gymPass.price.period").value(is("miesiąc")),
-                jsonPath("$.gymPass.isPremium").value(is(true)),
-                jsonPath("$.gymPass.description.synopsis")
-                        .value(is("Karnet uprawniający do korzystania w pełni z usług ośrodka")),
-                jsonPath("$.gymPass.description.features").isArray(),
-                jsonPath("$.gymPass.description.features").value(hasItem("Full pakiet")),
-                jsonPath("$.gymPass.description.features").value(hasItem("sauna")),
-                jsonPath("$.gymPass.description.features").value(hasItem("siłownia")),
-                jsonPath("$.gymPass.description.features").value(hasItem("basen"))
-        ));
+                        status().isOk(),
+                        content().contentType(MediaType.APPLICATION_JSON),
+                        jsonPath("$.message").value(is(expectedMessage)),
+                        jsonPath("$.gymPass").exists(),
+                        jsonPath("$.gymPass.documentId").value(is(gymPassId)),
+                        jsonPath("$.gymPass.title").value(is(title)),
+                        jsonPath("$.gymPass.subheader").value(is(subheader)),
+                        jsonPath("$.gymPass.price.amount").value(is(199.99)),
+                        jsonPath("$.gymPass.price.currency").value(is("zł")),
+                        jsonPath("$.gymPass.price.period").value(is("miesiąc")),
+                        jsonPath("$.gymPass.isPremium").value(is(true)),
+                        jsonPath("$.gymPass.description.synopsis")
+                                .value(is("Karnet uprawniający do korzystania w pełni z usług ośrodka")),
+                        jsonPath("$.gymPass.description.features").isArray(),
+                        jsonPath("$.gymPass.description.features").value(hasItem("Full pakiet")),
+                        jsonPath("$.gymPass.description.features").value(hasItem("sauna")),
+                        jsonPath("$.gymPass.description.features").value(hasItem("siłownia")),
+                        jsonPath("$.gymPass.description.features").value(hasItem("basen"))
+                ));
     }
 
     @Nested
-    class shouldNotUpdateOfferWhenNotAuthorized{
+    class shouldNotUpdateOfferWhenNotAuthorized {
 
         @ParameterizedTest
         @EnumSource(TestCountry.class)
@@ -194,7 +194,7 @@ class UpdateOfferUnitTest {
             Locale testedLocale = convertEnumToLocale(country);
 
             RequestBuilder request = MockMvcRequestBuilders
-                    .put(uri+"/"+validId)
+                    .put(uri + "/" + validId)
                     .header("Accept-Language", testedLocale.toString());
 
             mockMvc.perform(request)
@@ -209,7 +209,7 @@ class UpdateOfferUnitTest {
             Locale testedLocale = convertEnumToLocale(country);
 
             RequestBuilder request = MockMvcRequestBuilders
-                    .put(uri+"/"+validId)
+                    .put(uri + "/" + validId)
                     .header("Accept-Language", testedLocale.toString())
                     .header("Authorization", userToken)
                     .content(requestContent)
@@ -230,10 +230,100 @@ class UpdateOfferUnitTest {
     }
 
     @Nested
-    class ShouldNotUpdateOfferWhenInvalidRequest{
+    class ShouldNotUpdateOfferWhenInvalidRequest {
+
+        @ParameterizedTest
+        @EnumSource(TestCountry.class)
+        void shouldThrowInvalidGymPassOfferId(TestCountry country) throws Exception {
+            Map<String, String> messages = getMessagesAccordingToLocale(country);
+            Locale testedLocale = convertEnumToLocale(country);
+
+            RequestBuilder request = MockMvcRequestBuilders
+                    .put(uri + "/" + invalidId)
+                    .header("Accept-Language", testedLocale.toString())
+                    .header("Authorization", managerToken)
+                    .content(requestContent)
+                    .contentType(MediaType.APPLICATION_JSON);
+
+
+            String expectedMessage = messages.get("exception.invalid.offer.id");
+
+            doThrow(OfferNotFoundException.class)
+                    .when(offerService)
+                    .updateGymPassOffer(invalidId, gymPassOfferRequest);
+
+            mockMvc.perform(request)
+                    .andDo(print())
+                    .andExpect(status().isBadRequest())
+                    .andExpect(status().reason(is(expectedMessage)))
+                    .andExpect(result ->
+                            assertThat(Objects.requireNonNull(result.getResolvedException()).getCause())
+                                    .isInstanceOf(OfferNotFoundException.class)
+                    );
+        }
+
+        @ParameterizedTest
+        @EnumSource(TestCountry.class)
+        void shouldThrowDuplicatedOffersException(TestCountry country) throws Exception {
+            Map<String, String> messages = getMessagesAccordingToLocale(country);
+            Locale testedLocale = convertEnumToLocale(country);
+
+            RequestBuilder request = MockMvcRequestBuilders
+                    .put(uri + "/" + validId)
+                    .header("Accept-Language", testedLocale.toString())
+                    .header("Authorization", adminToken)
+                    .content(requestContent)
+                    .contentType(MediaType.APPLICATION_JSON);
+
+
+            String expectedMessage = messages.get("exception.duplicated.offers");
+
+            doThrow(DuplicatedOffersException.class)
+                    .when(offerService)
+                    .updateGymPassOffer(any(), any());
+
+            mockMvc.perform(request)
+                    .andDo(print())
+                    .andExpect(status().isConflict())
+                    .andExpect(status().reason(is(expectedMessage)))
+                    .andExpect(result ->
+                            assertThat(Objects.requireNonNull(result.getResolvedException()).getCause())
+                                    .isInstanceOf(DuplicatedOffersException.class)
+                    );
+        }
+
+        @ParameterizedTest
+        @EnumSource(TestCountry.class)
+        void shouldThrowIllegalStateExceptionWhenInternalErrorOccurs(TestCountry country)
+                throws Exception {
+            Map<String, String> messages = getMessagesAccordingToLocale(country);
+            Locale testedLocale = convertEnumToLocale(country);
+
+            RequestBuilder request = MockMvcRequestBuilders
+                    .put(uri + "/" + validId)
+                    .header("Accept-Language", testedLocale.toString())
+                    .header("Authorization", managerToken)
+                    .content(requestContent)
+                    .contentType(MediaType.APPLICATION_JSON);
+
+            doThrow(IllegalStateException.class)
+                    .when(offerService)
+                    .updateGymPassOffer(validId, gymPassOfferRequest);
+
+            String expectedMessage = messages.get("exception.internal.error");
+
+            mockMvc.perform(request)
+                    .andDo(print())
+                    .andExpect(status().isInternalServerError())
+                    .andExpect(status().reason(is(expectedMessage)))
+                    .andExpect(result ->
+                            assertThat(Objects.requireNonNull(result.getResolvedException()).getCause())
+                                    .isInstanceOf(IllegalStateException.class)
+                    );
+        }
 
         @Nested
-        class ShouldThrowBindExceptionWhenInvalidRequest{
+        class ShouldThrowBindExceptionWhenInvalidRequest {
 
             @ParameterizedTest
             @EnumSource(TestCountry.class)
@@ -242,7 +332,7 @@ class UpdateOfferUnitTest {
                 Locale testedLocale = convertEnumToLocale(country);
 
                 RequestBuilder request = MockMvcRequestBuilders
-                        .put(uri+"/"+validId)
+                        .put(uri + "/" + validId)
                         .header("Accept-Language", testedLocale.toString())
                         .header("Authorization", managerToken)
                         .content(invalidTitleRequestContent)
@@ -272,7 +362,7 @@ class UpdateOfferUnitTest {
                 Locale testedLocale = convertEnumToLocale(country);
 
                 RequestBuilder request = MockMvcRequestBuilders
-                        .put(uri+"/"+validId)
+                        .put(uri + "/" + validId)
                         .header("Accept-Language", testedLocale.toString())
                         .header("Authorization", managerToken)
                         .content(invalidSubheaderRequestContent)
@@ -290,8 +380,6 @@ class UpdateOfferUnitTest {
                                 jsonPath("$.errors").value(is(notNullValue())),
                                 jsonPath("$.errors.title")
                                         .value(is(messages.get("field.required"))),
-                                jsonPath("$.errors.subheader")
-                                        .value(is(messages.get("field.subheader.failure"))),
                                 jsonPath("$.errors.period")
                                         .value(is(messages.get("field.required")))
                         ));
@@ -305,7 +393,7 @@ class UpdateOfferUnitTest {
                 Locale testedLocale = convertEnumToLocale(country);
 
                 RequestBuilder request = MockMvcRequestBuilders
-                        .put(uri+"/"+validId)
+                        .put(uri + "/" + validId)
                         .header("Accept-Language", testedLocale.toString())
                         .header("Authorization", managerToken)
                         .content(invalidPeriodRequestContent)
@@ -336,7 +424,7 @@ class UpdateOfferUnitTest {
                 Locale testedLocale = convertEnumToLocale(country);
 
                 RequestBuilder request = MockMvcRequestBuilders
-                        .put(uri+"/"+validId)
+                        .put(uri + "/" + validId)
                         .header("Accept-Language", testedLocale.toString())
                         .header("Authorization", managerToken)
                         .content(invalidSynopsisRequestContent)
@@ -369,7 +457,7 @@ class UpdateOfferUnitTest {
                 Locale testedLocale = convertEnumToLocale(country);
 
                 RequestBuilder request = MockMvcRequestBuilders
-                        .put(uri+"/"+validId)
+                        .put(uri + "/" + validId)
                         .header("Accept-Language", testedLocale.toString())
                         .header("Authorization", managerToken)
                         .content(invalidFeaturesRequestContent)
@@ -395,97 +483,6 @@ class UpdateOfferUnitTest {
             }
 
 
-        }
-
-
-        @ParameterizedTest
-        @EnumSource(TestCountry.class)
-        void shouldThrowInvalidGymPassOfferId(TestCountry country) throws Exception {
-            Map<String, String> messages = getMessagesAccordingToLocale(country);
-            Locale testedLocale = convertEnumToLocale(country);
-
-            RequestBuilder request = MockMvcRequestBuilders
-                    .put(uri+"/"+invalidId)
-                    .header("Accept-Language", testedLocale.toString())
-                    .header("Authorization", managerToken)
-                    .content(requestContent)
-                    .contentType(MediaType.APPLICATION_JSON);
-
-
-            String expectedMessage = messages.get("exception.invalid.offer.id");
-
-            doThrow(OfferNotFoundException.class)
-                    .when(offerService)
-                    .updateGymPassOffer(invalidId, gymPassOfferRequest);
-
-            mockMvc.perform(request)
-                    .andDo(print())
-                    .andExpect(status().isBadRequest())
-                    .andExpect(status().reason(is(expectedMessage)))
-                    .andExpect(result ->
-                            assertThat(Objects.requireNonNull(result.getResolvedException()).getCause())
-                                    .isInstanceOf(OfferNotFoundException.class)
-                    );
-        }
-
-        @ParameterizedTest
-        @EnumSource(TestCountry.class)
-        void shouldThrowDuplicatedOffersException(TestCountry country) throws Exception {
-            Map<String, String> messages = getMessagesAccordingToLocale(country);
-            Locale testedLocale = convertEnumToLocale(country);
-
-            RequestBuilder request = MockMvcRequestBuilders
-                    .put(uri+"/"+validId)
-                    .header("Accept-Language", testedLocale.toString())
-                    .header("Authorization", adminToken)
-                    .content(requestContent)
-                    .contentType(MediaType.APPLICATION_JSON);
-
-
-            String expectedMessage = messages.get("exception.duplicated.offers");
-
-            doThrow(DuplicatedOffersException.class)
-                    .when(offerService)
-                    .updateGymPassOffer(any(),any());
-
-            mockMvc.perform(request)
-                    .andDo(print())
-                    .andExpect(status().isConflict())
-                    .andExpect(status().reason(is(expectedMessage)))
-                    .andExpect(result ->
-                            assertThat(Objects.requireNonNull(result.getResolvedException()).getCause())
-                                    .isInstanceOf(DuplicatedOffersException.class)
-                    );
-        }
-
-        @ParameterizedTest
-        @EnumSource(TestCountry.class)
-        void shouldThrowIllegalStateExceptionWhenInternalErrorOccurs(TestCountry country)
-                throws Exception {
-            Map<String, String> messages = getMessagesAccordingToLocale(country);
-            Locale testedLocale = convertEnumToLocale(country);
-
-            RequestBuilder request = MockMvcRequestBuilders
-                    .put(uri+"/"+validId)
-                    .header("Accept-Language", testedLocale.toString())
-                    .header("Authorization", managerToken)
-                    .content(requestContent)
-                    .contentType(MediaType.APPLICATION_JSON);
-
-            doThrow(IllegalStateException.class)
-                    .when(offerService)
-                    .updateGymPassOffer(validId,gymPassOfferRequest);
-
-            String expectedMessage = messages.get("exception.internal.error");
-
-            mockMvc.perform(request)
-                    .andDo(print())
-                    .andExpect(status().isInternalServerError())
-                    .andExpect(status().reason(is(expectedMessage)))
-                    .andExpect(result ->
-                            assertThat(Objects.requireNonNull(result.getResolvedException()).getCause())
-                                    .isInstanceOf(IllegalStateException.class)
-                    );
         }
     }
 }

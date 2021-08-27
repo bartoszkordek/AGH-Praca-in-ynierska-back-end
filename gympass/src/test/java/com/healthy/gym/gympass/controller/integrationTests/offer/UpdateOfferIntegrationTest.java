@@ -23,7 +23,6 @@ import org.springframework.http.*;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
-import org.springframework.test.context.TestPropertySource;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.MongoDBContainer;
 import org.testcontainers.junit.jupiter.Container;
@@ -41,10 +40,6 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 @Testcontainers
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, classes = FixedClockConfig.class)
-@TestPropertySource(properties = {
-        "eureka.client.fetch-registry=false",
-        "eureka.client.register-with-eureka=false"
-})
 @ActiveProfiles(value = "test")
 @Tag("integration")
 class UpdateOfferIntegrationTest {
@@ -135,8 +130,8 @@ class UpdateOfferIntegrationTest {
         invalidSynopsisRequestContent = objectMapper.writeValueAsString(invalidSynopsisGymPassOfferRequest);
 
         List<String> features = new ArrayList<>();
-        for (int i = 0; i<21; i++)
-            features.add("element "+i+1);
+        for (int i = 0; i < 21; i++)
+            features.add("element " + i + 1);
 
         GymPassOfferRequest invalidFeaturesGymPassOfferRequest = new GymPassOfferRequest();
         invalidFeaturesGymPassOfferRequest.setFeatures(features);
@@ -145,10 +140,12 @@ class UpdateOfferIntegrationTest {
     }
 
     @AfterEach
-    void tearDown() { mongoTemplate.dropCollection(GymPassDocument.class); }
+    void tearDown() {
+        mongoTemplate.dropCollection(GymPassDocument.class);
+    }
 
     @Nested
-    class ShouldUpdateOffer{
+    class ShouldUpdateOffer {
 
         @ParameterizedTest
         @EnumSource(TestCountry.class)
@@ -156,7 +153,7 @@ class UpdateOfferIntegrationTest {
             Map<String, String> messages = getMessagesAccordingToLocale(country);
             Locale testedLocale = convertEnumToLocale(country);
 
-            URI uri = new URI("http://localhost:" + port + "/offer/"+existingDocumentId);
+            URI uri = new URI("http://localhost:" + port + "/offer/" + existingDocumentId);
 
             HttpHeaders headers = new HttpHeaders();
             headers.set("Accept-Language", testedLocale.toString());
@@ -196,7 +193,7 @@ class UpdateOfferIntegrationTest {
     }
 
     @Nested
-    class ShouldNotUpdateOffer{
+    class ShouldNotUpdateOffer {
 
         @ParameterizedTest
         @EnumSource(TestCountry.class)
@@ -214,7 +211,7 @@ class UpdateOfferIntegrationTest {
             Map<String, String> messages = getMessagesAccordingToLocale(country);
             Locale testedLocale = convertEnumToLocale(country);
 
-            URI uri = new URI("http://localhost:" + port + "/offer/"+existingDocumentId);
+            URI uri = new URI("http://localhost:" + port + "/offer/" + existingDocumentId);
 
             HttpHeaders headers = new HttpHeaders();
             headers.set("Accept-Language", testedLocale.toString());
@@ -242,7 +239,7 @@ class UpdateOfferIntegrationTest {
 
             String invalidDocumentId = UUID.randomUUID().toString();
 
-            URI uri = new URI("http://localhost:" + port + "/offer/"+invalidDocumentId);
+            URI uri = new URI("http://localhost:" + port + "/offer/" + invalidDocumentId);
 
             HttpHeaders headers = new HttpHeaders();
             headers.set("Accept-Language", testedLocale.toString());
@@ -263,14 +260,14 @@ class UpdateOfferIntegrationTest {
         }
 
         @Nested
-        class ShouldNotCreateOfferWhenNotAuthorized{
+        class ShouldNotCreateOfferWhenNotAuthorized {
 
             @ParameterizedTest
             @EnumSource(TestCountry.class)
             void shouldNotGetOffersWhenNoToken(TestCountry country) throws Exception {
                 Locale testedLocale = convertEnumToLocale(country);
 
-                URI uri = new URI("http://localhost:" + port + "/offer/"+existingDocumentId);
+                URI uri = new URI("http://localhost:" + port + "/offer/" + existingDocumentId);
 
                 HttpHeaders headers = new HttpHeaders();
                 headers.set("Accept-Language", testedLocale.toString());
@@ -295,7 +292,7 @@ class UpdateOfferIntegrationTest {
                 Map<String, String> messages = getMessagesAccordingToLocale(country);
                 Locale testedLocale = convertEnumToLocale(country);
 
-                URI uri = new URI("http://localhost:" + port + "/offer/"+existingDocumentId);
+                URI uri = new URI("http://localhost:" + port + "/offer/" + existingDocumentId);
 
                 HttpHeaders headers = new HttpHeaders();
                 headers.set("Accept-Language", testedLocale.toString());
@@ -318,7 +315,7 @@ class UpdateOfferIntegrationTest {
         }
 
         @Nested
-        class ShouldThrowBindException{
+        class ShouldThrowBindException {
 
             @ParameterizedTest
             @EnumSource(TestCountry.class)
@@ -326,7 +323,7 @@ class UpdateOfferIntegrationTest {
                 Map<String, String> messages = getMessagesAccordingToLocale(country);
                 Locale testedLocale = convertEnumToLocale(country);
 
-                URI uri = new URI("http://localhost:" + port + "/offer/"+existingDocumentId);
+                URI uri = new URI("http://localhost:" + port + "/offer/" + existingDocumentId);
 
                 HttpHeaders headers = new HttpHeaders();
                 headers.set("Accept-Language", testedLocale.toString());
@@ -352,32 +349,32 @@ class UpdateOfferIntegrationTest {
             @ParameterizedTest
             @EnumSource(TestCountry.class)
             void shouldThrowBindExceptionWhenInvalidSubheader(TestCountry country) throws Exception {
-                Map<String, String> messages = getMessagesAccordingToLocale(country);
                 Locale testedLocale = convertEnumToLocale(country);
 
-                URI uri = new URI("http://localhost:" + port + "/offer/"+existingDocumentId);
+                URI uri = new URI("http://localhost:" + port + "/offer/" + existingDocumentId);
 
                 HttpHeaders headers = new HttpHeaders();
                 headers.set("Accept-Language", testedLocale.toString());
                 headers.set("Authorization", managerToken);
                 headers.setContentType(MediaType.APPLICATION_JSON);
 
-
                 HttpEntity<Object> request = new HttpEntity<>(invalidSubheaderRequestContent, headers);
-                String expectedMessage = messages.get("request.bind.exception");
-
                 ResponseEntity<JsonNode> responseEntity = restTemplate
                         .exchange(uri, HttpMethod.PUT, request, JsonNode.class);
 
                 assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
-                assertThat(Objects.requireNonNull(responseEntity.getBody().get("message").textValue())).isEqualTo(expectedMessage);
-                assertThat(responseEntity.getBody().get("errors").get("title").textValue())
-                        .isEqualTo(messages.get("field.required"));
-                assertThat(responseEntity.getBody().get("errors").get("subheader").textValue())
-                        .isEqualTo(messages.get("field.subheader.failure"));
-                assertThat(responseEntity.getBody().get("errors").get("period").textValue())
-                        .isEqualTo(messages.get("field.required"));
                 assertThat(responseEntity.getHeaders().getContentType()).isEqualTo(MediaType.APPLICATION_JSON);
+
+                JsonNode body = responseEntity.getBody();
+                assert body != null;
+
+                Map<String, String> messages = getMessagesAccordingToLocale(country);
+                String expectedMessage = messages.get("request.bind.exception");
+                assertThat(body.get("message").textValue()).isEqualTo(expectedMessage);
+
+                JsonNode errors = body.get("errors");
+                assertThat(errors.get("title").textValue()).isEqualTo(messages.get("field.required"));
+                assertThat(errors.get("period").textValue()).isEqualTo(messages.get("field.required"));
             }
 
             @ParameterizedTest
@@ -386,7 +383,7 @@ class UpdateOfferIntegrationTest {
                 Map<String, String> messages = getMessagesAccordingToLocale(country);
                 Locale testedLocale = convertEnumToLocale(country);
 
-                URI uri = new URI("http://localhost:" + port + "/offer/"+existingDocumentId);
+                URI uri = new URI("http://localhost:" + port + "/offer/" + existingDocumentId);
 
                 HttpHeaders headers = new HttpHeaders();
                 headers.set("Accept-Language", testedLocale.toString());
@@ -415,7 +412,7 @@ class UpdateOfferIntegrationTest {
                 Map<String, String> messages = getMessagesAccordingToLocale(country);
                 Locale testedLocale = convertEnumToLocale(country);
 
-                URI uri = new URI("http://localhost:" + port + "/offer/"+existingDocumentId);
+                URI uri = new URI("http://localhost:" + port + "/offer/" + existingDocumentId);
 
                 HttpHeaders headers = new HttpHeaders();
                 headers.set("Accept-Language", testedLocale.toString());
@@ -446,7 +443,7 @@ class UpdateOfferIntegrationTest {
                 Map<String, String> messages = getMessagesAccordingToLocale(country);
                 Locale testedLocale = convertEnumToLocale(country);
 
-                URI uri = new URI("http://localhost:" + port + "/offer/"+existingDocumentId);
+                URI uri = new URI("http://localhost:" + port + "/offer/" + existingDocumentId);
 
                 HttpHeaders headers = new HttpHeaders();
                 headers.set("Accept-Language", testedLocale.toString());
@@ -472,7 +469,6 @@ class UpdateOfferIntegrationTest {
             }
         }
     }
-
 
 
 }

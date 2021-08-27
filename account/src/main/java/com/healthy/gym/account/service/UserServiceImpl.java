@@ -30,6 +30,7 @@ public class UserServiceImpl implements UserService {
 
         return userList
                 .stream()
+                .filter(userDocument -> !userDocument.getEmail().equals("root"))
                 .map(userDocument -> modelMapper.map(userDocument, DetailUserInfoDTO.class))
                 .collect(Collectors.toList());
     }

@@ -12,7 +12,8 @@ public class Messages {
                 {"exception.multipart.body", "Źle wypełniony formularz."},
                 {"exception.unsupported.data.type", "Błąd. Dopuszczalny format pliku to JPEG lub PNG."},
                 {"equipment.created", "Nowy sprzęt został utworzony."},
-                {"exception.duplicated.equipment.type", "Sprzęt o tej samej nazwie już istnieje."}
+                {"exception.duplicated.equipment.type", "Sprzęt o tej samej nazwie już istnieje."},
+                {"exception.not.found.equipment.all", "Nie znaleziono żadnego sprzętu."}
         }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
     }
 
@@ -23,7 +24,8 @@ public class Messages {
                 {"exception.multipart.body", "Incorrectly completed form."},
                 {"exception.unsupported.data.type", "Error. The acceptable file format is JPEG or PNG."},
                 {"equipment.created", "New equipment has been created."},
-                {"exception.duplicated.equipment.type", "Equipment with the same title already exists."}
+                {"exception.duplicated.equipment.type", "Equipment with the same title already exists."},
+                {"exception.not.found.equipment.all", "Not found any equipment."}
         }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
     }
 

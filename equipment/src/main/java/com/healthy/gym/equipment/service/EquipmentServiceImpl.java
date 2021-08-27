@@ -11,6 +11,7 @@ import com.healthy.gym.equipment.dto.DescriptionDTO;
 import com.healthy.gym.equipment.dto.EquipmentDTO;
 import com.healthy.gym.equipment.dto.TrainingDTO;
 import com.healthy.gym.equipment.exception.DuplicatedEquipmentTypeException;
+import com.healthy.gym.equipment.exception.EquipmentNotFoundException;
 import com.healthy.gym.equipment.model.request.EquipmentRequest;
 import org.bson.types.Binary;
 import org.modelmapper.ModelMapper;
@@ -50,10 +51,10 @@ public class EquipmentServiceImpl implements EquipmentService {
 
 
     @Override
-    public List<EquipmentDTO> getEquipments() {
+    public List<EquipmentDTO> getEquipments() throws EquipmentNotFoundException {
         List<EquipmentDocument> equipmentDocuments = equipmentDAO.findAll();
-
-        return null;
+        if(equipmentDocuments.isEmpty()) throw new EquipmentNotFoundException();
+        return mapEquipmentDocumentsToEquipmentDTOs(equipmentDocuments);
     }
 
     @Override
@@ -86,7 +87,6 @@ public class EquipmentServiceImpl implements EquipmentService {
         }
         List<String> trainingTypeIds = equipmentRequest.getTrainingIds();
         List<TrainingTypeDocument> trainingTypeDocuments = getTrainingTypeDocuments(trainingTypeIds);
-        List<TrainingDTO> trainingDTOs = mapTrainingTypes(trainingTypeDocuments);
         String synopsis = equipmentRequest.getSynopsis();
         EquipmentDocument equipmentDocument = new EquipmentDocument(
                 equipmentId,
@@ -127,5 +127,18 @@ public class EquipmentServiceImpl implements EquipmentService {
             trainingDTOs.add(trainingDTO);
         }
         return trainingDTOs;
+    }
+
+    private List<EquipmentDTO> mapEquipmentDocumentsToEquipmentDTOs(List<EquipmentDocument> equipmentDocuments){
+        List<EquipmentDTO> equipmentDTOs = new ArrayList<>();
+        for (EquipmentDocument equipmentDocument : equipmentDocuments){
+            EquipmentDTO equipmentDTO = modelMapper.map(equipmentDocument, EquipmentDTO.class);
+            DescriptionDTO descriptionDTO = new DescriptionDTO();
+            descriptionDTO.setSynopsis(equipmentDocument.getSynopsis());
+            descriptionDTO.setTrainings(mapTrainingTypes(equipmentDocument.getTrainings()));
+            equipmentDTO.setDescription(descriptionDTO);
+            equipmentDTOs.add(equipmentDTO);
+        }
+        return equipmentDTOs;
     }
 }

@@ -7,6 +7,7 @@ import com.healthy.gym.equipment.dto.DescriptionDTO;
 import com.healthy.gym.equipment.dto.EquipmentDTO;
 import com.healthy.gym.equipment.dto.TrainingDTO;
 import com.healthy.gym.equipment.exception.DuplicatedEquipmentTypeException;
+import com.healthy.gym.equipment.exception.EquipmentNotFoundException;
 import com.healthy.gym.equipment.exception.MultipartBodyException;
 import com.healthy.gym.equipment.model.request.EquipmentRequest;
 import com.healthy.gym.equipment.model.response.EquipmentDTOResponse;
@@ -107,26 +108,18 @@ public class EquipmentController {
     @GetMapping
     public List<EquipmentDTO> getEquipments(){
 
-        TrainingDTO training1 = new TrainingDTO();
-        training1.setTrainingId(UUID.randomUUID().toString());
-        training1.setTitle("Trening indywidualny");
-        TrainingDTO training2 = new TrainingDTO();
-        training1.setTrainingId(UUID.randomUUID().toString());
-        training1.setTitle("Rowery");
+        try{
+            return equipmentService.getEquipments();
 
-        EquipmentDTO equipment1= new EquipmentDTO();
-        equipment1.setEquipmentId(UUID.randomUUID().toString());
-        equipment1.setTitle("Rower");
-        equipment1.setImages(List.of("https://images.morele.net/full/6287257_0_f.jpg"));
-        equipment1.setDescription(new DescriptionDTO("Rower", List.of(training1, training2)));
+        } catch (EquipmentNotFoundException exception) {
+            String reason = translator.toLocale("exception.not.found.equipment.all");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, reason, exception);
 
-        EquipmentDTO equipment2 = new EquipmentDTO();
-        equipment2.setEquipmentId(UUID.randomUUID().toString());
-        equipment2.setTitle("Bieżnia");
-        equipment2.setImages(List.of("https://www.e-insportline.pl/upload/image/320x320/IMG_79931_stin.jpg"));
-        equipment2.setDescription(new DescriptionDTO("Bieżnia", List.of(training1)));
+        } catch (Exception exception) {
+            String reason = translator.toLocale(EXCEPTION_INTERNAL_ERROR);
+            exception.printStackTrace();
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, reason, exception);
+        }
 
-        //return List.of(equipment1, equipment2);
-        return equipmentService.getEquipments();
     }
 }

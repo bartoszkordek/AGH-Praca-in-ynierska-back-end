@@ -14,4 +14,6 @@ public interface EquipmentService {
 
     EquipmentDTO createEquipment(EquipmentRequest equipmentRequest, MultipartFile multipartFile)
         throws DuplicatedEquipmentTypeException;
+
+    EquipmentDTO deleteEquipment(String equipmentId) throws EquipmentNotFoundException;
 }

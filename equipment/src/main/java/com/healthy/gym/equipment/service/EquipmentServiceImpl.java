@@ -109,6 +109,27 @@ public class EquipmentServiceImpl implements EquipmentService {
         return equipmentDTO;
     }
 
+    @Override
+    public EquipmentDTO deleteEquipment(String equipmentId) throws EquipmentNotFoundException {
+        EquipmentDocument equipmentDocumentToRemove = equipmentDAO.findByEquipmentId(equipmentId);
+        if(equipmentDocumentToRemove == null) throw new EquipmentNotFoundException();
+        equipmentDAO.deleteByEquipmentId(equipmentId);
+        ImageDocument imageDocument = equipmentDocumentToRemove.getImagesDocuments().get(0);
+        if (imageDocument != null) {
+            String imageId = imageDocument.getImageId();
+            imageDAO.deleteByImageId(imageId);
+        }
+        EquipmentDTO equipmentDTO = modelMapper.map(equipmentDocumentToRemove, EquipmentDTO.class);
+
+        DescriptionDTO descriptionDTO = new DescriptionDTO(
+                equipmentDocumentToRemove.getSynopsis(),
+                mapTrainingTypes(equipmentDocumentToRemove.getTrainings())
+        );
+        equipmentDTO.setDescription(descriptionDTO);
+
+        return equipmentDTO;
+    }
+
     private List<TrainingTypeDocument> getTrainingTypeDocuments(List<String> trainingTypeIds){
         List<TrainingTypeDocument> trainingTypeDocuments = new ArrayList<>();
         for(String trainingTypeId : trainingTypeIds){

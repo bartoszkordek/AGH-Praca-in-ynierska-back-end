@@ -6,4 +6,8 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 public interface EquipmentDAO extends MongoRepository<EquipmentDocument, String> {
 
     boolean existsByTitle(String title);
+
+    EquipmentDocument findByEquipmentId(String equipmentId);
+
+    void deleteByEquipmentId(String equipmentId);
 }

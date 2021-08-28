@@ -25,7 +25,6 @@ import org.springframework.web.server.ResponseStatusException;
 
 import javax.activation.UnsupportedDataTypeException;
 import java.util.List;
-import java.util.UUID;
 
 @RestController
 @RequestMapping(
@@ -120,6 +119,29 @@ public class EquipmentController {
             exception.printStackTrace();
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, reason, exception);
         }
+    }
 
+    @PreAuthorize("hasRole('ADMIN') or hasRole('MANAGER')")
+    @DeleteMapping("/{equipmentId}")
+    public ResponseEntity<EquipmentDTOResponse>  deleteEquipment(
+            @PathVariable final String equipmentId
+    ){
+        try{
+            EquipmentDTO equipmentDTO = equipmentService.deleteEquipment(equipmentId);
+            String message = translator.toLocale("equipment.removed");
+            return ResponseEntity
+                    .status(HttpStatus.OK)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(new EquipmentDTOResponse(message, equipmentDTO));
+
+        } catch (EquipmentNotFoundException exception) {
+            String reason = translator.toLocale("exception.not.found.equipment.all");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, reason, exception);
+
+        } catch (Exception exception) {
+            String reason = translator.toLocale(EXCEPTION_INTERNAL_ERROR);
+            exception.printStackTrace();
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, reason, exception);
+        }
     }
 }

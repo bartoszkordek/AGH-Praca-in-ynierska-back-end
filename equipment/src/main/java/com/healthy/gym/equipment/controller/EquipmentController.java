@@ -3,9 +3,7 @@ package com.healthy.gym.equipment.controller;
 import com.healthy.gym.equipment.component.ImageValidator;
 import com.healthy.gym.equipment.component.MultipartFileValidator;
 import com.healthy.gym.equipment.component.Translator;
-import com.healthy.gym.equipment.dto.DescriptionDTO;
 import com.healthy.gym.equipment.dto.EquipmentDTO;
-import com.healthy.gym.equipment.dto.TrainingDTO;
 import com.healthy.gym.equipment.exception.DuplicatedEquipmentTypeException;
 import com.healthy.gym.equipment.exception.EquipmentNotFoundException;
 import com.healthy.gym.equipment.exception.MultipartBodyException;
@@ -113,6 +111,63 @@ public class EquipmentController {
         } catch (EquipmentNotFoundException exception) {
             String reason = translator.toLocale("exception.not.found.equipment.all");
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, reason, exception);
+
+        } catch (Exception exception) {
+            String reason = translator.toLocale(EXCEPTION_INTERNAL_ERROR);
+            exception.printStackTrace();
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, reason, exception);
+        }
+    }
+
+    @PreAuthorize("hasRole('ADMIN') or hasRole('MANAGER')")
+    @PutMapping(
+            value = "/{equipmentId}",
+            consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    public ResponseEntity<EquipmentDTOResponse> updateEquipment(
+            @PathVariable final String equipmentId,
+            @RequestPart(value = "body") final EquipmentRequest equipmentRequest,
+            @RequestPart(value = "image", required = false) final MultipartFile multipartFile
+    ) {
+        EquipmentDTOResponse response = new EquipmentDTOResponse();
+        try{
+            multipartFileValidator.validateBody(equipmentRequest);
+            if (multipartFile != null) imageValidator.isFileSupported(multipartFile);
+
+            EquipmentDTO equipmentDTO = equipmentService
+                    .updateEquipment(equipmentId, equipmentRequest, multipartFile);
+
+            String message = translator.toLocale("equipment.updated");
+            response.setMessage(message);
+            response.setEquipment(equipmentDTO);
+
+            return ResponseEntity
+                    .status(HttpStatus.OK)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(response);
+
+        } catch (MultipartBodyException exception) {
+            String message = translator.toLocale("exception.multipart.body");
+            response.setMessage(message);
+            response.setErrors(exception.getErrorMap());
+
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(response);
+
+        } catch (UnsupportedDataTypeException exception) {
+            String reason = translator.toLocale("exception.unsupported.data.type");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, exception);
+
+        } catch (EquipmentNotFoundException exception) {
+            String reason = translator.toLocale("exception.not.found.equipment");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, reason, exception);
+
+        } catch (DuplicatedEquipmentTypeException exception) {
+            String reason = translator.toLocale("exception.duplicated.equipment.type");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, exception);
 
         } catch (Exception exception) {
             String reason = translator.toLocale(EXCEPTION_INTERNAL_ERROR);

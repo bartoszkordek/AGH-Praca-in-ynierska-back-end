@@ -24,7 +24,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Service
 public class EquipmentServiceImpl implements EquipmentService {
@@ -128,6 +127,11 @@ public class EquipmentServiceImpl implements EquipmentService {
         equipmentDTO.setDescription(descriptionDTO);
 
         return equipmentDTO;
+    }
+
+    @Override
+    public EquipmentDTO updateEquipment(String equipmentId, EquipmentRequest equipmentRequest, MultipartFile multipartFile) throws EquipmentNotFoundException, DuplicatedEquipmentTypeException {
+        return null;
     }
 
     private List<TrainingTypeDocument> getTrainingTypeDocuments(List<String> trainingTypeIds){

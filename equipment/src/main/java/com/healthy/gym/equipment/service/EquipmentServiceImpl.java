@@ -131,7 +131,61 @@ public class EquipmentServiceImpl implements EquipmentService {
 
     @Override
     public EquipmentDTO updateEquipment(String equipmentId, EquipmentRequest equipmentRequest, MultipartFile multipartFile) throws EquipmentNotFoundException, DuplicatedEquipmentTypeException {
-        return null;
+        EquipmentDocument equipmentDocumentToUpdate = equipmentDAO.findByEquipmentId(equipmentId);
+        if(equipmentDocumentToUpdate == null) throw new EquipmentNotFoundException();
+
+        String equipmentRequestTitle = equipmentRequest.getTitle();
+        if(equipmentDAO.existsByTitle(equipmentRequestTitle)) throw new DuplicatedEquipmentTypeException();
+
+        equipmentDocumentToUpdate.setTitle(equipmentRequestTitle);
+
+        List<ImageDocument> imageDocuments = new ArrayList<>();
+        List<String> imageUrls = new ArrayList<>();
+        if (multipartFile != null) {
+            try {
+                ImageDocument imageToUpdate;
+                if (!equipmentDocumentToUpdate.getImagesDocuments().isEmpty()) {
+                    imageToUpdate = equipmentDocumentToUpdate.getImagesDocuments().get(0);
+                    imageToUpdate.setImageData(new Binary(multipartFile.getBytes()));
+                    imageToUpdate.setContentType(multipartFile.getContentType());
+
+                } else {
+                    imageToUpdate = new ImageDocument(
+                            UUID.randomUUID().toString(),
+                            new Binary(multipartFile.getBytes()),
+                            multipartFile.getContentType()
+                    );
+                }
+                ImageDocument savedImageDocument = imageDAO.save(imageToUpdate);
+                imageDocuments.clear();
+                imageDocuments.add(savedImageDocument);
+                equipmentDocumentToUpdate.setImagesDocuments(imageDocuments);
+                String imageUrl = imageUrlCreator.createImageUrl(savedImageDocument.getImageId());
+                imageUrl += "?version=" + DigestUtils.md5DigestAsHex(multipartFile.getBytes());
+                imageUrls.clear();
+                imageUrls.add(imageUrl);
+                equipmentDocumentToUpdate.setImages(imageUrls);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        List<String> trainingTypeIds = equipmentRequest.getTrainingIds();
+        List<TrainingTypeDocument> trainingTypeDocuments = getTrainingTypeDocuments(trainingTypeIds);
+        equipmentDocumentToUpdate.setTrainings(trainingTypeDocuments);
+        String synopsis = equipmentRequest.getSynopsis();
+        equipmentDocumentToUpdate.setSynopsis(synopsis);
+
+        var savedEquipment = equipmentDAO.save(equipmentDocumentToUpdate);
+        EquipmentDTO equipmentDTO = modelMapper.map(savedEquipment, EquipmentDTO.class);
+
+        DescriptionDTO descriptionDTO = new DescriptionDTO(
+                savedEquipment.getSynopsis(),
+                mapTrainingTypes(savedEquipment.getTrainings())
+        );
+        equipmentDTO.setDescription(descriptionDTO);
+
+        return equipmentDTO;
     }
 
     private List<TrainingTypeDocument> getTrainingTypeDocuments(List<String> trainingTypeIds){

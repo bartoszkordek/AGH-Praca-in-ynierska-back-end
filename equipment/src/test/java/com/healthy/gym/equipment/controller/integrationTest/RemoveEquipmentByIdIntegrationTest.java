@@ -158,8 +158,6 @@ class RemoveEquipmentByIdIntegrationTest {
                 JsonNode.class
         );
 
-        System.out.println(responseEntity.getBody());
-
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(responseEntity.getHeaders().getContentType()).isEqualTo(MediaType.APPLICATION_JSON);
 

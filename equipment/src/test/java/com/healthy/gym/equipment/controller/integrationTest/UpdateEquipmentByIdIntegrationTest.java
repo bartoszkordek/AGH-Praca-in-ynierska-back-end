@@ -242,7 +242,6 @@ class UpdateEquipmentByIdIntegrationTest {
         @EnumSource(TestCountry.class)
         void shouldReturnResponseWithStatusOK(TestCountry country) throws URISyntaxException {
             ResponseEntity<JsonNode> responseEntity = getResponseEntity(country);
-            System.out.println(responseEntity.getBody());
             assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
         }
 

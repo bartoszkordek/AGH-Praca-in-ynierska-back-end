@@ -7,9 +7,7 @@ import com.healthy.gym.equipment.data.document.TrainingTypeDocument;
 import com.healthy.gym.equipment.data.repository.EquipmentDAO;
 import com.healthy.gym.equipment.data.repository.ImageDAO;
 import com.healthy.gym.equipment.data.repository.TrainingTypeDAO;
-import com.healthy.gym.equipment.dto.DescriptionDTO;
 import com.healthy.gym.equipment.dto.EquipmentDTO;
-import com.healthy.gym.equipment.dto.TrainingDTO;
 import com.healthy.gym.equipment.exception.DuplicatedEquipmentTypeException;
 import com.healthy.gym.equipment.exception.EquipmentNotFoundException;
 import com.healthy.gym.equipment.model.request.EquipmentRequest;
@@ -24,6 +22,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+
+import static com.healthy.gym.equipment.utils.EquipmentMapper.mapEquipmentDocumentToEquipmentDTO;
+import static com.healthy.gym.equipment.utils.EquipmentMapper.mapEquipmentDocumentsToEquipmentDTOs;
 
 @Service
 public class EquipmentServiceImpl implements EquipmentService {
@@ -97,15 +98,7 @@ public class EquipmentServiceImpl implements EquipmentService {
         );
 
         var savedEquipment = equipmentDAO.save(equipmentDocument);
-        EquipmentDTO equipmentDTO = modelMapper.map(savedEquipment, EquipmentDTO.class);
-
-        DescriptionDTO descriptionDTO = new DescriptionDTO(
-                savedEquipment.getSynopsis(),
-                mapTrainingTypes(savedEquipment.getTrainings())
-        );
-        equipmentDTO.setDescription(descriptionDTO);
-
-        return equipmentDTO;
+        return mapEquipmentDocumentToEquipmentDTO(savedEquipment);
     }
 
     @Override
@@ -118,15 +111,8 @@ public class EquipmentServiceImpl implements EquipmentService {
             String imageId = imageDocument.getImageId();
             imageDAO.deleteByImageId(imageId);
         }
-        EquipmentDTO equipmentDTO = modelMapper.map(equipmentDocumentToRemove, EquipmentDTO.class);
 
-        DescriptionDTO descriptionDTO = new DescriptionDTO(
-                equipmentDocumentToRemove.getSynopsis(),
-                mapTrainingTypes(equipmentDocumentToRemove.getTrainings())
-        );
-        equipmentDTO.setDescription(descriptionDTO);
-
-        return equipmentDTO;
+        return mapEquipmentDocumentToEquipmentDTO(equipmentDocumentToRemove);
     }
 
     @Override
@@ -161,7 +147,6 @@ public class EquipmentServiceImpl implements EquipmentService {
                 imageDocuments.add(savedImageDocument);
                 String imageUrl = imageUrlCreator.createImageUrl(savedImageDocument.getImageId());
                 imageUrl += "?version=" + DigestUtils.md5DigestAsHex(multipartFile.getBytes());
-                imageUrls.clear();
                 imageUrls.add(imageUrl);
             } catch (IOException e) {
                 e.printStackTrace();
@@ -177,15 +162,7 @@ public class EquipmentServiceImpl implements EquipmentService {
         equipmentDocumentToUpdate.setImages(imageUrls);
 
         var savedEquipment = equipmentDAO.save(equipmentDocumentToUpdate);
-        EquipmentDTO equipmentDTO = modelMapper.map(savedEquipment, EquipmentDTO.class);
-
-        DescriptionDTO descriptionDTO = new DescriptionDTO(
-                savedEquipment.getSynopsis(),
-                mapTrainingTypes(savedEquipment.getTrainings())
-        );
-        equipmentDTO.setDescription(descriptionDTO);
-
-        return equipmentDTO;
+        return mapEquipmentDocumentToEquipmentDTO(savedEquipment);
     }
 
     private List<TrainingTypeDocument> getTrainingTypeDocuments(List<String> trainingTypeIds){
@@ -197,27 +174,4 @@ public class EquipmentServiceImpl implements EquipmentService {
         return trainingTypeDocuments;
     }
 
-    private List<TrainingDTO> mapTrainingTypes(List<TrainingTypeDocument> trainingTypeDocuments){
-        List<TrainingDTO> trainingDTOs = new ArrayList<>();
-        for(TrainingTypeDocument trainingTypeDocument : trainingTypeDocuments){
-            TrainingDTO trainingDTO = new TrainingDTO();
-            trainingDTO.setTrainingId(trainingTypeDocument.getTrainingTypeId());
-            trainingDTO.setTitle(trainingTypeDocument.getName());
-            trainingDTOs.add(trainingDTO);
-        }
-        return trainingDTOs;
-    }
-
-    private List<EquipmentDTO> mapEquipmentDocumentsToEquipmentDTOs(List<EquipmentDocument> equipmentDocuments){
-        List<EquipmentDTO> equipmentDTOs = new ArrayList<>();
-        for (EquipmentDocument equipmentDocument : equipmentDocuments){
-            EquipmentDTO equipmentDTO = modelMapper.map(equipmentDocument, EquipmentDTO.class);
-            DescriptionDTO descriptionDTO = new DescriptionDTO();
-            descriptionDTO.setSynopsis(equipmentDocument.getSynopsis());
-            descriptionDTO.setTrainings(mapTrainingTypes(equipmentDocument.getTrainings()));
-            equipmentDTO.setDescription(descriptionDTO);
-            equipmentDTOs.add(equipmentDTO);
-        }
-        return equipmentDTOs;
-    }
 }

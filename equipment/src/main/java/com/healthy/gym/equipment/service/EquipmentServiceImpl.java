@@ -159,12 +159,10 @@ public class EquipmentServiceImpl implements EquipmentService {
                 ImageDocument savedImageDocument = imageDAO.save(imageToUpdate);
                 imageDocuments.clear();
                 imageDocuments.add(savedImageDocument);
-                equipmentDocumentToUpdate.setImagesDocuments(imageDocuments);
                 String imageUrl = imageUrlCreator.createImageUrl(savedImageDocument.getImageId());
                 imageUrl += "?version=" + DigestUtils.md5DigestAsHex(multipartFile.getBytes());
                 imageUrls.clear();
                 imageUrls.add(imageUrl);
-                equipmentDocumentToUpdate.setImages(imageUrls);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -175,6 +173,8 @@ public class EquipmentServiceImpl implements EquipmentService {
         equipmentDocumentToUpdate.setTrainings(trainingTypeDocuments);
         String synopsis = equipmentRequest.getSynopsis();
         equipmentDocumentToUpdate.setSynopsis(synopsis);
+        equipmentDocumentToUpdate.setImagesDocuments(imageDocuments);
+        equipmentDocumentToUpdate.setImages(imageUrls);
 
         var savedEquipment = equipmentDAO.save(equipmentDocumentToUpdate);
         EquipmentDTO equipmentDTO = modelMapper.map(savedEquipment, EquipmentDTO.class);

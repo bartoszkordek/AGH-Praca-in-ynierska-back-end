@@ -135,7 +135,7 @@ public class EquipmentController {
                     .body(new EquipmentDTOResponse(message, equipmentDTO));
 
         } catch (EquipmentNotFoundException exception) {
-            String reason = translator.toLocale("exception.not.found.equipment.all");
+            String reason = translator.toLocale("exception.not.found.equipment");
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, reason, exception);
 
         } catch (Exception exception) {

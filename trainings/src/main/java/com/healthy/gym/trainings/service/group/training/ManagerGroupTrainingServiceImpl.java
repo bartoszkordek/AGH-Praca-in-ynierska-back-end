@@ -99,7 +99,7 @@ public class ManagerGroupTrainingServiceImpl implements ManagerGroupTrainingServ
 
         validateStartDateTime(groupTrainingToCreate);
         checkIfStartDateTimeIsBeforeEndDateTime(groupTrainingToCreate);
-        validateIfLocationOrTrainerIsOccupied(groupTrainingToCreate);
+        validateIfLocationOrTrainerIsOccupied(groupTrainingToCreate, null);
 
         GroupTrainingDocument groupTrainingSaved = groupTrainingsDAO.save(groupTrainingToCreate);
         return mapGroupTrainingsDocumentToDTO(groupTrainingSaved);
@@ -161,13 +161,20 @@ public class ManagerGroupTrainingServiceImpl implements ManagerGroupTrainingServ
         if (endDate.isBefore(startDate)) throw new StartDateAfterEndDateException();
     }
 
-    private void validateIfLocationOrTrainerIsOccupied(GroupTrainingDocument groupTrainingToCreate)
+    private void validateIfLocationOrTrainerIsOccupied(GroupTrainingDocument groupTrainingToCreate, String trainingId)
             throws LocationOccupiedException, TrainerOccupiedException {
 
         LocalDateTime startDateTime = groupTrainingToCreate.getStartDate();
         LocalDateTime endDateTime = groupTrainingToCreate.getEndDate();
 
-        CollisionValidator validator = collisionValidatorComponent.getCollisionValidator(startDateTime, endDateTime);
+        CollisionValidator validator;
+        if (trainingId == null) {
+            validator = collisionValidatorComponent
+                    .getCollisionValidator(startDateTime, endDateTime);
+        } else {
+            validator = collisionValidatorComponent
+                    .getCollisionValidator(startDateTime, endDateTime, trainingId);
+        }
 
         LocationDocument location = groupTrainingToCreate.getLocation();
         boolean isLocationOccupied = validator.isLocationOccupied(location);
@@ -206,8 +213,9 @@ public class ManagerGroupTrainingServiceImpl implements ManagerGroupTrainingServ
                 .updateLimit()
                 .update();
 
+        validateStartDateTime(groupTrainingUpdated);
         checkIfStartDateTimeIsBeforeEndDateTime(groupTrainingUpdated);
-        validateIfLocationOrTrainerIsOccupied(groupTrainingUpdated);
+        validateIfLocationOrTrainerIsOccupied(groupTrainingUpdated, trainingId);
 
         GroupTrainingDocument groupTrainingSaved = groupTrainingsDAO.save(groupTrainingUpdated);
 

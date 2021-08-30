@@ -14,4 +14,8 @@ public interface GroupTrainingsDAO extends MongoRepository<GroupTrainingDocument
     List<GroupTrainingDocument> findAllByStartDateIsAfterAndEndDateIsBefore(
             LocalDateTime startDateTime, LocalDateTime endDateTime, Sort sort
     );
+
+    List<GroupTrainingDocument> findAllByStartDateIsAfterAndEndDateIsBeforeAndGroupTrainingIdIsNot(
+            LocalDateTime startDateTime, LocalDateTime endDateTime, String trainingId, Sort sort
+    );
 }

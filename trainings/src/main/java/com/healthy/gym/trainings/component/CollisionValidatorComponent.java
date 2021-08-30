@@ -6,4 +6,6 @@ import java.time.LocalDateTime;
 
 public interface CollisionValidatorComponent {
     CollisionValidator getCollisionValidator(LocalDateTime startDateTime, LocalDateTime endDateTime);
+
+    CollisionValidator getCollisionValidator(LocalDateTime startDateTime, LocalDateTime endDateTime, String trainingId);
 }

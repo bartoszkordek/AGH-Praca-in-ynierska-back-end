@@ -64,10 +64,13 @@ public class GroupTrainingDocumentUpdateBuilderImpl implements GroupTrainingDocu
         validateState();
 
         TrainingTypeDocument trainingTypeDocument = currentGroupTrainingDocument.getTraining();
-        String currentTrainingTypeId = trainingTypeDocument.getTrainingTypeId();
+        String currentTrainingTypeId = null;
+        if (trainingTypeDocument != null) {
+            currentTrainingTypeId = trainingTypeDocument.getTrainingTypeId();
+        }
         String trainingTypeIdToUpdate = groupTrainingRequest.getTrainingTypeId();
 
-        boolean trainingTypeIdIsTheSame = currentTrainingTypeId.equals(trainingTypeIdToUpdate);
+        boolean trainingTypeIdIsTheSame = trainingTypeIdToUpdate.equals(currentTrainingTypeId);
 
         if (!trainingTypeIdIsTheSame) {
             TrainingTypeDocument trainingType = trainingTypeDAO.findByTrainingTypeId(trainingTypeIdToUpdate);
@@ -162,9 +165,12 @@ public class GroupTrainingDocumentUpdateBuilderImpl implements GroupTrainingDocu
         validateState();
 
         LocationDocument currentLocation = currentGroupTrainingDocument.getLocation();
-        String currentLocationId = currentLocation.getLocationId();
+        String currentLocationId = null;
+        if (currentLocation != null) {
+            currentLocationId = currentLocation.getLocationId();
+        }
         String locationIdToUpdate = groupTrainingRequest.getLocationId();
-        boolean locationIdIsTheSame = currentLocationId.equals(locationIdToUpdate);
+        boolean locationIdIsTheSame = locationIdToUpdate.equals(currentLocationId);
 
         if (!locationIdIsTheSame) {
             LocationDocument locationDocument = locationDAO.findByLocationId(locationIdToUpdate);

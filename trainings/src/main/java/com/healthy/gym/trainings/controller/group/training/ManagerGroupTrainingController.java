@@ -29,7 +29,7 @@ import javax.validation.Valid;
 
 @PreAuthorize("hasRole('MANAGER') or hasRole('ADMIN')")
 @RestController
-@RequestMapping(value = "/group", consumes = MediaType.APPLICATION_JSON_VALUE)
+@RequestMapping(value = "/group")
 public class ManagerGroupTrainingController {
     private static final String INTERNAL_ERROR_EXCEPTION = "exception.internal.error";
     private final Translator translator;
@@ -44,7 +44,7 @@ public class ManagerGroupTrainingController {
         this.managerGroupTrainingService = managerGroupTrainingService;
     }
 
-    @PostMapping
+    @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<GroupTrainingResponse> createGroupTraining(
             @Valid @RequestBody final ManagerGroupTrainingRequest createGroupTrainingRequest,
             final BindingResult bindingResult
@@ -103,7 +103,7 @@ public class ManagerGroupTrainingController {
         }
     }
 
-    @PutMapping("/{trainingId}")
+    @PutMapping(value = "/{trainingId}", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<GroupTrainingResponse> updateGroupTraining(
             @PathVariable("trainingId") final String trainingId,
             @Valid @RequestBody final ManagerGroupTrainingRequest groupTrainingRequest,

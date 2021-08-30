@@ -5,6 +5,7 @@ import com.healthy.gym.trainings.dto.GroupTrainingDTO;
 import com.healthy.gym.trainings.exception.PastDateException;
 import com.healthy.gym.trainings.exception.ResponseBindException;
 import com.healthy.gym.trainings.exception.StartDateAfterEndDateException;
+import com.healthy.gym.trainings.exception.StartEndDateNotSameDayException;
 import com.healthy.gym.trainings.exception.notexisting.NotExistingGroupTrainingException;
 import com.healthy.gym.trainings.exception.notfound.LocationNotFoundException;
 import com.healthy.gym.trainings.exception.notfound.TrainerNotFoundException;
@@ -79,6 +80,10 @@ public class ManagerGroupTrainingController {
             String reason = translator.toLocale("exception.start.date.after.end.date");
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, exception);
 
+        } catch (StartEndDateNotSameDayException exception) {
+            String reason = translator.toLocale("exception.start.end.the.same.day");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, exception);
+
         } catch (TrainerOccupiedException exception) {
             String reason = translator.toLocale("exception.create.group.training.trainer.occupied");
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, exception);
@@ -137,6 +142,10 @@ public class ManagerGroupTrainingController {
 
         } catch (StartDateAfterEndDateException exception) {
             String reason = translator.toLocale("exception.start.date.after.end.date");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, exception);
+
+        } catch (StartEndDateNotSameDayException exception) {
+            String reason = translator.toLocale("exception.start.end.the.same.day");
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, exception);
 
         } catch (TrainerNotFoundException exception) {

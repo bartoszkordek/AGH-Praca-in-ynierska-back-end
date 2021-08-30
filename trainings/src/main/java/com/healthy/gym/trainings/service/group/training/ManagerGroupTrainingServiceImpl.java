@@ -161,7 +161,7 @@ public class ManagerGroupTrainingServiceImpl implements ManagerGroupTrainingServ
             throws StartEndDateNotSameDayException {
 
         var startDay = startDateTime.toLocalDate();
-        var endDay = endDateTime.toLocalTime();
+        var endDay = endDateTime.toLocalDate();
         if (!startDay.equals(endDay)) throw new StartEndDateNotSameDayException();
     }
 

@@ -23,7 +23,7 @@ public class PhotoController {
         this.photoService = photoService;
     }
 
-    @GetMapping("/trainingType/image/{imageId}")
+    @GetMapping("/image/{imageId}")
     public ResponseEntity<byte[]> getAvatar(@PathVariable String imageId) {
         try {
             byte[] image = photoService.getImage(imageId);

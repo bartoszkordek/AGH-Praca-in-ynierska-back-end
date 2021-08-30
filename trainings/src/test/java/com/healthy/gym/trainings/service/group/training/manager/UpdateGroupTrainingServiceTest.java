@@ -16,6 +16,7 @@ import com.healthy.gym.trainings.dto.GroupTrainingDTO;
 import com.healthy.gym.trainings.enums.GymRole;
 import com.healthy.gym.trainings.exception.PastDateException;
 import com.healthy.gym.trainings.exception.StartDateAfterEndDateException;
+import com.healthy.gym.trainings.exception.StartEndDateNotSameDayException;
 import com.healthy.gym.trainings.exception.notexisting.NotExistingGroupTrainingException;
 import com.healthy.gym.trainings.exception.notfound.LocationNotFoundException;
 import com.healthy.gym.trainings.exception.notfound.TrainerNotFoundException;
@@ -330,7 +331,7 @@ class UpdateGroupTrainingServiceTest {
             NotExistingGroupTrainingException,
             StartDateAfterEndDateException,
             TrainerOccupiedException,
-            TrainerNotFoundException {
+            TrainerNotFoundException, StartEndDateNotSameDayException {
 
         GroupTrainingDocument groupTrainingUpdated = getUpdatedGroupTrainingDocument();
 

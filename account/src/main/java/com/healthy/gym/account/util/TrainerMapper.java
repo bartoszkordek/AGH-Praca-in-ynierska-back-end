@@ -19,7 +19,7 @@ public class TrainerMapper {
         throw new IllegalStateException("Utility class");
     }
 
-    public static TrainerDTO mapTrainerDocumentToEquipmentDTO(TrainerDocument trainerDocument){
+    public static TrainerDTO mapTrainerDocumentToTrainerDTO(TrainerDocument trainerDocument){
         TrainerDTO trainerDTO = modelMapper.map(trainerDocument, TrainerDTO.class);
 
         DescriptionDTO descriptionDTO = new DescriptionDTO(
@@ -39,6 +39,15 @@ public class TrainerMapper {
         trainerDTO.setAvatar(avatar);
 
         return trainerDTO;
+    }
+
+    public static List<TrainerDTO> mapTrainerDocumentsToTrainerDTOs(List<TrainerDocument> trainerDocuments){
+        List<TrainerDTO> trainerDTOs = new ArrayList<>();
+        for(TrainerDocument trainerDocument : trainerDocuments){
+            TrainerDTO trainerDTO = mapTrainerDocumentToTrainerDTO(trainerDocument);
+            trainerDTOs.add(trainerDTO);
+        }
+        return trainerDTOs;
     }
 
     private static List<TrainingDTO> mapTrainingTypes(List<TrainingTypeDocument> trainingTypeDocuments){

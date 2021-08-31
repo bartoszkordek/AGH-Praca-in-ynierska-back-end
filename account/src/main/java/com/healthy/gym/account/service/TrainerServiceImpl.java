@@ -23,7 +23,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import static com.healthy.gym.account.util.TrainerMapper.mapTrainerDocumentToEquipmentDTO;
+import static com.healthy.gym.account.util.TrainerMapper.mapTrainerDocumentToTrainerDTO;
+import static com.healthy.gym.account.util.TrainerMapper.mapTrainerDocumentsToTrainerDTOs;
 
 @Service
 public class TrainerServiceImpl implements TrainerService{
@@ -90,12 +91,14 @@ public class TrainerServiceImpl implements TrainerService{
                 trainingTypeDocuments
         );
         var savedTrainer = trainerDAO.save(trainerDocument);
-        return mapTrainerDocumentToEquipmentDTO(savedTrainer);
+        return mapTrainerDocumentToTrainerDTO(savedTrainer);
     }
 
     @Override
     public List<TrainerDTO> getTrainers() throws NoUserFound {
-        return null;
+        List<TrainerDocument> trainerDocuments = trainerDAO.findAll();
+        if (trainerDocuments.isEmpty()) throw new NoUserFound();
+        return mapTrainerDocumentsToTrainerDTOs(trainerDocuments);
     }
 
     private List<TrainingTypeDocument> getTrainingTypeDocuments(List<String> trainingTypeIds) {

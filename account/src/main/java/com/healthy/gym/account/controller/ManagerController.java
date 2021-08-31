@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
 @RestController
-@PreAuthorize("hasRole('MANAGER')")
+@PreAuthorize("hasRole('ADMIN') or hasRole('MANAGER')")
 public class ManagerController {
 
     private final Translator translator;

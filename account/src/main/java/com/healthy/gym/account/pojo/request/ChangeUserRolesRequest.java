@@ -14,9 +14,6 @@ public class ChangeUserRolesRequest {
     @ValidRoles
     private List<String> roles;
 
-    public ChangeUserRolesRequest(List<String> roles) {
-        this.roles = roles;
-    }
 
     public List<String> getRoles() {
         return roles;

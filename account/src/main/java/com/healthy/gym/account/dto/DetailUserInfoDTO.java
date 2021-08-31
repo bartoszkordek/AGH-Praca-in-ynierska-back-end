@@ -18,6 +18,7 @@ public class DetailUserInfoDTO {
     private boolean accountNonExpired;
     private boolean credentialsNonExpired;
     private boolean accountNonLocked;
+    @JsonProperty("roles")
     private Collection<GymRole> gymRoles;
     @JsonProperty("avatar")
     private String avatarUrl;

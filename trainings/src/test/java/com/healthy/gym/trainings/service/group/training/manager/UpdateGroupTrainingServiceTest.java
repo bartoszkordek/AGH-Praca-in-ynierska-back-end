@@ -163,7 +163,15 @@ class UpdateGroupTrainingServiceTest {
 
         LocalDateTime startDateTime = LocalDateTime.of(LocalDate.parse("2021-07-10"), LocalTime.MIN);
         LocalDateTime endDateTime = LocalDateTime.of(LocalDate.parse("2021-07-10"), LocalTime.MAX);
-        when(groupTrainingsDAO.findAllByStartDateIsAfterAndEndDateIsBefore(startDateTime, endDateTime, Sort.by("startDate")))
+        when(
+                groupTrainingsDAO
+                        .findAllByStartDateIsAfterAndEndDateIsBeforeAndGroupTrainingIdIsNot(
+                                startDateTime,
+                                endDateTime,
+                                groupTrainingId,
+                                Sort.by("startDate")
+                        )
+        )
                 .thenReturn(List.of(
                         TestDocumentUtil.getTestGroupTraining(
                                 "2021-07-10T19:00", "2021-07-10T20:30", getTestLocationDocument()
@@ -261,7 +269,15 @@ class UpdateGroupTrainingServiceTest {
 
         LocalDateTime startDateTime = LocalDateTime.of(LocalDate.parse("2021-07-10"), LocalTime.MIN);
         LocalDateTime endDateTime = LocalDateTime.of(LocalDate.parse("2021-07-10"), LocalTime.MAX);
-        when(groupTrainingsDAO.findAllByStartDateIsAfterAndEndDateIsBefore(startDateTime, endDateTime, Sort.by("startDate")))
+        when(
+                groupTrainingsDAO
+                        .findAllByStartDateIsAfterAndEndDateIsBeforeAndGroupTrainingIdIsNot(
+                                startDateTime,
+                                endDateTime,
+                                groupTrainingId,
+                                Sort.by("startDate")
+                        )
+        )
                 .thenReturn(List.of(
                         TestDocumentUtil.getTestGroupTraining(
                                 "2021-07-10T19:00", "2021-07-10T20:30", List.of(getTestTrainer2())

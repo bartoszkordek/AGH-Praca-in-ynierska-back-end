@@ -43,7 +43,7 @@ import static org.awaitility.Awaitility.await;
 @ActiveProfiles(value = "test")
 class NotificationServiceIntegrationTest {
 
-    private static final ServerSetup serverSetup = new ServerSetup(3025, "localhost", "smtp");
+    private static final ServerSetup serverSetup = new ServerSetup(30250, "localhost", "smtp");
 
     @RegisterExtension
     static GreenMailExtension greenMail = new GreenMailExtension(serverSetup)
@@ -56,22 +56,16 @@ class NotificationServiceIntegrationTest {
     static GenericContainer<?> rabbitMQContainer =
             new GenericContainer<>(DockerImageName.parse("gza73/agh-praca-inzynierska-rabbitmq"))
                     .withExposedPorts(5672);
-
     @Container
     static MongoDBContainer mongoDBContainer = new MongoDBContainer(DockerImageName.parse("mongo:4.4.4-bionic"));
-
     @Autowired
     private NotificationService notificationService;
-
     @Autowired
     private TestRoleTokenFactory tokenFactory;
-
     @Autowired
     private MongoTemplate mongoTemplate;
-
     @Autowired
     private TestDocumentUtilComponent utilComponent;
-
     private List<UserDocument> users;
     private UserDocument mainUser;
     private List<NotificationDocument> notifications;

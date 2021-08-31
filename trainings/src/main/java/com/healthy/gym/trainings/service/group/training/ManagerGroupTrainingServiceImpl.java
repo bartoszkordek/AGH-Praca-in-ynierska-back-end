@@ -13,6 +13,7 @@ import com.healthy.gym.trainings.dto.GroupTrainingDTO;
 import com.healthy.gym.trainings.enums.GymRole;
 import com.healthy.gym.trainings.exception.PastDateException;
 import com.healthy.gym.trainings.exception.StartDateAfterEndDateException;
+import com.healthy.gym.trainings.exception.StartEndDateNotSameDayException;
 import com.healthy.gym.trainings.exception.notexisting.NotExistingGroupTrainingException;
 import com.healthy.gym.trainings.exception.notfound.LocationNotFoundException;
 import com.healthy.gym.trainings.exception.notfound.TrainerNotFoundException;
@@ -76,7 +77,8 @@ public class ManagerGroupTrainingServiceImpl implements ManagerGroupTrainingServ
             TrainingTypeNotFoundException,
             LocationOccupiedException,
             TrainerOccupiedException,
-            PastDateException {
+            PastDateException,
+            StartEndDateNotSameDayException {
 
         TrainingTypeDocument trainingType = getTrainingTypeDocument(createGroupTrainingRequest);
         List<UserDocument> trainers = getListOfTrainersUserDocument(createGroupTrainingRequest);
@@ -98,8 +100,9 @@ public class ManagerGroupTrainingServiceImpl implements ManagerGroupTrainingServ
         );
 
         validateStartDateTime(groupTrainingToCreate);
+        validateStartEndDateIfTheSameDay(startDate, endDate);
         checkIfStartDateTimeIsBeforeEndDateTime(groupTrainingToCreate);
-        validateIfLocationOrTrainerIsOccupied(groupTrainingToCreate);
+        validateIfLocationOrTrainerIsOccupied(groupTrainingToCreate, null);
 
         GroupTrainingDocument groupTrainingSaved = groupTrainingsDAO.save(groupTrainingToCreate);
         return mapGroupTrainingsDocumentToDTO(groupTrainingSaved);
@@ -154,6 +157,14 @@ public class ManagerGroupTrainingServiceImpl implements ManagerGroupTrainingServ
         if (startDate.isBefore(LocalDateTime.now(clock))) throw new PastDateException();
     }
 
+    private void validateStartEndDateIfTheSameDay(LocalDateTime startDateTime, LocalDateTime endDateTime)
+            throws StartEndDateNotSameDayException {
+
+        var startDay = startDateTime.toLocalDate();
+        var endDay = endDateTime.toLocalDate();
+        if (!startDay.equals(endDay)) throw new StartEndDateNotSameDayException();
+    }
+
     private void checkIfStartDateTimeIsBeforeEndDateTime(GroupTrainingDocument groupTraining)
             throws StartDateAfterEndDateException {
         LocalDateTime startDate = groupTraining.getStartDate();
@@ -161,13 +172,20 @@ public class ManagerGroupTrainingServiceImpl implements ManagerGroupTrainingServ
         if (endDate.isBefore(startDate)) throw new StartDateAfterEndDateException();
     }
 
-    private void validateIfLocationOrTrainerIsOccupied(GroupTrainingDocument groupTrainingToCreate)
+    private void validateIfLocationOrTrainerIsOccupied(GroupTrainingDocument groupTrainingToCreate, String trainingId)
             throws LocationOccupiedException, TrainerOccupiedException {
 
         LocalDateTime startDateTime = groupTrainingToCreate.getStartDate();
         LocalDateTime endDateTime = groupTrainingToCreate.getEndDate();
 
-        CollisionValidator validator = collisionValidatorComponent.getCollisionValidator(startDateTime, endDateTime);
+        CollisionValidator validator;
+        if (trainingId == null) {
+            validator = collisionValidatorComponent
+                    .getCollisionValidator(startDateTime, endDateTime);
+        } else {
+            validator = collisionValidatorComponent
+                    .getCollisionValidator(startDateTime, endDateTime, trainingId);
+        }
 
         LocationDocument location = groupTrainingToCreate.getLocation();
         boolean isLocationOccupied = validator.isLocationOccupied(location);
@@ -190,7 +208,8 @@ public class ManagerGroupTrainingServiceImpl implements ManagerGroupTrainingServ
             StartDateAfterEndDateException,
             TrainerNotFoundException,
             TrainerOccupiedException,
-            TrainingTypeNotFoundException {
+            TrainingTypeNotFoundException,
+            StartEndDateNotSameDayException {
 
         GroupTrainingDocument groupTraining = groupTrainingsDAO.findFirstByGroupTrainingId(trainingId);
         if (groupTraining == null) throw new NotExistingGroupTrainingException();
@@ -206,8 +225,10 @@ public class ManagerGroupTrainingServiceImpl implements ManagerGroupTrainingServ
                 .updateLimit()
                 .update();
 
+        validateStartDateTime(groupTrainingUpdated);
+        validateStartEndDateIfTheSameDay(groupTrainingUpdated.getStartDate(), groupTrainingUpdated.getEndDate());
         checkIfStartDateTimeIsBeforeEndDateTime(groupTrainingUpdated);
-        validateIfLocationOrTrainerIsOccupied(groupTrainingUpdated);
+        validateIfLocationOrTrainerIsOccupied(groupTrainingUpdated, trainingId);
 
         GroupTrainingDocument groupTrainingSaved = groupTrainingsDAO.save(groupTrainingUpdated);
 

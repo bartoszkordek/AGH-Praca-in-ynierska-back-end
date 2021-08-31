@@ -28,14 +28,49 @@ public class CollisionValidatorComponentImpl implements CollisionValidatorCompon
 
     @Override
     public CollisionValidator getCollisionValidator(LocalDateTime startDateTime, LocalDateTime endDateTime) {
-        LocalDate startDate = startDateTime.toLocalDate();
-        LocalDate endDate = endDateTime.toLocalDate();
-
-        LocalDateTime startOfDay = LocalDateTime.of(startDate, LocalTime.MIN);
-        LocalDateTime endOfDay = LocalDateTime.of(endDate, LocalTime.MAX);
+        LocalDateTime startOfDay = getStartOfDate(startDateTime);
+        LocalDateTime endOfDay = getEndOfDate(endDateTime);
 
         List<GroupTrainingDocument> groupTrainingList = groupTrainingsDAO
                 .findAllByStartDateIsAfterAndEndDateIsBefore(startOfDay, endOfDay, Sort.by("startDate"));
+
+        List<IndividualTrainingDocument> individualTrainingList = individualTrainingRepository
+                .findAllByStartDateTimeIsAfterAndEndDateTimeIsBefore(startOfDay, endOfDay, Sort.by("startDateTime"));
+
+        return new CollisionValidator(
+                groupTrainingList,
+                individualTrainingList,
+                startDateTime,
+                endDateTime
+        );
+    }
+
+    private LocalDateTime getStartOfDate(LocalDateTime startDateTime) {
+        LocalDate startDate = startDateTime.toLocalDate();
+        return LocalDateTime.of(startDate, LocalTime.MIN);
+    }
+
+    private LocalDateTime getEndOfDate(LocalDateTime endDateTime) {
+        LocalDate endDate = endDateTime.toLocalDate();
+        return LocalDateTime.of(endDate, LocalTime.MAX);
+    }
+
+    @Override
+    public CollisionValidator getCollisionValidator(
+            LocalDateTime startDateTime,
+            LocalDateTime endDateTime,
+            String trainingId
+    ) {
+        LocalDateTime startOfDay = getStartOfDate(startDateTime);
+        LocalDateTime endOfDay = getEndOfDate(endDateTime);
+
+        List<GroupTrainingDocument> groupTrainingList = groupTrainingsDAO
+                .findAllByStartDateIsAfterAndEndDateIsBeforeAndGroupTrainingIdIsNot(
+                        startOfDay,
+                        endOfDay,
+                        trainingId,
+                        Sort.by("startDate")
+                );
 
         List<IndividualTrainingDocument> individualTrainingList = individualTrainingRepository
                 .findAllByStartDateTimeIsAfterAndEndDateTimeIsBefore(startOfDay, endOfDay, Sort.by("startDateTime"));

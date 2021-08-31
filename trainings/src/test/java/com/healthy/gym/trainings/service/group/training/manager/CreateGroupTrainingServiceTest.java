@@ -16,6 +16,7 @@ import com.healthy.gym.trainings.dto.GroupTrainingDTO;
 import com.healthy.gym.trainings.enums.GymRole;
 import com.healthy.gym.trainings.exception.PastDateException;
 import com.healthy.gym.trainings.exception.StartDateAfterEndDateException;
+import com.healthy.gym.trainings.exception.StartEndDateNotSameDayException;
 import com.healthy.gym.trainings.exception.notfound.LocationNotFoundException;
 import com.healthy.gym.trainings.exception.notfound.TrainerNotFoundException;
 import com.healthy.gym.trainings.exception.notfound.TrainingTypeNotFoundException;
@@ -330,7 +331,7 @@ class CreateGroupTrainingServiceTest {
             LocationNotFoundException,
             StartDateAfterEndDateException,
             TrainerOccupiedException,
-            TrainerNotFoundException {
+            TrainerNotFoundException, StartEndDateNotSameDayException {
 
         when(trainingTypeDAO.findByTrainingTypeId(anyString())).thenReturn(getTestTrainingTypeDocument());
         when(userDAO.findByUserId("100ed952-es7f-435a-bd1e-9fb2a327c4dk")).thenReturn(getTestTrainer1());

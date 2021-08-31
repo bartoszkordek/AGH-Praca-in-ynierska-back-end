@@ -1,7 +1,7 @@
 spring:
   mail:
     host: localhost
-    port: 3025
+    port: 30250
     password: password4Tests
     username: testEmailUsername
     personal: AGH Praca inzynierska - Tests

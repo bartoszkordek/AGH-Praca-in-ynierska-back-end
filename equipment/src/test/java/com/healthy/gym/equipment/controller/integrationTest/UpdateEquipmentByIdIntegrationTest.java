@@ -292,8 +292,19 @@ class UpdateEquipmentByIdIntegrationTest {
                     .isNotNull();
         }
 
+        private ResponseEntity<JsonNode> getResponseEntity(TestCountry country) throws URISyntaxException {
+            Locale testedLocale = convertEnumToLocale(country);
+            URI uri = new URI("http://localhost:" + port + "/" + equipmentId);
+            return restTemplate.exchange(
+                    uri,
+                    HttpMethod.PUT,
+                    getRequestEntity(testedLocale),
+                    JsonNode.class
+            );
+        }
+
         @Nested
-        class ShouldReturnDescription{
+        class ShouldReturnDescription {
 
             @ParameterizedTest
             @EnumSource(TestCountry.class)
@@ -304,7 +315,7 @@ class UpdateEquipmentByIdIntegrationTest {
             }
 
             @Nested
-            class ShouldReturnTraining{
+            class ShouldReturnTraining {
 
                 @ParameterizedTest
                 @EnumSource(TestCountry.class)
@@ -322,18 +333,6 @@ class UpdateEquipmentByIdIntegrationTest {
                             .isEqualTo("Test name2");
                 }
             }
-        }
-
-
-        private ResponseEntity<JsonNode> getResponseEntity(TestCountry country) throws URISyntaxException {
-            Locale testedLocale = convertEnumToLocale(country);
-            URI uri = new URI("http://localhost:" + port + "/" + equipmentId);
-            return restTemplate.exchange(
-                    uri,
-                    HttpMethod.PUT,
-                    getRequestEntity(testedLocale),
-                    JsonNode.class
-            );
         }
     }
 
@@ -390,11 +389,22 @@ class UpdateEquipmentByIdIntegrationTest {
         void shouldReturnProperEmptyImageData(TestCountry country) throws URISyntaxException, IOException {
             ResponseEntity<JsonNode> responseEntity = getResponseEntity(country);
             assertThat(responseEntity.getBody().get("equipment").get("images").isEmpty())
-                    .isTrue();
+                    .isFalse();
+        }
+
+        private ResponseEntity<JsonNode> getResponseEntity(TestCountry country) throws URISyntaxException {
+            Locale testedLocale = convertEnumToLocale(country);
+            URI uri = new URI("http://localhost:" + port + "/" + equipmentId);
+            return restTemplate.exchange(
+                    uri,
+                    HttpMethod.PUT,
+                    getRequestEntityWithoutImage(testedLocale),
+                    JsonNode.class
+            );
         }
 
         @Nested
-        class ShouldReturnDescription{
+        class ShouldReturnDescription {
 
             @ParameterizedTest
             @EnumSource(TestCountry.class)
@@ -405,7 +415,7 @@ class UpdateEquipmentByIdIntegrationTest {
             }
 
             @Nested
-            class ShouldReturnTraining{
+            class ShouldReturnTraining {
 
                 @ParameterizedTest
                 @EnumSource(TestCountry.class)
@@ -423,18 +433,6 @@ class UpdateEquipmentByIdIntegrationTest {
                             .isEqualTo("Test name2");
                 }
             }
-        }
-
-
-        private ResponseEntity<JsonNode> getResponseEntity(TestCountry country) throws URISyntaxException {
-            Locale testedLocale = convertEnumToLocale(country);
-            URI uri = new URI("http://localhost:" + port + "/" + equipmentId);
-            return restTemplate.exchange(
-                    uri,
-                    HttpMethod.PUT,
-                    getRequestEntityWithoutImage(testedLocale),
-                    JsonNode.class
-            );
         }
     }
 }

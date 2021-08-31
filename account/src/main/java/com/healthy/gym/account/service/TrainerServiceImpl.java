@@ -93,6 +93,11 @@ public class TrainerServiceImpl implements TrainerService{
         return mapTrainerDocumentToEquipmentDTO(savedTrainer);
     }
 
+    @Override
+    public List<TrainerDTO> getTrainers() throws NoUserFound {
+        return null;
+    }
+
     private List<TrainingTypeDocument> getTrainingTypeDocuments(List<String> trainingTypeIds) {
         List<TrainingTypeDocument> trainingTypeDocuments = new ArrayList<>();
         for (String trainingTypeId : trainingTypeIds) {

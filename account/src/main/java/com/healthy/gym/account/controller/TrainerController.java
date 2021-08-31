@@ -17,6 +17,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.List;
+
 @RestController
 @RequestMapping(value = "/trainer")
 public class TrainerController {
@@ -63,6 +65,23 @@ public class TrainerController {
                     .status(HttpStatus.CREATED)
                     .contentType(MediaType.APPLICATION_JSON)
                     .body(new TrainerResponse(message, trainerDTO));
+
+        } catch (NoUserFound exception) {
+            String reason = translator.toLocale("exception.no.user.found");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, reason, exception);
+
+        } catch (Exception exception) {
+            String reason = translator.toLocale(REQUEST_FAILURE);
+            exception.printStackTrace();
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, reason, exception);
+        }
+    }
+
+    @GetMapping
+    public List<TrainerDTO> getTrainers(){
+
+        try{
+            return trainerService.getTrainers();
 
         } catch (NoUserFound exception) {
             String reason = translator.toLocale("exception.no.user.found");

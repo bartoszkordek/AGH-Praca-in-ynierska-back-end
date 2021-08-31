@@ -46,8 +46,8 @@ public class UserNextTrainingController {
     @GetMapping("/next")
     public BasicTrainingDTO getMyNextTraining(
             @PathVariable @ValidIDFormat final String userId
-    ){
-        try{
+    ) {
+        try {
             BasicTrainingDTO individual = userIndividualTrainingService.getMyNextTraining(userId);
             BasicTrainingDTO group = userGroupTrainingService.getMyNextTraining(userId);
 
@@ -61,7 +61,7 @@ public class UserNextTrainingController {
         } catch (
                 UserNextTrainingNotFoundException exception) {
             String reason = translator.toLocale(EXCEPTION_USER_NEXT_TRAINING_NOT_FOUND);
-            throw new ResponseStatusException(HttpStatus.OK, reason, exception);
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, reason, exception);
 
         } catch (Exception exception) {
             String reason = translator.toLocale(EXCEPTION_INTERNAL_ERROR);
@@ -71,16 +71,16 @@ public class UserNextTrainingController {
     }
 
     private BasicTrainingDTO getEarlierTraining(BasicTrainingDTO group, BasicTrainingDTO individual) throws UserNextTrainingNotFoundException {
-        if(group == null && individual == null) throw new UserNextTrainingNotFoundException();
-        if(group == null) return individual;
-        if(individual == null) return group;
+        if (group == null && individual == null) throw new UserNextTrainingNotFoundException();
+        if (group == null) return individual;
+        if (individual == null) return group;
         String groupTrainingStartDate = group.getStartDate();
         String individualTrainingStartDate = individual.getStartDate();
         LocalDateTime parsedGroupTrainingStartDate = LocalDateTime
                 .parse(groupTrainingStartDate, DateTimeFormatter.ISO_LOCAL_DATE_TIME);
         LocalDateTime parsedIndividualTrainingStartDate = LocalDateTime
                 .parse(individualTrainingStartDate, DateTimeFormatter.ISO_LOCAL_DATE_TIME);
-        if(parsedGroupTrainingStartDate.isBefore(parsedIndividualTrainingStartDate)){
+        if (parsedGroupTrainingStartDate.isBefore(parsedIndividualTrainingStartDate)) {
             return group;
         } else {
             return individual;

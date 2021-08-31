@@ -210,7 +210,6 @@ class WhenGetAllTrainingTypesIntegrationTest {
         @EnumSource(TestCountry.class)
         void shouldReturnProperImageUrl(TestCountry country) throws URISyntaxException, IOException {
             ResponseEntity<JsonNode> responseEntity = getResponseEntity(country);
-            System.out.println(responseEntity.getBody());
             assertThat(responseEntity.getBody().get(0).get("image").textValue()).isNotNull();
             assertThat(responseEntity.getBody().get(1).get("image").textValue()).isNotNull();
         }

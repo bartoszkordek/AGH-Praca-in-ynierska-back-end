@@ -17,6 +17,7 @@ public class Messages {
                 {"exception.duplicated.equipment.type", "Sprzęt o tej samej nazwie już istnieje."},
                 {"exception.not.found.equipment", "Sprzęt o podanym ID nie istnieje."},
                 {"exception.not.found.equipment.all", "Nie znaleziono żadnego sprzętu."},
+                {"avatar.not.found.exception", "Nie znaleziono awatara o podanym ID."},
                 {"field.required", "Pole jest wymagane."}
         }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
     }
@@ -33,6 +34,7 @@ public class Messages {
                 {"exception.duplicated.equipment.type", "Equipment with the same title already exists."},
                 {"exception.not.found.equipment", "Equipment with this ID does not exist."},
                 {"exception.not.found.equipment.all", "Not found any equipment."},
+                {"avatar.not.found.exception", "Avatar with this ID does not exist."},
                 {"field.required", "Field is required."}
         }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
     }

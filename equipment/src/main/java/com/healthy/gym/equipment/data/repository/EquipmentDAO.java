@@ -9,5 +9,7 @@ public interface EquipmentDAO extends MongoRepository<EquipmentDocument, String>
 
     EquipmentDocument findByEquipmentId(String equipmentId);
 
+    EquipmentDocument findByTitle(String equipmentTitle);
+
     void deleteByEquipmentId(String equipmentId);
 }

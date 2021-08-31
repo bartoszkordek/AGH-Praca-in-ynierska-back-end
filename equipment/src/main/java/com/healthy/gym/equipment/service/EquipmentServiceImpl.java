@@ -40,7 +40,7 @@ public class EquipmentServiceImpl implements EquipmentService {
             ImageDAO imageDAO,
             TrainingTypeDAO trainingTypeDAO,
             ImageUrlCreator imageUrlCreator
-    ){
+    ) {
         this.equipmentDAO = equipmentDAO;
         this.trainingTypeDAO = trainingTypeDAO;
         this.imageDAO = imageDAO;
@@ -53,7 +53,7 @@ public class EquipmentServiceImpl implements EquipmentService {
     @Override
     public List<EquipmentDTO> getEquipments() throws EquipmentNotFoundException {
         List<EquipmentDocument> equipmentDocuments = equipmentDAO.findAll();
-        if(equipmentDocuments.isEmpty()) throw new EquipmentNotFoundException();
+        if (equipmentDocuments.isEmpty()) throw new EquipmentNotFoundException();
         return mapEquipmentDocumentsToEquipmentDTOs(equipmentDocuments);
     }
 
@@ -62,7 +62,7 @@ public class EquipmentServiceImpl implements EquipmentService {
             throws DuplicatedEquipmentTypeException {
 
         String title = equipmentRequest.getTitle();
-        if(equipmentDAO.existsByTitle(title)) throw new DuplicatedEquipmentTypeException();
+        if (equipmentDAO.existsByTitle(title)) throw new DuplicatedEquipmentTypeException();
 
         List<ImageDocument> imageDocuments = new ArrayList<>();
         List<String> imageUrls = new ArrayList<>();
@@ -104,7 +104,7 @@ public class EquipmentServiceImpl implements EquipmentService {
     @Override
     public EquipmentDTO deleteEquipment(String equipmentId) throws EquipmentNotFoundException {
         EquipmentDocument equipmentDocumentToRemove = equipmentDAO.findByEquipmentId(equipmentId);
-        if(equipmentDocumentToRemove == null) throw new EquipmentNotFoundException();
+        if (equipmentDocumentToRemove == null) throw new EquipmentNotFoundException();
         equipmentDAO.deleteByEquipmentId(equipmentId);
         ImageDocument imageDocument = equipmentDocumentToRemove.getImagesDocuments().get(0);
         if (imageDocument != null) {
@@ -116,17 +116,23 @@ public class EquipmentServiceImpl implements EquipmentService {
     }
 
     @Override
-    public EquipmentDTO updateEquipment(String equipmentId, EquipmentRequest equipmentRequest, MultipartFile multipartFile) throws EquipmentNotFoundException, DuplicatedEquipmentTypeException {
+    public EquipmentDTO updateEquipment(
+            String equipmentId,
+            EquipmentRequest equipmentRequest,
+            MultipartFile multipartFile
+    ) throws EquipmentNotFoundException, DuplicatedEquipmentTypeException {
+
         EquipmentDocument equipmentDocumentToUpdate = equipmentDAO.findByEquipmentId(equipmentId);
-        if(equipmentDocumentToUpdate == null) throw new EquipmentNotFoundException();
+        if (equipmentDocumentToUpdate == null) throw new EquipmentNotFoundException();
 
         String equipmentRequestTitle = equipmentRequest.getTitle();
-        if(equipmentDAO.existsByTitle(equipmentRequestTitle)) throw new DuplicatedEquipmentTypeException();
+        EquipmentDocument equipmentDocument = equipmentDAO.findByTitle(equipmentRequestTitle);
+        if (equipmentDocument != null && !equipmentDocumentToUpdate.equals(equipmentDocument)) {
+            throw new DuplicatedEquipmentTypeException();
+        }
 
         equipmentDocumentToUpdate.setTitle(equipmentRequestTitle);
 
-        List<ImageDocument> imageDocuments = new ArrayList<>();
-        List<String> imageUrls = new ArrayList<>();
         if (multipartFile != null) {
             try {
                 ImageDocument imageToUpdate;
@@ -143,11 +149,14 @@ public class EquipmentServiceImpl implements EquipmentService {
                     );
                 }
                 ImageDocument savedImageDocument = imageDAO.save(imageToUpdate);
-                imageDocuments.clear();
+                List<ImageDocument> imageDocuments = new ArrayList<>();
+                List<String> imageUrls = new ArrayList<>();
                 imageDocuments.add(savedImageDocument);
                 String imageUrl = imageUrlCreator.createImageUrl(savedImageDocument.getImageId());
                 imageUrl += "?version=" + DigestUtils.md5DigestAsHex(multipartFile.getBytes());
                 imageUrls.add(imageUrl);
+                equipmentDocumentToUpdate.setImagesDocuments(imageDocuments);
+                equipmentDocumentToUpdate.setImages(imageUrls);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -155,19 +164,18 @@ public class EquipmentServiceImpl implements EquipmentService {
 
         List<String> trainingTypeIds = equipmentRequest.getTrainingIds();
         List<TrainingTypeDocument> trainingTypeDocuments = getTrainingTypeDocuments(trainingTypeIds);
+
         equipmentDocumentToUpdate.setTrainings(trainingTypeDocuments);
         String synopsis = equipmentRequest.getSynopsis();
         equipmentDocumentToUpdate.setSynopsis(synopsis);
-        equipmentDocumentToUpdate.setImagesDocuments(imageDocuments);
-        equipmentDocumentToUpdate.setImages(imageUrls);
 
         var savedEquipment = equipmentDAO.save(equipmentDocumentToUpdate);
         return mapEquipmentDocumentToEquipmentDTO(savedEquipment);
     }
 
-    private List<TrainingTypeDocument> getTrainingTypeDocuments(List<String> trainingTypeIds){
+    private List<TrainingTypeDocument> getTrainingTypeDocuments(List<String> trainingTypeIds) {
         List<TrainingTypeDocument> trainingTypeDocuments = new ArrayList<>();
-        for(String trainingTypeId : trainingTypeIds){
+        for (String trainingTypeId : trainingTypeIds) {
             TrainingTypeDocument trainingTypeDocument = trainingTypeDAO.findByTrainingTypeId(trainingTypeId);
             trainingTypeDocuments.add(trainingTypeDocument);
         }

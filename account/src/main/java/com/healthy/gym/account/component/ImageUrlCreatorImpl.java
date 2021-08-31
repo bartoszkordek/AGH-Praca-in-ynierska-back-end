@@ -16,7 +16,7 @@ public class ImageUrlCreatorImpl implements ImageUrlCreator {
     public String createImageUrl(String imageId) {
         String gateway = environment.getRequiredProperty("gateway");
         String service = environment.getRequiredProperty("spring.application.name");
-        String controller = "/image/" + imageId;
+        String controller = "/trainer/image/" + imageId;
 
         return gateway + "/" + service + controller;
     }

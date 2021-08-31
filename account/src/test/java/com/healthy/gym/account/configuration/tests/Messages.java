@@ -48,7 +48,8 @@ public class Messages {
                 {"exception.no.user.found", "Nie znaleziono żadnego użytkownika w systemie."},
                 {"exception.no.trainer.found", "W systemie nie znaleziono żadnego trenera."},
                 {"exception.no.employee.found", "W systemie nie znaleziono żadnego pracownika."},
-                {"exception.no.manager.found", "W systemie nie znaleziono żadnego menedżera."}
+                {"exception.no.manager.found", "W systemie nie znaleziono żadnego menedżera."},
+                {"user.roles.changed","Zmieniono role w systemie dla wskazanego użytkownika."}
         }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
     }
 
@@ -94,8 +95,9 @@ public class Messages {
                 {"notification.removed", "The notification has been removed."},
                 {"exception.no.user.found", "No user was found in the system."},
                 {"exception.no.trainer.found", "No trainer was found in the system."},
-                {"exception.no.employee.found","No employee was found in the system."},
-                {"exception.no.manager.found","No manager was found in the system."}
+                {"exception.no.employee.found", "No employee was found in the system."},
+                {"exception.no.manager.found", "No manager was found in the system."},
+                {"user.roles.changed", "System roles have been changed for the indicated user."}
         }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
     }
 

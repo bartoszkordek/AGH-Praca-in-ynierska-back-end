@@ -95,6 +95,53 @@ public class TrainerServiceImpl implements TrainerService{
     }
 
     @Override
+    public TrainerDTO updateTrainer(String userId, TrainerRequest trainerRequest, MultipartFile multipartFile) throws NoUserFound {
+        UserDocument userDocument = userDAO.findByUserId(userId);
+        if(userDocument == null) throw new NoUserFound();
+        TrainerDocument trainerDocument = trainerDAO.findByUserDocument(userDocument);
+        if(trainerDocument == null) throw new NoUserFound();
+        if (multipartFile != null) {
+            try {
+                ImageDocument imageToUpdate;
+                if (!trainerDocument.getImagesDocuments().isEmpty()) {
+                    imageToUpdate = trainerDocument.getImagesDocuments().get(0);
+                    imageToUpdate.setImageData(new Binary(multipartFile.getBytes()));
+                    imageToUpdate.setContentType(multipartFile.getContentType());
+
+                } else {
+                    imageToUpdate = new ImageDocument(
+                            UUID.randomUUID().toString(),
+                            new Binary(multipartFile.getBytes()),
+                            multipartFile.getContentType()
+                    );
+                }
+                ImageDocument savedImageDocument = imageDAO.save(imageToUpdate);
+                List<ImageDocument> imageDocuments = new ArrayList<>();
+                List<String> imageUrls = new ArrayList<>();
+                imageDocuments.add(savedImageDocument);
+                String imageUrl = imageUrlCreator.createImageUrl(savedImageDocument.getImageId());
+                imageUrl += "?version=" + DigestUtils.md5DigestAsHex(multipartFile.getBytes());
+                imageUrls.add(imageUrl);
+                trainerDocument.setImagesDocuments(imageDocuments);
+                trainerDocument.setImages(imageUrls);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        List<String> trainingTypeIds = trainerRequest.getTrainingIds();
+        List<TrainingTypeDocument> trainingTypeDocuments = getTrainingTypeDocuments(trainingTypeIds);
+
+        trainerDocument.setTrainingTypeDocuments(trainingTypeDocuments);
+        String synopsis = trainerRequest.getSynopsis();
+        String full = trainerRequest.getFull();
+        trainerDocument.setSynopsis(synopsis);
+        trainerDocument.setFull(full);
+
+        var savedTrainer = trainerDAO.save(trainerDocument);
+        return mapTrainerDocumentToTrainerDTO(savedTrainer);
+    }
+
+    @Override
     public List<TrainerDTO> getTrainers() throws NoUserFound {
         List<TrainerDocument> trainerDocuments = trainerDAO.findAll();
         if (trainerDocuments.isEmpty()) throw new NoUserFound();

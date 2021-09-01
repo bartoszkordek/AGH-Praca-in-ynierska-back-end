@@ -72,6 +72,7 @@ class CreateTrainerProfileIntegrationTest {
     private TestRoleTokenFactory tokenFactory;
 
     private String adminToken;
+    private String trainerToken;
     private String userId;
     private TrainerRequest trainerRequest;
     private Resource imageResource;
@@ -98,6 +99,7 @@ class CreateTrainerProfileIntegrationTest {
         mongoTemplate.save(trainingTypeDocument);
 
         userId = UUID.randomUUID().toString();
+        trainerToken = tokenFactory.getTrainerToken(userId);
         UserDocument userDocument = new UserDocument("Jan",
                 "Kowalski",
                 "jan.kowalski@test.com",
@@ -215,7 +217,7 @@ class CreateTrainerProfileIntegrationTest {
     private HttpHeaders getHeaders() {
         HttpHeaders headers = new HttpHeaders();
         headers.set("Accept-Language", Locale.ENGLISH.toString());
-        headers.set("Authorization", adminToken);
+        headers.set("Authorization", trainerToken);
         headers.setContentType(MediaType.MULTIPART_FORM_DATA);
         return headers;
     }

@@ -49,7 +49,8 @@ public class Messages {
                 {"exception.no.trainer.found", "W systemie nie znaleziono żadnego trenera."},
                 {"exception.no.employee.found", "W systemie nie znaleziono żadnego pracownika."},
                 {"exception.no.manager.found", "W systemie nie znaleziono żadnego menedżera."},
-                {"trainer.created", "Profil trenera został utworzony."}
+                {"trainer.created", "Profil trenera został utworzony."},
+                {"trainer.updated", "Profil trenera został zaktualizowany."}
         }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
     }
 
@@ -97,7 +98,8 @@ public class Messages {
                 {"exception.no.trainer.found", "No trainer was found in the system."},
                 {"exception.no.employee.found","No employee was found in the system."},
                 {"exception.no.manager.found","No manager was found in the system."},
-                {"trainer.created", "Trainer profile has been created."}
+                {"trainer.created", "Trainer profile has been created."},
+                {"trainer.updated", "Trainer profile has been updated."}
         }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
     }
 

@@ -42,7 +42,7 @@ public class TrainerController {
         this.imageValidator = imageValidator;
     }
 
-    @PreAuthorize("hasRole('ADMIN') or (hasRole('ADMIN') and principal==#userId) ")
+    @PreAuthorize("hasRole('ADMIN') or (hasRole('TRAINER') and principal==#userId) ")
     @PostMapping(
             value = "/{userId}",
             consumes = {MediaType.MULTIPART_FORM_DATA_VALUE, MediaType.APPLICATION_JSON_VALUE},
@@ -100,6 +100,41 @@ public class TrainerController {
     ){
         try{
             return trainerService.getTrainerByUserId(userId);
+
+        } catch (NoUserFound exception) {
+            String reason = translator.toLocale("exception.no.user.found");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, reason, exception);
+
+        } catch (Exception exception) {
+            String reason = translator.toLocale(REQUEST_FAILURE);
+            exception.printStackTrace();
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, reason, exception);
+        }
+    }
+
+    @PreAuthorize("hasRole('ADMIN') or (hasRole('TRAINER') and principal==#userId) ")
+    @PutMapping(
+            value = "/{userId}",
+            consumes = {MediaType.MULTIPART_FORM_DATA_VALUE, MediaType.APPLICATION_JSON_VALUE},
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    public ResponseEntity<TrainerResponse> updateTrainer(
+            @PathVariable final String userId,
+            @RequestPart(value = "body") final TrainerRequest trainerRequest,
+            @RequestPart(value = "image", required = false) final MultipartFile multipartFile
+    ) {
+        try{
+            multipartFileValidator.validateBody(trainerRequest);
+            if (multipartFile != null) imageValidator.isFileSupported(multipartFile);
+
+            TrainerDTO trainerDTO = trainerService.updateTrainer(userId, trainerRequest, multipartFile);
+
+            String message = translator.toLocale("trainer.updated");
+
+            return ResponseEntity
+                    .status(HttpStatus.CREATED)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(new TrainerResponse(message, trainerDTO));
 
         } catch (NoUserFound exception) {
             String reason = translator.toLocale("exception.no.user.found");

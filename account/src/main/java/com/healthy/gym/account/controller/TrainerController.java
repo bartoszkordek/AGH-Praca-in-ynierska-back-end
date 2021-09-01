@@ -79,9 +79,27 @@ public class TrainerController {
 
     @GetMapping
     public List<TrainerDTO> getTrainers(){
-
         try{
             return trainerService.getTrainers();
+
+        } catch (NoUserFound exception) {
+            String reason = translator.toLocale("exception.no.user.found");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, reason, exception);
+
+        } catch (Exception exception) {
+            String reason = translator.toLocale(REQUEST_FAILURE);
+            exception.printStackTrace();
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, reason, exception);
+        }
+    }
+
+
+    @GetMapping(value = "/{userId}")
+    public TrainerDTO getTrainerById(
+            @PathVariable final String userId
+    ){
+        try{
+            return trainerService.getTrainerByUserId(userId);
 
         } catch (NoUserFound exception) {
             String reason = translator.toLocale("exception.no.user.found");

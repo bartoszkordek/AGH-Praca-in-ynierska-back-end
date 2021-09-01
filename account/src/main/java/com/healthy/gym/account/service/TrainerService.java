@@ -13,4 +13,6 @@ public interface TrainerService {
             throws NoUserFound;
 
     List<TrainerDTO> getTrainers() throws NoUserFound;
+
+    TrainerDTO getTrainerByUserId(String userId) throws NoUserFound;
 }

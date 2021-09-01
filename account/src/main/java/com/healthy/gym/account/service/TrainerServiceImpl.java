@@ -101,6 +101,15 @@ public class TrainerServiceImpl implements TrainerService{
         return mapTrainerDocumentsToTrainerDTOs(trainerDocuments);
     }
 
+    @Override
+    public TrainerDTO getTrainerByUserId(String userId) throws NoUserFound {
+        UserDocument userDocument = userDAO.findByUserId(userId);
+        if(userDocument == null) throw new NoUserFound();
+        TrainerDocument trainerDocument = trainerDAO.findByUserDocument(userDocument);
+        if(trainerDocument == null) throw new NoUserFound();
+        return mapTrainerDocumentToTrainerDTO(trainerDocument);
+    }
+
     private List<TrainingTypeDocument> getTrainingTypeDocuments(List<String> trainingTypeIds) {
         List<TrainingTypeDocument> trainingTypeDocuments = new ArrayList<>();
         for (String trainingTypeId : trainingTypeIds) {

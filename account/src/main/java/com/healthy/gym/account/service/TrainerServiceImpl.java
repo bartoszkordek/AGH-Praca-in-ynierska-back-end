@@ -100,6 +100,8 @@ public class TrainerServiceImpl implements TrainerService{
         if(userDocument == null) throw new NoUserFound();
         TrainerDocument trainerDocument = trainerDAO.findByUserDocument(userDocument);
         if(trainerDocument == null) throw new NoUserFound();
+        trainerDocument.setImages(new ArrayList<>());
+        trainerDocument.setImagesDocuments(new ArrayList<>());
         if (multipartFile != null) {
             try {
                 ImageDocument imageToUpdate;

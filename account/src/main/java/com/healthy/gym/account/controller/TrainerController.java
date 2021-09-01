@@ -132,7 +132,7 @@ public class TrainerController {
             String message = translator.toLocale("trainer.updated");
 
             return ResponseEntity
-                    .status(HttpStatus.CREATED)
+                    .status(HttpStatus.OK)
                     .contentType(MediaType.APPLICATION_JSON)
                     .body(new TrainerResponse(message, trainerDTO));
 

@@ -38,7 +38,10 @@ import java.net.URI;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.UUID;
 
 import static com.healthy.gym.gympass.configuration.LocaleConverter.convertEnumToLocale;
 import static com.healthy.gym.gympass.configuration.Messages.getMessagesAccordingToLocale;
@@ -279,14 +282,14 @@ class GetUserGymPassesIntegrationTest {
     }
 
     @AfterEach
-    void tearDown(){
+    void tearDown() {
         mongoTemplate.dropCollection(PurchasedGymPassDocument.class);
         mongoTemplate.dropCollection(GymPassDocument.class);
         mongoTemplate.dropCollection(UserDocument.class);
     }
 
     @Nested
-    class ShouldGetUserGymPasses{
+    class ShouldGetUserGymPasses {
 
         @ParameterizedTest
         @EnumSource(TestCountry.class)
@@ -294,7 +297,7 @@ class GetUserGymPassesIntegrationTest {
                 throws Exception {
             Locale testedLocale = convertEnumToLocale(country);
 
-            URI uri = new URI("http://localhost:" + port + "/purchase/user/"+userId);
+            URI uri = new URI("http://localhost:" + port + "/purchase/user/" + userId);
 
             HttpHeaders headers = new HttpHeaders();
             headers.set("Accept-Language", testedLocale.toString());
@@ -379,7 +382,7 @@ class GetUserGymPassesIntegrationTest {
                 throws Exception {
             Locale testedLocale = convertEnumToLocale(country);
 
-            URI uri = new URI("http://localhost:" + port + "/purchase/user/"+userId);
+            URI uri = new URI("http://localhost:" + port + "/purchase/user/" + userId);
 
             HttpHeaders headers = new HttpHeaders();
             headers.set("Accept-Language", testedLocale.toString());
@@ -460,7 +463,7 @@ class GetUserGymPassesIntegrationTest {
     }
 
     @Nested
-    class ShouldNotGetUserGymPasses{
+    class ShouldNotGetUserGymPasses {
 
         @ParameterizedTest
         @EnumSource(TestCountry.class)
@@ -471,7 +474,7 @@ class GetUserGymPassesIntegrationTest {
 
             String invalidUserId = UUID.randomUUID().toString();
 
-            URI uri = new URI("http://localhost:" + port + "/purchase/user/"+invalidUserId);
+            URI uri = new URI("http://localhost:" + port + "/purchase/user/" + invalidUserId);
 
             HttpHeaders headers = new HttpHeaders();
             headers.set("Accept-Language", testedLocale.toString());
@@ -499,8 +502,8 @@ class GetUserGymPassesIntegrationTest {
             Map<String, String> messages = getMessagesAccordingToLocale(country);
             Locale testedLocale = convertEnumToLocale(country);
 
-            URI uri = new URI("http://localhost:" + port + "/purchase/user/"+userId
-                    +"?startDate=2030-12-31&endDate=2000-01-01");
+            URI uri = new URI("http://localhost:" + port + "/purchase/user/" + userId
+                    + "?startDate=2030-12-31&endDate=2000-01-01");
 
             HttpHeaders headers = new HttpHeaders();
             headers.set("Accept-Language", testedLocale.toString());
@@ -527,8 +530,8 @@ class GetUserGymPassesIntegrationTest {
                 throws Exception {
             Locale testedLocale = convertEnumToLocale(country);
 
-            URI uri = new URI("http://localhost:" + port + "/purchase/user/"+userId
-                    +"?startDate=2000-01-01&endDate=2000-02-01");
+            URI uri = new URI("http://localhost:" + port + "/purchase/user/" + userId
+                    + "?startDate=2000-01-01&endDate=2000-02-01");
 
             HttpHeaders headers = new HttpHeaders();
             headers.set("Accept-Language", testedLocale.toString());
@@ -541,18 +544,18 @@ class GetUserGymPassesIntegrationTest {
                     .exchange(uri, HttpMethod.GET, request, JsonNode.class);
 
             assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
-            assertThat(responseEntity.getBody()).isNull();
+            assertThat(responseEntity.getBody()).isNotNull();
         }
 
         @Nested
-        class ShouldNotGetUserGymPassesWhenNotAuthorized{
+        class ShouldNotGetUserGymPassesWhenNotAuthorized {
 
             @ParameterizedTest
             @EnumSource(TestCountry.class)
             void shouldNotGetUserGymPassesWhenNoToken(TestCountry country) throws Exception {
                 Locale testedLocale = convertEnumToLocale(country);
 
-                URI uri = new URI("http://localhost:" + port + "/purchase/user/"+userId);
+                URI uri = new URI("http://localhost:" + port + "/purchase/user/" + userId);
 
                 HttpHeaders headers = new HttpHeaders();
                 headers.set("Accept-Language", testedLocale.toString());
@@ -580,7 +583,7 @@ class GetUserGymPassesIntegrationTest {
                 String otherUserId = UUID.randomUUID().toString();
                 String otherUserToken = tokenFactory.getUserToken(otherUserId);
 
-                URI uri = new URI("http://localhost:" + port + "/purchase/user/"+userId);
+                URI uri = new URI("http://localhost:" + port + "/purchase/user/" + userId);
 
                 HttpHeaders headers = new HttpHeaders();
                 headers.set("Accept-Language", testedLocale.toString());

@@ -146,4 +146,33 @@ public class TrainerController {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, reason, exception);
         }
     }
+
+    @PreAuthorize("hasRole('ADMIN') or (hasRole('TRAINER') and principal==#userId) ")
+    @DeleteMapping(
+            value = "/{userId}",
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    public ResponseEntity<TrainerResponse> deleteTrainer(
+            @PathVariable final String userId
+    ) {
+        try{
+            TrainerDTO trainerDTO = trainerService.deleteByUserId(userId);
+
+            String message = translator.toLocale("trainer.removed");
+
+            return ResponseEntity
+                    .status(HttpStatus.OK)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(new TrainerResponse(message, trainerDTO));
+
+        } catch (NoUserFound exception) {
+            String reason = translator.toLocale("exception.no.user.found");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, reason, exception);
+
+        } catch (Exception exception) {
+            String reason = translator.toLocale(REQUEST_FAILURE);
+            exception.printStackTrace();
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, reason, exception);
+        }
+    }
 }

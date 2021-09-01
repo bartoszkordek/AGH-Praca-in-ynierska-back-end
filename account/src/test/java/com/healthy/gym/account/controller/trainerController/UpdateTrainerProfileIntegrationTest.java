@@ -225,7 +225,7 @@ class UpdateTrainerProfileIntegrationTest {
         byte[] imageBytes = imageResource.getInputStream().readAllBytes();
         assertThat(image).endsWith("?version=" + DigestUtils.md5DigestAsHex(imageBytes));
 
-        testDatabase(1,1, 2, 3);
+        testDatabase(1,1, 2, 2);
     }
 
     private void testDatabase(
@@ -319,7 +319,7 @@ class UpdateTrainerProfileIntegrationTest {
                 .isEqualTo("Test training type - updated");
         assertThat(trainer.get("images").isEmpty()).isTrue();
 
-        testDatabase(1,1, 2, 2);
+        testDatabase(1,1, 2, 1);
     }
 
     private HttpEntity<Object> getRequestEntityWithoutImage() {

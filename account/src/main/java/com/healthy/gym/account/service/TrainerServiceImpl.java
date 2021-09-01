@@ -100,6 +100,11 @@ public class TrainerServiceImpl implements TrainerService{
         if(userDocument == null) throw new NoUserFound();
         TrainerDocument trainerDocument = trainerDAO.findByUserDocument(userDocument);
         if(trainerDocument == null) throw new NoUserFound();
+        ImageDocument imageDocument = trainerDocument.getImagesDocuments().get(0);
+        if (imageDocument != null) {
+            String imageId = imageDocument.getImageId();
+            imageDAO.deleteByImageId(imageId);
+        }
         trainerDocument.setImages(new ArrayList<>());
         trainerDocument.setImagesDocuments(new ArrayList<>());
         if (multipartFile != null) {
@@ -141,6 +146,21 @@ public class TrainerServiceImpl implements TrainerService{
 
         var savedTrainer = trainerDAO.save(trainerDocument);
         return mapTrainerDocumentToTrainerDTO(savedTrainer);
+    }
+
+    @Override
+    public TrainerDTO deleteByUserId(String userId) throws NoUserFound {
+        UserDocument userDocument = userDAO.findByUserId(userId);
+        if(userDocument == null) throw new NoUserFound();
+        TrainerDocument trainerDocument = trainerDAO.findByUserDocument(userDocument);
+        if(trainerDocument == null) throw new NoUserFound();
+        trainerDAO.deleteByUserDocument(userDocument);
+        ImageDocument imageDocument = trainerDocument.getImagesDocuments().get(0);
+        if (imageDocument != null) {
+            String imageId = imageDocument.getImageId();
+            imageDAO.deleteByImageId(imageId);
+        }
+        return mapTrainerDocumentToTrainerDTO(trainerDocument);
     }
 
     @Override

@@ -15,6 +15,8 @@ public interface TrainerService {
     TrainerDTO updateTrainer(String userId, TrainerRequest trainerRequest, MultipartFile multipartFile)
             throws NoUserFound;
 
+    TrainerDTO deleteByUserId(String userId) throws NoUserFound;
+
     List<TrainerDTO> getTrainers() throws NoUserFound;
 
     TrainerDTO getTrainerByUserId(String userId) throws NoUserFound;

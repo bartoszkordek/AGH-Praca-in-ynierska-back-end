@@ -7,4 +7,6 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 public interface TrainerDAO extends MongoRepository<TrainerDocument, String> {
 
     TrainerDocument findByUserDocument(UserDocument userDocument);
+
+    void deleteByUserDocument(UserDocument userDocument);
 }

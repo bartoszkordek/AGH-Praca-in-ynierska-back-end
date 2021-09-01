@@ -139,7 +139,6 @@ class DeleteTrainerProfileIntegrationTest {
         );
 
         mongoTemplate.save(trainerDocument1);
-
     }
 
     @AfterEach
@@ -197,10 +196,29 @@ class DeleteTrainerProfileIntegrationTest {
                 .isEqualTo("Test training type");
         assertThat(trainer.get("images").isEmpty()).isFalse();
 
-        String image = trainer.get("images").get(0).textValue();
-
         testDatabase(0,1, 1, 1);
     }
+
+    @ParameterizedTest
+    @EnumSource(TestCountry.class)
+    void shouldThrowExceptionWhileRemovingNonExistingTrainer(TestCountry country) throws URISyntaxException {
+        Locale testedLocale = convertEnumToLocale(country);
+        URI uri = new URI("http://localhost:" + port + "/trainer/" + UUID.randomUUID());
+        ResponseEntity<JsonNode> responseEntity = restTemplate.exchange(
+                uri,
+                HttpMethod.DELETE,
+                getRequestEntity(testedLocale),
+                JsonNode.class
+        );
+
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+        assertThat(responseEntity.getHeaders().getContentType()).isEqualTo(MediaType.APPLICATION_JSON);
+
+        Map<String, String> messages = getMessagesAccordingToLocale(country);
+        String expectedMessage = messages.get("exception.no.user.found");
+        assertThat(responseEntity.getBody().get("message").textValue()).isEqualTo(expectedMessage);
+    }
+
 
     private void testDatabase(
             int expectedNumberOfTrainers,

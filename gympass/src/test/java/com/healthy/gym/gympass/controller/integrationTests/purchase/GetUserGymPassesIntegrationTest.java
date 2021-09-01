@@ -540,7 +540,7 @@ class GetUserGymPassesIntegrationTest {
             ResponseEntity<JsonNode> responseEntity = restTemplate
                     .exchange(uri, HttpMethod.GET, request, JsonNode.class);
 
-            assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
+            assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
             assertThat(responseEntity.getBody()).isNull();
         }
 

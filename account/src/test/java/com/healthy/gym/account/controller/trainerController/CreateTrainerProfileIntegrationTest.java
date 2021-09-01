@@ -137,8 +137,6 @@ class CreateTrainerProfileIntegrationTest {
                 JsonNode.class
         );
 
-        System.out.println(responseEntity.getBody());
-
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.CREATED);
         assertThat(responseEntity.getHeaders().getContentType()).isEqualTo(MediaType.APPLICATION_JSON);
 
@@ -237,7 +235,6 @@ class CreateTrainerProfileIntegrationTest {
                 JsonNode.class
         );
 
-        System.out.println(responseEntity.getBody());
 
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.CREATED);
         assertThat(responseEntity.getHeaders().getContentType()).isEqualTo(MediaType.APPLICATION_JSON);

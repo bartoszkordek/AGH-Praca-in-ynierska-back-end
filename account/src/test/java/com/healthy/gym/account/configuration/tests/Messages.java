@@ -50,8 +50,7 @@ public class Messages {
                 {"exception.no.trainer.found", "W systemie nie znaleziono żadnego trenera."},
                 {"exception.no.employee.found", "W systemie nie znaleziono żadnego pracownika."},
                 {"exception.no.manager.found", "W systemie nie znaleziono żadnego menedżera."},
-                {"user.roles.changed","Zmieniono role w systemie dla wskazanego użytkownika."},
-                {"exception.no.manager.found", "W systemie nie znaleziono żadnego menedżera."},
+                {"user.roles.changed", "Zmieniono role w systemie dla wskazanego użytkownika."},
                 {"trainer.created", "Profil trenera został utworzony."},
                 {"trainer.updated", "Profil trenera został zaktualizowany."},
                 {"trainer.removed", "Profil trenera został usunięty."}
@@ -104,8 +103,6 @@ public class Messages {
                 {"exception.no.employee.found", "No employee was found in the system."},
                 {"exception.no.manager.found", "No manager was found in the system."},
                 {"user.roles.changed", "System roles have been changed for the indicated user."},
-                {"exception.no.employee.found","No employee was found in the system."},
-                {"exception.no.manager.found","No manager was found in the system."},
                 {"trainer.created", "Trainer profile has been created."},
                 {"trainer.updated", "Trainer profile has been updated."},
                 {"trainer.removed", "Trainer profile has been removed."}

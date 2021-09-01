@@ -7,8 +7,6 @@ import com.healthy.gym.gympass.configuration.TestRoleTokenFactory;
 import com.healthy.gym.gympass.data.document.GymPassDocument;
 import com.healthy.gym.gympass.data.document.PurchasedGymPassDocument;
 import com.healthy.gym.gympass.data.document.UserDocument;
-import com.healthy.gym.gympass.dto.PurchasedUserGymPassDTO;
-import com.healthy.gym.gympass.dto.SimpleGymPassDTO;
 import com.healthy.gym.gympass.enums.GymRole;
 import com.healthy.gym.gympass.shared.Description;
 import com.healthy.gym.gympass.shared.Price;
@@ -37,7 +35,6 @@ import org.testcontainers.utility.DockerImageName;
 import java.net.URI;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -180,7 +177,7 @@ public class GetUserLatestGymPassIntegrationTest {
     }
 
     @AfterEach
-    void tearDown(){
+    void tearDown() {
         mongoTemplate.dropCollection(PurchasedGymPassDocument.class);
         mongoTemplate.dropCollection(GymPassDocument.class);
         mongoTemplate.dropCollection(UserDocument.class);
@@ -192,7 +189,7 @@ public class GetUserLatestGymPassIntegrationTest {
             throws Exception {
         Locale testedLocale = convertEnumToLocale(country);
 
-        URI uri = new URI("http://localhost:" + port + "/purchase/user/" + userId+"/latest");
+        URI uri = new URI("http://localhost:" + port + "/purchase/user/" + userId + "/latest");
 
         HttpHeaders headers = new HttpHeaders();
         headers.set("Accept-Language", testedLocale.toString());
@@ -232,7 +229,7 @@ public class GetUserLatestGymPassIntegrationTest {
             throws Exception {
         Locale testedLocale = convertEnumToLocale(country);
 
-        URI uri = new URI("http://localhost:" + port + "/purchase/user/" + userId+"/latest");
+        URI uri = new URI("http://localhost:" + port + "/purchase/user/" + userId + "/latest");
 
         HttpHeaders headers = new HttpHeaders();
         headers.set("Accept-Language", testedLocale.toString());
@@ -267,7 +264,7 @@ public class GetUserLatestGymPassIntegrationTest {
     }
 
     @Nested
-    class ShouldNotGetLastGymPass{
+    class ShouldNotGetLastGymPass {
 
         @ParameterizedTest
         @EnumSource(TestCountry.class)
@@ -278,7 +275,7 @@ public class GetUserLatestGymPassIntegrationTest {
 
             String invalidUserId = UUID.randomUUID().toString();
 
-            URI uri = new URI("http://localhost:" + port + "/purchase/user/"+invalidUserId+"/latest");
+            URI uri = new URI("http://localhost:" + port + "/purchase/user/" + invalidUserId + "/latest");
 
             HttpHeaders headers = new HttpHeaders();
             headers.set("Accept-Language", testedLocale.toString());
@@ -305,7 +302,7 @@ public class GetUserLatestGymPassIntegrationTest {
                 throws Exception {
             Locale testedLocale = convertEnumToLocale(country);
 
-            URI uri = new URI("http://localhost:" + port + "/purchase/user/"+userIdWithNotPurchasedGymPasses+"/latest");
+            URI uri = new URI("http://localhost:" + port + "/purchase/user/" + userIdWithNotPurchasedGymPasses + "/latest");
 
             HttpHeaders headers = new HttpHeaders();
             headers.set("Accept-Language", testedLocale.toString());
@@ -318,19 +315,19 @@ public class GetUserLatestGymPassIntegrationTest {
                     .exchange(uri, HttpMethod.GET, request, JsonNode.class);
 
             assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
-            assertThat(responseEntity.getBody()).isNull();
+            assertThat(responseEntity.getBody()).isNotNull();
         }
 
 
         @Nested
-        class ShouldNotGetUserLatestGymPassWhenNotAuthorized{
+        class ShouldNotGetUserLatestGymPassWhenNotAuthorized {
 
             @ParameterizedTest
             @EnumSource(TestCountry.class)
             void shouldNotGetUserLatestGymPassWhenNoToken(TestCountry country) throws Exception {
                 Locale testedLocale = convertEnumToLocale(country);
 
-                URI uri = new URI("http://localhost:" + port + "/purchase/user/"+userId+"/latest");
+                URI uri = new URI("http://localhost:" + port + "/purchase/user/" + userId + "/latest");
 
                 HttpHeaders headers = new HttpHeaders();
                 headers.set("Accept-Language", testedLocale.toString());
@@ -354,8 +351,8 @@ public class GetUserLatestGymPassIntegrationTest {
             void shouldNotGetUserLatestGymPassWhenNoTokenLoggedAsOtherUser(TestCountry country) throws Exception {
                 Locale testedLocale = convertEnumToLocale(country);
 
-                URI uri = new URI("http://localhost:" + port + "/purchase/user/"+userIdWithNotPurchasedGymPasses
-                        +"/latest");
+                URI uri = new URI("http://localhost:" + port + "/purchase/user/" + userIdWithNotPurchasedGymPasses
+                        + "/latest");
 
                 HttpHeaders headers = new HttpHeaders();
                 headers.set("Accept-Language", testedLocale.toString());

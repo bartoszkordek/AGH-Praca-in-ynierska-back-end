@@ -254,7 +254,7 @@ public class GetUserLatestGymPassControllerUnitTest {
 
             mockMvc.perform(request)
                     .andDo(print())
-                    .andExpect(status().isNoContent())
+                    .andExpect(status().isNotFound())
                     .andExpect(status().reason(is(expectedMessage)))
                     .andExpect(result ->
                             assertThat(Objects.requireNonNull(result.getResolvedException()).getCause())

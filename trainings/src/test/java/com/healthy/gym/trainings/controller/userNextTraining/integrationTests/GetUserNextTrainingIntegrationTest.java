@@ -408,8 +408,8 @@ public class GetUserNextTrainingIntegrationTest {
 
             String expectedMessage = messages.get("exception.user.next.training.not.found");
 
-            assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
-            assertThat(responseEntity.getBody().get("status").intValue()).isEqualTo(200);
+            assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+            assertThat(responseEntity.getBody().get("status").intValue()).isEqualTo(404);
             assertThat(responseEntity.getBody().get("message").textValue()).isEqualTo(expectedMessage);
             assertThat(responseEntity.getBody().get("timestamp")).isNotNull();
         }

@@ -276,7 +276,7 @@ public class GetUserNextTrainingControllerUnitTest {
 
             mockMvc.perform(request)
                     .andDo(print())
-                    .andExpect(status().isOk())
+                    .andExpect(status().isNotFound())
                     .andExpect(status().reason(is(expectedMessage)))
                     .andExpect(result ->
                             assertThat(Objects.requireNonNull(result.getResolvedException()).getCause())

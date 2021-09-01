@@ -21,7 +21,6 @@ import java.util.List;
 @RestController
 @RequestMapping(
         value = "/purchase",
-        consumes = MediaType.APPLICATION_JSON_VALUE,
         produces = MediaType.APPLICATION_JSON_VALUE
 )
 public class UserPurchaseController {
@@ -37,7 +36,7 @@ public class UserPurchaseController {
     public UserPurchaseController(
             Translator translator,
             PurchaseService purchaseService
-    ){
+    ) {
         this.translator = translator;
         this.purchaseService = purchaseService;
     }
@@ -46,10 +45,10 @@ public class UserPurchaseController {
     @GetMapping("/user/{userId}")
     public ResponseEntity<List<PurchasedUserGymPassDTO>> getUserGymPasses(
             @PathVariable("userId") @ValidIDFormat final String userId,
-            @ValidDateFormat @RequestParam(value = "startDate",required = false) final String startDate,
+            @ValidDateFormat @RequestParam(value = "startDate", required = false) final String startDate,
             @ValidDateFormat @RequestParam(value = "endDate", required = false) final String endDate
-    ){
-        try{
+    ) {
+        try {
             return ResponseEntity
                     .status(HttpStatus.OK)
                     .body(purchaseService.getUserGymPasses(userId, startDate, endDate));
@@ -62,11 +61,11 @@ public class UserPurchaseController {
             String reason = translator.toLocale(START_DATE_AFTER_END_DATE_EXCEPTION);
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, exception);
 
-        } catch (NoGymPassesException exception){
+        } catch (NoGymPassesException exception) {
             String reason = translator.toLocale(NO_GYMPASSES_TO_DISPLAY_EXCEPTION);
-            throw new ResponseStatusException(HttpStatus.NO_CONTENT, reason, exception);
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, reason, exception);
 
-        } catch (Exception exception){
+        } catch (Exception exception) {
             String reason = translator.toLocale(INTERNAL_ERROR_EXCEPTION);
             exception.printStackTrace();
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, reason, exception);
@@ -76,20 +75,20 @@ public class UserPurchaseController {
     @PreAuthorize("hasRole('ADMIN') or hasRole('MANAGER') or hasRole('EMPLOYEE') or principal==#userId")
     @GetMapping("/user/{userId}/latest")
     public PurchasedUserGymPassDTO getUserLatestGymPass(
-        @PathVariable("userId") @ValidIDFormat final String userId
-    ){
-        try{
+            @PathVariable("userId") @ValidIDFormat final String userId
+    ) {
+        try {
             return purchaseService.getUserLatestGympass(userId);
 
         } catch (UserNotFoundException exception) {
             String reason = translator.toLocale(USER_NOT_FOUND_EXCEPTION);
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, exception);
 
-        } catch (NoGymPassesException exception){
+        } catch (NoGymPassesException exception) {
             String reason = translator.toLocale(NO_GYMPASSES_TO_DISPLAY_EXCEPTION);
-            throw new ResponseStatusException(HttpStatus.NO_CONTENT, reason, exception);
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, reason, exception);
 
-        } catch (Exception exception){
+        } catch (Exception exception) {
             String reason = translator.toLocale(INTERNAL_ERROR_EXCEPTION);
             exception.printStackTrace();
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, reason, exception);

@@ -30,6 +30,8 @@ public class UserIndividualTrainingDAOImpl implements UserIndividualTrainingDAO 
         Criteria criteria = Criteria
                 .where("startDateTime").gte(startDateTime)
                 .and("endDateTime").lte(endDateTime)
+                .and("cancelled").is(false)
+                .and("rejected").is(false)
                 .and("basicList").in(userDocument);
 
         return mongoTemplate.find(new Query(criteria), IndividualTrainingDocument.class);
@@ -40,6 +42,8 @@ public class UserIndividualTrainingDAOImpl implements UserIndividualTrainingDAO 
         var now = LocalDateTime.now();
         Criteria criteria = Criteria
                 .where("startDateTime").gte(now)
+                .and("cancelled").is(false)
+                .and("rejected").is(false)
                 .and("basicList").in(userDocument);
         return mongoTemplate.find(new Query(criteria), IndividualTrainingDocument.class);
     }

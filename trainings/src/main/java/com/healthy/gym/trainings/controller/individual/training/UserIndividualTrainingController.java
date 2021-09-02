@@ -7,6 +7,7 @@ import com.healthy.gym.trainings.exception.invalid.InvalidTrainerSpecifiedExcept
 import com.healthy.gym.trainings.exception.notexisting.NotExistingIndividualTrainingException;
 import com.healthy.gym.trainings.exception.notfound.NoIndividualTrainingFoundException;
 import com.healthy.gym.trainings.exception.notfound.TrainerNotFoundException;
+import com.healthy.gym.trainings.exception.notfound.TrainingTypeNotFoundException;
 import com.healthy.gym.trainings.exception.notfound.UserNotFoundException;
 import com.healthy.gym.trainings.exception.occupied.TrainerOccupiedException;
 import com.healthy.gym.trainings.model.request.IndividualTrainingRequest;
@@ -115,6 +116,10 @@ public class UserIndividualTrainingController {
 
         } catch (TrainerNotFoundException exception) {
             String reason = translator.toLocale("exception.create.group.training.trainer.not.found");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, reason, exception);
+
+        } catch (TrainingTypeNotFoundException exception) {
+            String reason = translator.toLocale("exception.individual.training.not.available");
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, reason, exception);
 
         } catch (UserNotFoundException exception) {

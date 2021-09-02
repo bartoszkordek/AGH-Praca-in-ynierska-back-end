@@ -90,7 +90,8 @@ public class Messages {
                 {"notification.group.training.update",
                         "Trening grupowy, w którym bierzesz udział, został zaktualizowany."},
                 {"notification.group.training.cancelled", "Trening grupowy, w którym uczestniczysz, został odwołany."},
-                {"exception.individual.training.not.available", "Trening personalny jest niedostępny."}
+                {"exception.individual.training.not.available", "Trening personalny jest niedostępny."},
+                {"exception.no.training.found", "Nie znaleziono żadnego treningu z Twoim udziałem."}
         }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
     }
 
@@ -177,7 +178,8 @@ public class Messages {
                         "The group training you are participating in has been updated."},
                 {"notification.group.training.cancelled",
                         "The group training you are participating in has been cancelled."},
-                {"exception.individual.training.not.available", "Personal training is not available."}
+                {"exception.individual.training.not.available", "Personal training is not available."},
+                {"exception.no.training.found", "No training with your participation was found."}
         }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
     }
 

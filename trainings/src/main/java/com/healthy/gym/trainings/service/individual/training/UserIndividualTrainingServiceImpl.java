@@ -1,8 +1,10 @@
 package com.healthy.gym.trainings.service.individual.training;
 
-import com.healthy.gym.trainings.data.document.GroupTrainingDocument;
+import com.healthy.gym.trainings.component.CollisionValidatorComponent;
 import com.healthy.gym.trainings.data.document.IndividualTrainingDocument;
+import com.healthy.gym.trainings.data.document.TrainingTypeDocument;
 import com.healthy.gym.trainings.data.document.UserDocument;
+import com.healthy.gym.trainings.data.repository.TrainingTypeDAO;
 import com.healthy.gym.trainings.data.repository.UserDAO;
 import com.healthy.gym.trainings.data.repository.individual.training.IndividualTrainingRepository;
 import com.healthy.gym.trainings.data.repository.individual.training.UserIndividualTrainingDAO;
@@ -14,11 +16,12 @@ import com.healthy.gym.trainings.exception.invalid.InvalidTrainerSpecifiedExcept
 import com.healthy.gym.trainings.exception.notexisting.NotExistingIndividualTrainingException;
 import com.healthy.gym.trainings.exception.notfound.NoIndividualTrainingFoundException;
 import com.healthy.gym.trainings.exception.notfound.TrainerNotFoundException;
+import com.healthy.gym.trainings.exception.notfound.TrainingTypeNotFoundException;
 import com.healthy.gym.trainings.exception.notfound.UserNotFoundException;
 import com.healthy.gym.trainings.exception.occupied.TrainerOccupiedException;
 import com.healthy.gym.trainings.model.request.IndividualTrainingRequest;
+import com.healthy.gym.trainings.service.NotificationService;
 import com.healthy.gym.trainings.utils.CollisionValidator;
-import com.healthy.gym.trainings.component.CollisionValidatorComponent;
 import com.healthy.gym.trainings.utils.IndividualTrainingMapper;
 import com.healthy.gym.trainings.utils.StartEndDateValidator;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,8 +33,8 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.healthy.gym.trainings.utils.DateParser.parseDateTime;
-import static com.healthy.gym.trainings.utils.IndividualTrainingMapper.mapIndividualTrainingDocumentToDTO;
 import static com.healthy.gym.trainings.utils.IndividualTrainingMapper.mapGroupTrainingToBasicTrainingDTO;
+import static com.healthy.gym.trainings.utils.IndividualTrainingMapper.mapIndividualTrainingDocumentToDTO;
 
 @Service
 public class UserIndividualTrainingServiceImpl implements UserIndividualTrainingService {
@@ -40,6 +43,8 @@ public class UserIndividualTrainingServiceImpl implements UserIndividualTraining
     private final IndividualTrainingRepository individualTrainingRepository;
     private final UserIndividualTrainingDAO userIndividualTrainingDAO;
     private final UserDAO userDAO;
+    private final TrainingTypeDAO trainingTypeDAO;
+    private final NotificationService notificationService;
     private final Clock clock;
 
     @Autowired
@@ -48,12 +53,16 @@ public class UserIndividualTrainingServiceImpl implements UserIndividualTraining
             IndividualTrainingRepository individualTrainingRepository,
             UserIndividualTrainingDAO userIndividualTrainingDAO,
             UserDAO userDAO,
+            TrainingTypeDAO trainingTypeDAO,
+            NotificationService notificationService,
             Clock clock
     ) {
         this.collisionValidator = collisionValidator;
         this.individualTrainingRepository = individualTrainingRepository;
         this.userIndividualTrainingDAO = userIndividualTrainingDAO;
         this.userDAO = userDAO;
+        this.trainingTypeDAO = trainingTypeDAO;
+        this.notificationService = notificationService;
         this.clock = clock;
     }
 
@@ -86,7 +95,8 @@ public class UserIndividualTrainingServiceImpl implements UserIndividualTraining
             StartDateAfterEndDateException,
             TrainerOccupiedException,
             TrainerNotFoundException,
-            UserNotFoundException {
+            UserNotFoundException,
+            TrainingTypeNotFoundException {
 
         UserDocument user = getAndValidateUser(clientId);
         UserDocument trainer = getAndValidateTrainer(individualTrainingsRequestModel);
@@ -99,9 +109,12 @@ public class UserIndividualTrainingServiceImpl implements UserIndividualTraining
         String remarks = individualTrainingsRequestModel.getRemarks();
         validateIfTrainerIsOccupied(startDateTime, endDateTime, trainer);
 
+        TrainingTypeDocument trainingTypeDocument = trainingTypeDAO.findByName("Trening personalny");
+        if (trainingTypeDocument == null) throw new TrainingTypeNotFoundException();
+
         IndividualTrainingDocument trainingDocument = new IndividualTrainingDocument(
                 UUID.randomUUID().toString(),
-                null,
+                trainingTypeDocument,
                 List.of(user),
                 List.of(trainer),
                 startDateTime,
@@ -111,6 +124,7 @@ public class UserIndividualTrainingServiceImpl implements UserIndividualTraining
         );
 
         IndividualTrainingDocument createdTrainingRequest = individualTrainingRepository.save(trainingDocument);
+        notificationService.sendNotificationWhenCreateIndividualTrainingRequest(trainer, user, startDateTime);
         return mapIndividualTrainingDocumentToDTO(createdTrainingRequest);
     }
 
@@ -140,7 +154,7 @@ public class UserIndividualTrainingServiceImpl implements UserIndividualTraining
         String endDateTimeStr = individualTrainingsRequestModel.getEndDateTime();
 
         LocalDateTime startDateTime = parseDateTime(starDateTimeStr);
-        if (LocalDateTime.now(clock).isAfter(startDateTime)) throw new PastDateException();
+        if (LocalDateTime.now(clock).plusHours(2).isAfter(startDateTime)) throw new PastDateException();
 
         LocalDateTime endDateTime = parseDateTime(endDateTimeStr);
         if (startDateTime.isAfter(endDateTime)) throw new StartDateAfterEndDateException();
@@ -177,7 +191,11 @@ public class UserIndividualTrainingServiceImpl implements UserIndividualTraining
         validateIfTrainingHasBeenAlreadyCancelled(individualTraining);
 
         IndividualTrainingDocument trainingDocumentUpdated = cancelIndividualTraining(individualTraining);
-
+        notificationService.sendNotificationWhenCancelIndividualTrainingRequest(
+                trainingDocumentUpdated.getTrainers().get(0),
+                user,
+                trainingDocumentUpdated.getStartDateTime()
+        );
         return mapIndividualTrainingDocumentToDTO(trainingDocumentUpdated);
     }
 
@@ -192,10 +210,9 @@ public class UserIndividualTrainingServiceImpl implements UserIndividualTraining
 
         Optional<IndividualTrainingDocument> nextUserIndividualTrainingDocumentOptional = individualTrainingDocuments
                 .stream()
-                .sorted(Comparator.nullsLast((d1, d2) -> d1.getStartDateTime().compareTo(d2.getStartDateTime())))
-                .findFirst();
+                .min(Comparator.nullsLast(Comparator.comparing(IndividualTrainingDocument::getStartDateTime)));
 
-        if(nextUserIndividualTrainingDocumentOptional.isEmpty()) return null;
+        if (nextUserIndividualTrainingDocumentOptional.isEmpty()) return null;
 
         IndividualTrainingDocument nextUserIndividualTrainingDocument = nextUserIndividualTrainingDocumentOptional.get();
         return mapGroupTrainingToBasicTrainingDTO(nextUserIndividualTrainingDocument);
@@ -211,7 +228,7 @@ public class UserIndividualTrainingServiceImpl implements UserIndividualTraining
     private void validateIfIndividualTrainingIsAboutToTakePlace(IndividualTrainingDocument individualTraining)
             throws PastDateException {
         LocalDateTime startDateTime = individualTraining.getStartDateTime();
-        if (LocalDateTime.now(clock).isAfter(startDateTime)) throw new PastDateException();
+        if (LocalDateTime.now(clock).plusHours(2).isAfter(startDateTime)) throw new PastDateException();
     }
 
     private void validateIfUserIsParticipant(

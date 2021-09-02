@@ -7,6 +7,7 @@ import com.healthy.gym.trainings.exception.invalid.InvalidTrainerSpecifiedExcept
 import com.healthy.gym.trainings.exception.notexisting.NotExistingIndividualTrainingException;
 import com.healthy.gym.trainings.exception.notfound.NoIndividualTrainingFoundException;
 import com.healthy.gym.trainings.exception.notfound.TrainerNotFoundException;
+import com.healthy.gym.trainings.exception.notfound.TrainingTypeNotFoundException;
 import com.healthy.gym.trainings.exception.notfound.UserNotFoundException;
 import com.healthy.gym.trainings.exception.occupied.TrainerOccupiedException;
 import com.healthy.gym.trainings.model.request.IndividualTrainingRequest;
@@ -25,7 +26,7 @@ public interface UserIndividualTrainingService {
             TrainerOccupiedException,
             TrainerNotFoundException,
             UserNotFoundException,
-            InvalidTrainerSpecifiedException;
+            InvalidTrainerSpecifiedException, TrainingTypeNotFoundException;
 
     IndividualTrainingDTO cancelIndividualTrainingRequest(String trainingId, String clientId)
             throws NotExistingIndividualTrainingException,

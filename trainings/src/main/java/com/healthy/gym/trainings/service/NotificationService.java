@@ -20,4 +20,16 @@ public interface NotificationService {
             List<UserDocument> userDocumentList,
             boolean shouldSendEmails
     );
+
+    void sendNotificationWhenCreateIndividualTrainingRequest(
+            UserDocument toTrainer,
+            UserDocument fromUser,
+            LocalDateTime startDateTime
+    );
+
+    void sendNotificationWhenCancelIndividualTrainingRequest(
+            UserDocument toTrainer,
+            UserDocument fromUser,
+            LocalDateTime startDateTime
+    );
 }

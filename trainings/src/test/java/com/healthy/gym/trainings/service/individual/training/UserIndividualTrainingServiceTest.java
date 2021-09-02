@@ -3,7 +3,9 @@ package com.healthy.gym.trainings.service.individual.training;
 import com.healthy.gym.trainings.component.CollisionValidatorComponent;
 import com.healthy.gym.trainings.data.document.GroupTrainingDocument;
 import com.healthy.gym.trainings.data.document.IndividualTrainingDocument;
+import com.healthy.gym.trainings.data.document.TrainingTypeDocument;
 import com.healthy.gym.trainings.data.document.UserDocument;
+import com.healthy.gym.trainings.data.repository.TrainingTypeDAO;
 import com.healthy.gym.trainings.data.repository.UserDAO;
 import com.healthy.gym.trainings.data.repository.individual.training.IndividualTrainingRepository;
 import com.healthy.gym.trainings.data.repository.individual.training.UserIndividualTrainingDAO;
@@ -12,9 +14,11 @@ import com.healthy.gym.trainings.exception.invalid.InvalidTrainerSpecifiedExcept
 import com.healthy.gym.trainings.exception.notexisting.NotExistingIndividualTrainingException;
 import com.healthy.gym.trainings.exception.notfound.NoIndividualTrainingFoundException;
 import com.healthy.gym.trainings.exception.notfound.TrainerNotFoundException;
+import com.healthy.gym.trainings.exception.notfound.TrainingTypeNotFoundException;
 import com.healthy.gym.trainings.exception.notfound.UserNotFoundException;
 import com.healthy.gym.trainings.exception.occupied.TrainerOccupiedException;
 import com.healthy.gym.trainings.model.request.IndividualTrainingRequest;
+import com.healthy.gym.trainings.service.NotificationService;
 import com.healthy.gym.trainings.test.utils.TestDocumentUtil;
 import com.healthy.gym.trainings.utils.CollisionValidator;
 import org.junit.jupiter.api.BeforeEach;
@@ -32,8 +36,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 class UserIndividualTrainingServiceTest {
 
@@ -41,6 +44,7 @@ class UserIndividualTrainingServiceTest {
     private IndividualTrainingRepository individualTrainingRepository;
     private UserIndividualTrainingDAO userIndividualTrainingDAO;
     private UserDAO userDAO;
+    private TrainingTypeDAO trainingTypeDAO;
     private UserIndividualTrainingService service;
     private String userId;
 
@@ -51,11 +55,16 @@ class UserIndividualTrainingServiceTest {
         individualTrainingRepository = mock(IndividualTrainingRepository.class);
         userIndividualTrainingDAO = mock(UserIndividualTrainingDAO.class);
         userDAO = mock(UserDAO.class);
+        trainingTypeDAO = mock(TrainingTypeDAO.class);
+        NotificationService notificationService = mock(NotificationService.class);
+        doNothing().when(notificationService).sendNotificationWhenCreateIndividualTrainingRequest(any(), any(), any());
         service = new UserIndividualTrainingServiceImpl(
                 collisionValidator,
                 individualTrainingRepository,
                 userIndividualTrainingDAO,
                 userDAO,
+                trainingTypeDAO,
+                notificationService,
                 clock
         );
         userId = UUID.randomUUID().toString();
@@ -264,12 +273,34 @@ class UserIndividualTrainingServiceTest {
         }
 
         @Test
+        void shouldThrowTrainingTypeNotFoundException() {
+            when(userDAO.findByUserId(userId)).thenReturn(getTestUser());
+            when(userDAO.findByUserId(trainerId)).thenReturn(getTestTrainer());
+
+            LocalDateTime startDateTime = LocalDateTime.parse("2021-07-10T19:00");
+            LocalDateTime endDateTime = LocalDateTime.parse("2021-07-10T20:00");
+            when(collisionValidator.getCollisionValidator(startDateTime, endDateTime))
+                    .thenReturn(new CollisionValidator(
+                            List.of(),
+                            List.of(),
+                            startDateTime,
+                            endDateTime
+                    ));
+
+            when(trainingTypeDAO.findByName(anyString())).thenReturn(null);
+
+            assertThatThrownBy(
+                    () -> service.createIndividualTrainingRequest(individualTrainingsRequestModel, userId)
+            ).isInstanceOf(TrainingTypeNotFoundException.class);
+        }
+
+        @Test
         void shouldSaveAndReturn() throws UserNotFoundException,
                 InvalidTrainerSpecifiedException,
                 PastDateException,
                 StartDateAfterEndDateException,
                 TrainerOccupiedException,
-                TrainerNotFoundException {
+                TrainerNotFoundException, TrainingTypeNotFoundException {
 
             when(userDAO.findByUserId(userId)).thenReturn(getTestUser());
             when(userDAO.findByUserId(trainerId)).thenReturn(getTestTrainer());
@@ -283,6 +314,8 @@ class UserIndividualTrainingServiceTest {
                             startDateTime,
                             endDateTime
                     ));
+
+            when(trainingTypeDAO.findByName(anyString())).thenReturn(new TrainingTypeDocument());
 
             var training = getTestIndividualTraining("2021-07-10T18:00", "2021-07-10T19:00");
             when(individualTrainingRepository.save(any())).thenReturn(training);

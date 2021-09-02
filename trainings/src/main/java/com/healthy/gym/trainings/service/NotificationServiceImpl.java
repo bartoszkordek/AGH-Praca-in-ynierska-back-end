@@ -84,4 +84,32 @@ public class NotificationServiceImpl implements NotificationService {
         String content = translator.toLocale("notification.group.training.cancelled");
         sendNotifications(users, shouldSendEmails, trainingName, startDateTime, content);
     }
+
+    @Override
+    public void sendNotificationWhenCreateIndividualTrainingRequest(
+            UserDocument toTrainer,
+            UserDocument fromUser,
+            LocalDateTime startDateTime
+    ) {
+        String title = "Zapytanie o trening indywidualny";
+        String content = "Użytkownik " + fromUser.getName() + " " + fromUser.getSurname() +
+                " prosi o trening indywidualny (" + getFormattedDate(startDateTime) + ").";
+
+        var notification = new NotificationDocument(toTrainer, title, content);
+        notificationDAO.save(notification);
+    }
+
+    @Override
+    public void sendNotificationWhenCancelIndividualTrainingRequest(
+            UserDocument toTrainer,
+            UserDocument fromUser,
+            LocalDateTime startDateTime
+    ) {
+        String title = "Rezygnacja z treningu indywidualnego";
+        String content = "Użytkownik " + fromUser.getName() + " " + fromUser.getSurname() +
+                " zrezygnował z  trening indywidualnego (" + getFormattedDate(startDateTime) + ").";
+
+        var notification = new NotificationDocument(toTrainer, title, content);
+        notificationDAO.save(notification);
+    }
 }

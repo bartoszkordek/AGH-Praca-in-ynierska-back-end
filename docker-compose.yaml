@@ -111,6 +111,18 @@ services:
       - gateway
     deploy:
       replicas: 1
+   
+  equipment:
+    image: gza73/agh-praca-inzynierska-equipment:latest
+    environment:
+      - "SPRING_PROFILES_ACTIVE=docker"
+    networks:
+      - backend
+    depends_on:
+      - mongodb
+      - gateway
+    deploy:
+      replicas: 1
 
   redis:
     image: gza73/agh-praca-inzynierska-redis:latest

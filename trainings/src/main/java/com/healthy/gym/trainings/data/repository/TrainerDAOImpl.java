@@ -29,16 +29,14 @@ public class TrainerDAOImpl implements TrainerDAO {
             LocalDateTime endDateTime
     ) {
         Criteria criteria = Criteria
-                .where("startDateTime").gte(startDateTime)
-                .and("endDateTime").lte(endDateTime)
-                .andOperator(
-                        Criteria.where("basicList").in(user)
-                                .orOperator(
-                                        Criteria.where("reserveList").in(user)
-                                ).orOperator(
-                                        Criteria.where("trainers").in(user)
-                                )
+                .where("startDate").gte(startDateTime)
+                .and("endDate").lte(endDateTime)
+                .orOperator(
+                        Criteria.where("basicList").in(user),
+                        Criteria.where("reserveList").in(user),
+                        Criteria.where("trainers").in(user)
                 );
+
 
         return mongoTemplate.find(new Query(criteria), GroupTrainingDocument.class);
     }
@@ -52,11 +50,9 @@ public class TrainerDAOImpl implements TrainerDAO {
         Criteria criteria = Criteria
                 .where("startDateTime").gte(startDateTime)
                 .and("endDateTime").lte(endDateTime)
-                .andOperator(
-                        Criteria.where("basicList").in(user)
-                                .orOperator(
-                                        Criteria.where("trainers").in(user)
-                                )
+                .orOperator(
+                        Criteria.where("basicList").in(user),
+                        Criteria.where("trainers").in(user)
                 );
 
         return mongoTemplate.find(new Query(criteria), IndividualTrainingDocument.class);

@@ -61,6 +61,7 @@ public class TrainerServiceImpl implements TrainerService {
         Function<IndividualTrainingDocument, GenericTrainingDTO> mapIndividualToGenericDTO =
                 individualTrainingDocument -> new ModelMapper()
                         .typeMap(IndividualTrainingDocument.class, GenericTrainingDTO.class)
+                        .addMapping(IndividualTrainingDocument::getIndividualTrainingId, GenericTrainingDTO::setId)
                         .addMapping(source -> source.getLocation().getName(), GenericTrainingDTO::setLocation)
                         .addMapping(source -> source.getTraining().getName(), GenericTrainingDTO::setTitle)
                         .addMapping(source -> false, GenericTrainingDTO::setIsGroupTraining)
@@ -69,6 +70,7 @@ public class TrainerServiceImpl implements TrainerService {
         Function<GroupTrainingDocument, GenericTrainingDTO> mapGroupToGenericDTO =
                 groupTrainingDocument -> new ModelMapper()
                         .typeMap(GroupTrainingDocument.class, GenericTrainingDTO.class)
+                        .addMapping(GroupTrainingDocument::getGroupTrainingId, GenericTrainingDTO::setId)
                         .addMapping(source -> source.getLocation().getName(), GenericTrainingDTO::setLocation)
                         .addMapping(source -> source.getTraining().getName(), GenericTrainingDTO::setTitle)
                         .addMapping(source -> true, GenericTrainingDTO::setIsGroupTraining)

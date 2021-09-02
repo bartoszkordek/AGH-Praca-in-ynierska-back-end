@@ -22,6 +22,9 @@ public class GenericTrainingDTO {
     private boolean rejected;
     private boolean cancelled;
 
+    public GenericTrainingDTO() {
+        this.participants = new ParticipantsDTO();
+    }
 
     public String getId() {
         return id;
@@ -125,6 +128,14 @@ public class GenericTrainingDTO {
 
     public void setCancelled(boolean cancelled) {
         this.cancelled = cancelled;
+    }
+
+    public void setBasicList(List<BasicUserInfoDTO> basicList) {
+        this.participants.setBasicList(basicList);
+    }
+
+    public void setReserveList(List<BasicUserInfoDTO> reserveList) {
+        this.participants.setReserveList(reserveList);
     }
 
     @Override

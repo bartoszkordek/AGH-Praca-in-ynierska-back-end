@@ -50,6 +50,8 @@ public class TrainerDAOImpl implements TrainerDAO {
         Criteria criteria = Criteria
                 .where("startDateTime").gte(startDateTime)
                 .and("endDateTime").lte(endDateTime)
+                .and("rejected").is(false)
+                .and("cancelled").is(false)
                 .orOperator(
                         Criteria.where("basicList").in(user),
                         Criteria.where("trainers").in(user)

@@ -123,5 +123,6 @@ class GetAllTrainerTrainingsIntegrationTest {
         assert body != null;
         assertThat(body.isArray()).isTrue();
         assertThat(body.size()).isEqualTo(3);
+        System.out.println(body);
     }
 }

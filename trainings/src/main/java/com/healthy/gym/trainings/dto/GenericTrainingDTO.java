@@ -99,7 +99,7 @@ public class GenericTrainingDTO {
         return isGroupTraining;
     }
 
-    public void setGroupTraining(boolean groupTraining) {
+    public void setIsGroupTraining(boolean groupTraining) {
         isGroupTraining = groupTraining;
     }
 

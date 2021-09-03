@@ -89,7 +89,7 @@ class CreateOfferIntegrationTest {
         gymPassOfferRequest.setAmount(139.99);
         gymPassOfferRequest.setCurrency("zł");
         gymPassOfferRequest.setPeriod("miesiąc");
-        gymPassOfferRequest.setIsPremium(true);
+        gymPassOfferRequest.setPremium(true);
         gymPassOfferRequest.setSynopsis("Karnet uprawniający do korzystania w pełni z usług ośrodka");
         gymPassOfferRequest.setFeatures(List.of("Full pakiet", "sauna", "siłownia", "basen"));
 

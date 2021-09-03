@@ -82,7 +82,6 @@ class PurchaseGymPassIntegrationTest {
     private String invalidOfferIdPurchasedGymPassRequestContent;
     private String invalidUserIdPurchasedGymPassRequestContent;
     private String retroPurchasedGymPassRequestContent;
-    private String startDateAfterEndDatePurchasedGymPassRequestContent;
     private String notSpecifiedTypePurchasedGymPassRequestContent;
     private String gymPassOfferId;
     private String userId;
@@ -146,7 +145,7 @@ class PurchaseGymPassIntegrationTest {
 
         requestStartDate = LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE);
         timePurchasedRequestEndDate = LocalDate.now().plusMonths(1).format(DateTimeFormatter.ISO_LOCAL_DATE);
-        entriesPurchasedRequestEndDate = "9999-12-31";
+        entriesPurchasedRequestEndDate = LocalDate.now().plusYears(100).format(DateTimeFormatter.ISO_LOCAL_DATE);
         timePurchasedEntries = Integer.MAX_VALUE;
         entriesPurchasedEntries = 10;
         PurchasedGymPassRequest timePurchasedGymPassRequest = new PurchasedGymPassRequest();
@@ -192,7 +191,7 @@ class PurchaseGymPassIntegrationTest {
         timePurchasedGymPassRequest.setGymPassOfferId(gymPassOfferId);
         timePurchasedGymPassRequest.setUserId(userId);
         timePurchasedGymPassRequest.setStartDate(LocalDate.now().plusMonths(1).format(DateTimeFormatter.ISO_LOCAL_DATE));
-        startDateAfterEndDatePurchasedGymPassRequestContent = objectMapper.writeValueAsString(timePurchasedGymPassRequest);
+        String startDateAfterEndDatePurchasedGymPassRequestContent = objectMapper.writeValueAsString(timePurchasedGymPassRequest);
 
         timePurchasedGymPassRequest.setGymPassOfferId(gymPassOfferId);
         timePurchasedGymPassRequest.setUserId(userId);
@@ -255,9 +254,7 @@ class PurchaseGymPassIntegrationTest {
             assertThat(responseEntity.getBody().get("purchasedGymPass").get("startDate").textValue())
                     .isEqualTo(requestStartDate);
             assertThat(responseEntity.getBody().get("purchasedGymPass").get("endDate").textValue())
-                    .isEqualTo(timePurchasedRequestEndDate);
-            assertThat(responseEntity.getBody().get("purchasedGymPass").get("entries").intValue())
-                    .isEqualTo(timePurchasedEntries);
+                    .isEqualTo(entriesPurchasedRequestEndDate);
         }
 
         @ParameterizedTest
@@ -306,8 +303,6 @@ class PurchaseGymPassIntegrationTest {
                     .isEqualTo(requestStartDate);
             assertThat(responseEntity.getBody().get("purchasedGymPass").get("endDate").textValue())
                     .isEqualTo(entriesPurchasedRequestEndDate);
-            assertThat(responseEntity.getBody().get("purchasedGymPass").get("entries").intValue())
-                    .isEqualTo(entriesPurchasedEntries);
         }
     }
 
@@ -342,8 +337,6 @@ class PurchaseGymPassIntegrationTest {
             assertThat(responseEntity.getBody().get("errors").get("userId").textValue())
                     .isEqualTo(messages.get("exception.invalid.id.format"));
             assertThat(responseEntity.getBody().get("errors").get("startDate").textValue())
-                    .isEqualTo(messages.get("exception.invalid.date.format"));
-            assertThat(responseEntity.getBody().get("errors").get("endDate").textValue())
                     .isEqualTo(messages.get("exception.invalid.date.format"));
             assertThat(responseEntity.getBody().get("timestamp")).isNotNull();
         }
@@ -416,58 +409,6 @@ class PurchaseGymPassIntegrationTest {
             HttpEntity<Object> request = new HttpEntity<>(retroPurchasedGymPassRequestContent, headers);
 
             String expectedMessage = messages.get("exception.retro.purchased");
-
-            ResponseEntity<JsonNode> responseEntity = restTemplate
-                    .exchange(uri, HttpMethod.POST, request, JsonNode.class);
-
-            assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
-            assertThat(Objects.requireNonNull(responseEntity.getBody().get("message").textValue()))
-                    .isEqualTo(expectedMessage);
-            assertThat(responseEntity.getBody().get("timestamp")).isNotNull();
-        }
-
-        @ParameterizedTest
-        @EnumSource(TestCountry.class)
-        void shouldNotPurchaseGymPassWhenStartDateAfterEndDate(TestCountry country) throws URISyntaxException {
-            Map<String, String> messages = getMessagesAccordingToLocale(country);
-            Locale testedLocale = convertEnumToLocale(country);
-
-            URI uri = new URI("http://localhost:" + port + "/purchase");
-
-            HttpHeaders headers = new HttpHeaders();
-            headers.set("Accept-Language", testedLocale.toString());
-            headers.set("Authorization", employeeToken);
-            headers.setContentType(MediaType.APPLICATION_JSON);
-
-            HttpEntity<Object> request = new HttpEntity<>(startDateAfterEndDatePurchasedGymPassRequestContent, headers);
-
-            String expectedMessage = messages.get("exception.start.after.end");
-
-            ResponseEntity<JsonNode> responseEntity = restTemplate
-                    .exchange(uri, HttpMethod.POST, request, JsonNode.class);
-
-            assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
-            assertThat(Objects.requireNonNull(responseEntity.getBody().get("message").textValue()))
-                    .isEqualTo(expectedMessage);
-            assertThat(responseEntity.getBody().get("timestamp")).isNotNull();
-        }
-
-        @ParameterizedTest
-        @EnumSource(TestCountry.class)
-        void shouldNotPurchaseGymPassWhenNotSpecifiedType(TestCountry country) throws URISyntaxException {
-            Map<String, String> messages = getMessagesAccordingToLocale(country);
-            Locale testedLocale = convertEnumToLocale(country);
-
-            URI uri = new URI("http://localhost:" + port + "/purchase");
-
-            HttpHeaders headers = new HttpHeaders();
-            headers.set("Accept-Language", testedLocale.toString());
-            headers.set("Authorization", employeeToken);
-            headers.setContentType(MediaType.APPLICATION_JSON);
-
-            HttpEntity<Object> request = new HttpEntity<>(notSpecifiedTypePurchasedGymPassRequestContent, headers);
-
-            String expectedMessage = messages.get("exception.gympass.type");
 
             ResponseEntity<JsonNode> responseEntity = restTemplate
                     .exchange(uri, HttpMethod.POST, request, JsonNode.class);

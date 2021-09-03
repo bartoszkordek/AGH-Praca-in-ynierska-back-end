@@ -82,7 +82,7 @@ class CreateOfferUnitTest {
         gymPassOfferRequest.setAmount(199.99);
         gymPassOfferRequest.setCurrency("zł");
         gymPassOfferRequest.setPeriod("miesiąc");
-        gymPassOfferRequest.setIsPremium(true);
+        gymPassOfferRequest.setPremium(true);
         gymPassOfferRequest.setSynopsis("Karnet uprawniający do korzystania w pełni z usług ośrodka");
         gymPassOfferRequest.setFeatures(List.of("Full pakiet", "sauna", "siłownia", "basen"));
 
@@ -168,7 +168,7 @@ class CreateOfferUnitTest {
                         jsonPath("$.gymPass.price.amount").value(is(199.99)),
                         jsonPath("$.gymPass.price.currency").value(is("zł")),
                         jsonPath("$.gymPass.price.period").value(is("miesiąc")),
-                        jsonPath("$.gymPass.isPremium").value(is(true)),
+                        jsonPath("$.gymPass.premium").value(is(true)),
                         jsonPath("$.gymPass.description.synopsis")
                                 .value(is("Karnet uprawniający do korzystania w pełni z usług ośrodka")),
                         jsonPath("$.gymPass.description.features").isArray(),

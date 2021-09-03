@@ -35,6 +35,7 @@ import static com.healthy.gym.gympass.configuration.Messages.getMessagesAccordin
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.ResultMatcher.matchAll;
@@ -89,7 +90,7 @@ class UpdateOfferUnitTest {
         gymPassOfferRequest.setAmount(199.99);
         gymPassOfferRequest.setCurrency("zł");
         gymPassOfferRequest.setPeriod("miesiąc");
-        gymPassOfferRequest.setIsPremium(true);
+        gymPassOfferRequest.setPremium(true);
         gymPassOfferRequest.setSynopsis("Karnet uprawniający do korzystania w pełni z usług ośrodka");
         gymPassOfferRequest.setFeatures(List.of("Full pakiet", "sauna", "siłownia", "basen"));
 
@@ -147,7 +148,7 @@ class UpdateOfferUnitTest {
                 List.of("Full pakiet", "sauna", "siłownia", "basen")
         );
 
-        when(offerService.updateGymPassOffer(validId, gymPassOfferRequest))
+        when(offerService.updateGymPassOffer(anyString(), any()))
                 .thenReturn(
                         new GymPassDTO(
                                 gymPassId,
@@ -174,7 +175,7 @@ class UpdateOfferUnitTest {
                         jsonPath("$.gymPass.price.amount").value(is(199.99)),
                         jsonPath("$.gymPass.price.currency").value(is("zł")),
                         jsonPath("$.gymPass.price.period").value(is("miesiąc")),
-                        jsonPath("$.gymPass.isPremium").value(is(true)),
+                        jsonPath("$.gymPass.premium").value(is(true)),
                         jsonPath("$.gymPass.description.synopsis")
                                 .value(is("Karnet uprawniający do korzystania w pełni z usług ośrodka")),
                         jsonPath("$.gymPass.description.features").isArray(),
@@ -250,7 +251,7 @@ class UpdateOfferUnitTest {
 
             doThrow(OfferNotFoundException.class)
                     .when(offerService)
-                    .updateGymPassOffer(invalidId, gymPassOfferRequest);
+                    .updateGymPassOffer(anyString(), any());
 
             mockMvc.perform(request)
                     .andDo(print())
@@ -308,7 +309,7 @@ class UpdateOfferUnitTest {
 
             doThrow(IllegalStateException.class)
                     .when(offerService)
-                    .updateGymPassOffer(validId, gymPassOfferRequest);
+                    .updateGymPassOffer(any(), any());
 
             String expectedMessage = messages.get("exception.internal.error");
 

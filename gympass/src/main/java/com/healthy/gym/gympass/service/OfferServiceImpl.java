@@ -50,6 +50,7 @@ public class OfferServiceImpl implements OfferService {
     @Override
     public GymPassDTO createGymPassOffer(GymPassOfferRequest request)
             throws DuplicatedOffersException {
+        System.out.println(request);
 
         String requestTitle = request.getTitle();
         if (gymPassOfferDAO.findByTitle(requestTitle) != null)

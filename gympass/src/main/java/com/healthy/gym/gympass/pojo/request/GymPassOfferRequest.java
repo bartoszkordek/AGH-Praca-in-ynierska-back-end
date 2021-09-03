@@ -29,7 +29,7 @@ public class GymPassOfferRequest {
     private String period;
 
     @NotNull(message = "{field.required}")
-    private boolean isPremium;
+    private boolean premium;
 
     @Size(min = 2, max = 60, message = "{field.synopsis.failure}")
     private String synopsis;
@@ -82,11 +82,11 @@ public class GymPassOfferRequest {
     }
 
     public boolean isPremium() {
-        return isPremium;
+        return premium;
     }
 
-    public void setIsPremium(boolean premium) {
-        this.isPremium = premium;
+    public void setPremium(boolean premium) {
+        this.premium = premium;
     }
 
     public String getSynopsis() {
@@ -129,7 +129,7 @@ public class GymPassOfferRequest {
                 ", amount=" + amount +
                 ", currency='" + currency + '\'' +
                 ", period='" + period + '\'' +
-                ", isPremium=" + isPremium +
+                ", premium=" + premium +
                 ", synopsis='" + synopsis + '\'' +
                 ", features=" + features +
                 ", isTemporaryPass=" + isTemporaryPass +
@@ -143,7 +143,7 @@ public class GymPassOfferRequest {
         if (o == null || getClass() != o.getClass()) return false;
         GymPassOfferRequest that = (GymPassOfferRequest) o;
         return Double.compare(that.amount, amount) == 0
-                && isPremium == that.isPremium
+                && premium == that.premium
                 && isTemporaryPass == that.isTemporaryPass
                 && quantity == that.quantity
                 && Objects.equals(title, that.title)
@@ -162,7 +162,7 @@ public class GymPassOfferRequest {
                 amount,
                 currency,
                 period,
-                isPremium,
+                premium,
                 synopsis,
                 features,
                 isTemporaryPass,

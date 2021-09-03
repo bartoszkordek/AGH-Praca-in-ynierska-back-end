@@ -48,7 +48,7 @@ class CreateOfferServiceUnitTest {
         gymPassOfferRequest.setAmount(amount);
         gymPassOfferRequest.setCurrency(currency);
         gymPassOfferRequest.setPeriod(period);
-        gymPassOfferRequest.setIsPremium(isPremium);
+        gymPassOfferRequest.setPremium(isPremium);
         gymPassOfferRequest.setSynopsis(synopsis);
         gymPassOfferRequest.setFeatures(features);
 
@@ -100,7 +100,7 @@ class CreateOfferServiceUnitTest {
         gymPassOfferRequest.setAmount(amount);
         gymPassOfferRequest.setCurrency(currency);
         gymPassOfferRequest.setPeriod(period);
-        gymPassOfferRequest.setIsPremium(isPremium);
+        gymPassOfferRequest.setPremium(isPremium);
         gymPassOfferRequest.setSynopsis(synopsis);
         gymPassOfferRequest.setFeatures(features);
 

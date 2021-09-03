@@ -216,7 +216,8 @@ class TrainerIndividualTrainingServiceTest {
             ).thenReturn(List.of());
 
             when(individualTrainingRepository
-                    .findAllByStartDateTimeIsAfterAndEndDateTimeIsBefore(startDateTime, endDateTime, Sort.by("startDateTime"))
+                    .findAllByStartDateTimeIsAfterAndEndDateTimeIsBeforeAndCancelledIsFalseAndRejectedIsFalse(
+                            startDateTime, endDateTime, Sort.by("startDateTime"))
             ).thenReturn(List.of(
                     TestDocumentUtil.getTestIndividualTraining(
                             "2021-07-10T19:00", "2021-07-10T20:30", location

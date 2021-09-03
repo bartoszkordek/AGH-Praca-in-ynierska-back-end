@@ -41,7 +41,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 class CreateGroupTrainingServiceTest {
 
@@ -248,7 +249,8 @@ class CreateGroupTrainingServiceTest {
         ).thenReturn(List.of());
 
         when(individualTrainingRepository
-                .findAllByStartDateTimeIsAfterAndEndDateTimeIsBefore(startDateTime, endDateTime, Sort.by("startDateTime"))
+                .findAllByStartDateTimeIsAfterAndEndDateTimeIsBeforeAndCancelledIsFalseAndRejectedIsFalse(
+                        startDateTime, endDateTime, Sort.by("startDateTime"))
         ).thenReturn(List.of(
                 TestDocumentUtil.getTestIndividualTraining(
                         "2021-07-10T19:00", "2021-07-10T20:30", locationDocument
@@ -309,7 +311,8 @@ class CreateGroupTrainingServiceTest {
         ).thenReturn(List.of());
 
         when(individualTrainingRepository
-                .findAllByStartDateTimeIsAfterAndEndDateTimeIsBefore(startDateTime, endDateTime, Sort.by("startDateTime"))
+                .findAllByStartDateTimeIsAfterAndEndDateTimeIsBeforeAndCancelledIsFalseAndRejectedIsFalse(
+                        startDateTime, endDateTime, Sort.by("startDateTime"))
         ).thenReturn(List.of(
                 TestDocumentUtil.getTestIndividualTraining(
                         "2021-07-10T19:00", "2021-07-10T20:30", List.of(trainer1, trainer2)

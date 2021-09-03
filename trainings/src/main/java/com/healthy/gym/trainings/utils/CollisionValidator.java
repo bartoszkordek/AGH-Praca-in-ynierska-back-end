@@ -43,7 +43,7 @@ public class CollisionValidator {
     public boolean isLocationOccupied(LocationDocument location) {
         long[][] groupTrainingDates = groupTrainingDocumentList
                 .stream()
-                .filter(groupTrainingDocument -> groupTrainingDocument.getLocation().equals(location))
+                .filter(groupTrainingDocument -> location.equals(groupTrainingDocument.getLocation()))
                 .map(GroupTrainingMapper::mapGroupTrainingToPairOfStartAndEndDates)
                 .collect(Collectors.toList())
                 .toArray(long[][]::new);
@@ -53,7 +53,7 @@ public class CollisionValidator {
 
         long[][] individualTrainingDates = individualTrainingDocumentList
                 .stream()
-                .filter(individualTrainingDocument -> individualTrainingDocument.getLocation().equals(location))
+                .filter(individualTrainingDocument -> location.equals(individualTrainingDocument.getLocation()))
                 .map(IndividualTrainingMapper::mapIndividualTrainingToPairOfStartAndEndDate)
                 .collect(Collectors.toList())
                 .toArray(long[][]::new);

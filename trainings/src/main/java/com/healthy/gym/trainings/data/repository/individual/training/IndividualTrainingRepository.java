@@ -25,4 +25,8 @@ public interface IndividualTrainingRepository extends MongoRepository<Individual
     List<IndividualTrainingDocument> findAllByStartDateTimeIsAfterAndEndDateTimeIsBefore(
             LocalDateTime startDateTime, LocalDateTime endDateTime, Sort sort
     );
+
+    List<IndividualTrainingDocument> findAllByStartDateTimeIsAfterAndEndDateTimeIsBeforeAndCancelledIsFalseAndRejectedIsFalse(
+            LocalDateTime startDateTime, LocalDateTime endDateTime, Sort sort
+    );
 }

@@ -29,13 +29,17 @@ public class GymPassOfferRequest {
     private String period;
 
     @NotNull(message = "{field.required}")
-    private boolean isPremium;
+    private boolean premium;
 
     @Size(min = 2, max = 60, message = "{field.synopsis.failure}")
     private String synopsis;
 
     @Size(min = 0, max = 20, message = "{field.features.failure}")
     private List<String> features;
+
+    private boolean isTemporaryPass;
+
+    private int quantity;
 
     public String getTitle() {
         return title;
@@ -78,11 +82,11 @@ public class GymPassOfferRequest {
     }
 
     public boolean isPremium() {
-        return isPremium;
+        return premium;
     }
 
     public void setPremium(boolean premium) {
-        this.isPremium = premium;
+        this.premium = premium;
     }
 
     public String getSynopsis() {
@@ -101,6 +105,22 @@ public class GymPassOfferRequest {
         this.features = features;
     }
 
+    public boolean isTemporaryPass() {
+        return isTemporaryPass;
+    }
+
+    public void setIsTemporaryPass(boolean temporaryPass) {
+        this.isTemporaryPass = temporaryPass;
+    }
+
+    public int getQuantity() {
+        return quantity;
+    }
+
+    public void setQuantity(int quantity) {
+        this.quantity = quantity;
+    }
+
     @Override
     public String toString() {
         return "GymPassOfferRequest{" +
@@ -109,9 +129,11 @@ public class GymPassOfferRequest {
                 ", amount=" + amount +
                 ", currency='" + currency + '\'' +
                 ", period='" + period + '\'' +
-                ", isPremium=" + isPremium +
+                ", premium=" + premium +
                 ", synopsis='" + synopsis + '\'' +
                 ", features=" + features +
+                ", isTemporaryPass=" + isTemporaryPass +
+                ", quantity=" + quantity +
                 '}';
     }
 
@@ -120,14 +142,16 @@ public class GymPassOfferRequest {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         GymPassOfferRequest that = (GymPassOfferRequest) o;
-        return Double.compare(that.amount, amount) == 0 &&
-                isPremium == that.isPremium &&
-                Objects.equals(title, that.title) &&
-                Objects.equals(subheader, that.subheader) &&
-                Objects.equals(currency, that.currency) &&
-                Objects.equals(period, that.period) &&
-                Objects.equals(synopsis, that.synopsis) &&
-                Objects.equals(features, that.features);
+        return Double.compare(that.amount, amount) == 0
+                && premium == that.premium
+                && isTemporaryPass == that.isTemporaryPass
+                && quantity == that.quantity
+                && Objects.equals(title, that.title)
+                && Objects.equals(subheader, that.subheader)
+                && Objects.equals(currency, that.currency)
+                && Objects.equals(period, that.period)
+                && Objects.equals(synopsis, that.synopsis)
+                && Objects.equals(features, that.features);
     }
 
     @Override
@@ -138,9 +162,11 @@ public class GymPassOfferRequest {
                 amount,
                 currency,
                 period,
-                isPremium,
+                premium,
                 synopsis,
-                features
+                features,
+                isTemporaryPass,
+                quantity
         );
     }
 }

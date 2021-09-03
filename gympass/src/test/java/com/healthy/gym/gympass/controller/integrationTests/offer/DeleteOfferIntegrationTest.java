@@ -131,7 +131,7 @@ class DeleteOfferIntegrationTest {
                     .isEqualTo("zł");
             assertThat(responseEntity.getBody().get("gymPass").get("price").get("period").textValue())
                     .isEqualTo("jednorazowy");
-            assertThat(responseEntity.getBody().get("gymPass").get("isPremium").booleanValue()).isFalse();
+            assertThat(responseEntity.getBody().get("gymPass").get("premium").booleanValue()).isFalse();
             assertThat(responseEntity.getBody().get("gymPass").get("description").get("synopsis").textValue())
                     .isEqualTo("Karnet uprawniający do jednorazowego skorzystania w pełni z usług ośrodka");
             assertThat(responseEntity.getBody().get("gymPass").get("description").get("features").get(0).textValue())

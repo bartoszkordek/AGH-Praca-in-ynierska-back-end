@@ -15,8 +15,10 @@ public class GymPassDocument {
     private String title;
     private String subheader;
     private Price price;
-    private boolean isPremium;
+    private boolean premium;
     private Description description;
+    private boolean temporaryPass;
+    private int quantity;
 
     public GymPassDocument() {
         //empty constructor required spring data mapper
@@ -27,14 +29,14 @@ public class GymPassDocument {
             String title,
             String subheader,
             Price price,
-            boolean isPremium,
+            boolean premium,
             Description description
     ) {
         this.documentId = documentId;
         this.title = title;
         this.subheader = subheader;
         this.price = price;
-        this.isPremium = isPremium;
+        this.premium = premium;
         this.description = description;
     }
 
@@ -71,11 +73,11 @@ public class GymPassDocument {
     }
 
     public boolean isPremium() {
-        return isPremium;
+        return premium;
     }
 
     public void setPremium(boolean premium) {
-        isPremium = premium;
+        this.premium = premium;
     }
 
     public Description getDescription() {
@@ -94,14 +96,32 @@ public class GymPassDocument {
         this.subheader = subheader;
     }
 
+    public boolean isTemporaryPass() {
+        return temporaryPass;
+    }
+
+    public void setTemporaryPass(boolean temporaryPass) {
+        this.temporaryPass = temporaryPass;
+    }
+
+    public int getQuantity() {
+        return quantity;
+    }
+
+    public void setQuantity(int quantity) {
+        this.quantity = quantity;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         GymPassDocument that = (GymPassDocument) o;
-        return isPremium == that.isPremium
-                && Objects.equals(documentId, that.documentId)
+        return premium == that.premium
+                && temporaryPass == that.temporaryPass
+                && quantity == that.quantity
                 && Objects.equals(id, that.id)
+                && Objects.equals(documentId, that.documentId)
                 && Objects.equals(title, that.title)
                 && Objects.equals(subheader, that.subheader)
                 && Objects.equals(price, that.price)
@@ -110,19 +130,31 @@ public class GymPassDocument {
 
     @Override
     public int hashCode() {
-        return Objects.hash(documentId, id, title, subheader, price, isPremium, description);
+        return Objects.hash(
+                id,
+                documentId,
+                title,
+                subheader,
+                price,
+                premium,
+                description,
+                temporaryPass,
+                quantity
+        );
     }
 
     @Override
     public String toString() {
         return "GymPassDocument{" +
-                "documentId='" + documentId + '\'' +
-                ", id='" + id + '\'' +
+                "id='" + id + '\'' +
+                ", documentId='" + documentId + '\'' +
                 ", title='" + title + '\'' +
                 ", subheader='" + subheader + '\'' +
                 ", price=" + price +
-                ", isPremium=" + isPremium +
+                ", isPremium=" + premium +
                 ", description=" + description +
+                ", isTemporaryPass=" + temporaryPass +
+                ", quantity=" + quantity +
                 '}';
     }
 }

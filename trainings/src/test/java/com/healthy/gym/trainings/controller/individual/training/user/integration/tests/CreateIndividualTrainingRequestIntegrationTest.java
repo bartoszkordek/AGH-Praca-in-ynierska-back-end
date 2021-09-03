@@ -96,6 +96,9 @@ class CreateIndividualTrainingRequestIntegrationTest {
         trainerId = UUID.randomUUID().toString();
         trainer = testUtil.saveAndGetTestTrainer(trainerId);
 
+        var personalTraining = new TrainingTypeDocument(UUID.randomUUID().toString(), "Trening personalny");
+        mongoTemplate.save(personalTraining);
+
         requestBody = getRequestBody("2020-10-10T10:10", "2020-10-10T11:10");
     }
 

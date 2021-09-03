@@ -106,6 +106,7 @@ class UpdateOfferIntegrationTest {
         gymPassOfferRequest.setPremium(false);
         gymPassOfferRequest.setSynopsis("Karnet uprawniający do korzystania w pełni z usług ośrodka");
         gymPassOfferRequest.setFeatures(List.of("Full pakiet", "sauna", "siłownia", "basen"));
+        gymPassOfferRequest.setIsTemporaryPass(true);
 
         requestContent = objectMapper.writeValueAsString(gymPassOfferRequest);
 
@@ -174,7 +175,7 @@ class UpdateOfferIntegrationTest {
             assertThat(responseEntity.getBody().get("gymPass").get("price").get("amount").asDouble()).isEqualTo(139.99);
             assertThat(responseEntity.getBody().get("gymPass").get("price").get("currency").textValue()).isEqualTo("zł");
             assertThat(responseEntity.getBody().get("gymPass").get("price").get("period").textValue()).isEqualTo("miesiąc");
-            assertThat(responseEntity.getBody().get("gymPass").get("isPremium").booleanValue()).isFalse();
+            assertThat(responseEntity.getBody().get("gymPass").get("premium").booleanValue()).isFalse();
             assertThat(responseEntity.getBody().get("gymPass").get("description").get("synopsis").textValue())
                     .isEqualTo("Karnet uprawniający do korzystania w pełni z usług ośrodka");
             assertThat(responseEntity.getBody().get("gymPass").get("description").get("features").get(0).textValue())

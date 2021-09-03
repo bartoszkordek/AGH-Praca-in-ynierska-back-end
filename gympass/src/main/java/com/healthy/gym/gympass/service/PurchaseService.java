@@ -13,7 +13,7 @@ public interface PurchaseService {
 
     PurchasedGymPassDTO purchaseGymPass(PurchasedGymPassRequest request)
             throws OfferNotFoundException, UserNotFoundException, RetroPurchasedException,
-            StartDateAfterEndDateException, NotSpecifiedGymPassTypeException;
+            StartDateAfterEndDateException, NotSpecifiedGymPassTypeException, PastDateException;
 
     PurchasedGymPassDTO suspendGymPass(String individualGymPassId, String suspensionDate)
             throws GymPassNotFoundException, AlreadySuspendedGymPassException, RetroSuspensionDateException,

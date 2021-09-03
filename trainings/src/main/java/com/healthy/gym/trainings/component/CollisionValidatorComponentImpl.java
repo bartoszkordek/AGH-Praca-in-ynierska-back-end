@@ -35,7 +35,9 @@ public class CollisionValidatorComponentImpl implements CollisionValidatorCompon
                 .findAllByStartDateIsAfterAndEndDateIsBefore(startOfDay, endOfDay, Sort.by("startDate"));
 
         List<IndividualTrainingDocument> individualTrainingList = individualTrainingRepository
-                .findAllByStartDateTimeIsAfterAndEndDateTimeIsBefore(startOfDay, endOfDay, Sort.by("startDateTime"));
+                .findAllByStartDateTimeIsAfterAndEndDateTimeIsBeforeAndCancelledIsFalseAndRejectedIsFalse(
+                        startOfDay, endOfDay, Sort.by("startDateTime")
+                );
 
         return new CollisionValidator(
                 groupTrainingList,

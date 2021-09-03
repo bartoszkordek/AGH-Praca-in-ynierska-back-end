@@ -106,6 +106,23 @@ public class TestDocumentUtilComponent {
         );
     }
 
+    public GroupTrainingDocument saveAndGetTestGroupTraining(
+            String startDate,
+            String endDate,
+            List<UserDocument> savedTrainers
+    ) {
+        return saveAndGetTestGroupTraining(
+                saveAndGetTestTrainingType(),
+                savedTrainers,
+                saveAndGetTestLocation(),
+                startDate,
+                endDate,
+                10,
+                getTestListOfSavedUserDocuments(10),
+                getTestListOfSavedUserDocuments(2)
+        );
+    }
+
     public GroupTrainingDocument createTestGroupTraining(
             TrainingTypeDocument savedTrainingType,
             String startDate,

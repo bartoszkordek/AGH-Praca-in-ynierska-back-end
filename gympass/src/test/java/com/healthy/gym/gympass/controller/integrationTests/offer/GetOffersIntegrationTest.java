@@ -156,7 +156,7 @@ class GetOffersIntegrationTest {
         assertThat(responseEntity.getBody().get(0).get("price").get("amount").asDouble()).isEqualTo(139.99);
         assertThat(responseEntity.getBody().get(0).get("price").get("currency").textValue()).isEqualTo("zł");
         assertThat(responseEntity.getBody().get(0).get("price").get("period").textValue()).isEqualTo("miesiąc");
-        assertThat(responseEntity.getBody().get(0).get("isPremium").booleanValue()).isFalse();
+        assertThat(responseEntity.getBody().get(0).get("premium").booleanValue()).isFalse();
         assertThat(responseEntity.getBody().get(0).get("description").get("synopsis").textValue())
                 .isEqualTo("Karnet uprawniający do korzystania w pełni z usług ośrodka");
         assertThat(responseEntity.getBody().get(0).get("description").get("features").get(0).textValue())
@@ -174,7 +174,7 @@ class GetOffersIntegrationTest {
         assertThat(responseEntity.getBody().get(1).get("price").get("amount").asDouble()).isEqualTo(399.99);
         assertThat(responseEntity.getBody().get(1).get("price").get("currency").textValue()).isEqualTo("zł");
         assertThat(responseEntity.getBody().get(1).get("price").get("period").textValue()).isEqualTo("miesiąc");
-        assertThat(responseEntity.getBody().get(1).get("isPremium").booleanValue()).isFalse();
+        assertThat(responseEntity.getBody().get(1).get("premium").booleanValue()).isFalse();
         assertThat(responseEntity.getBody().get(1).get("description").get("synopsis").textValue())
                 .isEqualTo("Karnet uprawniający do korzystania w pełni z usług ośrodka");
         assertThat(responseEntity.getBody().get(1).get("description").get("features").get(0).textValue())

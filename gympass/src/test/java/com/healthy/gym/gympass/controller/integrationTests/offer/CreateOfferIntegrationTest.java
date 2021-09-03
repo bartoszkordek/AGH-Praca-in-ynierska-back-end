@@ -171,7 +171,7 @@ class CreateOfferIntegrationTest {
             assertThat(price.get("currency").textValue()).isEqualTo("zł");
             assertThat(price.get("period").textValue()).isEqualTo("miesiąc");
 
-            assertThat(gymPass.get("isPremium").booleanValue()).isTrue();
+            assertThat(gymPass.get("premium").booleanValue()).isTrue();
 
             JsonNode description = gymPass.get("description");
             assertThat(description.get("synopsis").textValue())

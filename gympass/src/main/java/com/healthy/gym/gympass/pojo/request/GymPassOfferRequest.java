@@ -85,7 +85,7 @@ public class GymPassOfferRequest {
         return isPremium;
     }
 
-    public void setPremium(boolean premium) {
+    public void setIsPremium(boolean premium) {
         this.isPremium = premium;
     }
 
@@ -109,8 +109,8 @@ public class GymPassOfferRequest {
         return isTemporaryPass;
     }
 
-    public void setTemporaryPass(boolean temporaryPass) {
-        isTemporaryPass = temporaryPass;
+    public void setIsTemporaryPass(boolean temporaryPass) {
+        this.isTemporaryPass = temporaryPass;
     }
 
     public int getQuantity() {

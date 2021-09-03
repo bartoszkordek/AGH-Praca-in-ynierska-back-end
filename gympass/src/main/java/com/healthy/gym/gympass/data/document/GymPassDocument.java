@@ -15,9 +15,9 @@ public class GymPassDocument {
     private String title;
     private String subheader;
     private Price price;
-    private boolean isPremium;
+    private boolean premium;
     private Description description;
-    private boolean isTemporaryPass;
+    private boolean temporaryPass;
     private int quantity;
 
     public GymPassDocument() {
@@ -29,14 +29,14 @@ public class GymPassDocument {
             String title,
             String subheader,
             Price price,
-            boolean isPremium,
+            boolean premium,
             Description description
     ) {
         this.documentId = documentId;
         this.title = title;
         this.subheader = subheader;
         this.price = price;
-        this.isPremium = isPremium;
+        this.premium = premium;
         this.description = description;
     }
 
@@ -73,11 +73,11 @@ public class GymPassDocument {
     }
 
     public boolean isPremium() {
-        return isPremium;
+        return premium;
     }
 
     public void setPremium(boolean premium) {
-        isPremium = premium;
+        this.premium = premium;
     }
 
     public Description getDescription() {
@@ -97,11 +97,11 @@ public class GymPassDocument {
     }
 
     public boolean isTemporaryPass() {
-        return isTemporaryPass;
+        return temporaryPass;
     }
 
     public void setTemporaryPass(boolean temporaryPass) {
-        isTemporaryPass = temporaryPass;
+        this.temporaryPass = temporaryPass;
     }
 
     public int getQuantity() {
@@ -117,8 +117,8 @@ public class GymPassDocument {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         GymPassDocument that = (GymPassDocument) o;
-        return isPremium == that.isPremium
-                && isTemporaryPass == that.isTemporaryPass
+        return premium == that.premium
+                && temporaryPass == that.temporaryPass
                 && quantity == that.quantity
                 && Objects.equals(id, that.id)
                 && Objects.equals(documentId, that.documentId)
@@ -136,9 +136,9 @@ public class GymPassDocument {
                 title,
                 subheader,
                 price,
-                isPremium,
+                premium,
                 description,
-                isTemporaryPass,
+                temporaryPass,
                 quantity
         );
     }
@@ -151,9 +151,9 @@ public class GymPassDocument {
                 ", title='" + title + '\'' +
                 ", subheader='" + subheader + '\'' +
                 ", price=" + price +
-                ", isPremium=" + isPremium +
+                ", isPremium=" + premium +
                 ", description=" + description +
-                ", isTemporaryPass=" + isTemporaryPass +
+                ", isTemporaryPass=" + temporaryPass +
                 ", quantity=" + quantity +
                 '}';
     }

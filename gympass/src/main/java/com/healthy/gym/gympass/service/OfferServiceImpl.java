@@ -77,6 +77,7 @@ public class OfferServiceImpl implements OfferService {
     @Override
     public GymPassDTO updateGymPassOffer(String id, GymPassOfferRequest request)
             throws DuplicatedOffersException, OfferNotFoundException {
+        System.out.println(request);
 
         GymPassDocument gymPassDocument = gymPassOfferDAO.findByDocumentId(id);
         if (gymPassDocument == null)
@@ -107,8 +108,10 @@ public class OfferServiceImpl implements OfferService {
         gymPassDocument.setTemporaryPass(request.isTemporaryPass());
         gymPassDocument.setQuantity(request.getQuantity());
 
+        System.out.println(gymPassDocument);
         GymPassDocument updatedGymPassDocument = gymPassOfferDAO.save(gymPassDocument);
 
+        System.out.println(updatedGymPassDocument);
         return modelMapper.map(updatedGymPassDocument, GymPassDTO.class);
     }
 

@@ -89,7 +89,7 @@ class CreateOfferIntegrationTest {
         gymPassOfferRequest.setAmount(139.99);
         gymPassOfferRequest.setCurrency("zł");
         gymPassOfferRequest.setPeriod("miesiąc");
-        gymPassOfferRequest.setPremium(true);
+        gymPassOfferRequest.setIsPremium(true);
         gymPassOfferRequest.setSynopsis("Karnet uprawniający do korzystania w pełni z usług ośrodka");
         gymPassOfferRequest.setFeatures(List.of("Full pakiet", "sauna", "siłownia", "basen"));
 
@@ -171,7 +171,7 @@ class CreateOfferIntegrationTest {
             assertThat(price.get("currency").textValue()).isEqualTo("zł");
             assertThat(price.get("period").textValue()).isEqualTo("miesiąc");
 
-            assertThat(gymPass.get("isPremium").booleanValue()).isTrue();
+            assertThat(gymPass.get("premium").booleanValue()).isTrue();
 
             JsonNode description = gymPass.get("description");
             assertThat(description.get("synopsis").textValue())

@@ -121,7 +121,9 @@ public class PurchaseServiceImpl implements PurchaseService {
             int gymPassValidityInDays = gymPassDocument.getQuantity();
             return validityStartDate.plusDays(gymPassValidityInDays);
         }
-        return LocalDate.MAX;
+        //spring framework bug
+        //return LocalDate.MAX;
+        return validityStartDate.plusYears(100);
     }
 
     @Override

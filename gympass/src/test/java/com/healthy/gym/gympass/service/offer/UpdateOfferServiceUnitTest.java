@@ -80,7 +80,7 @@ class UpdateOfferServiceUnitTest {
         gymPassOfferRequest.setAmount(amount);
         gymPassOfferRequest.setCurrency(currency);
         gymPassOfferRequest.setPeriod(period);
-        gymPassOfferRequest.setPremium(isPremium);
+        gymPassOfferRequest.setIsPremium(isPremium);
         gymPassOfferRequest.setSynopsis(synopsis);
         gymPassOfferRequest.setFeatures(features);
 

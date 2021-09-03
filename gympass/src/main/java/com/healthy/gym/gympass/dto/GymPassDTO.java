@@ -1,7 +1,6 @@
 package com.healthy.gym.gympass.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.healthy.gym.gympass.shared.Description;
 import com.healthy.gym.gympass.shared.Price;
 
@@ -14,10 +13,9 @@ public class GymPassDTO {
     private String title;
     private String subheader;
     private Price price;
-    @JsonProperty("isPremium")
     private boolean premium;
     private Description description;
-    private boolean isTemporaryPass;
+    private boolean temporaryPass;
     private int quantity;
 
     public GymPassDTO() {
@@ -88,11 +86,11 @@ public class GymPassDTO {
     }
 
     public boolean isTemporaryPass() {
-        return isTemporaryPass;
+        return temporaryPass;
     }
 
     public void setTemporaryPass(boolean temporaryPass) {
-        isTemporaryPass = temporaryPass;
+        this.temporaryPass = temporaryPass;
     }
 
     public int getQuantity() {
@@ -112,7 +110,7 @@ public class GymPassDTO {
                 ", price=" + price +
                 ", premium=" + premium +
                 ", description=" + description +
-                ", isTemporaryPass=" + isTemporaryPass +
+                ", isTemporaryPass=" + temporaryPass +
                 ", quantity=" + quantity +
                 '}';
     }
@@ -124,7 +122,7 @@ public class GymPassDTO {
         if (o == null || getClass() != o.getClass()) return false;
         GymPassDTO that = (GymPassDTO) o;
         return premium == that.premium
-                && isTemporaryPass == that.isTemporaryPass
+                && temporaryPass == that.temporaryPass
                 && quantity == that.quantity
                 && Objects.equals(documentId, that.documentId)
                 && Objects.equals(title, that.title)
@@ -142,7 +140,7 @@ public class GymPassDTO {
                 price,
                 premium,
                 description,
-                isTemporaryPass,
+                temporaryPass,
                 quantity
         );
     }

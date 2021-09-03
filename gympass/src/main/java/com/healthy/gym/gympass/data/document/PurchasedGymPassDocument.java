@@ -14,7 +14,6 @@ public class PurchasedGymPassDocument {
     @Id
     private String id;
     private String purchasedGymPassDocumentId;
-    @DBRef
     private GymPassDocument gymPassOffer;
     @DBRef
     private UserDocument user;
@@ -24,7 +23,7 @@ public class PurchasedGymPassDocument {
     private int entries;
     private LocalDate suspensionDate;
 
-    public PurchasedGymPassDocument(){
+    public PurchasedGymPassDocument() {
         //empty constructor required spring data mapper
     }
 
@@ -37,7 +36,7 @@ public class PurchasedGymPassDocument {
             LocalDate endDate,
             int entries,
             LocalDate suspensionDate
-    ){
+    ) {
         this.purchasedGymPassDocumentId = purchasedGymPassDocumentId;
         this.gymPassOffer = gymPassOffer;
         this.user = user;
@@ -56,7 +55,7 @@ public class PurchasedGymPassDocument {
             LocalDate startDate,
             LocalDate endDate,
             int entries
-    ){
+    ) {
         this.purchasedGymPassDocumentId = purchasedGymPassDocumentId;
         this.gymPassOffer = gymPassOffer;
         this.user = user;
@@ -70,68 +69,68 @@ public class PurchasedGymPassDocument {
         return id;
     }
 
-    public String getPurchasedGymPassDocumentId() {
-        return purchasedGymPassDocumentId;
-    }
-
-    public GymPassDocument getGymPassOffer() {
-        return gymPassOffer;
-    }
-
-    public UserDocument getUser() {
-        return user;
-    }
-
-    public LocalDateTime getPurchaseDateTime() {
-        return purchaseDateTime;
-    }
-
-    public LocalDate getStartDate() {
-        return startDate;
-    }
-
-    public LocalDate getEndDate() {
-        return endDate;
-    }
-
-    public int getEntries() {
-        return entries;
-    }
-
-    public LocalDate getSuspensionDate() {
-        return suspensionDate;
-    }
-
     public void setId(String id) {
         this.id = id;
+    }
+
+    public String getPurchasedGymPassDocumentId() {
+        return purchasedGymPassDocumentId;
     }
 
     public void setPurchasedGymPassDocumentId(String purchasedGymPassDocumentId) {
         this.purchasedGymPassDocumentId = purchasedGymPassDocumentId;
     }
 
+    public GymPassDocument getGymPassOffer() {
+        return gymPassOffer;
+    }
+
     public void setGymPassOffer(GymPassDocument gymPassOffer) {
         this.gymPassOffer = gymPassOffer;
+    }
+
+    public UserDocument getUser() {
+        return user;
     }
 
     public void setUser(UserDocument user) {
         this.user = user;
     }
 
+    public LocalDateTime getPurchaseDateTime() {
+        return purchaseDateTime;
+    }
+
     public void setPurchaseDateTime(LocalDateTime purchaseDateTime) {
         this.purchaseDateTime = purchaseDateTime;
+    }
+
+    public LocalDate getStartDate() {
+        return startDate;
     }
 
     public void setStartDate(LocalDate startDate) {
         this.startDate = startDate;
     }
 
+    public LocalDate getEndDate() {
+        return endDate;
+    }
+
     public void setEndDate(LocalDate endDate) {
         this.endDate = endDate;
     }
 
+    public int getEntries() {
+        return entries;
+    }
+
     public void setEntries(int entries) {
         this.entries = entries;
+    }
+
+    public LocalDate getSuspensionDate() {
+        return suspensionDate;
     }
 
     public void setSuspensionDate(LocalDate suspensionDate) {

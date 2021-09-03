@@ -20,7 +20,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 
-
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -48,7 +47,7 @@ class PurchaseGymPassServiceUnitTest {
     private UserDAO userDAO;
 
     @Test
-    void shouldPurchaseGymPass_whenValidRequest() throws UserNotFoundException, StartDateAfterEndDateException, NotSpecifiedGymPassTypeException, RetroPurchasedException, OfferNotFoundException {
+    void shouldPurchaseGymPass_whenValidRequest() throws UserNotFoundException, StartDateAfterEndDateException, NotSpecifiedGymPassTypeException, RetroPurchasedException, OfferNotFoundException, PastDateException {
 
         //before
         //request
@@ -61,8 +60,6 @@ class PurchaseGymPassServiceUnitTest {
         purchasedGymPassRequest.setGymPassOfferId(gymPassOfferId);
         purchasedGymPassRequest.setUserId(userId);
         purchasedGymPassRequest.setStartDate(requestStartDate);
-        purchasedGymPassRequest.setEndDate(requestEndDate);
-        purchasedGymPassRequest.setEntries(entries);
 
         //response
         String purchasedGymPassDocumentId = UUID.randomUUID().toString();
@@ -108,7 +105,7 @@ class PurchaseGymPassServiceUnitTest {
                 subheader,
                 new Price(amount, currency, period),
                 isPremium,
-                new Description(synopsis,features)
+                new Description(synopsis, features)
         );
         gymPassOfferDocument.setId("507f1f77bcf86cd799439011");
 
@@ -133,7 +130,7 @@ class PurchaseGymPassServiceUnitTest {
     }
 
     @Test
-    void shouldNotPurchaseGymPass_whenInvalidOfferId(){
+    void shouldNotPurchaseGymPass_whenInvalidOfferId() {
 
         //before
         //request
@@ -146,8 +143,6 @@ class PurchaseGymPassServiceUnitTest {
         purchasedGymPassRequest.setGymPassOfferId(gymPassOfferId);
         purchasedGymPassRequest.setUserId(userId);
         purchasedGymPassRequest.setStartDate(requestStartDate);
-        purchasedGymPassRequest.setEndDate(requestEndDate);
-        purchasedGymPassRequest.setEntries(entries);
 
         //when
         when(gymPassOfferDAO.findByDocumentId(gymPassOfferId)).thenReturn(null);
@@ -159,7 +154,7 @@ class PurchaseGymPassServiceUnitTest {
     }
 
     @Test
-    void shouldNotPurchaseGymPass_whenInvalidUserId(){
+    void shouldNotPurchaseGymPass_whenInvalidUserId() {
 
         //before
         //request
@@ -172,8 +167,6 @@ class PurchaseGymPassServiceUnitTest {
         purchasedGymPassRequest.setGymPassOfferId(gymPassOfferId);
         purchasedGymPassRequest.setUserId(userId);
         purchasedGymPassRequest.setStartDate(requestStartDate);
-        purchasedGymPassRequest.setEndDate(requestEndDate);
-        purchasedGymPassRequest.setEntries(entries);
 
         //response
         String title = "Karnet miesięczny";
@@ -201,7 +194,7 @@ class PurchaseGymPassServiceUnitTest {
                 subheader,
                 new Price(amount, currency, period),
                 isPremium,
-                new Description(synopsis,features)
+                new Description(synopsis, features)
         );
         gymPassOfferDocument.setId("507f1f77bcf86cd799439011");
 
@@ -217,7 +210,7 @@ class PurchaseGymPassServiceUnitTest {
     }
 
     @Test
-    void shouldNotPurchaseGymPass_whenRetroDate(){
+    void shouldNotPurchaseGymPass_whenRetroDate() {
 
         //before
         //request
@@ -230,8 +223,6 @@ class PurchaseGymPassServiceUnitTest {
         purchasedGymPassRequest.setGymPassOfferId(gymPassOfferId);
         purchasedGymPassRequest.setUserId(userId);
         purchasedGymPassRequest.setStartDate(requestStartDate);
-        purchasedGymPassRequest.setEndDate(requestEndDate);
-        purchasedGymPassRequest.setEntries(entries);
 
         //response
         String title = "Karnet miesięczny";
@@ -259,7 +250,7 @@ class PurchaseGymPassServiceUnitTest {
                 subheader,
                 new Price(amount, currency, period),
                 isPremium,
-                new Description(synopsis,features)
+                new Description(synopsis, features)
         );
         gymPassOfferDocument.setId("507f1f77bcf86cd799439011");
 
@@ -275,7 +266,7 @@ class PurchaseGymPassServiceUnitTest {
     }
 
     @Test
-    void shouldNotPurchaseGymPass_whenStartDateAfterEndDate(){
+    void shouldNotPurchaseGymPass_whenStartDateAfterEndDate() {
 
         //before
         //request
@@ -288,8 +279,6 @@ class PurchaseGymPassServiceUnitTest {
         purchasedGymPassRequest.setGymPassOfferId(gymPassOfferId);
         purchasedGymPassRequest.setUserId(userId);
         purchasedGymPassRequest.setStartDate(requestStartDate);
-        purchasedGymPassRequest.setEndDate(requestEndDate);
-        purchasedGymPassRequest.setEntries(entries);
 
         //response
         String title = "Karnet miesięczny";
@@ -317,7 +306,7 @@ class PurchaseGymPassServiceUnitTest {
                 subheader,
                 new Price(amount, currency, period),
                 isPremium,
-                new Description(synopsis,features)
+                new Description(synopsis, features)
         );
         gymPassOfferDocument.setId("507f1f77bcf86cd799439011");
 
@@ -333,7 +322,7 @@ class PurchaseGymPassServiceUnitTest {
     }
 
     @Test
-    void shouldNotPurchaseGymPass_whenNotSpecifiedGymPassType(){
+    void shouldNotPurchaseGymPass_whenNotSpecifiedGymPassType() {
 
         //before
         //request
@@ -346,8 +335,6 @@ class PurchaseGymPassServiceUnitTest {
         purchasedGymPassRequest.setGymPassOfferId(gymPassOfferId);
         purchasedGymPassRequest.setUserId(userId);
         purchasedGymPassRequest.setStartDate(requestStartDate);
-        purchasedGymPassRequest.setEndDate(requestEndDate);
-        purchasedGymPassRequest.setEntries(entries);
 
         //response
         String title = "Karnet miesięczny";
@@ -376,7 +363,7 @@ class PurchaseGymPassServiceUnitTest {
                 subheader,
                 new Price(amount, currency, period),
                 isPremium,
-                new Description(synopsis,features)
+                new Description(synopsis, features)
         );
         gymPassOfferDocument.setId("507f1f77bcf86cd799439011");
 

@@ -85,18 +85,14 @@ class PurchaseGymPassIntegrationTest {
     private String startDateAfterEndDatePurchasedGymPassRequestContent;
     private String notSpecifiedTypePurchasedGymPassRequestContent;
     private String gymPassOfferId;
-    private String invalidFormatGymPassOfferId;
     private String userId;
-    private String invalidFormatUserId;
     private String title;
     private double amount;
     private String currency;
     private String period;
-    private boolean isPremium;
     private String name;
     private String surname;
     private String requestStartDate;
-    private String invalidFormatDate = "01/03/2030";
     private String timePurchasedRequestEndDate;
     private String entriesPurchasedRequestEndDate;
     private int timePurchasedEntries;
@@ -131,7 +127,7 @@ class PurchaseGymPassIntegrationTest {
         amount = 139.99;
         currency = "zł";
         period = "miesiąc";
-        isPremium = false;
+        boolean isPremium = false;
         String subheader = "Najepszy wybór dla regularnie uprawiających sport";
         String synopsis = "Nielimitowana liczba wejść";
         List<String> features = List.of("siłownia", "fitness", "TRX", "rowery");
@@ -141,7 +137,7 @@ class PurchaseGymPassIntegrationTest {
                 subheader,
                 new Price(amount, currency, period),
                 isPremium,
-                new Description(synopsis,features)
+                new Description(synopsis, features)
         );
 
         mongoTemplate.save(gymPassOfferDocument);
@@ -157,8 +153,6 @@ class PurchaseGymPassIntegrationTest {
         timePurchasedGymPassRequest.setGymPassOfferId(gymPassOfferId);
         timePurchasedGymPassRequest.setUserId(userId);
         timePurchasedGymPassRequest.setStartDate(requestStartDate);
-        timePurchasedGymPassRequest.setEndDate(timePurchasedRequestEndDate);
-        timePurchasedGymPassRequest.setEntries(timePurchasedEntries);
 
         timePurchasedGymPassRequestContent = objectMapper.writeValueAsString(timePurchasedGymPassRequest);
 
@@ -166,19 +160,16 @@ class PurchaseGymPassIntegrationTest {
         entriesPurchasedGymPassRequest.setGymPassOfferId(gymPassOfferId);
         entriesPurchasedGymPassRequest.setUserId(userId);
         entriesPurchasedGymPassRequest.setStartDate(requestStartDate);
-        entriesPurchasedGymPassRequest.setEndDate(entriesPurchasedRequestEndDate);
-        entriesPurchasedGymPassRequest.setEntries(entriesPurchasedEntries);
 
-        entriesPurchasedGymPassRequestContent= objectMapper.writeValueAsString(entriesPurchasedGymPassRequest);
+        entriesPurchasedGymPassRequestContent = objectMapper.writeValueAsString(entriesPurchasedGymPassRequest);
 
-        invalidFormatGymPassOfferId = "XSW";
-        invalidFormatUserId = "123";
+        String invalidFormatGymPassOfferId = "XSW";
+        String invalidFormatUserId = "123";
         PurchasedGymPassRequest invalidBindPurchasedGymPassRequest = new PurchasedGymPassRequest();
         invalidBindPurchasedGymPassRequest.setGymPassOfferId(invalidFormatGymPassOfferId);
         invalidBindPurchasedGymPassRequest.setUserId(invalidFormatUserId);
+        String invalidFormatDate = "01/03/2030";
         invalidBindPurchasedGymPassRequest.setStartDate(invalidFormatDate);
-        invalidBindPurchasedGymPassRequest.setEndDate(invalidFormatDate);
-        invalidBindPurchasedGymPassRequest.setEntries(entriesPurchasedEntries);
 
         invalidBindPurchasedGymPassRequestContent = objectMapper.writeValueAsString(invalidBindPurchasedGymPassRequest);
 
@@ -186,52 +177,38 @@ class PurchaseGymPassIntegrationTest {
         invalidOfferIdPurchasedGymPassRequest.setGymPassOfferId(UUID.randomUUID().toString());
         invalidOfferIdPurchasedGymPassRequest.setUserId(userId);
         invalidOfferIdPurchasedGymPassRequest.setStartDate(requestStartDate);
-        invalidOfferIdPurchasedGymPassRequest.setEndDate(timePurchasedRequestEndDate);
-        invalidOfferIdPurchasedGymPassRequest.setEntries(timePurchasedEntries);
         invalidOfferIdPurchasedGymPassRequestContent = objectMapper.writeValueAsString(invalidOfferIdPurchasedGymPassRequest);
 
-        PurchasedGymPassRequest invalidUserIdPurchasedGymPassRequest = timePurchasedGymPassRequest;
-        invalidUserIdPurchasedGymPassRequest.setGymPassOfferId(gymPassOfferId);
-        invalidUserIdPurchasedGymPassRequest.setUserId(UUID.randomUUID().toString());
-        invalidUserIdPurchasedGymPassRequest.setStartDate(requestStartDate);
-        invalidUserIdPurchasedGymPassRequest.setEndDate(timePurchasedRequestEndDate);
-        invalidUserIdPurchasedGymPassRequest.setEntries(timePurchasedEntries);
-        invalidUserIdPurchasedGymPassRequestContent = objectMapper.writeValueAsString(invalidUserIdPurchasedGymPassRequest);
+        timePurchasedGymPassRequest.setGymPassOfferId(gymPassOfferId);
+        timePurchasedGymPassRequest.setUserId(UUID.randomUUID().toString());
+        timePurchasedGymPassRequest.setStartDate(requestStartDate);
+        invalidUserIdPurchasedGymPassRequestContent = objectMapper.writeValueAsString(timePurchasedGymPassRequest);
 
-        PurchasedGymPassRequest retroPurchasedGymPassRequest = timePurchasedGymPassRequest;
-        retroPurchasedGymPassRequest.setGymPassOfferId(gymPassOfferId);
-        retroPurchasedGymPassRequest.setUserId(userId);
-        retroPurchasedGymPassRequest.setStartDate("2000-01-01");
-        retroPurchasedGymPassRequest.setEndDate(timePurchasedRequestEndDate);
-        retroPurchasedGymPassRequest.setEntries(timePurchasedEntries);
-        retroPurchasedGymPassRequestContent = objectMapper.writeValueAsString(retroPurchasedGymPassRequest);
+        timePurchasedGymPassRequest.setGymPassOfferId(gymPassOfferId);
+        timePurchasedGymPassRequest.setUserId(userId);
+        timePurchasedGymPassRequest.setStartDate("2000-01-01");
+        retroPurchasedGymPassRequestContent = objectMapper.writeValueAsString(timePurchasedGymPassRequest);
 
-        PurchasedGymPassRequest startDateAfterEndDatePurchasedGymPassRequest = timePurchasedGymPassRequest;
-        startDateAfterEndDatePurchasedGymPassRequest.setGymPassOfferId(gymPassOfferId);
-        startDateAfterEndDatePurchasedGymPassRequest.setUserId(userId);
-        startDateAfterEndDatePurchasedGymPassRequest.setStartDate(LocalDate.now().plusMonths(1).format(DateTimeFormatter.ISO_LOCAL_DATE));
-        startDateAfterEndDatePurchasedGymPassRequest.setEndDate(LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE));
-        startDateAfterEndDatePurchasedGymPassRequest.setEntries(timePurchasedEntries);
-        startDateAfterEndDatePurchasedGymPassRequestContent = objectMapper.writeValueAsString(startDateAfterEndDatePurchasedGymPassRequest);
+        timePurchasedGymPassRequest.setGymPassOfferId(gymPassOfferId);
+        timePurchasedGymPassRequest.setUserId(userId);
+        timePurchasedGymPassRequest.setStartDate(LocalDate.now().plusMonths(1).format(DateTimeFormatter.ISO_LOCAL_DATE));
+        startDateAfterEndDatePurchasedGymPassRequestContent = objectMapper.writeValueAsString(timePurchasedGymPassRequest);
 
-        PurchasedGymPassRequest notSpecifiedTypePurchasedGymPassRequest = timePurchasedGymPassRequest;
-        notSpecifiedTypePurchasedGymPassRequest.setGymPassOfferId(gymPassOfferId);
-        notSpecifiedTypePurchasedGymPassRequest.setUserId(userId);
-        notSpecifiedTypePurchasedGymPassRequest.setStartDate(LocalDate.now().plusMonths(1).format(DateTimeFormatter.ISO_LOCAL_DATE));
-        notSpecifiedTypePurchasedGymPassRequest.setEndDate("9999-12-31");
-        notSpecifiedTypePurchasedGymPassRequest.setEntries(Integer.MAX_VALUE);
-        notSpecifiedTypePurchasedGymPassRequestContent = objectMapper.writeValueAsString(notSpecifiedTypePurchasedGymPassRequest);
+        timePurchasedGymPassRequest.setGymPassOfferId(gymPassOfferId);
+        timePurchasedGymPassRequest.setUserId(userId);
+        timePurchasedGymPassRequest.setStartDate(LocalDate.now().plusMonths(1).format(DateTimeFormatter.ISO_LOCAL_DATE));
+        notSpecifiedTypePurchasedGymPassRequestContent = objectMapper.writeValueAsString(timePurchasedGymPassRequest);
     }
 
     @AfterEach
-    void tearDown(){
+    void tearDown() {
         mongoTemplate.dropCollection(PurchasedGymPassDocument.class);
         mongoTemplate.dropCollection(GymPassDocument.class);
         mongoTemplate.dropCollection(UserDocument.class);
     }
 
     @Nested
-    class ShouldPurchaseGymPass{
+    class ShouldPurchaseGymPass {
 
         @ParameterizedTest
         @EnumSource(TestCountry.class)
@@ -335,7 +312,7 @@ class PurchaseGymPassIntegrationTest {
     }
 
     @Nested
-    class ShouldNotPurchaseGymPass{
+    class ShouldNotPurchaseGymPass {
 
         @ParameterizedTest
         @EnumSource(TestCountry.class)
@@ -502,7 +479,7 @@ class PurchaseGymPassIntegrationTest {
         }
 
         @Nested
-        class ShouldNotPurchaseGymPassWhenNotAuthorized{
+        class ShouldNotPurchaseGymPassWhenNotAuthorized {
 
             @ParameterizedTest
             @EnumSource(TestCountry.class)
@@ -520,20 +497,23 @@ class PurchaseGymPassIntegrationTest {
                 ResponseEntity<JsonNode> responseEntity = restTemplate
                         .exchange(uri, HttpMethod.POST, request, JsonNode.class);
 
+                testAccessDenied(responseEntity, "Access Denied");
+            }
 
+            private void testAccessDenied(ResponseEntity<JsonNode> responseEntity, String expectedMessage) {
                 assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
-                assertThat(responseEntity.getBody().get("status").intValue()).isEqualTo(403);
-                assertThat(responseEntity.getBody().get("error").textValue()).isEqualTo("Forbidden");
-                assertThat(responseEntity.getBody().get("message").textValue()).isEqualTo("Access Denied");
-                assertThat(responseEntity.getBody().get("timestamp")).isNotNull();
+                JsonNode body = responseEntity.getBody();
+                assert body != null;
+                assertThat(body.get("status").intValue()).isEqualTo(403);
+                assertThat(body.get("error").textValue()).isEqualTo("Forbidden");
+                assertThat(body.get("message").textValue()).isEqualTo(expectedMessage);
+                assertThat(body.get("timestamp")).isNotNull();
             }
 
             @ParameterizedTest
             @EnumSource(TestCountry.class)
             void shouldNotPurchaseGymPassWhenLoggedAsUser(TestCountry country) throws Exception {
-                Map<String, String> messages = getMessagesAccordingToLocale(country);
                 Locale testedLocale = convertEnumToLocale(country);
-
                 URI uri = new URI("http://localhost:" + port + "/purchase");
 
                 HttpHeaders headers = new HttpHeaders();
@@ -546,13 +526,9 @@ class PurchaseGymPassIntegrationTest {
                 ResponseEntity<JsonNode> responseEntity = restTemplate
                         .exchange(uri, HttpMethod.POST, request, JsonNode.class);
 
+                Map<String, String> messages = getMessagesAccordingToLocale(country);
                 String expectedMessage = messages.get("exception.access.denied");
-
-                assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
-                assertThat(responseEntity.getBody().get("status").intValue()).isEqualTo(403);
-                assertThat(responseEntity.getBody().get("error").textValue()).isEqualTo("Forbidden");
-                assertThat(responseEntity.getBody().get("message").textValue()).isEqualTo(expectedMessage);
-                assertThat(responseEntity.getBody().get("timestamp")).isNotNull();
+                testAccessDenied(responseEntity, expectedMessage);
             }
         }
     }

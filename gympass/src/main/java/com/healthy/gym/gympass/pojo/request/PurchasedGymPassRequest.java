@@ -22,54 +22,29 @@ public class PurchasedGymPassRequest {
     @ValidDateFormat
     private String startDate;
 
-    @NotNull(message = "{field.required}")
-    @ValidDateFormat
-    private String endDate;
-
-    @NotNull(message = "{field.required}")
-    private int entries;
-
-
     public String getGymPassOfferId() {
         return gymPassOfferId;
-    }
-
-    public String getUserId() {
-        return userId;
-    }
-
-    public String getStartDate() {
-        return startDate;
-    }
-
-    public String getEndDate() {
-        return endDate;
-    }
-
-    public int getEntries() {
-        return entries;
     }
 
     public void setGymPassOfferId(String gymPassOfferId) {
         this.gymPassOfferId = gymPassOfferId;
     }
 
+    public String getUserId() {
+        return userId;
+    }
+
     public void setUserId(String userId) {
         this.userId = userId;
+    }
+
+    public String getStartDate() {
+        return startDate;
     }
 
     public void setStartDate(String startDate) {
         this.startDate = startDate;
     }
-
-    public void setEndDate(String endDate) {
-        this.endDate = endDate;
-    }
-
-    public void setEntries(int entries) {
-        this.entries = entries;
-    }
-
 
     @Override
     public String toString() {
@@ -77,8 +52,6 @@ public class PurchasedGymPassRequest {
                 "gymPassOfferId='" + gymPassOfferId + '\'' +
                 ", userId='" + userId + '\'' +
                 ", startDate='" + startDate + '\'' +
-                ", endDate='" + endDate + '\'' +
-                ", entries=" + entries +
                 '}';
     }
 
@@ -87,21 +60,13 @@ public class PurchasedGymPassRequest {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         PurchasedGymPassRequest that = (PurchasedGymPassRequest) o;
-        return entries == that.entries &&
-                Objects.equals(gymPassOfferId, that.gymPassOfferId) &&
-                Objects.equals(userId, that.userId) &&
-                Objects.equals(startDate, that.startDate) &&
-                Objects.equals(endDate, that.endDate);
+        return Objects.equals(gymPassOfferId, that.gymPassOfferId)
+                && Objects.equals(userId, that.userId)
+                && Objects.equals(startDate, that.startDate);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(
-                gymPassOfferId,
-                userId,
-                startDate,
-                endDate,
-                entries
-        );
+        return Objects.hash(gymPassOfferId, userId, startDate);
     }
 }

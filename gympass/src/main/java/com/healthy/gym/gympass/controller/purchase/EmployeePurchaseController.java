@@ -80,7 +80,7 @@ public class EmployeePurchaseController {
             String reason = translator.toLocale(USER_NOT_FOUND_EXCEPTION);
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, exception);
 
-        } catch (RetroPurchasedException exception) {
+        } catch (PastDateException exception) {
             String reason = translator.toLocale("exception.retro.purchased");
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, exception);
 

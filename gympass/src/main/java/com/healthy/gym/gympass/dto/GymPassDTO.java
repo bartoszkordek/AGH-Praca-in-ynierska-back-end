@@ -17,6 +17,8 @@ public class GymPassDTO {
     @JsonProperty("isPremium")
     private boolean premium;
     private Description description;
+    private boolean isTemporaryPass;
+    private int quantity;
 
     public GymPassDTO() {
     }
@@ -85,6 +87,22 @@ public class GymPassDTO {
         this.description = description;
     }
 
+    public boolean isTemporaryPass() {
+        return isTemporaryPass;
+    }
+
+    public void setTemporaryPass(boolean temporaryPass) {
+        isTemporaryPass = temporaryPass;
+    }
+
+    public int getQuantity() {
+        return quantity;
+    }
+
+    public void setQuantity(int quantity) {
+        this.quantity = quantity;
+    }
+
     @Override
     public String toString() {
         return "GymPassDTO{" +
@@ -92,22 +110,27 @@ public class GymPassDTO {
                 ", title='" + title + '\'' +
                 ", subheader='" + subheader + '\'' +
                 ", price=" + price +
-                ", isPremium=" + premium +
+                ", premium=" + premium +
                 ", description=" + description +
+                ", isTemporaryPass=" + isTemporaryPass +
+                ", quantity=" + quantity +
                 '}';
     }
+
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         GymPassDTO that = (GymPassDTO) o;
-        return premium == that.premium &&
-                Objects.equals(documentId, that.documentId) &&
-                Objects.equals(title, that.title) &&
-                Objects.equals(subheader, that.subheader) &&
-                Objects.equals(price, that.price) &&
-                Objects.equals(description, that.description);
+        return premium == that.premium
+                && isTemporaryPass == that.isTemporaryPass
+                && quantity == that.quantity
+                && Objects.equals(documentId, that.documentId)
+                && Objects.equals(title, that.title)
+                && Objects.equals(subheader, that.subheader)
+                && Objects.equals(price, that.price)
+                && Objects.equals(description, that.description);
     }
 
     @Override
@@ -118,7 +141,9 @@ public class GymPassDTO {
                 subheader,
                 price,
                 premium,
-                description
+                description,
+                isTemporaryPass,
+                quantity
         );
     }
 }

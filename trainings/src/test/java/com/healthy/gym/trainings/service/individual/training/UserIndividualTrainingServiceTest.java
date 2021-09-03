@@ -152,8 +152,8 @@ class UserIndividualTrainingServiceTest {
         void setUp() {
             trainerId = UUID.randomUUID().toString();
             individualTrainingsRequestModel = new IndividualTrainingRequest();
-            individualTrainingsRequestModel.setStartDateTime("2021-07-10T19:00");
-            individualTrainingsRequestModel.setEndDateTime("2021-07-10T20:00");
+            individualTrainingsRequestModel.setStartDateTime("2021-07-10T21:00");
+            individualTrainingsRequestModel.setEndDateTime("2021-07-10T22:00");
             individualTrainingsRequestModel.setTrainerId(trainerId);
             individualTrainingsRequestModel.setRemarks("Test remarks");
         }
@@ -191,7 +191,8 @@ class UserIndividualTrainingServiceTest {
         void shouldThrowStartDateAfterEndDateException() {
             when(userDAO.findByUserId(userId)).thenReturn(getTestUser());
             when(userDAO.findByUserId(trainerId)).thenReturn(getTestTrainer());
-            individualTrainingsRequestModel.setEndDateTime("2021-07-10T16:00");
+            individualTrainingsRequestModel.setStartDateTime("2021-07-10T21:00");
+            individualTrainingsRequestModel.setEndDateTime("2021-07-10T20:00");
 
             assertThatThrownBy(
                     () -> service.createIndividualTrainingRequest(individualTrainingsRequestModel, userId)
@@ -215,8 +216,8 @@ class UserIndividualTrainingServiceTest {
             when(userDAO.findByUserId(userId)).thenReturn(getTestUser());
             var trainer = getTestTrainer();
             when(userDAO.findByUserId(trainerId)).thenReturn(trainer);
-            LocalDateTime startDateTime = LocalDateTime.parse("2021-07-10T19:00");
-            LocalDateTime endDateTime = LocalDateTime.parse("2021-07-10T20:00");
+            LocalDateTime startDateTime = LocalDateTime.parse("2021-07-10T21:00");
+            LocalDateTime endDateTime = LocalDateTime.parse("2021-07-10T22:00");
             when(collisionValidator.getCollisionValidator(startDateTime, endDateTime))
                     .thenReturn(new CollisionValidator(
                             getTestGroupTrainingDocumentList(trainer),
@@ -247,8 +248,8 @@ class UserIndividualTrainingServiceTest {
             var trainer = getTestTrainer();
             when(userDAO.findByUserId(trainerId)).thenReturn(trainer);
 
-            LocalDateTime startDateTime = LocalDateTime.parse("2021-07-10T19:00");
-            LocalDateTime endDateTime = LocalDateTime.parse("2021-07-10T20:00");
+            LocalDateTime startDateTime = LocalDateTime.parse("2021-07-10T21:00");
+            LocalDateTime endDateTime = LocalDateTime.parse("2021-07-10T22:00");
             when(collisionValidator.getCollisionValidator(startDateTime, endDateTime))
                     .thenReturn(new CollisionValidator(
                             List.of(),
@@ -277,8 +278,8 @@ class UserIndividualTrainingServiceTest {
             when(userDAO.findByUserId(userId)).thenReturn(getTestUser());
             when(userDAO.findByUserId(trainerId)).thenReturn(getTestTrainer());
 
-            LocalDateTime startDateTime = LocalDateTime.parse("2021-07-10T19:00");
-            LocalDateTime endDateTime = LocalDateTime.parse("2021-07-10T20:00");
+            LocalDateTime startDateTime = LocalDateTime.parse("2021-07-10T21:00");
+            LocalDateTime endDateTime = LocalDateTime.parse("2021-07-10T22:00");
             when(collisionValidator.getCollisionValidator(startDateTime, endDateTime))
                     .thenReturn(new CollisionValidator(
                             List.of(),
@@ -305,8 +306,8 @@ class UserIndividualTrainingServiceTest {
             when(userDAO.findByUserId(userId)).thenReturn(getTestUser());
             when(userDAO.findByUserId(trainerId)).thenReturn(getTestTrainer());
 
-            LocalDateTime startDateTime = LocalDateTime.parse("2021-07-10T19:00");
-            LocalDateTime endDateTime = LocalDateTime.parse("2021-07-10T20:00");
+            LocalDateTime startDateTime = LocalDateTime.parse("2021-07-10T21:00");
+            LocalDateTime endDateTime = LocalDateTime.parse("2021-07-10T22:00");
             when(collisionValidator.getCollisionValidator(startDateTime, endDateTime))
                     .thenReturn(new CollisionValidator(
                             List.of(),

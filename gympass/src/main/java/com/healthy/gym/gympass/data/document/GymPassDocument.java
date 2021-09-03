@@ -17,6 +17,8 @@ public class GymPassDocument {
     private Price price;
     private boolean isPremium;
     private Description description;
+    private boolean isTemporaryPass;
+    private int quantity;
 
     public GymPassDocument() {
         //empty constructor required spring data mapper
@@ -94,14 +96,32 @@ public class GymPassDocument {
         this.subheader = subheader;
     }
 
+    public boolean isTemporaryPass() {
+        return isTemporaryPass;
+    }
+
+    public void setTemporaryPass(boolean temporaryPass) {
+        isTemporaryPass = temporaryPass;
+    }
+
+    public int getQuantity() {
+        return quantity;
+    }
+
+    public void setQuantity(int quantity) {
+        this.quantity = quantity;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         GymPassDocument that = (GymPassDocument) o;
         return isPremium == that.isPremium
-                && Objects.equals(documentId, that.documentId)
+                && isTemporaryPass == that.isTemporaryPass
+                && quantity == that.quantity
                 && Objects.equals(id, that.id)
+                && Objects.equals(documentId, that.documentId)
                 && Objects.equals(title, that.title)
                 && Objects.equals(subheader, that.subheader)
                 && Objects.equals(price, that.price)
@@ -110,19 +130,31 @@ public class GymPassDocument {
 
     @Override
     public int hashCode() {
-        return Objects.hash(documentId, id, title, subheader, price, isPremium, description);
+        return Objects.hash(
+                id,
+                documentId,
+                title,
+                subheader,
+                price,
+                isPremium,
+                description,
+                isTemporaryPass,
+                quantity
+        );
     }
 
     @Override
     public String toString() {
         return "GymPassDocument{" +
-                "documentId='" + documentId + '\'' +
-                ", id='" + id + '\'' +
+                "id='" + id + '\'' +
+                ", documentId='" + documentId + '\'' +
                 ", title='" + title + '\'' +
                 ", subheader='" + subheader + '\'' +
                 ", price=" + price +
                 ", isPremium=" + isPremium +
                 ", description=" + description +
+                ", isTemporaryPass=" + isTemporaryPass +
+                ", quantity=" + quantity +
                 '}';
     }
 }

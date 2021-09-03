@@ -19,7 +19,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
-public class OfferServiceImpl implements OfferService{
+public class OfferServiceImpl implements OfferService {
 
     private final GymPassOfferDAO gymPassOfferDAO;
     private final ModelMapper modelMapper;
@@ -27,7 +27,7 @@ public class OfferServiceImpl implements OfferService{
     @Autowired
     public OfferServiceImpl(
             GymPassOfferDAO gymPassOfferDAO
-    ){
+    ) {
         this.gymPassOfferDAO = gymPassOfferDAO;
         modelMapper = new ModelMapper();
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
@@ -39,7 +39,7 @@ public class OfferServiceImpl implements OfferService{
 
         List<GymPassDocument> gymPassOfferDocuments = gymPassOfferDAO.findAll();
 
-        if(gymPassOfferDocuments.isEmpty()) throw new NoOffersException("No offers");
+        if (gymPassOfferDocuments.isEmpty()) throw new NoOffersException("No offers");
 
         return gymPassOfferDocuments
                 .stream()
@@ -52,7 +52,7 @@ public class OfferServiceImpl implements OfferService{
             throws DuplicatedOffersException {
 
         String requestTitle = request.getTitle();
-        if(gymPassOfferDAO.findByTitle(requestTitle) != null)
+        if (gymPassOfferDAO.findByTitle(requestTitle) != null)
             throw new DuplicatedOffersException("Offer with the same title already exists");
 
         GymPassDocument gymPassDocumentToSave = new GymPassDocument(
@@ -67,6 +67,9 @@ public class OfferServiceImpl implements OfferService{
                 request.isPremium(),
                 new Description(request.getSynopsis(), request.getFeatures())
         );
+        gymPassDocumentToSave.setTemporaryPass(request.isTemporaryPass());
+        gymPassDocumentToSave.setQuantity(request.getQuantity());
+
         GymPassDocument gymPassDocumentSaved = gymPassOfferDAO.save(gymPassDocumentToSave);
         return modelMapper.map(gymPassDocumentSaved, GymPassDTO.class);
     }
@@ -76,13 +79,13 @@ public class OfferServiceImpl implements OfferService{
             throws DuplicatedOffersException, OfferNotFoundException {
 
         GymPassDocument gymPassDocument = gymPassOfferDAO.findByDocumentId(id);
-        if(gymPassDocument == null)
+        if (gymPassDocument == null)
             throw new OfferNotFoundException("Offer does not exist");
 
         String requestTitle = request.getTitle();
         GymPassDocument documentWithRequestTitle = gymPassOfferDAO.findByTitle(requestTitle);
 
-        if(documentWithRequestTitle != null && !documentWithRequestTitle.getDocumentId().equals(id))
+        if (documentWithRequestTitle != null && !documentWithRequestTitle.getDocumentId().equals(id))
             throw new DuplicatedOffersException("Offer with the same title already exists");
 
         gymPassDocument.setTitle(requestTitle);
@@ -96,10 +99,13 @@ public class OfferServiceImpl implements OfferService{
         gymPassDocument.setPremium(request.isPremium());
         gymPassDocument.setDescription(
                 new Description(
-                     request.getSynopsis(),
-                     request.getFeatures()
+                        request.getSynopsis(),
+                        request.getFeatures()
                 )
         );
+
+        gymPassDocument.setTemporaryPass(request.isTemporaryPass());
+        gymPassDocument.setQuantity(request.getQuantity());
 
         GymPassDocument updatedGymPassDocument = gymPassOfferDAO.save(gymPassDocument);
 
@@ -110,7 +116,7 @@ public class OfferServiceImpl implements OfferService{
     public GymPassDTO deleteGymPassOffer(String id) throws OfferNotFoundException {
 
         GymPassDocument gymPassDocument = gymPassOfferDAO.findByDocumentId(id);
-        if(gymPassDocument == null)
+        if (gymPassDocument == null)
             throw new OfferNotFoundException("Offer does not exist");
         gymPassOfferDAO.delete(gymPassDocument);
 

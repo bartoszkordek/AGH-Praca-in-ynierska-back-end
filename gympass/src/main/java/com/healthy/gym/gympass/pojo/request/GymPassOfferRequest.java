@@ -37,6 +37,10 @@ public class GymPassOfferRequest {
     @Size(min = 0, max = 20, message = "{field.features.failure}")
     private List<String> features;
 
+    private boolean isTemporaryPass;
+
+    private int quantity;
+
     public String getTitle() {
         return title;
     }
@@ -101,6 +105,22 @@ public class GymPassOfferRequest {
         this.features = features;
     }
 
+    public boolean isTemporaryPass() {
+        return isTemporaryPass;
+    }
+
+    public void setTemporaryPass(boolean temporaryPass) {
+        isTemporaryPass = temporaryPass;
+    }
+
+    public int getQuantity() {
+        return quantity;
+    }
+
+    public void setQuantity(int quantity) {
+        this.quantity = quantity;
+    }
+
     @Override
     public String toString() {
         return "GymPassOfferRequest{" +
@@ -112,6 +132,8 @@ public class GymPassOfferRequest {
                 ", isPremium=" + isPremium +
                 ", synopsis='" + synopsis + '\'' +
                 ", features=" + features +
+                ", isTemporaryPass=" + isTemporaryPass +
+                ", quantity=" + quantity +
                 '}';
     }
 
@@ -120,14 +142,16 @@ public class GymPassOfferRequest {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         GymPassOfferRequest that = (GymPassOfferRequest) o;
-        return Double.compare(that.amount, amount) == 0 &&
-                isPremium == that.isPremium &&
-                Objects.equals(title, that.title) &&
-                Objects.equals(subheader, that.subheader) &&
-                Objects.equals(currency, that.currency) &&
-                Objects.equals(period, that.period) &&
-                Objects.equals(synopsis, that.synopsis) &&
-                Objects.equals(features, that.features);
+        return Double.compare(that.amount, amount) == 0
+                && isPremium == that.isPremium
+                && isTemporaryPass == that.isTemporaryPass
+                && quantity == that.quantity
+                && Objects.equals(title, that.title)
+                && Objects.equals(subheader, that.subheader)
+                && Objects.equals(currency, that.currency)
+                && Objects.equals(period, that.period)
+                && Objects.equals(synopsis, that.synopsis)
+                && Objects.equals(features, that.features);
     }
 
     @Override
@@ -140,7 +164,9 @@ public class GymPassOfferRequest {
                 period,
                 isPremium,
                 synopsis,
-                features
+                features,
+                isTemporaryPass,
+                quantity
         );
     }
 }

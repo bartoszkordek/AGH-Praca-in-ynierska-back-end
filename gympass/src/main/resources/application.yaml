@@ -40,6 +40,11 @@ eureka:
   instance:
     instance-id: ${spring.application.name}:${spring.application.instance_id:${random.value}}
 
+logging:
+  file:
+    path: ./logs
+    name: ${logging.file.path}/${spring.application.name}.log
+
 #custom settings
 token:
   secret: r@ndomlyGener@ted2ecretKey22ecureApplic@tionAndNeed2BeCh@nge1nTheFuture

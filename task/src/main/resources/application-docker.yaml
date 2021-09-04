@@ -12,6 +12,10 @@ eureka:
     service-url:
       defaultZone: http://discovery:8010/eureka
 
+logging:
+  file:
+    path: /logs
+
 #custom settings
 front-end:
   port: 5000

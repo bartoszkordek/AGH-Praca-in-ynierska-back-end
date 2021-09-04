@@ -51,6 +51,11 @@ management:
       exposure:
         include: health, info, env
 
+logging:
+  file:
+    path: ./logs
+    name: ${logging.file.path}/${spring.application.name}.log
+
 #custom settings
 token:
   secret: r@ndomlyGener@ted2ecretKey22ecureApplic@tionAndNeed2BeCh@nge1nTheFuture

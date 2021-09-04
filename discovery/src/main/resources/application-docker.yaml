@@ -8,3 +8,7 @@ eureka:
   client:
     service-url:
       defaultZone: http://discovery:8010/eureka
+
+logging:
+  file:
+    path: /logs

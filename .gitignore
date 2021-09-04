@@ -30,7 +30,8 @@ build
 out
 
 #logs
-logs
+logs/*.log
+logs/nodes
 
 #Email Settings
 auth/src/main/resources/email.properties

@@ -41,6 +41,7 @@ public class TaskServiceImpl implements TaskService {
     private final GymRole managerRole;
     private final GymRole employeeRole;
     private final GymRole trainerRole;
+    private final DateTimeFormatter formatter;
 
     @Autowired
     public TaskServiceImpl(
@@ -55,6 +56,7 @@ public class TaskServiceImpl implements TaskService {
         managerRole = GymRole.MANAGER;
         employeeRole = GymRole.EMPLOYEE;
         trainerRole = GymRole.TRAINER;
+        formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
     }
 
 
@@ -69,7 +71,7 @@ public class TaskServiceImpl implements TaskService {
 
         String dueDate = managerTaskCreationRequest.getDueDate();
         var now = LocalDateTime.now();
-        LocalDateTime parsedDueDate = LocalDateTime.parse(dueDate, DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+        LocalDateTime parsedDueDate = LocalDateTime.parse(dueDate, formatter);
         if (parsedDueDate.isBefore(now)) throw new RetroDueDateException();
 
         String title = managerTaskCreationRequest.getTitle();
@@ -88,7 +90,7 @@ public class TaskServiceImpl implements TaskService {
         taskDocumentToBeSaved.setEmployeeAccept(AcceptanceStatus.NO_ACTION);
         taskDocumentToBeSaved.setManagerAccept(AcceptanceStatus.NO_ACTION);
         if (requestReminderDate != null)
-            taskDocumentToBeSaved.setReminderDate(LocalDateTime.parse(requestReminderDate, DateTimeFormatter.ISO_LOCAL_DATE_TIME));
+            taskDocumentToBeSaved.setReminderDate(LocalDateTime.parse(requestReminderDate, formatter));
         if (requestPriority != null) checkPriority(requestPriority);
         setPriority(taskDocumentToBeSaved, requestPriority);
 
@@ -118,7 +120,7 @@ public class TaskServiceImpl implements TaskService {
         var now = LocalDateTime.now();
         String requestDueDate = managerTaskCreationRequest.getDueDate();
         if (requestDueDate != null) {
-            LocalDateTime parsedDueDate = LocalDateTime.parse(requestDueDate, DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+            LocalDateTime parsedDueDate = LocalDateTime.parse(requestDueDate, formatter);
             if (parsedDueDate.isBefore(now)) throw new RetroDueDateException();
             taskDocumentToBeUpdated.setDueDate(parsedDueDate);
         }
@@ -133,7 +135,7 @@ public class TaskServiceImpl implements TaskService {
 
         String requestReminderDate = managerTaskCreationRequest.getReminderDate();
         if (requestReminderDate != null)
-            taskDocumentToBeUpdated.setReminderDate(LocalDateTime.parse(requestReminderDate, DateTimeFormatter.ISO_LOCAL_DATE_TIME));
+            taskDocumentToBeUpdated.setReminderDate(LocalDateTime.parse(requestReminderDate, formatter));
         String requestPriority = managerTaskCreationRequest.getPriority();
         if (requestPriority != null) checkPriority(requestPriority);
         setPriority(taskDocumentToBeUpdated, requestPriority);

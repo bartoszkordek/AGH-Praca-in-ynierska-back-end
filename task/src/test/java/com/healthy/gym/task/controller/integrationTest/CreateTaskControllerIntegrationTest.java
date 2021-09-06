@@ -446,7 +446,7 @@ public class CreateTaskControllerIntegrationTest {
         invalidDueDateManagerTaskCreationRequest.setTitle(requestTitle);
         invalidDueDateManagerTaskCreationRequest.setDescription(requestDescription);
         invalidDueDateManagerTaskCreationRequest.setEmployeeId(employeeId);
-        invalidDueDateManagerTaskCreationRequest.setDueDate(LocalDateTime.now().minusDays(1).toString());
+        invalidDueDateManagerTaskCreationRequest.setDueDate(LocalDateTime.now().minusDays(1).format(formatter));
 
         String invalidDueDateRequestContent = objectMapper.writeValueAsString(invalidDueDateManagerTaskCreationRequest);
 
@@ -480,7 +480,7 @@ public class CreateTaskControllerIntegrationTest {
         invalidPriorityManagerTaskCreationRequest.setTitle(requestTitle);
         invalidPriorityManagerTaskCreationRequest.setDescription(requestDescription);
         invalidPriorityManagerTaskCreationRequest.setEmployeeId(employeeId);
-        invalidPriorityManagerTaskCreationRequest.setDueDate(LocalDateTime.now().toString());
+        invalidPriorityManagerTaskCreationRequest.setDueDate(LocalDateTime.now().plusHours(1).format(formatter));
         invalidPriorityManagerTaskCreationRequest.setPriority("INVALID_PRIORITY");
 
         String invalidDueDateRequestContent = objectMapper.writeValueAsString(invalidPriorityManagerTaskCreationRequest);

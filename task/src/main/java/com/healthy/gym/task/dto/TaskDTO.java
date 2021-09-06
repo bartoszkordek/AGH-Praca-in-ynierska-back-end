@@ -230,22 +230,22 @@ public class TaskDTO {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         TaskDTO taskDTO = (TaskDTO) o;
-        return mark == taskDTO.mark &&
-                Objects.equals(taskId, taskDTO.taskId) &&
-                Objects.equals(manager, taskDTO.manager) &&
-                Objects.equals(employee, taskDTO.employee) &&
-                Objects.equals(title, taskDTO.title) &&
-                Objects.equals(description, taskDTO.description) &&
-                Objects.equals(report, taskDTO.report) &&
-                Objects.equals(taskCreationDate, taskDTO.taskCreationDate) &&
-                Objects.equals(lastTaskUpdateDate, taskDTO.lastTaskUpdateDate) &&
-                Objects.equals(dueDate, taskDTO.dueDate) &&
-                Objects.equals(reminderDate, taskDTO.reminderDate) &&
-                Objects.equals(reportDate, taskDTO.reportDate) &&
-                priority == taskDTO.priority &&
-                employeeAccept == taskDTO.employeeAccept &&
-                managerAccept == taskDTO.managerAccept &&
-                Objects.equals(employeeComment, taskDTO.employeeComment);
+        return mark == taskDTO.mark
+                && Objects.equals(taskId, taskDTO.taskId)
+                && Objects.equals(manager, taskDTO.manager)
+                && Objects.equals(employee, taskDTO.employee)
+                && Objects.equals(title, taskDTO.title)
+                && Objects.equals(description, taskDTO.description)
+                && Objects.equals(report, taskDTO.report)
+                && Objects.equals(taskCreationDate, taskDTO.taskCreationDate)
+                && Objects.equals(lastTaskUpdateDate, taskDTO.lastTaskUpdateDate)
+                && Objects.equals(dueDate, taskDTO.dueDate)
+                && Objects.equals(reminderDate, taskDTO.reminderDate)
+                && Objects.equals(reportDate, taskDTO.reportDate)
+                && priority == taskDTO.priority
+                && employeeAccept == taskDTO.employeeAccept
+                && managerAccept == taskDTO.managerAccept
+                && Objects.equals(employeeComment, taskDTO.employeeComment);
     }
 
     @Override

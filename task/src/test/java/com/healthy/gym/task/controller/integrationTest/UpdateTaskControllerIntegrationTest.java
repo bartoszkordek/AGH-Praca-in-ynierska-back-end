@@ -519,7 +519,7 @@ public class UpdateTaskControllerIntegrationTest {
         invalidDueDateManagerTaskCreationRequest.setTitle(requestTitle);
         invalidDueDateManagerTaskCreationRequest.setDescription(requestDescription);
         invalidDueDateManagerTaskCreationRequest.setEmployeeId(employeeId2);
-        invalidDueDateManagerTaskCreationRequest.setDueDate(now.minusDays(1).toString());
+        invalidDueDateManagerTaskCreationRequest.setDueDate(now.minusDays(1).format(formatter));
 
         String invalidDueDateRequestContent = objectMapper.writeValueAsString(invalidDueDateManagerTaskCreationRequest);
 

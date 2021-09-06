@@ -10,6 +10,7 @@ import com.healthy.gym.task.enums.AcceptanceStatus;
 import com.healthy.gym.task.enums.GymRole;
 import com.healthy.gym.task.exception.*;
 import com.healthy.gym.task.pojo.request.ManagerReportVerificationRequest;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -40,6 +41,7 @@ class VerifyReportServiceTest {
     private String managerId;
     private String taskId;
 
+    @Disabled
     @Test
     void shouldAcceptTask() throws TaskNotFoundException, ReportNotSentException, InvalidStatusException, InvalidMarkException, TaskDeclinedByEmployeeException {
 
@@ -123,6 +125,7 @@ class VerifyReportServiceTest {
         assertThat(taskService.verifyReport(taskId, managerReportVerificationRequest)).isEqualTo(taskResponse);
     }
 
+    @Disabled
     @Test
     void shouldDeclineReport() throws TaskNotFoundException, ReportNotSentException, InvalidStatusException, InvalidMarkException, TaskDeclinedByEmployeeException {
         employeeId = UUID.randomUUID().toString();

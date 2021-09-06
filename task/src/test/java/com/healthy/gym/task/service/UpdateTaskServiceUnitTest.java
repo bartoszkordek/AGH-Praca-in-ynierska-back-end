@@ -10,6 +10,7 @@ import com.healthy.gym.task.enums.AcceptanceStatus;
 import com.healthy.gym.task.enums.GymRole;
 import com.healthy.gym.task.exception.*;
 import com.healthy.gym.task.pojo.request.ManagerTaskCreationRequest;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -17,6 +18,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.UUID;
 
@@ -41,6 +43,12 @@ public class UpdateTaskServiceUnitTest {
     private String employeeIdUpdated;
     private String managerId;
     private String taskId;
+    private DateTimeFormatter formatter;
+
+    @BeforeEach
+    void setUp() {
+        formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
+    }
 
     @Test
     void shouldUpdateTask_whenValidRequest() throws ManagerNotFoundException, EmployeeNotFoundException,
@@ -64,7 +72,7 @@ public class UpdateTaskServiceUnitTest {
         managerTaskCreationRequest.setEmployeeId(employeeIdUpdated);
         managerTaskCreationRequest.setTitle(titleUpdated);
         managerTaskCreationRequest.setDescription(descriptionUpdated);
-        managerTaskCreationRequest.setDueDate(dueDateUpdated.toString());
+        managerTaskCreationRequest.setDueDate(dueDateUpdated.format(formatter));
 
         //DB documents
         String employeeNameToUpdate = "Jan";
@@ -158,7 +166,7 @@ public class UpdateTaskServiceUnitTest {
         managerTaskCreationRequest.setEmployeeId(notFoundTaskId);
         managerTaskCreationRequest.setTitle("Sample title");
         managerTaskCreationRequest.setDescription("Sample description");
-        managerTaskCreationRequest.setDueDate(LocalDate.now().plusMonths(1).toString());
+        managerTaskCreationRequest.setDueDate(LocalDateTime.now().plusMonths(1).toString());
 
         //when
         when(taskDAO.findByTaskId(notFoundTaskId)).thenReturn(null);
@@ -177,7 +185,7 @@ public class UpdateTaskServiceUnitTest {
         managerTaskCreationRequest.setEmployeeId(employeeIdToUpdate);
         managerTaskCreationRequest.setTitle("Sample title");
         managerTaskCreationRequest.setDescription("Sample description");
-        managerTaskCreationRequest.setDueDate(LocalDate.now().plusMonths(1).toString());
+        managerTaskCreationRequest.setDueDate(LocalDateTime.now().plusMonths(1).toString());
 
         String taskIdToRequest = UUID.randomUUID().toString();
         TaskDocument taskDocumentToUpdate = new TaskDocument();
@@ -201,7 +209,7 @@ public class UpdateTaskServiceUnitTest {
         managerTaskCreationRequest.setEmployeeId(invalidEmployeeId);
         managerTaskCreationRequest.setTitle("Sample title");
         managerTaskCreationRequest.setDescription("Sample description");
-        managerTaskCreationRequest.setDueDate(LocalDate.now().plusMonths(1).toString());
+        managerTaskCreationRequest.setDueDate(LocalDateTime.now().plusMonths(1).format(formatter));
 
 
         //DB documents
@@ -240,7 +248,7 @@ public class UpdateTaskServiceUnitTest {
         managerTaskCreationRequest.setEmployeeId(invalidEmployeeId);
         managerTaskCreationRequest.setTitle("Sample title");
         managerTaskCreationRequest.setDescription("Sample description");
-        managerTaskCreationRequest.setDueDate(LocalDate.now().plusMonths(1).toString());
+        managerTaskCreationRequest.setDueDate(LocalDateTime.now().plusMonths(1).format(formatter));
 
         //DB documents
         String managerName = "Adam";
@@ -284,7 +292,7 @@ public class UpdateTaskServiceUnitTest {
         managerTaskCreationRequest.setEmployeeId(employeeId);
         managerTaskCreationRequest.setTitle("Sample title");
         managerTaskCreationRequest.setDescription("Sample description");
-        managerTaskCreationRequest.setDueDate(LocalDate.now().minusDays(1).toString());
+        managerTaskCreationRequest.setDueDate(LocalDateTime.now().minusDays(1).format(formatter));
 
         //DB documents
         String managerName = "Adam";
@@ -328,7 +336,7 @@ public class UpdateTaskServiceUnitTest {
         managerTaskCreationRequest.setEmployeeId(employeeId);
         managerTaskCreationRequest.setTitle("Sample title");
         managerTaskCreationRequest.setDescription("Sample description");
-        managerTaskCreationRequest.setDueDate(LocalDate.now().toString());
+        managerTaskCreationRequest.setDueDate(LocalDateTime.now().plusHours(1).format(formatter));
         managerTaskCreationRequest.setPriority("INVALID_PRIORITY");
 
         //DB documents

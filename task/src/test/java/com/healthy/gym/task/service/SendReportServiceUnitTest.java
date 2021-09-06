@@ -8,6 +8,7 @@ import com.healthy.gym.task.dto.BasicUserInfoDTO;
 import com.healthy.gym.task.dto.TaskDTO;
 import com.healthy.gym.task.enums.AcceptanceStatus;
 import com.healthy.gym.task.enums.GymRole;
+import com.healthy.gym.task.enums.Priority;
 import com.healthy.gym.task.exception.DueDateExceedException;
 import com.healthy.gym.task.exception.ReportAlreadySentException;
 import com.healthy.gym.task.exception.TaskDeclinedByEmployeeException;
@@ -19,8 +20,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.UUID;
 
@@ -54,10 +55,11 @@ public class SendReportServiceUnitTest {
     private TaskDocument taskDocumentWithExceededDueDate;
     private TaskDocument taskDocumentWithAlreadySentReport;
     private TaskDTO taskResponse;
-
+    private DateTimeFormatter formatter;
 
     @BeforeEach
-    void setUp(){
+    void setUp() {
+        formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
         employeeId = UUID.randomUUID().toString();
         managerId = UUID.randomUUID().toString();
         taskId = UUID.randomUUID().toString();
@@ -187,14 +189,14 @@ public class SendReportServiceUnitTest {
             DueDateExceedException, ReportAlreadySentException {
         //when
         when(taskDAO.findByTaskId(taskId)).thenReturn(taskDocumentReportToSend);
-        when(taskDAO.save(taskDocumentWithReport)).thenReturn(taskDocumentWithReport);
+        when(taskDAO.save(any())).thenReturn(taskDocumentWithReport);
 
         //then
         assertThat(taskService.sendReport(taskId, employeeId, reportRequest)).isEqualTo(taskResponse);
     }
 
     @Test
-    void shouldNotSendReport_whenTaskIdNotExist(){
+    void shouldNotSendReport_whenTaskIdNotExist() {
         //when
         when(taskDAO.findByTaskId(any())).thenReturn(null);
 
@@ -205,7 +207,7 @@ public class SendReportServiceUnitTest {
     }
 
     @Test
-    void shouldNotSendReport_whenTaskDeclinedByEmployee(){
+    void shouldNotSendReport_whenTaskDeclinedByEmployee() {
         //when
         when(taskDAO.findByTaskId(any())).thenReturn(declinedTaskDocument);
 
@@ -216,7 +218,7 @@ public class SendReportServiceUnitTest {
     }
 
     @Test
-    void shouldNotSendReport_whenTaskExceededDueDate(){
+    void shouldNotSendReport_whenTaskExceededDueDate() {
         //when
         when(taskDAO.findByTaskId(any())).thenReturn(taskDocumentWithExceededDueDate);
 
@@ -227,7 +229,7 @@ public class SendReportServiceUnitTest {
     }
 
     @Test
-    void shouldNotSendReport_whenReportAlreadySent(){
+    void shouldNotSendReport_whenReportAlreadySent() {
         //when
         when(taskDAO.findByTaskId(any())).thenReturn(taskDocumentWithAlreadySentReport);
 

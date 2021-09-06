@@ -29,6 +29,7 @@ import org.testcontainers.shaded.com.fasterxml.jackson.databind.ObjectMapper;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
 import java.util.Map;
@@ -128,7 +129,7 @@ public class UpdateTaskControllerUnitTest {
                 .content(requestContent)
                 .contentType(MediaType.APPLICATION_JSON);
 
-        var now = LocalDate.now();
+        var now = LocalDateTime.now();
         String managerName = "Martin";
         String managerSurname = "Manager";
         BasicUserInfoDTO manager = new BasicUserInfoDTO(managerId, managerName, managerSurname);
@@ -138,9 +139,9 @@ public class UpdateTaskControllerUnitTest {
         BasicUserInfoDTO employee = new BasicUserInfoDTO(employeeId, employeeName, employeeSurname);
         String title = "Test task 1";
         String description = "Description for task 1";
-        LocalDate taskCreationDate = now.minusMonths(1);
-        LocalDate lastOrderUpdateDate = now;
-        LocalDate dueDate = now.plusMonths(1);
+        LocalDateTime taskCreationDate = now.minusMonths(1);
+        LocalDateTime lastOrderUpdateDate = now;
+        LocalDateTime dueDate = now.plusMonths(1);
         AcceptanceStatus employeeAccept = AcceptanceStatus.NO_ACTION;
         AcceptanceStatus managerAccept = AcceptanceStatus.NO_ACTION;
 

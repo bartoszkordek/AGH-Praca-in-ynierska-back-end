@@ -36,6 +36,7 @@ import org.testcontainers.utility.DockerImageName;
 
 import java.net.URI;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
@@ -96,7 +97,7 @@ public class GetTasksControllerIntegrationTests {
     @BeforeEach
     void setUp(){
 
-        var now = LocalDate.now();
+        var now = LocalDateTime.now();
         page = 0;
         size = 10;
         paging = PageRequest.of(page, size);

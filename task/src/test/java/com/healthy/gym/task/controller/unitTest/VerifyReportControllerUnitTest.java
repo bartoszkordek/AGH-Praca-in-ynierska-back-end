@@ -29,6 +29,7 @@ import org.testcontainers.shaded.com.fasterxml.jackson.databind.ObjectMapper;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
@@ -124,7 +125,7 @@ public class VerifyReportControllerUnitTest {
                 .content(validRequestContentApproved)
                 .contentType(MediaType.APPLICATION_JSON);
 
-        var now = LocalDate.now();
+        var now = LocalDateTime.now();
         String managerId = UUID.randomUUID().toString();
         String managerName = "Martin";
         String managerSurname = "Manager";
@@ -134,10 +135,10 @@ public class VerifyReportControllerUnitTest {
         BasicUserInfoDTO employee = new BasicUserInfoDTO(employeeId, employeeName, employeeSurname);
         String title = "Test task 1";
         String description = "Description for task 1";
-        LocalDate taskCreationDate = now.minusMonths(1);
-        LocalDate lastTaskUpdateDate = now;
-        LocalDate dueDate = now.plusMonths(1);
-        LocalDate reportDate = now.minusDays(2);
+        LocalDateTime taskCreationDate = now.minusMonths(1);
+        LocalDateTime lastTaskUpdateDate = now;
+        LocalDateTime dueDate = now.plusMonths(1);
+        LocalDateTime reportDate = now.minusDays(2);
         int mark = 5;
         AcceptanceStatus employeeAccept = AcceptanceStatus.ACCEPTED;
         AcceptanceStatus managerAccept = AcceptanceStatus.ACCEPTED;
@@ -213,7 +214,7 @@ public class VerifyReportControllerUnitTest {
                 .content(validRequestContentDeclined)
                 .contentType(MediaType.APPLICATION_JSON);
 
-        var now = LocalDate.now();
+        var now = LocalDateTime.now();
         String managerId = UUID.randomUUID().toString();
         String managerName = "Martin";
         String managerSurname = "Manager";
@@ -223,10 +224,10 @@ public class VerifyReportControllerUnitTest {
         BasicUserInfoDTO employee = new BasicUserInfoDTO(employeeId, employeeName, employeeSurname);
         String title = "Test task 1";
         String description = "Description for task 1";
-        LocalDate taskCreationDate = now.minusMonths(1);
-        LocalDate lastTaskUpdateDate = now;
-        LocalDate dueDate = now.plusMonths(1);
-        LocalDate reportDate = now.minusDays(2);
+        LocalDateTime taskCreationDate = now.minusMonths(1);
+        LocalDateTime lastTaskUpdateDate = now;
+        LocalDateTime dueDate = now.plusMonths(1);
+        LocalDateTime reportDate = now.minusDays(2);
         int mark = 1;
         AcceptanceStatus employeeAccept = AcceptanceStatus.ACCEPTED;
         AcceptanceStatus managerAccept = AcceptanceStatus.NOT_ACCEPTED;

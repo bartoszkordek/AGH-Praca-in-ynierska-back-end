@@ -35,6 +35,7 @@ import org.testcontainers.utility.DockerImageName;
 
 import java.net.URI;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.*;
 
 import static com.healthy.gym.task.configuration.LocaleConverter.convertEnumToLocale;
@@ -154,9 +155,9 @@ public class SendReportControllerIntegrationTest {
         taskDocument.setEmployee(employeeDocument);
         taskDocument.setTitle("Title 1");
         taskDocument.setDescription("Description 1");
-        taskDocument.setTaskCreationDate(LocalDate.now().minusMonths(1));
-        taskDocument.setDueDate(LocalDate.now().plusMonths(1));
-        taskDocument.setLastTaskUpdateDate(LocalDate.now());
+        taskDocument.setTaskCreationDate(LocalDateTime.now().minusMonths(1));
+        taskDocument.setDueDate(LocalDateTime.now().plusMonths(1));
+        taskDocument.setLastTaskUpdateDate(LocalDateTime.now());
         taskDocument.setEmployeeAccept(AcceptanceStatus.NO_ACTION);
         taskDocument.setManagerAccept(AcceptanceStatus.NO_ACTION);
 
@@ -169,9 +170,9 @@ public class SendReportControllerIntegrationTest {
         declinedByEmployeeTaskDocument.setEmployee(employeeDocument);
         declinedByEmployeeTaskDocument.setTitle("Title 1");
         declinedByEmployeeTaskDocument.setDescription("Description 1");
-        declinedByEmployeeTaskDocument.setTaskCreationDate(LocalDate.now().minusMonths(1));
-        declinedByEmployeeTaskDocument.setDueDate(LocalDate.now().plusMonths(1));
-        declinedByEmployeeTaskDocument.setLastTaskUpdateDate(LocalDate.now());
+        declinedByEmployeeTaskDocument.setTaskCreationDate(LocalDateTime.now().minusMonths(1));
+        declinedByEmployeeTaskDocument.setDueDate(LocalDateTime.now().plusMonths(1));
+        declinedByEmployeeTaskDocument.setLastTaskUpdateDate(LocalDateTime.now());
         declinedByEmployeeTaskDocument.setEmployeeAccept(AcceptanceStatus.NOT_ACCEPTED);
         declinedByEmployeeTaskDocument.setManagerAccept(AcceptanceStatus.NO_ACTION);
 
@@ -184,9 +185,9 @@ public class SendReportControllerIntegrationTest {
         exceededDueDateTaskDocument.setEmployee(employeeDocument);
         exceededDueDateTaskDocument.setTitle("Title 1");
         exceededDueDateTaskDocument.setDescription("Description 1");
-        exceededDueDateTaskDocument.setTaskCreationDate(LocalDate.now().minusMonths(1));
-        exceededDueDateTaskDocument.setDueDate(LocalDate.now().minusDays(5));
-        exceededDueDateTaskDocument.setLastTaskUpdateDate(LocalDate.now().minusMonths(1));
+        exceededDueDateTaskDocument.setTaskCreationDate(LocalDateTime.now().minusMonths(1));
+        exceededDueDateTaskDocument.setDueDate(LocalDateTime.now().minusDays(5));
+        exceededDueDateTaskDocument.setLastTaskUpdateDate(LocalDateTime.now().minusMonths(1));
         exceededDueDateTaskDocument.setEmployeeAccept(AcceptanceStatus.ACCEPTED);
         exceededDueDateTaskDocument.setManagerAccept(AcceptanceStatus.NO_ACTION);
 
@@ -199,13 +200,13 @@ public class SendReportControllerIntegrationTest {
         reportAlreadySentTaskDocument.setEmployee(employeeDocument);
         reportAlreadySentTaskDocument.setTitle("Title 1");
         reportAlreadySentTaskDocument.setDescription("Description 1");
-        reportAlreadySentTaskDocument.setTaskCreationDate(LocalDate.now().minusMonths(1));
-        reportAlreadySentTaskDocument.setDueDate(LocalDate.now().plusMonths(1));
-        reportAlreadySentTaskDocument.setLastTaskUpdateDate(LocalDate.now().minusDays(5));
+        reportAlreadySentTaskDocument.setTaskCreationDate(LocalDateTime.now().minusMonths(1));
+        reportAlreadySentTaskDocument.setDueDate(LocalDateTime.now().plusMonths(1));
+        reportAlreadySentTaskDocument.setLastTaskUpdateDate(LocalDateTime.now().minusDays(5));
         reportAlreadySentTaskDocument.setEmployeeAccept(AcceptanceStatus.ACCEPTED);
         reportAlreadySentTaskDocument.setManagerAccept(AcceptanceStatus.NO_ACTION);
         reportAlreadySentTaskDocument.setReport(report);
-        reportAlreadySentTaskDocument.setReportDate(LocalDate.now().minusDays(5));
+        reportAlreadySentTaskDocument.setReportDate(LocalDateTime.now().minusDays(5));
 
         mongoTemplate.save(reportAlreadySentTaskDocument);
     }

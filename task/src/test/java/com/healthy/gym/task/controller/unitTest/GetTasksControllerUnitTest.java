@@ -30,6 +30,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
@@ -98,7 +99,7 @@ class GetTasksControllerUnitTest {
         page = 0;
         size = 10;
         paging = PageRequest.of(page, size);
-        var now = LocalDate.now();
+        var now = LocalDateTime.now();
         String employeeName = "Jan";
         String employeeSurname = "Kowalski";
         String managerName = "Adam";

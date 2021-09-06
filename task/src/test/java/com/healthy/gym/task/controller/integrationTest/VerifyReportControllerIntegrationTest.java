@@ -35,6 +35,7 @@ import org.testcontainers.utility.DockerImageName;
 
 import java.net.URI;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.*;
 
 import static com.healthy.gym.task.configuration.LocaleConverter.convertEnumToLocale;
@@ -174,14 +175,14 @@ public class VerifyReportControllerIntegrationTest {
         taskDocument.setEmployee(employeeDocument);
         taskDocument.setTitle("Title 1");
         taskDocument.setDescription("Description 1");
-        taskDocument.setTaskCreationDate(LocalDate.now().minusMonths(1));
-        taskDocument.setDueDate(LocalDate.now().plusMonths(1));
-        taskDocument.setLastTaskUpdateDate(LocalDate.now().minusDays(5));
+        taskDocument.setTaskCreationDate(LocalDateTime.now().minusMonths(1));
+        taskDocument.setDueDate(LocalDateTime.now().plusMonths(1));
+        taskDocument.setLastTaskUpdateDate(LocalDateTime.now().minusDays(5));
         taskDocument.setEmployeeAccept(AcceptanceStatus.ACCEPTED);
         taskDocument.setManagerAccept(AcceptanceStatus.NO_ACTION);
         taskDocument.setEmployeeComment("I approve this task");
         taskDocument.setReport("Sample report");
-        taskDocument.setReportDate(LocalDate.now().minusDays(5));
+        taskDocument.setReportDate(LocalDateTime.now().minusDays(5));
 
         mongoTemplate.save(taskDocument);
 
@@ -192,9 +193,9 @@ public class VerifyReportControllerIntegrationTest {
         declinedByEmployeeTaskDocument.setEmployee(employeeDocument);
         declinedByEmployeeTaskDocument.setTitle("Title 1");
         declinedByEmployeeTaskDocument.setDescription("Description 1");
-        declinedByEmployeeTaskDocument.setTaskCreationDate(LocalDate.now().minusMonths(1));
-        declinedByEmployeeTaskDocument.setDueDate(LocalDate.now().plusMonths(1));
-        declinedByEmployeeTaskDocument.setLastTaskUpdateDate(LocalDate.now().minusDays(5));
+        declinedByEmployeeTaskDocument.setTaskCreationDate(LocalDateTime.now().minusMonths(1));
+        declinedByEmployeeTaskDocument.setDueDate(LocalDateTime.now().plusMonths(1));
+        declinedByEmployeeTaskDocument.setLastTaskUpdateDate(LocalDateTime.now().minusDays(5));
         declinedByEmployeeTaskDocument.setEmployeeAccept(AcceptanceStatus.NOT_ACCEPTED);
         declinedByEmployeeTaskDocument.setManagerAccept(AcceptanceStatus.NO_ACTION);
         declinedByEmployeeTaskDocument.setEmployeeComment("I decline this task");
@@ -208,9 +209,9 @@ public class VerifyReportControllerIntegrationTest {
         reportNotSentEmployeeTaskDocument.setEmployee(employeeDocument);
         reportNotSentEmployeeTaskDocument.setTitle("Title 1");
         reportNotSentEmployeeTaskDocument.setDescription("Description 1");
-        reportNotSentEmployeeTaskDocument.setTaskCreationDate(LocalDate.now().minusMonths(1));
-        reportNotSentEmployeeTaskDocument.setDueDate(LocalDate.now().plusMonths(1));
-        reportNotSentEmployeeTaskDocument.setLastTaskUpdateDate(LocalDate.now().minusDays(5));
+        reportNotSentEmployeeTaskDocument.setTaskCreationDate(LocalDateTime.now().minusMonths(1));
+        reportNotSentEmployeeTaskDocument.setDueDate(LocalDateTime.now().plusMonths(1));
+        reportNotSentEmployeeTaskDocument.setLastTaskUpdateDate(LocalDateTime.now().minusDays(5));
         reportNotSentEmployeeTaskDocument.setEmployeeAccept(AcceptanceStatus.ACCEPTED);
         reportNotSentEmployeeTaskDocument.setManagerAccept(AcceptanceStatus.NO_ACTION);
         reportNotSentEmployeeTaskDocument.setEmployeeComment("I approve this task");
@@ -219,7 +220,7 @@ public class VerifyReportControllerIntegrationTest {
     }
 
     @AfterEach
-    void tearDown(){
+    void tearDown() {
         mongoTemplate.dropCollection(TaskDocument.class);
         mongoTemplate.dropCollection(UserDocument.class);
     }
@@ -230,7 +231,7 @@ public class VerifyReportControllerIntegrationTest {
         Map<String, String> messages = getMessagesAccordingToLocale(country);
         Locale testedLocale = convertEnumToLocale(country);
 
-        URI uri = new URI("http://localhost:" + port + "/"+ validTaskId+"/reportVerification");
+        URI uri = new URI("http://localhost:" + port + "/" + validTaskId + "/reportVerification");
 
         HttpHeaders headers = new HttpHeaders();
         headers.set("Accept-Language", testedLocale.toString());
@@ -290,7 +291,7 @@ public class VerifyReportControllerIntegrationTest {
         Map<String, String> messages = getMessagesAccordingToLocale(country);
         Locale testedLocale = convertEnumToLocale(country);
 
-        URI uri = new URI("http://localhost:" + port + "/"+ validTaskId+"/reportVerification");
+        URI uri = new URI("http://localhost:" + port + "/" + validTaskId + "/reportVerification");
 
         HttpHeaders headers = new HttpHeaders();
         headers.set("Accept-Language", testedLocale.toString());
@@ -350,7 +351,7 @@ public class VerifyReportControllerIntegrationTest {
         Map<String, String> messages = getMessagesAccordingToLocale(country);
         Locale testedLocale = convertEnumToLocale(country);
 
-        URI uri = new URI("http://localhost:" + port + "/"+ validTaskId+"/reportVerification");
+        URI uri = new URI("http://localhost:" + port + "/" + validTaskId + "/reportVerification");
 
         HttpHeaders headers = new HttpHeaders();
         headers.set("Accept-Language", testedLocale.toString());
@@ -381,7 +382,7 @@ public class VerifyReportControllerIntegrationTest {
 
         String notExistingTaskId = UUID.randomUUID().toString();
 
-        URI uri = new URI("http://localhost:" + port + "/"+ notExistingTaskId +"/reportVerification");
+        URI uri = new URI("http://localhost:" + port + "/" + notExistingTaskId + "/reportVerification");
 
         HttpHeaders headers = new HttpHeaders();
         headers.set("Accept-Language", testedLocale.toString());
@@ -407,7 +408,7 @@ public class VerifyReportControllerIntegrationTest {
         Map<String, String> messages = getMessagesAccordingToLocale(country);
         Locale testedLocale = convertEnumToLocale(country);
 
-        URI uri = new URI("http://localhost:" + port + "/"+ validTaskId +"/reportVerification");
+        URI uri = new URI("http://localhost:" + port + "/" + validTaskId + "/reportVerification");
 
         HttpHeaders headers = new HttpHeaders();
         headers.set("Accept-Language", testedLocale.toString());
@@ -433,7 +434,7 @@ public class VerifyReportControllerIntegrationTest {
         Map<String, String> messages = getMessagesAccordingToLocale(country);
         Locale testedLocale = convertEnumToLocale(country);
 
-        URI uri = new URI("http://localhost:" + port + "/"+ validTaskId +"/reportVerification");
+        URI uri = new URI("http://localhost:" + port + "/" + validTaskId + "/reportVerification");
 
         HttpHeaders headers = new HttpHeaders();
         headers.set("Accept-Language", testedLocale.toString());
@@ -459,7 +460,7 @@ public class VerifyReportControllerIntegrationTest {
         Map<String, String> messages = getMessagesAccordingToLocale(country);
         Locale testedLocale = convertEnumToLocale(country);
 
-        URI uri = new URI("http://localhost:" + port + "/"+ declinedByEmployeeTaskId +"/reportVerification");
+        URI uri = new URI("http://localhost:" + port + "/" + declinedByEmployeeTaskId + "/reportVerification");
 
         HttpHeaders headers = new HttpHeaders();
         headers.set("Accept-Language", testedLocale.toString());
@@ -485,7 +486,7 @@ public class VerifyReportControllerIntegrationTest {
         Map<String, String> messages = getMessagesAccordingToLocale(country);
         Locale testedLocale = convertEnumToLocale(country);
 
-        URI uri = new URI("http://localhost:" + port + "/"+ reportNotSentTaskId +"/reportVerification");
+        URI uri = new URI("http://localhost:" + port + "/" + reportNotSentTaskId + "/reportVerification");
 
         HttpHeaders headers = new HttpHeaders();
         headers.set("Accept-Language", testedLocale.toString());
@@ -507,14 +508,14 @@ public class VerifyReportControllerIntegrationTest {
 
 
     @Nested
-    class ShouldNotVerifyReportWhenNotAuthorized{
+    class ShouldNotVerifyReportWhenNotAuthorized {
 
         @ParameterizedTest
         @EnumSource(TestCountry.class)
         void shouldNotVerifyReportWhenNoToken(TestCountry country) throws Exception {
             Locale testedLocale = convertEnumToLocale(country);
 
-            URI uri = new URI("http://localhost:" + port + "/"+ validTaskId+"/reportVerification");
+            URI uri = new URI("http://localhost:" + port + "/" + validTaskId + "/reportVerification");
 
             HttpHeaders headers = new HttpHeaders();
             headers.set("Accept-Language", testedLocale.toString());
@@ -538,7 +539,7 @@ public class VerifyReportControllerIntegrationTest {
             Map<String, String> messages = getMessagesAccordingToLocale(country);
             Locale testedLocale = convertEnumToLocale(country);
 
-            URI uri = new URI("http://localhost:" + port + "/"+ validTaskId+"/reportVerification");
+            URI uri = new URI("http://localhost:" + port + "/" + validTaskId + "/reportVerification");
 
             HttpHeaders headers = new HttpHeaders();
             headers.set("Accept-Language", testedLocale.toString());
@@ -565,7 +566,7 @@ public class VerifyReportControllerIntegrationTest {
             Map<String, String> messages = getMessagesAccordingToLocale(country);
             Locale testedLocale = convertEnumToLocale(country);
 
-            URI uri = new URI("http://localhost:" + port + "/"+ validTaskId+"/reportVerification");
+            URI uri = new URI("http://localhost:" + port + "/" + validTaskId + "/reportVerification");
 
             HttpHeaders headers = new HttpHeaders();
             headers.set("Accept-Language", testedLocale.toString());

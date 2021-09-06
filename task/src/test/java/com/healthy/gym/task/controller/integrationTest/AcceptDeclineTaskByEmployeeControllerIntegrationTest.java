@@ -35,6 +35,7 @@ import org.testcontainers.utility.DockerImageName;
 
 import java.net.URI;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.*;
 
 import static com.healthy.gym.task.configuration.LocaleConverter.convertEnumToLocale;
@@ -188,9 +189,9 @@ public class AcceptDeclineTaskByEmployeeControllerIntegrationTest {
         taskDocument.setEmployee(employeeDocument);
         taskDocument.setTitle("Title 1");
         taskDocument.setDescription("Description 1");
-        taskDocument.setTaskCreationDate(LocalDate.now().minusMonths(1));
-        taskDocument.setDueDate(LocalDate.now().plusMonths(1));
-        taskDocument.setLastTaskUpdateDate(LocalDate.now());
+        taskDocument.setTaskCreationDate(LocalDateTime.now().minusMonths(1));
+        taskDocument.setDueDate(LocalDateTime.now().plusMonths(1));
+        taskDocument.setLastTaskUpdateDate(LocalDateTime.now());
         taskDocument.setEmployeeAccept(AcceptanceStatus.NO_ACTION);
         taskDocument.setManagerAccept(AcceptanceStatus.NO_ACTION);
 
@@ -203,9 +204,9 @@ public class AcceptDeclineTaskByEmployeeControllerIntegrationTest {
         approvedTaskDocument.setEmployee(employeeDocument);
         approvedTaskDocument.setTitle("Title 1");
         approvedTaskDocument.setDescription("Description 1");
-        approvedTaskDocument.setTaskCreationDate(LocalDate.now().minusMonths(1));
-        approvedTaskDocument.setDueDate(LocalDate.now().plusMonths(1));
-        approvedTaskDocument.setLastTaskUpdateDate(LocalDate.now());
+        approvedTaskDocument.setTaskCreationDate(LocalDateTime.now().minusMonths(1));
+        approvedTaskDocument.setDueDate(LocalDateTime.now().plusMonths(1));
+        approvedTaskDocument.setLastTaskUpdateDate(LocalDateTime.now());
         approvedTaskDocument.setEmployeeAccept(AcceptanceStatus.ACCEPTED);
         approvedTaskDocument.setManagerAccept(AcceptanceStatus.NO_ACTION);
 
@@ -228,9 +229,9 @@ public class AcceptDeclineTaskByEmployeeControllerIntegrationTest {
         taskForTrainerDocument.setEmployee(trainerDocument);
         taskForTrainerDocument.setTitle("Title 1");
         taskForTrainerDocument.setDescription("Description 1");
-        taskForTrainerDocument.setTaskCreationDate(LocalDate.now().minusMonths(1));
-        taskForTrainerDocument.setDueDate(LocalDate.now().plusMonths(1));
-        taskForTrainerDocument.setLastTaskUpdateDate(LocalDate.now());
+        taskForTrainerDocument.setTaskCreationDate(LocalDateTime.now().minusMonths(1));
+        taskForTrainerDocument.setDueDate(LocalDateTime.now().plusMonths(1));
+        taskForTrainerDocument.setLastTaskUpdateDate(LocalDateTime.now());
         taskForTrainerDocument.setEmployeeAccept(AcceptanceStatus.NO_ACTION);
         taskForTrainerDocument.setManagerAccept(AcceptanceStatus.NO_ACTION);
 

@@ -32,6 +32,7 @@ import org.testcontainers.utility.DockerImageName;
 
 import java.net.URI;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.*;
 
 import static com.healthy.gym.task.configuration.LocaleConverter.convertEnumToLocale;
@@ -127,9 +128,9 @@ public class DeleteTaskControllerIntegrationTest {
         taskDocument.setEmployee(employeeDocument);
         taskDocument.setTitle("Title 1");
         taskDocument.setDescription("Description 1");
-        taskDocument.setDueDate(LocalDate.now().plusMonths(1));
-        taskDocument.setTaskCreationDate(LocalDate.now().minusMonths(1));
-        taskDocument.setLastTaskUpdateDate(LocalDate.now().minusDays(5));
+        taskDocument.setDueDate(LocalDateTime.now().plusMonths(1));
+        taskDocument.setTaskCreationDate(LocalDateTime.now().minusMonths(1));
+        taskDocument.setLastTaskUpdateDate(LocalDateTime.now().minusDays(5));
         taskDocument.setEmployeeAccept(AcceptanceStatus.NO_ACTION);
         taskDocument.setManagerAccept(AcceptanceStatus.NO_ACTION);
 

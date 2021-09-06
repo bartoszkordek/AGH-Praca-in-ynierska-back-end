@@ -16,6 +16,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -54,9 +55,9 @@ public class UpdateTaskServiceUnitTest {
         String titleUpdated = "Zaktualizowane przykładowe zadanie";
         String descriptionToUpdate = "Opis przykładowego zadania";
         String descriptionUpdated = "Zaktualizowany opis przykładowego zadania";
-        var now = LocalDate.now();
-        LocalDate dueDateToUpdate = now.plusMonths(1);
-        LocalDate dueDateUpdated = now.plusMonths(2);
+        var now = LocalDateTime.now();
+        LocalDateTime dueDateToUpdate = now.plusMonths(1);
+        LocalDateTime dueDateUpdated = now.plusMonths(2);
 
         //request
         ManagerTaskCreationRequest managerTaskCreationRequest = new ManagerTaskCreationRequest();

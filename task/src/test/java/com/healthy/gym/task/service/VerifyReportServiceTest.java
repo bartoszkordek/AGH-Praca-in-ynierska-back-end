@@ -15,7 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -54,11 +54,11 @@ class VerifyReportServiceTest {
 
         String title = "Przykładowe zadanie";
         String description = "Opis przykładowego zadania";
-        var now = LocalDate.now();
-        LocalDate taskCreationDate = now.minusMonths(1);
-        LocalDate dueDate = now.plusMonths(1);
+        var now = LocalDateTime.now();
+        LocalDateTime taskCreationDate = now.minusMonths(1);
+        LocalDateTime dueDate = now.plusMonths(1);
         String report = "Przykładowy raport";
-        LocalDate reportDate = now.minusDays(5);
+        LocalDateTime reportDate = now.minusDays(5);
         String employeeComment = "Przykładowy komentarz";
 
         //DB documents
@@ -136,11 +136,11 @@ class VerifyReportServiceTest {
 
         String title = "Przykładowe zadanie";
         String description = "Opis przykładowego zadania";
-        var now = LocalDate.now();
-        LocalDate taskCreationDate = now.minusMonths(1);
-        LocalDate dueDate = now.plusMonths(1);
+        var now = LocalDateTime.now();
+        LocalDateTime taskCreationDate = now.minusMonths(1);
+        LocalDateTime dueDate = now.plusMonths(1);
         String report = "Przykładowy raport";
-        LocalDate reportDate = now.minusDays(5);
+        LocalDateTime reportDate = now.minusDays(5);
         String employeeComment = "Przykładowy komentarz";
 
         //DB documents
@@ -206,7 +206,7 @@ class VerifyReportServiceTest {
     }
 
     @Test
-    void shouldNotVerifyReport_whenTaskIdNotExist(){
+    void shouldNotVerifyReport_whenTaskIdNotExist() {
         //before
         String notFoundTaskId = UUID.randomUUID().toString();
 
@@ -220,7 +220,7 @@ class VerifyReportServiceTest {
     }
 
     @Test
-    void shouldNotVerifyReport_whenTaskDeclinedByEmployee(){
+    void shouldNotVerifyReport_whenTaskDeclinedByEmployee() {
         //before
         String declinedByEmployeeTaskId = UUID.randomUUID().toString();
 
@@ -234,11 +234,11 @@ class VerifyReportServiceTest {
 
         String title = "Przykładowe zadanie";
         String description = "Opis przykładowego zadania";
-        var now = LocalDate.now();
-        LocalDate taskCreationDate = now.minusMonths(1);
-        LocalDate dueDate = now.plusMonths(1);
+        var now = LocalDateTime.now();
+        LocalDateTime taskCreationDate = now.minusMonths(1);
+        LocalDateTime dueDate = now.plusMonths(1);
         String report = "Przykładowy raport";
-        LocalDate reportDate = now.minusDays(5);
+        LocalDateTime reportDate = now.minusDays(5);
         String employeeComment = "Przykładowy komentarz";
 
         //DB documents
@@ -287,7 +287,7 @@ class VerifyReportServiceTest {
 
 
     @Test
-    void shouldNotVerifyReport_whenInvalidMark(){
+    void shouldNotVerifyReport_whenInvalidMark() {
         //before
         taskId = UUID.randomUUID().toString();
         employeeId = UUID.randomUUID().toString();
@@ -305,11 +305,11 @@ class VerifyReportServiceTest {
 
         String title = "Przykładowe zadanie";
         String description = "Opis przykładowego zadania";
-        var now = LocalDate.now();
-        LocalDate taskCreationDate = now.minusMonths(1);
-        LocalDate dueDate = now.plusMonths(1);
+        var now = LocalDateTime.now();
+        LocalDateTime taskCreationDate = now.minusMonths(1);
+        LocalDateTime dueDate = now.plusMonths(1);
         String report = "Przykładowy raport";
-        LocalDate reportDate = now.minusDays(5);
+        LocalDateTime reportDate = now.minusDays(5);
         String employeeComment = "Przykładowy komentarz";
 
         //DB documents
@@ -361,7 +361,7 @@ class VerifyReportServiceTest {
     }
 
     @Test
-    void shouldNotVerifyReport_whenInvalidStatus(){
+    void shouldNotVerifyReport_whenInvalidStatus() {
         //before
         taskId = UUID.randomUUID().toString();
         employeeId = UUID.randomUUID().toString();
@@ -373,11 +373,11 @@ class VerifyReportServiceTest {
 
         String title = "Przykładowe zadanie";
         String description = "Opis przykładowego zadania";
-        var now = LocalDate.now();
-        LocalDate taskCreationDate = now.minusMonths(1);
-        LocalDate dueDate = now.plusMonths(1);
+        var now = LocalDateTime.now();
+        LocalDateTime taskCreationDate = now.minusMonths(1);
+        LocalDateTime dueDate = now.plusMonths(1);
         String report = "Przykładowy raport";
-        LocalDate reportDate = now.minusDays(5);
+        LocalDateTime reportDate = now.minusDays(5);
         String employeeComment = "Przykładowy komentarz";
 
         //DB documents
@@ -438,11 +438,11 @@ class VerifyReportServiceTest {
 
         String title = "Przykładowe zadanie";
         String description = "Opis przykładowego zadania";
-        var now = LocalDate.now();
-        LocalDate taskCreationDate = now.minusMonths(1);
-        LocalDate dueDate = now.plusMonths(1);
+        var now = LocalDateTime.now();
+        LocalDateTime taskCreationDate = now.minusMonths(1);
+        LocalDateTime dueDate = now.plusMonths(1);
         String report = "Przykładowy raport";
-        LocalDate reportDate = now.minusDays(5);
+        LocalDateTime reportDate = now.minusDays(5);
         String employeeComment = "Przykładowy komentarz";
 
         //DB documents

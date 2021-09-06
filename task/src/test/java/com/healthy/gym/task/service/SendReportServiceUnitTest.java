@@ -20,6 +20,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -63,9 +64,9 @@ public class SendReportServiceUnitTest {
 
         String title = "Przykładowe zadanie";
         String description = "Opis przykładowego zadania";
-        var now = LocalDate.now();
-        LocalDate dueDate = now.plusMonths(1);
-        LocalDate lastTaskUpdateDate = now.minusMonths(1);
+        var now = LocalDateTime.now();
+        LocalDateTime dueDate = now.plusMonths(1);
+        LocalDateTime lastTaskUpdateDate = now.minusMonths(1);
         String report = "Done!";
 
         //request

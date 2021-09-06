@@ -35,6 +35,7 @@ import org.testcontainers.utility.DockerImageName;
 
 import java.net.URI;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
@@ -125,8 +126,8 @@ public class UpdateTaskControllerIntegrationTest {
 
         requestTitle = "Updated test task 1";
         requestDescription = "Updated description for task 1";
-        requestDueDate = LocalDate.now().plusMonths(2).format(DateTimeFormatter.ISO_LOCAL_DATE);
-        requestReminderDate = LocalDate.now().plusDays(20).format(DateTimeFormatter.ISO_LOCAL_DATE);
+        requestDueDate = LocalDateTime.now().plusMonths(2).format(DateTimeFormatter.ISO_LOCAL_DATE);
+        requestReminderDate = LocalDateTime.now().plusDays(20).format(DateTimeFormatter.ISO_LOCAL_DATE);
         priority = "HIGH";
         managerTaskCreationRequest = new ManagerTaskCreationRequest();
         managerTaskCreationRequest.setTitle(requestTitle);
@@ -195,9 +196,9 @@ public class UpdateTaskControllerIntegrationTest {
         taskDocument.setEmployee(employeeDocument1);
         taskDocument.setTitle("Title 1");
         taskDocument.setDescription("Description 1");
-        taskDocument.setTaskCreationDate(LocalDate.now().minusMonths(1));
-        taskDocument.setDueDate(LocalDate.now().plusMonths(1));
-        taskDocument.setLastTaskUpdateDate(LocalDate.now());
+        taskDocument.setTaskCreationDate(LocalDateTime.now().minusMonths(1));
+        taskDocument.setDueDate(LocalDateTime.now().plusMonths(1));
+        taskDocument.setLastTaskUpdateDate(LocalDateTime.now());
         taskDocument.setEmployeeAccept(AcceptanceStatus.NO_ACTION);
         taskDocument.setManagerAccept(AcceptanceStatus.NO_ACTION);
 

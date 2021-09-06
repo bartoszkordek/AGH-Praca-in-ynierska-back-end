@@ -25,6 +25,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
@@ -96,7 +97,7 @@ class DeleteTaskControllerUnitTest {
                 .header("Authorization", managerToken)
                 .contentType(MediaType.APPLICATION_JSON);
 
-        var now = LocalDate.now();
+        var now = LocalDateTime.now();
         String managerId = UUID.randomUUID().toString();
         String managerName = "Martin";
         String managerSurname = "Manager";
@@ -107,9 +108,9 @@ class DeleteTaskControllerUnitTest {
         BasicUserInfoDTO employee = new BasicUserInfoDTO(employeeId, employeeName, employeeSurname);
         String title = "Test task 1";
         String description = "Description for task 1";
-        LocalDate taskCreationDate = now.minusMonths(1);
-        LocalDate lastOrderUpdateDate = now;
-        LocalDate dueDate = now.plusMonths(1);
+        LocalDateTime taskCreationDate = now.minusMonths(1);
+        LocalDateTime lastOrderUpdateDate = now;
+        LocalDateTime dueDate = now.plusMonths(1);
         AcceptanceStatus employeeAccept = AcceptanceStatus.NO_ACTION;
         AcceptanceStatus managerAccept = AcceptanceStatus.NO_ACTION;
 

@@ -36,6 +36,7 @@ import org.testcontainers.utility.DockerImageName;
 import java.net.URI;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 import static com.healthy.gym.task.configuration.LocaleConverter.convertEnumToLocale;
@@ -85,6 +86,8 @@ public class VerifyReportControllerIntegrationTest {
     private String reportNotSentTaskId;
 
     private ObjectMapper objectMapper;
+    private LocalDateTime now;
+    private DateTimeFormatter formatter;
 
     private String validRequestContentApproved;
     private String validRequestContentDeclined;
@@ -100,6 +103,8 @@ public class VerifyReportControllerIntegrationTest {
 
     @BeforeEach
     void setUp() throws JsonProcessingException {
+        now = LocalDateTime.now();
+        formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
 
         userId = UUID.randomUUID().toString();
         userToken = tokenFactory.getUserToken(userId);
@@ -175,14 +180,14 @@ public class VerifyReportControllerIntegrationTest {
         taskDocument.setEmployee(employeeDocument);
         taskDocument.setTitle("Title 1");
         taskDocument.setDescription("Description 1");
-        taskDocument.setTaskCreationDate(LocalDateTime.now().minusMonths(1));
-        taskDocument.setDueDate(LocalDateTime.now().plusMonths(1));
-        taskDocument.setLastTaskUpdateDate(LocalDateTime.now().minusDays(5));
+        taskDocument.setTaskCreationDate(now.minusMonths(1));
+        taskDocument.setDueDate(now.plusMonths(1));
+        taskDocument.setLastTaskUpdateDate(now.minusDays(5));
         taskDocument.setEmployeeAccept(AcceptanceStatus.ACCEPTED);
         taskDocument.setManagerAccept(AcceptanceStatus.NO_ACTION);
         taskDocument.setEmployeeComment("I approve this task");
         taskDocument.setReport("Sample report");
-        taskDocument.setReportDate(LocalDateTime.now().minusDays(5));
+        taskDocument.setReportDate(now.minusDays(5));
 
         mongoTemplate.save(taskDocument);
 
@@ -193,9 +198,9 @@ public class VerifyReportControllerIntegrationTest {
         declinedByEmployeeTaskDocument.setEmployee(employeeDocument);
         declinedByEmployeeTaskDocument.setTitle("Title 1");
         declinedByEmployeeTaskDocument.setDescription("Description 1");
-        declinedByEmployeeTaskDocument.setTaskCreationDate(LocalDateTime.now().minusMonths(1));
-        declinedByEmployeeTaskDocument.setDueDate(LocalDateTime.now().plusMonths(1));
-        declinedByEmployeeTaskDocument.setLastTaskUpdateDate(LocalDateTime.now().minusDays(5));
+        declinedByEmployeeTaskDocument.setTaskCreationDate(now.minusMonths(1));
+        declinedByEmployeeTaskDocument.setDueDate(now.plusMonths(1));
+        declinedByEmployeeTaskDocument.setLastTaskUpdateDate(now.minusDays(5));
         declinedByEmployeeTaskDocument.setEmployeeAccept(AcceptanceStatus.NOT_ACCEPTED);
         declinedByEmployeeTaskDocument.setManagerAccept(AcceptanceStatus.NO_ACTION);
         declinedByEmployeeTaskDocument.setEmployeeComment("I decline this task");
@@ -209,9 +214,9 @@ public class VerifyReportControllerIntegrationTest {
         reportNotSentEmployeeTaskDocument.setEmployee(employeeDocument);
         reportNotSentEmployeeTaskDocument.setTitle("Title 1");
         reportNotSentEmployeeTaskDocument.setDescription("Description 1");
-        reportNotSentEmployeeTaskDocument.setTaskCreationDate(LocalDateTime.now().minusMonths(1));
-        reportNotSentEmployeeTaskDocument.setDueDate(LocalDateTime.now().plusMonths(1));
-        reportNotSentEmployeeTaskDocument.setLastTaskUpdateDate(LocalDateTime.now().minusDays(5));
+        reportNotSentEmployeeTaskDocument.setTaskCreationDate(now.minusMonths(1));
+        reportNotSentEmployeeTaskDocument.setDueDate(now.plusMonths(1));
+        reportNotSentEmployeeTaskDocument.setLastTaskUpdateDate(now.minusDays(5));
         reportNotSentEmployeeTaskDocument.setEmployeeAccept(AcceptanceStatus.ACCEPTED);
         reportNotSentEmployeeTaskDocument.setManagerAccept(AcceptanceStatus.NO_ACTION);
         reportNotSentEmployeeTaskDocument.setEmployeeComment("I approve this task");
@@ -266,11 +271,11 @@ public class VerifyReportControllerIntegrationTest {
         assertThat(responseEntity.getBody().get("task").get("description").textValue())
                 .isEqualTo("Description 1");
         assertThat(responseEntity.getBody().get("task").get("taskCreationDate").textValue())
-                .isEqualTo(LocalDate.now().minusMonths(1).toString());
+                .isEqualTo(now.minusMonths(1).format(formatter));
         assertThat(responseEntity.getBody().get("task").get("lastTaskUpdateDate").textValue())
-                .isEqualTo(LocalDate.now().toString());
+                .isEqualTo(now.format(formatter));
         assertThat(responseEntity.getBody().get("task").get("dueDate").textValue())
-                .isEqualTo(LocalDate.now().plusMonths(1).toString());
+                .isEqualTo(now.plusMonths(1).format(formatter));
         assertThat(responseEntity.getBody().get("task").get("employeeAccept").textValue())
                 .isEqualTo(AcceptanceStatus.ACCEPTED.toString());
         assertThat(responseEntity.getBody().get("task").get("managerAccept").textValue())
@@ -280,7 +285,7 @@ public class VerifyReportControllerIntegrationTest {
         assertThat(responseEntity.getBody().get("task").get("report").textValue())
                 .isEqualTo("Sample report");
         assertThat(responseEntity.getBody().get("task").get("reportDate").textValue())
-                .isEqualTo(LocalDate.now().minusDays(5).toString());
+                .isEqualTo(now.minusDays(5).format(formatter));
         assertThat(responseEntity.getBody().get("task").get("mark").intValue())
                 .isEqualTo(4);
     }
@@ -326,11 +331,11 @@ public class VerifyReportControllerIntegrationTest {
         assertThat(responseEntity.getBody().get("task").get("description").textValue())
                 .isEqualTo("Description 1");
         assertThat(responseEntity.getBody().get("task").get("taskCreationDate").textValue())
-                .isEqualTo(LocalDate.now().minusMonths(1).toString());
+                .isEqualTo(now.minusMonths(1).format(formatter));
         assertThat(responseEntity.getBody().get("task").get("lastTaskUpdateDate").textValue())
-                .isEqualTo(LocalDate.now().toString());
+                .isEqualTo(now.format(formatter));
         assertThat(responseEntity.getBody().get("task").get("dueDate").textValue())
-                .isEqualTo(LocalDate.now().plusMonths(1).toString());
+                .isEqualTo(now.plusMonths(1).format(formatter));
         assertThat(responseEntity.getBody().get("task").get("employeeAccept").textValue())
                 .isEqualTo(AcceptanceStatus.ACCEPTED.toString());
         assertThat(responseEntity.getBody().get("task").get("managerAccept").textValue())
@@ -340,7 +345,7 @@ public class VerifyReportControllerIntegrationTest {
         assertThat(responseEntity.getBody().get("task").get("report").textValue())
                 .isEqualTo("Sample report");
         assertThat(responseEntity.getBody().get("task").get("reportDate").textValue())
-                .isEqualTo(LocalDate.now().minusDays(5).toString());
+                .isEqualTo(now.minusDays(5).format(formatter));
         assertThat(responseEntity.getBody().get("task").get("mark").intValue())
                 .isEqualTo(2);
     }

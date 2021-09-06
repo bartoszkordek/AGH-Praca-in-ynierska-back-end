@@ -35,6 +35,7 @@ import org.testcontainers.utility.DockerImageName;
 
 import java.net.URI;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
@@ -98,8 +99,11 @@ public class CreateTaskControllerIntegrationTest {
         registry.add("spring.rabbitmq.port", rabbitMQContainer::getFirstMappedPort);
     }
 
+    private DateTimeFormatter formatter;
+
     @BeforeEach
     void setUp() throws JsonProcessingException {
+        formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
 
         userId = UUID.randomUUID().toString();
         userToken = tokenFactory.getUserToken(userId);
@@ -117,8 +121,8 @@ public class CreateTaskControllerIntegrationTest {
 
         requestTitle = "Test task 1";
         requestDescription = "Description for task 1";
-        requestDueDate = LocalDate.now().plusMonths(1).format(DateTimeFormatter.ISO_LOCAL_DATE);
-        requestReminderDate = LocalDate.now().plusDays(20).format(DateTimeFormatter.ISO_LOCAL_DATE);
+        requestDueDate = LocalDateTime.now().plusMonths(1).format(formatter);
+        requestReminderDate = LocalDateTime.now().plusDays(20).format(formatter);
         priority = "HIGH";
         managerTaskCreationRequest = new ManagerTaskCreationRequest();
         managerTaskCreationRequest.setTitle(requestTitle);
@@ -209,11 +213,11 @@ public class CreateTaskControllerIntegrationTest {
         assertThat(responseEntity.getBody().get("task").get("description").textValue())
                 .isEqualTo("Description for task 1");
         assertThat(responseEntity.getBody().get("task").get("taskCreationDate").textValue())
-                .isEqualTo(LocalDate.now().toString());
+                .isEqualTo(LocalDateTime.now().format(formatter));
         assertThat(responseEntity.getBody().get("task").get("lastTaskUpdateDate").textValue())
-                .isEqualTo(LocalDate.now().toString());
+                .isEqualTo(LocalDateTime.now().format(formatter));
         assertThat(responseEntity.getBody().get("task").get("dueDate").textValue())
-                .isEqualTo(LocalDate.now().plusMonths(1).toString());
+                .isEqualTo(LocalDateTime.now().plusMonths(1).format(formatter));
         assertThat(responseEntity.getBody().get("task").get("employeeAccept").textValue())
                 .isEqualTo(AcceptanceStatus.NO_ACTION.toString());
         assertThat(responseEntity.getBody().get("task").get("managerAccept").textValue())
@@ -267,17 +271,17 @@ public class CreateTaskControllerIntegrationTest {
         assertThat(responseEntity.getBody().get("task").get("description").textValue())
                 .isEqualTo("Description for task 1");
         assertThat(responseEntity.getBody().get("task").get("taskCreationDate").textValue())
-                .isEqualTo(LocalDate.now().toString());
+                .isEqualTo(LocalDateTime.now().format(formatter));
         assertThat(responseEntity.getBody().get("task").get("lastTaskUpdateDate").textValue())
-                .isEqualTo(LocalDate.now().toString());
+                .isEqualTo(LocalDateTime.now().format(formatter));
         assertThat(responseEntity.getBody().get("task").get("dueDate").textValue())
-                .isEqualTo(LocalDate.now().plusMonths(1).toString());
+                .isEqualTo(LocalDateTime.now().plusMonths(1).format(formatter));
         assertThat(responseEntity.getBody().get("task").get("employeeAccept").textValue())
                 .isEqualTo(AcceptanceStatus.NO_ACTION.toString());
         assertThat(responseEntity.getBody().get("task").get("managerAccept").textValue())
                 .isEqualTo(AcceptanceStatus.NO_ACTION.toString());
         assertThat(responseEntity.getBody().get("task").get("reminderDate").textValue())
-                .isEqualTo(LocalDate.now().plusDays(20).format(DateTimeFormatter.ISO_LOCAL_DATE));
+                .isEqualTo(LocalDateTime.now().plusDays(20).format(formatter));
         assertThat(responseEntity.getBody().get("task").get("priority").textValue())
                 .isEqualTo("HIGH");
         assertThat(responseEntity.getBody().get("task").get("mark").intValue())
@@ -442,7 +446,7 @@ public class CreateTaskControllerIntegrationTest {
         invalidDueDateManagerTaskCreationRequest.setTitle(requestTitle);
         invalidDueDateManagerTaskCreationRequest.setDescription(requestDescription);
         invalidDueDateManagerTaskCreationRequest.setEmployeeId(employeeId);
-        invalidDueDateManagerTaskCreationRequest.setDueDate(LocalDate.now().minusDays(1).toString());
+        invalidDueDateManagerTaskCreationRequest.setDueDate(LocalDateTime.now().minusDays(1).toString());
 
         String invalidDueDateRequestContent = objectMapper.writeValueAsString(invalidDueDateManagerTaskCreationRequest);
 
@@ -476,7 +480,7 @@ public class CreateTaskControllerIntegrationTest {
         invalidPriorityManagerTaskCreationRequest.setTitle(requestTitle);
         invalidPriorityManagerTaskCreationRequest.setDescription(requestDescription);
         invalidPriorityManagerTaskCreationRequest.setEmployeeId(employeeId);
-        invalidPriorityManagerTaskCreationRequest.setDueDate(LocalDate.now().toString());
+        invalidPriorityManagerTaskCreationRequest.setDueDate(LocalDateTime.now().toString());
         invalidPriorityManagerTaskCreationRequest.setPriority("INVALID_PRIORITY");
 
         String invalidDueDateRequestContent = objectMapper.writeValueAsString(invalidPriorityManagerTaskCreationRequest);

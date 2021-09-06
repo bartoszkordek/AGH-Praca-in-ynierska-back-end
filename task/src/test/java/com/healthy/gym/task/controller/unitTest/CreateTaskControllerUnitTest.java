@@ -80,12 +80,13 @@ public class CreateTaskControllerUnitTest {
     private ManagerTaskCreationRequest managerTaskCreationRequest;
 
     private ObjectMapper objectMapper;
+    private DateTimeFormatter formatter;
 
     private URI uri;
 
-
     @BeforeEach
     void setUp() throws JsonProcessingException, URISyntaxException {
+        formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
         userId = UUID.randomUUID().toString();
         userToken = tokenFactory.getUserToken(userId);
 
@@ -102,7 +103,7 @@ public class CreateTaskControllerUnitTest {
 
         requestTitle = "Test task 1";
         requestDescription = "Description for task 1";
-        requestDueDate = LocalDate.now().plusMonths(1).format(DateTimeFormatter.ISO_LOCAL_DATE);
+        requestDueDate = LocalDateTime.now().plusMonths(1).format(formatter);
         managerTaskCreationRequest = new ManagerTaskCreationRequest();
         managerTaskCreationRequest.setTitle(requestTitle);
         managerTaskCreationRequest.setDescription(requestDescription);
@@ -112,6 +113,7 @@ public class CreateTaskControllerUnitTest {
         requestContent = objectMapper.writeValueAsString(managerTaskCreationRequest);
 
         uri = new URI("");
+
     }
 
     @ParameterizedTest
@@ -188,9 +190,9 @@ public class CreateTaskControllerUnitTest {
                         jsonPath("$.task.title").value(is(title)),
                         jsonPath("$.task.description").value(is(description)),
                         jsonPath("$.task.report").doesNotExist(),
-                        jsonPath("$.task.taskCreationDate").value(is(taskCreationDate.toString())),
-                        jsonPath("$.task.lastTaskUpdateDate").value(is(lastTaskUpdateDate.toString())),
-                        jsonPath("$.task.dueDate").value(is(dueDate.toString())),
+                        jsonPath("$.task.taskCreationDate").value(is(taskCreationDate.format(formatter))),
+                        jsonPath("$.task.lastTaskUpdateDate").value(is(lastTaskUpdateDate.format(formatter))),
+                        jsonPath("$.task.dueDate").value(is(dueDate.format(formatter))),
                         jsonPath("$.task.reportDate").doesNotExist(),
                         jsonPath("$.task.employeeAccept").value(is(employeeAccept.toString())),
                         jsonPath("$.task.managerAccept").value(is(managerAccept.toString()))
@@ -342,7 +344,7 @@ public class CreateTaskControllerUnitTest {
                             jsonPath("$.errors.employeeId")
                                     .value(is(messages.get("exception.invalid.id.format"))),
                             jsonPath("$.errors.dueDate")
-                                    .value(is(messages.get("exception.invalid.date.format")))
+                                    .value(is(messages.get("exception.invalid.date.time.format")))
                     ));
         }
 

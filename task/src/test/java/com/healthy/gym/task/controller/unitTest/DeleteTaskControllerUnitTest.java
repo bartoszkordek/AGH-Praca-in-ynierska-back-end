@@ -26,6 +26,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
@@ -64,6 +65,7 @@ class DeleteTaskControllerUnitTest {
     private String taskId;
 
     private URI uri;
+    private DateTimeFormatter formatter;
 
     @BeforeEach
     void setUp() throws  URISyntaxException {
@@ -82,6 +84,7 @@ class DeleteTaskControllerUnitTest {
         taskId = UUID.randomUUID().toString();
 
         uri = new URI("/");
+        formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
     }
 
 
@@ -158,9 +161,9 @@ class DeleteTaskControllerUnitTest {
                         jsonPath("$.task.title").value(is(title)),
                         jsonPath("$.task.description").value(is(description)),
                         jsonPath("$.task.report").doesNotExist(),
-                        jsonPath("$.task.taskCreationDate").value(is(taskCreationDate.toString())),
-                        jsonPath("$.task.lastTaskUpdateDate").value(is(lastOrderUpdateDate.toString())),
-                        jsonPath("$.task.dueDate").value(is(dueDate.toString())),
+                        jsonPath("$.task.taskCreationDate").value(is(taskCreationDate.format(formatter))),
+                        jsonPath("$.task.lastTaskUpdateDate").value(is(lastOrderUpdateDate.format(formatter))),
+                        jsonPath("$.task.dueDate").value(is(dueDate.format(formatter))),
                         jsonPath("$.task.reportDate").doesNotExist(),
                         jsonPath("$.task.employeeAccept").value(is(employeeAccept.toString())),
                         jsonPath("$.task.managerAccept").value(is(managerAccept.toString()))

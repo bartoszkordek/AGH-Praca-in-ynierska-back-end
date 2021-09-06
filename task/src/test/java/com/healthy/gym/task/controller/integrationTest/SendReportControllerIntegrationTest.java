@@ -34,8 +34,8 @@ import org.testcontainers.shaded.com.fasterxml.jackson.databind.ObjectMapper;
 import org.testcontainers.utility.DockerImageName;
 
 import java.net.URI;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 import static com.healthy.gym.task.configuration.LocaleConverter.convertEnumToLocale;
@@ -89,6 +89,9 @@ public class SendReportControllerIntegrationTest {
     private String invalidRequestContent;
     private ObjectMapper objectMapper;
 
+    private LocalDateTime now;
+    private DateTimeFormatter formatter;
+
     @DynamicPropertySource
     static void setProperties(DynamicPropertyRegistry registry) {
         registry.add("spring.data.mongodb.uri", mongoDBContainer::getReplicaSetUrl);
@@ -97,6 +100,8 @@ public class SendReportControllerIntegrationTest {
 
     @BeforeEach
     void setUp() throws JsonProcessingException {
+        now = LocalDateTime.now();
+        formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
 
         userId = UUID.randomUUID().toString();
         userToken = tokenFactory.getUserToken(userId);
@@ -155,9 +160,9 @@ public class SendReportControllerIntegrationTest {
         taskDocument.setEmployee(employeeDocument);
         taskDocument.setTitle("Title 1");
         taskDocument.setDescription("Description 1");
-        taskDocument.setTaskCreationDate(LocalDateTime.now().minusMonths(1));
-        taskDocument.setDueDate(LocalDateTime.now().plusMonths(1));
-        taskDocument.setLastTaskUpdateDate(LocalDateTime.now());
+        taskDocument.setTaskCreationDate(now.minusMonths(1));
+        taskDocument.setDueDate(now.plusMonths(1));
+        taskDocument.setLastTaskUpdateDate(now);
         taskDocument.setEmployeeAccept(AcceptanceStatus.NO_ACTION);
         taskDocument.setManagerAccept(AcceptanceStatus.NO_ACTION);
 
@@ -170,9 +175,9 @@ public class SendReportControllerIntegrationTest {
         declinedByEmployeeTaskDocument.setEmployee(employeeDocument);
         declinedByEmployeeTaskDocument.setTitle("Title 1");
         declinedByEmployeeTaskDocument.setDescription("Description 1");
-        declinedByEmployeeTaskDocument.setTaskCreationDate(LocalDateTime.now().minusMonths(1));
-        declinedByEmployeeTaskDocument.setDueDate(LocalDateTime.now().plusMonths(1));
-        declinedByEmployeeTaskDocument.setLastTaskUpdateDate(LocalDateTime.now());
+        declinedByEmployeeTaskDocument.setTaskCreationDate(now.minusMonths(1));
+        declinedByEmployeeTaskDocument.setDueDate(now.plusMonths(1));
+        declinedByEmployeeTaskDocument.setLastTaskUpdateDate(now);
         declinedByEmployeeTaskDocument.setEmployeeAccept(AcceptanceStatus.NOT_ACCEPTED);
         declinedByEmployeeTaskDocument.setManagerAccept(AcceptanceStatus.NO_ACTION);
 
@@ -185,9 +190,9 @@ public class SendReportControllerIntegrationTest {
         exceededDueDateTaskDocument.setEmployee(employeeDocument);
         exceededDueDateTaskDocument.setTitle("Title 1");
         exceededDueDateTaskDocument.setDescription("Description 1");
-        exceededDueDateTaskDocument.setTaskCreationDate(LocalDateTime.now().minusMonths(1));
-        exceededDueDateTaskDocument.setDueDate(LocalDateTime.now().minusDays(5));
-        exceededDueDateTaskDocument.setLastTaskUpdateDate(LocalDateTime.now().minusMonths(1));
+        exceededDueDateTaskDocument.setTaskCreationDate(now.minusMonths(1));
+        exceededDueDateTaskDocument.setDueDate(now.minusDays(5));
+        exceededDueDateTaskDocument.setLastTaskUpdateDate(now.minusMonths(1));
         exceededDueDateTaskDocument.setEmployeeAccept(AcceptanceStatus.ACCEPTED);
         exceededDueDateTaskDocument.setManagerAccept(AcceptanceStatus.NO_ACTION);
 
@@ -200,19 +205,19 @@ public class SendReportControllerIntegrationTest {
         reportAlreadySentTaskDocument.setEmployee(employeeDocument);
         reportAlreadySentTaskDocument.setTitle("Title 1");
         reportAlreadySentTaskDocument.setDescription("Description 1");
-        reportAlreadySentTaskDocument.setTaskCreationDate(LocalDateTime.now().minusMonths(1));
-        reportAlreadySentTaskDocument.setDueDate(LocalDateTime.now().plusMonths(1));
-        reportAlreadySentTaskDocument.setLastTaskUpdateDate(LocalDateTime.now().minusDays(5));
+        reportAlreadySentTaskDocument.setTaskCreationDate(now.minusMonths(1));
+        reportAlreadySentTaskDocument.setDueDate(now.plusMonths(1));
+        reportAlreadySentTaskDocument.setLastTaskUpdateDate(now.minusDays(5));
         reportAlreadySentTaskDocument.setEmployeeAccept(AcceptanceStatus.ACCEPTED);
         reportAlreadySentTaskDocument.setManagerAccept(AcceptanceStatus.NO_ACTION);
         reportAlreadySentTaskDocument.setReport(report);
-        reportAlreadySentTaskDocument.setReportDate(LocalDateTime.now().minusDays(5));
+        reportAlreadySentTaskDocument.setReportDate(now.minusDays(5));
 
         mongoTemplate.save(reportAlreadySentTaskDocument);
     }
 
     @AfterEach
-    void tearDown(){
+    void tearDown() {
         mongoTemplate.dropCollection(TaskDocument.class);
         mongoTemplate.dropCollection(UserDocument.class);
     }
@@ -223,7 +228,7 @@ public class SendReportControllerIntegrationTest {
         Map<String, String> messages = getMessagesAccordingToLocale(country);
         Locale testedLocale = convertEnumToLocale(country);
 
-        URI uri = new URI("http://localhost:" + port + "/"+ taskId+"/employee/"+employeeId+"/report");
+        URI uri = new URI("http://localhost:" + port + "/" + taskId + "/employee/" + employeeId + "/report");
 
         HttpHeaders headers = new HttpHeaders();
         headers.set("Accept-Language", testedLocale.toString());
@@ -258,11 +263,11 @@ public class SendReportControllerIntegrationTest {
         assertThat(responseEntity.getBody().get("task").get("description").textValue())
                 .isEqualTo("Description 1");
         assertThat(responseEntity.getBody().get("task").get("taskCreationDate").textValue())
-                .isEqualTo(LocalDate.now().minusMonths(1).toString());
+                .isEqualTo(now.minusMonths(1).format(formatter));
         assertThat(responseEntity.getBody().get("task").get("lastTaskUpdateDate").textValue())
-                .isEqualTo(LocalDate.now().toString());
+                .isEqualTo(now.format(formatter));
         assertThat(responseEntity.getBody().get("task").get("dueDate").textValue())
-                .isEqualTo(LocalDate.now().plusMonths(1).toString());
+                .isEqualTo(now.plusMonths(1).format(formatter));
         assertThat(responseEntity.getBody().get("task").get("employeeAccept").textValue())
                 .isEqualTo(AcceptanceStatus.ACCEPTED.toString());
         assertThat(responseEntity.getBody().get("task").get("managerAccept").textValue())
@@ -270,156 +275,12 @@ public class SendReportControllerIntegrationTest {
         assertThat(responseEntity.getBody().get("task").get("report").textValue())
                 .isEqualTo("Done!");
         assertThat(responseEntity.getBody().get("task").get("reportDate").textValue())
-                .isEqualTo(LocalDate.now().toString());
+                .isEqualTo(now.format(formatter));
     }
 
 
     @Nested
-    class ShouldNotSendReportWhenInvalidRequest{
-
-        @Nested
-        class BindException{
-
-            @ParameterizedTest
-            @EnumSource(TestCountry.class)
-            void shouldNotSendReport_whenMissingRequiredValues(TestCountry country) throws Exception {
-                Map<String, String> messages = getMessagesAccordingToLocale(country);
-                Locale testedLocale = convertEnumToLocale(country);
-
-                URI uri = new URI("http://localhost:" + port + "/"+ taskId+"/employee/"+employeeId+"/report");
-
-                HttpHeaders headers = new HttpHeaders();
-                headers.set("Accept-Language", testedLocale.toString());
-                headers.set("Authorization", employeeToken);
-                headers.setContentType(MediaType.APPLICATION_JSON);
-
-                HttpEntity<Object> request = new HttpEntity<>(emptyRequestContent, headers);
-                String expectedMessage = messages.get("request.bind.exception");
-
-                ResponseEntity<JsonNode> responseEntity = restTemplate
-                        .exchange(uri, HttpMethod.PUT, request, JsonNode.class);
-
-                assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
-                assertThat(responseEntity.getBody().get("error").textValue()).isEqualTo("Bad Request");
-                assertThat(Objects.requireNonNull(responseEntity.getBody().get("message").textValue()))
-                        .isEqualTo(expectedMessage);
-                assertThat(responseEntity.getBody().get("timestamp")).isNotNull();
-                assertThat(responseEntity.getBody().get("errors")).isNotNull();
-                assertThat(responseEntity.getBody().get("errors").get("result").textValue())
-                        .isEqualTo(messages.get("field.required"));
-            }
-
-            @ParameterizedTest
-            @EnumSource(TestCountry.class)
-            void shouldNotSendReport_whenInvalidRequestContent(TestCountry country) throws Exception {
-                Map<String, String> messages = getMessagesAccordingToLocale(country);
-                Locale testedLocale = convertEnumToLocale(country);
-
-                URI uri = new URI("http://localhost:" + port + "/"+ taskId+"/employee/"+employeeId+"/report");
-
-                HttpHeaders headers = new HttpHeaders();
-                headers.set("Accept-Language", testedLocale.toString());
-                headers.set("Authorization", employeeToken);
-                headers.setContentType(MediaType.APPLICATION_JSON);
-
-                HttpEntity<Object> request = new HttpEntity<>(invalidRequestContent, headers);
-                String expectedMessage = messages.get("request.bind.exception");
-
-                ResponseEntity<JsonNode> responseEntity = restTemplate
-                        .exchange(uri, HttpMethod.PUT, request, JsonNode.class);
-
-                assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
-                assertThat(responseEntity.getBody().get("error").textValue()).isEqualTo("Bad Request");
-                assertThat(Objects.requireNonNull(responseEntity.getBody().get("message").textValue()))
-                        .isEqualTo(expectedMessage);
-                assertThat(responseEntity.getBody().get("timestamp")).isNotNull();
-                assertThat(responseEntity.getBody().get("errors")).isNotNull();
-                assertThat(responseEntity.getBody().get("errors").get("result").textValue())
-                        .isEqualTo(messages.get("field.result.failure"));
-            }
-        }
-
-
-        @Nested
-        class ShouldNotSendReportTaskWhenNotAuthorized{
-
-            @ParameterizedTest
-            @EnumSource(TestCountry.class)
-            void shouldNotSendReportWhenNoToken(TestCountry country) throws Exception {
-                Locale testedLocale = convertEnumToLocale(country);
-
-                URI uri = new URI("http://localhost:" + port + "/"+ taskId+"/employee/"+employeeId+"/report");
-
-                HttpHeaders headers = new HttpHeaders();
-                headers.set("Accept-Language", testedLocale.toString());
-                headers.setContentType(MediaType.APPLICATION_JSON);
-
-                HttpEntity<Object> request = new HttpEntity<>(requestContent, headers);
-
-                ResponseEntity<JsonNode> responseEntity = restTemplate
-                        .exchange(uri, HttpMethod.PUT, request, JsonNode.class);
-
-                assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
-                assertThat(responseEntity.getBody().get("status").intValue()).isEqualTo(403);
-                assertThat(responseEntity.getBody().get("error").textValue()).isEqualTo("Forbidden");
-                assertThat(responseEntity.getBody().get("message").textValue()).isEqualTo("Access Denied");
-                assertThat(responseEntity.getBody().get("timestamp")).isNotNull();
-            }
-
-            @ParameterizedTest
-            @EnumSource(TestCountry.class)
-            void shouldNotSendReportWhenLoggedAsUser(TestCountry country) throws Exception {
-                Map<String, String> messages = getMessagesAccordingToLocale(country);
-                Locale testedLocale = convertEnumToLocale(country);
-
-                URI uri = new URI("http://localhost:" + port + "/"+ taskId+"/employee/"+employeeId+"/report");
-
-                HttpHeaders headers = new HttpHeaders();
-                headers.set("Accept-Language", testedLocale.toString());
-                headers.set("Authorization", userToken);
-                headers.setContentType(MediaType.APPLICATION_JSON);
-
-                HttpEntity<Object> request = new HttpEntity<>(requestContent, headers);
-
-                ResponseEntity<JsonNode> responseEntity = restTemplate
-                        .exchange(uri, HttpMethod.PUT, request, JsonNode.class);
-
-                String expectedMessage = messages.get("exception.access.denied");
-
-                assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
-                assertThat(responseEntity.getBody().get("status").intValue()).isEqualTo(403);
-                assertThat(responseEntity.getBody().get("error").textValue()).isEqualTo("Forbidden");
-                assertThat(responseEntity.getBody().get("message").textValue()).isEqualTo(expectedMessage);
-                assertThat(responseEntity.getBody().get("timestamp")).isNotNull();
-            }
-
-            @ParameterizedTest
-            @EnumSource(TestCountry.class)
-            void shouldNotSendReportWhenLoggedAsManager(TestCountry country) throws Exception {
-                Map<String, String> messages = getMessagesAccordingToLocale(country);
-                Locale testedLocale = convertEnumToLocale(country);
-
-                URI uri = new URI("http://localhost:" + port + "/"+ taskId+"/employee/"+employeeId+"/report");
-
-                HttpHeaders headers = new HttpHeaders();
-                headers.set("Accept-Language", testedLocale.toString());
-                headers.set("Authorization", managerToken);
-                headers.setContentType(MediaType.APPLICATION_JSON);
-
-                HttpEntity<Object> request = new HttpEntity<>(requestContent, headers);
-
-                ResponseEntity<JsonNode> responseEntity = restTemplate
-                        .exchange(uri, HttpMethod.PUT, request, JsonNode.class);
-
-                String expectedMessage = messages.get("exception.access.denied");
-
-                assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
-                assertThat(responseEntity.getBody().get("status").intValue()).isEqualTo(403);
-                assertThat(responseEntity.getBody().get("error").textValue()).isEqualTo("Forbidden");
-                assertThat(responseEntity.getBody().get("message").textValue()).isEqualTo(expectedMessage);
-                assertThat(responseEntity.getBody().get("timestamp")).isNotNull();
-            }
-        }
+    class ShouldNotSendReportWhenInvalidRequest {
 
         @ParameterizedTest
         @EnumSource(TestCountry.class)
@@ -429,7 +290,7 @@ public class SendReportControllerIntegrationTest {
 
             String notFoundTaskId = UUID.randomUUID().toString();
 
-            URI uri = new URI("http://localhost:" + port + "/"+ notFoundTaskId+"/employee/"+employeeId+"/report");
+            URI uri = new URI("http://localhost:" + port + "/" + notFoundTaskId + "/employee/" + employeeId + "/report");
 
             HttpHeaders headers = new HttpHeaders();
             headers.set("Accept-Language", testedLocale.toString());
@@ -448,7 +309,6 @@ public class SendReportControllerIntegrationTest {
                     .isEqualTo(expectedMessage);
             assertThat(responseEntity.getBody().get("timestamp")).isNotNull();
         }
-
 
         @ParameterizedTest
         @EnumSource(TestCountry.class)
@@ -503,7 +363,6 @@ public class SendReportControllerIntegrationTest {
             assertThat(responseEntity.getBody().get("timestamp")).isNotNull();
         }
 
-
         @ParameterizedTest
         @EnumSource(TestCountry.class)
         void shouldNotSendReport_whenReportAlreadySent(TestCountry country) throws Exception {
@@ -529,6 +388,149 @@ public class SendReportControllerIntegrationTest {
             assertThat(Objects.requireNonNull(responseEntity.getBody().get("message").textValue()))
                     .isEqualTo(expectedMessage);
             assertThat(responseEntity.getBody().get("timestamp")).isNotNull();
+        }
+
+        @Nested
+        class BindException {
+
+            @ParameterizedTest
+            @EnumSource(TestCountry.class)
+            void shouldNotSendReport_whenMissingRequiredValues(TestCountry country) throws Exception {
+                Map<String, String> messages = getMessagesAccordingToLocale(country);
+                Locale testedLocale = convertEnumToLocale(country);
+
+                URI uri = new URI("http://localhost:" + port + "/" + taskId + "/employee/" + employeeId + "/report");
+
+                HttpHeaders headers = new HttpHeaders();
+                headers.set("Accept-Language", testedLocale.toString());
+                headers.set("Authorization", employeeToken);
+                headers.setContentType(MediaType.APPLICATION_JSON);
+
+                HttpEntity<Object> request = new HttpEntity<>(emptyRequestContent, headers);
+                String expectedMessage = messages.get("request.bind.exception");
+
+                ResponseEntity<JsonNode> responseEntity = restTemplate
+                        .exchange(uri, HttpMethod.PUT, request, JsonNode.class);
+
+                assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+                assertThat(responseEntity.getBody().get("error").textValue()).isEqualTo("Bad Request");
+                assertThat(Objects.requireNonNull(responseEntity.getBody().get("message").textValue()))
+                        .isEqualTo(expectedMessage);
+                assertThat(responseEntity.getBody().get("timestamp")).isNotNull();
+                assertThat(responseEntity.getBody().get("errors")).isNotNull();
+                assertThat(responseEntity.getBody().get("errors").get("result").textValue())
+                        .isEqualTo(messages.get("field.required"));
+            }
+
+            @ParameterizedTest
+            @EnumSource(TestCountry.class)
+            void shouldNotSendReport_whenInvalidRequestContent(TestCountry country) throws Exception {
+                Map<String, String> messages = getMessagesAccordingToLocale(country);
+                Locale testedLocale = convertEnumToLocale(country);
+
+                URI uri = new URI("http://localhost:" + port + "/" + taskId + "/employee/" + employeeId + "/report");
+
+                HttpHeaders headers = new HttpHeaders();
+                headers.set("Accept-Language", testedLocale.toString());
+                headers.set("Authorization", employeeToken);
+                headers.setContentType(MediaType.APPLICATION_JSON);
+
+                HttpEntity<Object> request = new HttpEntity<>(invalidRequestContent, headers);
+                String expectedMessage = messages.get("request.bind.exception");
+
+                ResponseEntity<JsonNode> responseEntity = restTemplate
+                        .exchange(uri, HttpMethod.PUT, request, JsonNode.class);
+
+                assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+                assertThat(responseEntity.getBody().get("error").textValue()).isEqualTo("Bad Request");
+                assertThat(Objects.requireNonNull(responseEntity.getBody().get("message").textValue()))
+                        .isEqualTo(expectedMessage);
+                assertThat(responseEntity.getBody().get("timestamp")).isNotNull();
+                assertThat(responseEntity.getBody().get("errors")).isNotNull();
+                assertThat(responseEntity.getBody().get("errors").get("result").textValue())
+                        .isEqualTo(messages.get("field.result.failure"));
+            }
+        }
+
+        @Nested
+        class ShouldNotSendReportTaskWhenNotAuthorized {
+
+            @ParameterizedTest
+            @EnumSource(TestCountry.class)
+            void shouldNotSendReportWhenNoToken(TestCountry country) throws Exception {
+                Locale testedLocale = convertEnumToLocale(country);
+
+                URI uri = new URI("http://localhost:" + port + "/" + taskId + "/employee/" + employeeId + "/report");
+
+                HttpHeaders headers = new HttpHeaders();
+                headers.set("Accept-Language", testedLocale.toString());
+                headers.setContentType(MediaType.APPLICATION_JSON);
+
+                HttpEntity<Object> request = new HttpEntity<>(requestContent, headers);
+
+                ResponseEntity<JsonNode> responseEntity = restTemplate
+                        .exchange(uri, HttpMethod.PUT, request, JsonNode.class);
+
+                assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
+                assertThat(responseEntity.getBody().get("status").intValue()).isEqualTo(403);
+                assertThat(responseEntity.getBody().get("error").textValue()).isEqualTo("Forbidden");
+                assertThat(responseEntity.getBody().get("message").textValue()).isEqualTo("Access Denied");
+                assertThat(responseEntity.getBody().get("timestamp")).isNotNull();
+            }
+
+            @ParameterizedTest
+            @EnumSource(TestCountry.class)
+            void shouldNotSendReportWhenLoggedAsUser(TestCountry country) throws Exception {
+                Map<String, String> messages = getMessagesAccordingToLocale(country);
+                Locale testedLocale = convertEnumToLocale(country);
+
+                URI uri = new URI("http://localhost:" + port + "/" + taskId + "/employee/" + employeeId + "/report");
+
+                HttpHeaders headers = new HttpHeaders();
+                headers.set("Accept-Language", testedLocale.toString());
+                headers.set("Authorization", userToken);
+                headers.setContentType(MediaType.APPLICATION_JSON);
+
+                HttpEntity<Object> request = new HttpEntity<>(requestContent, headers);
+
+                ResponseEntity<JsonNode> responseEntity = restTemplate
+                        .exchange(uri, HttpMethod.PUT, request, JsonNode.class);
+
+                String expectedMessage = messages.get("exception.access.denied");
+
+                assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
+                assertThat(responseEntity.getBody().get("status").intValue()).isEqualTo(403);
+                assertThat(responseEntity.getBody().get("error").textValue()).isEqualTo("Forbidden");
+                assertThat(responseEntity.getBody().get("message").textValue()).isEqualTo(expectedMessage);
+                assertThat(responseEntity.getBody().get("timestamp")).isNotNull();
+            }
+
+            @ParameterizedTest
+            @EnumSource(TestCountry.class)
+            void shouldNotSendReportWhenLoggedAsManager(TestCountry country) throws Exception {
+                Map<String, String> messages = getMessagesAccordingToLocale(country);
+                Locale testedLocale = convertEnumToLocale(country);
+
+                URI uri = new URI("http://localhost:" + port + "/" + taskId + "/employee/" + employeeId + "/report");
+
+                HttpHeaders headers = new HttpHeaders();
+                headers.set("Accept-Language", testedLocale.toString());
+                headers.set("Authorization", managerToken);
+                headers.setContentType(MediaType.APPLICATION_JSON);
+
+                HttpEntity<Object> request = new HttpEntity<>(requestContent, headers);
+
+                ResponseEntity<JsonNode> responseEntity = restTemplate
+                        .exchange(uri, HttpMethod.PUT, request, JsonNode.class);
+
+                String expectedMessage = messages.get("exception.access.denied");
+
+                assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
+                assertThat(responseEntity.getBody().get("status").intValue()).isEqualTo(403);
+                assertThat(responseEntity.getBody().get("error").textValue()).isEqualTo("Forbidden");
+                assertThat(responseEntity.getBody().get("message").textValue()).isEqualTo(expectedMessage);
+                assertThat(responseEntity.getBody().get("timestamp")).isNotNull();
+            }
         }
 
     }

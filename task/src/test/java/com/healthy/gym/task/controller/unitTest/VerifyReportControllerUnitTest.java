@@ -30,6 +30,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
@@ -78,6 +79,7 @@ public class VerifyReportControllerUnitTest {
     private ManagerReportVerificationRequest managerReportVerificationRequestDeclined;
 
     private URI uri;
+    private DateTimeFormatter formatter;
 
     @BeforeEach
     void setUp() throws URISyntaxException, JsonProcessingException {
@@ -110,6 +112,7 @@ public class VerifyReportControllerUnitTest {
         validRequestContentDeclined = objectMapper.writeValueAsString(managerReportVerificationRequestDeclined);
 
         uri = new URI("/");
+        formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
     }
 
     @ParameterizedTest
@@ -189,10 +192,10 @@ public class VerifyReportControllerUnitTest {
                         jsonPath("$.task.title").value(is(title)),
                         jsonPath("$.task.description").value(is(description)),
                         jsonPath("$.task.report").value(is(report)),
-                        jsonPath("$.task.taskCreationDate").value(is(taskCreationDate.toString())),
-                        jsonPath("$.task.lastTaskUpdateDate").value(is(lastTaskUpdateDate.toString())),
-                        jsonPath("$.task.dueDate").value(is(dueDate.toString())),
-                        jsonPath("$.task.reportDate").value(is(reportDate.toString())),
+                        jsonPath("$.task.taskCreationDate").value(is(taskCreationDate.format(formatter))),
+                        jsonPath("$.task.lastTaskUpdateDate").value(is(lastTaskUpdateDate.format(formatter))),
+                        jsonPath("$.task.dueDate").value(is(dueDate.format(formatter))),
+                        jsonPath("$.task.reportDate").value(is(reportDate.format(formatter))),
                         jsonPath("$.task.mark").value(is(mark)),
                         jsonPath("$.task.employeeAccept").value(is(employeeAccept.toString())),
                         jsonPath("$.task.managerAccept").value(is(managerAccept.toString())),
@@ -278,10 +281,10 @@ public class VerifyReportControllerUnitTest {
                         jsonPath("$.task.title").value(is(title)),
                         jsonPath("$.task.description").value(is(description)),
                         jsonPath("$.task.report").value(is(report)),
-                        jsonPath("$.task.taskCreationDate").value(is(taskCreationDate.toString())),
-                        jsonPath("$.task.lastTaskUpdateDate").value(is(lastTaskUpdateDate.toString())),
-                        jsonPath("$.task.dueDate").value(is(dueDate.toString())),
-                        jsonPath("$.task.reportDate").value(is(reportDate.toString())),
+                        jsonPath("$.task.taskCreationDate").value(is(taskCreationDate.format(formatter))),
+                        jsonPath("$.task.lastTaskUpdateDate").value(is(lastTaskUpdateDate.format(formatter))),
+                        jsonPath("$.task.dueDate").value(is(dueDate.format(formatter))),
+                        jsonPath("$.task.reportDate").value(is(reportDate.format(formatter))),
                         jsonPath("$.task.mark").value(is(mark)),
                         jsonPath("$.task.employeeAccept").value(is(employeeAccept.toString())),
                         jsonPath("$.task.managerAccept").value(is(managerAccept.toString())),

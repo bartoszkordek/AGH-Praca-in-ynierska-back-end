@@ -33,6 +33,7 @@ import org.testcontainers.utility.DockerImageName;
 import java.net.URI;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 import static com.healthy.gym.task.configuration.LocaleConverter.convertEnumToLocale;
@@ -84,8 +85,12 @@ public class DeleteTaskControllerIntegrationTest {
         registry.add("spring.rabbitmq.port", rabbitMQContainer::getFirstMappedPort);
     }
 
+    private DateTimeFormatter formatter;
+    private LocalDateTime now;
+
     @BeforeEach
     void setUp(){
+        formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
 
         userId = UUID.randomUUID().toString();
         userToken = tokenFactory.getUserToken(userId);
@@ -122,6 +127,8 @@ public class DeleteTaskControllerIntegrationTest {
 
         mongoTemplate.save(managerDocument);
 
+        now=LocalDateTime.now();
+
         TaskDocument taskDocument = new TaskDocument();
         taskDocument.setTaskId(taskId);
         taskDocument.setManager(managerDocument);
@@ -129,8 +136,8 @@ public class DeleteTaskControllerIntegrationTest {
         taskDocument.setTitle("Title 1");
         taskDocument.setDescription("Description 1");
         taskDocument.setDueDate(LocalDateTime.now().plusMonths(1));
-        taskDocument.setTaskCreationDate(LocalDateTime.now().minusMonths(1));
-        taskDocument.setLastTaskUpdateDate(LocalDateTime.now().minusDays(5));
+        taskDocument.setTaskCreationDate(now.minusMonths(1));
+        taskDocument.setLastTaskUpdateDate(now.minusDays(5));
         taskDocument.setEmployeeAccept(AcceptanceStatus.NO_ACTION);
         taskDocument.setManagerAccept(AcceptanceStatus.NO_ACTION);
 
@@ -184,11 +191,11 @@ public class DeleteTaskControllerIntegrationTest {
         assertThat(responseEntity.getBody().get("task").get("description").textValue())
                 .isEqualTo("Description 1");
         assertThat(responseEntity.getBody().get("task").get("taskCreationDate").textValue())
-                .isEqualTo(LocalDate.now().minusMonths(1).toString());
+                .isEqualTo(now.minusMonths(1).format(formatter));
         assertThat(responseEntity.getBody().get("task").get("lastTaskUpdateDate").textValue())
-                .isEqualTo(LocalDate.now().minusDays(5).toString());
+                .isEqualTo(now.minusDays(5).format(formatter));
         assertThat(responseEntity.getBody().get("task").get("dueDate").textValue())
-                .isEqualTo(LocalDate.now().plusMonths(1).toString());
+                .isEqualTo(now.plusMonths(1).format(formatter));
         assertThat(responseEntity.getBody().get("task").get("employeeAccept").textValue())
                 .isEqualTo(AcceptanceStatus.NO_ACTION.toString());
         assertThat(responseEntity.getBody().get("task").get("managerAccept").textValue())

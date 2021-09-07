@@ -10,19 +10,19 @@ public class EmployeeAcceptDeclineTaskRequest {
     private String acceptanceStatus;
 
     @NotNull(message = "{field.required}")
-    @Size(min = 2, max = 200, message = "{field.employee.comment}")
+    @Size(max = 200, message = "{field.employee.comment}")
     private String employeeComment;
 
     public String getAcceptanceStatus() {
         return acceptanceStatus;
     }
 
-    public String getEmployeeComment() {
-        return employeeComment;
-    }
-
     public void setAcceptanceStatus(String acceptanceStatus) {
         this.acceptanceStatus = acceptanceStatus;
+    }
+
+    public String getEmployeeComment() {
+        return employeeComment;
     }
 
     public void setEmployeeComment(String employeeComment) {

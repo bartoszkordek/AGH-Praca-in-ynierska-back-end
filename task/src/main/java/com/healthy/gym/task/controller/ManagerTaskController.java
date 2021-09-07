@@ -60,7 +60,6 @@ public class ManagerTaskController {
             if (bindingResult.hasErrors()) throw new BindException(bindingResult);
 
             String message = translator.toLocale("task.created");
-
             TaskDTO taskDTO = taskService.createTask(userId, request);
 
             return ResponseEntity

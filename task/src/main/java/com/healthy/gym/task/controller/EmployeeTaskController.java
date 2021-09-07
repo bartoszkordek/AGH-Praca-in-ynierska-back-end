@@ -46,8 +46,6 @@ public class EmployeeTaskController {
         this.taskService = taskService;
     }
 
-
-
     @PreAuthorize("principal==#userId")
     @PutMapping("/{taskId}/employee/{userId}/approvalStatus")
     public ResponseEntity<TaskResponse> acceptDeclineTaskByEmployee(
@@ -108,7 +106,6 @@ public class EmployeeTaskController {
             if (bindingResult.hasErrors()) throw new BindException(bindingResult);
 
             String message = translator.toLocale("report.sent");
-
             TaskDTO taskDTO = taskService.sendReport(taskId, userId, request);
 
             return ResponseEntity

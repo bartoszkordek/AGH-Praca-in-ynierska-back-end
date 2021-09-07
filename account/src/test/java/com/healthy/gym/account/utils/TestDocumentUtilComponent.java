@@ -9,6 +9,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -30,6 +31,13 @@ public class TestDocumentUtilComponent {
     public UserDocument saveAndGetTestUser() {
         return mongoTemplate.save(getTestUser());
     }
+
+    public UserDocument saveAndGetTestUser(LocalDateTime createdAt) {
+        var user = getTestUser();
+        user.setCreatedAt(createdAt);
+        return mongoTemplate.save(user);
+    }
+
 
     public UserDocument saveAndGetTestUser(String userId) {
         return mongoTemplate.save(getTestUser(userId));

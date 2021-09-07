@@ -2,6 +2,7 @@ package com.healthy.gym.account.controller;
 
 import com.healthy.gym.account.component.Translator;
 import com.healthy.gym.account.dto.DetailUserInfoDTO;
+import com.healthy.gym.account.dto.StatsDTO;
 import com.healthy.gym.account.exception.NoUserFound;
 import com.healthy.gym.account.service.UserService;
 import org.springframework.http.HttpStatus;
@@ -85,6 +86,18 @@ public class UserController {
         } catch (NoUserFound exception) {
             String reason = translator.toLocale("exception.no.manager.found");
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, reason, exception);
+
+        } catch (Exception exception) {
+            String reason = translator.toLocale(REQUEST_FAILURE);
+            exception.printStackTrace();
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, reason, exception);
+        }
+    }
+
+    @GetMapping("/stats")
+    public ResponseEntity<List<StatsDTO>> getStatsForLastWeek() {
+        try {
+            return ResponseEntity.ok(userService.getLastWeekStats());
 
         } catch (Exception exception) {
             String reason = translator.toLocale(REQUEST_FAILURE);

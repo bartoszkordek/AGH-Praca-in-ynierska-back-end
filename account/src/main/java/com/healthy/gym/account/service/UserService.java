@@ -1,6 +1,7 @@
 package com.healthy.gym.account.service;
 
 import com.healthy.gym.account.dto.DetailUserInfoDTO;
+import com.healthy.gym.account.dto.StatsDTO;
 import com.healthy.gym.account.exception.NoUserFound;
 
 import java.util.List;
@@ -14,5 +15,7 @@ public interface UserService {
     List<DetailUserInfoDTO> getAllEmployeesInSystem() throws NoUserFound;
 
     List<DetailUserInfoDTO> getAllManagersInSystem() throws NoUserFound;
+
+    List<StatsDTO> getLastWeekStats();
 
 }

@@ -25,6 +25,8 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
@@ -63,6 +65,7 @@ class DeleteTaskControllerUnitTest {
     private String taskId;
 
     private URI uri;
+    private DateTimeFormatter formatter;
 
     @BeforeEach
     void setUp() throws  URISyntaxException {
@@ -81,6 +84,7 @@ class DeleteTaskControllerUnitTest {
         taskId = UUID.randomUUID().toString();
 
         uri = new URI("/");
+        formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
     }
 
 
@@ -96,7 +100,7 @@ class DeleteTaskControllerUnitTest {
                 .header("Authorization", managerToken)
                 .contentType(MediaType.APPLICATION_JSON);
 
-        var now = LocalDate.now();
+        var now = LocalDateTime.now();
         String managerId = UUID.randomUUID().toString();
         String managerName = "Martin";
         String managerSurname = "Manager";
@@ -107,9 +111,9 @@ class DeleteTaskControllerUnitTest {
         BasicUserInfoDTO employee = new BasicUserInfoDTO(employeeId, employeeName, employeeSurname);
         String title = "Test task 1";
         String description = "Description for task 1";
-        LocalDate taskCreationDate = now.minusMonths(1);
-        LocalDate lastOrderUpdateDate = now;
-        LocalDate dueDate = now.plusMonths(1);
+        LocalDateTime taskCreationDate = now.minusMonths(1);
+        LocalDateTime lastOrderUpdateDate = now;
+        LocalDateTime dueDate = now.plusMonths(1);
         AcceptanceStatus employeeAccept = AcceptanceStatus.NO_ACTION;
         AcceptanceStatus managerAccept = AcceptanceStatus.NO_ACTION;
 
@@ -157,9 +161,9 @@ class DeleteTaskControllerUnitTest {
                         jsonPath("$.task.title").value(is(title)),
                         jsonPath("$.task.description").value(is(description)),
                         jsonPath("$.task.report").doesNotExist(),
-                        jsonPath("$.task.taskCreationDate").value(is(taskCreationDate.toString())),
-                        jsonPath("$.task.lastTaskUpdateDate").value(is(lastOrderUpdateDate.toString())),
-                        jsonPath("$.task.dueDate").value(is(dueDate.toString())),
+                        jsonPath("$.task.taskCreationDate").value(is(taskCreationDate.format(formatter))),
+                        jsonPath("$.task.lastTaskUpdateDate").value(is(lastOrderUpdateDate.format(formatter))),
+                        jsonPath("$.task.dueDate").value(is(dueDate.format(formatter))),
                         jsonPath("$.task.reportDate").doesNotExist(),
                         jsonPath("$.task.employeeAccept").value(is(employeeAccept.toString())),
                         jsonPath("$.task.managerAccept").value(is(managerAccept.toString()))

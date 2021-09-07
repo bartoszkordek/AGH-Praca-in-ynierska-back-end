@@ -4,6 +4,7 @@ import com.healthy.gym.gympass.enums.GymRole;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.Objects;
 
@@ -24,6 +25,10 @@ public class UserDocument {
     private boolean accountNonLocked;
     private Collection<GymRole> gymRoles;
     private String avatarUrl;
+
+    private LocalDateTime createdAt;
+
+    private LocalDateTime lastModifiedAt;
 
     public UserDocument() {
         //empty constructor required spring data mapper
@@ -188,6 +193,22 @@ public class UserDocument {
         this.avatarUrl = avatarUrl;
     }
 
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public LocalDateTime getLastModifiedAt() {
+        return lastModifiedAt;
+    }
+
+    public void setLastModifiedAt(LocalDateTime lastModifiedAt) {
+        this.lastModifiedAt = lastModifiedAt;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -205,7 +226,9 @@ public class UserDocument {
                 && Objects.equals(encryptedPassword, that.encryptedPassword)
                 && Objects.equals(userId, that.userId)
                 && Objects.equals(gymRoles, that.gymRoles)
-                && Objects.equals(avatarUrl, that.avatarUrl);
+                && Objects.equals(avatarUrl, that.avatarUrl)
+                && Objects.equals(createdAt, that.createdAt)
+                && Objects.equals(lastModifiedAt, that.lastModifiedAt);
     }
 
     @Override
@@ -223,7 +246,9 @@ public class UserDocument {
                 credentialsNonExpired,
                 accountNonLocked,
                 gymRoles,
-                avatarUrl
+                avatarUrl,
+                createdAt,
+                lastModifiedAt
         );
     }
 
@@ -241,7 +266,10 @@ public class UserDocument {
                 ", accountNonExpired=" + accountNonExpired +
                 ", credentialsNonExpired=" + credentialsNonExpired +
                 ", accountNonLocked=" + accountNonLocked +
+                ", gymRoles=" + gymRoles +
                 ", avatarUrl='" + avatarUrl + '\'' +
+                ", createdAt=" + createdAt +
+                ", lastModifiedAt=" + lastModifiedAt +
                 '}';
     }
 }

@@ -6,7 +6,7 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Objects;
 
 @Document(collection = "tasks")
@@ -22,11 +22,11 @@ public class TaskDocument {
     private String title;
     private String description;
     private String report;
-    private LocalDate taskCreationDate;
-    private LocalDate lastTaskUpdateDate;
-    private LocalDate dueDate;
-    private LocalDate reminderDate;
-    private LocalDate reportDate;
+    private LocalDateTime taskCreationDate;
+    private LocalDateTime lastTaskUpdateDate;
+    private LocalDateTime dueDate;
+    private LocalDateTime reminderDate;
+    private LocalDateTime reportDate;
     private Priority priority;
     private int mark;
     private AcceptanceStatus employeeAccept;
@@ -37,132 +37,132 @@ public class TaskDocument {
         return id;
     }
 
-    public String getTaskId() {
-        return taskId;
-    }
-
-    public UserDocument getManager() {
-        return manager;
-    }
-
-    public UserDocument getEmployee() {
-        return employee;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public String getReport() {
-        return report;
-    }
-
-    public LocalDate getTaskCreationDate() {
-        return taskCreationDate;
-    }
-
-    public LocalDate getLastTaskUpdateDate() {
-        return lastTaskUpdateDate;
-    }
-
-    public LocalDate getDueDate() {
-        return dueDate;
-    }
-
-    public LocalDate getReminderDate() {
-        return reminderDate;
-    }
-
-    public LocalDate getReportDate() {
-        return reportDate;
-    }
-
-    public Priority getPriority() {
-        return priority;
-    }
-
-    public int getMark() {
-        return mark;
-    }
-
-    public AcceptanceStatus getEmployeeAccept() {
-        return employeeAccept;
-    }
-
-    public AcceptanceStatus getManagerAccept() {
-        return managerAccept;
-    }
-
-    public String getEmployeeComment() {
-        return employeeComment;
-    }
-
     public void setId(String id) {
         this.id = id;
+    }
+
+    public String getTaskId() {
+        return taskId;
     }
 
     public void setTaskId(String taskId) {
         this.taskId = taskId;
     }
 
+    public UserDocument getManager() {
+        return manager;
+    }
+
     public void setManager(UserDocument manager) {
         this.manager = manager;
+    }
+
+    public UserDocument getEmployee() {
+        return employee;
     }
 
     public void setEmployee(UserDocument employee) {
         this.employee = employee;
     }
 
+    public String getTitle() {
+        return title;
+    }
+
     public void setTitle(String title) {
         this.title = title;
+    }
+
+    public String getDescription() {
+        return description;
     }
 
     public void setDescription(String description) {
         this.description = description;
     }
 
+    public String getReport() {
+        return report;
+    }
+
     public void setReport(String report) {
         this.report = report;
     }
 
-    public void setTaskCreationDate(LocalDate taskCreationDate) {
+    public LocalDateTime getTaskCreationDate() {
+        return taskCreationDate;
+    }
+
+    public void setTaskCreationDate(LocalDateTime taskCreationDate) {
         this.taskCreationDate = taskCreationDate;
     }
 
-    public void setLastTaskUpdateDate(LocalDate lastTaskUpdateDate) {
+    public LocalDateTime getLastTaskUpdateDate() {
+        return lastTaskUpdateDate;
+    }
+
+    public void setLastTaskUpdateDate(LocalDateTime lastTaskUpdateDate) {
         this.lastTaskUpdateDate = lastTaskUpdateDate;
     }
 
-    public void setDueDate(LocalDate dueDate) {
+    public LocalDateTime getDueDate() {
+        return dueDate;
+    }
+
+    public void setDueDate(LocalDateTime dueDate) {
         this.dueDate = dueDate;
     }
 
-    public void setReminderDate(LocalDate reminderDate) {
+    public LocalDateTime getReminderDate() {
+        return reminderDate;
+    }
+
+    public void setReminderDate(LocalDateTime reminderDate) {
         this.reminderDate = reminderDate;
     }
 
-    public void setReportDate(LocalDate reportDate) {
+    public LocalDateTime getReportDate() {
+        return reportDate;
+    }
+
+    public void setReportDate(LocalDateTime reportDate) {
         this.reportDate = reportDate;
+    }
+
+    public Priority getPriority() {
+        return priority;
     }
 
     public void setPriority(Priority priority) {
         this.priority = priority;
     }
 
+    public int getMark() {
+        return mark;
+    }
+
     public void setMark(int mark) {
         this.mark = mark;
+    }
+
+    public AcceptanceStatus getEmployeeAccept() {
+        return employeeAccept;
     }
 
     public void setEmployeeAccept(AcceptanceStatus employeeAccept) {
         this.employeeAccept = employeeAccept;
     }
 
+    public AcceptanceStatus getManagerAccept() {
+        return managerAccept;
+    }
+
     public void setManagerAccept(AcceptanceStatus managerAccept) {
         this.managerAccept = managerAccept;
+    }
+
+    public String getEmployeeComment() {
+        return employeeComment;
     }
 
     public void setEmployeeComment(String employeeComment) {

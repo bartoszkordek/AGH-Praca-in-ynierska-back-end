@@ -30,6 +30,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
@@ -43,7 +44,6 @@ import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.ResultMatcher.matchAll;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
 @WebMvcTest(GeneralTaskController.class)
 @ActiveProfiles(value = "test")
@@ -77,6 +77,7 @@ class GetTasksControllerUnitTest {
     private List responseBetweenLastAndTwoFutureMonths;
 
     private URI uri;
+    private DateTimeFormatter formatter;
 
     @BeforeEach
     void setUp() throws URISyntaxException {
@@ -98,7 +99,7 @@ class GetTasksControllerUnitTest {
         page = 0;
         size = 10;
         paging = PageRequest.of(page, size);
-        var now = LocalDate.now();
+        var now = LocalDateTime.now();
         String employeeName = "Jan";
         String employeeSurname = "Kowalski";
         String managerName = "Adam";
@@ -169,6 +170,7 @@ class GetTasksControllerUnitTest {
         responseBetweenLastAndTwoFutureMonths = List.of(taskDTO1, taskDTO2);
 
         uri = new URI("/page/");
+        formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
     }
 
     @ParameterizedTest
@@ -176,12 +178,12 @@ class GetTasksControllerUnitTest {
     void shouldGetTasks_whenProvidedDateRange(TestCountry country) throws Exception {
         Locale testedLocale = convertEnumToLocale(country);
 
-        var now = LocalDate.now();
+        var now = LocalDateTime.now();
         String startDueDate = now.minusYears(1).format(DateTimeFormatter.ISO_LOCAL_DATE);
         String endDueDate = now.format(DateTimeFormatter.ISO_LOCAL_DATE);
 
         RequestBuilder request = MockMvcRequestBuilders
-                .get(uri+String.valueOf(page)+"?startDueDate="+startDueDate+"&endDueDate="+endDueDate)
+                .get(uri + String.valueOf(page) + "?startDueDate=" + startDueDate + "&endDueDate=" + endDueDate)
                 .header("Accept-Language", testedLocale.toString())
                 .header("Authorization", managerToken)
                 .contentType(MediaType.APPLICATION_JSON);
@@ -213,13 +215,13 @@ class GetTasksControllerUnitTest {
                         jsonPath("$.[0].title").value(is("Title 3")),
                         jsonPath("$.[0].description").value(is("Description 3")),
                         jsonPath("$.[0].report").value(is("Report 3")),
-                        jsonPath("$.[0].taskCreationDate").value(is(now.minusMonths(5).toString())),
-                        jsonPath("$.[0].lastTaskUpdateDate").value(is(now.minusMonths(2).plusDays(1).toString())),
-                        jsonPath("$.[0].dueDate").value(is(now.minusMonths(1).minusDays(1).toString())),
+                        jsonPath("$.[0].taskCreationDate").value(is(now.minusMonths(5).format(formatter))),
+                        jsonPath("$.[0].lastTaskUpdateDate").value(is(now.minusMonths(2).plusDays(1).format(formatter))),
+                        jsonPath("$.[0].dueDate").value(is(now.minusMonths(1).minusDays(1).format(formatter))),
                         jsonPath("$.[0].reminderDate").doesNotExist(),
                         jsonPath("$.[0].priority").value(is(Priority.MEDIUM.toString())),
                         jsonPath("$.[0].mark").value(is(5)),
-                        jsonPath("$.[0].reportDate").value(is(now.minusMonths(2).toString())),
+                        jsonPath("$.[0].reportDate").value(is(now.minusMonths(2).format(formatter))),
                         jsonPath("$.[0].employeeAccept").value(is(AcceptanceStatus.ACCEPTED.toString())),
                         jsonPath("$.[0].managerAccept").value(is(AcceptanceStatus.ACCEPTED.toString())),
                         jsonPath("$.[0].employeeComment").value(is("Employee Comment 3"))
@@ -232,13 +234,13 @@ class GetTasksControllerUnitTest {
     void shouldGetTasks_whenProvidedDateRangeAndPriority(TestCountry country) throws Exception {
         Locale testedLocale = convertEnumToLocale(country);
 
-        var now = LocalDate.now();
+        var now = LocalDateTime.now();
         String startDueDate = now.minusYears(1).format(DateTimeFormatter.ISO_LOCAL_DATE);
         String endDueDate = now.format(DateTimeFormatter.ISO_LOCAL_DATE);
         String priority = "MEDIUM";
 
         RequestBuilder request = MockMvcRequestBuilders
-                .get(uri+String.valueOf(page)+"?startDueDate="+startDueDate+"&endDueDate="+endDueDate
+                .get(uri + String.valueOf(page) + "?startDueDate=" + startDueDate + "&endDueDate=" + endDueDate
                         + "&priority=" + priority)
                 .header("Accept-Language", testedLocale.toString())
                 .header("Authorization", managerToken)
@@ -271,13 +273,13 @@ class GetTasksControllerUnitTest {
                         jsonPath("$.[0].title").value(is("Title 3")),
                         jsonPath("$.[0].description").value(is("Description 3")),
                         jsonPath("$.[0].report").value(is("Report 3")),
-                        jsonPath("$.[0].taskCreationDate").value(is(now.minusMonths(5).toString())),
-                        jsonPath("$.[0].lastTaskUpdateDate").value(is(now.minusMonths(2).plusDays(1).toString())),
-                        jsonPath("$.[0].dueDate").value(is(now.minusMonths(1).minusDays(1).toString())),
+                        jsonPath("$.[0].taskCreationDate").value(is(now.minusMonths(5).format(formatter))),
+                        jsonPath("$.[0].lastTaskUpdateDate").value(is(now.minusMonths(2).plusDays(1).format(formatter))),
+                        jsonPath("$.[0].dueDate").value(is(now.minusMonths(1).minusDays(1).format(formatter))),
                         jsonPath("$.[0].reminderDate").doesNotExist(),
                         jsonPath("$.[0].priority").value(is(Priority.MEDIUM.toString())),
                         jsonPath("$.[0].mark").value(is(5)),
-                        jsonPath("$.[0].reportDate").value(is(now.minusMonths(2).toString())),
+                        jsonPath("$.[0].reportDate").value(is(now.minusMonths(2).format(formatter))),
                         jsonPath("$.[0].employeeAccept").value(is(AcceptanceStatus.ACCEPTED.toString())),
                         jsonPath("$.[0].managerAccept").value(is(AcceptanceStatus.ACCEPTED.toString())),
                         jsonPath("$.[0].employeeComment").value(is("Employee Comment 3"))
@@ -290,13 +292,13 @@ class GetTasksControllerUnitTest {
     void shouldGetTasks_whenProvidedDateRangeAndUserIdAndPriority(TestCountry country) throws Exception {
         Locale testedLocale = convertEnumToLocale(country);
 
-        var now = LocalDate.now();
+        var now = LocalDateTime.now();
         String startDueDate = now.minusYears(1).format(DateTimeFormatter.ISO_LOCAL_DATE);
         String endDueDate = now.format(DateTimeFormatter.ISO_LOCAL_DATE);
         String priority = "MEDIUM";
 
         RequestBuilder request = MockMvcRequestBuilders
-                .get(uri+String.valueOf(page)+"?startDueDate="+startDueDate+"&endDueDate="+endDueDate
+                .get(uri + String.valueOf(page) + "?startDueDate=" + startDueDate + "&endDueDate=" + endDueDate
                         + "&userId=" + employeeId + "&priority=" + priority)
                 .header("Accept-Language", testedLocale.toString())
                 .header("Authorization", managerToken)
@@ -329,13 +331,13 @@ class GetTasksControllerUnitTest {
                         jsonPath("$.[0].title").value(is("Title 3")),
                         jsonPath("$.[0].description").value(is("Description 3")),
                         jsonPath("$.[0].report").value(is("Report 3")),
-                        jsonPath("$.[0].taskCreationDate").value(is(now.minusMonths(5).toString())),
-                        jsonPath("$.[0].lastTaskUpdateDate").value(is(now.minusMonths(2).plusDays(1).toString())),
-                        jsonPath("$.[0].dueDate").value(is(now.minusMonths(1).minusDays(1).toString())),
+                        jsonPath("$.[0].taskCreationDate").value(is(now.minusMonths(5).format(formatter))),
+                        jsonPath("$.[0].lastTaskUpdateDate").value(is(now.minusMonths(2).plusDays(1).format(formatter))),
+                        jsonPath("$.[0].dueDate").value(is(now.minusMonths(1).minusDays(1).format(formatter))),
                         jsonPath("$.[0].reminderDate").doesNotExist(),
                         jsonPath("$.[0].priority").value(is(Priority.MEDIUM.toString())),
                         jsonPath("$.[0].mark").value(is(5)),
-                        jsonPath("$.[0].reportDate").value(is(now.minusMonths(2).toString())),
+                        jsonPath("$.[0].reportDate").value(is(now.minusMonths(2).format(formatter))),
                         jsonPath("$.[0].employeeAccept").value(is(AcceptanceStatus.ACCEPTED.toString())),
                         jsonPath("$.[0].managerAccept").value(is(AcceptanceStatus.ACCEPTED.toString())),
                         jsonPath("$.[0].employeeComment").value(is("Employee Comment 3"))
@@ -349,12 +351,12 @@ class GetTasksControllerUnitTest {
         Locale testedLocale = convertEnumToLocale(country);
 
         RequestBuilder request = MockMvcRequestBuilders
-                .get(uri+String.valueOf(page))
+                .get(uri + String.valueOf(page))
                 .header("Accept-Language", testedLocale.toString())
                 .header("Authorization", adminToken)
                 .contentType(MediaType.APPLICATION_JSON);
 
-        var now = LocalDate.now();
+        var now = LocalDateTime.now();
 
 
         when(taskService.getTasks(null, null, null, null, paging))
@@ -379,10 +381,10 @@ class GetTasksControllerUnitTest {
                         jsonPath("$.[0].title").value(is("Title 1")),
                         jsonPath("$.[0].description").value(is("Description 1")),
                         jsonPath("$.[0].report").doesNotExist(),
-                        jsonPath("$.[0].taskCreationDate").value(is(now.minusMonths(1).toString())),
-                        jsonPath("$.[0].lastTaskUpdateDate").value(is(now.minusMonths(1).toString())),
-                        jsonPath("$.[0].dueDate").value(is(now.plusMonths(2).toString())),
-                        jsonPath("$.[0].reminderDate").value(is(now.plusMonths(1).toString())),
+                        jsonPath("$.[0].taskCreationDate").value(is(now.minusMonths(1).format(formatter))),
+                        jsonPath("$.[0].lastTaskUpdateDate").value(is(now.minusMonths(1).format(formatter))),
+                        jsonPath("$.[0].dueDate").value(is(now.plusMonths(2).format(formatter))),
+                        jsonPath("$.[0].reminderDate").value(is(now.plusMonths(1).format(formatter))),
                         jsonPath("$.[0].priority").doesNotExist(),
                         jsonPath("$.[0].mark").value(is(0)),
                         jsonPath("$.[0].reportDate").doesNotExist(),
@@ -403,9 +405,9 @@ class GetTasksControllerUnitTest {
                         jsonPath("$.[1].title").value(is("Title 2")),
                         jsonPath("$.[1].description").value(is("Description 2")),
                         jsonPath("$.[1].report").doesNotExist(),
-                        jsonPath("$.[1].taskCreationDate").value(is(now.minusDays(10).toString())),
-                        jsonPath("$.[1].lastTaskUpdateDate").value(is(now.minusDays(3).toString())),
-                        jsonPath("$.[1].dueDate").value(is(now.plusDays(20).toString())),
+                        jsonPath("$.[1].taskCreationDate").value(is(now.minusDays(10).format(formatter))),
+                        jsonPath("$.[1].lastTaskUpdateDate").value(is(now.minusDays(3).format(formatter))),
+                        jsonPath("$.[1].dueDate").value(is(now.plusDays(20).format(formatter))),
                         jsonPath("$.[1].reminderDate").doesNotExist(),
                         jsonPath("$.[1].priority").value(is("HIGH")),
                         jsonPath("$.[1].mark").value(is(0)),
@@ -423,12 +425,12 @@ class GetTasksControllerUnitTest {
         Locale testedLocale = convertEnumToLocale(country);
 
         RequestBuilder request = MockMvcRequestBuilders
-                .get(uri+String.valueOf(page) + "?userId=" + employeeId)
+                .get(uri + String.valueOf(page) + "?userId=" + employeeId)
                 .header("Accept-Language", testedLocale.toString())
                 .header("Authorization", employeeToken)
                 .contentType(MediaType.APPLICATION_JSON);
 
-        var now = LocalDate.now();
+        var now = LocalDateTime.now();
 
 
         when(taskService.getTasks(null, null, employeeId, null, paging))
@@ -453,10 +455,10 @@ class GetTasksControllerUnitTest {
                         jsonPath("$.[0].title").value(is("Title 1")),
                         jsonPath("$.[0].description").value(is("Description 1")),
                         jsonPath("$.[0].report").doesNotExist(),
-                        jsonPath("$.[0].taskCreationDate").value(is(now.minusMonths(1).toString())),
-                        jsonPath("$.[0].lastTaskUpdateDate").value(is(now.minusMonths(1).toString())),
-                        jsonPath("$.[0].dueDate").value(is(now.plusMonths(2).toString())),
-                        jsonPath("$.[0].reminderDate").value(is(now.plusMonths(1).toString())),
+                        jsonPath("$.[0].taskCreationDate").value(is(now.minusMonths(1).format(formatter))),
+                        jsonPath("$.[0].lastTaskUpdateDate").value(is(now.minusMonths(1).format(formatter))),
+                        jsonPath("$.[0].dueDate").value(is(now.plusMonths(2).format(formatter))),
+                        jsonPath("$.[0].reminderDate").value(is(now.plusMonths(1).format(formatter))),
                         jsonPath("$.[0].priority").doesNotExist(),
                         jsonPath("$.[0].mark").value(is(0)),
                         jsonPath("$.[0].reportDate").doesNotExist(),
@@ -477,9 +479,9 @@ class GetTasksControllerUnitTest {
                         jsonPath("$.[1].title").value(is("Title 2")),
                         jsonPath("$.[1].description").value(is("Description 2")),
                         jsonPath("$.[1].report").doesNotExist(),
-                        jsonPath("$.[1].taskCreationDate").value(is(now.minusDays(10).toString())),
-                        jsonPath("$.[1].lastTaskUpdateDate").value(is(now.minusDays(3).toString())),
-                        jsonPath("$.[1].dueDate").value(is(now.plusDays(20).toString())),
+                        jsonPath("$.[1].taskCreationDate").value(is(now.minusDays(10).format(formatter))),
+                        jsonPath("$.[1].lastTaskUpdateDate").value(is(now.minusDays(3).format(formatter))),
+                        jsonPath("$.[1].dueDate").value(is(now.plusDays(20).format(formatter))),
                         jsonPath("$.[1].reminderDate").doesNotExist(),
                         jsonPath("$.[1].priority").value(is("HIGH")),
                         jsonPath("$.[1].mark").value(is(0)),
@@ -496,11 +498,11 @@ class GetTasksControllerUnitTest {
         Map<String, String> messages = getMessagesAccordingToLocale(country);
         Locale testedLocale = convertEnumToLocale(country);
 
-        String startDueDate= "2100-01-01";
-        String endDueDate= "2000-01-01";
+        String startDueDate = "2100-01-01";
+        String endDueDate = "2000-01-01";
 
         RequestBuilder request = MockMvcRequestBuilders
-                .get(uri+String.valueOf(page)+"?startDueDate="+startDueDate+"&endDueDate="+endDueDate)
+                .get(uri + String.valueOf(page) + "?startDueDate=" + startDueDate + "&endDueDate=" + endDueDate)
                 .header("Accept-Language", testedLocale.toString())
                 .header("Authorization", managerToken)
                 .contentType(MediaType.APPLICATION_JSON);
@@ -509,7 +511,7 @@ class GetTasksControllerUnitTest {
                 .when(taskService)
                 .getTasks(any(), any(), any(), any(), any());
 
-        String expectedMessage = messages.get( "exception.start.after.end");
+        String expectedMessage = messages.get("exception.start.after.end");
 
         mockMvc.perform(request)
                 .andDo(print())
@@ -531,7 +533,7 @@ class GetTasksControllerUnitTest {
         String endDueDate= "2100-02-01";
 
         RequestBuilder request = MockMvcRequestBuilders
-                .get(uri+String.valueOf(page)+"?startDueDate="+startDueDate+"&endDueDate="+endDueDate)
+                .get(uri + String.valueOf(page) + "?startDueDate=" + startDueDate + "&endDueDate=" + endDueDate)
                 .header("Accept-Language", testedLocale.toString())
                 .header("Authorization", managerToken)
                 .contentType(MediaType.APPLICATION_JSON);
@@ -540,11 +542,11 @@ class GetTasksControllerUnitTest {
                 .when(taskService)
                 .getTasks(any(), any(), any(), any(), any());
 
-        String expectedMessage = messages.get( "exception.no.tasks");
+        String expectedMessage = messages.get("exception.no.tasks");
 
         mockMvc.perform(request)
                 .andDo(print())
-                .andExpect(status().isOk())
+                .andExpect(status().isNotFound())
                 .andExpect(status().reason(is(expectedMessage)))
                 .andExpect(result ->
                         assertThat(Objects.requireNonNull(result.getResolvedException()).getCause())
@@ -561,7 +563,7 @@ class GetTasksControllerUnitTest {
         String userNotFoundId = UUID.randomUUID().toString();
 
         RequestBuilder request = MockMvcRequestBuilders
-                .get(uri+String.valueOf(page)+"?userId="+userNotFoundId)
+                .get(uri + String.valueOf(page) + "?userId=" + userNotFoundId)
                 .header("Accept-Language", testedLocale.toString())
                 .header("Authorization", managerToken)
                 .contentType(MediaType.APPLICATION_JSON);
@@ -570,7 +572,7 @@ class GetTasksControllerUnitTest {
                 .when(taskService)
                 .getTasks(any(), any(), any(), any(), any());
 
-        String expectedMessage = messages.get( "exception.employee.not.found");
+        String expectedMessage = messages.get("exception.employee.not.found");
 
         mockMvc.perform(request)
                 .andDo(print())
@@ -592,7 +594,7 @@ class GetTasksControllerUnitTest {
         String priority = "INVALID";
 
         RequestBuilder request = MockMvcRequestBuilders
-                .get(uri+String.valueOf(page)+"?priority="+priority)
+                .get(uri + String.valueOf(page) + "?priority=" + priority)
                 .header("Accept-Language", testedLocale.toString())
                 .header("Authorization", managerToken)
                 .contentType(MediaType.APPLICATION_JSON);
@@ -601,7 +603,7 @@ class GetTasksControllerUnitTest {
                 .when(taskService)
                 .getTasks(any(), any(), any(), any(), any());
 
-        String expectedMessage = messages.get( "exception.invalid.priority");
+        String expectedMessage = messages.get("exception.invalid.priority");
 
         mockMvc.perform(request)
                 .andDo(print())
@@ -621,7 +623,7 @@ class GetTasksControllerUnitTest {
         Locale testedLocale = convertEnumToLocale(country);
 
         RequestBuilder request = MockMvcRequestBuilders
-                .get(uri+String.valueOf(page))
+                .get(uri + String.valueOf(page))
                 .header("Accept-Language", testedLocale.toString())
                 .header("Authorization", managerToken)
                 .contentType(MediaType.APPLICATION_JSON);
@@ -643,7 +645,7 @@ class GetTasksControllerUnitTest {
     }
 
     @Nested
-    class ShouldNotGetTasksWhenNotAuthorized{
+    class ShouldNotGetTasksWhenNotAuthorized {
 
         @ParameterizedTest
         @EnumSource(TestCountry.class)
@@ -651,7 +653,7 @@ class GetTasksControllerUnitTest {
             Locale testedLocale = convertEnumToLocale(country);
 
             RequestBuilder request = MockMvcRequestBuilders
-                    .get(uri+String.valueOf(page))
+                    .get(uri + String.valueOf(page))
                     .header("Accept-Language", testedLocale.toString());
 
             mockMvc.perform(request)
@@ -666,7 +668,7 @@ class GetTasksControllerUnitTest {
             Locale testedLocale = convertEnumToLocale(country);
 
             RequestBuilder request = MockMvcRequestBuilders
-                    .get(uri+String.valueOf(page))
+                    .get(uri + String.valueOf(page))
                     .header("Accept-Language", testedLocale.toString())
                     .header("Authorization", userToken)
                     .contentType(MediaType.APPLICATION_JSON);
@@ -690,7 +692,7 @@ class GetTasksControllerUnitTest {
             Locale testedLocale = convertEnumToLocale(country);
 
             RequestBuilder request = MockMvcRequestBuilders
-                    .get(uri+String.valueOf(page)+"?userId=" + employeeId)
+                    .get(uri + String.valueOf(page) + "?userId=" + employeeId)
                     .header("Accept-Language", testedLocale.toString())
                     .header("Authorization", otherEmployeeToken)
                     .contentType(MediaType.APPLICATION_JSON);

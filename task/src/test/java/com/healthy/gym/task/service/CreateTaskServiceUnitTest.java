@@ -13,12 +13,15 @@ import com.healthy.gym.task.exception.InvalidPriorityException;
 import com.healthy.gym.task.exception.ManagerNotFoundException;
 import com.healthy.gym.task.exception.RetroDueDateException;
 import com.healthy.gym.task.pojo.request.ManagerTaskCreationRequest;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.UUID;
 
@@ -42,6 +45,12 @@ public class CreateTaskServiceUnitTest {
     private String employeeId;
     private String managerId;
     private String taskId;
+    private DateTimeFormatter formatter;
+
+    @BeforeEach
+    void setUp() {
+        formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
+    }
 
     @Test
     void shouldCreateTask_whenValidRequest() throws ManagerNotFoundException, EmployeeNotFoundException, RetroDueDateException, InvalidPriorityException {
@@ -52,15 +61,15 @@ public class CreateTaskServiceUnitTest {
 
         String title = "Przykładowe zadanie";
         String description = "Opis przykładowego zadania";
-        var now = LocalDate.now();
-        LocalDate dueDate = now.plusMonths(1);
+        var now = LocalDateTime.now();
+        LocalDateTime dueDate = now.plusMonths(1);
 
         //request
         ManagerTaskCreationRequest managerTaskCreationRequest = new ManagerTaskCreationRequest();
         managerTaskCreationRequest.setEmployeeId(employeeId);
         managerTaskCreationRequest.setTitle(title);
         managerTaskCreationRequest.setDescription(description);
-        managerTaskCreationRequest.setDueDate(dueDate.toString());
+        managerTaskCreationRequest.setDueDate(dueDate.format(formatter));
 
         //DB documents
         String employeeName = "Jan";
@@ -123,14 +132,14 @@ public class CreateTaskServiceUnitTest {
     }
 
     @Test
-    void shouldNotCreateTask_whenManagerNotExist(){
+    void shouldNotCreateTask_whenManagerNotExist() {
         //before
         //request
         ManagerTaskCreationRequest managerTaskCreationRequest = new ManagerTaskCreationRequest();
         managerTaskCreationRequest.setEmployeeId(employeeId);
         managerTaskCreationRequest.setTitle("Sample title");
         managerTaskCreationRequest.setDescription("Sample description");
-        managerTaskCreationRequest.setDueDate(LocalDate.now().plusMonths(1).toString());
+        managerTaskCreationRequest.setDueDate(LocalDateTime.now().plusMonths(1).format(formatter));
 
         //when
         when(userDAO.findByUserId(managerId)).thenReturn(null);
@@ -142,7 +151,7 @@ public class CreateTaskServiceUnitTest {
     }
 
     @Test
-    void shouldNotCreateTask_whenUserIsNotManager(){
+    void shouldNotCreateTask_whenUserIsNotManager() {
         //before
         String employeeName = "Jan";
         String employeeSurname = "Kowalski";
@@ -158,7 +167,7 @@ public class CreateTaskServiceUnitTest {
         managerTaskCreationRequest.setEmployeeId(employeeId);
         managerTaskCreationRequest.setTitle("Sample title");
         managerTaskCreationRequest.setDescription("Sample description");
-        managerTaskCreationRequest.setDueDate(LocalDate.now().plusMonths(1).toString());
+        managerTaskCreationRequest.setDueDate(LocalDateTime.now().plusMonths(1).toString());
 
         //when
         when(userDAO.findByUserId(managerId)).thenReturn(employeeDocument);
@@ -170,7 +179,7 @@ public class CreateTaskServiceUnitTest {
     }
 
     @Test
-    void shouldNotCreateTask_whenEmployeeNotExist(){
+    void shouldNotCreateTask_whenEmployeeNotExist() {
         //before
         //request
         String invalidEmployeeId = UUID.randomUUID().toString();
@@ -178,7 +187,7 @@ public class CreateTaskServiceUnitTest {
         managerTaskCreationRequest.setEmployeeId(invalidEmployeeId);
         managerTaskCreationRequest.setTitle("Sample title");
         managerTaskCreationRequest.setDescription("Sample description");
-        managerTaskCreationRequest.setDueDate(LocalDate.now().plusMonths(1).toString());
+        managerTaskCreationRequest.setDueDate(LocalDateTime.now().plusMonths(1).toString());
 
 
         //DB documents
@@ -201,7 +210,7 @@ public class CreateTaskServiceUnitTest {
     }
 
     @Test
-    void shouldNotCreateTask_whenUserNotEmployee(){
+    void shouldNotCreateTask_whenUserNotEmployee() {
         //before
         employeeId = UUID.randomUUID().toString();
         //request
@@ -210,7 +219,7 @@ public class CreateTaskServiceUnitTest {
         managerTaskCreationRequest.setEmployeeId(invalidEmployeeId);
         managerTaskCreationRequest.setTitle("Sample title");
         managerTaskCreationRequest.setDescription("Sample description");
-        managerTaskCreationRequest.setDueDate(LocalDate.now().plusMonths(1).toString());
+        managerTaskCreationRequest.setDueDate(LocalDateTime.now().plusMonths(1).toString());
 
 
         //DB documents
@@ -243,7 +252,7 @@ public class CreateTaskServiceUnitTest {
     }
 
     @Test
-    void shouldNotCreateTask_whenRetroDueDate(){
+    void shouldNotCreateTask_whenRetroDueDate() {
         //before
         employeeId = UUID.randomUUID().toString();
 
@@ -252,7 +261,7 @@ public class CreateTaskServiceUnitTest {
         managerTaskCreationRequest.setEmployeeId(employeeId);
         managerTaskCreationRequest.setTitle("Sample title");
         managerTaskCreationRequest.setDescription("Sample description");
-        managerTaskCreationRequest.setDueDate(LocalDate.now().minusDays(1).toString());
+        managerTaskCreationRequest.setDueDate(LocalDateTime.now().minusDays(1).format(formatter));
 
 
         //DB documents
@@ -285,7 +294,7 @@ public class CreateTaskServiceUnitTest {
     }
 
     @Test
-    void shouldNotCreateTask_whenInvalidPriority(){
+    void shouldNotCreateTask_whenInvalidPriority() {
         //before
         employeeId = UUID.randomUUID().toString();
 
@@ -294,7 +303,7 @@ public class CreateTaskServiceUnitTest {
         managerTaskCreationRequest.setEmployeeId(employeeId);
         managerTaskCreationRequest.setTitle("Sample title");
         managerTaskCreationRequest.setDescription("Sample description");
-        managerTaskCreationRequest.setDueDate(LocalDate.now().toString());
+        managerTaskCreationRequest.setDueDate(LocalDateTime.now().plusHours(1).format(formatter));
         managerTaskCreationRequest.setPriority("INVALID");
 
 

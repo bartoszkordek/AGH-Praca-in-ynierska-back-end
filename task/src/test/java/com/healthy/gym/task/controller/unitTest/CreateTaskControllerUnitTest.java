@@ -2,7 +2,6 @@ package com.healthy.gym.task.controller.unitTest;
 
 import com.healthy.gym.task.configuration.TestCountry;
 import com.healthy.gym.task.configuration.TestRoleTokenFactory;
-import com.healthy.gym.task.controller.GeneralTaskController;
 import com.healthy.gym.task.controller.ManagerTaskController;
 import com.healthy.gym.task.dto.BasicUserInfoDTO;
 import com.healthy.gym.task.dto.TaskDTO;
@@ -32,8 +31,12 @@ import org.testcontainers.shaded.com.fasterxml.jackson.databind.ObjectMapper;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Objects;
+import java.util.UUID;
 
 import static com.healthy.gym.task.configuration.LocaleConverter.convertEnumToLocale;
 import static com.healthy.gym.task.configuration.Messages.getMessagesAccordingToLocale;
@@ -46,7 +49,6 @@ import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.ResultMatcher.matchAll;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
 @WebMvcTest(ManagerTaskController.class)
 @ActiveProfiles(value = "test")
@@ -78,12 +80,13 @@ public class CreateTaskControllerUnitTest {
     private ManagerTaskCreationRequest managerTaskCreationRequest;
 
     private ObjectMapper objectMapper;
+    private DateTimeFormatter formatter;
 
     private URI uri;
 
-
     @BeforeEach
     void setUp() throws JsonProcessingException, URISyntaxException {
+        formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
         userId = UUID.randomUUID().toString();
         userToken = tokenFactory.getUserToken(userId);
 
@@ -100,7 +103,7 @@ public class CreateTaskControllerUnitTest {
 
         requestTitle = "Test task 1";
         requestDescription = "Description for task 1";
-        requestDueDate = LocalDate.now().plusMonths(1).format(DateTimeFormatter.ISO_LOCAL_DATE);
+        requestDueDate = LocalDateTime.now().plusMonths(1).format(formatter);
         managerTaskCreationRequest = new ManagerTaskCreationRequest();
         managerTaskCreationRequest.setTitle(requestTitle);
         managerTaskCreationRequest.setDescription(requestDescription);
@@ -110,6 +113,7 @@ public class CreateTaskControllerUnitTest {
         requestContent = objectMapper.writeValueAsString(managerTaskCreationRequest);
 
         uri = new URI("");
+
     }
 
     @ParameterizedTest
@@ -119,13 +123,13 @@ public class CreateTaskControllerUnitTest {
         Locale testedLocale = convertEnumToLocale(country);
 
         RequestBuilder request = MockMvcRequestBuilders
-                .post(uri+"/manager/"+managerId)
+                .post(uri + "/manager/" + managerId)
                 .header("Accept-Language", testedLocale.toString())
                 .header("Authorization", managerToken)
                 .content(requestContent)
                 .contentType(MediaType.APPLICATION_JSON);
 
-        var now = LocalDate.now();
+        var now = LocalDateTime.now();
         String taskId = UUID.randomUUID().toString();
         String managerName = "Martin";
         String managerSurname = "Manager";
@@ -136,9 +140,9 @@ public class CreateTaskControllerUnitTest {
         BasicUserInfoDTO employee = new BasicUserInfoDTO(employeeId, employeeName, employeeSurname);
         String title = "Test task 1";
         String description = "Description for task 1";
-        LocalDate taskCreationDate = now;
-        LocalDate lastTaskUpdateDate = now;
-        LocalDate dueDate = now.plusMonths(1);
+        LocalDateTime taskCreationDate = now;
+        LocalDateTime lastTaskUpdateDate = now;
+        LocalDateTime dueDate = now.plusMonths(1);
         AcceptanceStatus employeeAccept = AcceptanceStatus.NO_ACTION;
         AcceptanceStatus managerAccept = AcceptanceStatus.NO_ACTION;
 
@@ -186,9 +190,9 @@ public class CreateTaskControllerUnitTest {
                         jsonPath("$.task.title").value(is(title)),
                         jsonPath("$.task.description").value(is(description)),
                         jsonPath("$.task.report").doesNotExist(),
-                        jsonPath("$.task.taskCreationDate").value(is(taskCreationDate.toString())),
-                        jsonPath("$.task.lastTaskUpdateDate").value(is(lastTaskUpdateDate.toString())),
-                        jsonPath("$.task.dueDate").value(is(dueDate.toString())),
+                        jsonPath("$.task.taskCreationDate").value(is(taskCreationDate.format(formatter))),
+                        jsonPath("$.task.lastTaskUpdateDate").value(is(lastTaskUpdateDate.format(formatter))),
+                        jsonPath("$.task.dueDate").value(is(dueDate.format(formatter))),
                         jsonPath("$.task.reportDate").doesNotExist(),
                         jsonPath("$.task.employeeAccept").value(is(employeeAccept.toString())),
                         jsonPath("$.task.managerAccept").value(is(managerAccept.toString()))
@@ -197,7 +201,7 @@ public class CreateTaskControllerUnitTest {
     }
 
     @Nested
-    class ShouldNotCreateTaskWhenNotAuthorized{
+    class ShouldNotCreateTaskWhenNotAuthorized {
 
         @ParameterizedTest
         @EnumSource(TestCountry.class)
@@ -205,7 +209,7 @@ public class CreateTaskControllerUnitTest {
             Locale testedLocale = convertEnumToLocale(country);
 
             RequestBuilder request = MockMvcRequestBuilders
-                    .post(uri+"/manager/"+managerId)
+                    .post(uri + "/manager/" + managerId)
                     .header("Accept-Language", testedLocale.toString());
 
             mockMvc.perform(request)
@@ -220,7 +224,7 @@ public class CreateTaskControllerUnitTest {
             Locale testedLocale = convertEnumToLocale(country);
 
             RequestBuilder request = MockMvcRequestBuilders
-                    .post(uri+"/manager/"+managerId)
+                    .post(uri + "/manager/" + managerId)
                     .header("Accept-Language", testedLocale.toString())
                     .header("Authorization", userToken)
                     .content(requestContent)
@@ -245,7 +249,7 @@ public class CreateTaskControllerUnitTest {
             Locale testedLocale = convertEnumToLocale(country);
 
             RequestBuilder request = MockMvcRequestBuilders
-                    .post(uri+"/manager/"+managerId)
+                    .post(uri + "/manager/" + managerId)
                     .header("Accept-Language", testedLocale.toString())
                     .header("Authorization", employeeToken)
                     .content(requestContent)
@@ -274,7 +278,7 @@ public class CreateTaskControllerUnitTest {
             String otherManagerToken = tokenFactory.getMangerToken(otherManagerId);
 
             RequestBuilder request = MockMvcRequestBuilders
-                    .post(uri+"/manager/"+managerId)
+                    .post(uri + "/manager/" + managerId)
                     .header("Accept-Language", testedLocale.toString())
                     .header("Authorization", otherManagerToken)
                     .content(requestContent)
@@ -295,7 +299,7 @@ public class CreateTaskControllerUnitTest {
     }
 
     @Nested
-    class ShouldNotCreateTaskWhenInvalidRequest{
+    class ShouldNotCreateTaskWhenInvalidRequest {
 
         @ParameterizedTest
         @EnumSource(TestCountry.class)
@@ -317,7 +321,7 @@ public class CreateTaskControllerUnitTest {
             String invalidTitleRequestContent = objectMapper.writeValueAsString(invalidManagerTaskCreationRequest);
 
             RequestBuilder request = MockMvcRequestBuilders
-                    .post(uri+"/manager/"+managerId)
+                    .post(uri + "/manager/" + managerId)
                     .header("Accept-Language", testedLocale.toString())
                     .header("Authorization", managerToken)
                     .content(invalidTitleRequestContent)
@@ -340,7 +344,7 @@ public class CreateTaskControllerUnitTest {
                             jsonPath("$.errors.employeeId")
                                     .value(is(messages.get("exception.invalid.id.format"))),
                             jsonPath("$.errors.dueDate")
-                                    .value(is(messages.get("exception.invalid.date.format")))
+                                    .value(is(messages.get("exception.invalid.date.time.format")))
                     ));
         }
 
@@ -359,7 +363,7 @@ public class CreateTaskControllerUnitTest {
             String invalidTitleRequestContent = objectMapper.writeValueAsString(invalidManagerTaskCreationRequest);
 
             RequestBuilder request = MockMvcRequestBuilders
-                    .post(uri+"/manager/"+managerId)
+                    .post(uri + "/manager/" + managerId)
                     .header("Accept-Language", testedLocale.toString())
                     .header("Authorization", managerToken)
                     .content(invalidTitleRequestContent)
@@ -389,7 +393,7 @@ public class CreateTaskControllerUnitTest {
             Locale testedLocale = convertEnumToLocale(country);
 
             RequestBuilder request = MockMvcRequestBuilders
-                    .post(uri+"/manager/"+managerId)
+                    .post(uri + "/manager/" + managerId)
                     .header("Accept-Language", testedLocale.toString())
                     .header("Authorization", adminToken)
                     .content(requestContent)
@@ -419,7 +423,7 @@ public class CreateTaskControllerUnitTest {
             Locale testedLocale = convertEnumToLocale(country);
 
             RequestBuilder request = MockMvcRequestBuilders
-                    .post(uri+"/manager/"+managerId)
+                    .post(uri + "/manager/" + managerId)
                     .header("Accept-Language", testedLocale.toString())
                     .header("Authorization", adminToken)
                     .content(requestContent)
@@ -450,7 +454,7 @@ public class CreateTaskControllerUnitTest {
             Locale testedLocale = convertEnumToLocale(country);
 
             RequestBuilder request = MockMvcRequestBuilders
-                    .post(uri+"/manager/"+managerId)
+                    .post(uri + "/manager/" + managerId)
                     .header("Accept-Language", testedLocale.toString())
                     .header("Authorization", adminToken)
                     .content(requestContent)
@@ -481,7 +485,7 @@ public class CreateTaskControllerUnitTest {
             Locale testedLocale = convertEnumToLocale(country);
 
             RequestBuilder request = MockMvcRequestBuilders
-                    .post(uri+"/manager/"+managerId)
+                    .post(uri + "/manager/" + managerId)
                     .header("Accept-Language", testedLocale.toString())
                     .header("Authorization", adminToken)
                     .content(requestContent)
@@ -512,7 +516,7 @@ public class CreateTaskControllerUnitTest {
             Locale testedLocale = convertEnumToLocale(country);
 
             RequestBuilder request = MockMvcRequestBuilders
-                    .post(uri+"/manager/"+managerId)
+                    .post(uri + "/manager/" + managerId)
                     .header("Accept-Language", testedLocale.toString())
                     .header("Authorization", managerToken)
                     .content(requestContent)

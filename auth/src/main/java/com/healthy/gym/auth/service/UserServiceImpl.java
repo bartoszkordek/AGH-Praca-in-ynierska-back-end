@@ -22,6 +22,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
@@ -72,6 +73,7 @@ public class UserServiceImpl implements UserService {
         userDocument.setCredentialsNonExpired(true);
         userDocument.setAccountNonLocked(true);
         userDocument.setGymRoles(getInitialUserRoles());
+        userDocument.setCreatedAt(LocalDateTime.now());
 
         UserDocument userDocumentSaved = userDAO.save(userDocument);
 

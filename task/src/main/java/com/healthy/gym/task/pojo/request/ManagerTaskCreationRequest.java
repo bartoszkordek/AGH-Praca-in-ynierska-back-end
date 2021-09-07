@@ -1,7 +1,7 @@
 package com.healthy.gym.task.pojo.request;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.healthy.gym.task.validation.ValidDateFormat;
+import com.healthy.gym.task.validation.ValidDateTimeFormat;
 import com.healthy.gym.task.validation.ValidIDFormat;
 
 import javax.validation.constraints.NotNull;
@@ -24,7 +24,7 @@ public class ManagerTaskCreationRequest {
     private String employeeId;
 
     @NotNull(message = "{field.required}")
-    @ValidDateFormat
+    @ValidDateTimeFormat
     private String dueDate;
 
     private String reminderDate;
@@ -35,44 +35,44 @@ public class ManagerTaskCreationRequest {
         return title;
     }
 
-    public String getDescription() {
-        return description;
-    }
-
-    public String getEmployeeId() {
-        return employeeId;
-    }
-
-    public String getDueDate() {
-        return dueDate;
-    }
-
-    public String getReminderDate() {
-        return reminderDate;
-    }
-
-    public String getPriority() {
-        return priority;
-    }
-
     public void setTitle(String title) {
         this.title = title;
+    }
+
+    public String getDescription() {
+        return description;
     }
 
     public void setDescription(String description) {
         this.description = description;
     }
 
+    public String getEmployeeId() {
+        return employeeId;
+    }
+
     public void setEmployeeId(String employeeId) {
         this.employeeId = employeeId;
+    }
+
+    public String getDueDate() {
+        return dueDate;
     }
 
     public void setDueDate(String dueDate) {
         this.dueDate = dueDate;
     }
 
+    public String getReminderDate() {
+        return reminderDate;
+    }
+
     public void setReminderDate(String reminderDate) {
         this.reminderDate = reminderDate;
+    }
+
+    public String getPriority() {
+        return priority;
     }
 
     public void setPriority(String priority) {

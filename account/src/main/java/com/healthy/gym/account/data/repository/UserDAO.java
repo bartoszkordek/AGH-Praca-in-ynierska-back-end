@@ -5,6 +5,7 @@ import com.healthy.gym.account.enums.GymRole;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.repository.MongoRepository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 public interface UserDAO extends MongoRepository<UserDocument, String> {
@@ -14,4 +15,9 @@ public interface UserDAO extends MongoRepository<UserDocument, String> {
 
     List<UserDocument> findAllByGymRolesContains(GymRole gymRole, Sort sort);
 
+    List<UserDocument> findAllByCreatedAtBetween(
+            LocalDateTime startDateTime,
+            LocalDateTime endDateTime,
+            Sort sort
+    );
 }

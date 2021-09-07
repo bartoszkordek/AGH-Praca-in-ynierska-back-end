@@ -21,14 +21,19 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
-public class TaskServiceImpl implements TaskService{
+public class TaskServiceImpl implements TaskService {
 
+    private static final String ACCEPT_STATUS = "APPROVE";
+    private static final String DECLINE_STATUS = "DECLINE";
+    private static final LocalDate DEFAULT_START_DATE = LocalDate.now().minusMonths(1).minusDays(1);
+    private static final LocalDate DEFAULT_END_DATE = LocalDate.now().plusMonths(2).plusDays(1);
     private final TaskDAO taskDAO;
     private final UserDAO userDAO;
     private final ModelMapper modelMapper;
@@ -36,16 +41,13 @@ public class TaskServiceImpl implements TaskService{
     private final GymRole managerRole;
     private final GymRole employeeRole;
     private final GymRole trainerRole;
-    private static final String ACCEPT_STATUS = "APPROVE";
-    private static final String DECLINE_STATUS = "DECLINE";
-    private static final LocalDate DEFAULT_START_DATE = LocalDate.now().minusMonths(1).minusDays(1);
-    private static final LocalDate DEFAULT_END_DATE = LocalDate.now().plusMonths(2).plusDays(1);
+    private final DateTimeFormatter formatter;
 
     @Autowired
     public TaskServiceImpl(
             TaskDAO taskDAO,
             UserDAO userDAO
-    ){
+    ) {
         this.taskDAO = taskDAO;
         this.userDAO = userDAO;
         modelMapper = new ModelMapper();
@@ -54,12 +56,18 @@ public class TaskServiceImpl implements TaskService{
         managerRole = GymRole.MANAGER;
         employeeRole = GymRole.EMPLOYEE;
         trainerRole = GymRole.TRAINER;
+        formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
     }
 
 
     @Override
-    public TaskDTO createTask(String managerId, ManagerTaskCreationRequest managerTaskCreationRequest) throws ManagerNotFoundException,
-            EmployeeNotFoundException, RetroDueDateException, InvalidPriorityException {
+    public TaskDTO createTask(
+            String managerId,
+            ManagerTaskCreationRequest managerTaskCreationRequest
+    ) throws ManagerNotFoundException,
+            EmployeeNotFoundException,
+            RetroDueDateException,
+            InvalidPriorityException {
 
         UserDocument managerDocument = getManagerDocument(managerId);
 
@@ -67,9 +75,9 @@ public class TaskServiceImpl implements TaskService{
         UserDocument employeeDocument = getEmployeeOrTrainerDocument(employeeId);
 
         String dueDate = managerTaskCreationRequest.getDueDate();
-        var now = LocalDate.now();
-        LocalDate parsedDueDate = LocalDate.parse(dueDate, DateTimeFormatter.ISO_LOCAL_DATE);
-        if(parsedDueDate.isBefore(now)) throw new RetroDueDateException();
+        var now = LocalDateTime.now();
+        LocalDateTime parsedDueDate = LocalDateTime.parse(dueDate, formatter);
+        if (parsedDueDate.isBefore(now)) throw new RetroDueDateException();
 
         String title = managerTaskCreationRequest.getTitle();
         String description = managerTaskCreationRequest.getDescription();
@@ -86,9 +94,9 @@ public class TaskServiceImpl implements TaskService{
         taskDocumentToBeSaved.setDueDate(parsedDueDate);
         taskDocumentToBeSaved.setEmployeeAccept(AcceptanceStatus.NO_ACTION);
         taskDocumentToBeSaved.setManagerAccept(AcceptanceStatus.NO_ACTION);
-        if(requestReminderDate != null)
-            taskDocumentToBeSaved.setReminderDate(LocalDate.parse(requestReminderDate, DateTimeFormatter.ISO_LOCAL_DATE));
-        if(requestPriority != null) checkPriority(requestPriority);
+        if (requestReminderDate != null)
+            taskDocumentToBeSaved.setReminderDate(LocalDateTime.parse(requestReminderDate, formatter));
+        if (requestPriority != null) checkPriority(requestPriority);
         setPriority(taskDocumentToBeSaved, requestPriority);
 
         TaskDocument taskDocumentSaved = taskDAO.save(taskDocumentToBeSaved);
@@ -105,36 +113,36 @@ public class TaskServiceImpl implements TaskService{
         taskDocumentToBeUpdated.setManager(managerDocument);
 
         String requestEmployeeId = managerTaskCreationRequest.getEmployeeId();
-        if(requestEmployeeId != null){
+        if (requestEmployeeId != null) {
             UserDocument employeeDocument = userDAO.findByUserId(requestEmployeeId);
-            if(employeeDocument == null) throw new EmployeeNotFoundException();
-            if(!employeeDocument.getGymRoles().contains(employeeRole) && !employeeDocument.getGymRoles().contains(trainerRole))
+            if (employeeDocument == null) throw new EmployeeNotFoundException();
+            if (!employeeDocument.getGymRoles().contains(employeeRole) && !employeeDocument.getGymRoles().contains(trainerRole))
                 throw new EmployeeNotFoundException();
 
             taskDocumentToBeUpdated.setEmployee(employeeDocument);
         }
 
-        var now = LocalDate.now();
+        var now = LocalDateTime.now();
         String requestDueDate = managerTaskCreationRequest.getDueDate();
-        if(requestDueDate != null){
-            LocalDate parsedDueDate = LocalDate.parse(requestDueDate, DateTimeFormatter.ISO_LOCAL_DATE);
-            if(parsedDueDate.isBefore(now)) throw new RetroDueDateException();
+        if (requestDueDate != null) {
+            LocalDateTime parsedDueDate = LocalDateTime.parse(requestDueDate, formatter);
+            if (parsedDueDate.isBefore(now)) throw new RetroDueDateException();
             taskDocumentToBeUpdated.setDueDate(parsedDueDate);
         }
 
         taskDocumentToBeUpdated.setLastTaskUpdateDate(now);
 
         String title = managerTaskCreationRequest.getTitle();
-        if(title != null) taskDocumentToBeUpdated.setTitle(title);
+        if (title != null) taskDocumentToBeUpdated.setTitle(title);
 
         String description = managerTaskCreationRequest.getDescription();
-        if(description != null) taskDocumentToBeUpdated.setDescription(description);
+        if (description != null) taskDocumentToBeUpdated.setDescription(description);
 
         String requestReminderDate = managerTaskCreationRequest.getReminderDate();
-        if(requestReminderDate != null)
-            taskDocumentToBeUpdated.setReminderDate(LocalDate.parse(requestReminderDate, DateTimeFormatter.ISO_LOCAL_DATE));
+        if (requestReminderDate != null)
+            taskDocumentToBeUpdated.setReminderDate(LocalDateTime.parse(requestReminderDate, formatter));
         String requestPriority = managerTaskCreationRequest.getPriority();
-        if(requestPriority != null) checkPriority(requestPriority);
+        if (requestPriority != null) checkPriority(requestPriority);
         setPriority(taskDocumentToBeUpdated, requestPriority);
 
         TaskDocument updatedTaskDocument = taskDAO.save(taskDocumentToBeUpdated);
@@ -145,7 +153,7 @@ public class TaskServiceImpl implements TaskService{
     public TaskDTO deleteTask(String taskId) throws TaskNotFoundException {
 
         TaskDocument taskDocumentToBeRemoved = taskDAO.findByTaskId(taskId);
-        if(taskDocumentToBeRemoved == null) throw new TaskNotFoundException();
+        if (taskDocumentToBeRemoved == null) throw new TaskNotFoundException();
 
         taskDAO.delete(taskDocumentToBeRemoved);
         return modelMapper.map(taskDocumentToBeRemoved, TaskDTO.class);
@@ -164,13 +172,13 @@ public class TaskServiceImpl implements TaskService{
 
         String status = employeeAcceptDeclineTaskRequest.getAcceptanceStatus();
 
-        if(!status.equalsIgnoreCase(ACCEPT_STATUS) && !status.equalsIgnoreCase(DECLINE_STATUS))
+        if (!status.equalsIgnoreCase(ACCEPT_STATUS) && !status.equalsIgnoreCase(DECLINE_STATUS))
             throw new InvalidStatusException();
 
-        if(status.equalsIgnoreCase(ACCEPT_STATUS))
+        if (status.equalsIgnoreCase(ACCEPT_STATUS))
             taskDocumentToBeUpdated.setEmployeeAccept(AcceptanceStatus.ACCEPTED);
 
-        if(status.equalsIgnoreCase(DECLINE_STATUS))
+        if (status.equalsIgnoreCase(DECLINE_STATUS))
             taskDocumentToBeUpdated.setEmployeeAccept(AcceptanceStatus.NOT_ACCEPTED);
 
         String employeeComment = employeeAcceptDeclineTaskRequest.getEmployeeComment();
@@ -185,17 +193,17 @@ public class TaskServiceImpl implements TaskService{
             throws TaskNotFoundException, TaskDeclinedByEmployeeException, DueDateExceedException,
             ReportAlreadySentException {
 
-        var now = LocalDate.now();
+        var now = LocalDateTime.now();
         TaskDocument taskDocumentReportToBeAdded = getTaskDocument(taskId);
 
         AcceptanceStatus status = taskDocumentReportToBeAdded.getEmployeeAccept();
-        if(status.equals(AcceptanceStatus.NOT_ACCEPTED)) throw new TaskDeclinedByEmployeeException();
+        if (status.equals(AcceptanceStatus.NOT_ACCEPTED)) throw new TaskDeclinedByEmployeeException();
         taskDocumentReportToBeAdded.setEmployeeAccept(AcceptanceStatus.ACCEPTED);
 
-        LocalDate dueDate = taskDocumentReportToBeAdded.getDueDate();
-        if(dueDate.isBefore(now)) throw new DueDateExceedException();
+        LocalDateTime dueDate = taskDocumentReportToBeAdded.getDueDate();
+        if (dueDate.isBefore(now)) throw new DueDateExceedException();
 
-        if(taskDocumentReportToBeAdded.getReport() != null || taskDocumentReportToBeAdded.getReportDate() != null)
+        if (taskDocumentReportToBeAdded.getReport() != null || taskDocumentReportToBeAdded.getReportDate() != null)
             throw new ReportAlreadySentException();
 
         String report = reportRequest.getResult();
@@ -216,25 +224,25 @@ public class TaskServiceImpl implements TaskService{
         TaskDocument taskDocument = getTaskDocument(taskId);
 
         AcceptanceStatus employeeAcceptanceStatus = taskDocument.getEmployeeAccept();
-        if(employeeAcceptanceStatus.equals(AcceptanceStatus.NOT_ACCEPTED)) throw new TaskDeclinedByEmployeeException();
+        if (employeeAcceptanceStatus.equals(AcceptanceStatus.NOT_ACCEPTED)) throw new TaskDeclinedByEmployeeException();
 
         int mark = managerReportVerificationRequest.getMark();
-        if(mark < 1 || mark > 5 ) throw new InvalidMarkException();
+        if (mark < 1 || mark > 5) throw new InvalidMarkException();
         taskDocument.setMark(mark);
 
         String report = taskDocument.getReport();
-        if(report == null) throw new ReportNotSentException();
+        if (report == null) throw new ReportNotSentException();
 
-        taskDocument.setLastTaskUpdateDate(LocalDate.now());
+        taskDocument.setLastTaskUpdateDate(LocalDateTime.now());
 
         String managerAcceptanceStatus = managerReportVerificationRequest.getApprovalStatus();
-        if(!managerAcceptanceStatus.equalsIgnoreCase(ACCEPT_STATUS) && !managerAcceptanceStatus.equalsIgnoreCase(DECLINE_STATUS))
+        if (!managerAcceptanceStatus.equalsIgnoreCase(ACCEPT_STATUS) && !managerAcceptanceStatus.equalsIgnoreCase(DECLINE_STATUS))
             throw new InvalidStatusException();
 
-        if(managerAcceptanceStatus.equalsIgnoreCase(ACCEPT_STATUS))
+        if (managerAcceptanceStatus.equalsIgnoreCase(ACCEPT_STATUS))
             taskDocument.setManagerAccept(AcceptanceStatus.ACCEPTED);
 
-        if(managerAcceptanceStatus.equalsIgnoreCase(DECLINE_STATUS))
+        if (managerAcceptanceStatus.equalsIgnoreCase(DECLINE_STATUS))
             taskDocument.setManagerAccept(AcceptanceStatus.NOT_ACCEPTED);
 
         TaskDocument updatedTaskDocument = taskDAO.save(taskDocument);
@@ -251,25 +259,25 @@ public class TaskServiceImpl implements TaskService{
     ) throws StartDateAfterEndDateException, NoTasksException, EmployeeNotFoundException, InvalidPriorityException {
         LocalDate startDate = DEFAULT_START_DATE;
         LocalDate endDate = DEFAULT_END_DATE;
-        if(startDueDate != null) startDate = requestDateFormatter.formatStartDate(startDueDate);
-        if(endDueDate != null) endDate = requestDateFormatter.formatEndDate(endDueDate);
+        if (startDueDate != null) startDate = requestDateFormatter.formatStartDate(startDueDate);
+        if (endDueDate != null) endDate = requestDateFormatter.formatEndDate(endDueDate);
 
-        if(startDate.isAfter(endDate))
+        if (startDate.isAfter(endDate))
             throw new StartDateAfterEndDateException();
 
         UserDocument employeeOrTrainerDocument = null;
-        if(userId != null){
+        if (userId != null) {
             employeeOrTrainerDocument = getEmployeeOrTrainerDocument(userId);
         }
 
         Priority transformedPriority = null;
-        if(priority != null){
+        if (priority != null) {
             checkPriority(priority);
             transformedPriority = transformPriority(priority);
         }
 
         List<TaskDocument> taskDocuments = null;
-        if(userId == null && priority == null){
+        if (userId == null && priority == null) {
             taskDocuments = taskDAO.findAllByDueDateBetween(
                     startDate,
                     endDate,
@@ -277,7 +285,7 @@ public class TaskServiceImpl implements TaskService{
             ).getContent();
         }
 
-        if(userId != null && priority == null){
+        if (userId != null && priority == null) {
             taskDocuments = taskDAO.findAllByDueDateBetweenAndEmployee(
                     startDate,
                     endDate,
@@ -286,7 +294,7 @@ public class TaskServiceImpl implements TaskService{
             ).getContent();
         }
 
-        if(userId == null && priority != null){
+        if (userId == null && priority != null) {
             taskDocuments = taskDAO.findAllByDueDateBetweenAndPriorityEquals(
                     startDate,
                     endDate,
@@ -295,7 +303,7 @@ public class TaskServiceImpl implements TaskService{
             ).getContent();
         }
 
-        if(userId != null && priority != null){
+        if (userId != null && priority != null) {
             taskDocuments = taskDAO.findAllByDueDateBetweenAndEmployeeAndPriorityEquals(
                     startDate,
                     endDate,
@@ -305,7 +313,7 @@ public class TaskServiceImpl implements TaskService{
             ).getContent();
         }
 
-        if(taskDocuments.isEmpty()) throw new NoTasksException();
+        if (taskDocuments.isEmpty()) throw new NoTasksException();
 
         return taskDocuments
                 .stream()
@@ -316,35 +324,35 @@ public class TaskServiceImpl implements TaskService{
 
     private TaskDocument getTaskDocument(String taskId) throws TaskNotFoundException {
         TaskDocument taskDocument = taskDAO.findByTaskId(taskId);
-        if(taskDocument == null) throw new TaskNotFoundException();
+        if (taskDocument == null) throw new TaskNotFoundException();
         return taskDocument;
     }
 
     private UserDocument getManagerDocument(String userId) throws ManagerNotFoundException {
         UserDocument managerDocument = userDAO.findByUserId(userId);
-        if(managerDocument == null) throw new ManagerNotFoundException();
-        if(!managerDocument.getGymRoles().contains(managerRole))
+        if (managerDocument == null) throw new ManagerNotFoundException();
+        if (!managerDocument.getGymRoles().contains(managerRole))
             throw new ManagerNotFoundException();
         return managerDocument;
     }
 
     private UserDocument getEmployeeOrTrainerDocument(String userId) throws EmployeeNotFoundException {
         UserDocument employeeDocument = userDAO.findByUserId(userId);
-        if(employeeDocument == null) throw new EmployeeNotFoundException();
-        if(!employeeDocument.getGymRoles().contains(employeeRole) && !employeeDocument.getGymRoles().contains(trainerRole))
+        if (employeeDocument == null) throw new EmployeeNotFoundException();
+        if (!employeeDocument.getGymRoles().contains(employeeRole) && !employeeDocument.getGymRoles().contains(trainerRole))
             throw new EmployeeNotFoundException();
         return employeeDocument;
     }
 
-    private TaskDocument setPriority(TaskDocument taskDocument, String priority){
-        if(priority != null){
-            if(priority.equals(Priority.CRITICAL.toString()))
+    private TaskDocument setPriority(TaskDocument taskDocument, String priority) {
+        if (priority != null) {
+            if (priority.equals(Priority.CRITICAL.toString()))
                 taskDocument.setPriority(Priority.CRITICAL);
-            if(priority.equals(Priority.HIGH.toString()))
+            if (priority.equals(Priority.HIGH.toString()))
                 taskDocument.setPriority(Priority.HIGH);
-            if(priority.equals(Priority.MEDIUM.toString()))
+            if (priority.equals(Priority.MEDIUM.toString()))
                 taskDocument.setPriority(Priority.MEDIUM);
-            if(priority.equals(Priority.LOW.toString()))
+            if (priority.equals(Priority.LOW.toString()))
                 taskDocument.setPriority(Priority.LOW);
         }
         return taskDocument;
@@ -352,27 +360,27 @@ public class TaskServiceImpl implements TaskService{
 
     private void checkEmployeeOrTrainerDocument(String userId) throws EmployeeNotFoundException {
         UserDocument employeeDocument = userDAO.findByUserId(userId);
-        if(employeeDocument == null) throw new EmployeeNotFoundException();
-        if(!employeeDocument.getGymRoles().contains(employeeRole) && !employeeDocument.getGymRoles().contains(trainerRole))
+        if (employeeDocument == null) throw new EmployeeNotFoundException();
+        if (!employeeDocument.getGymRoles().contains(employeeRole) && !employeeDocument.getGymRoles().contains(trainerRole))
             throw new EmployeeNotFoundException();
     }
 
     private void checkPriority(String priority) throws InvalidPriorityException {
-            if(!priority.equals(Priority.CRITICAL.toString()) && !priority.equals(Priority.HIGH.toString())
-                    && !priority.equals(Priority.MEDIUM.toString()) && !priority.equals(Priority.LOW.toString())){
-                throw new InvalidPriorityException();
-            }
+        if (!priority.equals(Priority.CRITICAL.toString()) && !priority.equals(Priority.HIGH.toString())
+                && !priority.equals(Priority.MEDIUM.toString()) && !priority.equals(Priority.LOW.toString())) {
+            throw new InvalidPriorityException();
+        }
     }
 
-    private Priority transformPriority(String priority){
-            if(priority.equals(Priority.CRITICAL.toString()))
-                return Priority.CRITICAL;
-            if(priority.equals(Priority.HIGH.toString()))
-                return Priority.HIGH;
-            if(priority.equals(Priority.MEDIUM.toString()))
-                return Priority.MEDIUM;
-            if(priority.equals(Priority.LOW.toString()))
-                return Priority.LOW;
+    private Priority transformPriority(String priority) {
+        if (priority.equals(Priority.CRITICAL.toString()))
+            return Priority.CRITICAL;
+        if (priority.equals(Priority.HIGH.toString()))
+            return Priority.HIGH;
+        if (priority.equals(Priority.MEDIUM.toString()))
+            return Priority.MEDIUM;
+        if (priority.equals(Priority.LOW.toString()))
+            return Priority.LOW;
         return null;
     }
 }

@@ -22,10 +22,6 @@ import org.springframework.web.server.ResponseStatusException;
 import javax.validation.Valid;
 
 @RestController
-@RequestMapping(
-        consumes = MediaType.APPLICATION_JSON_VALUE,
-        produces = MediaType.APPLICATION_JSON_VALUE
-)
 public class ManagerTaskController {
 
     private static final String INTERNAL_ERROR_EXCEPTION = "exception.internal.error";
@@ -43,24 +39,27 @@ public class ManagerTaskController {
     public ManagerTaskController(
             Translator translator,
             TaskService taskService
-    ){
+    ) {
         this.translator = translator;
         this.taskService = taskService;
     }
 
     @PreAuthorize("hasRole('ADMIN') or (hasRole('MANAGER') and principal==#userId)")
-    @PostMapping("/manager/{userId}")
+    @PostMapping(
+            value = "/manager/{userId}",
+            consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
     public ResponseEntity<TaskResponse> createTask(
             @PathVariable("userId") @ValidIDFormat final String userId,
             @Valid @RequestBody final ManagerTaskCreationRequest request,
             final BindingResult bindingResult
     ) throws RequestBindException {
 
-        try{
+        try {
             if (bindingResult.hasErrors()) throw new BindException(bindingResult);
 
             String message = translator.toLocale("task.created");
-
             TaskDTO taskDTO = taskService.createTask(userId, request);
 
             return ResponseEntity
@@ -71,23 +70,23 @@ public class ManagerTaskController {
             String reason = translator.toLocale(REQUEST_BIND_EXCEPTION);
             throw new RequestBindException(HttpStatus.BAD_REQUEST, reason, exception);
 
-        } catch (ManagerNotFoundException exception){
+        } catch (ManagerNotFoundException exception) {
             String reason = translator.toLocale(MANAGER_NOT_FOUND_EXCEPTION);
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, exception);
 
-        } catch (EmployeeNotFoundException exception){
+        } catch (EmployeeNotFoundException exception) {
             String reason = translator.toLocale(EMPLOYEE_NOT_FOUND_EXCEPTION);
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, exception);
 
-        } catch (RetroDueDateException exception){
+        } catch (RetroDueDateException exception) {
             String reason = translator.toLocale("exception.retro.due.date");
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, exception);
 
-        } catch (InvalidPriorityException exception){
+        } catch (InvalidPriorityException exception) {
             String reason = translator.toLocale(INVALID_PRIORITY_EXCEPTION);
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, exception);
 
-        } catch (Exception exception){
+        } catch (Exception exception) {
             String reason = translator.toLocale(INTERNAL_ERROR_EXCEPTION);
             exception.printStackTrace();
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, reason, exception);
@@ -95,7 +94,11 @@ public class ManagerTaskController {
     }
 
     @PreAuthorize("hasRole('ADMIN') or (hasRole('MANAGER') and principal==#userId)")
-    @PutMapping("/{taskId}/manager/{userId}")
+    @PutMapping(
+            value = "/{taskId}/manager/{userId}",
+            consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
     public ResponseEntity<TaskResponse> updateTask(
             @PathVariable("taskId") @ValidIDFormat final String taskId,
             @PathVariable("userId") @ValidIDFormat final String userId,
@@ -103,18 +106,16 @@ public class ManagerTaskController {
             final BindingResult bindingResult
     ) throws RequestBindException {
 
-        try{
+        try {
             if (bindingResult.hasErrors()) throw new BindException(bindingResult);
 
             String message = translator.toLocale("task.updated");
-
             TaskDTO taskDTO = taskService.updateTask(taskId, userId, request);
-
             return ResponseEntity
                     .status(HttpStatus.OK)
                     .body(new TaskResponse(message, taskDTO));
 
-        } catch (TaskNotFoundException exception){
+        } catch (TaskNotFoundException exception) {
             String reason = translator.toLocale(TASK_NOT_FOUND_EXCEPTION);
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, exception);
 
@@ -122,23 +123,23 @@ public class ManagerTaskController {
             String reason = translator.toLocale(REQUEST_BIND_EXCEPTION);
             throw new RequestBindException(HttpStatus.BAD_REQUEST, reason, exception);
 
-        } catch (ManagerNotFoundException exception){
+        } catch (ManagerNotFoundException exception) {
             String reason = translator.toLocale(MANAGER_NOT_FOUND_EXCEPTION);
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, exception);
 
-        } catch (EmployeeNotFoundException exception){
+        } catch (EmployeeNotFoundException exception) {
             String reason = translator.toLocale(EMPLOYEE_NOT_FOUND_EXCEPTION);
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, exception);
 
-        } catch (RetroDueDateException exception){
+        } catch (RetroDueDateException exception) {
             String reason = translator.toLocale("exception.retro.due.date");
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, exception);
 
-        } catch (InvalidPriorityException exception){
+        } catch (InvalidPriorityException exception) {
             String reason = translator.toLocale(INVALID_PRIORITY_EXCEPTION);
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, exception);
 
-        } catch (Exception exception){
+        } catch (Exception exception) {
             String reason = translator.toLocale(INTERNAL_ERROR_EXCEPTION);
             exception.printStackTrace();
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, reason, exception);
@@ -146,30 +147,25 @@ public class ManagerTaskController {
     }
 
     @PreAuthorize("hasRole('ADMIN') or hasRole('MANAGER')")
-    @DeleteMapping("/{id}")
-    public ResponseEntity<TaskResponse> deleteTask(
-            @PathVariable("id") @ValidIDFormat final String id
-    ){
+    @DeleteMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<TaskResponse> deleteTask(@PathVariable("id") @ValidIDFormat final String id) {
         try {
             String message = translator.toLocale("task.removed");
-
             TaskDTO taskDTO = taskService.deleteTask(id);
-
             return ResponseEntity
                     .status(HttpStatus.OK)
                     .body(new TaskResponse(message, taskDTO));
 
-        } catch (TaskNotFoundException exception){
+        } catch (TaskNotFoundException exception) {
             String reason = translator.toLocale(TASK_NOT_FOUND_EXCEPTION);
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, exception);
 
-        } catch (Exception exception){
+        } catch (Exception exception) {
             String reason = translator.toLocale(INTERNAL_ERROR_EXCEPTION);
             exception.printStackTrace();
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, reason, exception);
         }
     }
-
 
     @PreAuthorize("hasRole('ADMIN') or hasRole('MANAGER')")
     @PutMapping("/{taskId}/reportVerification")
@@ -178,14 +174,14 @@ public class ManagerTaskController {
             @Valid @RequestBody ManagerReportVerificationRequest request,
             final BindingResult bindingResult
     ) throws RequestBindException {
-        try{
+        try {
             if (bindingResult.hasErrors()) throw new BindException(bindingResult);
 
             TaskDTO taskDTO = taskService.verifyReport(taskId, request);
 
             String message = translator.toLocale("report.declined.manager");
             AcceptanceStatus managerAcceptanceStatus = taskDTO.getManagerAccept();
-            if(managerAcceptanceStatus.equals(AcceptanceStatus.ACCEPTED))
+            if (managerAcceptanceStatus.equals(AcceptanceStatus.ACCEPTED))
                 message = translator.toLocale("report.approved.manager");
 
             return ResponseEntity
@@ -205,24 +201,22 @@ public class ManagerTaskController {
             String reason = translator.toLocale("exception.invalid.mark");
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, exception);
 
-        } catch (InvalidStatusException exception){
+        } catch (InvalidStatusException exception) {
             String reason = translator.toLocale(INVALID_STATUS_EXCEPTION);
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, exception);
 
-        } catch (TaskDeclinedByEmployeeException exception){
+        } catch (TaskDeclinedByEmployeeException exception) {
             String reason = translator.toLocale(TASK_DECLINED_BY_EMPLOYEE_EXCEPTION);
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, exception);
 
-        } catch (ReportNotSentException exception){
+        } catch (ReportNotSentException exception) {
             String reason = translator.toLocale("exception.report.not.sent");
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, reason, exception);
 
-        } catch (Exception exception){
+        } catch (Exception exception) {
             String reason = translator.toLocale(INTERNAL_ERROR_EXCEPTION);
             exception.printStackTrace();
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, reason, exception);
         }
     }
-
-
 }

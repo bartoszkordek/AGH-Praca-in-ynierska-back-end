@@ -27,9 +27,9 @@ public class UserDocument {
     private boolean accountNonLocked;
     private Collection<GymRole> gymRoles;
     private String avatarUrl;
-    @CreatedDate
+
     private LocalDateTime createdAt;
-    @LastModifiedDate
+
     private LocalDateTime lastModifiedAt;
 
     public UserDocument() {

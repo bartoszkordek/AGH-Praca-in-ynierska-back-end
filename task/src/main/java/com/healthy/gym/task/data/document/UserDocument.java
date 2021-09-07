@@ -1,9 +1,7 @@
 package com.healthy.gym.task.data.document;
 
 import com.healthy.gym.task.enums.GymRole;
-import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
-import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDateTime;
@@ -27,9 +25,9 @@ public class UserDocument {
     private boolean accountNonLocked;
     private Collection<GymRole> gymRoles;
     private String avatarUrl;
-    @CreatedDate
+
     private LocalDateTime createdAt;
-    @LastModifiedDate
+
     private LocalDateTime lastModifiedAt;
 
     public UserDocument() {

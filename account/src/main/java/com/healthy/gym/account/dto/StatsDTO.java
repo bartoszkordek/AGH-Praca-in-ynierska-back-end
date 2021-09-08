@@ -3,32 +3,32 @@ package com.healthy.gym.account.dto;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.Objects;
 
 public class StatsDTO {
     @JsonProperty("day")
     @JsonFormat(pattern = "yyyy-MM-dd")
-    private LocalDateTime createdAt;
+    private LocalDate createdAt;
     private int quantity;
 
     public StatsDTO() {
     }
 
-    public StatsDTO(LocalDateTime createdAt) {
+    public StatsDTO(LocalDate createdAt) {
         this.createdAt = createdAt;
     }
 
-    public StatsDTO(LocalDateTime createdAt, int quantity) {
+    public StatsDTO(LocalDate createdAt, int quantity) {
         this.createdAt = createdAt;
         this.quantity = quantity;
     }
 
-    public LocalDateTime getCreatedAt() {
+    public LocalDate getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(LocalDateTime createdAt) {
+    public void setCreatedAt(LocalDate createdAt) {
         this.createdAt = createdAt;
     }
 

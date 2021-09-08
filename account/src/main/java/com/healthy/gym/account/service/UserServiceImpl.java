@@ -16,6 +16,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.Comparator;
 import java.util.List;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
@@ -97,7 +98,8 @@ public class UserServiceImpl implements UserService {
 
         return userList
                 .stream()
-                .collect(Collectors.groupingBy(UserDocument::getCreatedAt, Collectors.counting()))
+                .map(userDocument -> userDocument.getCreatedAt().toLocalDate())
+                .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()))
                 .entrySet()
                 .stream()
                 .map(

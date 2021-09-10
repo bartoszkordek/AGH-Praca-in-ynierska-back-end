@@ -30,6 +30,7 @@ public class UserController {
         this.translator = translator;
     }
 
+    @PreAuthorize("hasRole('ADMIN') or hasRole('MANAGER') or hasRole('EMPLOYEE')")
     @GetMapping("/users")
     public ResponseEntity<List<DetailUserInfoDTO>> getAllUsersInSystem() {
         try {

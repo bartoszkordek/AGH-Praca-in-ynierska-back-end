@@ -84,6 +84,35 @@ Serwisy:
     * port :6379 - baza redis (hasło: thisP@sswordNeed2BeChange)
     * http://localhost:5000 - graficzny interfejs użytkownika
 
+## Jak używać?
+ Dane użytkowników (adresy email, imiona, nazwiska, avatary itp) pochodzą z biblioteki [faker.js](https://github.com/marak/Faker.js/)
+  W systemie dostępni są następujący użytkownicy:
+
+   Administratorzy (1):
+   * gzacharski@gmail.com - hasło: gzacharski_admin
+   
+   Managerowie (1):
+   * bkordek@gmail.com - hasło: bkordek_manager
+   
+   Trenerzy (4):
+   * Leone_Brekke@yahoo.com - hasło: Leone_Brekke-trainer1
+   * Tyshawn.Kuhlman27@gmail.com : hasło: Kuhlman27_trainer
+   * Michaela.Crona64@hotmail.com hasło: Crona64_trainer
+   * Bailey_Bruen67@hotmail.com hasło: Bruen67_trainer
+
+   Pracownicy (3):
+   * Norval.Gulgowski77@yahoo.com
+   * Barrett_Littel@gmail.com
+   * virase3669@rebation.com
+
+   Użytkownicy (500):
+   * Tressa.Bartoletti@gmail.com
+   * Michaela.Crona64@hotmail.com
+   * Ona92@gmail.com
+   * Barrett_Littel@gmail.com
+   * Lyric_Jacobi@yahoo.com
+   * ....
+
 ## Jak zatrzymać?
 
 1. W folderze __~/app/front-end__ należy wpisać komendę:

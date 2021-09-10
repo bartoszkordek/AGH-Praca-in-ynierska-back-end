@@ -89,21 +89,21 @@ Serwisy:
   W systemie dostępni są następujący użytkownicy:
 
    Administratorzy (1):
-   * gzacharski@gmail.com - hasło: gzacharski_admin
+   * gzacharski@gmail.com - (hasło: gzacharski_admin)
    
    Managerowie (1):
-   * bkordek@gmail.com - hasło: bkordek_manager
+   * bkordek@gmail.com - (hasło: bkordek_manager)
    
    Trenerzy (4):
-   * Leone_Brekke@yahoo.com - hasło: Leone_Brekke-trainer1
-   * Tyshawn.Kuhlman27@gmail.com : hasło: Kuhlman27_trainer
-   * Michaela.Crona64@hotmail.com hasło: Crona64_trainer
-   * Bailey_Bruen67@hotmail.com hasło: Bruen67_trainer
+   * Leone_Brekke@yahoo.com (hasło: Leone_Brekke-trainer1)
+   * Tyshawn.Kuhlman27@gmail.com (hasło: Kuhlman27_trainer)
+   * Michaela.Crona64@hotmail.com (hasło: Crona64_trainer)
+   * Bailey_Bruen67@hotmail.com (hasło: Bruen67_trainer)
 
    Pracownicy (3):
-   * Norval.Gulgowski77@yahoo.com hasło: Gulgowski77_employee
-   * Barrett_Littel@gmail.com hasło: Littel_employee
-   * virase3669@rebation.com hasło: virase3669_employee
+   * Norval.Gulgowski77@yahoo.com (hasło: Gulgowski77_employee)
+   * Barrett_Littel@gmail.com (hasło: Littel_employee)
+   * virase3669@rebation.com (hasło: virase3669_employee)
 
    Użytkownicy (500): (hasło: qwerty123456)
    * Tressa.Bartoletti@gmail.com

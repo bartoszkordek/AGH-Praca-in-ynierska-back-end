@@ -69,6 +69,7 @@ public class LocationController {
         }
     }
 
+    @PreAuthorize("hasRole('ADMIN') or hasRole('MANAGER') or hasRole('TRAINER')")
     @GetMapping
     public List<LocationDTO> getLocations() {
         return locationService.getAllLocations();
